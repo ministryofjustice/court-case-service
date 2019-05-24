@@ -30,4 +30,4 @@ spec:
             - name: SERVER_PORT
               value: '8000'
             - name: CRIME_PORTAL_BASE_URL
-              value: 'https://mock-cp-court-service.apps.cloud-platform-live-0.k8s.integration.dsd.io'
+              value: 'http://mock-cp-court-service-service:8000'

@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.probation.court.list.courtlistservice.service;
 
+import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,8 +14,6 @@ import uk.gov.justice.digital.probation.court.list.courtlistservice.transformer.
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -24,16 +23,13 @@ public class CourtListService {
     private final SessionTransformer sessionTransformer;
 
     public CourtListService(RestTemplateBuilder restTemplateBuilder, SessionTransformer sessionTransformer, @Value("${crime.portal.base.url}")String baseUrl) {
+        log.info("Crime portal API at {}", baseUrl);
         this.restTemplate = restTemplateBuilder.uriTemplateHandler(new DefaultUriBuilderFactory(baseUrl)).build();
         this.sessionTransformer = sessionTransformer;
     }
 
     public CourtList courtList(String court, LocalDate date) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("court", court);
-        params.put("date", date);
-
-        val courtList = this.restTemplate.getForObject("/court/{court}/list?date={date}", CourtListType.class, params);
+        val courtList = this.restTemplate.getForObject("/court/{court}/list?date={date}", CourtListType.class, ImmutableMap.of("court", court, "date", date));
         return CourtList
                 .builder()
                 .courtName(court)

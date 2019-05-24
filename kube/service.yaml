@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: court-list-service-service
+spec:
+  selector:
+    app: court-list-service-app
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
+  type: NodePort
+

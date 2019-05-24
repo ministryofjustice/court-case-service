@@ -1,0 +1,136 @@
+defaults: &defaults
+  working_directory: ~/app
+  docker:
+    - image: circleci/openjdk:8-jdk
+
+deploy_container_config: &deploy_container_config
+  docker:
+    - image: ${ECR_ENDPOINT}/cloud-platform/tools:circleci
+      environment:
+        GITHUB_TEAM_NAME_SLUG: probation-services
+
+
+install_aws_cli: &install_aws_cli
+  run:
+    name: Set up aws
+    command: |
+      sudo apt-get --assume-yes update
+      sudo apt-get --assume-yes install python3-pip
+      sudo pip3 install awscli
+      $(aws ecr get-login --region eu-west-1 --no-include-email)
+
+version: 2
+jobs:
+  build:
+    <<: *defaults
+
+    working_directory: ~/app
+
+    environment:
+      # Customize the JVM maximum heap limit
+      JVM_OPTS: -Xmx512m
+      TERM: dumb
+
+    steps:
+      - run:
+          name: Generate Build version
+          command: |
+            echo "export BUILD_VERSION=$(date +%Y%m%d%H%M)-$CIRCLE_BUILD_NUM" >> $BASH_ENV
+
+      - checkout
+
+    # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "build.gradle" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run: gradle dependencies
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "build.gradle" }}
+
+      # run tests!
+      - run: gradle test
+
+      - store_test_results:
+          path: build/test-results
+
+      - store_artifacts:
+          path: build/reports/tests
+
+      # Assemble
+      - run: gradle assemble
+
+      - store_artifacts:
+          path: build/libs
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build
+
+  push_to_ecs:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/app
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - *install_aws_cli
+      - run:
+          name: publish image to ecs
+          command: |
+            login="$(aws ecr get-login --region eu-west-1 --no-include-email)"
+            ${login}
+            docker build -t ${ECR_ENDPOINT}/probation-services/court-list-service:${CIRCLE_SHA1} .
+            docker tag ${ECR_ENDPOINT}/probation-services/court-list-service:${CIRCLE_SHA1} ${ECR_ENDPOINT}/probation-services/court-list-service:latest
+            docker push "${ECR_ENDPOINT}/probation-services/court-list-service:latest"
+            docker push "${ECR_ENDPOINT}/probation-services/court-list-service:${CIRCLE_SHA1}"
+
+  deploy_dev:
+    <<: *deploy_container_config
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - attach_workspace:
+          at: ~/app
+      - run:
+          name: Kubectl deployment dev setup
+          command: |
+            $(aws ecr get-login --region eu-west-1 --no-include-email)
+            setup-kube-auth
+            kubectl config use-context dev
+      - deploy:
+          name: Deploy to dev
+          command: |
+            kubectl set image -f ./kube/deployment.yaml court-list-service=${ECR_ENDPOINT}/probation-services/court-list-service:${CIRCLE_SHA1} --local -o yaml \
+            | kubectl apply -f -
+            kubectl apply \
+              -f ./kube/ingress.yaml \
+              -f ./kube/service.yaml
+
+
+
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - build:
+          filters:
+            tags:
+              ignore: /.*/
+      - push_to_ecs:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - deploy_dev:
+          requires:
+            - push_to_ecs

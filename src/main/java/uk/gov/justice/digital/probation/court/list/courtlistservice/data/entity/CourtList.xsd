@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="document" type="documentType"/>
+  <xs:complexType name="generalType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="alerts_address"/>
+      <xs:element type="xs:string" name="erm_flag"/>
+      <xs:element type="xs:string" name="doc_type"/>
+      <xs:element type="xs:string" name="outputtype"/>
+      <xs:element type="xs:string" name="version"/>
+      <xs:element type="xs:string" name="docref"/>
+      <xs:element type="xs:string" name="system"/>
+      <xs:element type="xs:string" name="preview_text"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="parametersType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="pi_mcc_id"/>
+      <xs:element type="xs:string" name="pi_report_type"/>
+      <xs:element type="xs:string" name="pi_cmu_id"/>
+      <xs:element type="xs:string" name="pi_ch_id"/>
+      <xs:element type="xs:string" name="pi_date1"/>
+      <xs:element type="xs:string" name="pi_date2"/>
+      <xs:element type="xs:string" name="pi_session_types"/>
+      <xs:element type="xs:string" name="pi_cr_id_list"/>
+      <xs:element type="xs:string" name="pi_resequence"/>
+      <xs:element type="xs:string" name="pi_late_entry"/>
+      <xs:element type="xs:string" name="pi_means_register"/>
+      <xs:element type="xs:string" name="pi_adjudication_box"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="infoType">
+    <xs:sequence>
+      <xs:element type="generalType" name="general"/>
+      <xs:element type="xs:string" name="printers"/>
+      <xs:element type="parametersType" name="parameters"/>
+      <xs:element type="xs:string" name="start_time"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="def_addrType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="line1"/>
+      <xs:element type="xs:string" name="line2" minOccurs="0"/>
+      <xs:element type="xs:string" name="line3" minOccurs="0"/>
+      <xs:element type="xs:string" name="line4" minOccurs="0"/>
+      <xs:element type="xs:string" name="line5" minOccurs="0"/>
+      <xs:element type="xs:string" name="pcode" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="offenceType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="oseq"/>
+      <xs:element type="xs:string" name="co_id"/>
+      <xs:element type="xs:string" name="code"/>
+      <xs:element type="xs:string" name="maxpen"/>
+      <xs:element type="xs:string" name="title"/>
+      <xs:element type="xs:string" name="alm"/>
+      <xs:element type="xs:string" name="ala"/>
+      <xs:element type="xs:string" name="sum"/>
+      <xs:element type="xs:string" name="as"/>
+      <xs:element type="xs:string" name="sof"/>
+      <xs:element type="xs:string" name="plea"/>
+      <xs:element type="xs:string" name="pleadate"/>
+      <xs:element type="xs:string" name="convdate"/>
+      <xs:element type="xs:string" name="adjdate"/>
+      <xs:element type="xs:string" name="adjreason"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="offencesType">
+    <xs:sequence>
+      <xs:element type="offenceType" name="offence" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="caseType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="urn"/>
+      <xs:element type="xs:string" name="asn"/>
+      <xs:element type="xs:string" name="marker"/>
+      <xs:element type="xs:string" name="c_id"/>
+      <xs:element type="xs:string" name="h_id"/>
+      <xs:element type="xs:string" name="valid"/>
+      <xs:element type="xs:string" name="caseno"/>
+      <xs:element type="xs:string" name="type"/>
+      <xs:element type="xs:string" name="prov"/>
+      <xs:element type="xs:string" name="def_name"/>
+      <xs:element type="xs:string" name="def_type"/>
+      <xs:element type="xs:string" name="def_sex"/>
+      <xs:element type="xs:string" name="def_dob"/>
+      <xs:element type="xs:string" name="def_age"/>
+      <xs:element type="def_addrType" name="def_addr"/>
+      <xs:element type="xs:string" name="nationality_1"/>
+      <xs:element type="xs:string" name="nationality_2"/>
+      <xs:element type="xs:string" name="inf"/>
+      <xs:element type="xs:string" name="cseq"/>
+      <xs:element type="xs:string" name="listno"/>
+      <xs:element type="xs:string" name="pg_type"/>
+      <xs:element type="xs:string" name="pg_name"/>
+      <xs:element type="pg_addrType" name="pg_addr"/>
+      <xs:element type="xs:string" name="estdur"/>
+      <xs:element type="xs:string" name="dq1"/>
+      <xs:element type="offencesType" name="offences"/>
+      <xs:element type="xs:string" name="bailcond"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="casesType">
+    <xs:sequence>
+      <xs:element type="caseType" name="case" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="blockType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="sb_id"/>
+      <xs:element type="xs:string" name="bstart"/>
+      <xs:element type="xs:string" name="bend"/>
+      <xs:element type="xs:string" name="desc"/>
+      <xs:element type="casesType" name="cases"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="blocksType">
+    <xs:sequence>
+      <xs:element type="blockType" name="block"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="sessionType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="s_id"/>
+      <xs:element type="xs:string" name="doh"/>
+      <xs:element type="xs:string" name="lja"/>
+      <xs:element type="xs:string" name="cmu"/>
+      <xs:element type="xs:string" name="panel"/>
+      <xs:element type="xs:string" name="court"/>
+      <xs:element type="xs:string" name="room"/>
+      <xs:element type="xs:string" name="sstart"/>
+      <xs:element type="xs:string" name="send"/>
+      <xs:element type="blocksType" name="blocks"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="pg_addrType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="line1"/>
+      <xs:element type="xs:string" name="line2" minOccurs="0"/>
+      <xs:element type="xs:string" name="line3" minOccurs="0"/>
+      <xs:element type="xs:string" name="line4" minOccurs="0"/>
+      <xs:element type="xs:string" name="line5" minOccurs="0"/>
+      <xs:element type="xs:string" name="pcode" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="sessionsType">
+    <xs:sequence>
+      <xs:element type="sessionType" name="session" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="jobType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="printdate"/>
+      <xs:element type="xs:string" name="username"/>
+      <xs:element type="xs:string" name="late"/>
+      <xs:element type="xs:string" name="adbox"/>
+      <xs:element type="xs:string" name="means"/>
+      <xs:element type="sessionsType" name="sessions"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="dataType">
+    <xs:sequence>
+      <xs:element type="jobType" name="job"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="documentType">
+    <xs:sequence>
+      <xs:element type="infoType" name="info"/>
+      <xs:element type="dataType" name="data"/>
+      <xs:element type="xs:string" name="end_time"/>
+      <xs:element type="xs:string" name="elapsedsecs"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

@@ -13,6 +13,7 @@ public class Session {
     private String id;
     private LocalDate dateOfHearing;
     private String localJusticeArea;
+    private String crimeManagementUnit;
     private String courtName;
     private String courtRoom;
     private LocalTime startTime;

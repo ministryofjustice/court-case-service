@@ -22,6 +22,7 @@ public class SessionTransformer {
                 .id(session.getSId())
                 .dateOfHearing(DateTimeHelper.asDate(session.getDoh()))
                 .localJusticeArea(session.getLja())
+                .crimeManagementUnit(session.getCmu())
                 .courtName(session.getCourt())
                 .courtRoom(session.getRoom())
                 .startTime(DateTimeHelper.asTime(session.getSstart()))

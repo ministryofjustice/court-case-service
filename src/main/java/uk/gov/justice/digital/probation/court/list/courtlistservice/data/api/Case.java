@@ -19,5 +19,6 @@ public class Case {
     private String additionalInformation;
     private String estimatedDuration;
     private Defendant defendant;
+    private String bailConditions;
     private List<Offence> offences;
 }

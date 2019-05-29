@@ -13,6 +13,7 @@ public class Offence {
     private String title;
     private String summary;
     private String contraryToActAndSection;
+    private String statementOfFact;
     private String plea;
     private LocalDate pleaDate;
     private LocalDate convictionDate;

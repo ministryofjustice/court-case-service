@@ -16,6 +16,7 @@ public class Case {
     private List<String> markers;
     private String listingNumber;
     private String informant;
+    private String additionalInformation;
     private String estimatedDuration;
     private Defendant defendant;
     private List<Offence> offences;

@@ -42,6 +42,7 @@ public class CaseTransformer {
                 .listingNumber(_case.getListno())
                 .markers(toMarkers(_case.getMarker()))
                 .defendant(toDefendant(_case))
+                .additionalInformation(_case.getAddinfo())
                 .offences(Optional.ofNullable(_case.getOffences()).map(offenceTransformer::toOffences).orElse(null))
                 .build();
     }

@@ -30,6 +30,7 @@ public class OffenceTransformer {
                 .title(offence.getTitle())
                 .adjournedReason(offence.getAdjreason())
                 .adjournedDate(DateTimeHelper.asDate(offence.getAdjdate()))
+                .statementOfFact(offence.getSof())
                 .build();
     }
 }

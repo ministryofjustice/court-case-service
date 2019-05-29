@@ -82,7 +82,8 @@ import javax.xml.bind.annotation.XmlType;
     "estdur",
     "dq1",
     "offences",
-    "bailcond"
+    "bailcond",
+    "addinfo"
 })
 public class CaseType {
 
@@ -140,6 +141,17 @@ public class CaseType {
     protected OffencesType offences;
     @XmlElement(required = true)
     protected String bailcond;
+    @XmlElement(required = true)
+    protected String addinfo;
+
+    public String getAddinfo() {
+        return addinfo;
+    }
+
+    public void setAddinfo(String addinfo) {
+        this.addinfo = addinfo;
+    }
+
 
     /**
      * Gets the value of the urn property.

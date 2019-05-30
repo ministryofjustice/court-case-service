@@ -24,7 +24,11 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     compile group: 'com.google.guava', name: 'guava', version: '27.1-jre'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testCompile 'io.rest-assured:rest-assured:3.0.3'
+    testCompile "com.github.tomakehurst:wiremock:2.13.0"
+    testCompile group: 'commons-io', name: 'commons-io', version: '2.6'
 
 }

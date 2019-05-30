@@ -44,6 +44,7 @@ public class CaseTransformer {
                 .defendant(toDefendant(_case))
                 .bailConditions(_case.getBailcond())
                 .additionalInformation(_case.getAddinfo())
+                .solicitor(_case.getSolname())
                 .offences(Optional.ofNullable(_case.getOffences()).map(offenceTransformer::toOffences).orElse(null))
                 .build();
     }

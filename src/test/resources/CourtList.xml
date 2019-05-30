@@ -1,0 +1,1672 @@
+<CourtList>
+    <courtName/>
+    <date/>
+    <sessions>
+        <session>
+            <doh>19/07/2019</doh>
+            <lja>South Yorkshire Magistrates' Court</lja>
+            <cmu>Sheffield CMU</cmu>
+            <panel>South Yorkshire Adult Panel</panel>
+            <court>Sheffield Magistrates' Court</court>
+            <room>01</room>
+            <sstart>10:00</sstart>
+            <send>13:00</send>
+            <blocks>
+                <block>
+                    <bstart>10:00</bstart>
+                    <bend>10:21</bend>
+                    <desc>Adult Breach/Vary Proceedings</desc>
+                    <cases>
+                        <case>
+                            <urn>URN923456789112345678</urn>
+                            <asn>ASN1234XX78911234</asn>
+                            <marker></marker>
+                            <valid>Y</valid>
+                            <caseno>1900028912</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf>POLSHE</inf>
+                            <cseq>1</cseq>
+                            <listno>3st</listno>
+                            <estdur>0.07</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>RR84113</code>
+                                    <maxpen>EW: 6M &amp;/or Ultd Fine</maxpen>
+                                    <title>Exceed a variable speed limit - automatic camera device</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>On 22/07/2019 at Sheffield in the county of South Yorkshire drove a mechanically propelled vehicle, being a vehicle, namely BMW index KLSO123, on a
+                                        special road, namely M18-2234A J12 J13 Northbound, subject of regulations, namely The M18 Motorway (Junctions 12 to 23) (Variable Speed Limits) Regulations
+                                        2015, at a speed exceeding 70 miles per hour</sum>
+                                    <as>Contrary to the above regulations and section 17(2), (3) and (4) of the Road Traffic Regulation Act 1984 and Schedule 2 to the Road Traffic Offenders Act 1988</as>
+                                    <sof>At 02:35 on 22/07/2019 the defendant drove a mechanically propelled vehicle, being a vehicle, namely BMW index KLSO123, on a special road, namely
+                                        M18-2234A J12 J13 Northbound, subject of regulations, namely The M18 Motorway (Junctions 12 to 13) (Variable Speed Limits) Regulations 2015, at a speed
+                                        exceeding 70 miles per hour. The speed, recorded by means of HAD20495 Highways Agency Digital Enforcement Camera System 9, was 86 mph.
+                                    </sof>
+                                    <plea>GSJP</plea>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>To consider if there are mitigating circumstances (including exceptional hardship) for not ordering disqualification</adjreason>
+                                    <co_id>1142407</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo>DVLA RESPONSE RECEIVED 10/4/2019</addinfo>
+                            <def_name>John SHELBY</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>01/01/1998</def_dob>
+                            <def_age>18</def_age>
+                            <def_addr>
+                                <line1>32 Frantent Street</line1>
+                                <line2></line2>
+                                <line3>Sheffield</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S2 7HG</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168460</c_id>
+                            <h_id>9246272</h_id>
+                        </case>
+                        <case>
+                            <urn>URN923456789112345628</urn>
+                            <asn>ASN1234XX78912234</asn>
+                            <marker></marker>
+                            <valid>Y</valid>
+                            <caseno>1900028913</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf>POLSHE</inf>
+                            <cseq>2</cseq>
+                            <listno>3st</listno>
+                            <estdur>0.07</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>SV77014</code>
+                                    <maxpen>EW: 6M &amp;/or Ultd Fine</maxpen>
+                                    <title>Speeding - motor vehicle - exceed 60 mph - automatic camera device</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>On 22/07/2019 at Sheffield in the county of South Yorkshire drove a mechanically propelled vehicle, being a vehicle, namely FORD index JUSO123, on a
+                                        special road, namely M18-2234A J12 J13 Northbound, subject of regulations, namely The M18 Motorway (Junctions 12 to 23) (Variable Speed Limits) Regulations
+                                        2015, at a speed exceeding 70 miles per hour</sum>
+                                    <as>Contrary to the above regulations and section 17(2), (3) and (4) of the Road Traffic Regulation Act 1984 and Schedule 2 to the Road Traffic Offenders Act 1988</as>
+                                    <sof>At 02:35 on 22/07/2019 the defendant drove a mechanically propelled vehicle, being a vehicle, namely FORD index JUSO123, on a special road, namely
+                                        M18-2234A J12 J13 Northbound, subject of regulations, namely The M18 Motorway (Junctions 12 to 13) (Variable Speed Limits) Regulations 2015, at a speed
+                                        exceeding 70 miles per hour. The speed, recorded by means of HAD20495 Highways Agency Digital Enforcement Camera System 9, was 86 mph.
+                                    </sof>
+                                    <plea>GSJP</plea>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>To consider if there are mitigating circumstances (including exceptional hardship) for not ordering disqualification</adjreason>
+                                    <co_id>1142407</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo>DVLA RESPONSE RECEIVED 10/4/2019</addinfo>
+                            <def_name>Mick BLOODMAN</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>02/06/1992</def_dob>
+                            <def_age>18</def_age>
+                            <def_addr>
+                                <line1>32 Frantent Street</line1>
+                                <line2></line2>
+                                <line3>Sheffield</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S2 7HG</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168461</c_id>
+                            <h_id>9246273</h_id>
+                        </case>
+                        <case>
+                            <urn>URN923456789116445628</urn>
+                            <asn>ASN1234XX78542234</asn>
+                            <marker></marker>
+                            <valid>Y</valid>
+                            <caseno>1900028914</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf>POLSHE</inf>
+                            <cseq>3</cseq>
+                            <listno>3st</listno>
+                            <estdur>0.07</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>RR84019</code>
+                                    <maxpen>EW: 6M &amp;/or Ultd Fine</maxpen>
+                                    <title>Speeding exceed 70 mph motorway limit manned equipment</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>On 14/10/2017 at Sheffield in the county of South Yorkshire drove a motor vehicle, namely BMW(CARS) 316 index H567GG, on a motorway, namely M1 Motorway
+                                        (South) between junctions 37 and 33, at a speed exceeding 70 miles per hour</sum>
+                                    <as>Contrary to the above regulations and section 17(2), (3) and (4) of the Road Traffic Regulation Act 1984 and Schedule 2 to the Road Traffic Offenders Act 1988</as>
+                                    <sof>At 02:35 on 22/07/2019 the defendant drove a mechanically propelled vehicle, being a vehicle, namely  BMW(CARS) 316 index H567GG, on a special road, namely
+                                        M18-2234A J12 J13 Northbound, subject of regulations, namely The M18 Motorway (Junctions 12 to 13) (Variable Speed Limits) Regulations 2015, at a speed
+                                        exceeding 70 miles per hour. The speed, recorded by means of HAD20495 Highways Agency Digital Enforcement Camera System 9, was 86 mph.
+                                    </sof>
+                                    <plea>GSJP</plea>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>To consider if there are mitigating circumstances (including exceptional hardship) for not ordering disqualification</adjreason>
+                                    <co_id>1142407</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo>DVLA RESPONSE RECEIVED 10/4/2019</addinfo>
+                            <def_name>Mr Saleem MOHAMMAD</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>02/11/1996</def_dob>
+                            <def_age>18</def_age>
+                            <def_addr>
+                                <line1>32 West High Street</line1>
+                                <line2>Battersea</line2>
+                                <line3>London</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>SW2 8TG</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168462</c_id>
+                            <h_id>9246274</h_id>
+                        </case>
+                    </cases>
+                    <sb_id>11</sb_id>
+                </block>
+                <block>
+                    <bstart>10:00</bstart>
+                    <bend>10:30</bend>
+                    <desc>Pre-Sentence Report</desc>
+                    <cases>
+                        <case>
+                            <urn>URN923452789122344678</urn>
+                            <asn>ASN1234XX78911234</asn>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>1900028947</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf>POLSHE</inf>
+                            <cseq>1</cseq>
+                            <listno>1st</listno>
+                            <estdur>1</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>TH68010</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Theft from a shop</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Between 11/03/2018 and 15/05/2018 at BARNSLEY in the county of BARNSLEY, stole 9 items of clothing, to the value of £256.50, belonging to Dixon's</sum>
+                                    <as>section 1(1) and 7 of the Theft Act 1968.</as>
+                                    <sof>.</sof>
+                                    <plea>G</plea>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>For a pre-sentence report to be prepared.</adjreason>
+                                    <co_id>1142413</co_id>
+                                </offence>
+                                <offence>
+                                    <oseq>2</oseq>
+                                    <code>BA76001</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Fail to surrender to police / court bail at the appointed time</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>On 11/05/2019 at Sheffield Magistrates Court failed without reasonable cause to surrender to custody at Sheffield Magistrates' Court, having been released on bail
+                                        in criminal proceedings on 23/03/2019 at Sheffield Magistrates Court</sum>
+                                    <as>section 1(1) and 7 of the Theft Act 1968.</as>
+                                    <sof>.</sof>
+                                    <plea>G</plea>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>For a pre-sentence report to be prepared.</adjreason>
+                                    <co_id>1142313</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond>Assessments/Reports: undergo an assessment conducted by AS DIRECTED for dependency on Class A drugs and participate in any follow-up</bailcond>
+                            <addinfo/>
+                            <def_name>MISS Mary RODGERS</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>F</def_sex>
+                            <def_dob>11/08/1987</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>MILES DANTON</line1>
+                                <line2>368 London Road</line2>
+                                <line3>Broomhill</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S65 7HG</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168463</c_id>
+                            <h_id>9246275</h_id>
+                        </case>
+                        <case>
+                            <urn>URN923452789868344678</urn>
+                            <asn>ASN1234XX78475234</asn>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>1900028948</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf>POLSHE</inf>
+                            <cseq>2</cseq>
+                            <listno>1st</listno>
+                            <estdur>1</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>TH68010</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Theft from a shop</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Between 11/03/2018 and 15/05/2018 at BARNSLEY in the county of BARNSLEY, stole 2 items of Vodka, to the value of £12.50, belonging to Dixon's</sum>
+                                    <as>section 1(1) and 7 of the Theft Act 1968.</as>
+                                    <sof>.</sof>
+                                    <plea>G</plea>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>For a pre-sentence report to be prepared.</adjreason>
+                                    <co_id>1142413</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond>Assessments/Reports: undergo an assessment conducted by AS DIRECTED for dependency on Class A drugs and participate in any follow-up</bailcond>
+                            <addinfo/>
+                            <def_name>MISS Mary RODGERS</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>F</def_sex>
+                            <def_dob>11/08/1987</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>67 Main Street</line1>
+                                <line2>Pool</line2>
+                                <line3>Dore</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S6 4HG</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168464</c_id>
+                            <h_id>9246276</h_id>
+                        </case>
+                        <case>
+                            <urn>URN923452789834344678</urn>
+                            <asn>ASN1234XX78123234</asn>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>1900028949</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf>POLSHE</inf>
+                            <cseq>3</cseq>
+                            <listno>1st</listno>
+                            <estdur>1</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>TH68010</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Theft from a shop</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Between 11/03/2018 and 15/05/2018 at BARNSLEY in the county of BARNSLEY, stole 2 items of equipment, to the value of £12.50, belonging to Cole Brother's</sum>
+                                    <as>section 1(1) and 7 of the Theft Act 1968.</as>
+                                    <sof>.</sof>
+                                    <plea>G</plea>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>For a pre-sentence report to be prepared.</adjreason>
+                                    <co_id>1142413</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond>Assessments/Reports: undergo an assessment conducted by AS DIRECTED for dependency on Class A drugs and participate in any follow-up</bailcond>
+                            <addinfo/>
+                            <def_name>MISS MARY RODGERS</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>F</def_sex>
+                            <def_dob>11/08/1987</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>67 Main Street</line1>
+                                <line2>Pool</line2>
+                                <line3>Dore</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S6 4HG</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168464</c_id>
+                            <h_id>9246276</h_id>
+                        </case>
+                    </cases>
+                    <sb_id>12</sb_id>
+                </block>
+                <block>
+                    <bstart>10:00</bstart>
+                    <bend>10:40</bend>
+                    <desc>Adult General Work</desc>
+                    <cases>
+                        <case>
+                            <urn>URN9284623789834344678</urn>
+                            <asn>ASN1234XX78183734</asn>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>1900028950</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf>POLSHE</inf>
+                            <cseq>1</cseq>
+                            <listno>2st</listno>
+                            <estdur>0:10</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>PH97004</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Harassment without violence</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Between 09/01/2018 and 16/03/2019 at ROTHERHAM in the county of south Yorkshire pursued a course of conduct which amounted to the harassment of Roger
+                                        Rabbit and which you knew or ought to have known amounted to the harassment of him in that between the dates shown you sent 2 SMS messages, left 2,000 voicemail messages and made unwanted phone calls</sum>
+                                    <as>Contrary to section 2(1) and (2) of the Protection from Harassment Act 1997.</as>
+                                    <sof>.</sof>
+                                    <plea>G</plea>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason/>
+                                    <co_id>1142413</co_id>
+                                </offence>
+                                <offence>
+                                    <oseq>2</oseq>
+                                    <code>CJ03507</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Commission of a further offence during the operational period of a suspended sentence order</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Commission of a further offence during the operational period of a suspended sentence order made by SHEFFIELD MAGISTRATES COURT on 13/11/2017 for the
+                                        offences of HARASSMENT X4</sum>
+                                    <as>Contrary to section 2(1) and (2) of the Protection from Harassment Act 1997.</as>
+                                    <sof>.</sof>
+                                    <plea>ADB</plea>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason/>
+                                    <co_id>1142414</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo/>
+                            <def_name>Bob Fredrick BATEMAN</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>13/11/1993</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>67 High Street</line1>
+                                <line2>Brightmoor</line2>
+                                <line3>Sheffield</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S11 6HG</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168465</c_id>
+                            <h_id>9246277</h_id>
+                        </case>
+                        <case>
+                            <urn>URN9284627373834344678</urn>
+                            <asn>ASN1234XX93743734</asn>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>1900028951</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf>POLSHE</inf>
+                            <cseq>2</cseq>
+                            <listno>2st</listno>
+                            <estdur>0:10</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>PU86004</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Use threatening / abusive / insulting words / behaviour with intent to cause fear of provoke unlawful violence</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>On 12/11/2018 at Sheffield in the county of South Yorkshire used towards mickey mouse threatening, abusive or insulting words or behaviour with intent to
+                                        cause that person to believe that immediate unlawful violence would be used against him by any person, or to provoke the immediate use of unlawful violence by
+                                        him whereby that person was likely believe that violence would be used, or it was likely that such violence would be provoked</sum>
+                                    <as>Contrary to section 4(1) and (4) of the Public Order Act 1986.</as>
+                                    <sof>.</sof>
+                                    <plea/>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>non-standard reason</adjreason>
+                                    <co_id>1142414</co_id>
+                                </offence>
+                                <offence>
+                                    <oseq>2</oseq>
+                                    <code>CJ88116</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Assault by beating</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>On 12/01/2019 at ROTHERHAM in the county of SOUTH YORKSHIRE assaulted MRS BEAN by beating her</sum>
+                                    <as>Contrary to section 39 of the Criminal Justice Act 1988.</as>
+                                    <sof>.</sof>
+                                    <plea/>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>non-standard reason</adjreason>
+                                    <co_id>1142414</co_id>
+                                </offence>
+                                <offence>
+                                    <oseq>3</oseq>
+                                    <code>CJ88116</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Assault by beating</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>On 12/01/2019 at ROTHERHAM in the county of SOUTH YORKSHIRE assaulted MR BEAN by beating him</sum>
+                                    <as>Contrary to section 39 of the Criminal Justice Act 1988.</as>
+                                    <sof>.</sof>
+                                    <plea/>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason/>
+                                    <co_id>1142414</co_id>
+                                </offence>
+                                <offence>
+                                    <oseq>4</oseq>
+                                    <code>CJ88116</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Assault by beating</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>On 12/01/2019 at ROTHERHAM in the county of SOUTH YORKSHIRE assaulted MR BLOBBY by beating him</sum>
+                                    <as>Contrary to section 39 of the Criminal Justice Act 1988.</as>
+                                    <sof>.</sof>
+                                    <plea/>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>non-standard reason</adjreason>
+                                    <co_id>1142414</co_id>
+                                </offence>
+                                <offence>
+                                    <oseq>5</oseq>
+                                    <code>PU86004</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Assault by beating</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>On 12/01/2019 at ROTHERHAM in the county of SOUTH YORKSHIRE assaulted MR BLOBBY by beating him</sum>
+                                    <as>Contrary to section 39 of the Criminal Justice Act 1988.</as>
+                                    <sof>.</sof>
+                                    <plea/>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>non-standard reason</adjreason>
+                                    <co_id>1142414</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo/>
+                            <def_name>Trevor Rob JOHNS</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>16/12/1998</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>78 Gleebe Road</line1>
+                                <line2>Mickleton</line2>
+                                <line3>Sheffield</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S16 9HG</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168466</c_id>
+                            <h_id>9246279</h_id>
+                        </case>
+                        <case>
+                            <urn>URN92846237898838784678</urn>
+                            <asn>ASN1234XX76464734</asn>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>1900028950</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf>POLSHE</inf>
+                            <cseq>3</cseq>
+                            <listno>2st</listno>
+                            <estdur>0:05</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>PH97004</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Harassment without violence</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Between 09/01/2018 and 16/03/2019 at ROTHERHAM in the county of south Yorkshire pursued a course of conduct which amounted to the harassment of Roger
+                                        Rabbit and which you knew or ought to have known amounted to the harassment of him in that between the dates shown you sent 2 SMS messages, left 2,000 voicemail messages and made unwanted phone calls</sum>
+                                    <as>Contrary to section 2(1) and (2) of the Protection from Harassment Act 1997.</as>
+                                    <sof>.</sof>
+                                    <plea>G</plea>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason/>
+                                    <co_id>1142413</co_id>
+                                </offence>
+                                <offence>
+                                    <oseq>2</oseq>
+                                    <code>CJ03507</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Commission of a further offence during the operational period of a suspended sentence order</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Commission of a further offence during the operational period of a suspended sentence order made by SHEFFIELD MAGISTRATES COURT on 13/11/2017 for the
+                                        offences of HARASSMENT X4</sum>
+                                    <as>Contrary to section 2(1) and (2) of the Protection from Harassment Act 1997.</as>
+                                    <sof>.</sof>
+                                    <plea>ADB</plea>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason/>
+                                    <co_id>1142414</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond>Pre-hearing cond: Assessments/Reports: undergo an assessment conducted by as directed for dependency on Class A drugs and participate in any follow-up assessment</bailcond>
+                            <addinfo/>
+                            <def_name>MR ROBERT HAROLD SQUIRE</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>13/11/1965</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>67 Swanny Street</line1>
+                                <line2>Batemoor</line2>
+                                <line3>Sheffield</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S56 7HG</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168468</c_id>
+                            <h_id>9246279</h_id>
+                        </case>
+                        <case>
+                            <urn>URN92846237898838784678</urn>
+                            <asn>ASN1234XX76464734</asn>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>1900028950</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf>POLSHE</inf>
+                            <cseq>4</cseq>
+                            <listno>2st</listno>
+                            <estdur>0:05</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>CJ8816</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Assault by beating</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Between 09/01/2018 and 16/03/2019 at ROTHERHAM in the county of south Yorkshire pursued a course of conduct which amounted to the harassment of Roger
+                                        Rabbit and which you knew or ought to have known amounted to the harassment of him in that between the dates shown you sent 2 SMS messages, left 2,000 voicemail messages and made unwanted phone calls</sum>
+                                    <as>Contrary to section 2(1) and (2) of the Protection from Harassment Act 1997.</as>
+                                    <sof>.</sof>
+                                    <plea>IG</plea>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>to attend or warrant to issue</adjreason>
+                                    <co_id>1142413</co_id>
+                                </offence>
+                                <offence>
+                                    <oseq>2</oseq>
+                                    <code>CJ88149</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Assault by beating of an emergency workeer</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Commission of a further offence during the operational period of a suspended sentence order made by SHEFFIELD MAGISTRATES COURT on 13/11/2017 for the
+                                        offences of HARASSMENT X4</sum>
+                                    <as>Contrary to section 2(1) and (2) of the Protection from Harassment Act 1997.</as>
+                                    <sof>.</sof>
+                                    <plea>IG</plea>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>to attend or warrant to issue</adjreason>
+                                    <co_id>1142414</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond>Pre-hearing cond: Assessments/Reports: undergo an assessment conducted by as directed for dependency on Class A drugs and participate in any follow-up assessment</bailcond>
+                            <addinfo>DVLA RESPONSE REQUESTED ON 05/02/2019</addinfo>
+                            <def_name>Micheal Jones</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>18/11/1977</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>Room 32</line1>
+                                <line2>Better Lives</line2>
+                                <line3>Sheffield</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S11 7HG</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168468</c_id>
+                            <h_id>9246279</h_id>
+                        </case>
+                        <case>
+                            <urn>URN9284623789657548784678</urn>
+                            <asn>ASN1234XX769643734</asn>
+                            <marker>DVVI</marker>
+                            <valid>Y</valid>
+                            <caseno>1900028950</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf>POLSHE</inf>
+                            <cseq>5</cseq>
+                            <listno>2st</listno>
+                            <estdur>0:10</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>CJ8816</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Assault by beating</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Between 09/01/2018 and 16/03/2019 at ROTHERHAM in the county of south Yorkshire pursued a course of conduct which amounted to the harassment of Roger
+                                        Rabbit and which you knew or ought to have known amounted to the harassment of him in that between the dates shown you sent 2 SMS messages, left 2,000 voicemail messages and made unwanted phone calls</sum>
+                                    <as>Contrary to section 2(1) and (2) of the Protection from Harassment Act 1997.</as>
+                                    <sof>.</sof>
+                                    <plea>IG</plea>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>to attend or warrant to issue</adjreason>
+                                    <co_id>1142413</co_id>
+                                </offence>
+                                <offence>
+                                    <oseq>2</oseq>
+                                    <code>CD71039</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Criminal damage to property valued under £5000</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Between 02/07/2018 and 02/07/2018 at BARNSLEY in the county of SOUTH YORKSHIRE without lawful excuse, damaged a window pane in rear door to the
+                                        value of £352 belonging to Bin BAXTER intending to destroy or damage such property or being reckless as to whether such property would be destroyed or</sum>
+                                    <as>Contrary to section 2(1) and (2) of the Protection from Harassment Act 1997.</as>
+                                    <sof>.</sof>
+                                    <plea>IG</plea>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>to attend or warrant to issue</adjreason>
+                                    <co_id>1142414</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo>DVLA RESPONSE REQUESTED ON 05/02/2019</addinfo>
+                            <def_name>MR Jim JACKS</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>08/07/1979</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>56 BLABKHOUSE</line1>
+                                <line2>MOBLY</line2>
+                                <line3>BARNSLEY</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S58 2TF</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168477</c_id>
+                            <h_id>9246279</h_id>
+                        </case>
+                    </cases>
+                    <sb_id>12</sb_id>
+                </block>
+                <block>
+                    <bstart>10:00</bstart>
+                    <bend>11:00</bend>
+                    <desc>Fine Enforcement</desc>
+                    <cases>
+                        <case>
+                            <urn/>
+                            <asn/>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>1900028352</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf></inf>
+                            <cseq>6</cseq>
+                            <listno>1st</listno>
+                            <estdur>0:0</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>MC80704</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Non-payment of fine, CT/Account No.: 124/13018881U</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Non-payment of fine of £1570.04 imposed on 10/12/2018</sum>
+                                    <as>Magistrates' Courts Act 1980, section 83</as>
+                                    <sof>11/06/2013 Use a motor vehicle on a road/ public place witho
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                    </sof>
+                                    <plea/>
+                                    <pleadate/>
+                                    <convdate/>
+                                    <adjdate/>
+                                    <adjreason/>
+                                    <co_id>1142413</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo/>
+                            <def_name>MR BARRY BAINE BOBS</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>08/07/1979</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>56 BLEAKBURROW</line1>
+                                <line2>REILBY</line2>
+                                <line3>SHEFFIELD</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S58 2TF</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168477</c_id>
+                            <h_id>9246279</h_id>
+                        </case>
+                        <case>
+                            <urn/>
+                            <asn/>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>1900028484</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf></inf>
+                            <cseq>7</cseq>
+                            <listno>1st</listno>
+                            <estdur>0:0</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>MC80704</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Non-payment of fine, CT/Account No.: 124/13018881U</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Non-payment of fine of £1570.04 imposed on 10/12/2018</sum>
+                                    <as>Magistrates' Courts Act 1980, section 83</as>
+                                    <sof>11/06/2013 Use a motor vehicle on a road/ public place witho
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                    </sof>
+                                    <plea/>
+                                    <pleadate/>
+                                    <convdate/>
+                                    <adjdate/>
+                                    <adjreason/>
+                                    <co_id>1142413</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo/>
+                            <def_name>MR BIG BEETYS</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>08/07/1979</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>56 BLEAKBURROW</line1>
+                                <line2>REILBY</line2>
+                                <line3>SHEFFIELD</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S58 2TF</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168477</c_id>
+                            <h_id>9246279</h_id>
+                        </case>
+                        <case>
+                            <urn/>
+                            <asn/>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>1900028936</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf></inf>
+                            <cseq>8</cseq>
+                            <listno>1st</listno>
+                            <estdur>0:0</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>MC80704</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Non-payment of fine, CT/Account No.: 124/13018881U</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Non-payment of fine of £1570.04 imposed on 10/12/2018</sum>
+                                    <as>Magistrates' Courts Act 1980, section 83</as>
+                                    <sof>11/06/2013 Use a motor vehicle on a road/ public place witho
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                    </sof>
+                                    <plea/>
+                                    <pleadate/>
+                                    <convdate/>
+                                    <adjdate/>
+                                    <adjreason/>
+                                    <co_id>1142413</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo/>
+                            <def_name>MR PEA BRAIN</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>08/07/1979</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>56 BLEAKBURROW</line1>
+                                <line2>REILBY</line2>
+                                <line3>SHEFFIELD</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S58 2TF</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168477</c_id>
+                            <h_id>9246279</h_id>
+                        </case>
+                        <case>
+                            <urn/>
+                            <asn/>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>19000282874</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf></inf>
+                            <cseq>9</cseq>
+                            <listno>1st</listno>
+                            <estdur>0:0</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>MC80704</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Non-payment of fine, CT/Account No.: 124/13018881U</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Non-payment of fine of £1570.04 imposed on 10/12/2018</sum>
+                                    <as>Magistrates' Courts Act 1980, section 83</as>
+                                    <sof>11/06/2013 Use a motor vehicle on a road/ public place witho
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                    </sof>
+                                    <plea/>
+                                    <pleadate/>
+                                    <convdate/>
+                                    <adjdate/>
+                                    <adjreason/>
+                                    <co_id>1142413</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo/>
+                            <def_name>MR BARRY BAINE BOBS</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>08/07/1979</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>56 BLEAKBURROW</line1>
+                                <line2>REILBY</line2>
+                                <line3>SHEFFIELD</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S58 2TF</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168477</c_id>
+                            <h_id>9246279</h_id>
+                        </case>
+                        <case>
+                            <urn/>
+                            <asn/>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>19000289568</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf></inf>
+                            <cseq>10</cseq>
+                            <listno>1st</listno>
+                            <estdur>0:0</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>MC80704</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Non-payment of fine, CT/Account No.: 124/13018881U</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Non-payment of fine of £1570.04 imposed on 10/12/2018</sum>
+                                    <as>Magistrates' Courts Act 1980, section 83</as>
+                                    <sof>11/06/2013 Use a motor vehicle on a road/ public place witho
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                    </sof>
+                                    <plea/>
+                                    <pleadate/>
+                                    <convdate/>
+                                    <adjdate/>
+                                    <adjreason/>
+                                    <co_id>1142413</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo/>
+                            <def_name>MR JOHN JAMES</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>08/07/1979</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>56 BLEAKBURROW</line1>
+                                <line2>REILBY</line2>
+                                <line3>SHEFFIELD</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S58 2TF</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168477</c_id>
+                            <h_id>9246279</h_id>
+                        </case>
+                        <case>
+                            <urn/>
+                            <asn/>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>1900028968</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf></inf>
+                            <cseq>11</cseq>
+                            <listno>1st</listno>
+                            <estdur>0:0</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>MC80704</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Non-payment of fine, CT/Account No.: 124/13018881U</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Non-payment of fine of £1570.04 imposed on 10/12/2018</sum>
+                                    <as>Magistrates' Courts Act 1980, section 83</as>
+                                    <sof>11/06/2013 Use a motor vehicle on a road/ public place witho
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                    </sof>
+                                    <plea/>
+                                    <pleadate/>
+                                    <convdate/>
+                                    <adjdate/>
+                                    <adjreason/>
+                                    <co_id>1142413</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo/>
+                            <def_name>MR CHARLIE BREAKMAN</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>08/07/1979</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>56 BLEAKBURROW</line1>
+                                <line2>REILBY</line2>
+                                <line3>SHEFFIELD</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S58 2TF</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168477</c_id>
+                            <h_id>9246279</h_id>
+                        </case>
+                        <case>
+                            <urn/>
+                            <asn/>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>1900028946</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf></inf>
+                            <cseq>12</cseq>
+                            <listno>1st</listno>
+                            <estdur>0:0</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>MC80704</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Non-payment of fine, CT/Account No.: 124/13018881U</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Non-payment of fine of £1570.04 imposed on 10/12/2018</sum>
+                                    <as>Magistrates' Courts Act 1980, section 83</as>
+                                    <sof>11/06/2013 Use a motor vehicle on a road/ public place witho
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                        FCPC Imp 85.00 FO Imp 600.00 FVS Imp: 60.00 pd
+                                        31/01/2019 Use motor vehicle on a road / public place witho
+                                        COST Imp 85.00 FO 120.00
+                                    </sof>
+                                    <plea/>
+                                    <pleadate/>
+                                    <convdate/>
+                                    <adjdate/>
+                                    <adjreason/>
+                                    <co_id>1142413</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo/>
+                            <def_name>MR ANDY MICK GREAT</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>08/07/1979</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>56 BLEAKBURROW</line1>
+                                <line2>REILBY</line2>
+                                <line3>SHEFFIELD</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S58 2TF</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168477</c_id>
+                            <h_id>9246279</h_id>
+                        </case>
+                    </cases>
+                    <sb_id>755712</sb_id>
+                </block>
+                <block>
+                    <bstart>10:00</bstart>
+                    <bend>11:20</bend>
+                    <desc>Remands</desc>
+                    <cases>
+                        <case>
+                            <urn/>
+                            <asn/>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>1900029376</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf>SHPROB</inf>
+                            <cseq>13</cseq>
+                            <listno>1st</listno>
+                            <estdur>0:15</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>CJ03519</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Application to revoke a community order without re-sentencing</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Application to revoke a community order (without re-sentencing) made by Sheffield Magistrates' Court on 09/11/2018 on the ground that the Order is unworkable du
+                                        to time spent in custody. CJS Code (most serious original offence) Criminal Damage (£5000 or less) and Malicious Damage 14900.</sum>
+                                    <as>In accordance with Part 3 of Schedule 8 to the Criminal Justice Act 2003.</as>
+                                    <sof>.</sof>
+                                    <plea/>
+                                    <pleadate/>
+                                    <convdate/>
+                                    <adjdate/>
+                                    <adjreason/>
+                                    <co_id>1142413</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo/>
+                            <def_name>Mr Bob Green BLACKS</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>06/10/1995</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>6 BIGAN STREET</line1>
+                                <line2>SHEFFIELD</line2>
+                                <line3>SOUTH YORKSHIRE</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S7 9QH</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168463</c_id>
+                            <h_id>9246275</h_id>
+                        </case>
+                        <case>
+                            <urn/>
+                            <asn/>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>1900029834</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf>SHPROB</inf>
+                            <cseq>14</cseq>
+                            <listno>1st</listno>
+                            <estdur>0:15</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>CJ03519</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Application to revoke a community order without re-sentencing</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>Application to revoke a community order (without re-sentencing) made by Sheffield Magistrates' Court on 09/11/2018 on the ground that the Order is unworkable du
+                                        to time spent in custody. CJS Code (most serious original offence) Criminal Damage (£5000 or less) and Malicious Damage 14900.</sum>
+                                    <as>In accordance with Part 3 of Schedule 8 to the Criminal Justice Act 2003.</as>
+                                    <sof>.</sof>
+                                    <plea/>
+                                    <pleadate/>
+                                    <convdate/>
+                                    <adjdate/>
+                                    <adjreason/>
+                                    <co_id>1142413</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo/>
+                            <def_name>Mr ANZI MLOK TREATON</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>06/11/1985</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>3 ENGLAND STREET</line1>
+                                <line2>SHEFFIELD</line2>
+                                <line3>SOUTH YORKSHIRE</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S9 9QH</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168463</c_id>
+                            <h_id>9246275</h_id>
+                        </case>
+                    </cases>
+                    <sb_id>755707</sb_id>
+                </block>
+            </blocks>
+            <s_id>1</s_id>
+        </session>
+        <session>
+            <doh>19/07/2019</doh>
+            <lja>South Yorkshire Magistrates' Court</lja>
+            <cmu>Sheffield CMU</cmu>
+            <panel>South Yorkshire Adult Panel</panel>
+            <court>Sheffield Magistrates' Court</court>
+            <room>02</room>
+            <sstart>14:00</sstart>
+            <send>16:30</send>
+            <blocks>
+                <block>
+                    <bstart>14:00</bstart>
+                    <bend>15:00</bend>
+                    <desc>Pre-Sentence Report</desc>
+                    <cases>
+                        <case>
+                            <urn>URN923456789112345678</urn>
+                            <asn>ASN1234XX78911234</asn>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>1900028947</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf>POLSHE</inf>
+                            <cseq>1</cseq>
+                            <listno>2nd</listno>
+                            <estdur>0:30</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>PU86004</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Use threatening / abusive / insulting words / behaviour with intent to cause fear of provoke unlawful violence</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>On 12/11/2018 at Sheffield in the county of South Yorkshire used towards mickey mouse threatening, abusive or insulting words or behaviour with intent to
+                                        cause that person to believe that immediate unlawful violence would be used against him by any person, or to provoke the immediate use of unlawful violence by
+                                        him whereby that person was likely believe that violence would be used, or it was likely that such violence would be provoked</sum>
+                                    <as>Contrary to section 4(1) and (4) of the Public Order Act 1986.</as>
+                                    <sof>.</sof>
+                                    <plea/>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>non-standard reason</adjreason>
+                                    <co_id>1142414</co_id>
+                                </offence>
+                                <offence>
+                                    <oseq>2</oseq>
+                                    <code>CJ88116</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Assault by beating</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>On 12/01/2019 at ROTHERHAM in the county of SOUTH YORKSHIRE assaulted MRS BEAN by beating her</sum>
+                                    <as>Contrary to section 39 of the Criminal Justice Act 1988.</as>
+                                    <sof>.</sof>
+                                    <plea/>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>non-standard reason</adjreason>
+                                    <co_id>1142414</co_id>
+                                </offence>
+                                <offence>
+                                    <oseq>3</oseq>
+                                    <code>CJ88116</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Assault by beating</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>On 12/01/2019 at ROTHERHAM in the county of SOUTH YORKSHIRE assaulted MR BEAN by beating him</sum>
+                                    <as>Contrary to section 39 of the Criminal Justice Act 1988.</as>
+                                    <sof>.</sof>
+                                    <plea/>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason/>
+                                    <co_id>1142414</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo/>
+                            <def_name>JOHN Mick Brains SMITH</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>02/08/1990</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>25 Robin Roas</line1>
+                                <line2/>
+                                <line3>Sheffield</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S1 2HT</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168463</c_id>
+                            <h_id>9246275</h_id>
+                        </case>
+                        <case>
+                            <urn>URN9234567891127456678</urn>
+                            <asn>ASN1234XX78976234</asn>
+                            <marker/>
+                            <valid>Y</valid>
+                            <caseno>1900028965</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf>POLSHE</inf>
+                            <cseq>2</cseq>
+                            <listno>2nd</listno>
+                            <estdur>0:30</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>PU86004</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Use threatening / abusive / insulting words / behaviour with intent to cause fear of provoke unlawful violence</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>On 12/11/2018 at Sheffield in the county of South Yorkshire used towards mickey mouse threatening, abusive or insulting words or behaviour with intent to
+                                        cause that person to believe that immediate unlawful violence would be used against him by any person, or to provoke the immediate use of unlawful violence by
+                                        him whereby that person was likely believe that violence would be used, or it was likely that such violence would be provoked</sum>
+                                    <as>Contrary to section 4(1) and (4) of the Public Order Act 1986.</as>
+                                    <sof>.</sof>
+                                    <plea/>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>non-standard reason</adjreason>
+                                    <co_id>1142414</co_id>
+                                </offence>
+                                <offence>
+                                    <oseq>2</oseq>
+                                    <code>CJ88116</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Assault by beating</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>On 12/01/2019 at ROTHERHAM in the county of SOUTH YORKSHIRE assaulted MRS BEAN by beating her</sum>
+                                    <as>Contrary to section 39 of the Criminal Justice Act 1988.</as>
+                                    <sof>.</sof>
+                                    <plea/>
+                                    <pleadate>18/06/2019</pleadate>
+                                    <convdate/>
+                                    <adjdate>12/03/2019</adjdate>
+                                    <adjreason>non-standard reason</adjreason>
+                                    <co_id>1142414</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond>ng cond: Exclusion: not to enter SHEFFIELD UNITED, BRAMHALL LANE ; Residence: live and sleep each night at 34 BEAK ROAD, SHEFFIELD</bailcond>
+                            <addinfo/>
+                            <def_name>Mr Mick Richard JONES</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>M</def_sex>
+                            <def_dob>02/08/1990</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>25 Robin Roas</line1>
+                                <line2/>
+                                <line3>Sheffield</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>S1 2HT</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168463</c_id>
+                            <h_id>9246275</h_id>
+                        </case>
+                        <case>
+                            <urn>URN923456789112345678</urn>
+                            <asn/>
+                            <marker>CASEMARKER</marker>
+                            <valid>Y</valid>
+                            <caseno>1900028955</caseno>
+                            <type>C</type>
+                            <prov/>
+                            <inf>POLSHE</inf>
+                            <cseq>3</cseq>
+                            <listno>1st</listno>
+                            <estdur>1</estdur>
+                            <dq1/>
+                            <offences>
+                                <offence>
+                                    <oseq>1</oseq>
+                                    <code>CA03010</code>
+                                    <maxpen>S: L3</maxpen>
+                                    <title>Use a television set without a licence</title>
+                                    <alm/>
+                                    <ala/>
+                                    <sum>On 19/07/2019 used a colour television receiver without a licence at the above address.</sum>
+                                    <as>Contrary to section 363(2) and (4) of the Communications Act 2003.</as>
+                                    <sof>.</sof>
+                                    <plea/>
+                                    <pleadate/>
+                                    <convdate/>
+                                    <adjdate/>
+                                    <adjreason/>
+                                    <co_id>1142414</co_id>
+                                </offence>
+                            </offences>
+                            <bailcond/>
+                            <addinfo/>
+                            <def_name>Mr Joe JMBBLOGGS</def_name>
+                            <def_type>P</def_type>
+                            <def_sex>N</def_sex>
+                            <def_dob>16/08/1990</def_dob>
+                            <def_age>26</def_age>
+                            <def_addr>
+                                <line1>line1</line1>
+                                <line2>line2</line2>
+                                <line3>l3</line3>
+                                <line4/>
+                                <line5/>
+                                <pcode>RG2 6UA</pcode>
+                            </def_addr>
+                            <nationality_1/>
+                            <nationality_2/>
+                            <pg_type/>
+                            <pg_name/>
+                            <pg_addr/>
+                            <c_id>9168464</c_id>
+                            <h_id>9246278</h_id>
+                        </case>
+                    </cases>
+                    <sb_id>755707</sb_id>
+                </block>
+            </blocks>
+            <s_id>554831</s_id>
+        </session>
+
+    </sessions>
+</CourtList>

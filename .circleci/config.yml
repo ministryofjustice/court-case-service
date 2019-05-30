@@ -112,7 +112,6 @@ jobs:
             kubectl set image -f ./kube/deployment.yaml court-list-service=${ECR_ENDPOINT}/probation-services/court-list-service:${CIRCLE_SHA1} --local -o yaml \
             | kubectl apply -f -
             kubectl apply \
-              -f ./kube/ingress.yaml \
               -f ./kube/service.yaml
 
 

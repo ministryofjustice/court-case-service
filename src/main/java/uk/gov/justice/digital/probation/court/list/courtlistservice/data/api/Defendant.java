@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.Period;
+import java.util.Optional;
 
 @Data
 @Builder
@@ -16,4 +18,8 @@ public class Defendant {
     private String gender;
     private LocalDate dateOfBirth;
     private Address address;
+
+    public String getAge() {
+        return Optional.ofNullable(dateOfBirth).map(dob -> String.valueOf(Period.between(dob, LocalDate.now()).getYears())).orElse(null);
+    }
 }

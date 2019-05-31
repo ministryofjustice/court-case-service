@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: court-list-service
-          image: 926803513772.dkr.ecr.eu-west-1.amazonaws.com/probation-services/court-list-service:1.1
+          image: 754256621582.dkr.ecr.eu-west-2.amazonaws.com/probation-services/court-list-service:latest
           resources:
             limits:
               memory: "512Mi"
@@ -30,4 +30,4 @@ spec:
             - name: SERVER_PORT
               value: '8000'
             - name: CRIME_PORTAL_BASE_URL
-              value: 'http://mock-cp-court-service-service:8000'
+              value: 'http://mock-cp-court-service:8000'

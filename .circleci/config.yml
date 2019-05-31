@@ -17,7 +17,7 @@ install_aws_cli: &install_aws_cli
       sudo apt-get --assume-yes update
       sudo apt-get --assume-yes install python3-pip
       sudo pip3 install awscli
-      $(aws ecr get-login --region eu-west-1 --no-include-email)
+      $(aws ecr get-login --region eu-west-2 --no-include-email)
 
 version: 2
 jobs:
@@ -85,7 +85,7 @@ jobs:
       - run:
           name: publish image to ecs
           command: |
-            login="$(aws ecr get-login --region eu-west-1 --no-include-email)"
+            login="$(aws ecr get-login --region eu-west-2 --no-include-email)"
             ${login}
             docker build -t ${ECR_ENDPOINT}/probation-services/court-list-service:${CIRCLE_SHA1} .
             docker tag ${ECR_ENDPOINT}/probation-services/court-list-service:${CIRCLE_SHA1} ${ECR_ENDPOINT}/probation-services/court-list-service:latest
@@ -103,7 +103,7 @@ jobs:
       - run:
           name: Kubectl deployment dev setup
           command: |
-            $(aws ecr get-login --region eu-west-1 --no-include-email)
+            $(aws ecr get-login --region eu-west-2 --no-include-email)
             setup-kube-auth
             kubectl config use-context dev
       - deploy:

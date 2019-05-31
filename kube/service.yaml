@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: court-list-service-service
+  name: court-list-service
 spec:
   selector:
     app: court-list-service-app

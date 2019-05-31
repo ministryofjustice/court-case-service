@@ -6,7 +6,7 @@ RUN addgroup --gid 2000 --system appgroup && \
 RUN mkdir -p /app
 WORKDIR /app
 
-COPY build/libs/court-list-service-*.jar /root/court-list-service.jar
+COPY build/libs/court-list-service-*.jar /app/court-list-service.jar
 
 RUN chown -R appuser:appgroup /app
 

@@ -7,9 +7,9 @@ metadata:
 spec:
   tls:
     - hosts:
-      - court-list-service.apps.cloud-platform-live-0.k8s.integration.dsd.io
+      - court-list-service.apps.live-1.cloud-platform.service.justice.gov.uk
   rules:
-    - host: court-list-service.apps.cloud-platform-live-0.k8s.integration.dsd.io
+    - host: court-list-service.apps.live-1.cloud-platform.service.justice.gov.uk
       http:
         paths:
           - path: /

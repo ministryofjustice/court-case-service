@@ -14,6 +14,7 @@ install_aws_cli: &install_aws_cli
   run:
     name: Set up aws
     command: |
+      sudo apt-get --assume-yes update
       sudo apt-get --assume-yes install python3-pip
       sudo pip3 install awscli
       $(aws ecr get-login --region eu-west-2 --no-include-email)

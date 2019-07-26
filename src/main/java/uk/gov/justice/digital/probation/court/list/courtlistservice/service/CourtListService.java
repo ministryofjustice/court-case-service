@@ -32,7 +32,8 @@ public class CourtListService {
         val courtList = this.restTemplate.getForObject("/court/{court}/list?date={date}", CourtListType.class, ImmutableMap.of("court", court, "date", date));
         return CourtList
                 .builder()
-                .courtName(court)
+                .courtHouse(court)
+                .dateOfAppearance(date)
                 .sessions(Optional.ofNullable(courtList.getSessions()).map(sessionTransformer::toSessions).orElse(Collections.emptyList()))
                 .build();
 

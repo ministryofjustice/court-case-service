@@ -7,9 +7,11 @@ RUN mkdir -p /app
 WORKDIR /app
 
 COPY build/libs/court-list-service-*.jar /app/court-list-service.jar
+COPY run.sh /app
 
 RUN chown -R appuser:appgroup /app
 
 USER 2000
 
-ENTRYPOINT ["/usr/bin/java", "-jar", "/app/court-list-service.jar"]
+
+ENTRYPOINT ["/bin/sh", "/app/run.sh"]

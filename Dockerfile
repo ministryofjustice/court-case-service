@@ -1,4 +1,4 @@
-FROM java
+FROM openjdk:11-slim
 
 RUN addgroup --gid 2000 --system appgroup && \
     adduser --uid 2000 --system appuser --gid 2000

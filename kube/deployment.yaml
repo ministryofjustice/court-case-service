@@ -17,13 +17,6 @@ spec:
       containers:
         - name: court-list-service
           image: 754256621582.dkr.ecr.eu-west-2.amazonaws.com/probation-services/court-list-service:latest
-          resources:
-            limits:
-              memory: "512Mi"
-              cpu: "1000m"
-            requests:
-              memory: "256Mi"
-              cpu: "500m"
           ports:
             - containerPort: 8000
           env:

@@ -1,22 +1,22 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: court-list-service
+  name: court-case-service
   labels:
-    app: court-list-service
+    app: court-case-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: court-list-service-app
+      app: court-case-service-app
   template:
     metadata:
       labels:
-        app: court-list-service-app
+        app: court-case-service-app
     spec:
       containers:
-        - name: court-list-service
-          image: 754256621582.dkr.ecr.eu-west-2.amazonaws.com/probation-services/court-list-service:latest
+        - name: court-case-service
+          image: 754256621582.dkr.ecr.eu-west-2.amazonaws.com/probation-services/court-case-service:latest
           ports:
             - containerPort: 8000
           env:

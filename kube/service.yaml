@@ -1,10 +1,10 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: court-list-service
+  name: court-case-service
 spec:
   selector:
-    app: court-list-service-app
+    app: court-case-service-app
   ports:
   - protocol: TCP
     port: 8000

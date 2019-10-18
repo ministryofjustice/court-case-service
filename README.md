@@ -1,6 +1,6 @@
-Court List Service
+Court Case Service
 ==================
-Service to access court lists imported from HMCTS
+Service to access court cases imported from HMCTS Libra court lists
 
 Dev Setup
 ---
@@ -12,7 +12,7 @@ Build
 
 Run
 ---
-```jar -jar build/libs/court-list-service-{version}.jar```
+```jar -jar build/libs/court-case-service-{version}.jar```
 
 Check dependency versions
 ---

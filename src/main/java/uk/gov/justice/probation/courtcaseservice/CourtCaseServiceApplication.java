@@ -6,10 +6,10 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 
 @SpringBootApplication
 @EnableResourceServer
-public class CourtListServiceApplication {
+public class CourtCaseServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CourtListServiceApplication.class, args);
+        SpringApplication.run(CourtCaseServiceApplication.class, args);
     }
 
 }

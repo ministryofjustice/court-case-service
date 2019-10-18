@@ -1,6 +1,6 @@
 package uk.gov.justice.probation.courtlistservice.config;
 
-public class CaseListServiceProperties {
+public class CourtCaseServiceProperties {
 
 
 }

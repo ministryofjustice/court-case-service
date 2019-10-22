@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: court-case-service
-          image: 754256621582.dkr.ecr.eu-west-2.amazonaws.com/probation-services/court-case-service:latest
+          image: docker.io/mojdigitalstudio/court-case-service:latest
           ports:
             - containerPort: 8000
           env:

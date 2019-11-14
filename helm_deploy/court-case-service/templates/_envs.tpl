@@ -31,12 +31,6 @@ env:
         name: court-case-dynamodb-output
         key: secret_access_key
 
-  - name:
-    valueFrom:
-      secretKeyRef:
-        name: court-case-dynamodb-output
-        key: table_arn
-
   - name: DYNAMO_TABLE
     valueFrom:
       secretKeyRef:

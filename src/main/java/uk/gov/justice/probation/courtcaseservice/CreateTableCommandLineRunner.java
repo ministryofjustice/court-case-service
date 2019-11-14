@@ -1,5 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice;
 
+import lombok.extern.slf4j.Slf4j;
+import lombok.extern.slf4j.XSlf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -10,10 +12,9 @@ import software.amazon.awssdk.services.dynamodb.model.*;
 import uk.gov.justice.probation.courtcaseservice.config.DynamoDbConfiguration;
 
 @Component
+@Slf4j
 @Profile("localDynamo")
 public class CreateTableCommandLineRunner implements CommandLineRunner {
-
-    private final Logger log = LoggerFactory.getLogger(CreateTableCommandLineRunner.class);
 
     private final DynamoDbConfiguration config;
 

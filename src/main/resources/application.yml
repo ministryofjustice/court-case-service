@@ -18,3 +18,10 @@ management:
   beans:
     cache:
       time-to-live: 10s
+
+amazon:
+  dynamodb:
+    region: eu-west-2
+    table: ${DYNAMO_TABLE:CourtCase}
+    accesskey: ${DYNAMO_ACCESS_KEY:DYNAMO_ACCESS_KEY}
+    secretkey: ${DYNAMO_SECRET_KEY:DYNAMO_SECRET_KEY}

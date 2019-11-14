@@ -1,6 +1,5 @@
-package uk.gov.justice.probation.courtlistservice.config;
+package uk.gov.justice.probation.courtcaseservice.config;
 
 public class CourtCaseServiceProperties {
-
 
 }

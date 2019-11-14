@@ -1,13 +1,13 @@
-package uk.gov.justice.probation.courtlistservice.prototype.service;
+package uk.gov.justice.probation.courtcaseservice.prototype.service;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.justice.probation.courtlistservice.prototype.data.api.CourtList;
-import uk.gov.justice.probation.courtlistservice.prototype.data.entity.CourtListType;
-import uk.gov.justice.probation.courtlistservice.prototype.transformer.SessionTransformer;
+import uk.gov.justice.probation.courtcaseservice.prototype.data.api.CourtList;
+import uk.gov.justice.probation.courtcaseservice.prototype.data.entity.CourtListType;
+import uk.gov.justice.probation.courtcaseservice.prototype.transformer.SessionTransformer;
 
 import java.time.LocalDate;
 import java.util.Collections;

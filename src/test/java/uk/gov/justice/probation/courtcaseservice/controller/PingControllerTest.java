@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtlistservice.controller;
+package uk.gov.justice.probation.courtcaseservice.controller;
 
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;

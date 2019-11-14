@@ -1,5 +1,5 @@
 
-package uk.gov.justice.probation.courtlistservice.prototype.data.entity;
+package uk.gov.justice.probation.courtcaseservice.prototype.data.entity;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

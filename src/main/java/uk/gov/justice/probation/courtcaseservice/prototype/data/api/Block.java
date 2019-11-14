@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtlistservice.prototype.data.api;
+package uk.gov.justice.probation.courtcaseservice.prototype.data.api;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

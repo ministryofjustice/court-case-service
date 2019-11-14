@@ -1,8 +1,8 @@
-package uk.gov.justice.probation.courtlistservice.prototype.transformer;
+package uk.gov.justice.probation.courtcaseservice.prototype.transformer;
 
 import org.springframework.stereotype.Component;
-import uk.gov.justice.probation.courtlistservice.prototype.data.api.Address;
-import uk.gov.justice.probation.courtlistservice.prototype.data.entity.DefAddrType;
+import uk.gov.justice.probation.courtcaseservice.prototype.data.api.Address;
+import uk.gov.justice.probation.courtcaseservice.prototype.data.entity.DefAddrType;
 
 @Component
 public class DefendantAddressTransformer {

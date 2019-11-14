@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtlistservice;
+package uk.gov.justice.probation.courtcaseservice;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,5 +12,4 @@ public class CourtCaseServiceApplicationTests {
     @Test
     public void contextLoads() {
     }
-
 }

@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtlistservice.prototype.controller;
+package uk.gov.justice.probation.courtcaseservice.prototype.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
@@ -15,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.gov.justice.probation.courtlistservice.prototype.data.api.CourtList;
+import uk.gov.justice.probation.courtcaseservice.prototype.data.api.CourtList;
 
 import java.io.IOException;
 import java.nio.charset.Charset;

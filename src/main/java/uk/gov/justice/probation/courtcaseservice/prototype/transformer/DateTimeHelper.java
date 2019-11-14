@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtlistservice.prototype.transformer;
+package uk.gov.justice.probation.courtcaseservice.prototype.transformer;
 
 import org.springframework.util.StringUtils;
 

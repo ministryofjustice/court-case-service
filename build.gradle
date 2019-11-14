@@ -1,6 +1,5 @@
 import java.time.Instant
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 plugins {
     id 'java'
@@ -11,6 +10,9 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven {
+        url 'https://s3-us-west-2.amazonaws.com/dynamodb-local/release'
+    }
 }
 
 project.sourceCompatibility = 11
@@ -73,9 +75,13 @@ dependencies {
     implementation 'com.sun.xml.bind:jaxb-impl:2.3.0.1'
     implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.0'
 
+    implementation platform('software.amazon.awssdk:bom:2.10.15')
+    implementation 'software.amazon.awssdk:dynamodb'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.9.0'
     testImplementation 'io.rest-assured:rest-assured:3.0.3'
     testImplementation 'com.github.tomakehurst:wiremock:2.13.0'
     testImplementation 'commons-io:commons-io:2.6'
+    testImplementation 'com.amazonaws:DynamoDBLocal:[1.11,2.0)'
 }

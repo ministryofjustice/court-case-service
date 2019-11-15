@@ -1,10 +1,10 @@
-package uk.gov.justice.probation.courtlistservice.prototype.transformer;
+package uk.gov.justice.probation.courtcaseservice.prototype.transformer;
 
 import org.springframework.stereotype.Component;
-import uk.gov.justice.probation.courtlistservice.prototype.data.api.Case;
-import uk.gov.justice.probation.courtlistservice.prototype.data.api.Defendant;
-import uk.gov.justice.probation.courtlistservice.prototype.data.entity.CaseType;
-import uk.gov.justice.probation.courtlistservice.prototype.data.entity.CasesType;
+import uk.gov.justice.probation.courtcaseservice.prototype.data.api.Case;
+import uk.gov.justice.probation.courtcaseservice.prototype.data.api.Defendant;
+import uk.gov.justice.probation.courtcaseservice.prototype.data.entity.CaseType;
+import uk.gov.justice.probation.courtcaseservice.prototype.data.entity.CasesType;
 
 import java.util.Collections;
 import java.util.List;

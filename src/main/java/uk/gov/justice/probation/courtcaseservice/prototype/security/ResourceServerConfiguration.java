@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtlistservice.prototype.security;
+package uk.gov.justice.probation.courtcaseservice.prototype.security;
 
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;

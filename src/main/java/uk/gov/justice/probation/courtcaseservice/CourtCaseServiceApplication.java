@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtlistservice;
+package uk.gov.justice.probation.courtcaseservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,5 +11,4 @@ public class CourtCaseServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(CourtCaseServiceApplication.class, args);
     }
-
 }

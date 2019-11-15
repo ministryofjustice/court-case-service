@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtlistservice.prototype.utils;
+package uk.gov.justice.probation.courtcaseservice.prototype.utils;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;

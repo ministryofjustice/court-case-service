@@ -1,9 +1,9 @@
-package uk.gov.justice.probation.courtlistservice.prototype.transformer;
+package uk.gov.justice.probation.courtcaseservice.prototype.transformer;
 
 import org.springframework.stereotype.Component;
-import uk.gov.justice.probation.courtlistservice.prototype.data.api.Session;
-import uk.gov.justice.probation.courtlistservice.prototype.data.entity.SessionType;
-import uk.gov.justice.probation.courtlistservice.prototype.data.entity.SessionsType;
+import uk.gov.justice.probation.courtcaseservice.prototype.data.api.Session;
+import uk.gov.justice.probation.courtcaseservice.prototype.data.entity.SessionType;
+import uk.gov.justice.probation.courtcaseservice.prototype.data.entity.SessionsType;
 
 import java.util.List;
 import java.util.stream.Collectors;

@@ -10,9 +10,15 @@ Build
 ---
 ```./gradlew build```
 
-Run
+Run Locally
 ---
-```jar -jar build/libs/court-case-service-{version}.jar```
+Start a local DynamoDB instance on `http://localhost:8000`:
+
+```docker run -p 8000:8000 amazon/dynamodb-local```
+
+Start the app under the `localDynamo` spring profile:
+
+```java -Dspring.profiles.active=localDynamo -jar build/libs/court-case-service-{version}.jar```
 
 Check dependency versions
 ---

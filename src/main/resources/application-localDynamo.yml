@@ -1,3 +1,0 @@
-amazon:
-  dynamodb:
-    endpoint: ${DYNAMO_ENDPOINT:http://localhost:8000}

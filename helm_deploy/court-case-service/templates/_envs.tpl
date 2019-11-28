@@ -19,22 +19,27 @@ env:
         name: court-case-service-secrets
         key: APPINSIGHTS_INSTRUMENTATIONKEY
 
-  - name: DYNAMO_ACCESS_KEY
+  - name: DATABASE_USERNAME
     valueFrom:
       secretKeyRef:
-        name: court-case-dynamodb-output
-        key: access_key_id
+        name: court-case-service-rds-instance-output
+        key: database_username
 
-  - name: DYNAMO_SECRET_KEY
+  - name: DATABASE_PASSWORD
     valueFrom:
       secretKeyRef:
-        name: court-case-dynamodb-output
-        key: secret_access_key
+        name: court-case-service-rds-instance-output
+        key: database_password
 
-  - name: DYNAMO_TABLE
+  - name: DATABASE_NAME
     valueFrom:
       secretKeyRef:
-        name: court-case-dynamodb-output
-        key: table_name
+        name: court-case-service-rds-instance-output
+        key: database_name
 
+  - name: DATABASE_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: court-case-service-rds-instance-output
+        key: rds_instance_endpoint
 {{- end -}}

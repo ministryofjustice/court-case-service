@@ -9,6 +9,4 @@ import java.util.Optional;
 @Repository
 public interface CourtRepository extends CrudRepository<CourtEntity, Long> {
 
-    Optional<CourtEntity> findById(long Id);
-
 }

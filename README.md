@@ -12,13 +12,24 @@ Build
 
 Run Locally
 ---
-Start a local DynamoDB instance on `http://localhost:8000`:
+Start PostgreSQL instance
 
-```docker run -p 8000:8000 amazon/dynamodb-local```
+```docker-compose up```
 
-Start the app under the `localDynamo` spring profile:
+Flyway commands
+---
 
-```java -Dspring.profiles.active=localDynamo -jar build/libs/court-case-service-{version}.jar```
+Migrate database 
+
+```gradle flywayMigrate -i```
+
+View details and status information about all migrations
+
+```gradle flywayInfo```
+
+Baseline an existing database, excluding all migrations up to and including baselineVersion
+
+```gradle flywayBaseline```
 
 Check dependency versions
 ---

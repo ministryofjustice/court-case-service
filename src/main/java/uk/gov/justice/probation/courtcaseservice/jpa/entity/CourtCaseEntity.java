@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;

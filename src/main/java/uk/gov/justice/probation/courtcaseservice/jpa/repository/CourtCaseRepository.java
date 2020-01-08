@@ -1,13 +1,11 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 
-import java.util.Optional;
 
 @Repository
-public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Long> {
-
-
+public interface CourtCaseRepository extends JpaRepository<CourtCaseEntity, Long> {
+    CourtCaseEntity findByCaseNo(String caseNo);
 }

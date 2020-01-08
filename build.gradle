@@ -41,7 +41,7 @@ jar {
 }
 
 flyway {
-    url = 'jdbc:postgresql://localhost:5432/postgres?currentSchema=courtcaseservice&user=root&password=dev'
+    url = 'jdbc:postgresql://localhost:5432/postgres?currentSchema=courtcaseservicetest&user=root&password=dev'
 }
 
 
@@ -78,7 +78,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.flywaydb:flyway-core'
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
-    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'com.vladmihalcea:hibernate-types-52:2.4.4'
     implementation 'com.sun.xml.bind:jaxb-impl:2.3.0.1'
     implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.0'
     implementation 'com.vladmihalcea:hibernate-types-52:2.4.4'

@@ -22,4 +22,7 @@ public class CourtEntity implements Serializable {
     @Column(name = "NAME")
     private String name;
 
+    @Column(name = "COURT_CODE")
+    private String courtCode;
+
 }

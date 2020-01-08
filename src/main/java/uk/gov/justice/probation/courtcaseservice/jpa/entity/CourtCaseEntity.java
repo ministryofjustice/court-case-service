@@ -1,5 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,11 +38,11 @@ public class CourtCaseEntity implements Serializable {
     @Column(name = "COURT_ROOM")
     private String courtRoom;
 
-    @Column(name = "SESSION_START_DATE")
-    private LocalDateTime sessionStartDate;
+    @Column(name = "SESSION_START_TIME")
+    private LocalDateTime sessionStartTime;
 
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "DATA")
-    private CourtCasePropertiesEntity data;
+    private String data;
 
 }

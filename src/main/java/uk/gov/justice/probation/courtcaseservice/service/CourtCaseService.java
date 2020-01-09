@@ -6,7 +6,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
-
 @Service
 @Slf4j
 public class CourtCaseService {
@@ -17,17 +16,40 @@ public class CourtCaseService {
 
     private CourtCaseRepository courtCaseRepository;
 
-    public CourtCaseEntity getCaseByCaseNumber(String courtCode, String caseNo){
-        var courtCaseEntity = courtCaseRepository.findByCaseNo(caseNo);
-        if(!courtCode.equals("SHF")) {
+    public CourtCaseEntity getCaseByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException {
+        CourtCaseEntity courtCaseEntity = courtCaseRepository.findByCaseNo(caseNo);
+        if (!courtCode.equals("SHF")) {
             throw new EntityNotFoundException(String.format("Court %s not found", courtCode));
         }
-        if(courtCaseEntity == null) {
+        if (courtCaseEntity == null) {
             throw new EntityNotFoundException(String.format("Case %s not found", caseNo));
         }
         log.info("retrieved case for case number {}", caseNo);
         return courtCaseEntity;
     }
 
+    public CourtCaseEntity createCase(CourtCaseEntity courtCaseEntity) {
+        log.info("Created case for case number {}", courtCaseEntity.getCaseId());
+        courtCaseRepository.save(courtCaseEntity);
+        return courtCaseEntity;
+    }
+
+    public CourtCaseEntity createOrUpdateCase(String caseId, CourtCaseEntity courtCaseEntity) {
+        CourtCaseEntity existingCase = courtCaseRepository.findByCaseNo(courtCaseEntity.getCaseNo());
+
+        if (existingCase == null) {
+            return createCase(courtCaseEntity);
+        }
+
+        existingCase.setCaseNo(courtCaseEntity.getCaseNo());
+        existingCase.setCourtId(courtCaseEntity.getCourtId());
+        existingCase.setCourtRoom(courtCaseEntity.getCourtRoom());
+        existingCase.setSessionStartTime(courtCaseEntity.getSessionStartTime());
+        existingCase.setData(courtCaseEntity.getData());
+
+        log.info("Updated case for case number {}", caseId);
+        courtCaseRepository.save(existingCase);
+        return existingCase;
+    }
 
 }

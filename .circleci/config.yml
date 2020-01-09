@@ -80,7 +80,7 @@ jobs:
           keys:
             - gradle-{{ checksum "build.gradle" }}
             - gradle-
-      - run: ./gradlew build --stracktrace --info
+      - run: ./gradlew build
       - run:
           name: Record the Application Version
           command: |

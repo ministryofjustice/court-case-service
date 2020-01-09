@@ -26,11 +26,6 @@ public class CourtCaseController {
         return courtCaseService.getCaseByCaseNumber(courtCode, caseNo);
     }
 
-    @PostMapping("/case")
-    public CourtCaseEntity createCase(@Valid @RequestBody CourtCaseEntity courtCaseEntity) {
-        return courtCaseService.createCase(courtCaseEntity);
-    }
-
     @PutMapping("/case/{id}")
     public CourtCaseEntity updateCase(@PathVariable(value = "id") Long caseId, @Valid @RequestBody CourtCaseEntity courtCaseDetails) {
         return courtCaseService.createOrUpdateCase(caseId.toString(), courtCaseDetails);

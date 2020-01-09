@@ -47,7 +47,7 @@ public class CourtCaseService {
         existingCase.setSessionStartTime(courtCaseEntity.getSessionStartTime());
         existingCase.setData(courtCaseEntity.getData());
 
-        log.info("retrieved case for case number {}", caseId);
+        log.info("Updated case for case number {}", caseId);
         courtCaseRepository.save(existingCase);
         return existingCase;
     }

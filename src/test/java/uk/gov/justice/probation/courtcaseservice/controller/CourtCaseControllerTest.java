@@ -49,8 +49,6 @@ public class CourtCaseControllerTest {
     private final String CASE_NO = "1600028913";
     private final String NEW_CASE_NO = "1700028914";
     private final Long COURT_ID = 4444443L;
-    private final Long CASE_ID = 5555555L;
-    private final Long NEW_CASE_ID = 6666666L;
     private final LocalDateTime now = LocalDateTime.now();
     private final CourtCaseEntity caseDetails = new CourtCaseEntity();
 
@@ -61,7 +59,7 @@ public class CourtCaseControllerTest {
                 (aClass, s) -> mapper
         ));
 
-        caseDetails.setCaseId(NEW_CASE_ID);
+        caseDetails.setCaseId(Long.parseLong(NEW_CASE_NO));
         caseDetails.setCaseNo(NEW_CASE_NO);
         caseDetails.setCourtId(COURT_ID);
         caseDetails.setCourtRoom("1");
@@ -145,7 +143,7 @@ public class CourtCaseControllerTest {
                 .accept(ContentType.JSON)
                 .body(caseDetails)
                 .when()
-                .put("/case/" + CASE_ID)
+                .put("/case/" + NEW_CASE_NO)
                 .then()
                 .statusCode(500)
                 .body(containsString("constraint [fk_court_case_court]"));
@@ -158,14 +156,14 @@ public class CourtCaseControllerTest {
                 .accept(ContentType.JSON)
                 .body(caseDetails)
                 .when()
-                .put("/case/" + NEW_CASE_ID)
+                .put("/case/" + NEW_CASE_NO)
                 .then()
                 .statusCode(200)
                 .extract()
                 .body()
                 .as(CourtCaseEntity.class);
 
-        assertThat(result.getCaseId()).isEqualTo(NEW_CASE_ID);
+        assertThat(result.getCaseId()).isEqualTo(Long.parseLong(NEW_CASE_NO));
         assertThat(result.getCaseNo()).isEqualTo(NEW_CASE_NO);
         assertThat(result.getCourtId()).isEqualTo(COURT_ID);
         assertThat(result.getCourtRoom()).isEqualTo("1");
@@ -184,14 +182,14 @@ public class CourtCaseControllerTest {
                 .accept(ContentType.JSON)
                 .body(caseDetails)
                 .when()
-                .put("/case/" + NEW_CASE_ID)
+                .put("/case/" + NEW_CASE_NO)
                 .then()
                 .statusCode(200)
                 .extract()
                 .body()
                 .as(CourtCaseEntity.class);
 
-        assertThat(newResult.getCaseId()).isEqualTo(NEW_CASE_ID);
+        assertThat(newResult.getCaseId()).isEqualTo(Long.parseLong(NEW_CASE_NO));
         assertThat(newResult.getCaseNo()).isEqualTo(NEW_CASE_NO);
         assertThat(newResult.getCourtId()).isEqualTo(COURT_ID);
         assertThat(newResult.getCourtRoom()).isEqualTo("2");

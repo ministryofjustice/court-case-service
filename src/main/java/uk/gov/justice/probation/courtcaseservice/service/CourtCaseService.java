@@ -17,6 +17,20 @@ public class CourtCaseService {
     private final CourtRepository courtRepository;
     private final CourtCaseRepository courtCaseRepository;
 
+    private void checkCourtById(Long courtId) throws EntityNotFoundException {
+        Optional<CourtEntity> courtEntity = courtRepository.findById(courtId);
+        if (!courtEntity.isPresent()) {
+            throw new EntityNotFoundException(String.format("Court %s not found", courtId));
+        }
+    }
+
+    private void checkCourtByCode(String courtCode) throws EntityNotFoundException {
+        CourtEntity courtEntity = courtRepository.findByCourtCode(courtCode);
+        if (courtEntity == null) {
+            throw new EntityNotFoundException(String.format("Court %s not found", courtCode));
+        }
+    }
+
     private CourtCaseEntity createCase(CourtCaseEntity courtCaseEntity) {
         log.info("Court case created for case number {}", courtCaseEntity.getCaseNo());
         return courtCaseRepository.save(courtCaseEntity);
@@ -28,10 +42,7 @@ public class CourtCaseService {
     }
 
     public CourtCaseEntity getCaseByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException {
-        CourtEntity courtEntity = courtRepository.findByCourtCode(courtCode);
-        if (courtEntity == null) {
-            throw new EntityNotFoundException(String.format("Court %s not found", courtCode));
-        }
+        checkCourtByCode(courtCode);
         CourtCaseEntity courtCaseEntity = courtCaseRepository.findByCaseNo(caseNo);
         if (courtCaseEntity == null) {
             throw new EntityNotFoundException(String.format("Case %s not found", caseNo));
@@ -41,17 +52,7 @@ public class CourtCaseService {
     }
 
     public CourtCaseEntity createOrUpdateCase(Long caseId, CourtCaseEntity courtCaseEntity) throws EntityNotFoundException {
-        Long courtId = courtCaseEntity.getCourtId();
-        Optional<CourtEntity> courtEntity = courtRepository.findById(courtId);
-        if (!courtEntity.isPresent()) {
-            throw new EntityNotFoundException(String.format("Court %s not found", courtId));
-        }
-
-        Long id = courtCaseEntity.getCourtId();
-        if (courtRepository.findById(id) == null) {
-            throw new EntityNotFoundException(String.format("Court %s not found", id));
-        }
-
+        checkCourtById(courtCaseEntity.getCourtId());
         CourtCaseEntity existingCase = courtCaseRepository.findByCaseId(caseId);
 
         if (existingCase == null) {

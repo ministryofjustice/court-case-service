@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.http.ContentType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,10 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
+
+import java.time.LocalDateTime;
+
+import static org.hamcrest.Matchers.containsString;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
@@ -29,24 +34,25 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class CourtCaseControllerTest {
 
-    /*
-        before-test.sql sets up a court case in the database
-     */
+    /* before-test.sql sets up a court case in the database */
 
     @LocalServerPort
-    int port;
+    private int port;
 
     @Autowired
     ObjectMapper mapper;
-
 
     @Autowired
     CourtCaseRepository courtCaseRepository;
 
     private final String COURT_CODE = "SHF";
-    private final String NOT_FOUND_COURT_CODE = "LPL";
-    private final String NOT_FOUND_CASE_NO = "11111111111";
-    private String CASE_NO = "1600028913";
+    private final String CASE_NO = "1600028913";
+    private final String NEW_CASE_NO = "1700028914";
+    private final Long COURT_ID = 4444443L;
+    private final Long CASE_ID = 5555555L;
+    private final Long NEW_CASE_ID = 6666666L;
+    private final LocalDateTime now = LocalDateTime.now();
+    private final CourtCaseEntity caseDetails = new CourtCaseEntity();
 
     @Before
     public void setup() {
@@ -55,11 +61,17 @@ public class CourtCaseControllerTest {
                 (aClass, s) -> mapper
         ));
 
+        caseDetails.setCaseId(NEW_CASE_ID);
+        caseDetails.setCaseNo(NEW_CASE_NO);
+        caseDetails.setCourtId(COURT_ID);
+        caseDetails.setCourtRoom("1");
+        caseDetails.setSessionStartTime(now);
+        caseDetails.setData("{}");
     }
 
     @Test
     public void shouldGetCaseWhenCourtExists() throws JsonProcessingException {
-        var result = given()
+        given()
                 .when()
                 .header("Accept", "application/json")
                 .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, CASE_NO)
@@ -69,7 +81,7 @@ public class CourtCaseControllerTest {
 
     @Test
     public void shouldGetCaseWhenExists() throws JsonProcessingException {
-        var result = given()
+        CourtCaseEntity result = given()
                 .when()
                 .header("Accept", "application/json")
                 .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, CASE_NO)
@@ -85,7 +97,10 @@ public class CourtCaseControllerTest {
 
     @Test
     public void shouldReturnNotFoundForNonexistentCase() {
-        var result = given()
+
+        String NOT_FOUND_CASE_NO = "11111111111";
+
+        ErrorResponse result = given()
                 .when()
                 .header("Accept", "application/json")
                 .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, NOT_FOUND_CASE_NO)
@@ -102,7 +117,10 @@ public class CourtCaseControllerTest {
 
     @Test
     public void shouldReturnNotFoundForNonexistentCourt() {
-        var result = given()
+
+        String NOT_FOUND_COURT_CODE = "LPL";
+
+        ErrorResponse result = given()
                 .when()
                 .header("Accept", "application/json")
                 .get("/court/{courtCode}/case/{caseNo}", NOT_FOUND_COURT_CODE, CASE_NO)
@@ -116,6 +134,67 @@ public class CourtCaseControllerTest {
         assertThat(result.getUserMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
         assertThat(result.getStatus()).isEqualTo(404);
     }
+
+    @Test
+    public void createCaseDataWithIncorrectCourt() {
+
+        caseDetails.setCourtId(0L);
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(caseDetails)
+                .when()
+                .put("/case/" + CASE_ID)
+                .then()
+                .statusCode(500)
+                .body(containsString("constraint [fk_court_case_court]"));
+    }
+
+    @Test
+    public void createCaseData() {
+        CourtCaseEntity result = given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(caseDetails)
+                .when()
+                .put("/case/" + NEW_CASE_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(CourtCaseEntity.class);
+
+        assertThat(result.getCaseId()).isEqualTo(NEW_CASE_ID);
+        assertThat(result.getCaseNo()).isEqualTo(NEW_CASE_NO);
+        assertThat(result.getCourtId()).isEqualTo(COURT_ID);
+        assertThat(result.getCourtRoom()).isEqualTo("1");
+        assertThat(result.getSessionStartTime()).isEqualTo(now.toString());
+    }
+
+    @Test
+    public void updateCaseData() {
+
+        createCaseData();
+
+        caseDetails.setCourtRoom("2");
+
+        CourtCaseEntity newResult = given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(caseDetails)
+                .when()
+                .put("/case/" + NEW_CASE_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(CourtCaseEntity.class);
+
+        assertThat(newResult.getCaseId()).isEqualTo(NEW_CASE_ID);
+        assertThat(newResult.getCaseNo()).isEqualTo(NEW_CASE_NO);
+        assertThat(newResult.getCourtId()).isEqualTo(COURT_ID);
+        assertThat(newResult.getCourtRoom()).isEqualTo("2");
+        assertThat(newResult.getSessionStartTime()).isEqualTo(now.toString());
+    }
 }
-
-

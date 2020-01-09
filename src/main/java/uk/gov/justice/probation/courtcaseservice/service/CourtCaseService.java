@@ -8,6 +8,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
+import java.util.Optional;
+
 @Service
 @Slf4j
 public class CourtCaseService {
@@ -26,7 +28,8 @@ public class CourtCaseService {
     }
 
     public CourtCaseEntity getCaseByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException {
-        if (courtRepository.findByCourtCode(courtCode) == null) {
+        CourtEntity courtEntity = courtRepository.findByCourtCode(courtCode);
+        if (courtEntity == null) {
             throw new EntityNotFoundException(String.format("Court %s not found", courtCode));
         }
         CourtCaseEntity courtCaseEntity = courtCaseRepository.findByCaseNo(caseNo);
@@ -38,19 +41,30 @@ public class CourtCaseService {
     }
 
     public CourtCaseEntity createOrUpdateCase(Long caseId, CourtCaseEntity courtCaseEntity) throws EntityNotFoundException {
+        Long courtId = courtCaseEntity.getCourtId();
+        Optional<CourtEntity> courtEntity = courtRepository.findById(courtId);
+        if (!courtEntity.isPresent()) {
+            throw new EntityNotFoundException(String.format("Court %s not found", courtId));
+        }
+
+        Long id = courtCaseEntity.getCourtId();
+        if (courtRepository.findById(id) == null) {
+            throw new EntityNotFoundException(String.format("Court %s not found", id));
+        }
+
         CourtCaseEntity existingCase = courtCaseRepository.findByCaseId(caseId);
 
-        if (existingCase != null) {
-            existingCase.setCaseNo(courtCaseEntity.getCaseNo());
-            existingCase.setCourtId(courtCaseEntity.getCourtId());
-            existingCase.setCourtRoom(courtCaseEntity.getCourtRoom());
-            existingCase.setSessionStartTime(courtCaseEntity.getSessionStartTime());
-            existingCase.setData(courtCaseEntity.getData());
-
-            log.info("Court case updated for case {}", courtCaseEntity.getCaseNo());
-            return courtCaseRepository.save(existingCase);
-        } else {
+        if (existingCase == null) {
             return createCase(courtCaseEntity);
         }
+
+        existingCase.setCaseNo(courtCaseEntity.getCaseNo());
+        existingCase.setCourtId(courtCaseEntity.getCourtId());
+        existingCase.setCourtRoom(courtCaseEntity.getCourtRoom());
+        existingCase.setSessionStartTime(courtCaseEntity.getSessionStartTime());
+        existingCase.setData(courtCaseEntity.getData());
+
+        log.info("Court case updated for case {}", courtCaseEntity.getCaseNo());
+        return courtCaseRepository.save(existingCase);
     }
 }

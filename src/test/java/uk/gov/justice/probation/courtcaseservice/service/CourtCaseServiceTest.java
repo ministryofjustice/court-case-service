@@ -32,6 +32,9 @@ public class CourtCaseServiceTest {
     private final String courtCode = "SHF";
     private CourtCaseService service;
 
+    private CourtEntity courtEntity = mock(CourtEntity.class);
+    private CourtCaseEntity courtCase = mock(CourtCaseEntity.class);
+
     @Before
     public void setup() {
         service = new CourtCaseService(courtRepository, courtCaseRepository);
@@ -39,8 +42,6 @@ public class CourtCaseServiceTest {
 
     @Test
     public void getCourtCaseShouldRetrieveCaseFromRepository() {
-        CourtEntity courtEntity = mock(CourtEntity.class);
-        CourtCaseEntity courtCase = mock(CourtCaseEntity.class);
         when(courtRepository.findByCourtCode(courtCode)).thenReturn(courtEntity);
         when(courtCaseRepository.findByCaseNo(caseNo)).thenReturn(courtCase);
 
@@ -50,7 +51,6 @@ public class CourtCaseServiceTest {
 
     @Test
     public void getCourtCaseShouldThrowNotFoundException() {
-        CourtEntity courtEntity = mock(CourtEntity.class);
         when(courtRepository.findByCourtCode(courtCode)).thenReturn(courtEntity);
         when(courtCaseRepository.findByCaseNo(caseNo)).thenReturn(null);
 
@@ -65,7 +65,7 @@ public class CourtCaseServiceTest {
     @Test
     public void getCourtCaseShouldThrowIncorrectCourtException() {
         when(courtRepository.findByCourtCode(courtCode)).thenReturn(null);
-        
+
         var exception = catchThrowable(() -> {
             service.getCaseByCaseNumber(courtCode, caseNo);
         });
@@ -73,15 +73,4 @@ public class CourtCaseServiceTest {
                 .hasMessageContaining("Court " + courtCode + " not found");
 
     }
-
-    @Test
-    public void putCourtCaseShouldCreateCase() {
-        CourtCaseEntity courtCase = mock(CourtCaseEntity.class);
-        when(courtCaseRepository.findByCaseId(caseId)).thenReturn(courtCase);
-
-        service.createOrUpdateCase(caseId, courtCase);
-        verify(courtCaseRepository, times(1)).findByCaseId(caseId);
-        verify(courtCaseRepository, times(1)).save(courtCase);
-    }
-
 }

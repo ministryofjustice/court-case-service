@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
@@ -17,7 +16,7 @@ public class CourtCaseService {
 
     private CourtCaseRepository courtCaseRepository;
 
-    public CourtCaseEntity getCaseByCaseNumber(String courtCode, String caseNo) {
+    public CourtCaseEntity getCaseByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException {
         CourtCaseEntity courtCaseEntity = courtCaseRepository.findByCaseNo(caseNo);
         if (!courtCode.equals("SHF")) {
             throw new EntityNotFoundException(String.format("Court %s not found", courtCode));
@@ -30,6 +29,7 @@ public class CourtCaseService {
     }
 
     public CourtCaseEntity createCase(CourtCaseEntity courtCaseEntity) {
+        log.info("Created case for case number {}", courtCaseEntity.getCaseId());
         courtCaseRepository.save(courtCaseEntity);
         return courtCaseEntity;
     }

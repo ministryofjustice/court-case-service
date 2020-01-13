@@ -46,7 +46,7 @@ public class CourtCaseControllerTest {
     private final String COURT_CODE = "SHF";
     private final String NOT_FOUND_COURT_CODE = "LPL";
     private final String NOT_FOUND_CASE_NO = "11111111111";
-    private String CASE_NO = "1600028912";
+    private String CASE_NO = "1600028913";
 
     @Before
     public void setup() {

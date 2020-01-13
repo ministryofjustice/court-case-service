@@ -2,7 +2,10 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
+
+import java.util.List;
 
 
 @RestController
@@ -22,6 +25,11 @@ public class CourtCaseController {
 
         log.info("Court case requested for court {} for case number {}", courtCode, caseNo);
         return courtCaseService.getCaseByCaseNumber(courtCode, caseNo);
+    }
+
+    @GetMapping("/court/{courtCode}/cases")
+    public List<CourtCaseEntity> findCourtList(@PathVariable String courtCode) {
+        return courtCaseService.getAllCases(courtCode);
     }
 
 }

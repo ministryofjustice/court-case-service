@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
+
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -42,5 +43,8 @@ public class CourtCaseEntity implements Serializable {
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "DATA")
     private String data;
+
+    @Column(name = "PROBATION_RECORD")
+    private String probationRecord;
 
 }

@@ -25,7 +25,7 @@ public class CourtCaseEntity implements Serializable {
     private Long id;
 
     @Column(name = "CASE_ID")
-    private Long caseId;
+    private String caseId;
 
     @Column(name = "CASE_NO")
     private String caseNo;

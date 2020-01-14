@@ -58,7 +58,7 @@ public class CourtCaseControllerTest {
                 (aClass, s) -> mapper
         ));
 
-        caseDetails.setCaseId(Long.parseLong(NEW_CASE_NO));
+        caseDetails.setCaseId(NEW_CASE_NO);
         caseDetails.setCaseNo(NEW_CASE_NO);
         caseDetails.setCourtId(COURT_ID);
         caseDetails.setCourtRoom("1");
@@ -169,7 +169,7 @@ public class CourtCaseControllerTest {
                 .body()
                 .as(CourtCaseEntity.class);
 
-        assertThat(result.getCaseId()).isEqualTo(Long.parseLong(NEW_CASE_NO));
+        assertThat(result.getCaseId()).isEqualTo(NEW_CASE_NO);
         assertThat(result.getCaseNo()).isEqualTo(NEW_CASE_NO);
         assertThat(result.getCourtId()).isEqualTo(COURT_ID);
         assertThat(result.getCourtRoom()).isEqualTo("1");
@@ -195,7 +195,7 @@ public class CourtCaseControllerTest {
                 .body()
                 .as(CourtCaseEntity.class);
 
-        assertThat(newResult.getCaseId()).isEqualTo(Long.parseLong(NEW_CASE_NO));
+        assertThat(newResult.getCaseId()).isEqualTo(NEW_CASE_NO);
         assertThat(newResult.getCaseNo()).isEqualTo(NEW_CASE_NO);
         assertThat(newResult.getCourtId()).isEqualTo(COURT_ID);
         assertThat(newResult.getCourtRoom()).isEqualTo("2");

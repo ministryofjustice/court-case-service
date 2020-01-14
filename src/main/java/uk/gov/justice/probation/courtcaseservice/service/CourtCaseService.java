@@ -51,7 +51,7 @@ public class CourtCaseService {
         return courtCaseEntity;
     }
 
-    public CourtCaseEntity createOrUpdateCase(Long caseId, CourtCaseEntity courtCaseEntity) throws EntityNotFoundException {
+    public CourtCaseEntity createOrUpdateCase(String caseId, CourtCaseEntity courtCaseEntity) throws EntityNotFoundException {
         checkCourtById(courtCaseEntity.getCourtId());
         CourtCaseEntity existingCase = courtCaseRepository.findByCaseId(caseId);
 
@@ -59,6 +59,7 @@ public class CourtCaseService {
             return createCase(courtCaseEntity);
         }
 
+        existingCase.setCaseId(caseId);
         existingCase.setCaseNo(courtCaseEntity.getCaseNo());
         existingCase.setCourtId(courtCaseEntity.getCourtId());
         existingCase.setCourtRoom(courtCaseEntity.getCourtRoom());

@@ -21,7 +21,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseReposit
 
 import java.time.LocalDateTime;
 
-import static org.hamcrest.Matchers.containsString;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
@@ -136,17 +135,24 @@ public class CourtCaseControllerTest {
     @Test
     public void createCaseDataWithIncorrectCourt() {
 
-        caseDetails.setCourtId(0L);
+        Long NOT_FOUND_COURT_ID = 123456L;
+        caseDetails.setCourtId(NOT_FOUND_COURT_ID);
 
-        given()
+        ErrorResponse result = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(caseDetails)
                 .when()
                 .put("/case/" + NEW_CASE_NO)
                 .then()
-                .statusCode(500)
-                .body(containsString("constraint [fk_court_case_court]"));
+                .statusCode(404)
+                .extract()
+                .body()
+                .as(ErrorResponse.class);
+
+        assertThat(result.getDeveloperMessage()).contains("Court " + NOT_FOUND_COURT_ID + " not found");
+        assertThat(result.getUserMessage()).contains("Court " + NOT_FOUND_COURT_ID + " not found");
+        assertThat(result.getStatus()).isEqualTo(404);
     }
 
     @Test

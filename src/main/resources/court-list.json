@@ -62,21 +62,21 @@
       },
       {
         "s_id": 554831,
-        "lja": "South West London Magistrates' Court",
+        "lja": "Sheffield Magistrates Court",
         "blocks": {"block": {
           "cases": {"case": [
             {
               "inf": "POL01",
-              "h_id": 1246275,
-              "def_name": "Mr Ureet JMBALERNAEU",
+              "h_id": 1246257,
+              "def_name": "Mr Dylan Adam Armstrong",
               "def_addr": {
-                "pcode": "rg2 6ua",
+                "pcode": "S1 6ua",
                 "line3": "line3",
                 "line2": "line2",
                 "line1": "line1"
               },
               "type": "C",
-              "caseno": 1600028947,
+              "caseno": 1600028974,
               "def_dob": "02/08/1990",
               "valid": "Y",
               "cseq": 1,
@@ -85,29 +85,29 @@
                 "as": "Contrary to section 363(2) and (4) of the Communications Act 2003.",
                 "code": "CA03010",
                 "oseq": 1,
-                "co_id": 1142413,
+                "co_id": 1142431,
                 "maxpen": "S: L3",
                 "sum": "On 05/09/2016 used a colour television receiver without a licence at the above address.",
                 "sof": ".",
                 "title": "Use a television set without a licence"
               }},
-              "def_age": 26,
+              "def_age": 29,
               "c_id": 1168463,
               "def_type": "P",
               "def_sex": "N"
             },
-            {
+            ,{
               "inf": "POL01",
-              "h_id": 1246278,
+              "h_id": 1246258,
               "def_name": "Mr Joe JMBBLOGGS",
               "def_addr": {
-                "pcode": "RG2 6UA",
+                "pcode": "S1 6UA",
                 "line3": "l3",
                 "line2": "line2",
                 "line1": "line1"
               },
               "type": "C",
-              "caseno": 1600028955,
+              "caseno": 1600028956,
               "def_dob": "16/08/1990",
               "valid": "Y",
               "cseq": 2,
@@ -122,7 +122,7 @@
                 "sof": ".",
                 "title": "Use a television set without a licence"
               }},
-              "def_age": 26,
+              "def_age": 29,
               "c_id": 1168464,
               "def_type": "P",
               "def_sex": "N"

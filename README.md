@@ -4,17 +4,26 @@ Service to access court cases imported from HMCTS Libra court lists
 
 Dev Setup
 ---
-Requires Lombok installed in the IDE.
 
-Build
----
-```./gradlew build```
-
-Run Locally
----
-Start PostgreSQL instance
+In order to run the service locally, a postgres database is required, the easiest way to run locally is using the [docker-compose.yml](docker-compose.yml) file which will pull down the latest version.
 
 ```docker-compose up```
+
+The service uses Lombok and so annotation processors must be [turned on within the IDE](https://www.baeldung.com/lombok-ide).
+
+
+
+Building and running
+---
+
+This service is built using Gradle. In order to build the project from the command line, run
+
+```./gradlew build```
+
+To run the service, ensure there is an instance of Postgres running and then run
+
+```./gradlew bootRun```
+
 
 Flyway commands
 ---
@@ -34,3 +43,9 @@ Baseline an existing database, excluding all migrations up to and including base
 Check dependency versions
 ---
 ```./gradlew dependencyUpdates```
+
+## Deployment
+
+Builds and deployments are setup in [Circle CI](https://circleci.com/gh/ministryofjustice/court-case-service) and configured in the [config file.](circleci.config.yml) 
+
+Helm is used to deploy the service to a Kubernetes Cluster using templates in the helm_deploy folder. 

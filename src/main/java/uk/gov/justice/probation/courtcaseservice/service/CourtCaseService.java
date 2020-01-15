@@ -9,7 +9,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseReposit
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
 import java.util.InputMismatchException;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -18,19 +17,11 @@ public class CourtCaseService {
     private final CourtRepository courtRepository;
     private final CourtCaseRepository courtCaseRepository;
 
-    private void checkCourtById(Long courtId) throws EntityNotFoundException {
-        Optional<CourtEntity> courtEntity = courtRepository.findById(courtId);
-        if (!courtEntity.isPresent()) {
-            throw new EntityNotFoundException(String.format("Court %s not found", courtId));
-        }
-    }
-
-    private CourtEntity checkCourtByCode(String courtCode) throws EntityNotFoundException {
+    private void checkCourtByCode(String courtCode) throws EntityNotFoundException {
         CourtEntity courtEntity = courtRepository.findByCourtCode(courtCode);
         if (courtEntity == null) {
             throw new EntityNotFoundException(String.format("Court %s not found", courtCode));
         }
-        return courtEntity;
     }
 
     private CourtCaseEntity createCase(CourtCaseEntity courtCaseEntity) {
@@ -54,7 +45,7 @@ public class CourtCaseService {
     }
 
     public CourtCaseEntity createOrUpdateCase(String caseId, CourtCaseEntity courtCaseEntity) throws EntityNotFoundException, InputMismatchException {
-        checkCourtById(courtCaseEntity.getCourtId());
+        checkCourtByCode(courtCaseEntity.getCourtCode());
         String bodyCaseId = courtCaseEntity.getCaseId();
         if (!caseId.equals(bodyCaseId)) {
             throw new InputMismatchException(String.format("Case ID %s does not match with %s", caseId, bodyCaseId));
@@ -67,7 +58,7 @@ public class CourtCaseService {
 
         existingCase.setCaseId(caseId);
         existingCase.setCaseNo(courtCaseEntity.getCaseNo());
-        existingCase.setCourtId(courtCaseEntity.getCourtId());
+        existingCase.setCourtCode(courtCaseEntity.getCourtCode());
         existingCase.setCourtRoom(courtCaseEntity.getCourtRoom());
         existingCase.setProbationRecord(courtCaseEntity.getProbationRecord());
         existingCase.setSessionStartTime(courtCaseEntity.getSessionStartTime());

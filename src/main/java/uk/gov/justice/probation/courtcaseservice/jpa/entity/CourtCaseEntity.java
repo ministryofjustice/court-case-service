@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 public class CourtCaseEntity implements Serializable {
 
     @Id
-    @Column(name = "ID")
+    @Column(name = "ID", updatable = false, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private Long id;
@@ -32,8 +32,8 @@ public class CourtCaseEntity implements Serializable {
     @Column(name = "CASE_NO")
     private String caseNo;
 
-    @Column(name = "COURT_ID")
-    private Long courtId;
+    @Column(name = "COURT_CODE")
+    private String courtCode;
 
     @Column(name = "COURT_ROOM")
     private String courtRoom;

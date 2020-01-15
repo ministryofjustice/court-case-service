@@ -8,6 +8,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
+import java.util.InputMismatchException;
 import java.util.Optional;
 
 @Service
@@ -24,11 +25,12 @@ public class CourtCaseService {
         }
     }
 
-    private void checkCourtByCode(String courtCode) throws EntityNotFoundException {
+    private CourtEntity checkCourtByCode(String courtCode) throws EntityNotFoundException {
         CourtEntity courtEntity = courtRepository.findByCourtCode(courtCode);
         if (courtEntity == null) {
             throw new EntityNotFoundException(String.format("Court %s not found", courtCode));
         }
+        return courtEntity;
     }
 
     private CourtCaseEntity createCase(CourtCaseEntity courtCaseEntity) {
@@ -51,8 +53,12 @@ public class CourtCaseService {
         return courtCaseEntity;
     }
 
-    public CourtCaseEntity createOrUpdateCase(String caseId, CourtCaseEntity courtCaseEntity) throws EntityNotFoundException {
+    public CourtCaseEntity createOrUpdateCase(String caseId, CourtCaseEntity courtCaseEntity) throws EntityNotFoundException, InputMismatchException {
         checkCourtById(courtCaseEntity.getCourtId());
+        String bodyCaseId = courtCaseEntity.getCaseId();
+        if (!caseId.equals(bodyCaseId)) {
+            throw new InputMismatchException(String.format("Case ID %s does not match with %s", caseId, bodyCaseId));
+        }
         CourtCaseEntity existingCase = courtCaseRepository.findByCaseId(caseId);
 
         if (existingCase == null) {
@@ -63,6 +69,7 @@ public class CourtCaseService {
         existingCase.setCaseNo(courtCaseEntity.getCaseNo());
         existingCase.setCourtId(courtCaseEntity.getCourtId());
         existingCase.setCourtRoom(courtCaseEntity.getCourtRoom());
+        existingCase.setProbationRecord(courtCaseEntity.getProbationRecord());
         existingCase.setSessionStartTime(courtCaseEntity.getSessionStartTime());
         existingCase.setData(courtCaseEntity.getData());
 

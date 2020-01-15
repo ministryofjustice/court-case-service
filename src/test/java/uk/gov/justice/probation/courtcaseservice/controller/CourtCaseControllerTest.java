@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import java.util.InputMismatchException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
@@ -45,6 +46,7 @@ public class CourtCaseControllerTest {
     CourtCaseRepository courtCaseRepository;
 
     private final String COURT_CODE = "SHF";
+    private final String CASE_ID = "123456";
     private final String CASE_NO = "1600028913";
     private final String NEW_CASE_NO = "1700028914";
     private final String PROBATION_RECORD = "NOT KNOWN";
@@ -59,7 +61,7 @@ public class CourtCaseControllerTest {
                 (aClass, s) -> mapper
         ));
 
-        caseDetails.setCaseId(NEW_CASE_NO);
+        caseDetails.setCaseId(CASE_ID);
         caseDetails.setCaseNo(NEW_CASE_NO);
         caseDetails.setCourtId(COURT_ID);
         caseDetails.setCourtRoom("1");
@@ -145,7 +147,7 @@ public class CourtCaseControllerTest {
                 .accept(ContentType.JSON)
                 .body(caseDetails)
                 .when()
-                .put("/case/" + NEW_CASE_NO)
+                .put("/case/" + CASE_ID)
                 .then()
                 .statusCode(404)
                 .extract()
@@ -158,20 +160,38 @@ public class CourtCaseControllerTest {
     }
 
     @Test
+    public void createCaseDataWithCaseIdMismatch() {
+        String mismatchCaseId = "654321";
+        InputMismatchException result = given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(caseDetails)
+                .when()
+                .put("/case/" + mismatchCaseId)
+                .then()
+                .statusCode(500)
+                .extract()
+                .body()
+                .as(InputMismatchException.class);
+
+        assertThat(result.getMessage()).contains("Case ID " + mismatchCaseId + " does not match with " + CASE_ID);
+    }
+
+    @Test
     public void createCaseData() {
         CourtCaseEntity result = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(caseDetails)
                 .when()
-                .put("/case/" + NEW_CASE_NO)
+                .put("/case/" + CASE_ID)
                 .then()
                 .statusCode(200)
                 .extract()
                 .body()
                 .as(CourtCaseEntity.class);
 
-        assertThat(result.getCaseId()).isEqualTo(NEW_CASE_NO);
+        assertThat(result.getCaseId()).isEqualTo(CASE_ID);
         assertThat(result.getCaseNo()).isEqualTo(NEW_CASE_NO);
         assertThat(result.getCourtId()).isEqualTo(COURT_ID);
         assertThat(result.getCourtRoom()).isEqualTo("1");
@@ -191,14 +211,14 @@ public class CourtCaseControllerTest {
                 .accept(ContentType.JSON)
                 .body(caseDetails)
                 .when()
-                .put("/case/" + NEW_CASE_NO)
+                .put("/case/" + CASE_ID)
                 .then()
                 .statusCode(200)
                 .extract()
                 .body()
                 .as(CourtCaseEntity.class);
 
-        assertThat(newResult.getCaseId()).isEqualTo(NEW_CASE_NO);
+        assertThat(newResult.getCaseId()).isEqualTo(CASE_ID);
         assertThat(newResult.getCaseNo()).isEqualTo(NEW_CASE_NO);
         assertThat(newResult.getCourtId()).isEqualTo(COURT_ID);
         assertThat(newResult.getCourtRoom()).isEqualTo("2");

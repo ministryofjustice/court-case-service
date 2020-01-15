@@ -7,5 +7,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 @Repository
 public interface CourtCaseRepository extends JpaRepository<CourtCaseEntity, Long> {
     CourtCaseEntity findByCaseNo(String caseNo);
+
     CourtCaseEntity findByCaseId(String caseId);
 }

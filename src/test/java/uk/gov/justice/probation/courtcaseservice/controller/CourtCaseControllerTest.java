@@ -20,6 +20,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
@@ -72,8 +73,18 @@ public class CourtCaseControllerTest {
 
     @Test
     public void shouldGetCaseListWhenCasesExist() {
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(caseDetails)
+                .when()
+                .put("/case/" + NEW_CASE_NO)
+                .then()
+                .statusCode(200);
+
         CaseListResponse result = when()
-                .get("/court/{courtCode}/cases?date={date}", "SHF", "2020-02-01")
+                .get("/court/{courtCode}/cases?date={date}", "SHF", now.format(DateTimeFormatter.ISO_DATE))
                 .then()
                 .assertThat()
                 .statusCode(200)
@@ -81,7 +92,7 @@ public class CourtCaseControllerTest {
                 .body()
                 .as(CaseListResponse.class);
 
-        assertThat(result.getCases().size()).isEqualTo(2);
+        assertThat(result.getCases().size()).isEqualTo(1);
     }
 
     @Test

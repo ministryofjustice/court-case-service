@@ -40,9 +40,7 @@ public class CourtCaseController {
     CaseListResponse getCaseList(@PathVariable String courtCode,
                                  @RequestParam("date")
                                  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date date) {
-        List<CourtCaseEntity> courtCaseEntities = courtCaseService.filterByDate(date);
-        return CaseListResponse.builder()
-                .cases(courtCaseEntities)
-                .build();
+        List<CourtCaseEntity> courtCases = courtCaseService.filterCasesByCourtAndDate(courtCode, date);
+        return new CaseListResponse(courtCases);
     }
 }

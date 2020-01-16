@@ -8,7 +8,10 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseReposit
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
-import java.util.Collections;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +25,7 @@ public class CourtCaseService {
 
     private void checkCourtById(Long courtId) throws EntityNotFoundException {
         Optional<CourtEntity> courtEntity = courtRepository.findById(courtId);
-        if (!courtEntity.isPresent()) {
+        if (courtEntity.isEmpty()) {
             throw new EntityNotFoundException(String.format("Court %s not found", courtId));
         }
     }
@@ -72,7 +75,17 @@ public class CourtCaseService {
         return courtCaseRepository.save(existingCase);
     }
 
-    public List<CourtCaseEntity> filterByDate(Date date) {
-        return Collections.emptyList();
+    public List<CourtCaseEntity> filterCasesByCourtAndDate(String courtCode, Date date) {
+        CourtEntity court = courtRepository.findByCourtCode(courtCode);
+
+        if (court == null) {
+            throw new EntityNotFoundException("Court %s not found", courtCode);
+        }
+        LocalDateTime localDateTime = asMidnightLocalDateTime(date);
+        return courtCaseRepository.findByCourtIdAndSessionStartTime(court.getId(), localDateTime);
+    }
+
+    private LocalDateTime asMidnightLocalDateTime(Date date) {
+        return LocalDateTime.of(LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault()), LocalTime.MIDNIGHT);
     }
 }

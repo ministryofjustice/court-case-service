@@ -41,7 +41,7 @@ jar {
 }
 
 flyway {
-    url = 'jdbc:postgresql://localhost:5432/postgres?currentSchema=courtcaseserviceapi&user=root&password=dev'
+    url = 'jdbc:postgresql://localhost:5432/postgres?currentSchema=courtcaseservice&user=root&password=dev'
 }
 
 

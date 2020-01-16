@@ -44,7 +44,7 @@ public class CourtCaseEntity implements Serializable {
     @Column(columnDefinition = "jsonb", name = "DATA")
     private String data;
 
-    @Column(name = "PROBATION_RECORD")
-    private String probationRecord;
+    @Column(name = "PROBATION_STATUS")
+    private String probationStatus;
 
 }

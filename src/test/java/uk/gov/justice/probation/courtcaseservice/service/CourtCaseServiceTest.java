@@ -53,7 +53,7 @@ public class CourtCaseServiceTest {
     public void filterByDateShouldRetrieveCourtCasesFromRepository() {
         when(courtRepository.findByCourtCode(courtCode)).thenReturn(courtEntity);
         when(courtEntity.getId()).thenReturn(courtId);
-        when(courtCaseRepository.findByCourtIdAndSessionStartTime(eq(courtId), any())).thenReturn(caseList);
+        when(courtCaseRepository.findByCourtIdAndSessionStartTimeBetween(eq(courtId), any(), any())).thenReturn(caseList);
 
         List<CourtCaseEntity> courtCaseEntities = service.filterCasesByCourtAndDate(courtCode, date);
 

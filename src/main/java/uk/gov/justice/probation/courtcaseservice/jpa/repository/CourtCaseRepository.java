@@ -13,5 +13,5 @@ public interface CourtCaseRepository extends JpaRepository<CourtCaseEntity, Long
 
     CourtCaseEntity findByCaseId(Long caseId);
 
-    List<CourtCaseEntity> findByCourtIdAndSessionStartTime(Long courtCode, LocalDateTime date);
+    List<CourtCaseEntity> findByCourtIdAndSessionStartTimeBetween(Long courtCode, LocalDateTime start, LocalDateTime end);
 }

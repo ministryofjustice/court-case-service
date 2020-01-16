@@ -79,7 +79,7 @@ public class CourtCaseService {
         if (court == null) {
             throw new EntityNotFoundException("Court %s not found", courtCode);
         }
-        LocalDateTime localDateTime = LocalDateTime.of(date, LocalTime.MIDNIGHT);
-        return courtCaseRepository.findByCourtIdAndSessionStartTime(court.getId(), localDateTime);
+        LocalDateTime start = LocalDateTime.of(date, LocalTime.MIDNIGHT);
+        return courtCaseRepository.findByCourtIdAndSessionStartTimeBetween(court.getId(), start, start.plusDays(1));
     }
 }

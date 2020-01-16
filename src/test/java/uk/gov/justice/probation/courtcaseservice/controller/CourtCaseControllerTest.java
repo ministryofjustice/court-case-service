@@ -19,6 +19,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListRespon
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -74,17 +75,8 @@ public class CourtCaseControllerTest {
     @Test
     public void shouldGetCaseListWhenCasesExist() {
 
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(caseDetails)
-                .when()
-                .put("/case/" + NEW_CASE_NO)
-                .then()
-                .statusCode(200);
-
         CaseListResponse result = when()
-                .get("/court/{courtCode}/cases?date={date}", "SHF", now.format(DateTimeFormatter.ISO_DATE))
+                .get("/court/{courtCode}/cases?date={date}", "SHF", LocalDate.of(2019, 12, 14).format(DateTimeFormatter.ISO_DATE))
                 .then()
                 .assertThat()
                 .statusCode(200)
@@ -92,7 +84,13 @@ public class CourtCaseControllerTest {
                 .body()
                 .as(CaseListResponse.class);
 
-        assertThat(result.getCases().size()).isEqualTo(1);
+        assertThat(result.getCases().size()).isEqualTo(3);
+        assertThat(result.getCases().get(0).getCourtId()).isEqualTo(COURT_ID);
+        assertThat(result.getCases().get(0).getCaseId()).isEqualTo(5555555L);
+
+        assertThat(result.getCases().get(0).getSessionStartTime()).isEqualTo(LocalDateTime.of(2019, 12, 14, 9, 0));
+        assertThat(result.getCases().get(1).getSessionStartTime()).isEqualTo(LocalDateTime.of(2019, 12, 14, 0, 0));
+        assertThat(result.getCases().get(2).getSessionStartTime()).isEqualTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59));
     }
 
     @Test

@@ -11,8 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseReposit
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
-import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -37,7 +36,7 @@ public class CourtCaseServiceTest {
     @Mock
     private List<CourtCaseEntity> caseList;
 
-    private Date date = Date.from(Instant.EPOCH);
+    private LocalDate date = LocalDate.of(2020, 1, 16);
 
     private final String caseNo = "1600028912";
     private final Long caseId = 123456L;

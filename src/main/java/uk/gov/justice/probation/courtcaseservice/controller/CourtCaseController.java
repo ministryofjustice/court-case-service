@@ -8,7 +8,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 
 import javax.validation.Valid;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -39,7 +39,7 @@ public class CourtCaseController {
     public @ResponseBody
     CaseListResponse getCaseList(@PathVariable String courtCode,
                                  @RequestParam("date")
-                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date date) {
+                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         List<CourtCaseEntity> courtCases = courtCaseService.filterCasesByCourtAndDate(courtCode, date);
         return new CaseListResponse(courtCases);
     }

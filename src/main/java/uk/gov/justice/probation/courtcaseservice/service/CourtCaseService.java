@@ -11,8 +11,6 @@ import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFou
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,17 +73,13 @@ public class CourtCaseService {
         return courtCaseRepository.save(existingCase);
     }
 
-    public List<CourtCaseEntity> filterCasesByCourtAndDate(String courtCode, Date date) {
+    public List<CourtCaseEntity> filterCasesByCourtAndDate(String courtCode, LocalDate date) {
         CourtEntity court = courtRepository.findByCourtCode(courtCode);
 
         if (court == null) {
             throw new EntityNotFoundException("Court %s not found", courtCode);
         }
-        LocalDateTime localDateTime = asMidnightLocalDateTime(date);
+        LocalDateTime localDateTime = LocalDateTime.of(date, LocalTime.MIDNIGHT);
         return courtCaseRepository.findByCourtIdAndSessionStartTime(court.getId(), localDateTime);
-    }
-
-    private LocalDateTime asMidnightLocalDateTime(Date date) {
-        return LocalDateTime.of(LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault()), LocalTime.MIDNIGHT);
     }
 }

@@ -27,6 +27,7 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 
@@ -55,6 +56,7 @@ public class CourtCaseControllerTest {
     private final Long COURT_ID = 4444443L;
     private final LocalDateTime now = LocalDateTime.now();
     private final CourtCaseEntity caseDetails = new CourtCaseEntity();
+    private static final String NOT_FOUND_COURT_CODE = "LPL";
 
     @Before
     public void setup() {
@@ -106,18 +108,28 @@ public class CourtCaseControllerTest {
 
     @Test
     public void shouldReturn400BadRequestWhenNoDateProvided() {
-        ErrorResponse result = when()
+        when()
                 .get("/court/{courtCode}/cases", "SHF")
                 .then()
                 .assertThat()
                 .statusCode(400)
+                .body("message", equalTo("Required LocalDate parameter 'date' is not present"));
+    }
+
+    @Test
+    public void shouldReturn404NotFoundWhenNoCourtDoesNotExist() {
+        ErrorResponse result = when()
+                .get("/court/{courtCode}/cases?date={date}", NOT_FOUND_COURT_CODE, "2020-02-02")
+                .then()
+                .assertThat()
+                .statusCode(404)
                 .extract()
                 .body()
                 .as(ErrorResponse.class);
 
-        assertThat(result.getDeveloperMessage()).contains("date query parameter is required");
-        assertThat(result.getUserMessage()).contains("date query parameter is required");
-        assertThat(result.getStatus()).isEqualTo(400);
+        assertThat(result.getDeveloperMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
+        assertThat(result.getUserMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
+        assertThat(result.getStatus()).isEqualTo(404);
     }
 
     @Test
@@ -168,8 +180,6 @@ public class CourtCaseControllerTest {
 
     @Test
     public void shouldReturnNotFoundForNonexistentCourt() {
-
-        String NOT_FOUND_COURT_CODE = "LPL";
 
         ErrorResponse result = given()
                 .when()

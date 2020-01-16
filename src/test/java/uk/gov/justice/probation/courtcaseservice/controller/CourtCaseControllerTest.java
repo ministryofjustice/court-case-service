@@ -175,6 +175,28 @@ public class CourtCaseControllerTest {
     }
 
     @Test
+    public void createCaseDataWithDuplicateCaseNo() {
+
+        String newCaseId = "666666";
+        caseDetails.setCaseId(newCaseId);
+        caseDetails.setCaseNo(CASE_NO);
+
+        InputMismatchException result = given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(caseDetails)
+                .when()
+                .put("/case/" + newCaseId)
+                .then()
+                .statusCode(500)
+                .extract()
+                .body()
+                .as(InputMismatchException.class);
+
+        assertThat(result.getMessage()).contains("constraint [court_case_case_no_idempotent]");
+    }
+
+    @Test
     public void createCaseData() {
         CourtCaseEntity result = given()
                 .contentType(ContentType.JSON)

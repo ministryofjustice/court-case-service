@@ -12,7 +12,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Data
 @Table(name = "COURT")
-@Cacheable
 public class CourtEntity implements Serializable {
 
     @Id

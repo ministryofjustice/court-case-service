@@ -47,4 +47,8 @@ public class CourtCaseEntity implements Serializable {
     @Column(name = "PROBATION_RECORD")
     private String probationRecord;
 
+    public CourtSession getSession() {
+        return CourtSession.from(sessionStartTime);
+    }
+
 }

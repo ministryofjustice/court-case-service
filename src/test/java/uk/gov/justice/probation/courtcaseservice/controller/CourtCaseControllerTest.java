@@ -75,7 +75,7 @@ public class CourtCaseControllerTest {
     }
 
     @Test
-    public void shouldGetCaseListWhenCasesExist() {
+    public void cases_shouldGetCaseListWhenCasesExist() {
 
         CaseListResponse result = when()
                 .get("/court/{courtCode}/cases?date={date}", "SHF", LocalDate.of(2019, 12, 14).format(DateTimeFormatter.ISO_DATE))
@@ -96,7 +96,7 @@ public class CourtCaseControllerTest {
     }
 
     @Test
-    public void shouldGetEmptyCaseListWhenNoCasesMatch() {
+    public void GET_cases_shouldGetEmptyCaseListWhenNoCasesMatch() {
         when()
                 .get("/court/{courtCode}/cases?date={date}", "SHF", "2020-02-02")
                 .then()
@@ -107,7 +107,7 @@ public class CourtCaseControllerTest {
     }
 
     @Test
-    public void shouldReturn400BadRequestWhenNoDateProvided() {
+    public void GET_cases_shouldReturn400BadRequestWhenNoDateProvided() {
         when()
                 .get("/court/{courtCode}/cases", "SHF")
                 .then()
@@ -117,7 +117,7 @@ public class CourtCaseControllerTest {
     }
 
     @Test
-    public void shouldReturn404NotFoundWhenNoCourtDoesNotExist() {
+    public void GET_cases_shouldReturn404NotFoundWhenCourtDoesNotExist() {
         ErrorResponse result = when()
                 .get("/court/{courtCode}/cases?date={date}", NOT_FOUND_COURT_CODE, "2020-02-02")
                 .then()

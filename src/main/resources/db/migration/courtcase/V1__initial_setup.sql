@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS COURT
 (
     ID                                     SERIAL       PRIMARY KEY,
     NAME                                   TEXT         NOT NULL,
-    COURT_CODE                             TEXT         NOT NULL
+    COURT_CODE                             TEXT         NOT NULL,
+    CONSTRAINT court_court_code_idempotent UNIQUE (COURT_CODE)
 );
 
 

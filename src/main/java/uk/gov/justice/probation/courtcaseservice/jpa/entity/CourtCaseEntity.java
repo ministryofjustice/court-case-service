@@ -41,11 +41,11 @@ public class CourtCaseEntity implements Serializable {
     @Column(name = "SESSION_START_TIME")
     private LocalDateTime sessionStartTime;
 
+    @Column(name = "PROBATION_STATUS")
+    private String probationStatus;
+
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "DATA")
     private String data;
-
-    @Column(name = "PROBATION_RECORD")
-    private String probationRecord;
 
 }

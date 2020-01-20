@@ -50,7 +50,7 @@ public class CourtCaseControllerTest {
     private final String NEW_CASE_ID = "654321";
     private final String CASE_NO = "1600028913";
     private final String NEW_CASE_NO = "1700028914";
-    private final String PROBATION_RECORD = "NOT KNOWN";
+    private final String PROBATION_STATUS = "No record";
     private final String NOT_FOUND_COURT_CODE = "LPL";
     private final LocalDateTime now = LocalDateTime.now();
     private final CourtCaseEntity caseDetails = new CourtCaseEntity();
@@ -67,7 +67,7 @@ public class CourtCaseControllerTest {
         caseDetails.setCourtCode(COURT_CODE);
         caseDetails.setCourtRoom("1");
         caseDetails.setSessionStartTime(now);
-        caseDetails.setProbationRecord(PROBATION_RECORD);
+        caseDetails.setProbationStatus(PROBATION_STATUS);
         caseDetails.setData("{}");
     }
 
@@ -215,7 +215,7 @@ public class CourtCaseControllerTest {
         assertThat(result.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(result.getCourtRoom()).isEqualTo("1");
         assertThat(result.getSessionStartTime()).isEqualTo(now.toString());
-        assertThat(result.getProbationRecord()).isEqualTo(PROBATION_RECORD);
+        assertThat(result.getProbationStatus()).isEqualTo(PROBATION_STATUS);
     }
 
     @Test
@@ -241,7 +241,7 @@ public class CourtCaseControllerTest {
         assertThat(newResult.getCaseNo()).isEqualTo(NEW_CASE_NO);
         assertThat(newResult.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(newResult.getCourtRoom()).isEqualTo("2");
-        assertThat(newResult.getProbationRecord()).isEqualTo(PROBATION_RECORD);
+        assertThat(newResult.getProbationStatus()).isEqualTo(PROBATION_STATUS);
         assertThat(newResult.getSessionStartTime()).isEqualTo(now.toString());
     }
 }

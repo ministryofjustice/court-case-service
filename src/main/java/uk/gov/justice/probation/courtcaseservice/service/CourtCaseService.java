@@ -60,7 +60,7 @@ public class CourtCaseService {
         existingCase.setCaseNo(courtCaseEntity.getCaseNo());
         existingCase.setCourtCode(courtCaseEntity.getCourtCode());
         existingCase.setCourtRoom(courtCaseEntity.getCourtRoom());
-        existingCase.setProbationRecord(courtCaseEntity.getProbationRecord());
+        existingCase.setProbationStatus(courtCaseEntity.getProbationStatus());
         existingCase.setSessionStartTime(courtCaseEntity.getSessionStartTime());
         existingCase.setData(courtCaseEntity.getData());
 

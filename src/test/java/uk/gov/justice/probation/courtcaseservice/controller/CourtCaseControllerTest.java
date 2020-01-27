@@ -22,6 +22,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseReposit
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.InputMismatchException;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
@@ -50,13 +51,14 @@ public class CourtCaseControllerTest {
     CourtCaseRepository courtCaseRepository;
 
     private final String COURT_CODE = "SHF";
+    private final String CASE_ID = "123456";
+    private final String NEW_CASE_ID = "654321";
     private final String CASE_NO = "1600028913";
     private final String NEW_CASE_NO = "1700028914";
-    private final String PROBATION_RECORD = "NOT KNOWN";
-    private final Long COURT_ID = 4444443L;
+    private final String PROBATION_STATUS = "No record";
+    private final String NOT_FOUND_COURT_CODE = "LPL";
     private final LocalDateTime now = LocalDateTime.now();
     private final CourtCaseEntity caseDetails = new CourtCaseEntity();
-    private static final String NOT_FOUND_COURT_CODE = "LPL";
 
     @Before
     public void setup() {
@@ -65,12 +67,12 @@ public class CourtCaseControllerTest {
                 (aClass, s) -> mapper
         ));
 
-        caseDetails.setCaseId(Long.parseLong(NEW_CASE_NO));
+        caseDetails.setCaseId(NEW_CASE_ID);
         caseDetails.setCaseNo(NEW_CASE_NO);
-        caseDetails.setCourtId(COURT_ID);
+        caseDetails.setCourtCode(COURT_CODE);
         caseDetails.setCourtRoom("1");
         caseDetails.setSessionStartTime(now);
-        caseDetails.setProbationRecord(PROBATION_RECORD);
+        caseDetails.setProbationStatus(PROBATION_STATUS);
         caseDetails.setData("{}");
     }
 
@@ -87,8 +89,8 @@ public class CourtCaseControllerTest {
                 .as(CaseListResponse.class);
 
         assertThat(result.getCases().size()).isEqualTo(3);
-        assertThat(result.getCases().get(0).getCourtId()).isEqualTo(COURT_ID);
-        assertThat(result.getCases().get(0).getCaseId()).isEqualTo(5555555L);
+        assertThat(result.getCases().get(0).getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(result.getCases().get(0).getCaseId()).isEqualTo("5555555");
 
         assertThat(result.getCases().get(0).getSessionStartTime()).isEqualTo(LocalDateTime.of(2019, 12, 14, 9, 0));
         assertThat(result.getCases().get(1).getSessionStartTime()).isEqualTo(LocalDateTime.of(2019, 12, 14, 0, 0));
@@ -180,7 +182,6 @@ public class CourtCaseControllerTest {
 
     @Test
     public void shouldReturnNotFoundForNonexistentCourt() {
-
         ErrorResponse result = given()
                 .when()
                 .header("Accept", "application/json")
@@ -199,24 +200,63 @@ public class CourtCaseControllerTest {
     @Test
     public void createCaseDataWithIncorrectCourt() {
 
-        Long NOT_FOUND_COURT_ID = 123456L;
-        caseDetails.setCourtId(NOT_FOUND_COURT_ID);
+        caseDetails.setCourtCode(NOT_FOUND_COURT_CODE);
 
         ErrorResponse result = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(caseDetails)
                 .when()
-                .put("/case/" + NEW_CASE_NO)
+                .put("/case/" + CASE_ID)
                 .then()
                 .statusCode(404)
                 .extract()
                 .body()
                 .as(ErrorResponse.class);
 
-        assertThat(result.getDeveloperMessage()).contains("Court " + NOT_FOUND_COURT_ID + " not found");
-        assertThat(result.getUserMessage()).contains("Court " + NOT_FOUND_COURT_ID + " not found");
+        assertThat(result.getDeveloperMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
+        assertThat(result.getUserMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
         assertThat(result.getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    public void createCaseDataWithCaseIdMismatch() {
+        String mismatchCaseId = "000000";
+        InputMismatchException result = given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(caseDetails)
+                .when()
+                .put("/case/" + mismatchCaseId)
+                .then()
+                .statusCode(500)
+                .extract()
+                .body()
+                .as(InputMismatchException.class);
+
+        assertThat(result.getMessage()).contains("Case ID " + mismatchCaseId + " does not match with " + NEW_CASE_ID);
+    }
+
+    @Test
+    public void createCaseDataWithDuplicateCaseNo() {
+
+        String newCaseId = "666666";
+        caseDetails.setCaseId(newCaseId);
+        caseDetails.setCaseNo(CASE_NO);
+
+        InputMismatchException result = given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(caseDetails)
+                .when()
+                .put("/case/" + newCaseId)
+                .then()
+                .statusCode(500)
+                .extract()
+                .body()
+                .as(InputMismatchException.class);
+
+        assertThat(result.getMessage()).contains("constraint [court_case_case_no_idempotent]");
     }
 
     @Test
@@ -226,19 +266,19 @@ public class CourtCaseControllerTest {
                 .accept(ContentType.JSON)
                 .body(caseDetails)
                 .when()
-                .put("/case/" + NEW_CASE_NO)
+                .put("/case/" + NEW_CASE_ID)
                 .then()
                 .statusCode(200)
                 .extract()
                 .body()
                 .as(CourtCaseEntity.class);
 
-        assertThat(result.getCaseId()).isEqualTo(Long.parseLong(NEW_CASE_NO));
+        assertThat(result.getCaseId()).isEqualTo(NEW_CASE_ID);
         assertThat(result.getCaseNo()).isEqualTo(NEW_CASE_NO);
-        assertThat(result.getCourtId()).isEqualTo(COURT_ID);
+        assertThat(result.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(result.getCourtRoom()).isEqualTo("1");
         assertThat(result.getSessionStartTime()).isEqualTo(now.toString());
-        assertThat(result.getProbationRecord()).isEqualTo(PROBATION_RECORD);
+        assertThat(result.getProbationStatus()).isEqualTo(PROBATION_STATUS);
     }
 
     @Test
@@ -253,18 +293,18 @@ public class CourtCaseControllerTest {
                 .accept(ContentType.JSON)
                 .body(caseDetails)
                 .when()
-                .put("/case/" + NEW_CASE_NO)
+                .put("/case/" + NEW_CASE_ID)
                 .then()
                 .statusCode(200)
                 .extract()
                 .body()
                 .as(CourtCaseEntity.class);
 
-        assertThat(newResult.getCaseId()).isEqualTo(Long.parseLong(NEW_CASE_NO));
+        assertThat(newResult.getCaseId()).isEqualTo(NEW_CASE_ID);
         assertThat(newResult.getCaseNo()).isEqualTo(NEW_CASE_NO);
-        assertThat(newResult.getCourtId()).isEqualTo(COURT_ID);
+        assertThat(newResult.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(newResult.getCourtRoom()).isEqualTo("2");
-        assertThat(newResult.getProbationRecord()).isEqualTo(PROBATION_RECORD);
+        assertThat(newResult.getProbationStatus()).isEqualTo(PROBATION_STATUS);
         assertThat(newResult.getSessionStartTime()).isEqualTo(now.toString());
     }
 }

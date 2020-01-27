@@ -11,8 +11,8 @@ import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFou
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.InputMismatchException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -20,13 +20,6 @@ public class CourtCaseService {
 
     private final CourtRepository courtRepository;
     private final CourtCaseRepository courtCaseRepository;
-
-    private void checkCourtById(Long courtId) throws EntityNotFoundException {
-        Optional<CourtEntity> courtEntity = courtRepository.findById(courtId);
-        if (courtEntity.isEmpty()) {
-            throw new EntityNotFoundException(String.format("Court %s not found", courtId));
-        }
-    }
 
     private void checkCourtByCode(String courtCode) throws EntityNotFoundException {
         CourtEntity courtEntity = courtRepository.findByCourtCode(courtCode);
@@ -55,17 +48,23 @@ public class CourtCaseService {
         return courtCaseEntity;
     }
 
-    public CourtCaseEntity createOrUpdateCase(Long caseId, CourtCaseEntity courtCaseEntity) throws EntityNotFoundException {
-        checkCourtById(courtCaseEntity.getCourtId());
+    public CourtCaseEntity createOrUpdateCase(String caseId, CourtCaseEntity courtCaseEntity) throws EntityNotFoundException, InputMismatchException {
+        checkCourtByCode(courtCaseEntity.getCourtCode());
+        String bodyCaseId = courtCaseEntity.getCaseId();
+        if (!caseId.equals(bodyCaseId)) {
+            throw new InputMismatchException(String.format("Case ID %s does not match with %s", caseId, bodyCaseId));
+        }
         CourtCaseEntity existingCase = courtCaseRepository.findByCaseId(caseId);
 
         if (existingCase == null) {
             return createCase(courtCaseEntity);
         }
 
+        existingCase.setCaseId(caseId);
         existingCase.setCaseNo(courtCaseEntity.getCaseNo());
-        existingCase.setCourtId(courtCaseEntity.getCourtId());
+        existingCase.setCourtCode(courtCaseEntity.getCourtCode());
         existingCase.setCourtRoom(courtCaseEntity.getCourtRoom());
+        existingCase.setProbationStatus(courtCaseEntity.getProbationStatus());
         existingCase.setSessionStartTime(courtCaseEntity.getSessionStartTime());
         existingCase.setData(courtCaseEntity.getData());
 
@@ -80,6 +79,6 @@ public class CourtCaseService {
             throw new EntityNotFoundException("Court %s not found", courtCode);
         }
         LocalDateTime start = LocalDateTime.of(date, LocalTime.MIDNIGHT);
-        return courtCaseRepository.findByCourtIdAndSessionStartTimeBetween(court.getId(), start, start.plusDays(1));
+        return courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(court.getCourtCode(), start, start.plusDays(1));
     }
 }

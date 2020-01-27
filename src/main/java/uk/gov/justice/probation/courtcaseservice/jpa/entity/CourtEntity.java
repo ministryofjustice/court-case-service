@@ -3,9 +3,9 @@ package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import java.io.Serializable;
-
 
 @Entity
 @AllArgsConstructor

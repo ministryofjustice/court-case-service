@@ -11,7 +11,7 @@ import java.util.List;
 public interface CourtCaseRepository extends JpaRepository<CourtCaseEntity, Long> {
     CourtCaseEntity findByCaseNo(String caseNo);
 
-    CourtCaseEntity findByCaseId(Long caseId);
+    List<CourtCaseEntity> findByCourtCodeAndSessionStartTimeBetween(String courtCode, LocalDateTime start, LocalDateTime end);
 
-    List<CourtCaseEntity> findByCourtIdAndSessionStartTimeBetween(Long courtCode, LocalDateTime start, LocalDateTime end);
+    CourtCaseEntity findByCaseId(String caseId);
 }

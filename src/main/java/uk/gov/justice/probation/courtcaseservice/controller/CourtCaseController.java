@@ -31,7 +31,7 @@ public class CourtCaseController {
 
     @PutMapping("/case/{id}")
     public @ResponseBody
-    CourtCaseEntity updateCase(@PathVariable(value = "id") Long caseId, @Valid @RequestBody CourtCaseEntity courtCaseDetails) {
+    CourtCaseEntity updateCase(@PathVariable(value = "id") String caseId, @Valid @RequestBody CourtCaseEntity courtCaseDetails) {
         return courtCaseService.createOrUpdateCase(caseId, courtCaseDetails);
     }
 

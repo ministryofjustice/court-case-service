@@ -1,11 +1,17 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @Slf4j
@@ -27,5 +33,14 @@ public class CourtCaseController {
     public @ResponseBody
     CourtCaseEntity updateCase(@PathVariable(value = "id") String caseId, @Valid @RequestBody CourtCaseEntity courtCaseDetails) {
         return courtCaseService.createOrUpdateCase(caseId, courtCaseDetails);
+    }
+
+    @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    CaseListResponse getCaseList(@PathVariable String courtCode,
+                                 @RequestParam("date")
+                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        List<CourtCaseEntity> courtCases = courtCaseService.filterCasesByCourtAndDate(courtCode, date);
+        return new CaseListResponse(courtCases);
     }
 }

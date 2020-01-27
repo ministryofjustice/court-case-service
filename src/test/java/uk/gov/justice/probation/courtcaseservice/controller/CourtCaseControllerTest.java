@@ -1,7 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import java.util.InputMismatchException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
@@ -17,13 +15,20 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.InputMismatchException;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 
@@ -72,7 +77,65 @@ public class CourtCaseControllerTest {
     }
 
     @Test
-    public void shouldGetCaseWhenCourtExists() throws JsonProcessingException {
+    public void cases_shouldGetCaseListWhenCasesExist() {
+
+        CaseListResponse result = when()
+                .get("/court/{courtCode}/cases?date={date}", "SHF", LocalDate.of(2019, 12, 14).format(DateTimeFormatter.ISO_DATE))
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(CaseListResponse.class);
+
+        assertThat(result.getCases().size()).isEqualTo(3);
+        assertThat(result.getCases().get(0).getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(result.getCases().get(0).getCaseId()).isEqualTo("5555555");
+
+        assertThat(result.getCases().get(0).getSessionStartTime()).isEqualTo(LocalDateTime.of(2019, 12, 14, 9, 0));
+        assertThat(result.getCases().get(1).getSessionStartTime()).isEqualTo(LocalDateTime.of(2019, 12, 14, 0, 0));
+        assertThat(result.getCases().get(2).getSessionStartTime()).isEqualTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59));
+    }
+
+    @Test
+    public void GET_cases_shouldGetEmptyCaseListWhenNoCasesMatch() {
+        when()
+                .get("/court/{courtCode}/cases?date={date}", "SHF", "2020-02-02")
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .body("cases", empty());
+
+    }
+
+    @Test
+    public void GET_cases_shouldReturn400BadRequestWhenNoDateProvided() {
+        when()
+                .get("/court/{courtCode}/cases", "SHF")
+                .then()
+                .assertThat()
+                .statusCode(400)
+                .body("message", equalTo("Required LocalDate parameter 'date' is not present"));
+    }
+
+    @Test
+    public void GET_cases_shouldReturn404NotFoundWhenCourtDoesNotExist() {
+        ErrorResponse result = when()
+                .get("/court/{courtCode}/cases?date={date}", NOT_FOUND_COURT_CODE, "2020-02-02")
+                .then()
+                .assertThat()
+                .statusCode(404)
+                .extract()
+                .body()
+                .as(ErrorResponse.class);
+
+        assertThat(result.getDeveloperMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
+        assertThat(result.getUserMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
+        assertThat(result.getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    public void shouldGetCaseWhenCourtExists() {
         given()
                 .when()
                 .header("Accept", "application/json")
@@ -82,7 +145,7 @@ public class CourtCaseControllerTest {
     }
 
     @Test
-    public void shouldGetCaseWhenExists() throws JsonProcessingException {
+    public void shouldGetCaseWhenExists() {
         CourtCaseEntity result = given()
                 .when()
                 .header("Accept", "application/json")

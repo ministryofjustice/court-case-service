@@ -2,13 +2,17 @@ package uk.gov.justice.probation.courtcaseservice.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.InputMismatchException;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -66,5 +70,15 @@ public class CourtCaseService {
 
         log.info("Court case updated for case {}", courtCaseEntity.getCaseNo());
         return courtCaseRepository.save(existingCase);
+    }
+
+    public List<CourtCaseEntity> filterCasesByCourtAndDate(String courtCode, LocalDate date) {
+        CourtEntity court = courtRepository.findByCourtCode(courtCode);
+
+        if (court == null) {
+            throw new EntityNotFoundException("Court %s not found", courtCode);
+        }
+        LocalDateTime start = LocalDateTime.of(date, LocalTime.MIDNIGHT);
+        return courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(court.getCourtCode(), start, start.plusDays(1));
     }
 }

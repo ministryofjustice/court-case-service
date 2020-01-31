@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -12,4 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 public class CaseListResponse {
     private List<CourtCaseEntity> cases;
+
+    public LocalDateTime getLastUpdated() {
+        return null;
+    }
 }

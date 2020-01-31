@@ -88,6 +88,8 @@ public class CourtCaseControllerTest {
                 .body()
                 .as(CaseListResponse.class);
 
+        assertThat(result.getLastUpdated()).isEqualTo(LocalDateTime.of(2019, 12, 14, 6, 0));
+
         assertThat(result.getCases().size()).isEqualTo(3);
         assertThat(result.getCases().get(0).getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(result.getCases().get(0).getCaseId()).isEqualTo("5555555");

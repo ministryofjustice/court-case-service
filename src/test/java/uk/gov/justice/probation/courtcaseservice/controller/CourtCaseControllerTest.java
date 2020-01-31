@@ -74,6 +74,7 @@ public class CourtCaseControllerTest {
         caseDetails.setSessionStartTime(now);
         caseDetails.setProbationStatus(PROBATION_STATUS);
         caseDetails.setData("{}");
+        caseDetails.setLastUpdated(now);
     }
 
     @Test

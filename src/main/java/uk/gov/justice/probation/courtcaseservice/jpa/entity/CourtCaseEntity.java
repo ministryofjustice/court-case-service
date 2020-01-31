@@ -26,6 +26,9 @@ public class CourtCaseEntity implements Serializable {
     @JsonIgnore
     private Long id;
 
+    @Column(name = "LAST_UPDATED", nullable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime lastUpdated;
+
     @Column(name = "CASE_ID")
     private String caseId;
 

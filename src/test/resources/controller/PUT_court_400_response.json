@@ -1,0 +1,5 @@
+{
+  "status": 400,
+  "userMessage": "Court code in path 'BAD' does not match court code in body 'FOO'",
+  "developerMessage": "Court code in path 'BAD' does not match court code in body 'FOO'"
+}

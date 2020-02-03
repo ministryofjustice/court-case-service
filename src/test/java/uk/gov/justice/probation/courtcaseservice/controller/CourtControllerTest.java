@@ -15,10 +15,15 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
+import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 
@@ -35,6 +40,10 @@ public class CourtControllerTest {
                     "\"name\": \"Sheffield Magistrates Court\"," +
                     "\"courtCode\": \"" + COURT_CODE + "\"" +
                     "}";
+    public static final String PUT_COURT_201_RESPONSE = "src/test/resources/controller/PUT_court_201_response.json";
+    public static final String PUT_COURT_400_RESPONSE = "src/test/resources/controller/PUT_court_400_response.json";
+
+    private String expectedJson;
 
     @LocalServerPort
     private int port;
@@ -51,9 +60,9 @@ public class CourtControllerTest {
     }
 
     @Test
-    public void whenCourtCreated_thenReturnSuccess() {
+    public void whenCourtCreated_thenReturnSuccess() throws IOException {
 
-        CourtEntity result = given().body(PUT_BODY)
+        given().body(PUT_BODY)
                 .when()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
@@ -61,16 +70,13 @@ public class CourtControllerTest {
                 .then()
                 .assertThat()
                 .statusCode(201)
-                .extract()
-                .body()
-                .as(CourtEntity.class);
-
-        assertThat(result.getCourtCode()).isEqualTo(COURT_CODE);
-        assertThat(result.getName()).isEqualTo("Sheffield Magistrates Court");
+                .body("courtCode", equalTo(COURT_CODE))
+                .body("name", equalTo("Sheffield Magistrates Court"))
+                .body(jsonEquals(getJson(PUT_COURT_201_RESPONSE)));
     }
 
     @Test
-    public void givenCourtCodeInPathAndBodyConflict_whenCourtCreated_thenReturnBadRequest() {
+    public void givenCourtCodeInPathAndBodyConflict_whenCourtCreated_thenReturnBadRequest() throws IOException {
         given().body(PUT_BODY)
                 .when()
                 .contentType(ContentType.JSON)
@@ -78,6 +84,12 @@ public class CourtControllerTest {
                 .put("/court/BAD")
                 .then()
                 .assertThat()
-                .statusCode(400);
+                .statusCode(400)
+                .body(jsonEquals(getJson(PUT_COURT_400_RESPONSE)));
+    }
+
+    private String getJson(String filePath) throws IOException {
+        Path path = Paths.get(filePath);
+        return String.join("\n", Files.readAllLines(path));
     }
 }

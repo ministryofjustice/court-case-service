@@ -87,6 +87,8 @@ dependencies {
 
     implementation platform('software.amazon.awssdk:bom:2.10.15')
 
+    testCompile 'net.javacrumbs.json-unit:json-unit:2.12.0'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.9.0'
     testImplementation 'io.rest-assured:rest-assured:3.0.3'

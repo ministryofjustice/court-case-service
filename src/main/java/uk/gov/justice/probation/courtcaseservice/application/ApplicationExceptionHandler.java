@@ -9,8 +9,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.exceptions.Conflicti
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.DuplicateEntityException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @ControllerAdvice
 @Slf4j
@@ -35,9 +34,9 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(DuplicateEntityException.class)
     public ResponseEntity<ErrorResponse> handle(DuplicateEntityException e) {
         log.error("DuplicateEntityException: {}", e.getMessage());
-        return new ResponseEntity<>(ErrorResponse.builder().status(BAD_REQUEST.value())
+        return new ResponseEntity<>(ErrorResponse.builder().status(CONFLICT.value())
                 .developerMessage(e.getMessage())
-                .userMessage(e.getMessage()).build(), BAD_REQUEST);
+                .userMessage(e.getMessage()).build(), CONFLICT);
     }
 
 }

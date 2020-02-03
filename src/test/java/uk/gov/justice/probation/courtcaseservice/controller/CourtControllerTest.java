@@ -5,6 +5,7 @@ import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.justice.probation.courtcaseservice.fixtures.CourtFixtures;
+import uk.gov.justice.probation.courtcaseservice.fixtures.Fixtures;
 
 import java.io.IOException;
 
@@ -29,54 +30,70 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class CourtControllerTest {
-
-
     private static final String COURT_CODE = "FOO";
-
-    private String expectedJson;
 
     @LocalServerPort
     private int port;
 
     @Autowired
     ObjectMapper mapper;
-    private CourtFixtures fixtures;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() {
         RestAssured.port = port;
         RestAssured.config = RestAssuredConfig.config().objectMapperConfig(new ObjectMapperConfig().jackson2ObjectMapperFactory(
                 (aClass, s) -> mapper
         ));
 
-        fixtures = new CourtFixtures();
     }
 
     @Test
-    public void whenCourtCreated_thenReturnSuccess() {
-        given().body(fixtures.putBodyRequestJson)
+    public void whenCourtCreated_thenReturnSuccess() throws IOException {
+        given().body(Fixtures.getJson("src/test/resources/fixtures/court/PUT_court_request.json"))
                 .when()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .put("/court/{courtCode}", COURT_CODE)
                 .then()
                 .assertThat()
-                .statusCode(201)
-                .body(jsonEquals(fixtures.createdResponseJson));
+                .statusCode(HttpStatus.CREATED_201)
+                .body(jsonEquals(Fixtures.getJson("src/test/resources/fixtures/court/PUT_court_201_response.json")));
     }
 
     @Test
-    public void givenCourtCodeInPathAndBodyConflict_whenCourtCreated_thenReturnBadRequest() {
+    public void givenCourtCodeInPathAndBodyDontMatch_whenCourtCreated_thenReturnBadRequest() throws IOException {
 
-        given().body(fixtures.putBodyRequestJson)
+        given().body(Fixtures.getJson("src/test/resources/fixtures/court/PUT_court_request.json"))
                 .when()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .put("/court/BAD")
                 .then()
                 .assertThat()
-                .statusCode(400)
-                .body(jsonEquals(fixtures.conflictResponseJson));
+                .statusCode(HttpStatus.BAD_REQUEST_400)
+                .body(jsonEquals(Fixtures.getJson("src/test/resources/fixtures/court/PUT_court_400_response.json")));
+    }
+
+    @Test
+    public void givenCourtAlreadyExists_whenCourtCreated_thenReturnConflict() throws IOException {
+
+
+        given() // court already exists
+                .body(Fixtures.getJson("src/test/resources/fixtures/court/PUT_court_request.json"))
+                .when()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .put("/court/{courtCode}", COURT_CODE);
+
+        given().body(Fixtures.getJson("src/test/resources/fixtures/court/PUT_court_request.json"))
+                .when()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .put("/court/{courtCode}", COURT_CODE)
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.CONFLICT_409)
+                .body(jsonEquals(Fixtures.getJson("src/test/resources/fixtures/court/PUT_court_409_response.json")));
     }
 
 }

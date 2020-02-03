@@ -20,7 +20,7 @@ public class ApplicationExceptionHandlerTest {
     public void whenDuplicateEntityExceptionCaught_thenReturnAppropriateErrorResponse() {
         ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(new DuplicateEntityException(THE_MESSAGE));
 
-        assertGoodErrorResponse(response, HttpStatus.BAD_REQUEST);
+        assertGoodErrorResponse(response, HttpStatus.CONFLICT);
     }
 
 

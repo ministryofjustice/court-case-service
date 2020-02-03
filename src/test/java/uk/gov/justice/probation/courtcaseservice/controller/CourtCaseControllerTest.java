@@ -5,6 +5,7 @@ import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
+import org.assertj.core.data.TemporalUnitLessThanOffset;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +23,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseReposit
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.InputMismatchException;
 
 import static io.restassured.RestAssured.given;
@@ -74,6 +76,7 @@ public class CourtCaseControllerTest {
         caseDetails.setSessionStartTime(now);
         caseDetails.setProbationStatus(PROBATION_STATUS);
         caseDetails.setData("{}");
+        caseDetails.setLastUpdated(now);
     }
 
     @Test
@@ -87,6 +90,8 @@ public class CourtCaseControllerTest {
                 .extract()
                 .body()
                 .as(CaseListResponse.class);
+
+        assertThat(result.getLastUpdated()).isCloseTo(now, new TemporalUnitLessThanOffset(1, ChronoUnit.SECONDS));
 
         assertThat(result.getCases().size()).isEqualTo(3);
         assertThat(result.getCases().get(0).getCourtCode()).isEqualTo(COURT_CODE);

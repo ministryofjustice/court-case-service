@@ -15,15 +15,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.justice.probation.courtcaseservice.fixtures.CourtFixtures;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static io.restassured.RestAssured.given;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
-import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 
@@ -35,13 +32,6 @@ public class CourtControllerTest {
 
 
     private static final String COURT_CODE = "FOO";
-    private static final String PUT_BODY =
-            "{" +
-                    "\"name\": \"Sheffield Magistrates Court\"," +
-                    "\"courtCode\": \"" + COURT_CODE + "\"" +
-                    "}";
-    public static final String PUT_COURT_201_RESPONSE = "src/test/resources/controller/PUT_court_201_response.json";
-    public static final String PUT_COURT_400_RESPONSE = "src/test/resources/controller/PUT_court_400_response.json";
 
     private String expectedJson;
 
@@ -50,19 +40,21 @@ public class CourtControllerTest {
 
     @Autowired
     ObjectMapper mapper;
+    private CourtFixtures fixtures;
 
     @Before
-    public void setup() {
+    public void setup() throws IOException {
         RestAssured.port = port;
         RestAssured.config = RestAssuredConfig.config().objectMapperConfig(new ObjectMapperConfig().jackson2ObjectMapperFactory(
                 (aClass, s) -> mapper
         ));
+
+        fixtures = new CourtFixtures();
     }
 
     @Test
-    public void whenCourtCreated_thenReturnSuccess() throws IOException {
-
-        given().body(PUT_BODY)
+    public void whenCourtCreated_thenReturnSuccess() {
+        given().body(fixtures.putBodyRequestJson)
                 .when()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
@@ -70,14 +62,13 @@ public class CourtControllerTest {
                 .then()
                 .assertThat()
                 .statusCode(201)
-                .body("courtCode", equalTo(COURT_CODE))
-                .body("name", equalTo("Sheffield Magistrates Court"))
-                .body(jsonEquals(getJson(PUT_COURT_201_RESPONSE)));
+                .body(jsonEquals(fixtures.createdResponseJson));
     }
 
     @Test
-    public void givenCourtCodeInPathAndBodyConflict_whenCourtCreated_thenReturnBadRequest() throws IOException {
-        given().body(PUT_BODY)
+    public void givenCourtCodeInPathAndBodyConflict_whenCourtCreated_thenReturnBadRequest() {
+
+        given().body(fixtures.putBodyRequestJson)
                 .when()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
@@ -85,11 +76,7 @@ public class CourtControllerTest {
                 .then()
                 .assertThat()
                 .statusCode(400)
-                .body(jsonEquals(getJson(PUT_COURT_400_RESPONSE)));
+                .body(jsonEquals(fixtures.conflictResponseJson));
     }
 
-    private String getJson(String filePath) throws IOException {
-        Path path = Paths.get(filePath);
-        return String.join("\n", Files.readAllLines(path));
-    }
 }

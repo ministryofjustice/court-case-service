@@ -63,6 +63,32 @@ springBoot {
     }
 }
 
+test {
+    useJUnit {
+        excludeCategories 'uk.gov.justice.probation.courtcaseservice.test.SmokeTest'
+    }
+}
+
+task unitTest(type: Test) {
+    useJUnit {
+        excludeCategories 'uk.gov.justice.probation.courtcaseservice.test.IntegrationTest'
+        excludeCategories 'uk.gov.justice.probation.courtcaseservice.test.SmokeTest'
+    }
+}
+
+task integrationTest(type: Test) {
+    useJUnit {
+        includeCategories 'uk.gov.justice.probation.courtcaseservice.test.IntegrationTest'
+    }
+    shouldRunAfter 'unitTest'
+}
+
+task smokeTest(type: Test) {
+    useJUnit {
+        includeCategories 'uk.gov.justice.probation.courtcaseservice.test.SmokeTest'
+    }
+}
+
 dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 

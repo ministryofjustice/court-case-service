@@ -212,8 +212,8 @@ workflows:
           requires:
             - request-preprod-approval
       - smoke_test_preprod:
-        requires:
-          - deploy_preprod
+          requires:
+            - deploy_preprod
       - request-prod-approval:
           type: approval
           requires:
@@ -223,5 +223,5 @@ workflows:
           requires:
             - request-prod-approval
       - smoke_test_prod:
-        requires:
-          - deploy_prod
+          requires:
+            - deploy_prod

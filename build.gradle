@@ -25,6 +25,10 @@ def today = Instant.now()
 def todaysDate = LocalDate.now().format('yyyy-MM-dd')
 version = System.getenv('CI') ? "${todaysDate}.${System.getenv('CIRCLE_BUILD_NUM')}" : todaysDate
 
+build {
+    dependsOn 'integrationTest'
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -32,10 +36,9 @@ configurations {
 }
 
 jar {
-    baseName = rootProject.name
     manifest {
         attributes (
-            'Implementation-Title': rootProject.name, 'Implementation-Version': version
+            'Implementation-Title': rootProject.name, 'Implementation-Version': archiveVersion
         )
     }
 }
@@ -64,28 +67,23 @@ springBoot {
 }
 
 test {
-    useJUnit {
-        excludeCategories 'uk.gov.justice.probation.courtcaseservice.test.SmokeTest'
-    }
-}
-
-task unitTest(type: Test) {
-    useJUnit {
-        excludeCategories 'uk.gov.justice.probation.courtcaseservice.test.IntegrationTest'
-        excludeCategories 'uk.gov.justice.probation.courtcaseservice.test.SmokeTest'
+    filter {
+        excludeTestsMatching '*SmokeTest'
+        excludeTestsMatching '*ControllerTest'
     }
 }
 
 task integrationTest(type: Test) {
-    useJUnit {
-        includeCategories 'uk.gov.justice.probation.courtcaseservice.test.IntegrationTest'
+    filter {
+        includeTestsMatching '*ControllerTest'
     }
-    shouldRunAfter 'unitTest'
+    shouldRunAfter 'test'
+    maxParallelForks 1
 }
 
 task smokeTest(type: Test) {
-    useJUnit {
-        includeCategories 'uk.gov.justice.probation.courtcaseservice.test.SmokeTest'
+    filter {
+        includeTestsMatching '*SmokeTest'
     }
 }
 

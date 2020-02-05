@@ -3,11 +3,9 @@ package uk.gov.justice.probation.courtcaseservice.smoke;
 import io.restassured.RestAssured;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.gov.justice.probation.courtcaseservice.test.SmokeTest;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -16,9 +14,8 @@ import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-@Category(SmokeTest.class)
 @RunWith(SpringJUnit4ClassRunner.class)
-public class SmokeTests {
+public class SmokeTest {
 
     @Value("${smoke-test.target-host:http://localhost:8080}")
     private String host;

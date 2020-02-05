@@ -27,7 +27,6 @@ public class HealthCheckTest {
     @Before
     public void before() {
         RestAssured.port = port;
-        RestAssured.basePath = "/health";
     }
 
     @Test
@@ -35,7 +34,7 @@ public class HealthCheckTest {
 
         String response = given()
                 .when()
-                .get("/")
+                .get("/health/")
                 .then()
                 .statusCode(200)
                 .extract().response().asString();

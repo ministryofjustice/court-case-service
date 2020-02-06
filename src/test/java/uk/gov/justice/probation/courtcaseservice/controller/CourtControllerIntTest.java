@@ -1,9 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.restassured.RestAssured;
-import io.restassured.config.ObjectMapperConfig;
-import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.justice.probation.courtcaseservice.TestConfig;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 
 import static io.restassured.RestAssured.given;
@@ -26,7 +24,7 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
-public class CourtControllerTest {
+public class CourtControllerIntTest {
 
 
     private static final String COURT_CODE = "FOO";
@@ -44,10 +42,7 @@ public class CourtControllerTest {
 
     @Before
     public void setup() {
-        RestAssured.port = port;
-        RestAssured.config = RestAssuredConfig.config().objectMapperConfig(new ObjectMapperConfig().jackson2ObjectMapperFactory(
-                (aClass, s) -> mapper
-        ));
+        TestConfig.configureRestAssuredForIntTest(port);
     }
 
     @Test

@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.health;
 
-import io.restassured.RestAssured;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,19 +10,20 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static io.restassured.RestAssured.given;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static uk.gov.justice.probation.courtcaseservice.TestConfig.configureRestAssuredForIntTest;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @RunWith(SpringJUnit4ClassRunner.class)
 @DirtiesContext
-public class HealthCheckTest {
+public class HealthCheckIntTest {
 
     @LocalServerPort
     int port;
 
     @Before
     public void before() {
-        RestAssured.port = port;
+        configureRestAssuredForIntTest(port);
     }
 
     @Test

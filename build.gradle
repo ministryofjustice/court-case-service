@@ -25,10 +25,6 @@ def today = Instant.now()
 def todaysDate = LocalDate.now().format('yyyy-MM-dd')
 version = System.getenv('CI') ? "${todaysDate}.${System.getenv('CIRCLE_BUILD_NUM')}" : todaysDate
 
-build {
-    dependsOn 'integrationTest'
-}
-
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -69,16 +65,20 @@ springBoot {
 test {
     filter {
         excludeTestsMatching '*SmokeTest'
-        excludeTestsMatching '*ControllerTest'
     }
 }
 
 task integrationTest(type: Test) {
     filter {
-        includeTestsMatching '*ControllerTest'
+        includeTestsMatching '*IntTest'
     }
-    shouldRunAfter 'test'
-    maxParallelForks 1
+}
+
+task unitTest(type: Test) {
+    filter {
+        excludeTestsMatching '*IntTest'
+        excludeTestsMatching '*SmokeTest'
+    }
 }
 
 task smokeTest(type: Test) {

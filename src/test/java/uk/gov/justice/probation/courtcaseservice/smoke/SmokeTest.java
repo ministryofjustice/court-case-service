@@ -1,11 +1,11 @@
 package uk.gov.justice.probation.courtcaseservice.smoke;
 
-import io.restassured.RestAssured;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.gov.justice.probation.courtcaseservice.TestConfig;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -22,7 +22,7 @@ public class SmokeTest {
 
     @Before
     public void setUp() {
-        RestAssured.baseURI = host;
+        TestConfig.configureRestAssuredForSmokeTest(host);
     }
 
     @Test

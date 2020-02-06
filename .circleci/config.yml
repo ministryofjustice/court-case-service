@@ -45,19 +45,6 @@ commands:
               --values ~/git/helm_deploy/values-<< parameters.env >>.yaml \
               --values - \
               --set image.tag="${APP_VERSION}"
-  smoke_test:
-    parameters:
-      env:
-        type: string
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - gradle-{{ checksum "build.gradle" }}
-            - gradle-
-      - run: env SMOKE_TEST_TARGET_HOST=https://court-case-service-<< parameters.env >>.apps.live-1.cloud-platform.service.justice.gov.uk ./gradlew smokeTest
-      - store_test_results:
-        path: build/test-results
 executors:
   deployer:
     docker:
@@ -167,21 +154,6 @@ jobs:
     steps:
       - deploy_to_env:
           env: "prod"
-  smoke_test_dev:
-    executor: deployer
-    steps:
-      - deploy_to_env:
-          env: "dev"
-  smoke_test_preprod:
-    executor: deployer
-    steps:
-      - deploy_to_env:
-          env: "preprod"
-  smoke_test_prod:
-    executor: deployer
-    steps:
-      - deploy_to_env:
-          env: "prod"
 
 workflows:
   version: 2
@@ -200,9 +172,6 @@ workflows:
       - deploy_dev:
           requires:
             - build_docker
-      - smoke_test_dev:
-          requires:
-            - deploy_dev
       - request-preprod-approval:
           type: approval
           requires:
@@ -211,9 +180,6 @@ workflows:
           context: court-probation-preprod
           requires:
             - request-preprod-approval
-      - smoke_test_preprod:
-          requires:
-            - deploy_preprod
       - request-prod-approval:
           type: approval
           requires:
@@ -222,6 +188,3 @@ workflows:
           context: court-probation-prod
           requires:
             - request-prod-approval
-      - smoke_test_prod:
-          requires:
-            - deploy_prod

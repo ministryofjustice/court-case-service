@@ -32,10 +32,9 @@ configurations {
 }
 
 jar {
-    baseName = rootProject.name
     manifest {
         attributes (
-            'Implementation-Title': rootProject.name, 'Implementation-Version': version
+            'Implementation-Title': rootProject.name, 'Implementation-Version': archiveVersion
         )
     }
 }
@@ -60,6 +59,31 @@ springBoot {
                     machine              : InetAddress.localHost.hostName
             ]
         }
+    }
+}
+
+test {
+    filter {
+        excludeTestsMatching '*SmokeTest'
+    }
+}
+
+task integrationTest(type: Test) {
+    filter {
+        includeTestsMatching '*IntTest'
+    }
+}
+
+task unitTest(type: Test) {
+    filter {
+        excludeTestsMatching '*IntTest'
+        excludeTestsMatching '*SmokeTest'
+    }
+}
+
+task smokeTest(type: Test) {
+    filter {
+        includeTestsMatching '*SmokeTest'
     }
 }
 

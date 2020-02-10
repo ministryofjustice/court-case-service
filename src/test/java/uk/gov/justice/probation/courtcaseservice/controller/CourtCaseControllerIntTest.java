@@ -123,6 +123,36 @@ public class CourtCaseControllerIntTest {
     }
 
     @Test
+    public void GET_case_shouldGetProbationStatusWhenExists() {
+
+        CourtCaseEntity result = when()
+                .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, CASE_NO)
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(CourtCaseEntity.class);
+
+        assertThat(result.getProbationStatus()).contains("Previously known");
+    }
+
+    @Test
+    public void GET_case_shouldGetPreviouslyKnownTerminationDateWhenExists() {
+
+        CourtCaseEntity result = when()
+                .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, CASE_NO)
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(CourtCaseEntity.class);
+
+        assertThat(result.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2010, 01, 01));
+    }
+
+    @Test
     public void shouldGetCaseWhenCourtExists() {
         given()
                 .when()

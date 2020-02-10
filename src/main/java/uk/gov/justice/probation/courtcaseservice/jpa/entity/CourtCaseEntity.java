@@ -10,6 +10,7 @@ import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -46,6 +47,9 @@ public class CourtCaseEntity implements Serializable {
 
     @Column(name = "PROBATION_STATUS")
     private String probationStatus;
+
+    @Column(name = "PREVIOUSLY_KNOWN_TERMINATION_DATE")
+    private LocalDate previouslyKnownTerminationDate;
 
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "DATA")

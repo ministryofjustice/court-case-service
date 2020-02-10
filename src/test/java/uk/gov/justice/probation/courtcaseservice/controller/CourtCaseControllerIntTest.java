@@ -1,31 +1,31 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.restassured.http.ContentType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlConfig;
-import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.justice.probation.courtcaseservice.TestConfig;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
+        import com.fasterxml.jackson.databind.ObjectMapper;
+        import io.restassured.http.ContentType;
+        import org.junit.Before;
+        import org.junit.Test;
+        import org.junit.runner.RunWith;
+        import org.springframework.beans.factory.annotation.Autowired;
+        import org.springframework.boot.test.context.SpringBootTest;
+        import org.springframework.boot.web.server.LocalServerPort;
+        import org.springframework.test.context.ActiveProfiles;
+        import org.springframework.test.context.jdbc.Sql;
+        import org.springframework.test.context.jdbc.SqlConfig;
+        import org.springframework.test.context.junit4.SpringRunner;
+        import uk.gov.justice.probation.courtcaseservice.TestConfig;
+        import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+        import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+        import java.time.LocalDate;
+        import java.time.LocalDateTime;
+        import java.time.format.DateTimeFormatter;
 
-import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.when;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
-import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
+        import static io.restassured.RestAssured.given;
+        import static io.restassured.RestAssured.when;
+        import static org.assertj.core.api.Assertions.assertThat;
+        import static org.hamcrest.Matchers.*;
+        import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
+        import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
@@ -50,7 +50,7 @@ public class CourtCaseControllerIntTest {
     private final String NEW_CASE_ID = "654321";
     private final String CASE_NO = "1600028913";
     private final String NEW_CASE_NO = "1700028914";
-    private final String PROBATION_STATUS = "No record";
+    private final String PROBATION_STATUS = "Previously known";
     private final String NOT_FOUND_COURT_CODE = "LPL";
     private final LocalDateTime now = LocalDateTime.now();
     private final CourtCaseEntity caseDetails = new CourtCaseEntity();
@@ -67,6 +67,7 @@ public class CourtCaseControllerIntTest {
         caseDetails.setProbationStatus(PROBATION_STATUS);
         caseDetails.setData("{}");
         caseDetails.setLastUpdated(now);
+        caseDetails.setPreviouslyKnownTerminationDate(LocalDate.of(2010,1,1));
     }
 
     @Test
@@ -78,7 +79,7 @@ public class CourtCaseControllerIntTest {
                 .assertThat()
                 .statusCode(200)
                 .body("cases[0].courtCode", equalTo(COURT_CODE))
-                .body("cases[0].lastUpdated", containsString(now.format(DateTimeFormatter.ISO_DATE)))
+                .body("cases[1].lastUpdated", containsString(now.format(DateTimeFormatter.ISO_DATE)))
                 .body("cases[0].caseId", equalTo("5555555"))
                 .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 9, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[1].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 0, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
@@ -125,32 +126,29 @@ public class CourtCaseControllerIntTest {
     @Test
     public void GET_case_shouldGetProbationStatusWhenExists() {
 
-        CourtCaseEntity result = when()
+        when()
                 .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, CASE_NO)
                 .then()
                 .assertThat()
                 .statusCode(200)
-                .extract()
-                .body()
-                .as(CourtCaseEntity.class);
+                .body("probationStatus", equalTo(PROBATION_STATUS));
 
-        assertThat(result.getProbationStatus()).contains("Previously known");
     }
 
     @Test
     public void GET_case_shouldGetPreviouslyKnownTerminationDateWhenExists() {
 
-        CourtCaseEntity result = when()
+        when()
                 .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, CASE_NO)
                 .then()
                 .assertThat()
                 .statusCode(200)
-                .extract()
-                .body()
-                .as(CourtCaseEntity.class);
+                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)));
 
-        assertThat(result.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2010, 01, 01));
     }
+
+
+
 
     @Test
     public void shouldGetCaseWhenCourtExists() {
@@ -280,7 +278,9 @@ public class CourtCaseControllerIntTest {
                 .body("courtCode", equalTo(COURT_CODE))
                 .body("courtRoom", equalTo("1"))
                 .body("probationStatus", equalTo(PROBATION_STATUS))
-                .body("sessionStartTime", equalTo(now.format(DateTimeFormatter.ISO_DATE_TIME)));
+                .body("sessionStartTime", equalTo(now.format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)));
+
     }
 
     @Test
@@ -303,6 +303,7 @@ public class CourtCaseControllerIntTest {
                 .body("courtCode", equalTo(COURT_CODE))
                 .body("courtRoom", equalTo("2"))
                 .body("probationStatus", equalTo(PROBATION_STATUS))
-                .body("sessionStartTime", equalTo(now.format(DateTimeFormatter.ISO_DATE_TIME)));
+                .body("sessionStartTime", equalTo(now.format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)));
     }
 }

@@ -68,6 +68,7 @@ public class CourtCaseControllerIntTest {
         caseDetails.setData("{}");
         caseDetails.setLastUpdated(now);
         caseDetails.setPreviouslyKnownTerminationDate(LocalDate.of(2010,1,1));
+        caseDetails.setSuspendedSentenceOrder(true);
     }
 
     @Test
@@ -147,8 +148,17 @@ public class CourtCaseControllerIntTest {
 
     }
 
+    @Test
+    public void GET_case_shouldGetSuspendedSentenceOrderWhenExists() {
 
+        when()
+                .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, CASE_NO)
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .body("suspendedSentenceOrder", equalTo(true));
 
+    }
 
     @Test
     public void shouldGetCaseWhenCourtExists() {
@@ -279,7 +289,8 @@ public class CourtCaseControllerIntTest {
                 .body("courtRoom", equalTo("1"))
                 .body("probationStatus", equalTo(PROBATION_STATUS))
                 .body("sessionStartTime", equalTo(now.format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)));
+                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)))
+                .body("suspendedSentenceOrder", equalTo(true));
 
     }
 
@@ -304,6 +315,7 @@ public class CourtCaseControllerIntTest {
                 .body("courtRoom", equalTo("2"))
                 .body("probationStatus", equalTo(PROBATION_STATUS))
                 .body("sessionStartTime", equalTo(now.format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)));
+                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)))
+                .body("suspendedSentenceOrder", equalTo(true));
     }
 }

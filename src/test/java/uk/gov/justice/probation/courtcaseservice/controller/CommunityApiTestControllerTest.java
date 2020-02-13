@@ -11,6 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.TestConfig;
 
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
@@ -33,5 +34,16 @@ public class CommunityApiTestControllerTest {
                     .assertThat()
                     .statusCode(200)
                     .body(containsString("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9")); // This is the JWT token header we're expecting
+    }
+
+    @Test
+    public void valueCanBeRetrievedFromCommunityApi() {
+        when()
+                .get("/test/community-api-get-something")
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .body("content[0].code", equalTo("A00"))
+                .body("content[0].description", equalTo("Transfer Provider"));
     }
 }

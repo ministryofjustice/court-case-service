@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.equalTo;
 @RunWith(SpringRunner.class)
 @ActiveProfiles(profiles = "test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CommunityApiTestControllerTest {
+public class CommunityApiTestControllerIntTest {
 
     @LocalServerPort
     private int port;

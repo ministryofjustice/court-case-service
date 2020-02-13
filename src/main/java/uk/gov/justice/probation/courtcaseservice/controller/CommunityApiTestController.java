@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Base64;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,25 +12,39 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.PostConstruct;
+
 @RestController
 @Slf4j
 public class CommunityApiTestController {
 
-    private String username = "community-api-client";
-    private String password = "clientsecret";
+    @Value("${community-api.base-url}")
+    private String communityApiBaseUrl;
+    @Value("${oauth-server.base-url}")
+    private String oauthBaseUrl;
+    @Value("${oauth-server.username}")
+    private String username;
+    @Value("${oauth-server.password}")
+    private String password;
 
-    WebClient oauthClient = WebClient
-            .builder()
-            .baseUrl("http://localhost:8095")
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-            .defaultHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.toBase64String((username + ":" + password).getBytes()))
-            .build();
 
-    WebClient communityClient = WebClient
-            .builder()
-            .baseUrl("http://localhost:8096")
-            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-            .build();
+    private WebClient oauthClient;
+    private WebClient communityClient;
+
+    @PostConstruct
+    public void initializeClients() {
+        oauthClient = WebClient
+                .builder()
+                .baseUrl(oauthBaseUrl)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.toBase64String((username + ":" + password).getBytes()))
+                .build();
+        communityClient = WebClient
+                .builder()
+                .baseUrl(communityApiBaseUrl)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .build();
+    }
 
     @GetMapping(value = "/test/community-api-get-token", produces = "application/json")
     public @ResponseBody
@@ -41,7 +56,8 @@ public class CommunityApiTestController {
                 .exchange();
 
 
-        return data.block().bodyToMono(TokenResponse.class);
+        Mono<TokenResponse> tokenResponseMono = data.block().bodyToMono(TokenResponse.class);
+        return tokenResponseMono;
     }
 
     @GetMapping(value = "/test/community-api-get-something", produces = "application/json")

@@ -27,18 +27,18 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=dev
 
-#  community-api:
-#    image: mojdigitalstudio/community-api:latest
-#    networks:
-#      - hmpps
-#    container_name: community-api
-#    ports:
-#      - "8096:8080"
-#    healthcheck:
-#      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-#    environment:
-#      - SERVER_PORT=8080
-#      - SPRING_PROFILES_ACTIVE=dev
+  community-api:
+    image: mojdigitalstudio/community-api:latest
+    networks:
+      - hmpps
+    container_name: community-api
+    ports:
+      - "8096:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=dev
 
 networks:
   hmpps:

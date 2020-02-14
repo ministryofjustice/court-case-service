@@ -1,12 +1,13 @@
 package uk.gov.justice.probation.courtcaseservice.application;
 
-import org.bouncycastle.util.encoders.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.Base64;
 
 @Configuration
 public class WebClientConfig {
@@ -36,7 +37,7 @@ public class WebClientConfig {
                 .builder()
                 .baseUrl(oauthBaseUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.toBase64String((username + ":" + password).getBytes()))
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes()))
                 .build();
     }
 }

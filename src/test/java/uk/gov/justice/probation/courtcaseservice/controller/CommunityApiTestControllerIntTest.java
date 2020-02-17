@@ -10,7 +10,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.TestConfig;
 
 import static io.restassured.RestAssured.when;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
 @RunWith(SpringRunner.class)
@@ -24,16 +23,6 @@ public class CommunityApiTestControllerIntTest {
     @Before
     public void setup() {
         TestConfig.configureRestAssuredForIntTest(port);
-    }
-
-    @Test
-    public void tokenCanBeRetrievedFromNomisOauth() {
-           when()
-                   .get("/test/community-api-get-token")
-                    .then()
-                    .assertThat()
-                    .statusCode(200)
-                    .body(containsString("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9")); // This is the JWT token header we're expecting
     }
 
     @Test

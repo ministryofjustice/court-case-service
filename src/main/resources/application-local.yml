@@ -1,7 +1,3 @@
-oauth-server:
-  base-url: http://localhost:8095
-  username: community-api-client
-  password: clientsecret
 
 community-api:
   base-url: http://localhost:8096

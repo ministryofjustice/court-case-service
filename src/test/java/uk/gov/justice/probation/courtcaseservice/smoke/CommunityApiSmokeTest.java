@@ -1,10 +1,9 @@
-package uk.gov.justice.probation.courtcaseservice.controller;
+package uk.gov.justice.probation.courtcaseservice.smoke;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.TestConfig;
@@ -14,15 +13,14 @@ import static org.hamcrest.Matchers.equalTo;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles(profiles = "test")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CommunityApiTestControllerIntTest {
+public class CommunityApiSmokeTest {
 
-    @LocalServerPort
-    private int port;
+    @Value("${smoke-test.target-host:http://localhost:8080}")
+    private String host;
 
     @Before
     public void setup() {
-        TestConfig.configureRestAssuredForIntTest(port);
+        TestConfig.configureRestAssuredForSmokeTest(host);
     }
 
     @Test

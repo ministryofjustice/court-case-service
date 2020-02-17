@@ -18,12 +18,12 @@ spring:
     oauth2:
       client:
         registration:
-          nomis-oauth:
+          nomis-oauth-client:
             client-name: nomis-oauth-client
             client-id: community-api-client
             client-secret: clientsecret
             client-authentication-method: basic
             authorization-grant-type: client_credentials
         provider:
-          nomis-oauth:
+          nomis-oauth-client:
             token-uri: http://localhost:8095/auth/oauth/token

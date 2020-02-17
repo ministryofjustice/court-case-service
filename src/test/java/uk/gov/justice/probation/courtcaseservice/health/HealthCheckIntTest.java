@@ -39,6 +39,6 @@ public class HealthCheckIntTest {
                 .extract().response().asString();
 
         assertThatJson(response).node("status").isEqualTo("UP");
-        assertThatJson(response).node("details.db.details.database").isEqualTo("PostgreSQL");
+        assertThatJson(response).node("components.db.details.database").isEqualTo("PostgreSQL");
     }
 }

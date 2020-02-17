@@ -11,14 +11,17 @@ public class OAuth2SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-
                 // Can't have CSRF protection as requires session
-                .and().csrf().disable().authorizeRequests()
-                .antMatchers("/**")
-                .permitAll()
-                .anyRequest()
-                .authenticated();
+                .csrf().disable()
+                .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+
+                .and().oauth2Client()
+
+                .and().authorizeRequests()
+                    .antMatchers("/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated();
     }
 }

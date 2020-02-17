@@ -13,3 +13,17 @@ spring:
   flyway:
     schemas: courtcaseservicetest
     clean-on-validation-error: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          nomis-oauth:
+            client-name: nomis-oauth-client
+            client-id: community-api-client
+            client-secret: clientsecret
+            client-authentication-method: basic
+            authorization-grant-type: client_credentials
+        provider:
+          nomis-oauth:
+            token-uri: http://localhost:8095/auth/oauth/token

@@ -1,5 +1,5 @@
 feature-flags:
-  community-api-test-endpoint: false
+  community-api-test-endpoint: true
 
 community-api:
   base-url: http://localhost:8096

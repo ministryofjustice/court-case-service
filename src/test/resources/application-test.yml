@@ -1,0 +1,24 @@
+community-api:
+  base-url: http://localhost:8096
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=${database.schema.name:courtcaseservicetest}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
+
+  flyway:
+    schemas: courtcaseservicetest
+    clean-on-validation-error: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          nomis-oauth-client:
+            client-name: nomis-oauth-client
+            client-id: community-api-client
+            client-secret: clientsecret
+            client-authentication-method: basic
+            authorization-grant-type: client_credentials
+        provider:
+          nomis-oauth-client:
+            token-uri: http://localhost:8095/auth/oauth/token

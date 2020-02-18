@@ -104,9 +104,6 @@ dependencies {
     implementation 'org.flywaydb:flyway-core'
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'com.vladmihalcea:hibernate-types-52:2.4.4'
-    implementation 'com.sun.xml.bind:jaxb-impl:2.3.0.1'
-    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.0'
-    implementation 'com.vladmihalcea:hibernate-types-52:2.4.4'
 
     runtime 'org.postgresql:postgresql:42.2.8'
 
@@ -114,7 +111,9 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.9.0'
-    testImplementation 'io.rest-assured:rest-assured:3.0.3'
+    testImplementation ('io.rest-assured:rest-assured:3.0.3'){
+        exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
+    }
     testImplementation 'com.github.tomakehurst:wiremock:2.13.0'
     testImplementation 'commons-io:commons-io:2.6'
 

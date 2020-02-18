@@ -9,7 +9,7 @@ spring:
           nomis-oauth-client:
             client-name: nomis-oauth-client
             client-id: community-api-client
-            client-secret: clientsecret
+            client-secret: ${nomis-oauth-client-secret:clientsecret}
             client-authentication-method: basic
             authorization-grant-type: client_credentials
         provider:

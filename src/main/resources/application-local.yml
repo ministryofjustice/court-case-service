@@ -1,0 +1,5 @@
+feature-flags:
+  community-api-test-endpoint: true
+
+community-api:
+  base-url: http://localhost:8096

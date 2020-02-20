@@ -28,6 +28,6 @@ public class CaseListResponseTest {
     }
 
     private CourtCaseEntity buildCourtCaseEntity(LocalDateTime mostRecent) {
-        return new CourtCaseEntity(null, mostRecent, null, null, null, null, null, null, null);
+        return new CourtCaseEntity(null, mostRecent, null, null, null, null, null, null, null, null, null);
     }
 }

@@ -38,7 +38,7 @@ spring:
     url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=${database.schema.name:courtcaseservice}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
 
   flyway:
-    schemas: ${database.schema.name}
+    schemas: ${database.schema.name:courtcaseservice}
     locations: classpath:db/migration/courtcase
     enabled: true
 

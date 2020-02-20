@@ -1,0 +1,10 @@
+database:
+  schema:
+    name: courtcaseservicetest
+
+community-api:
+  base-url: http://localhost:8096
+
+spring:
+  flyway:
+    clean-on-validation-error: true

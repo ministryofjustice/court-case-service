@@ -1,0 +1,9 @@
+feature-flags:
+  community-api-test-endpoint: true
+
+community-api:
+  base-url: http://localhost:8096
+
+spring:
+  flyway:
+    locations: classpath:db/migration/courtcase,filesystem:src/test/resources/db/migration/development

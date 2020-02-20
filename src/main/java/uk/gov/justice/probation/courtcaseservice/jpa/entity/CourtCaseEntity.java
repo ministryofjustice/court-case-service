@@ -51,6 +51,9 @@ public class CourtCaseEntity implements Serializable {
     @Column(name = "PREVIOUSLY_KNOWN_TERMINATION_DATE")
     private LocalDate previouslyKnownTerminationDate;
 
+    @Column(name = "SUSPENDED_SENTENCE_ORDER")
+    private Boolean suspendedSentenceOrder;
+
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "DATA")
     private String data;

@@ -91,14 +91,14 @@ public class CourtCaseControllerIntTest {
                 .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 9, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 9, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[1].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 0, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("cases[2].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)));
-//                .body("offences", hasSize(2))
-//                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
-//                .body("offences[0].sequenceNumber", equalTo(1))
-//                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
-//                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
-//                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
-//                .body("offences[1].sequenceNumber", equalTo(2));
+                .body("cases[2].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("offences", hasSize(2))
+                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
+                .body("offences[0].sequenceNumber", equalTo(1))
+                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
+                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
+                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
+                .body("offences[1].sequenceNumber", equalTo(2));
     }
 
     @Test
@@ -304,14 +304,14 @@ public class CourtCaseControllerIntTest {
                 .body("probationStatus", equalTo(PROBATION_STATUS))
                 .body("sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2018, 6, 24).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-                .body("suspendedSentenceOrder", equalTo(true));
-//                .body("offences", hasSize(2))
-//                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
-//                .body("offences[0].sequenceNumber", equalTo(1))
-//                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
-//                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
-//                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
-//                .body("offences[1].sequenceNumber", equalTo(2));
+                .body("suspendedSentenceOrder", equalTo(true))
+                .body("offences", hasSize(2))
+                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
+                .body("offences[0].sequenceNumber", equalTo(1))
+                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
+                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
+                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
+                .body("offences[1].sequenceNumber", equalTo(2));
 
     }
 
@@ -337,14 +337,14 @@ public class CourtCaseControllerIntTest {
                 .body("probationStatus", equalTo(PROBATION_STATUS))
                 .body("sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2018, 6, 24).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-                .body("suspendedSentenceOrder", equalTo(true));
-//                .body("offences", hasSize(2))
-//                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
-//                .body("offences[0].sequenceNumber", equalTo(1))
-//                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
-//                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
-//                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
-//                .body("offences[1].sequenceNumber", equalTo(2));
+                .body("suspendedSentenceOrder", equalTo(true))
+                .body("offences", hasSize(2))
+                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
+                .body("offences[0].sequenceNumber", equalTo(1))
+                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
+                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
+                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
+                .body("offences[1].sequenceNumber", equalTo(2));
     }
 
     private String getFileAsString(String resourcePath) throws IOException {

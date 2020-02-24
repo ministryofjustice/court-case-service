@@ -1,0 +1,25 @@
+{
+  "lastUpdated": "2020-02-24T11:30:15.103652",
+  "caseId": "654321",
+  "caseNo": "1700028914",
+  "courtCode": "SHF",
+  "courtRoom": "1",
+  "sessionStartTime": "2019-12-14T09:00:00",
+  "probationStatus": "Previously known",
+  "previouslyKnownTerminationDate": "2018-06-24",
+  "suspendedSentenceOrder": "true",
+  "offences": [
+    {
+      "offenceTitle": "Theft from a shop",
+      "offenceSummary": "On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.",
+      "act": "Contrary to section 1(1) and 7 of the Theft Act 1968."
+    },
+    {
+      "offenceTitle": "Theft from a different shop",
+      "offenceSummary": "On 02/01/2015 at own, stole article, to the value of £123.00, belonging to person.",
+      "act": "Contrary to section 1(1) and 7 of the Theft Act 1968."
+    }
+  ],
+  "data": "{\"inf\": \"POL01\", \"c_id\": 1168460, \"cseq\": 1, \"h_id\": 1246272, \"type\": \"C\", \"valid\": \"Y\", \"caseno\": 1600028912, \"listno\": \"1st\", \"def_age\": 18, \"def_dob\": \"01/01/1998\", \"def_sex\": \"M\", \"def_addr\": {\"line1\": \"a1\", \"line2\": \"a2\", \"line3\": \"a3\"}, \"def_name\": \"JCONE\", \"def_type\": \"P\", \"offences\": {\"offence\": [{\"as\": \"Contrary to section 1(1) and 7 of the Theft Act 1968.\", \"sum\": \"On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.\", \"code\": \"TH68010\", \"oseq\": 1, \"co_id\": 1142407, \"title\": \"Theft from a shop\", \"maxpen\": \"EW: 6M &/or Ultd Fine\"}, {\"as\": \"Contrary to section 1(1) and 7 of the Theft Act 1968.\", \"sum\": \"On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.\", \"code\": \"TH68010\", \"oseq\": 2, \"co_id\": 1142408, \"title\": \"Theft from a shop\", \"maxpen\": \"EW: 6M &/or Ultd Fine\"}]}}",
+  "session": "MORNING"
+}

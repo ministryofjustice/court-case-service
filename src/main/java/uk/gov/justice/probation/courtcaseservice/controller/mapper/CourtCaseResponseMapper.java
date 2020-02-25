@@ -31,7 +31,9 @@ public class CourtCaseResponseMapper {
     private List<OffenceResponse> mapOffencesFrom(CourtCaseEntity courtCaseEntity) {
         return courtCaseEntity.getOffences()
                 .stream()
-                .sorted(Comparator.comparing(OffenceEntity::getSequenceNumber))
+                .sorted(Comparator.comparing(offenceEntity ->
+                        // Default to very high number so that unordered items are last
+                        (offenceEntity.getSequenceNumber() != null ? offenceEntity.getSequenceNumber() : Integer.MAX_VALUE)))
                 .map(this::mapFrom)
                 .collect(Collectors.toList());
     }

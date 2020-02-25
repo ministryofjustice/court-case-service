@@ -93,6 +93,24 @@ public class CourtCaseResponseMapperTest {
 
     }
 
+    @Test
+    public void shouldTolerateMissingSequenceNumbersInResponseOrdering() {
+        var unorderedOffences = Arrays.asList(
+            new OffenceEntity(null, null, OFFENCE_TITLE, OFFENCE_SUMMARY, ACT, null),
+            new OffenceEntity(null, null, OFFENCE_TITLE + "2", OFFENCE_SUMMARY + "2", ACT + "2", null)
+        );
+        var unorderedCourtCaseEntity = buildCourtCaseEntity(unorderedOffences);
+
+        var courtCaseResponse = courtCaseResponseMapper.mapFrom(unorderedCourtCaseEntity);
+
+        var firstOffence = courtCaseResponse.getOffences().get(0);
+        assertThat(firstOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE);
+
+        var secondOffence = courtCaseResponse.getOffences().get(1);
+        assertThat(secondOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE + "2");
+
+    }
+
     private CourtCaseEntity buildCourtCaseEntity(List<OffenceEntity> offences) {
         return new CourtCaseEntity(ID, LAST_UPDATED, CASE_ID, CASE_NO, COURT_CODE, COURT_ROOM, SESSION_START_TIME, PROBATION_STATUS, PREVIOUSLY_KNOWN_TERMINATION_DATE, SUSPENDED_SENTENCE_ORDER, offences, DATA);
     }

@@ -344,8 +344,8 @@ public class CourtCaseControllerIntTest {
     @Test
     public void whenCourtCaseCreated_thenOffenceSequenceNumberShouldBeReflectedInResponse() {
         var modifiedJson = caseDetailsJson
-                .replace("\"sequenceNumber\": 1", "\"sequenceNumber\": 3")
-                .replace("\"sequenceNumber\": 2", "\"sequenceNumber\": 4");
+                .replace("\"sequenceNumber\": 1", "\"sequenceNumber\": 4")
+                .replace("\"sequenceNumber\": 2", "\"sequenceNumber\": 3");
 
         given()
                 .contentType(ContentType.JSON)

@@ -2,8 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 
@@ -32,18 +30,21 @@ public class CourtCaseResponseMapperTest {
     private static final String OFFENCE_SUMMARY = "OFFENCE_SUMMARY";
     private static final String ACT = "ACT";
     private CourtCaseEntity courtCaseEntity;
+    private List<OffenceEntity> offences;
+    private CourtCaseResponseMapper courtCaseResponseMapper = new CourtCaseResponseMapper();
 
     @Before
     public void setUp() {
-        List<OffenceEntity> offences = Arrays.asList(
+        offences = Arrays.asList(
                 new OffenceEntity(null, null, OFFENCE_TITLE, OFFENCE_SUMMARY, ACT, 1),
-                new OffenceEntity(null, null, OFFENCE_TITLE + "2", OFFENCE_SUMMARY + "2", ACT + "2", 2));
-        courtCaseEntity = new CourtCaseEntity(ID, LAST_UPDATED, CASE_ID, CASE_NO, COURT_CODE, COURT_ROOM, SESSION_START_TIME, PROBATION_STATUS, PREVIOUSLY_KNOWN_TERMINATION_DATE, SUSPENDED_SENTENCE_ORDER, offences, DATA);
+                new OffenceEntity(null, null, OFFENCE_TITLE + "2", OFFENCE_SUMMARY + "2", ACT + "2", 2)
+        );
+        courtCaseEntity = buildCourtCaseEntity(offences);
     }
 
     @Test
     public void shouldMapEntityToResponse() {
-        CourtCaseResponse courtCaseResponse = new CourtCaseResponseMapper().mapFrom(courtCaseEntity);
+        var courtCaseResponse = courtCaseResponseMapper.mapFrom(courtCaseEntity);
 
         assertThat(courtCaseResponse.getCaseId()).isEqualTo(CASE_ID);
         assertThat(courtCaseResponse.getCaseNo()).isEqualTo(CASE_NO);
@@ -59,24 +60,40 @@ public class CourtCaseResponseMapperTest {
 
     @Test
     public void shouldMapOffencesToResponse() {
-        CourtCaseResponse courtCaseResponse = new CourtCaseResponseMapper().mapFrom(courtCaseEntity);
+        var courtCaseResponse = courtCaseResponseMapper.mapFrom(courtCaseEntity);
 
         assertThat(courtCaseResponse.getOffences().size()).isEqualTo(2);
 
-        OffenceResponse firstOffence = courtCaseResponse.getOffences().get(0);
+        var firstOffence = courtCaseResponse.getOffences().get(0);
 
         assertThat(firstOffence.getAct()).isEqualTo(ACT);
         assertThat(firstOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE);
         assertThat(firstOffence.getOffenceSummary()).isEqualTo(OFFENCE_SUMMARY);
 
 
-        OffenceResponse secondOffence = courtCaseResponse.getOffences().get(1);
+        var secondOffence = courtCaseResponse.getOffences().get(1);
 
         assertThat(secondOffence.getAct()).isEqualTo(ACT + "2");
         assertThat(secondOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE + "2");
         assertThat(secondOffence.getOffenceSummary()).isEqualTo(OFFENCE_SUMMARY + "2");
     }
 
-    // TODO: test that offence sequence number is reflected in ordering
+    @Test
+    public void shouldReflectOffenceSequenceNumberInResponseOrdering() {
+        var reorderedOffences = Arrays.asList(offences.get(1), offences.get(0));
+        var reorderedCourtCaseEntity = buildCourtCaseEntity(reorderedOffences);
 
+        var courtCaseResponse = courtCaseResponseMapper.mapFrom(reorderedCourtCaseEntity);
+
+        var firstOffence = courtCaseResponse.getOffences().get(0);
+        assertThat(firstOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE);
+
+        var secondOffence = courtCaseResponse.getOffences().get(1);
+        assertThat(secondOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE + "2");
+
+    }
+
+    private CourtCaseEntity buildCourtCaseEntity(List<OffenceEntity> offences) {
+        return new CourtCaseEntity(ID, LAST_UPDATED, CASE_ID, CASE_NO, COURT_CODE, COURT_ROOM, SESSION_START_TIME, PROBATION_STATUS, PREVIOUSLY_KNOWN_TERMINATION_DATE, SUSPENDED_SENTENCE_ORDER, offences, DATA);
+    }
 }

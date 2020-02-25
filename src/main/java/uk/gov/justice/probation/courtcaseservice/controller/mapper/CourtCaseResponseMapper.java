@@ -6,6 +6,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceRespons
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,7 @@ public class CourtCaseResponseMapper {
     private List<OffenceResponse> mapOffencesFrom(CourtCaseEntity courtCaseEntity) {
         return courtCaseEntity.getOffences()
                 .stream()
+                .sorted(Comparator.comparing(OffenceEntity::getSequenceNumber))
                 .map(this::mapFrom)
                 .collect(Collectors.toList());
     }

@@ -15,10 +15,13 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.InputMismatchException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.Mockito.*;
 
@@ -28,6 +31,15 @@ public class CourtCaseServiceTest {
     private static final String CASE_ID = "CASE_ID";
     private static final String CASE_NO = "1600028912";
     private static final String COURT_CODE = "SHF";
+    private static final String BAD_CASE_ID = "BAD_CASE_ID";
+    private static final String COURT_ROOM = "COURT_ROOM";
+    private static final LocalDateTime SESSION_START_TIME = LocalDateTime.of(2020, 2, 26, 9, 0);
+    private static final String PROBATION_STATUS = "PROBATION_STATUS";
+    private static final LocalDate TERMINATION_DATE = LocalDate.of(2020, 2, 27);
+    private static final LocalDate SEARCH_DATE = LocalDate.of(2020, 1, 16);
+    private static final LocalDateTime LAST_UPDATED = LocalDateTime.of(2020, 2, 25, 9, 0);
+    private static final boolean SUSPENDED_SENTENCE = true;
+    private static final String DATA = "DATA";
 
     @Mock
     private CourtRepository courtRepository;
@@ -46,14 +58,16 @@ public class CourtCaseServiceTest {
 
     private CourtCaseEntity courtCase;
 
-    private LocalDate date = LocalDate.of(2020, 1, 16);
     private CourtCaseService service;
 
     @Before
     public void setup() {
         service = new CourtCaseService(courtRepository, courtCaseRepository);
         List<OffenceEntity> offences = Collections.singletonList(new OffenceEntity(null, null, "OFFENCE_TITLE", "OFFENCE_SUMMARY", "ACT", 1));
-        courtCase = new CourtCaseEntity(1234L, null, CASE_ID, null, COURT_CODE, null, null, null, null, null, offences, null);
+        courtCase = new CourtCaseEntity(1234L, LAST_UPDATED, CASE_ID, CASE_NO, COURT_CODE, COURT_ROOM, SESSION_START_TIME, PROBATION_STATUS, TERMINATION_DATE, SUSPENDED_SENTENCE, offences, DATA);
+
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(courtEntity);
+        when(courtCaseRepository.save(caseEntityCaptor.capture())).thenReturn(courtCase);
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(courtEntity);
     }
 
@@ -62,7 +76,7 @@ public class CourtCaseServiceTest {
         when(courtEntity.getCourtCode()).thenReturn(COURT_CODE);
         when(courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(eq(COURT_CODE), any(), any())).thenReturn(caseList);
 
-        List<CourtCaseEntity> courtCaseEntities = service.filterCasesByCourtAndDate(COURT_CODE, date);
+        List<CourtCaseEntity> courtCaseEntities = service.filterCasesByCourtAndDate(COURT_CODE, SEARCH_DATE);
 
         assertThat(courtCaseEntities).isEqualTo(caseList);
     }
@@ -72,7 +86,7 @@ public class CourtCaseServiceTest {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(null);
 
         var exception = catchThrowable(() ->
-                service.filterCasesByCourtAndDate(COURT_CODE, date));
+                service.filterCasesByCourtAndDate(COURT_CODE, SEARCH_DATE));
         assertThat(exception).isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Court " + COURT_CODE + " not found");
 
@@ -80,7 +94,6 @@ public class CourtCaseServiceTest {
 
     @Test
     public void getCourtCaseShouldRetrieveCaseFromRepository() {
-        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(courtEntity);
         when(courtCaseRepository.findByCaseNo(CASE_NO)).thenReturn(courtCase);
 
         service.getCaseByCaseNumber(COURT_CODE, CASE_NO);
@@ -89,7 +102,6 @@ public class CourtCaseServiceTest {
 
     @Test
     public void getCourtCaseShouldThrowNotFoundException() {
-        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(courtEntity);
         when(courtCaseRepository.findByCaseNo(CASE_NO)).thenReturn(null);
 
         var exception = catchThrowable(() ->
@@ -114,10 +126,53 @@ public class CourtCaseServiceTest {
 
     @Test
     public void createOrUpdateCaseShouldAmendOffencesWithCaseId() {
-          when(courtCaseRepository.save(caseEntityCaptor.capture())).thenReturn(courtCase);
 
           service.createOrUpdateCase(CASE_ID, courtCase);
           assertThat(caseEntityCaptor.getValue().getOffences().get(0)
                   .getCourtCase()).isEqualTo(courtCase);
+    }
+
+    @Test
+    public void createOrUpdateCaseShouldThrowExceptionIfCourtDoesNotExist() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(null);
+        assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy( () ->
+                service.createOrUpdateCase(CASE_ID, courtCase)
+        ).withMessage("Court " + COURT_CODE + " not found");
+    }
+
+    @Test
+    public void createOrUpdateCaseShouldThrowExceptionIfCaseIdsDontMatch() {
+        courtCase.setCaseId(BAD_CASE_ID);
+        assertThatExceptionOfType(InputMismatchException.class).isThrownBy( () ->
+                service.createOrUpdateCase(CASE_ID, courtCase)
+        ).withMessage("Case ID " + CASE_ID + " does not match with " + BAD_CASE_ID);
+    }
+
+    @Test
+    public void createOrUpdateCase_shouldUpdateExistingRecordIfItExists() {
+        var existingCourtCase = new CourtCaseEntity();
+        existingCourtCase.setCaseId(CASE_ID);
+        when(courtCaseRepository.findByCaseId(CASE_ID)).thenReturn(existingCourtCase);
+        service.createOrUpdateCase(CASE_ID, courtCase);
+
+        assertThat(existingCourtCase.getCaseId()).isEqualTo(CASE_ID);
+        assertThat(existingCourtCase.getCaseNo()).isEqualTo(CASE_NO);
+        assertThat(existingCourtCase.getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(existingCourtCase.getCourtRoom()).isEqualTo(COURT_ROOM);
+        assertThat(existingCourtCase.getData()).isEqualTo(DATA);
+        assertThat(existingCourtCase.getProbationStatus()).isEqualTo(PROBATION_STATUS);
+        assertThat(existingCourtCase.getPreviouslyKnownTerminationDate()).isEqualTo(TERMINATION_DATE);
+        assertThat(existingCourtCase.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
+        assertThat(existingCourtCase.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE);
+
+        verify(courtCaseRepository).save(existingCourtCase);
+    }
+
+    @Test
+    public void createOrUpdateCase_shouldCreateANewRecordIfNoneExists() {
+        when(courtCaseRepository.findByCaseId(CASE_ID)).thenReturn(null);
+        service.createOrUpdateCase(CASE_ID, courtCase);
+
+        verify(courtCaseRepository).save(courtCase);
     }
 }

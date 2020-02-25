@@ -49,7 +49,6 @@ public class CourtCaseService {
     }
 
     public CourtCaseEntity createOrUpdateCase(String caseId, CourtCaseEntity courtCaseEntity) throws EntityNotFoundException, InputMismatchException {
-        // TODO: improve unit test coverage of createOrUpdateCase
         checkCourtByCode(courtCaseEntity.getCourtCode());
         String bodyCaseId = courtCaseEntity.getCaseId();
         if (!caseId.equals(bodyCaseId)) {
@@ -64,13 +63,14 @@ public class CourtCaseService {
             return createCase(courtCaseEntity);
         }
 
-        existingCase.setCaseId(caseId);
         existingCase.setCaseNo(courtCaseEntity.getCaseNo());
         existingCase.setCourtCode(courtCaseEntity.getCourtCode());
         existingCase.setCourtRoom(courtCaseEntity.getCourtRoom());
         existingCase.setProbationStatus(courtCaseEntity.getProbationStatus());
         existingCase.setSessionStartTime(courtCaseEntity.getSessionStartTime());
         existingCase.setData(courtCaseEntity.getData());
+        existingCase.setPreviouslyKnownTerminationDate(courtCaseEntity.getPreviouslyKnownTerminationDate());
+        existingCase.setSuspendedSentenceOrder(courtCaseEntity.getSuspendedSentenceOrder());
 
         log.info("Court case updated for case {}", courtCaseEntity.getCaseNo());
         return courtCaseRepository.save(existingCase);

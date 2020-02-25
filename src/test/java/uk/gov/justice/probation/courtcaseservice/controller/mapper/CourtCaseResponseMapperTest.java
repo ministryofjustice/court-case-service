@@ -77,4 +77,6 @@ public class CourtCaseResponseMapperTest {
         assertThat(secondOffence.getOffenceSummary()).isEqualTo(OFFENCE_SUMMARY + "2");
     }
 
+    // TODO: test that offence sequence number is reflected in ordering
+
 }

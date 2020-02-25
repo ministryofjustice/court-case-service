@@ -341,6 +341,26 @@ public class CourtCaseControllerIntTest {
                 .body("offences[1].offenceTitle", equalTo("Theft from a different shop"));
     }
 
+    @Test
+    public void whenCourtCaseCreated_thenOffenceSequenceNumberShouldBeReflectedInResponse() {
+        var modifiedJson = caseDetailsJson
+                .replace("\"sequenceNumber\": 1", "\"sequenceNumber\": 3")
+                .replace("\"sequenceNumber\": 2", "\"sequenceNumber\": 4");
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(modifiedJson)
+                .when()
+                .put("/case/" + NEW_CASE_ID)
+                .then()
+                .statusCode(200)
+                .body("offences", hasSize(2))
+                .body("offences[0].offenceTitle", equalTo("Theft from a different shop"))
+                .body("offences[1].offenceTitle", equalTo("Theft from a shop"));
+
+    }
+
     @SuppressWarnings("UnstableApiUsage")
     private String getFileAsString(String resourcePath) throws IOException {
         return Resources.toString(Resources.getResource(resourcePath), Charset.defaultCharset());

@@ -49,6 +49,7 @@ public class CourtCaseService {
     }
 
     public CourtCaseEntity createOrUpdateCase(String caseId, CourtCaseEntity courtCaseEntity) throws EntityNotFoundException, InputMismatchException {
+        // TODO: improve unit test coverage of createOrUpdateCase
         checkCourtByCode(courtCaseEntity.getCourtCode());
         String bodyCaseId = courtCaseEntity.getCaseId();
         if (!caseId.equals(bodyCaseId)) {

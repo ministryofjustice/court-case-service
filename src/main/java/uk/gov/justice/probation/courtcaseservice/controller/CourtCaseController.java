@@ -43,7 +43,8 @@ public class CourtCaseController {
                                  @RequestParam("date")
                                  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         List<CourtCaseEntity> courtCases = courtCaseService.filterCasesByCourtAndDate(courtCode, date);
-        List<CourtCaseResponse> courtCaseResponses = courtCases.stream().map(e -> courtCaseResponseMapper.mapFrom(e))
+        List<CourtCaseResponse> courtCaseResponses = courtCases.stream()
+                .map(courtCaseResponseMapper::mapFrom)
                 .collect(Collectors.toList());
         return new CaseListResponse(courtCaseResponses);
     }

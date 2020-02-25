@@ -86,19 +86,12 @@ public class CourtCaseControllerIntTest {
                 .assertThat()
                 .statusCode(200)
                 .body("cases[0].courtCode", equalTo(COURT_CODE))
-                .body("cases[1].lastUpdated", containsString(now.format(DateTimeFormatter.ISO_DATE)))
                 .body("cases[0].caseId", equalTo("5555555"))
                 .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 9, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 9, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("cases[0].offences", hasSize(2))
+                .body("cases[1].lastUpdated", containsString(now.format(DateTimeFormatter.ISO_DATE)))
                 .body("cases[1].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 0, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("cases[2].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("offences", hasSize(2))
-                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
-                .body("offences[0].sequenceNumber", equalTo(1))
-                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
-                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
-                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
-                .body("offences[1].sequenceNumber", equalTo(2));
+                .body("cases[2].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)));
     }
 
     @Test
@@ -192,7 +185,12 @@ public class CourtCaseControllerIntTest {
                 .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, CASE_NO)
                 .then()
                 .statusCode(200)
-                .body("caseNo", equalTo(CASE_NO));
+                .body("caseNo", equalTo(CASE_NO))
+                .body("offences", hasSize(2))
+                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
+                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
+                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
+                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"));
     }
 
 
@@ -307,11 +305,9 @@ public class CourtCaseControllerIntTest {
                 .body("suspendedSentenceOrder", equalTo(true))
                 .body("offences", hasSize(2))
                 .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
-                .body("offences[0].sequenceNumber", equalTo(1))
                 .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
                 .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
-                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
-                .body("offences[1].sequenceNumber", equalTo(2));
+                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"));
 
     }
 
@@ -340,13 +336,12 @@ public class CourtCaseControllerIntTest {
                 .body("suspendedSentenceOrder", equalTo(true))
                 .body("offences", hasSize(2))
                 .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
-                .body("offences[0].sequenceNumber", equalTo(1))
                 .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
                 .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
-                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
-                .body("offences[1].sequenceNumber", equalTo(2));
+                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"));
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     private String getFileAsString(String resourcePath) throws IOException {
         return Resources.toString(Resources.getResource(resourcePath), Charset.defaultCharset());
     }

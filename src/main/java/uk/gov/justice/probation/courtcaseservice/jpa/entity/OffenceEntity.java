@@ -1,11 +1,18 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "OFFENCE")
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
 public class OffenceEntity {
 
     @Id
@@ -15,8 +22,9 @@ public class OffenceEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name="CASE_ID", nullable = false)
+    @JoinColumn(name="CASE_ID", nullable = false, referencedColumnName = "CASE_ID")
     @JsonIgnore
+    @Setter
     private CourtCaseEntity courtCase;
 
     @Column(name = "OFFENCE_TITLE")

@@ -54,6 +54,9 @@ public class CourtCaseService {
         if (!caseId.equals(bodyCaseId)) {
             throw new InputMismatchException(String.format("Case ID %s does not match with %s", caseId, bodyCaseId));
         }
+
+        linkOffencesToCourtCase(courtCaseEntity);
+
         CourtCaseEntity existingCase = courtCaseRepository.findByCaseId(caseId);
 
         if (existingCase == null) {
@@ -80,5 +83,9 @@ public class CourtCaseService {
         }
         LocalDateTime start = LocalDateTime.of(date, LocalTime.MIDNIGHT);
         return courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(court.getCourtCode(), start, start.plusDays(1));
+    }
+
+    private void linkOffencesToCourtCase(CourtCaseEntity courtCaseEntity) {
+        courtCaseEntity.getOffences().forEach(offence -> offence.setCourtCase(courtCaseEntity));
     }
 }

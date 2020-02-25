@@ -12,11 +12,12 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
 
-@AllArgsConstructor()
+@AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Table(name = "COURT_CASE")
@@ -56,8 +57,8 @@ public class CourtCaseEntity implements Serializable {
     @Column(name = "SUSPENDED_SENTENCE_ORDER")
     private Boolean suspendedSentenceOrder;
 
-    @OneToMany(mappedBy = "courtCase")
-    private List<OffenceEntity> offences;
+    @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL)
+    private List<OffenceEntity> offences = Collections.emptyList();
 
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "DATA")

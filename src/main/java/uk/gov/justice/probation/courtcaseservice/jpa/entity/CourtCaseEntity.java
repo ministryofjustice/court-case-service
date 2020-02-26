@@ -57,6 +57,9 @@ public class CourtCaseEntity implements Serializable {
     @Column(name = "SUSPENDED_SENTENCE_ORDER")
     private Boolean suspendedSentenceOrder;
 
+    @Column(name = "BREACH")
+    private Boolean breach;
+
     @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL)
     private List<OffenceEntity> offences = Collections.emptyList();
 

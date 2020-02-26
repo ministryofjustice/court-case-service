@@ -1,31 +1,34 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-        import com.fasterxml.jackson.databind.ObjectMapper;
-        import io.restassured.http.ContentType;
-        import org.junit.Before;
-        import org.junit.Test;
-        import org.junit.runner.RunWith;
-        import org.springframework.beans.factory.annotation.Autowired;
-        import org.springframework.boot.test.context.SpringBootTest;
-        import org.springframework.boot.web.server.LocalServerPort;
-        import org.springframework.test.context.ActiveProfiles;
-        import org.springframework.test.context.jdbc.Sql;
-        import org.springframework.test.context.jdbc.SqlConfig;
-        import org.springframework.test.context.junit4.SpringRunner;
-        import uk.gov.justice.probation.courtcaseservice.TestConfig;
-        import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-        import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.Resources;
+import io.restassured.http.ContentType;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
+import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.justice.probation.courtcaseservice.TestConfig;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 
-        import java.time.LocalDate;
-        import java.time.LocalDateTime;
-        import java.time.format.DateTimeFormatter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-        import static io.restassured.RestAssured.given;
-        import static io.restassured.RestAssured.when;
-        import static org.assertj.core.api.Assertions.assertThat;
-        import static org.hamcrest.Matchers.*;
-        import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
-        import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
+import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
@@ -53,10 +56,13 @@ public class CourtCaseControllerIntTest {
     private final String PROBATION_STATUS = "Previously known";
     private final String NOT_FOUND_COURT_CODE = "LPL";
     private final LocalDateTime now = LocalDateTime.now();
+    private final LocalDateTime sessionStartTime = LocalDateTime.of(2019, 12, 14,9, 0);
     private final CourtCaseEntity caseDetails = new CourtCaseEntity();
+    private String caseDetailsJson;
 
     @Before
-    public void setup() {
+    public void setup() throws IOException {
+        caseDetailsJson = getFileAsString("integration/request/PUT_courtCase_success.json");
         TestConfig.configureRestAssuredForIntTest(port);
 
         caseDetails.setCaseId(NEW_CASE_ID);
@@ -80,9 +86,10 @@ public class CourtCaseControllerIntTest {
                 .assertThat()
                 .statusCode(200)
                 .body("cases[0].courtCode", equalTo(COURT_CODE))
-                .body("cases[1].lastUpdated", containsString(now.format(DateTimeFormatter.ISO_DATE)))
                 .body("cases[0].caseId", equalTo("5555555"))
                 .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 9, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("cases[0].offences", hasSize(2))
+                .body("cases[1].lastUpdated", containsString(now.format(DateTimeFormatter.ISO_DATE)))
                 .body("cases[1].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 0, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[2].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)));
     }
@@ -178,7 +185,12 @@ public class CourtCaseControllerIntTest {
                 .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, CASE_NO)
                 .then()
                 .statusCode(200)
-                .body("caseNo", equalTo(CASE_NO));
+                .body("caseNo", equalTo(CASE_NO))
+                .body("offences", hasSize(2))
+                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
+                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
+                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
+                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"));
     }
 
 
@@ -278,7 +290,7 @@ public class CourtCaseControllerIntTest {
         given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(caseDetails)
+                .body(caseDetailsJson)
                 .when()
                 .put("/case/" + NEW_CASE_ID)
                 .then()
@@ -288,9 +300,14 @@ public class CourtCaseControllerIntTest {
                 .body("courtCode", equalTo(COURT_CODE))
                 .body("courtRoom", equalTo("1"))
                 .body("probationStatus", equalTo(PROBATION_STATUS))
-                .body("sessionStartTime", equalTo(now.format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-                .body("suspendedSentenceOrder", equalTo(true));
+                .body("sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2018, 6, 24).format(DateTimeFormatter.ISO_LOCAL_DATE)))
+                .body("suspendedSentenceOrder", equalTo(true))
+                .body("offences", hasSize(2))
+                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
+                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
+                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
+                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"));
 
     }
 
@@ -299,12 +316,12 @@ public class CourtCaseControllerIntTest {
 
         createCaseData();
 
-        caseDetails.setCourtRoom("2");
+        String updatedJson = caseDetailsJson.replace("\"courtRoom\": \"1\"", "\"courtRoom\": \"2\"");
 
         given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(caseDetails)
+                .body(updatedJson)
                 .when()
                 .put("/case/" + NEW_CASE_ID)
                 .then()
@@ -314,8 +331,38 @@ public class CourtCaseControllerIntTest {
                 .body("courtCode", equalTo(COURT_CODE))
                 .body("courtRoom", equalTo("2"))
                 .body("probationStatus", equalTo(PROBATION_STATUS))
-                .body("sessionStartTime", equalTo(now.format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-                .body("suspendedSentenceOrder", equalTo(true));
+                .body("sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2018, 6, 24).format(DateTimeFormatter.ISO_LOCAL_DATE)))
+                .body("suspendedSentenceOrder", equalTo(true))
+                .body("offences", hasSize(2))
+                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
+                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
+                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
+                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"));
+    }
+
+    @Test
+    public void whenCourtCaseCreated_thenOffenceSequenceNumberShouldBeReflectedInResponse() {
+        var modifiedJson = caseDetailsJson
+                .replace("\"sequenceNumber\": 1", "\"sequenceNumber\": 4")
+                .replace("\"sequenceNumber\": 2", "\"sequenceNumber\": 3");
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(modifiedJson)
+                .when()
+                .put("/case/" + NEW_CASE_ID)
+                .then()
+                .statusCode(200)
+                .body("offences", hasSize(2))
+                .body("offences[0].offenceTitle", equalTo("Theft from a different shop"))
+                .body("offences[1].offenceTitle", equalTo("Theft from a shop"));
+
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    private String getFileAsString(String resourcePath) throws IOException {
+        return Resources.toString(Resources.getResource(resourcePath), Charset.defaultCharset());
     }
 }

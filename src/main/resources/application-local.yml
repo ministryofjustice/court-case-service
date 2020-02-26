@@ -6,4 +6,9 @@ community-api:
 
 spring:
   flyway:
+    defaultSchema: ${database.schema.name}
     locations: classpath:db/migration/courtcase,filesystem:src/test/resources/db/migration/development
+
+#  jpa:
+#    hibernate:
+#      ddl-auto: create-drop

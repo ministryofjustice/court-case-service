@@ -59,7 +59,7 @@ executors:
           DATABASE_PASSWORD: dev
           DATABASE_NAME: court_case_test
           DATABASE_ENDPOINT: 127.0.0.1:5432
-      - image: circleci/postgres:9.6.5-alpine-ram
+      - image: circleci/postgres:10.10-alpine-ram
         environment:
           POSTGRES_USER: root
           POSTGRES_DB: court_case_test

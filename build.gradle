@@ -74,12 +74,14 @@ springBoot {
 test {
     filter {
         excludeTestsMatching '*SmokeTest'
+        excludeTestsMatching '*WIP*'
     }
 }
 
 task integrationTest(type: Test) {
     filter {
         includeTestsMatching '*IntTest'
+        excludeTestsMatching '*WIP*'
     }
 }
 
@@ -87,6 +89,13 @@ task unitTest(type: Test) {
     filter {
         excludeTestsMatching '*IntTest'
         excludeTestsMatching '*SmokeTest'
+        excludeTestsMatching '*WIP*'
+    }
+}
+
+task wipTest(type: Test) {
+    filter {
+        includeTestsMatching '*WIP*'
     }
 }
 

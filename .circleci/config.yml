@@ -77,7 +77,6 @@ orbs:
   aws-cli: circleci/aws-cli@0.1.13
   kubernetes: circleci/kubernetes@0.3.0
   helm: circleci/helm@0.1.2
-  owasp: entur/owasp@0.0.6
 
 jobs:
   build:
@@ -147,45 +146,6 @@ jobs:
              docker push mojdigitalstudio/court-case-service:latest
             fi
 
-  trivy-scan:
-    executor: deployer
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ~/app
-      - setup_remote_docker
-      - run:
-          name: Fetch latest image
-          command: |
-            docker pull mojdigitalstudio/court-case-service:latest
-            docker tag mojdigitalstudio/court-case-service:latest mojdigitalstudio/court-case-service:trivy-scan
-      - run:
-          name: Install trivy
-          command: |
-            VERSION=$(
-                curl --silent "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | \
-                grep '"tag_name":' | \
-                sed -E 's/.*"v([^"]+)".*/\1/'
-            )
-            wget https://github.com/aquasecurity/trivy/releases/download/v${VERSION}/trivy_${VERSION}_Linux-64bit.tar.gz
-            tar zxvf trivy_${VERSION}_Linux-64bit.tar.gz
-            sudo mv trivy /usr/local/bin
-      - run:
-          name: Scan the local image with trivy
-          command: |
-            mkdir -p build/reports/trivy
-            trivy \
-              --exit-code 0 \
-              --no-progress \
-              -f json \
-              -o build/reports/trivy/report.json \
-              -s "HIGH,CRITICAL" \
-              "mojdigitalstudio/court-case-service:trivy-scan"
-      - persist_to_workspace:
-          root: .
-          paths:
-            - build/reports/trivy
-
   sonar-scan:
     executor: sonar-scanner
     steps:
@@ -245,15 +205,9 @@ workflows:
           filters:
             tags:
               ignore: /.*/
-      - owasp/gradle_owasp_dependency_check:
-          executor: builder
-          persist_to_workspace: true
-      - trivy-scan
       - sonar-scan:
           requires:
             - build
-            - owasp/gradle_owasp_dependency_check
-            - trivy-scan
   build-test-and-deploy:
     jobs:
       - build:

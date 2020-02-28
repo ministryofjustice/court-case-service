@@ -75,6 +75,7 @@ public class CourtCaseControllerIntTest {
         caseDetails.setLastUpdated(now);
         caseDetails.setPreviouslyKnownTerminationDate(LocalDate.of(2010,1,1));
         caseDetails.setSuspendedSentenceOrder(true);
+        caseDetails.setBreach(true);
     }
 
     @Test
@@ -131,41 +132,6 @@ public class CourtCaseControllerIntTest {
         assertThat(result.getStatus()).isEqualTo(404);
     }
 
-    @Test
-    public void GET_case_shouldGetProbationStatusWhenExists() {
-
-        when()
-                .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, CASE_NO)
-                .then()
-                .assertThat()
-                .statusCode(200)
-                .body("probationStatus", equalTo(PROBATION_STATUS));
-
-    }
-
-    @Test
-    public void GET_case_shouldGetPreviouslyKnownTerminationDateWhenExists() {
-
-        when()
-                .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, CASE_NO)
-                .then()
-                .assertThat()
-                .statusCode(200)
-                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)));
-
-    }
-
-    @Test
-    public void GET_case_shouldGetSuspendedSentenceOrderWhenExists() {
-
-        when()
-                .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, CASE_NO)
-                .then()
-                .assertThat()
-                .statusCode(200)
-                .body("suspendedSentenceOrder", equalTo(true));
-
-    }
 
     @Test
     public void shouldGetCaseWhenCourtExists() {
@@ -190,7 +156,11 @@ public class CourtCaseControllerIntTest {
                 .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
                 .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
                 .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
-                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"));
+                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
+                .body("probationStatus", equalTo(PROBATION_STATUS))
+                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)))
+                .body("suspendedSentenceOrder", equalTo(true))
+                .body("breach", equalTo(true));
     }
 
 
@@ -303,6 +273,7 @@ public class CourtCaseControllerIntTest {
                 .body("sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2018, 6, 24).format(DateTimeFormatter.ISO_LOCAL_DATE)))
                 .body("suspendedSentenceOrder", equalTo(true))
+                .body("breach", equalTo(true))
                 .body("offences", hasSize(2))
                 .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
                 .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
@@ -334,6 +305,7 @@ public class CourtCaseControllerIntTest {
                 .body("sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2018, 6, 24).format(DateTimeFormatter.ISO_LOCAL_DATE)))
                 .body("suspendedSentenceOrder", equalTo(true))
+                .body("breach", equalTo(true))
                 .body("offences", hasSize(2))
                 .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
                 .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))

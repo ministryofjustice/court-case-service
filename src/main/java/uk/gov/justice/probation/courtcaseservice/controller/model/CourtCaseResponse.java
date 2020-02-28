@@ -23,6 +23,7 @@ public class CourtCaseResponse {
     private String probationStatus;
     private LocalDate previouslyKnownTerminationDate;
     private Boolean suspendedSentenceOrder;
+    private Boolean breach;
     private String data;
     private List<OffenceResponse> offences;
 }

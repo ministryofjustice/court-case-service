@@ -22,6 +22,7 @@ public class CourtCaseResponseMapperTest {
     private static final String COURT_ROOM = "COURT_ROOM";
     private static final String PROBATION_STATUS = "PROBATION_STATUS";
     private static final boolean SUSPENDED_SENTENCE_ORDER = true;
+    private static final boolean BREACH = true;
     private static final String DATA = "DATA";
     private static final LocalDateTime LAST_UPDATED = LocalDateTime.of(2020, 2, 24, 1, 0);
     private static final LocalDateTime SESSION_START_TIME = LocalDateTime.of(2020, 2, 25, 1, 0);
@@ -55,6 +56,7 @@ public class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getPreviouslyKnownTerminationDate()).isEqualTo(PREVIOUSLY_KNOWN_TERMINATION_DATE);
         assertThat(courtCaseResponse.getProbationStatus()).isEqualTo(PROBATION_STATUS);
         assertThat(courtCaseResponse.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE_ORDER);
+        assertThat(courtCaseResponse.getBreach()).isEqualTo(BREACH);
         assertThat(courtCaseResponse.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
     }
 
@@ -112,6 +114,6 @@ public class CourtCaseResponseMapperTest {
     }
 
     private CourtCaseEntity buildCourtCaseEntity(List<OffenceEntity> offences) {
-        return new CourtCaseEntity(ID, LAST_UPDATED, CASE_ID, CASE_NO, COURT_CODE, COURT_ROOM, SESSION_START_TIME, PROBATION_STATUS, PREVIOUSLY_KNOWN_TERMINATION_DATE, SUSPENDED_SENTENCE_ORDER, offences, DATA);
+        return new CourtCaseEntity(ID, LAST_UPDATED, CASE_ID, CASE_NO, COURT_CODE, COURT_ROOM, SESSION_START_TIME, PROBATION_STATUS, PREVIOUSLY_KNOWN_TERMINATION_DATE, SUSPENDED_SENTENCE_ORDER, BREACH, offences, DATA);
     }
 }

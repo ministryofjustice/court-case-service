@@ -24,7 +24,7 @@ public class WebClientConfig {
         return WebClient
                 .builder()
                 .baseUrl(communityApiBaseUrl)
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .apply(oauth2Client.oauth2Configuration())
                 .build();
     }

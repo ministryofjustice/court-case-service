@@ -1,0 +1,21 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/oauth/token",
+    "headers" : {
+      "Authorization" : {
+        "equalTo" : "Basic Y29tbXVuaXR5LWFwaS1jbGllbnQ6Y2xpZW50c2VjcmV0"
+      },
+      "Content-Type": {
+        "equalTo": "application/x-www-form-urlencoded;charset=UTF-8"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "GET_oauth_token.json"
+  }
+}

@@ -2,8 +2,6 @@ Court Case Service
 ==================
 Service to access court cases imported from HMCTS Libra court lists
 
-TODO: Update with Wiremock instructions
-
 Dev Setup
 ---
 
@@ -26,6 +24,17 @@ To run the service, ensure there is an instance of Postgres running and then run
 
 ```./gradlew bootRun```
 
+Dependencies
+---
+The service has an attached Postgres database as well as several back ends the details of which can be found in the [docker-compose.yml](docker-compose.yml) file.
+
+To run against local Dockerised back-ends and database
+
+```docker-compose up```
+
+There are also Wiremock stubs for each of the back end calls which the `test` Spring profile runs against, to run these use the following command along with `docker-compose up`
+
+```bash runMocks.sh```
 
 Flyway commands
 ---

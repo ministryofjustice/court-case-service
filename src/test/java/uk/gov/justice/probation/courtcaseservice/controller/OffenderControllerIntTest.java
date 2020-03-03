@@ -39,6 +39,16 @@ public class OffenderControllerIntTest {
             .usingFilesUnderClasspath("mocks"));
 
     @Test
+    public void givenOffenderDoesNotExist_whenCallMadeToGetOffenderData_thenReturnNotFound() {
+        given()
+                .accept(ContentType.JSON)
+                .when()
+                .get("/offender/NOT_THERE/probation-record")
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
     public void whenCallMadeToGetOffenderData_thenReturnCorrectData() {
         given()
                 .accept(ContentType.JSON)
@@ -51,6 +61,7 @@ public class OffenderControllerIntTest {
                 .body("offenderManager.surname", equalTo("Brennan"))
                 .body("offenderManager.allocatedDate", equalTo(standardDateOf(2019, 9, 30)))
 
+        // TODO: Get convictions
 //                .body("convictions[0].convictionId", equalTo("2500297061"))
 //                .body("convictions[0].active", equalTo(false))
 //                .body("convictions[0].offences[0].description", equalTo("Assault on Police Officer - 10400"))

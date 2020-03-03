@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.service.model.Offender;
 
@@ -25,7 +26,7 @@ public class OffenderServiceTest {
     @Before
     public void setUp() {
         service = new OffenderService(offenderRestClient);
-        when(offenderRestClient.getOffenderByCrn(CRN)).thenReturn(offender);
+        when(offenderRestClient.getOffenderByCrn(CRN)).thenReturn(Mono.just(offender));
     }
 
     @Test

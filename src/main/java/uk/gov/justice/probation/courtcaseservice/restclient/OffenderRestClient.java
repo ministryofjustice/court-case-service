@@ -5,9 +5,11 @@ import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.service.model.Offender;
@@ -27,17 +29,14 @@ public class OffenderRestClient {
     @Qualifier("communityApiClient")
     private WebClient communityApiClient;
 
-    public Offender getOffenderByCrn(String crn) {
-        WebClient.ResponseSpec responseSpec = communityApiClient.get()
+    public Mono<Offender> getOffenderByCrn(String crn) {
+        return communityApiClient.get()
                 .uri(String.format(offendersUrlTemplate, crn))
                 .attributes(clientRegistrationId("nomis-oauth-client"))
                 .accept(MediaType.APPLICATION_JSON)
-                .retrieve();
-
-        CommunityApiOffenderResponse offenderResponse = responseSpec.bodyToMono(CommunityApiOffenderResponse.class).block();
-        // TODO: Error handling
-
-        return mapper.offenderFrom(offenderResponse);
+                .retrieve()
+                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
+                .bodyToMono(CommunityApiOffenderResponse.class)
+                .map(offender -> mapper.offenderFrom(offender));
     }
-
 }

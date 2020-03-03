@@ -24,7 +24,6 @@ public class OffenderController {
 
     @GetMapping(path="offender/{crn}/probation-record", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody Offender getOffender(@PathVariable String crn) {
-        // TODO: Request validation
         return offenderService.getOffender(crn);
     }
 }

@@ -2,6 +2,8 @@ Court Case Service
 ==================
 Service to access court cases imported from HMCTS Libra court lists
 
+TODO: Update with Wiremock instructions
+
 Dev Setup
 ---
 
@@ -46,6 +48,6 @@ Check dependency versions
 
 ## Deployment
 
-Builds and deployments are setup in [Circle CI](https://circleci.com/gh/ministryofjustice/court-case-service) and configured in the [config file.](circleci.config.yml) 
+Builds and deployments are setup in [Circle CI](https://circleci.com/gh/ministryofjustice/court-case-service) and configured in the [config file.](.circleci/config.yml) 
 
 Helm is used to deploy the service to a Kubernetes Cluster using templates in the helm_deploy folder. 

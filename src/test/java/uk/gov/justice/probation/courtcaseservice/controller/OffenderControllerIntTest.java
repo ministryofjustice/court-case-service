@@ -68,7 +68,7 @@ public class OffenderControllerIntTest {
                 .body("convictions[0].sentence.length", equalTo(0))
                 .body("convictions[0].sentence.lengthUnits", equalTo("Months"))
                 .body("convictions[0].sentence.lengthInDays", equalTo(0))
-                .body("convictions[0].sentence.convictionDate", equalTo(standardDateOf(2019, 9,16)))
+                .body("convictions[0].convictionDate", equalTo(standardDateOf(2019, 9,16)))
 
                 .body("convictions[1].convictionId", equalTo("2500295345"))
                 .body("convictions[1].active", equalTo(true))
@@ -78,16 +78,16 @@ public class OffenderControllerIntTest {
                 .body("convictions[1].sentence.length", equalTo(5))
                 .body("convictions[1].sentence.lengthUnits", equalTo("Years"))
                 .body("convictions[1].sentence.lengthInDays", equalTo(1826))
-                .body("convictions[1].sentence.convictionDate", equalTo(standardDateOf(2019, 9,3)))
+                .body("convictions[1].convictionDate", equalTo(standardDateOf(2019, 9,3)))
 
                 .body("convictions[2].convictionId", equalTo("2500295343"))
-                .body("convictions[2].active", equalTo(true))
+                .body("convictions[2].active", equalTo(false))
                 .body("convictions[2].offences[0].description", equalTo("Arson - 05600"))
                 .body("convictions[2].sentence.description", equalTo("CJA - Community Order"))
                 .body("convictions[2].sentence.length", equalTo(12))
                 .body("convictions[2].sentence.lengthUnits", equalTo("Months"))
                 .body("convictions[2].sentence.lengthInDays", equalTo(364))
-                .body("convictions[2].sentence.convictionDate", equalTo(standardDateOf(2019, 9,3)))
+                .body("convictions[2].convictionDate", equalTo(standardDateOf(2017, 6,1)))
         ;
 
     }

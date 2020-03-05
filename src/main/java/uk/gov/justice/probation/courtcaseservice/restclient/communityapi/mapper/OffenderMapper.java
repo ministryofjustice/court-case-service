@@ -5,11 +5,9 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderManager;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
-import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
-import uk.gov.justice.probation.courtcaseservice.service.model.Offence;
-import uk.gov.justice.probation.courtcaseservice.service.model.Offender;
-import uk.gov.justice.probation.courtcaseservice.service.model.OffenderManager;
+import uk.gov.justice.probation.courtcaseservice.service.model.*;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,6 +48,14 @@ public class OffenderMapper {
                     .map(offence -> new Offence(offence.getDetail().getDescription()))
                     .collect(Collectors.toList())
                 )
+                .sentence(Sentence.builder()
+                        .description(conviction.getSentence().getDescription())
+                        .length(conviction.getSentence().getOriginalLength())
+                        .lengthUnits(conviction.getSentence().getOriginalLengthUnits())
+                        .lengthInDays(conviction.getSentence().getLengthInDays())
+                        .build()
+                )
+                .endDate(conviction.getConvictionDate().plus(conviction.getSentence().getLengthInDays(), ChronoUnit.DAYS))
                 .build();
     }
 }

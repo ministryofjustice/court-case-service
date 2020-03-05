@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.service.model;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -10,5 +11,6 @@ import java.util.List;
 public class Offender {
     private String crn;
     private List<OffenderManager> offenderManagers;
-    private List<Convictions> convictions;
+    @Setter
+    private List<Conviction> convictions;
 }

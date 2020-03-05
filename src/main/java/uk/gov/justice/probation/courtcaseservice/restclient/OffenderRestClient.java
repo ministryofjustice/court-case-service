@@ -13,7 +13,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
+import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Offender;
+
+import java.util.List;
 
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 
@@ -41,5 +44,9 @@ public class OffenderRestClient {
                 .bodyToMono(CommunityApiOffenderResponse.class)
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender data for CRN '%s'", crn), e))
                 .map(offender -> mapper.offenderFrom(offender));
+    }
+
+    public Mono<List<Conviction>> getConvictionsByCrn(String crn) {
+        return null;
     }
 }

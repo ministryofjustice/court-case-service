@@ -14,7 +14,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class OffenderMapperTest {
 
-    private static final String CRN = "CRN";
     private OffenderMapper mapper;
     private CommunityApiOffenderResponse offenderResponse;
 
@@ -35,7 +34,7 @@ public class OffenderMapperTest {
                 .isNotNull()
                 .isEqualTo("X320741");
 
-        var actualManager = offender.getOffenderManager();
+        var actualManager = offender.getOffenderManagers().get(0);
         assertThat(actualManager.getForenames())
                 .isNotNull()
                 .isEqualTo("Temperance");

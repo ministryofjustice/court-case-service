@@ -57,9 +57,9 @@ public class OffenderControllerIntTest {
         .then()
                 .statusCode(200)
                 .body("crn",  equalTo("X320741"))
-                .body("offenderManager.forenames", equalTo("Temperance"))
-                .body("offenderManager.surname", equalTo("Brennan"))
-                .body("offenderManager.allocatedDate", equalTo(standardDateOf(2019, 9, 30)))
+                .body("offenderManagers[0].forenames", equalTo("Temperance"))
+                .body("offenderManagers[0].surname", equalTo("Brennan"))
+                .body("offenderManagers[0].allocatedDate", equalTo(standardDateOf(2019, 9, 30)))
 
         // TODO: Get convictions
 //                .body("convictions[0].convictionId", equalTo("2500297061"))

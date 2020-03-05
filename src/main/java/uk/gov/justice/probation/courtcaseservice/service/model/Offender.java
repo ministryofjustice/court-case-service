@@ -9,6 +9,6 @@ import java.util.List;
 @Builder
 public class Offender {
     private String crn;
-    private OffenderManager offenderManager;
+    private List<OffenderManager> offenderManagers;
     private List<Convictions> convictions;
 }

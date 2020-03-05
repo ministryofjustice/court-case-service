@@ -6,12 +6,18 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.service.model.Offender;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderManager;
 
+import java.util.stream.Collectors;
+
 @Component
 public class OffenderMapper {
     public Offender offenderFrom(CommunityApiOffenderResponse offenderResponse) {
         return Offender.builder()
                 .crn(offenderResponse.getOtherIds().getCrn())
-                .offenderManager(buildOffenderManager(offenderResponse.getOffenderManagers().get(0)))
+                .offenderManagers(
+                        offenderResponse.getOffenderManagers().stream()
+                                .map(this::buildOffenderManager)
+                                .collect(Collectors.toList())
+                )
                 .build();
     }
 

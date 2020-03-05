@@ -42,9 +42,9 @@ public class OffenderRestClientIntTest {
         var offender = optionalOffender.get();
         assertThat(offender.getCrn()).isEqualTo(CRN);
 
-        assertThat(offender.getOffenderManager().getForenames()).isEqualTo("Temperance");
-        assertThat(offender.getOffenderManager().getSurname()).isEqualTo("Brennan");
-        assertThat(offender.getOffenderManager().getAllocatedDate()).isEqualTo(LocalDate.of(2019,9,30));
+        assertThat(offender.getOffenderManagers().get(0).getForenames()).isEqualTo("Temperance");
+        assertThat(offender.getOffenderManagers().get(0).getSurname()).isEqualTo("Brennan");
+        assertThat(offender.getOffenderManagers().get(0).getAllocatedDate()).isEqualTo(LocalDate.of(2019,9,30));
 
         // TODO: Test convictions values returned
     }

@@ -59,4 +59,15 @@ public class OffenderRestClientIntTest {
     public void givenServiceThrowsError_whenGetOffenderByCrnCalled_thenFailFastAndThrowException() {
         offenderRestClient.getOffenderByCrn(SERVER_ERROR_CRN).block();
     }
+
+    @Test
+    public void whenGetConvictionsByCrnCalled_thenMakeRestCallToCommunityApi() {
+        var optionalConvictions = offenderRestClient.getConvictionsByCrn(CRN).blockOptional();
+
+        assertThat(optionalConvictions).isNotEmpty();
+
+        assertThat(optionalConvictions.get()).hasSize(3);
+
+        // TODO: Test convictions values returned
+    }
 }

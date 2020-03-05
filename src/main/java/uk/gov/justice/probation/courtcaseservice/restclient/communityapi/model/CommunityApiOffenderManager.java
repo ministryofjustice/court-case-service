@@ -13,6 +13,6 @@ public class CommunityApiOffenderManager {
     @JsonProperty("staff")
     private Staff staff;
     @JsonProperty("fromDate")
-    @JsonDeserialize(using = FromDateDeserializer.class)
+    @JsonDeserialize(using = CommunityApiDateDeserializer.class)
     private LocalDate fromDate;
 }

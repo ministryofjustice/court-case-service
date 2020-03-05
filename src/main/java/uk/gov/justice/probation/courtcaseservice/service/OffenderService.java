@@ -22,12 +22,12 @@ public class OffenderService {
     private OffenderRestClient client;
 
     public Offender getOffender(String crn) {
-        return Mono.zip(client.getOffenderByCrn(crn), client.getConvictionsByCrn(crn), this::combineOffenderConvictions)
+        return Mono.zip(client.getOffenderByCrn(crn), client.getConvictionsByCrn(crn), this::combineOffenderAndConvictions)
                 .blockOptional()
                 .orElseThrow(() -> new OffenderNotFoundException(crn));
     }
 
-    private Offender combineOffenderConvictions(Offender offender, List<Conviction> convictions) {
+    private Offender combineOffenderAndConvictions(Offender offender, List<Conviction> convictions) {
             offender.setConvictions(convictions);
             return offender;
     }

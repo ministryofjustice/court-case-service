@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class FromDateDeserializer extends JsonDeserializer<LocalDate> {
+public class CommunityApiDateDeserializer extends JsonDeserializer<LocalDate> {
     @Override
     public LocalDate deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         return LocalDate.parse(p.readValuesAs(String.class).next(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Offender;
 
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OffenderRestClientIntTest {
 
     private static final String CRN = "X320741";
+    public static final String SERVER_ERROR_CRN = "X320742";
     @Autowired
     private OffenderRestClient offenderRestClient;
 
@@ -51,5 +53,10 @@ public class OffenderRestClientIntTest {
     public void givenOffenderDoesNotExist_whenGetOffenderByCrnCalled_ReturnEmpty() {
         Optional<Offender> offender = offenderRestClient.getOffenderByCrn("NOT THERE").blockOptional();
         assertThat(offender).isEmpty();
+    }
+
+    @Test(expected = WebClientResponseException.class)
+    public void givenServiceThrowsError_whenGetOffenderByCrnCalled_thenFailFastAndThrowException() {
+        offenderRestClient.getOffenderByCrn(SERVER_ERROR_CRN).block();
     }
 }

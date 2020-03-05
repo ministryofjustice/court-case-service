@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.restclient;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +20,7 @@ import static org.springframework.security.oauth2.client.web.reactive.function.c
 @Component
 @AllArgsConstructor
 @NoArgsConstructor
+@Slf4j
 public class OffenderRestClient {
 
     @Value("${community-api.offender-by-crn-url-template}")
@@ -37,6 +39,7 @@ public class OffenderRestClient {
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
                 .bodyToMono(CommunityApiOffenderResponse.class)
+                .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender data for CRN '%s'", crn), e))
                 .map(offender -> mapper.offenderFrom(offender));
     }
 }

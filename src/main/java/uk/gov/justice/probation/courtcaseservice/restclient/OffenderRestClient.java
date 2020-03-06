@@ -54,6 +54,7 @@ public class OffenderRestClient {
                 .attributes(clientRegistrationId("nomis-oauth-client"))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
                 .bodyToMono(CommunityApiConvictionsResponse.class)
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving convictions data for CRN '%s'", crn), e))
                 .map( convictionsResponse -> mapper.convictionsFrom(convictionsResponse));

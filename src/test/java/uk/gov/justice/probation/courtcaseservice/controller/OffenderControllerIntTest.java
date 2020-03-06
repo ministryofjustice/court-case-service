@@ -2,7 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import io.restassured.http.ContentType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,8 +20,8 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
 @RunWith(SpringRunner.class)
-@ActiveProfiles("test")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles(profiles = "test")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
 public class OffenderControllerIntTest {
 
     @LocalServerPort
@@ -41,7 +40,7 @@ public class OffenderControllerIntTest {
     @Test
     public void givenOffenderDoesNotExist_whenCallMadeToGetOffenderData_thenReturnNotFound() {
         given()
-                .accept(ContentType.JSON)
+                .accept("application/json")
                 .when()
                 .get("/offender/NOT_THERE/probation-record")
                 .then()
@@ -51,7 +50,7 @@ public class OffenderControllerIntTest {
     @Test
     public void whenCallMadeToGetOffenderData_thenReturnCorrectData() {
         given()
-                .accept(ContentType.JSON)
+                .accept("application/json")
         .when()
                 .get("/offender/X320741/probation-record")
         .then()

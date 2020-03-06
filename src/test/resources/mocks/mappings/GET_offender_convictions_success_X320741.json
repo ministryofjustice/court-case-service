@@ -4,7 +4,7 @@
     "urlPath": "/secure/offenders/crn/X320741/convictions",
     "headers" : {
       "Authorization" : {
-        "equalTo" : "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJ1c2VyX25hbWUiOiJkaWZ1Z2hzb2RpaGdvc2ciLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiLCJwcm94eS11c2VyIl0sImF1dGhfc291cmNlIjoibm9uZSIsImV4cCI6MTU4MzIzMzEyMywiYXV0aG9yaXRpZXMiOlsiUk9MRV9TWVNURU1fVVNFUiIsIlJPTEVfQ09NTVVOSVRZIl0sImp0aSI6IjQzMjdkMTY3LTI5ZGItNGM5OC04MDZkLWM2YzU0MTZmNjJhNSIsImNsaWVudF9pZCI6ImNvbW11bml0eS1hcGktY2xpZW50In0.OP9TUKRmHfN8uT5QWRdrofoFuSifMZOx7nuLt0Vn_S2i1bBAmTxvPCghn_0njpiu3CS1DnEUOeZ5Oz04aJ871lSWB7wPV4UM-AJnAC99l-iD5M3kL6YXD3Bzr1ydYLkcVJeqqJo0CTbRozOIT_mpmfKpRugIldTRJycWhUxPfPnaWdOAWz6Yfch3ajD6K5EkqS6e5FCrut-bC90Z1edmNYoR5PdJfE-zVQU4fa6ta-VlUsc7ZlmIEzC98A3RB_arxXwGQ_8rNwYmtJb9t1bbTlgsEkul-R5ogwCKPipPWy8hDF-U88dAiv8PfXU_rKzdcFlhP-4C9zK7aUisrko29A"
+        "contains" : "Bearer"
       },
       "Content-Type": {
         "equalTo": "application/json"

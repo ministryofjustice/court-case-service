@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,4 +27,6 @@ public class CourtCaseResponse {
     private Boolean breach;
     private String data;
     private List<OffenceResponse> offences;
+    private String defendantName;
+    private AddressPropertiesEntity defendantAddress;
 }

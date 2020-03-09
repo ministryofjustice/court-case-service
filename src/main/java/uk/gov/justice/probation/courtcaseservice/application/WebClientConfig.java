@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.application;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -11,7 +10,6 @@ import org.springframework.security.oauth2.client.web.reactive.function.client.S
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
-@ConditionalOnProperty(name = "feature-flags.community-api-test-endpoint")
 public class WebClientConfig {
 
 
@@ -26,7 +24,7 @@ public class WebClientConfig {
         return WebClient
                 .builder()
                 .baseUrl(communityApiBaseUrl)
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .apply(oauth2Client.oauth2Configuration())
                 .build();
     }

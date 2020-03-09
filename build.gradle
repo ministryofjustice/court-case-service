@@ -74,12 +74,14 @@ springBoot {
 test {
     filter {
         excludeTestsMatching '*SmokeTest'
+        excludeTestsMatching '*WIP*'
     }
 }
 
 task integrationTest(type: Test) {
     filter {
         includeTestsMatching '*IntTest'
+        excludeTestsMatching '*WIP*'
     }
 }
 
@@ -87,6 +89,13 @@ task unitTest(type: Test) {
     filter {
         excludeTestsMatching '*IntTest'
         excludeTestsMatching '*SmokeTest'
+        excludeTestsMatching '*WIP*'
+    }
+}
+
+task wipTest(type: Test) {
+    filter {
+        includeTestsMatching '*WIP*'
     }
 }
 
@@ -123,7 +132,7 @@ dependencies {
     testImplementation ('io.rest-assured:rest-assured:3.0.3'){
         exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
     }
-    testImplementation 'com.github.tomakehurst:wiremock:2.13.0'
     testImplementation 'commons-io:commons-io:2.6'
 
+    testCompile "com.github.tomakehurst:wiremock-jre8:2.26.2"
 }

@@ -53,3 +53,7 @@ spring:
           lob:
             non_contextual_creation: true
 
+
+community-api:
+  offender-by-crn-url-template: ${community-api.base-url}/secure/offenders/crn/%s/all
+  convictions-by-crn-url-template: ${community-api.base-url}/secure/offenders/crn/%s/convictions

@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.justice.probation.courtcaseservice.controller.ErrorResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.DuplicateEntityException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
@@ -17,10 +18,18 @@ public class ApplicationExceptionHandlerTest {
     private ApplicationExceptionHandler applicationExceptionHandler = new ApplicationExceptionHandler();
 
     @Test
+    public void whenOffenderNotFoundExceptionCaught_thenReturnAppropriateErrorResponse() {
+        ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(new OffenderNotFoundException("BAD_CRN"));
+
+        assertGoodErrorResponse(response, HttpStatus.NOT_FOUND, "Offender with CRN 'BAD_CRN' not found");
+    }
+
+
+    @Test
     public void whenDuplicateEntityExceptionCaught_thenReturnAppropriateErrorResponse() {
         ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(new DuplicateEntityException(THE_MESSAGE));
 
-        assertGoodErrorResponse(response, HttpStatus.BAD_REQUEST);
+        assertGoodErrorResponse(response, HttpStatus.BAD_REQUEST, THE_MESSAGE);
     }
 
 
@@ -28,7 +37,7 @@ public class ApplicationExceptionHandlerTest {
     public void whenConflictingInputExceptionCaught_thenReturnAppropriateErrorResponse() {
         ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(new ConflictingInputException(THE_MESSAGE));
 
-        assertGoodErrorResponse(response, HttpStatus.BAD_REQUEST);
+        assertGoodErrorResponse(response, HttpStatus.BAD_REQUEST, THE_MESSAGE);
     }
 
 
@@ -36,17 +45,17 @@ public class ApplicationExceptionHandlerTest {
     public void whenEntityNotFoundExceptionCaught_thenReturnAppropriateErrorResponse() {
         ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(new EntityNotFoundException(THE_MESSAGE));
 
-        assertGoodErrorResponse(response, HttpStatus.NOT_FOUND);
+        assertGoodErrorResponse(response, HttpStatus.NOT_FOUND, THE_MESSAGE);
     }
 
-    private void assertGoodErrorResponse(ResponseEntity<ErrorResponse> response, HttpStatus notFound) {
+    private void assertGoodErrorResponse(ResponseEntity<ErrorResponse> response, HttpStatus notFound, String message) {
         assertThat(response.getStatusCode()).isEqualTo(notFound);
 
         ErrorResponse errorResponse = response.getBody();
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getStatus()).isEqualTo(notFound.value());
-        assertThat(errorResponse.getDeveloperMessage()).isEqualTo(THE_MESSAGE);
-        assertThat(errorResponse.getUserMessage()).isEqualTo(THE_MESSAGE);
+        assertThat(errorResponse.getDeveloperMessage()).isEqualTo(message);
+        assertThat(errorResponse.getUserMessage()).isEqualTo(message);
     }
 
 }

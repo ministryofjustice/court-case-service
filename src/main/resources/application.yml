@@ -55,5 +55,6 @@ spring:
 
 
 community-api:
+  base-url: http://localhost:8096
   offender-by-crn-url-template: ${community-api.base-url}/secure/offenders/crn/%s/all
   convictions-by-crn-url-template: ${community-api.base-url}/secure/offenders/crn/%s/convictions

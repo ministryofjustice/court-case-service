@@ -36,4 +36,16 @@ env:
       secretKeyRef:
         name: court-case-service-rds-instance-output
         key: rds_instance_endpoint
+
+  - name: NOMIS_OAUTH_CLIENT_ID
+    valueFrom:
+      secretKeyRef:
+        name: court-case-service-secrets
+        key: nomis-oauth-client-id
+
+  - name: NOMIS_OAUTH_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: court-case-service-secrets
+        key: nomis-oauth-client-secret
 {{- end -}}

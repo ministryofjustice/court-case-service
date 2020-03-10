@@ -19,6 +19,8 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Offender;
 
 import java.util.List;
 
+import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
+
 @Component
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,14 +35,11 @@ public class OffenderRestClient {
     @Autowired
     @Qualifier("communityApiClient")
     private WebClient communityApiClient;
+    @Value("${feature-flags.community-api-auth:true}")
+    private boolean authenticateWithCommunityApi;
 
     public Mono<Offender> getOffenderByCrn(String crn) {
-        return communityApiClient.get()
-                .uri(String.format(offenderUrlTemplate, crn))
-                // TODO: Fix auth issue when running test profile against Wiremock
-//                .attributes(clientRegistrationId("nomis-oauth-client"))
-                .header("Authorization", "Bearer foo")
-                .accept(MediaType.APPLICATION_JSON)
+        return get(String.format(offenderUrlTemplate, crn))
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
                 .bodyToMono(CommunityApiOffenderResponse.class)
@@ -49,16 +48,26 @@ public class OffenderRestClient {
     }
 
     public Mono<List<Conviction>> getConvictionsByCrn(String crn) {
-        return communityApiClient.get()
-                .uri(String.format(convictionsUrlTemplate, crn))
-                // TODO: Fix auth issue when running test profile against Wiremock
-//                .attributes(clientRegistrationId("nomis-oauth-client"))
-                .header("Authorization", "Bearer foo")
-                .accept(MediaType.APPLICATION_JSON)
+        return get(String.format(convictionsUrlTemplate, crn))
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
                 .bodyToMono(CommunityApiConvictionsResponse.class)
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving convictions data for CRN '%s'", crn), e))
                 .map( convictionsResponse -> mapper.convictionsFrom(convictionsResponse));
+    }
+
+    private WebClient.RequestHeadersSpec<?> get(String url) {
+        WebClient.RequestHeadersSpec<?> spec = communityApiClient.get()
+                .uri(url)
+                .accept(MediaType.APPLICATION_JSON);
+
+        if(authenticateWithCommunityApi) {
+            log.info(String.format("Authenticating with community api for call to %s", url));
+            return spec.attributes(clientRegistrationId("nomis-oauth-client"));
+        }
+        else {
+            log.info(String.format("Skipping authentication with community api for call to %s", url));
+            return spec;
+        }
     }
 }

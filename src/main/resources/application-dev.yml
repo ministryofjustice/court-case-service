@@ -1,5 +1,5 @@
-feature-flags:
-  community-api-test-endpoint: true
-
 community-api:
-  base-url: http://placeholder
+  base-url: https://community-api-secure.test.delius.probation.hmpps.dsd.io
+
+nomis-oauth:
+  base-url: https://gateway.t3.nomis-api.hmpps.dsd.io

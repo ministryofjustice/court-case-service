@@ -1,6 +1,3 @@
-feature-flags:
-  community-api-test-endpoint: false
-
 info:
   app:
     name: HMPPS Court Case Service
@@ -30,13 +27,13 @@ spring:
         registration:
           nomis-oauth-client:
             client-name: nomis-oauth-client
-            client-id: community-api-client
+            client-id: ${nomis-oauth-client-id:community-api-client}
             client-secret: ${nomis-oauth-client-secret:clientsecret}
             client-authentication-method: basic
             authorization-grant-type: client_credentials
         provider:
           nomis-oauth-client:
-            token-uri: http://localhost:8095/auth/oauth/token
+            token-uri: ${nomis-oauth.base-url:http://localhost:8095}/auth/oauth/token
 
   datasource:
     url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=${database.schema.name}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
@@ -53,8 +50,6 @@ spring:
           lob:
             non_contextual_creation: true
 
-
 community-api:
-  base-url: http://localhost:8096
   offender-by-crn-url-template: ${community-api.base-url}/secure/offenders/crn/%s/all
   convictions-by-crn-url-template: ${community-api.base-url}/secure/offenders/crn/%s/convictions

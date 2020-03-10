@@ -1,3 +1,6 @@
+feature-flags:
+  community-api-auth: false
+
 database:
   schema:
     name: courtcaseservicetest

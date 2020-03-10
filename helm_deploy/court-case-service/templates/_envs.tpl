@@ -37,6 +37,12 @@ env:
         name: court-case-service-rds-instance-output
         key: rds_instance_endpoint
 
+  - name: COMMUNITY_API_BASE_URL
+    value: "{{ .Values.env.community-api.base-url }}"
+
+  - name: NOMIS_OAUTH_BASE_URL
+    value: "{{ .Values.env.nomis-oauth.base-url }}"
+
   - name: NOMIS_OAUTH_CLIENT_ID
     valueFrom:
       secretKeyRef:

@@ -3,9 +3,6 @@
     "method": "GET",
     "urlPath": "/secure/offenders/crn/X320741/convictions",
     "headers" : {
-      "Authorization" : {
-        "contains" : "Bearer"
-      },
       "Content-Type": {
         "equalTo": "application/json"
       }

@@ -19,6 +19,10 @@ ingress:
 
 env:
   JAVA_OPTS: "-Xmx512m"
+  community_api:
+    base_url: https://placeholder
+  nomis_oauth:
+    base_url: https://placeholder
 
 whitelist:
   office: "217.33.148.210/32"
@@ -27,9 +31,3 @@ whitelist:
   cloudplatform-live1-1: "35.178.209.113/32"
   cloudplatform-live1-2: "3.8.51.207/32"
   cloudplatform-live1-3: "35.177.252.54/32"
-
-community-api:
-  base-url: https://placeholder
-
-nomis-oauth:
-  base-url: https://placeholder

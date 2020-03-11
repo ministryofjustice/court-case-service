@@ -38,10 +38,10 @@ env:
         key: rds_instance_endpoint
 
   - name: COMMUNITY_API_BASE_URL
-    value: "{{ ".Values.env.community-api.base-url" }}"
+    value: "{{ .Values.env.community_api.base_url }}"
 
   - name: NOMIS_OAUTH_BASE_URL
-    value: "{{ ".Values.env.nomis-oauth.base-url" }}"
+    value: "{{ .Values.env.nomis_oauth.base_url }}"
 
   - name: NOMIS_OAUTH_CLIENT_ID
     valueFrom:

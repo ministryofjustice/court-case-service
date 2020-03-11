@@ -14,6 +14,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.TestConfig;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 
@@ -55,6 +56,7 @@ public class CourtCaseControllerIntTest {
     private final String NEW_CASE_NO = "1700028914";
     private final String PROBATION_STATUS = "Previously known";
     private final String NOT_FOUND_COURT_CODE = "LPL";
+    private final String DEFENDANT_NAME = "JTEST";
     private final LocalDateTime now = LocalDateTime.now();
     private final LocalDateTime sessionStartTime = LocalDateTime.of(2019, 12, 14,9, 0);
     private final CourtCaseEntity caseDetails = new CourtCaseEntity();
@@ -64,6 +66,8 @@ public class CourtCaseControllerIntTest {
     public void setup() throws IOException {
         caseDetailsJson = getFileAsString("integration/request/PUT_courtCase_success.json");
         TestConfig.configureRestAssuredForIntTest(port);
+
+        var addressProperty = new AddressPropertiesEntity("27", "Elm Place", "ad21 5dr", "Bangor", null, null);
 
         caseDetails.setCaseId(NEW_CASE_ID);
         caseDetails.setCaseNo(NEW_CASE_NO);
@@ -76,6 +80,8 @@ public class CourtCaseControllerIntTest {
         caseDetails.setPreviouslyKnownTerminationDate(LocalDate.of(2010,1,1));
         caseDetails.setSuspendedSentenceOrder(true);
         caseDetails.setBreach(true);
+        caseDetails.setDefendantName(DEFENDANT_NAME);
+        caseDetails.setDefendantAddress(addressProperty);
     }
 
     @Test
@@ -160,7 +166,19 @@ public class CourtCaseControllerIntTest {
                 .body("probationStatus", equalTo(PROBATION_STATUS))
                 .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)))
                 .body("suspendedSentenceOrder", equalTo(true))
-                .body("breach", equalTo(true));
+                .body("breach", equalTo(true))
+                .body("defendantName", equalTo(DEFENDANT_NAME))
+                .body("defendantAddress.line1", equalTo("27"))
+                .body("defendantAddress.line2", equalTo("Elm Place"))
+                .body("defendantAddress.postcode", equalTo("ad21 5dr"))
+                .body("defendantAddress.line3", equalTo("Bangor"))
+                .body("defendantAddress.line4", equalTo(null))
+                .body("defendantAddress.line5", equalTo(null));
+
+
+
+
+
     }
 
 
@@ -274,6 +292,13 @@ public class CourtCaseControllerIntTest {
                 .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2018, 6, 24).format(DateTimeFormatter.ISO_LOCAL_DATE)))
                 .body("suspendedSentenceOrder", equalTo(true))
                 .body("breach", equalTo(true))
+                .body("defendantName", equalTo(DEFENDANT_NAME))
+                .body("defendantAddress.line1", equalTo("27"))
+                .body("defendantAddress.line2", equalTo("Elm Place"))
+                .body("defendantAddress.postcode", equalTo("ad21 5dr"))
+                .body("defendantAddress.line3", equalTo("Bangor"))
+                .body("defendantAddress.line4", equalTo(null))
+                .body("defendantAddress.line5", equalTo(null))
                 .body("offences", hasSize(2))
                 .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
                 .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
@@ -306,6 +331,13 @@ public class CourtCaseControllerIntTest {
                 .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2018, 6, 24).format(DateTimeFormatter.ISO_LOCAL_DATE)))
                 .body("suspendedSentenceOrder", equalTo(true))
                 .body("breach", equalTo(true))
+                .body("defendantName", equalTo(DEFENDANT_NAME))
+                .body("defendantAddress.line1", equalTo("27"))
+                .body("defendantAddress.line2", equalTo("Elm Place"))
+                .body("defendantAddress.postcode", equalTo("ad21 5dr"))
+                .body("defendantAddress.line3", equalTo("Bangor"))
+                .body("defendantAddress.line4", equalTo(null))
+                .body("defendantAddress.line5", equalTo(null))
                 .body("offences", hasSize(2))
                 .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
                 .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))

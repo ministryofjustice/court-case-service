@@ -63,6 +63,13 @@ public class CourtCaseEntity implements Serializable {
     @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL)
     private List<OffenceEntity> offences = Collections.emptyList();
 
+    @Column(name = "DEFENDANT_NAME")
+    private String defendantName;
+
+    @Type(type = "jsonb")
+    @Column(columnDefinition = "jsonb", name = "DEFENDANT_ADDRESS")
+    private AddressPropertiesEntity defendantAddress;
+
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "DATA")
     private String data;

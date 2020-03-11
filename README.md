@@ -24,6 +24,17 @@ To run the service, ensure there is an instance of Postgres running and then run
 
 ```./gradlew bootRun```
 
+Dependencies
+---
+The service has an attached Postgres database as well as several back ends the details of which can be found in the [docker-compose.yml](docker-compose.yml) file.
+
+To run against local Dockerised back-ends and database
+
+```docker-compose up```
+
+There are also Wiremock stubs for each of the back end calls which the `test` Spring profile runs against, to run these use the following command along with `docker-compose up`
+
+```bash runMocks.sh```
 
 Flyway commands
 ---
@@ -46,6 +57,6 @@ Check dependency versions
 
 ## Deployment
 
-Builds and deployments are setup in [Circle CI](https://circleci.com/gh/ministryofjustice/court-case-service) and configured in the [config file.](circleci.config.yml) 
+Builds and deployments are setup in [Circle CI](https://circleci.com/gh/ministryofjustice/court-case-service) and configured in the [config file.](.circleci/config.yml) 
 
 Helm is used to deploy the service to a Kubernetes Cluster using templates in the helm_deploy folder. 

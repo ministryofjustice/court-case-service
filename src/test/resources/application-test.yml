@@ -1,10 +1,19 @@
+feature-flags:
+  community-api-auth: false
+
 database:
   schema:
     name: courtcaseservicetest
 
 community-api:
-  base-url: http://localhost:8096
+  base-url: http://localhost:8090
 
 spring:
   flyway:
     clean-on-validation-error: true
+  security:
+    oauth2:
+      client:
+        provider:
+          nomis-oauth-client:
+            token-uri: http://localhost:8090/auth/oauth/token

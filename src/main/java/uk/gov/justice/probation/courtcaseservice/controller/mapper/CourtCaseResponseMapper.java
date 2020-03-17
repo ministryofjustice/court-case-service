@@ -26,6 +26,8 @@ public class CourtCaseResponseMapper {
                 .sessionStartTime(courtCaseEntity.getSessionStartTime())
                 .suspendedSentenceOrder(courtCaseEntity.getSuspendedSentenceOrder())
                 .breach(courtCaseEntity.getBreach())
+                .defendantName(courtCaseEntity.getDefendantName())
+                .defendantAddress(courtCaseEntity.getDefendantAddress())
                 .build();
     }
 

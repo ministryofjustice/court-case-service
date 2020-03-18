@@ -20,10 +20,9 @@ ingress:
 env:
   JAVA_OPTS: "-Xmx512m"
   community_api:
-    base_url: https://placeholder
-
+    base_url: https://community-api-secure.test.delius.probation.hmpps.dsd.io
   nomis_oauth:
-    base_url: https://placeholder
+    base_url: https://gateway.t3.nomis-api.hmpps.dsd.io
 
 whitelist:
   office: "217.33.148.210/32"

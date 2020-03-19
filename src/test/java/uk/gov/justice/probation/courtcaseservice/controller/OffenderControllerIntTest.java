@@ -91,6 +91,46 @@ public class OffenderControllerIntTest {
 
     }
 
+    @Test
+    public void whenCallMadeToGetRequirementData_thenReturnCorrectData() {
+          given()
+                    .accept("application/json")
+                  .when()
+                      .get("/offender/X320741/convictions/2500297061/requirements")
+                            .then()
+                            .statusCode(200)
+                            .body("[0].rqmntTypeMainCategoryId",  equalTo("11"))
+                            .body("[0].rqmntTypeSubCategoryId", equalTo("1256"))
+                            .body("[0].adRqmntTypeMainCategoryId", equalTo(null))
+                            .body("[0].adRqmntTypeSubCategoryId", equalTo(null))
+                            .body("[0].length", equalTo(60))
+                            .body("[0].startDate", equalTo(standardDateOf(2017, 06,01)))
+                            .body("[0].terminationDate", equalTo(standardDateOf(2017, 12,01)))
+                            .body("[0].rqmntTerminationReasonId", equalTo("2500052883"))
+
+                            .body("[1].rqmntTypeMainCategoryId",  equalTo("12345677"))
+                            .body("[1].rqmntTypeSubCategoryId", equalTo("1256"))
+                            .body("[1].adRqmntTypeMainCategoryId", equalTo(null))
+                            .body("[1].adRqmntTypeSubCategoryId", equalTo(null))
+                            .body("[1].length", equalTo(60))
+                            .body("[1].startDate", equalTo(standardDateOf(2019, 06,01)))
+                            .body("[1].terminationDate", equalTo(standardDateOf(2019, 12,01)))
+                            .body("[1].rqmntTerminationReasonId", equalTo("2500052885"))
+
+
+                            .body("[2].rqmntTypeMainCategoryId",  equalTo("1778990"))
+                            .body("[2].rqmntTypeSubCategoryId", equalTo("1256789"))
+                            .body("[2].adRqmntTypeMainCategoryId", equalTo(null))
+                            .body("[2].adRqmntTypeSubCategoryId", equalTo(null))
+                            .body("[2].length", equalTo(60))
+                            .body("[2].startDate", equalTo(standardDateOf(2018, 06,01)))
+                            .body("[2].terminationDate", equalTo(standardDateOf(2018, 12,01)))
+                            .body("[2].rqmntTerminationReasonId", equalTo("2500052884"))
+
+        ;
+
+    }
+
     private String standardDateOf(int year, int month, int dayOfMonth) {
         return LocalDate.of(year, month, dayOfMonth).format(DateTimeFormatter.ISO_DATE);
     }

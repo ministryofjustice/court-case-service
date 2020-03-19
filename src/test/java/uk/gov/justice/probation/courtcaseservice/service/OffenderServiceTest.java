@@ -10,6 +10,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Offender;
+import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
 import java.util.List;
 
@@ -21,11 +22,14 @@ import static org.mockito.Mockito.when;
 public class OffenderServiceTest {
 
     public static final String CRN = "CRN";
+    public static final String CONVICTION_ID = "CONVICTION_ID";
     @Mock
     private OffenderRestClient offenderRestClient;
     private Offender offender;
     @Mock
     private List<Conviction> convictions;
+    @Mock
+    private List<Requirement> requirements;
 
     private OffenderService service;
 
@@ -35,6 +39,7 @@ public class OffenderServiceTest {
         offender = Offender.builder().build();
         when(offenderRestClient.getOffenderByCrn(CRN)).thenReturn(Mono.just(offender));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(convictions));
+        when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(requirements));
     }
 
     @Test
@@ -65,6 +70,12 @@ public class OffenderServiceTest {
         assertThatExceptionOfType(OffenderNotFoundException.class)
                 .isThrownBy(() -> service.getOffender(CRN))
                 .withMessageContaining(CRN);
+    }
+
+    @Test
+    public void whenGetConvictionRequirements_returnRequirements() {
+        Mono<List<Requirement>> requirement = service.getConvictionRequirements(CRN, CONVICTION_ID);
+        assertThat(requirement).isNotNull();
     }
 
 }

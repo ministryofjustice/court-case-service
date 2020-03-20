@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
@@ -54,7 +53,7 @@ public class OffenderRestClient {
     }
 
     public Mono<List<Requirement>> getConvictionRequirements(String crn, String convictionId) {
-        return get(String.format(requirementsUrlTemplate, crn, convictionId))
+        return clientHelper.get(String.format(requirementsUrlTemplate, crn, convictionId))
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
                 .bodyToMono(CommunityApiRequirementsResponse.class)
@@ -62,18 +61,4 @@ public class OffenderRestClient {
                 .map( requirementsResponse -> mapper.requirementsFrom(requirementsResponse));
     }
 
-    private WebClient.RequestHeadersSpec<?> get(String url) {
-        WebClient.RequestHeadersSpec<?> spec = communityApiClient.get()
-                .uri(url)
-                .accept(MediaType.APPLICATION_JSON);
-
-        if(authenticateWithCommunityApi) {
-            log.info(String.format("Authenticating with community api for call to %s", url));
-            return spec.attributes(clientRegistrationId("nomis-oauth-client"));
-        }
-        else {
-            log.info(String.format("Skipping authentication with community api for call to %s", url));
-            return spec;
-        }
-    }
 }

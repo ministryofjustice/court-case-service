@@ -25,7 +25,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OffenderRestClientIntTest {
 
     private static final String CRN = "X320741";
+    private static final String CONVICTION_ID = "2500297061";
     public static final String SERVER_ERROR_CRN = "X320742";
+
     @Autowired
     private OffenderRestClient offenderRestClient;
 
@@ -79,4 +81,13 @@ public class OffenderRestClientIntTest {
     public void givenServiceThrowsError_whenGetConvictionsByCrnCalled_thenFailFastAndThrowException() {
         offenderRestClient.getConvictionsByCrn(SERVER_ERROR_CRN).block();
     }
+
+    @Test
+    public void whenGetConvictionRequirementsCalled_thenMakeRestCallToCommunityApi() {
+       var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID).blockOptional();
+
+        assertThat(optionalRequirements).isNotEmpty();
+        assertThat(optionalRequirements.get()).hasSize(3);
+    }
+
 }

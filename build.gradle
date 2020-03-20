@@ -142,14 +142,9 @@ dependencies {
     testImplementation 'commons-io:commons-io:2.6'
 
     testImplementation(platform("org.junit:junit-bom:5.6.0"))
-
-    // JUnit Jupiter API and TestEngine implementation
     testImplementation("org.junit.jupiter:junit-jupiter")
 
     testImplementation("junit:junit:4.13")
-    testRuntimeOnly("org.junit.vintage:junit-vintage-engine") {
-        because 'allows JUnit 3 and JUnit 4 tests to run'
-    }
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher") {
         because 'allows tests to run from IDEs that bundle older version of launcher'

@@ -11,8 +11,6 @@ In order to run the service locally, a postgres database is required, the easies
 
 The service uses Lombok and so annotation processors must be [turned on within the IDE](https://www.baeldung.com/lombok-ide).
 
-
-OffenderControllerIntTest
 Building and running
 ---
 

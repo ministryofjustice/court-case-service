@@ -10,6 +10,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Offender;
+import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OffenderService {
+
     @Autowired
     private OffenderRestClient client;
 
@@ -31,4 +33,9 @@ public class OffenderService {
             offender.setConvictions(convictions);
             return offender;
     }
+
+    public Mono<List<Requirement>> getConvictionRequirements(String crn, String convictionId) {
+        return client.getConvictionRequirements(crn, convictionId);
+    }
+
 }

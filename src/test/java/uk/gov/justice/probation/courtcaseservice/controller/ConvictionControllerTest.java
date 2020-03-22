@@ -36,9 +36,9 @@ class ConvictionControllerTest {
         convictionController = new ConvictionController(convictionService, featureFlags);
     }
 
-    @DisplayName("Invalid Parameters empty response")
+    @DisplayName("Normal service call returns response")
     @Test
-    void testInvalidParameters() {
+    void callReturnsResponse() {
         final AttendancesResponse attendancesResponse = AttendancesResponse.builder().attendances(Collections.emptyList()).build();
         when(convictionService.getAttendances(CRN, SOME_EVENT_ID)).thenReturn(attendancesResponse);
 
@@ -50,7 +50,7 @@ class ConvictionControllerTest {
 
     @DisplayName("Feature toggle is off")
     @Test
-    void testFeatureToggleFalse() {
+    void featureToggleFalse() {
         featureFlags.setFlagValue("fetch-attendance-data", false);
 
         final AttendancesResponse attendancesResponse = AttendancesResponse.builder().crn(CRN).convictionId(SOME_EVENT_ID)

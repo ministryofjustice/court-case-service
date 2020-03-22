@@ -62,12 +62,4 @@ public class ConvictionRestClientIntTest {
         webTestClient.getAttendancesByCrnAndConvictionId(SERVER_ERROR_CRN, SOME_CONVICTION_ID).block();
     }
 
-    @Ignore
-    @Test
-    public void givenUnknown404Return404() {
-        final Optional<AttendancesResponse> response = webTestClient.getAttendancesByCrnAndConvictionId(UNKNOWN_CRN, SOME_CONVICTION_ID)
-                                                                    .blockOptional();
-
-        assertThat(response).isEmpty();
-    }
 }

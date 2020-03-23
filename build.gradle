@@ -72,6 +72,7 @@ springBoot {
 }
 
 test {
+    useJUnitPlatform ()
     filter {
         excludeTestsMatching '*SmokeTest'
         excludeTestsMatching '*WIP*'
@@ -79,6 +80,7 @@ test {
 }
 
 task integrationTest(type: Test) {
+    useJUnitPlatform ()
     filter {
         includeTestsMatching '*IntTest'
         excludeTestsMatching '*WIP*'
@@ -86,6 +88,7 @@ task integrationTest(type: Test) {
 }
 
 task unitTest(type: Test) {
+    useJUnitPlatform ()
     filter {
         excludeTestsMatching '*IntTest'
         excludeTestsMatching '*SmokeTest'
@@ -107,19 +110,24 @@ task smokeTest(type: Test) {
 
 dependencies {
     annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     compileOnly 'org.projectlombok:lombok'
     compileOnly 'com.google.guava:guava:27.1-jre'
+
     compile 'org.springframework.boot:spring-boot-starter-webflux'
     compile 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 
     runtimeOnly 'org.springframework.boot:spring-boot-devtools'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.security:spring-security-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.flywaydb:flyway-core'
+    implementation 'io.springfox:springfox-swagger2:2.9.2'
+    implementation 'io.springfox:springfox-swagger-ui:2.9.2'
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'com.vladmihalcea:hibernate-types-52:2.4.4'
 
@@ -133,6 +141,15 @@ dependencies {
         exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
     }
     testImplementation 'commons-io:commons-io:2.6'
+
+    testImplementation(platform("org.junit:junit-bom:5.6.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+
+    testImplementation("junit:junit:4.13")
+
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher") {
+        because 'allows tests to run from IDEs that bundle older version of launcher'
+    }
 
     testCompile "com.github.tomakehurst:wiremock-jre8:2.26.2"
 

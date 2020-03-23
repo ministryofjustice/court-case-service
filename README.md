@@ -11,8 +11,6 @@ In order to run the service locally, a postgres database is required, the easies
 
 The service uses Lombok and so annotation processors must be [turned on within the IDE](https://www.baeldung.com/lombok-ide).
 
-
-
 Building and running
 ---
 
@@ -35,6 +33,30 @@ To run against local Dockerised back-ends and database
 There are also Wiremock stubs for each of the back end calls which the `test` Spring profile runs against, to run these use the following command along with `docker-compose up`
 
 ```bash runMocks.sh```
+
+### Default port
+Starts the application on port '8080'.
+To override, set server.port (eg SERVER_PORT=8099 java -jar etc etc)
+
+### Application health
+```
+curl -X GET http://localhost:8080/health
+```
+
+### Application info
+```
+curl -X GET http://localhost:8080/info
+```
+
+### Application Ping
+```
+curl -X GET http://localhost:8080/ping
+```
+
+### Application Feature Flags
+```
+curl -X GET http://localhost:8080/feature-flags
+```
 
 Flyway commands
 ---

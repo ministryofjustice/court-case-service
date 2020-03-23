@@ -1,5 +1,7 @@
-feature-flags:
-  community-api-auth: false
+feature:
+  flags:
+    community-api-auth: false
+    fetch-attendance-data: true
 
 database:
   schema:

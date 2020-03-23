@@ -1,5 +1,7 @@
-feature-flags:
-  community-api-test-endpoint: true
+feature:
+  flags:
+    community-api-auth: true
+    fetch-attendance-data: true
 
 community-api:
   base-url: http://localhost:8096

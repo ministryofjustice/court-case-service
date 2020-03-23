@@ -6,6 +6,7 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.CRN;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.SOME_CONVICTION_ID;
+import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.UNKNOWN_CRN;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.time.LocalDate;
@@ -102,4 +103,15 @@ public class ConvictionControllerIntTest {
         assertThat(response.getAttendances()).isNull();
     }
 
+    @Test
+    public void whenCallMadeToGetAttendanceOnCommunityApiReturns404() {
+
+        final String getPath = String.format(PATH, UNKNOWN_CRN, SOME_CONVICTION_ID);
+        given()
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .get(getPath)
+        .then()
+            .statusCode(404);
+    }
 }

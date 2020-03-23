@@ -152,4 +152,11 @@ dependencies {
     }
 
     testCompile "com.github.tomakehurst:wiremock-jre8:2.26.2"
+
+    implementation ('org.springframework:spring-web:5.2.3.RELEASE') {
+        because 'Transitive dependency. Previous versions have a known vulnerability'
+    }
+    implementation ('io.netty:netty-codec-http:4.1.44.Final') {
+        because 'Transitive dependency. Previous versions have a known vulnerability'
+    }
 }

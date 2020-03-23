@@ -99,7 +99,7 @@ public class ConvictionControllerIntTest {
 
         assertThat(response.getCrn()).isEqualTo(CRN);
         assertThat(response.getConvictionId()).isEqualTo(SOME_CONVICTION_ID);
-        assertThat(response.getAttendances()).isEmpty();
+        assertThat(response.getAttendances()).isNull();
     }
 
 }

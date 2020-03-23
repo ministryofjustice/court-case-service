@@ -40,7 +40,7 @@ public class ConvictionController {
         })
     public AttendancesResponse getAttendances(@PathVariable String crn, @PathVariable Long convictionId) {
         if (!featureFlags.attendanceData()) {
-            return new AttendancesResponse(crn, convictionId, Collections.emptyList());
+            return new AttendancesResponse(crn, convictionId, null);
         }
         return convictionService.getAttendances(crn, convictionId);
     }

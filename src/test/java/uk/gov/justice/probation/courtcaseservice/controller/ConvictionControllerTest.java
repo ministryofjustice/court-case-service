@@ -53,8 +53,7 @@ class ConvictionControllerTest {
     void featureToggleFalse() {
         featureFlags.setFlagValue("fetch-attendance-data", false);
 
-        final AttendancesResponse attendancesResponse = AttendancesResponse.builder().crn(CRN).convictionId(SOME_EVENT_ID)
-                                                        .attendances(Collections.emptyList()).build();
+        final AttendancesResponse attendancesResponse = AttendancesResponse.builder().crn(CRN).convictionId(SOME_EVENT_ID).build();
 
         assertThat(convictionController.getAttendances(CRN, SOME_EVENT_ID)).isEqualTo(attendancesResponse);
         verify(convictionService, times(0)).getAttendances(CRN, SOME_EVENT_ID);

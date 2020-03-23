@@ -153,7 +153,7 @@ jobs:
             fi
       - snyk/scan:
           docker-image-name: 'mojdigitalstudio/court-case-service:latest'
-          target-file: 'service/docker/Dockerfile'
+          target-file: 'Dockerfile'
           fail-on-issues: false
           monitor-on-build: true
           project: '${CIRCLE_PROJECT_REPONAME}/latest'

@@ -62,6 +62,11 @@ public class ConvictionRestClientIntTest {
         webTestClient.getAttendancesByCrnAndConvictionId(SERVER_ERROR_CRN, SOME_CONVICTION_ID).block();
     }
 
+    @Test(expected = WebClientResponseException.class)
+    public void givenServiceThrows400ThenThrowException() {
+        webTestClient.getAttendancesByCrnAndConvictionId("XXXXXX", SOME_CONVICTION_ID).blockOptional();
+    }
+
     @Test(expected = OffenderNotFoundException.class)
     public void givenServiceThrows404ThenThrowOffenderNotFoundException() {
         webTestClient.getAttendancesByCrnAndConvictionId(UNKNOWN_CRN, SOME_CONVICTION_ID).blockOptional();

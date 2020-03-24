@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.application;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.probation.courtcaseservice.controller.ErrorResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
@@ -10,12 +11,14 @@ import uk.gov.justice.probation.courtcaseservice.service.exceptions.DuplicateEnt
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 public class ApplicationExceptionHandlerTest {
 
     public static final String THE_MESSAGE = "This is the message";
-    private ApplicationExceptionHandler applicationExceptionHandler = new ApplicationExceptionHandler();
+    private final ApplicationExceptionHandler applicationExceptionHandler = new ApplicationExceptionHandler();
 
     @Test
     public void whenOffenderNotFoundExceptionCaught_thenReturnAppropriateErrorResponse() {
@@ -48,12 +51,24 @@ public class ApplicationExceptionHandlerTest {
         assertGoodErrorResponse(response, HttpStatus.NOT_FOUND, THE_MESSAGE);
     }
 
-    private void assertGoodErrorResponse(ResponseEntity<ErrorResponse> response, HttpStatus notFound, String message) {
-        assertThat(response.getStatusCode()).isEqualTo(notFound);
+    @Test
+    public void whenWebClientResponseException() {
+        final WebClientResponseException webClientException = mock(WebClientResponseException.class);
+        when(webClientException.getRawStatusCode()).thenReturn(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        when(webClientException.getStatusCode()).thenReturn(HttpStatus.INTERNAL_SERVER_ERROR);
+        when(webClientException.getMessage()).thenReturn(THE_MESSAGE);
+
+        ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(webClientException);
+
+        assertGoodErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, THE_MESSAGE);
+    }
+
+    private void assertGoodErrorResponse(ResponseEntity<ErrorResponse> response, HttpStatus httpStatus, String message) {
+        assertThat(response.getStatusCode()).isEqualTo(httpStatus);
 
         ErrorResponse errorResponse = response.getBody();
         assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus()).isEqualTo(notFound.value());
+        assertThat(errorResponse.getStatus()).isEqualTo(httpStatus.value());
         assertThat(errorResponse.getDeveloperMessage()).isEqualTo(message);
         assertThat(errorResponse.getUserMessage()).isEqualTo(message);
     }

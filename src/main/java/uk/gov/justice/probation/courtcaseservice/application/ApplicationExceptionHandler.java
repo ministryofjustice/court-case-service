@@ -51,8 +51,11 @@ public class ApplicationExceptionHandler {
     }
 
     @ExceptionHandler(WebClientResponseException.class)
-    public ResponseEntity<String> handleWebClientResponseException(WebClientResponseException ex) {
-        log.error("Error from WebClient - Status {}, Body {}", ex.getRawStatusCode(), ex.getResponseBodyAsString(), ex);
-        return ResponseEntity.status(ex.getRawStatusCode()).body(ex.getResponseBodyAsString());
+    public ResponseEntity<ErrorResponse> handle(WebClientResponseException e) {
+        log.error("Unexpected error from WebClient - Status {}, Body {}", e.getRawStatusCode(), e.getResponseBodyAsString(), e);
+
+        return new ResponseEntity<>(ErrorResponse.builder().status(e.getRawStatusCode())
+            .developerMessage(e.getMessage())
+            .userMessage(e.getMessage()).build(), e.getStatusCode());
     }
 }

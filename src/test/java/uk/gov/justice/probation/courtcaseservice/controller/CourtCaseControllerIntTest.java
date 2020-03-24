@@ -37,7 +37,6 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class CourtCaseControllerIntTest {
-    public static final String CRN = "X320741";
 
     /* before-test.sql sets up a court case in the database */
 
@@ -50,6 +49,8 @@ public class CourtCaseControllerIntTest {
     @Autowired
     CourtCaseRepository courtCaseRepository;
 
+    private static final String CRN = "X320741";
+    private static final String CASE_ID = "123456";
     private final String COURT_CODE = "SHF";
     private final String NEW_CASE_ID = "654321";
     private final String CASE_NO = "1600028913";
@@ -229,7 +230,7 @@ public class CourtCaseControllerIntTest {
                 .accept(ContentType.JSON)
                 .body(caseDetails)
                 .when()
-                .put("/case/" + "123456")
+                .put("/case/" + CASE_ID)
                 .then()
                 .statusCode(404)
                 .extract()

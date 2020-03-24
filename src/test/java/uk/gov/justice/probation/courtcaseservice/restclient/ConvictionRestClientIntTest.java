@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.util.Optional;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendancesResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -62,4 +62,13 @@ public class ConvictionRestClientIntTest {
         webTestClient.getAttendancesByCrnAndConvictionId(SERVER_ERROR_CRN, SOME_CONVICTION_ID).block();
     }
 
+    @Test(expected = WebClientResponseException.class)
+    public void givenServiceThrows400ThenThrowException() {
+        webTestClient.getAttendancesByCrnAndConvictionId("XXXXXX", SOME_CONVICTION_ID).blockOptional();
+    }
+
+    @Test(expected = OffenderNotFoundException.class)
+    public void givenServiceThrows404ThenThrowOffenderNotFoundException() {
+        webTestClient.getAttendancesByCrnAndConvictionId(UNKNOWN_CRN, SOME_CONVICTION_ID).blockOptional();
+    }
 }

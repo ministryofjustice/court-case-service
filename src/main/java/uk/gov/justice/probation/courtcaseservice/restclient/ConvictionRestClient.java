@@ -30,11 +30,11 @@ public class ConvictionRestClient {
     public Mono<AttendancesResponse> getAttendancesByCrnAndConvictionId(final String crn, final Long convictionId) {
         final String path = String.format(convictionAttendanceUrlTemplate, crn, convictionId);
         return clientHelper.get(path)
-                .retrieve()
-                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
-                .bodyToMono(CommunityApiAttendances.class)
-                .doOnError(e -> log.error(String.format("Unexpected exception when retrieving conviction attendance data for CRN '%s'", crn), e))
-                .map(attendances -> mapper.attendancesFrom(attendances, crn, convictionId));
+            .retrieve()
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleError(crn, clientResponse))
+            .bodyToMono(CommunityApiAttendances.class)
+            .doOnError(e -> log.error(String.format("Unexpected exception when retrieving conviction attendance data for CRN '%s'", crn), e))
+            .map(attendances -> mapper.attendancesFrom(attendances, crn, convictionId));
     }
 
 }

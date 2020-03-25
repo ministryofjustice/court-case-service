@@ -49,8 +49,9 @@ public class CourtCaseControllerIntTest {
     @Autowired
     CourtCaseRepository courtCaseRepository;
 
+    private static final String CRN = "X320741";
+    private static final String CASE_ID = "123456";
     private final String COURT_CODE = "SHF";
-    private final String CASE_ID = "123456";
     private final String NEW_CASE_ID = "654321";
     private final String CASE_NO = "1600028913";
     private final String NEW_CASE_NO = "1700028914";
@@ -285,6 +286,7 @@ public class CourtCaseControllerIntTest {
                 .statusCode(200)
                 .body("caseId", equalTo(NEW_CASE_ID))
                 .body("caseNo", equalTo(NEW_CASE_NO))
+                .body("crn", equalTo(CRN))
                 .body("courtCode", equalTo(COURT_CODE))
                 .body("courtRoom", equalTo("1"))
                 .body("probationStatus", equalTo(PROBATION_STATUS))
@@ -303,7 +305,8 @@ public class CourtCaseControllerIntTest {
                 .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
                 .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
                 .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
-                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"));
+                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
+        ;
 
     }
 
@@ -324,6 +327,7 @@ public class CourtCaseControllerIntTest {
                 .statusCode(200)
                 .body("caseId", equalTo(NEW_CASE_ID))
                 .body("caseNo", equalTo(NEW_CASE_NO))
+                .body("crn", equalTo(CRN))
                 .body("courtCode", equalTo(COURT_CODE))
                 .body("courtRoom", equalTo("2"))
                 .body("probationStatus", equalTo(PROBATION_STATUS))

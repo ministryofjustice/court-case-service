@@ -18,6 +18,7 @@ public class CourtCaseResponse {
     private LocalDateTime lastUpdated;
     private String caseId;
     private String caseNo;
+    private String crn;
     private String courtCode;
     private String courtRoom;
     private LocalDateTime sessionStartTime;

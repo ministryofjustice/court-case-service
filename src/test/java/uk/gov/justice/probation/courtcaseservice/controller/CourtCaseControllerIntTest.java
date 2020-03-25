@@ -262,7 +262,6 @@ public class CourtCaseControllerIntTest {
         String newCaseId = "666666";
         caseDetails.setCaseId(newCaseId);
         caseDetails.setCaseNo(CASE_NO);
-        caseDetails.setCrn("CRN");
 
         given()
                 .contentType(ContentType.JSON)

@@ -40,8 +40,8 @@ else LocalDateTime.now())
 
 ping()
 
-putCase("X340906", "Joe JMBBLOGGS", date)
-putCase("X340753", "Ureet JMBALERNAEU", date)
+putCase("X340906", "Mr Joe JMBBLOGGS", date)
+putCase("X340753", "Mr Ureet JMBALERNAEU", date)
 
 fun putCase(crn: String, defendantName: String, dateTime: LocalDateTime) {
 
@@ -58,7 +58,7 @@ fun putCase(crn: String, defendantName: String, dateTime: LocalDateTime) {
     "courtRoom": "1",
     "crn": "$crn",
     "sessionStartTime": "$dateTimeString",
-    "probationStatus": "No record",
+    "probationStatus": "Current",
     "previouslyKnownTerminationDate": "2018-06-24T09:00:00",
     "breach": true,
     "offences": [
@@ -73,14 +73,15 @@ fun putCase(crn: String, defendantName: String, dateTime: LocalDateTime) {
     		"act": "Contrary to section 1(1) and 7 of the Theft Act 1968."
     	}
     ],
-    "data": "{\"inf\": \"POL01\", \"c_id\": 1168460, \"cseq\": 1, \"h_id\": 1246272, \"type\": \"C\", \"valid\": \"Y\", \"caseno\": $caseNo, \"listno\": \"1st\", \"def_age\": 18, \"def_dob\": \"01/01/1998\", \"def_sex\": \"M\", \"def_addr\": {\"line1\": \"32 Scotland St\",\"postcode\": \"S3 7BS\"}, \"def_name\": \"$defendantName\", \"def_type\": \"P\", \"offences\": {\"offence\": [{\"as\": \"Contrary to section 1(1) and 7 of the Theft Act 1968.\", \"sum\": \"On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.\", \"code\": \"TH68010\", \"oseq\": 1, \"co_id\": 1142407, \"title\": \"Theft from a shop\", \"maxpen\": \"EW: 6M &/or Ultd Fine\"}, {\"as\": \"Contrary to section 1(1) and 7 of the Theft Act 1968.\", \"sum\": \"On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.\", \"code\": \"TH68010\", \"oseq\": 2, \"co_id\": 1142408, \"title\": \"Theft from a shop\", \"maxpen\": \"EW: 6M &/or Ultd Fine\"}]}}",
+    "data": "{\"crn\": \"$crn\",\"inf\": \"POL01\", \"c_id\": 1168460, \"cseq\": 1, \"h_id\": 1246272, \"type\": \"C\", \"valid\": \"Y\", \"caseno\": $caseNo, \"listno\": \"1st\", \"def_age\": 18, \"def_dob\": \"01/01/1998\", \"def_sex\": \"M\", \"def_addr\": {\"line1\": \"32 Scotland St\",\"postcode\": \"S3 7BS\"}, \"def_name\": \"$defendantName\", \"def_type\": \"P\", \"offences\": {\"offence\": [{\"as\": \"Contrary to section 1(1) and 7 of the Theft Act 1968.\", \"sum\": \"On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.\", \"code\": \"TH68010\", \"oseq\": 1, \"co_id\": 1142407, \"title\": \"Theft from a shop\", \"maxpen\": \"EW: 6M &/or Ultd Fine\"}, {\"as\": \"Contrary to section 1(1) and 7 of the Theft Act 1968.\", \"sum\": \"On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.\", \"code\": \"TH68010\", \"oseq\": 2, \"co_id\": 1142408, \"title\": \"Theft from a shop\", \"maxpen\": \"EW: 6M &/or Ultd Fine\"}]}}",
     "defendantName": "$defendantName",
     "defendantAddress": {
         "line1": "32 Scotland St",
         "line2": "Sheffield",
         "postcode": "S3 7BS"
     }
-}"""
+}
+"""
     val putUrl = "$baseUrl/case/$caseId"
 
     val (_, response, result) = putUrl

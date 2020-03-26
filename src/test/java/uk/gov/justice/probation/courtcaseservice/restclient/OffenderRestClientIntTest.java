@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.time.LocalDate;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -84,4 +86,12 @@ public class OffenderRestClientIntTest {
         assertThat(optionalRequirements.get()).hasSize(3);
     }
 
+    @Test
+    public void whenGetConvictionRequirementsCalled_thenMakeRestCallToCommunityApiEmptyRequirements() {
+        var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, "2500297999").blockOptional();
+
+        final List<Requirement> reqs = optionalRequirements.get();
+
+        assertThat(reqs).isEmpty();
+    }
 }

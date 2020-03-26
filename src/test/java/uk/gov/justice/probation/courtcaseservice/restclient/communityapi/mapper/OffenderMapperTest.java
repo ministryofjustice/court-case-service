@@ -128,4 +128,15 @@ public class OffenderMapperTest {
         assertThat(requirement3.getTerminationDate()).isEqualTo(LocalDate.of(2018,12,01));
         assertThat(requirement3.getRqmntTerminationReasonId()).isEqualTo("2500052884");
     }
+
+    @Test
+    public void shouldMapEmpty() throws IOException {
+        var objectMapper1 = new ObjectMapper();
+        objectMapper1.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper1.enable(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
+        CommunityApiRequirementsResponse emptyResponse = objectMapper1
+            .readValue(new File("src/test/resources/mocks/__files/GET_offender_requirements_X320741_empty.json"), CommunityApiRequirementsResponse.class);
+
+        assertThat(emptyResponse.getRequirements()).isEmpty();
+    }
 }

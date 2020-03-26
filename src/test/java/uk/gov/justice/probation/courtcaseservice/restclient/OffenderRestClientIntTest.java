@@ -87,7 +87,7 @@ public class OffenderRestClientIntTest {
     }
 
     @Test
-    public void whenGetConvictionRequirementsCalled_thenMakeRestCallToCommunityApiEmptyRequirements() {
+    public void givenKnownCrnUnkownConnvictionId_whenGetConvictionRequirementsCalled_thenReturnEmptyRequirements() {
         var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, "2500297999").blockOptional();
 
         final List<Requirement> reqs = optionalRequirements.get();

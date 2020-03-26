@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
@@ -21,23 +22,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class OffenderMapperTest {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private OffenderMapper mapper;
-    private CommunityApiOffenderResponse offenderResponse;
-    private CommunityApiConvictionsResponse convictionsResponse;
-    private CommunityApiRequirementsResponse requirementsResponse;
+
+    @BeforeClass
+    public static void setUpBeforeClass() {
+        OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         mapper = new OffenderMapper();
-        var objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        offenderResponse = objectMapper.readValue(new File("src/test/resources/mocks/__files/GET_offender_all_X320741.json"), CommunityApiOffenderResponse.class);
-        convictionsResponse = objectMapper.readValue(new File("src/test/resources/mocks/__files/GET_offender_convictions_X320741.json"), CommunityApiConvictionsResponse.class);
-        requirementsResponse = objectMapper.readValue(new File("src/test/resources/mocks/__files/GET_offender_requirements_X320741.json"), CommunityApiRequirementsResponse.class);
     }
 
     @Test
-    public void shouldMapOffenderDetailsToOffender() {
+    public void shouldMapOffenderDetailsToOffender() throws IOException {
+
+        CommunityApiOffenderResponse offenderResponse
+            = OBJECT_MAPPER.readValue(new File("src/test/resources/mocks/__files/GET_offender_all_X320741.json"), CommunityApiOffenderResponse.class);
 
         var offender = mapper.offenderFrom(offenderResponse);
 
@@ -58,7 +61,12 @@ public class OffenderMapperTest {
     }
 
     @Test
-    public void shouldMapConvictionDetailsToConviction() {
+    public void shouldMapConvictionDetailsToConviction() throws IOException {
+
+        CommunityApiConvictionsResponse convictionsResponse
+            = OBJECT_MAPPER
+            .readValue(new File("src/test/resources/mocks/__files/GET_offender_convictions_X320741.json"), CommunityApiConvictionsResponse.class);
+
         List<Conviction> convictions = mapper.convictionsFrom(convictionsResponse);
 
         assertThat(convictions).hasSize(3);
@@ -94,7 +102,11 @@ public class OffenderMapperTest {
     }
 
     @Test
-    public void shouldMapRequirementDetailsToRequirement() {
+    public void shouldMapRequirementDetailsToRequirement() throws IOException {
+
+        CommunityApiRequirementsResponse requirementsResponse
+            = OBJECT_MAPPER.readValue(new File("src/test/resources/mocks/__files/GET_offender_requirements_X320741.json"),
+            CommunityApiRequirementsResponse.class);
         List<Requirement> requirements = mapper.requirementsFrom(requirementsResponse);
 
         assertThat(requirements).hasSize(3);
@@ -131,10 +143,7 @@ public class OffenderMapperTest {
 
     @Test
     public void shouldMapEmpty() throws IOException {
-        var objectMapper1 = new ObjectMapper();
-        objectMapper1.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper1.enable(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
-        CommunityApiRequirementsResponse emptyResponse = objectMapper1
+        CommunityApiRequirementsResponse emptyResponse = OBJECT_MAPPER
             .readValue(new File("src/test/resources/mocks/__files/GET_offender_requirements_X320741_empty.json"), CommunityApiRequirementsResponse.class);
 
         assertThat(emptyResponse.getRequirements()).isEmpty();

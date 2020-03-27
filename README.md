@@ -30,6 +30,10 @@ To run against local Dockerised back-ends and database
 
 ```docker-compose up```
 
+Once the database container is running, initialise the application database schemas
+
+```initSchema.sh``` 
+
 There are also Wiremock stubs for each of the back end calls which the `test` Spring profile runs against, to run these use the following command along with `docker-compose up`
 
 ```bash runMocks.sh```

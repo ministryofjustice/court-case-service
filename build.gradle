@@ -78,6 +78,20 @@ test {
         excludeTestsMatching '*SmokeTest'
         excludeTestsMatching '*WIP*'
     }
+
+    testLogging {
+        events "started", "passed", "skipped", "failed", "standardError"
+        exceptionFormat "short"
+        showStackTraces = true
+        showExceptions = true
+        showCauses = true
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                println "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+            }
+        }
+    }
 }
 
 task integrationTest(type: Test) {

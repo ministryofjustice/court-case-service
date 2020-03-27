@@ -170,11 +170,3 @@ dependencies {
     implementation "com.github.kittinunf.fuel:fuel:2.2.1"
 
 }
-
-
-task("createTestData") {
-
-    doLast {
-        println("Hello from foo task")
-    }
-}

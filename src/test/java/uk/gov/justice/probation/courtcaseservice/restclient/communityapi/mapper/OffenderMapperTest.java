@@ -3,10 +3,13 @@ package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,21 +22,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class OffenderMapperTest {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private OffenderMapper mapper;
-    private CommunityApiOffenderResponse offenderResponse;
-    private CommunityApiConvictionsResponse convictionsResponse;
+
+    @BeforeClass
+    public static void setUpBeforeClass() {
+        OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         mapper = new OffenderMapper();
-        var objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        offenderResponse = objectMapper.readValue(new File("src/test/resources/mocks/__files/GET_offender_all_X320741.json"), CommunityApiOffenderResponse.class);
-        convictionsResponse = objectMapper.readValue(new File("src/test/resources/mocks/__files/GET_offender_convictions_X320741.json"), CommunityApiConvictionsResponse.class);
     }
 
     @Test
-    public void shouldMapOffenderDetailsToOffender() {
+    public void shouldMapOffenderDetailsToOffender() throws IOException {
+
+        CommunityApiOffenderResponse offenderResponse
+            = OBJECT_MAPPER.readValue(new File("src/test/resources/mocks/__files/GET_offender_all_X320741.json"), CommunityApiOffenderResponse.class);
 
         var offender = mapper.offenderFrom(offenderResponse);
 
@@ -54,7 +61,12 @@ public class OffenderMapperTest {
     }
 
     @Test
-    public void shouldMapConvictionDetailsToConviction() {
+    public void shouldMapConvictionDetailsToConviction() throws IOException {
+
+        CommunityApiConvictionsResponse convictionsResponse
+            = OBJECT_MAPPER
+            .readValue(new File("src/test/resources/mocks/__files/GET_offender_convictions_X320741.json"), CommunityApiConvictionsResponse.class);
+
         List<Conviction> convictions = mapper.convictionsFrom(convictionsResponse);
 
         assertThat(convictions).hasSize(3);
@@ -87,5 +99,53 @@ public class OffenderMapperTest {
         assertThat(conviction3.getSentence().getLengthInDays()).isEqualTo(364);
 
         assertThat(conviction3.getEndDate()).isEqualTo(LocalDate.of(2017,6,1).plus(364, ChronoUnit.DAYS));
+    }
+
+    @Test
+    public void shouldMapRequirementDetailsToRequirement() throws IOException {
+
+        CommunityApiRequirementsResponse requirementsResponse
+            = OBJECT_MAPPER.readValue(new File("src/test/resources/mocks/__files/GET_offender_requirements_X320741.json"),
+            CommunityApiRequirementsResponse.class);
+        List<Requirement> requirements = mapper.requirementsFrom(requirementsResponse);
+
+        assertThat(requirements).hasSize(3);
+        Requirement requirement1 = requirements.get(0);
+        assertThat(requirement1.getRqmntTypeMainCategoryId()).isEqualTo("11");
+        assertThat(requirement1.getRqmntTypeSubCategoryId()).isEqualTo("1256");
+        assertThat(requirement1.getAdRqmntTypeMainCategoryId()).isEqualTo(null);
+        assertThat(requirement1.getAdRqmntTypeSubCategoryId()).isEqualTo(null);
+        assertThat(requirement1.getLength()).isEqualTo(60);
+        assertThat(requirement1.getStartDate()).isEqualTo(LocalDate.of(2017,6,01));
+        assertThat(requirement1.getTerminationDate()).isEqualTo(LocalDate.of(2017,12,01));
+        assertThat(requirement1.getRqmntTerminationReasonId()).isEqualTo("2500052883");
+
+        Requirement requirement2 = requirements.get(1);
+        assertThat(requirement2.getRqmntTypeMainCategoryId()).isEqualTo("12345677");
+        assertThat(requirement2.getRqmntTypeSubCategoryId()).isEqualTo("1256");
+        assertThat(requirement2.getAdRqmntTypeMainCategoryId()).isEqualTo(null);
+        assertThat(requirement2.getAdRqmntTypeSubCategoryId()).isEqualTo(null);
+        assertThat(requirement2.getLength()).isEqualTo(60);
+        assertThat(requirement2.getStartDate()).isEqualTo(LocalDate.of(2019,6,01));
+        assertThat(requirement2.getTerminationDate()).isEqualTo(LocalDate.of(2019,12,01));
+        assertThat(requirement2.getRqmntTerminationReasonId()).isEqualTo("2500052885");
+
+        Requirement requirement3 = requirements.get(2);
+        assertThat(requirement3.getRqmntTypeMainCategoryId()).isEqualTo("1778990");
+        assertThat(requirement3.getRqmntTypeSubCategoryId()).isEqualTo("1256789");
+        assertThat(requirement3.getAdRqmntTypeMainCategoryId()).isEqualTo(null);
+        assertThat(requirement3.getAdRqmntTypeSubCategoryId()).isEqualTo(null);
+        assertThat(requirement3.getLength()).isEqualTo(60);
+        assertThat(requirement3.getStartDate()).isEqualTo(LocalDate.of(2018,6,01));
+        assertThat(requirement3.getTerminationDate()).isEqualTo(LocalDate.of(2018,12,01));
+        assertThat(requirement3.getRqmntTerminationReasonId()).isEqualTo("2500052884");
+    }
+
+    @Test
+    public void shouldMapEmpty() throws IOException {
+        CommunityApiRequirementsResponse emptyResponse = OBJECT_MAPPER
+            .readValue(new File("src/test/resources/mocks/__files/GET_offender_requirements_X320741_empty.json"), CommunityApiRequirementsResponse.class);
+
+        assertThat(emptyResponse.getRequirements()).isEmpty();
     }
 }

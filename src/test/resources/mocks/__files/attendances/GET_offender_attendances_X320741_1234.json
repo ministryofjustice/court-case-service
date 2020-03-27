@@ -1,0 +1,26 @@
+{
+  "attendances":[
+    {
+      "contactId": 1325,
+      "attendanceDate": "2019-08-24",
+      "attended": true,
+      "complied": true,
+      "contactType": {
+        "description": "Description of contact type",
+        "code": "DSC01"
+      },
+      "outcome": "Description of outcome"
+    },
+    {
+      "contactId": 8888888,
+      "attendanceDate": "2020-02-29",
+      "attended": false,
+      "complied": false,
+      "contactType": {
+        "description": "8888888 Description of contact type",
+        "code": "DSC02"
+      },
+      "outcome": "8888888 Description of outcome"
+    }
+  ]
+}

@@ -1,10 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
 import org.springframework.stereotype.Component;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderManager;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.*;
 import uk.gov.justice.probation.courtcaseservice.service.model.*;
 
 import java.time.temporal.ChronoUnit;
@@ -56,6 +53,25 @@ public class OffenderMapper {
                         .build()
                 )
                 .endDate(conviction.getConvictionDate().plus(conviction.getSentence().getLengthInDays(), ChronoUnit.DAYS))
+                .build();
+    }
+
+    public List<Requirement> requirementsFrom(CommunityApiRequirementsResponse requirementsResponse) {
+        return requirementsResponse.getRequirements().stream()
+                .map(this::buildRequirement)
+                .collect(Collectors.toList());
+    }
+
+    private Requirement buildRequirement(CommunityApiRequirementResponse requirement) {
+        return Requirement.builder()
+                .rqmntTypeMainCategoryId(requirement.getRqmntTypeMainCategoryId())
+                .rqmntTypeSubCategoryId(requirement.getRqmntTypeSubCategoryId())
+                .adRqmntTypeMainCategoryId(requirement.getAdRqmntTypeMainCategoryId())
+                .adRqmntTypeSubCategoryId(requirement.getAdRqmntTypeSubCategoryId())
+                .length(requirement.getLength())
+                .startDate(requirement.getStartDate())
+                .terminationDate(requirement.getTerminationDate())
+                .rqmntTerminationReasonId(requirement.getRqmntTerminationReasonId())
                 .build();
     }
 }

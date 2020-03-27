@@ -74,6 +74,9 @@ public class CourtCaseEntity implements Serializable {
     @Column(columnDefinition = "jsonb", name = "DATA")
     private String data;
 
+    @Column(name = "CRN")
+    private String crn;
+
     public CourtSession getSession() {
         return CourtSession.from(sessionStartTime);
     }

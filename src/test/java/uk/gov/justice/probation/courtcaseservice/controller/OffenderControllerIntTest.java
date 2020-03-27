@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.TestConfig;
@@ -40,17 +41,19 @@ public class OffenderControllerIntTest {
     @Test
     public void givenOffenderDoesNotExist_whenCallMadeToGetOffenderData_thenReturnNotFound() {
         given()
-                .accept("application/json")
+                .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when()
-                .get("/offender/NOT_THERE/probation-record")
+                .get("/offender/NOT-THERE/probation-record")
                 .then()
-                .statusCode(404);
+                .statusCode(404)
+                    .body("userMessage", equalTo("Offender with CRN 'NOT-THERE' not found"))
+                    .body("developerMessage" , equalTo("Offender with CRN 'NOT-THERE' not found"));
     }
 
     @Test
     public void whenCallMadeToGetOffenderData_thenReturnCorrectData() {
         given()
-                .accept("application/json")
+                .accept(MediaType.APPLICATION_JSON_VALUE)
         .when()
                 .get("/offender/X320741/probation-record")
         .then()
@@ -87,6 +90,46 @@ public class OffenderControllerIntTest {
                 .body("convictions[2].sentence.lengthUnits", equalTo("Months"))
                 .body("convictions[2].sentence.lengthInDays", equalTo(364))
                 .body("convictions[2].convictionDate", equalTo(standardDateOf(2017, 6,1)))
+        ;
+
+    }
+
+    @Test
+    public void whenCallMadeToGetRequirementData_thenReturnCorrectData() {
+          given()
+                    .accept(MediaType.APPLICATION_JSON_VALUE)
+                  .when()
+                      .get("/offender/X320741/convictions/2500297061/requirements")
+                            .then()
+                            .statusCode(200)
+                            .body("[0].rqmntTypeMainCategoryId",  equalTo("11"))
+                            .body("[0].rqmntTypeSubCategoryId", equalTo("1256"))
+                            .body("[0].adRqmntTypeMainCategoryId", equalTo(null))
+                            .body("[0].adRqmntTypeSubCategoryId", equalTo(null))
+                            .body("[0].length", equalTo(60))
+                            .body("[0].startDate", equalTo(standardDateOf(2017, 06,01)))
+                            .body("[0].terminationDate", equalTo(standardDateOf(2017, 12,01)))
+                            .body("[0].rqmntTerminationReasonId", equalTo("2500052883"))
+
+                            .body("[1].rqmntTypeMainCategoryId",  equalTo("12345677"))
+                            .body("[1].rqmntTypeSubCategoryId", equalTo("1256"))
+                            .body("[1].adRqmntTypeMainCategoryId", equalTo(null))
+                            .body("[1].adRqmntTypeSubCategoryId", equalTo(null))
+                            .body("[1].length", equalTo(60))
+                            .body("[1].startDate", equalTo(standardDateOf(2019, 06,01)))
+                            .body("[1].terminationDate", equalTo(standardDateOf(2019, 12,01)))
+                            .body("[1].rqmntTerminationReasonId", equalTo("2500052885"))
+
+
+                            .body("[2].rqmntTypeMainCategoryId",  equalTo("1778990"))
+                            .body("[2].rqmntTypeSubCategoryId", equalTo("1256789"))
+                            .body("[2].adRqmntTypeMainCategoryId", equalTo(null))
+                            .body("[2].adRqmntTypeSubCategoryId", equalTo(null))
+                            .body("[2].length", equalTo(60))
+                            .body("[2].startDate", equalTo(standardDateOf(2018, 06,01)))
+                            .body("[2].terminationDate", equalTo(standardDateOf(2018, 12,01)))
+                            .body("[2].rqmntTerminationReasonId", equalTo("2500052884"))
+
         ;
 
     }

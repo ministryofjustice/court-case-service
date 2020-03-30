@@ -68,7 +68,7 @@ public class SwaggerConfig {
         return new Contact(
                 "HMPPS Probation in Court Team",
                 "",
-                "@digital.justice.gov.uk");
+                "john.evans+pictsupport@digital.justice.gov.uk");
     }
 
     @SuppressWarnings("rawtypes")

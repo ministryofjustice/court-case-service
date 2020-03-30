@@ -51,9 +51,6 @@ public class SwaggerConfig {
                 .build();
 
         docket.genericModelSubstitutes(Optional.class);
-        docket.directModelSubstitute(ZonedDateTime.class, java.util.Date.class);
-        docket.directModelSubstitute(LocalDateTime.class, java.util.Date.class);
-
         return docket;
     }
 

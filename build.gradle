@@ -202,7 +202,19 @@ jacocoTestReport {
 jacocoTestCoverageVerification {
     violationRules {
         rule {
+            enabled = true
+            element = 'CLASS'
+            includes = ['uk.gov.justice.probation.*']
+            excludes = ['uk.gov.justice.probation.courtcaseservice.jpa.repository.*']
+
             limit {
+                counter = 'LINE'
+                value = 'TOTALCOUNT'
+                minimum = 0.8
+            }
+            limit {
+                counter = 'METHOD'
+                value = 'TOTALCOUNT'
                 minimum = 0.8
             }
         }

@@ -147,6 +147,30 @@ jobs:
              docker push mojdigitalstudio/court-case-service:latest
             fi
 
+  app-scan:
+    executor: builder
+    steps:
+      - checkout
+      - snyk/scan:
+          fail-on-issues: false
+          monitor-on-build: true
+          project: '${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH}'
+          organization: 'digital-probation-services'
+
+  image-scan:
+    executor: deployer
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - snyk/scan:
+          docker-image-name: 'mojdigitalstudio/court-case-service:latest'
+          target-file: 'Dockerfile'
+          fail-on-issues: false
+          monitor-on-build: true
+          project: '${CIRCLE_PROJECT_REPONAME}/latest'
+          organization: 'digital-probation-services'
+
   sonar-scan:
     executor: sonar-scanner
     steps:
@@ -209,6 +233,8 @@ workflows:
       - sonar-scan:
           requires:
             - build
+      - app-scan
+      - image-scan
   build-test-and-deploy:
     jobs:
       - build:

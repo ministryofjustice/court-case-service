@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.TestConfig;
@@ -40,17 +41,19 @@ public class OffenderControllerIntTest {
     @Test
     public void givenOffenderDoesNotExist_whenCallMadeToGetOffenderData_thenReturnNotFound() {
         given()
-                .accept("application/json")
+                .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when()
-                .get("/offender/NOT_THERE/probation-record")
+                .get("/offender/NOT-THERE/probation-record")
                 .then()
-                .statusCode(404);
+                .statusCode(404)
+                    .body("userMessage", equalTo("Offender with CRN 'NOT-THERE' not found"))
+                    .body("developerMessage" , equalTo("Offender with CRN 'NOT-THERE' not found"));
     }
 
     @Test
     public void whenCallMadeToGetOffenderData_thenReturnCorrectData() {
         given()
-                .accept("application/json")
+                .accept(MediaType.APPLICATION_JSON_VALUE)
         .when()
                 .get("/offender/X320741/probation-record")
         .then()
@@ -94,7 +97,7 @@ public class OffenderControllerIntTest {
     @Test
     public void whenCallMadeToGetRequirementData_thenReturnCorrectData() {
           given()
-                    .accept("application/json")
+                    .accept(MediaType.APPLICATION_JSON_VALUE)
                   .when()
                       .get("/offender/X320741/convictions/2500297061/requirements")
                             .then()

@@ -16,6 +16,7 @@ public class CourtCaseResponseMapper {
         return CourtCaseResponse.builder()
                 .caseId(courtCaseEntity.getCaseId())
                 .caseNo(courtCaseEntity.getCaseNo())
+                .crn(courtCaseEntity.getCrn())
                 .courtRoom(courtCaseEntity.getCourtRoom())
                 .courtCode(courtCaseEntity.getCourtCode())
                 .data(courtCaseEntity.getData())

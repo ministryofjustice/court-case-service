@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,8 +16,8 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+@ApiModel(description = "Court Case")
 @Entity
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

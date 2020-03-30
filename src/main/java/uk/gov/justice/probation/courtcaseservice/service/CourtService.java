@@ -14,7 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.service.exceptions.DuplicateEnt
 public class CourtService {
 
     @Autowired
-    CourtRepository courtRepository;
+    private CourtRepository courtRepository;
 
     public CourtEntity updateCourt(CourtEntity courtEntity) {
         if (null != courtRepository.findByCourtCode(courtEntity.getCourtCode())) {

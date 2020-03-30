@@ -42,6 +42,11 @@ There are also Wiremock stubs for each of the back end calls which the `test` Sp
 Starts the application on port '8080'.
 To override, set server.port (eg SERVER_PORT=8099 java -jar etc etc)
 
+### Swagger UI
+The project builds swagger specifications which can be examined and tested via the Swagger UI.
+
+http://localhost:8080/swagger-ui.html
+
 ### Application health
 ```
 curl -X GET http://localhost:8080/health

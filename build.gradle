@@ -8,6 +8,7 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.26.0'
     id "org.flywaydb.flyway" version "6.1.0"
     id 'org.owasp.dependencycheck' version '5.2.4'
+    id 'jacoco'
 }
 
 repositories {
@@ -174,3 +175,27 @@ dependencies {
         because 'Transitive dependency. Previous versions have a known vulnerability'
     }
 }
+
+jacoco {
+    toolVersion = '0.8.5'
+}
+
+jacocoTestReport {
+    reports {
+        html.enabled = false
+        xml.enabled = true
+        csv.enabled = false
+        html.destination file("${buildDir}/jacocoHtml")
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.8
+            }
+        }
+    }
+}
+

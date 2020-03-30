@@ -89,11 +89,6 @@ jobs:
             - gradle-{{ checksum "build.gradle" }}
             - gradle-
       - run: ./gradlew build
-      - snyk/scan:
-          fail-on-issues: false
-          monitor-on-build: true
-          project: '${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH}'
-          organization: 'digital-probation-services'
       - run:
           name: Record the Application Version
           command: |
@@ -151,13 +146,6 @@ jobs:
              docker push mojdigitalstudio/court-case-service:$APP_VERSION
              docker push mojdigitalstudio/court-case-service:latest
             fi
-      - snyk/scan:
-          docker-image-name: 'mojdigitalstudio/court-case-service:latest'
-          target-file: 'Dockerfile'
-          fail-on-issues: false
-          monitor-on-build: true
-          project: '${CIRCLE_PROJECT_REPONAME}/latest'
-          organization: 'digital-probation-services'
 
   sonar-scan:
     executor: sonar-scanner

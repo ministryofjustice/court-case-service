@@ -34,8 +34,8 @@ public class OffenderService {
             return offender;
     }
 
-    public Mono<List<Requirement>> getConvictionRequirements(String crn, String convictionId) {
-        return client.getConvictionRequirements(crn, convictionId);
+    public List<Requirement> getConvictionRequirements(String crn, String convictionId) {
+        return client.getConvictionRequirements(crn, convictionId).block();
     }
 
 }

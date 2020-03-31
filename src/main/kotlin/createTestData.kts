@@ -2,6 +2,7 @@
 
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Response
+import com.github.kittinunf.fuel.core.isSuccessful
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPut
 import com.github.kittinunf.result.Result
@@ -106,7 +107,7 @@ fun ping() {
 }
 
 fun checkResponse(response: Response, result: Result<String, FuelError>) {
-    if (response.statusCode != 200) {
+    if (!response.isSuccessful) {
         println(result)
         println("Response body is: ${response.body().asString("text/string")}")
         println("Bad response from ping to court-case-service, aborting")

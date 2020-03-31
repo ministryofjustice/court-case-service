@@ -1,33 +1,26 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
+
+import javax.validation.Valid;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Api(tags = "Court and Cases Resources")
 @RestController
@@ -40,7 +33,7 @@ public class CourtCaseController {
     @ApiOperation(value = "Gets the court case data by case number.")
     @ApiResponses(
         value = {
-            @ApiResponse(code = 200, message = "OK", response = CourtEntity.class),
+            @ApiResponse(code = 200, message = "OK", response = CourtCaseResponse.class),
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
@@ -56,7 +49,7 @@ public class CourtCaseController {
     @ApiOperation(value = "Saves and returns the court case entity data.")
     @ApiResponses(
         value = {
-            @ApiResponse(code = 201, message = "Created", response = CourtEntity.class),
+            @ApiResponse(code = 201, message = "Created", response = CourtCaseResponse.class),
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
@@ -72,7 +65,7 @@ public class CourtCaseController {
     @ApiOperation(value = "Gets case data for a court on a date.")
     @ApiResponses(
         value = {
-            @ApiResponse(code = 200, message = "OK", response = CourtEntity.class),
+            @ApiResponse(code = 200, message = "OK", response = CaseListResponse.class),
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),

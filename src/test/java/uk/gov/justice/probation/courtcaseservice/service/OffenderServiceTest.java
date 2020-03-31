@@ -27,9 +27,9 @@ public class OffenderServiceTest {
     private OffenderRestClient offenderRestClient;
     private Offender offender;
     @Mock
-    private List<Conviction> convictions;
+    private List<Conviction> expectedConvictions;
     @Mock
-    private List<Requirement> requirements;
+    private List<Requirement> expectedRequirements;
 
     private OffenderService service;
 
@@ -38,8 +38,8 @@ public class OffenderServiceTest {
         service = new OffenderService(offenderRestClient);
         offender = Offender.builder().build();
         when(offenderRestClient.getOffenderByCrn(CRN)).thenReturn(Mono.just(offender));
-        when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(convictions));
-        when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(requirements));
+        when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(expectedConvictions));
+        when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(expectedRequirements));
     }
 
     @Test
@@ -61,7 +61,7 @@ public class OffenderServiceTest {
     public void whenGetOffender_returnOffenderConvictions() {
         Offender offender = service.getOffender(CRN);
         assertThat(offender).isNotNull();
-        assertThat(offender.getConvictions()).isEqualTo(convictions);
+        assertThat(offender.getConvictions()).isEqualTo(expectedConvictions);
     }
 
     @Test
@@ -74,8 +74,7 @@ public class OffenderServiceTest {
 
     @Test
     public void whenGetConvictionRequirements_returnRequirements() {
-        Mono<List<Requirement>> requirement = service.getConvictionRequirements(CRN, CONVICTION_ID);
-        assertThat(requirement).isNotNull();
+        List<Requirement> requirements = service.getConvictionRequirements(CRN, CONVICTION_ID);
+        assertThat(requirements).isEqualTo(expectedRequirements);
     }
-
 }

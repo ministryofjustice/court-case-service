@@ -5,12 +5,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.Offender;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
-import java.util.List;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -23,12 +23,15 @@ public class OffenderControllerTest {
     @Mock
     private OffenderService service;
     @Mock
-    private Offender offender;
+    private Offender expectedOffender;
+    @Mock
+    private Requirement expectedRequirement;
     private OffenderController controller;
 
     @Before
     public void setUp() {
-        when(service.getOffender(CRN)).thenReturn(offender);
+        when(service.getOffender(CRN)).thenReturn(expectedOffender);
+        when(service.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Collections.singletonList(expectedRequirement));
 
         controller = new OffenderController(service);
     }
@@ -37,12 +40,14 @@ public class OffenderControllerTest {
     public void whenGetOffender_thenReturnIt() {
         Offender offenderResponse = controller.getOffender(CRN);
         assertThat(offenderResponse).isNotNull();
-        assertThat(offenderResponse).isEqualTo(offenderResponse);
+        assertThat(offenderResponse).isEqualTo(expectedOffender);
     }
 
     @Test
     public void whenGetRequirements_thenReturnIt() {
-        Mono<List<Requirement>> requirementResponse = controller.getRequirements(CRN, CONVICTION_ID);
-        assertThat(requirementResponse).isEqualTo(requirementResponse);
+        RequirementsResponse requirementResponse = controller.getRequirements(CRN, CONVICTION_ID);
+        assertThat(requirementResponse).isNotNull();
+        assertThat(requirementResponse.getRequirements()).hasSize(1);
+        assertThat(requirementResponse.getRequirements().get(0)).isEqualTo(expectedRequirement);
     }
 }

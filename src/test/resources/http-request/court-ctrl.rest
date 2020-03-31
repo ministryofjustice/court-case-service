@@ -1,0 +1,19 @@
+### 400 because SHF exists
+PUT http://{{host}}/court/SHF
+Content-Type: application/json
+
+{
+  "courtCode": "SHF",
+  "name": "shef"
+}
+
+### Gives 201 because LEI can be created
+PUT http://{{host}}/court/LEI
+Content-Type: application/json
+
+{
+  "courtCode": "LEI",
+  "name": "Leicester"
+}
+
+###

@@ -1,11 +1,13 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+@ApiModel(description = "Attendance - describes a contact")
 @Data
 @Builder
 @AllArgsConstructor

@@ -1,0 +1,10 @@
+### 200, normal execution
+GET http://{{host}}/offenders/X320741/convictions/2500295343
+
+### 404 - CRN not found
+GET http://{{host}}/offenders/XX/convictions/2500295343
+
+### 200 - empty attendances
+GET http://{{host}}/offenders/X320741/convictions/0
+
+###

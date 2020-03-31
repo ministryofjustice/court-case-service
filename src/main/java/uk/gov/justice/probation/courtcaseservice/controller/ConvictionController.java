@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -13,6 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendancesResponse;
 import uk.gov.justice.probation.courtcaseservice.service.ConvictionService;
 
+@Api(tags = "Conviction Resources")
 @RestController
 @Slf4j
 public class ConvictionController {
@@ -28,7 +30,8 @@ public class ConvictionController {
     }
 
     @GetMapping(value = "/offenders/{crn}/convictions/{convictionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Return the attendances for a CRN and a conviction id where enforcement is flagged")
+    @ApiOperation(value = "Return the attendances/contacts for a CRN and a conviction id where enforcement is flagged",
+        notes = "Will return ")
     @ApiResponses(
         value = {
             @ApiResponse(code = 200, message = "OK", response = AttendancesResponse.class),

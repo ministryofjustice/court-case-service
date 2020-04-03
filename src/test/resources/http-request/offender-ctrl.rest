@@ -8,7 +8,7 @@ GET http://{{host}}/offender/XX/probation-record
 GET http://{{host}}/offender/{{offenderCrn}}/convictions/{{convictionId}}/requirements
 
 ### 404 - CRN not found
-GET http://{{host}}/offender/XXXX/convictions/2500295343/requirements
+GET http://{{host}}/offender/XXXX/convictions/{{convictionId}}/requirements
 
 ### 200 but empty requirements
 GET http://{{host}}/offender/{{offenderCrn}}/convictions/0/requirements

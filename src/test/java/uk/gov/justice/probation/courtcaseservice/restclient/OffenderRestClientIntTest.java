@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.restclient;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapperTest.EXPECTED_RQMNT_1;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.time.LocalDate;
@@ -29,12 +30,10 @@ public class OffenderRestClientIntTest {
     @Autowired
     private OffenderRestClient offenderRestClient;
 
-
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
             .port(8090)
             .usingFilesUnderClasspath("mocks"));
-
 
     @Test
     public void whenGetOffenderByCrnCalled_thenMakeRestCallToCommunityApi() {
@@ -83,11 +82,19 @@ public class OffenderRestClientIntTest {
        var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID).blockOptional();
 
         assertThat(optionalRequirements).isNotEmpty();
-        assertThat(optionalRequirements.get()).hasSize(3);
+
+        final List<Requirement> rqmnts = optionalRequirements.get();
+        assertThat(rqmnts).hasSize(2);
+
+        final Requirement rqmt1 = rqmnts.stream()
+            .filter(requirement -> requirement.getRequirementId().equals(2500083652L))
+            .findFirst().orElse(null);
+
+        assertThat(EXPECTED_RQMNT_1).isEqualToComparingFieldByField(rqmt1);
     }
 
     @Test
-    public void givenKnownCrnUnkownConnvictionId_whenGetConvictionRequirementsCalled_thenReturnEmptyRequirements() {
+    public void givenKnownCrnUnknownConvictionId_whenGetConvictionRequirementsCalled_thenReturnEmptyRequirements() {
         var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, "2500297999").blockOptional();
 
         final List<Requirement> reqs = optionalRequirements.get();

@@ -1,10 +1,16 @@
 ### 200, normal execution
-GET http://{{host}}/offender/X320741/probation-record
+GET http://{{host}}/offender/{{offenderCrn}}/probation-record
 
 ### 404 - CRN not found
 GET http://{{host}}/offender/XX/probation-record
 
 ### 200 - normal execution
-GET http://{{host}}/offender/X320741/convictions/2500295343/requirements
+GET http://{{host}}/offender/{{offenderCrn}}/convictions/{{convictionId}}/requirements
+
+### 404 - CRN not found
+GET http://{{host}}/offender/XXXX/convictions/2500295343/requirements
+
+### 200 but empty requirements
+GET http://{{host}}/offender/{{offenderCrn}}/convictions/0/requirements
 
 ###

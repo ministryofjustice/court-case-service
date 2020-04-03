@@ -2,13 +2,16 @@ package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
 import java.io.File;
@@ -24,20 +27,45 @@ public class OffenderMapperTest {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+    public static final Requirement EXPECTED_RQMNT_1 = Requirement.builder()
+        .requirementId(2500083652L)
+        .length(60L)
+        .lengthUnit("Hours")
+        .startDate(LocalDate.of(2017,6,1))
+        .terminationDate(LocalDate.of(2017,12,1))
+        .expectedStartDate(LocalDate.of(2017,6,1))
+        .expectedEndDate(LocalDate.of(2017,12,1))
+        .active(false)
+        .requirementTypeSubCategory(new KeyValue("W01", "Regular"))
+        .requirementTypeMainCategory(new KeyValue("W", "Unpaid Work"))
+        .terminationReason(new KeyValue("74", "Hours Completed Outside 12 months (UPW only)"))
+        .build();
+
+    public static final Requirement EXPECTED_RQMNT_2 = Requirement.builder()
+        .requirementId(2500007925L)
+        .startDate(LocalDate.of(2015,7,1))
+        .commencementDate(LocalDate.of(2015,6,29))
+        .active(true)
+        .adRequirementTypeMainCategory(new KeyValue("7", "Court - Accredited Programme"))
+        .adRequirementTypeSubCategory(new KeyValue("P12", "ASRO"))
+        .build();
+
     private OffenderMapper mapper;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() {
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        OBJECT_MAPPER.registerModule(new JavaTimeModule());
     }
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         mapper = new OffenderMapper();
     }
 
+    @DisplayName("Maps community API offender to Offender with manager and no convictions")
     @Test
-    public void shouldMapOffenderDetailsToOffender() throws IOException {
+    void shouldMapOffenderDetailsToOffender() throws IOException {
 
         CommunityApiOffenderResponse offenderResponse
             = OBJECT_MAPPER.readValue(new File("src/test/resources/mocks/__files/GET_offender_all_X320741.json"), CommunityApiOffenderResponse.class);
@@ -48,6 +76,8 @@ public class OffenderMapperTest {
                 .isNotNull()
                 .isEqualTo("X320741");
 
+        assertThat(offender.getConvictions()).isNull();
+        assertThat(offender.getOffenderManagers().size()).isEqualTo(1);
         var actualManager = offender.getOffenderManagers().get(0);
         assertThat(actualManager.getForenames())
                 .isNotNull()
@@ -60,8 +90,9 @@ public class OffenderMapperTest {
                 .isEqualTo(LocalDate.of(2019, 9, 30));
     }
 
+    @DisplayName("Maps community API offender with convictions to court case service conviction")
     @Test
-    public void shouldMapConvictionDetailsToConviction() throws IOException {
+    void shouldMapConvictionDetailsToConviction() throws IOException {
 
         CommunityApiConvictionsResponse convictionsResponse
             = OBJECT_MAPPER
@@ -101,48 +132,31 @@ public class OffenderMapperTest {
         assertThat(conviction3.getEndDate()).isEqualTo(LocalDate.of(2017,6,1).plus(364, ChronoUnit.DAYS));
     }
 
+    @DisplayName("Tests mapping of Community API requirements to Court Case Service equivalent")
     @Test
-    public void shouldMapRequirementDetailsToRequirement() throws IOException {
+    void shouldMapRequirementDetailsToRequirement() throws IOException {
 
         CommunityApiRequirementsResponse requirementsResponse
             = OBJECT_MAPPER.readValue(new File("src/test/resources/mocks/__files/GET_offender_requirements_X320741.json"),
             CommunityApiRequirementsResponse.class);
         List<Requirement> requirements = mapper.requirementsFrom(requirementsResponse);
 
-        assertThat(requirements).hasSize(3);
-        Requirement requirement1 = requirements.get(0);
-        assertThat(requirement1.getRqmntTypeMainCategoryId()).isEqualTo("11");
-        assertThat(requirement1.getRqmntTypeSubCategoryId()).isEqualTo("1256");
-        assertThat(requirement1.getAdRqmntTypeMainCategoryId()).isEqualTo(null);
-        assertThat(requirement1.getAdRqmntTypeSubCategoryId()).isEqualTo(null);
-        assertThat(requirement1.getLength()).isEqualTo(60);
-        assertThat(requirement1.getStartDate()).isEqualTo(LocalDate.of(2017,6,01));
-        assertThat(requirement1.getTerminationDate()).isEqualTo(LocalDate.of(2017,12,01));
-        assertThat(requirement1.getRqmntTerminationReasonId()).isEqualTo("2500052883");
+        assertThat(requirements).hasSize(2);
 
-        Requirement requirement2 = requirements.get(1);
-        assertThat(requirement2.getRqmntTypeMainCategoryId()).isEqualTo("12345677");
-        assertThat(requirement2.getRqmntTypeSubCategoryId()).isEqualTo("1256");
-        assertThat(requirement2.getAdRqmntTypeMainCategoryId()).isEqualTo(null);
-        assertThat(requirement2.getAdRqmntTypeSubCategoryId()).isEqualTo(null);
-        assertThat(requirement2.getLength()).isEqualTo(60);
-        assertThat(requirement2.getStartDate()).isEqualTo(LocalDate.of(2019,6,01));
-        assertThat(requirement2.getTerminationDate()).isEqualTo(LocalDate.of(2019,12,01));
-        assertThat(requirement2.getRqmntTerminationReasonId()).isEqualTo("2500052885");
 
-        Requirement requirement3 = requirements.get(2);
-        assertThat(requirement3.getRqmntTypeMainCategoryId()).isEqualTo("1778990");
-        assertThat(requirement3.getRqmntTypeSubCategoryId()).isEqualTo("1256789");
-        assertThat(requirement3.getAdRqmntTypeMainCategoryId()).isEqualTo(null);
-        assertThat(requirement3.getAdRqmntTypeSubCategoryId()).isEqualTo(null);
-        assertThat(requirement3.getLength()).isEqualTo(60);
-        assertThat(requirement3.getStartDate()).isEqualTo(LocalDate.of(2018,6,01));
-        assertThat(requirement3.getTerminationDate()).isEqualTo(LocalDate.of(2018,12,01));
-        assertThat(requirement3.getRqmntTerminationReasonId()).isEqualTo("2500052884");
+
+        final Requirement rqmt1 = requirements.stream()
+            .filter(requirement -> requirement.getRequirementId().equals(2500083652L))
+            .findFirst().orElse(null);
+        final Requirement rqmt2 = requirements.stream()
+            .filter(requirement -> requirement.getRequirementId().equals(2500007925L))
+            .findFirst().orElse(null);
+        assertThat(EXPECTED_RQMNT_1).isEqualToComparingFieldByField(rqmt1);
+        assertThat(EXPECTED_RQMNT_2).isEqualToComparingFieldByField(rqmt2);
     }
 
     @Test
-    public void shouldMapEmpty() throws IOException {
+    void shouldMapEmpty() throws IOException {
         CommunityApiRequirementsResponse emptyResponse = OBJECT_MAPPER
             .readValue(new File("src/test/resources/mocks/__files/GET_offender_requirements_X320741_empty.json"), CommunityApiRequirementsResponse.class);
 

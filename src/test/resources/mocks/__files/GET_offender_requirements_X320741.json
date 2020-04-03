@@ -1,103 +1,42 @@
 {
   "requirements": [
     {
-      "rqmntId": "2500083652",
-      "disposalId": "2500282333",
+      "requirementId": 2500083652,
       "startDate": "2017-06-01",
-      "length": 60,
-      "rqmntNotes": null,
-      "commencementDate": null,
       "terminationDate": "2017-12-01",
-      "partitionAreaId": 0,
-      "expectedStartDate": null,
-      "softDeleted": 0,
-      "expectedEndDate": null,
-      "rowVersion": 2,
-      "rqmntTypeSubCategoryId": "1256",
-      "createdDatetime": "2019-09-04",
-      "lastUpdatedDatetime": "2019-09-04",
-      "adRqmntTypeSubCategoryId": null,
-      "rqmntTypeMainCategoryId": "11",
-      "adRqmntTypeMainCategoryId": null,
-      "createdByUserId": "2500040507",
-      "rqmntTerminationReasonId": "2500052883",
-      "lastUpdatedUserId": "2500040507",
-      "trainingSessionId": null,
-      "offenderId": "2500343964",
-      "organisations": [
-        "2500007020",
-        "1500001001"
-      ],
-      "activeFlag": 0,
-      "pendingTransfer": 0,
-      "attendanceCount": null,
-      "rarCount": null
+      "expectedStartDate": "2017-06-01",
+      "expectedEndDate": "2017-12-01",
+      "active": false,
+      "requirementTypeSubCategory": {
+        "code": "W01",
+        "description": "Regular"
+      },
+      "requirementTypeMainCategory": {
+        "code": "W",
+        "description": "Unpaid Work"
+      },
+      "terminationReason": {
+        "code": "74",
+        "description": "Hours Completed Outside 12 months (UPW only)"
+      },
+      "length": 60,
+      "lengthUnit": "Hours",
+      "ignoredIntFieldForTest": 200,
+      "ignoredStrFieldForTest": "TEST"
     },
     {
-      "rqmntId": "2500083652",
-      "disposalId": "2500282333",
-      "startDate": "2019-06-01",
-      "length": 60,
-      "rqmntNotes": null,
-      "commencementDate": null,
-      "terminationDate": "2019-12-01",
-      "partitionAreaId": 0,
-      "expectedStartDate": null,
-      "softDeleted": 0,
-      "expectedEndDate": null,
-      "rowVersion": 2,
-      "rqmntTypeSubCategoryId": "1256",
-      "createdDatetime": "2019-09-04",
-      "lastUpdatedDatetime": "2019-09-04",
-      "adRqmntTypeSubCategoryId": null,
-      "rqmntTypeMainCategoryId": "12345677",
-      "adRqmntTypeMainCategoryId": null,
-      "createdByUserId": "2500040507",
-      "rqmntTerminationReasonId": "2500052885",
-      "lastUpdatedUserId": "2500040507",
-      "trainingSessionId": null,
-      "offenderId": "2500343964",
-      "organisations": [
-        "2500007020",
-        "1500001001"
-      ],
-      "activeFlag": 0,
-      "pendingTransfer": 0,
-      "attendanceCount": null,
-      "rarCount": null
-    },
-    {
-      "rqmntId": "2500083652",
-      "disposalId": "2500282333",
-      "startDate": "2018-06-01",
-      "length": 60,
-      "rqmntNotes": null,
-      "commencementDate": null,
-      "terminationDate": "2018-12-01",
-      "partitionAreaId": 0,
-      "expectedStartDate": null,
-      "softDeleted": 0,
-      "expectedEndDate": null,
-      "rowVersion": 2,
-      "rqmntTypeSubCategoryId": "1256789",
-      "createdDatetime": "2019-09-04",
-      "lastUpdatedDatetime": "2019-09-04",
-      "adRqmntTypeSubCategoryId": null,
-      "rqmntTypeMainCategoryId": "1778990",
-      "adRqmntTypeMainCategoryId": null,
-      "createdByUserId": "2500040507",
-      "rqmntTerminationReasonId": "2500052884",
-      "lastUpdatedUserId": "2500040507",
-      "trainingSessionId": null,
-      "offenderId": "2500343964",
-      "organisations": [
-        "2500007020",
-        "1500001001"
-      ],
-      "activeFlag": 0,
-      "pendingTransfer": 0,
-      "attendanceCount": null,
-      "rarCount": null
+      "requirementId": 2500007925,
+      "startDate": "2015-07-01",
+      "commencementDate": "2015-06-29",
+      "active": true,
+      "adRequirementTypeMainCategory": {
+        "code": "7",
+        "description": "Court - Accredited Programme"
+      },
+      "adRequirementTypeSubCategory": {
+        "code": "P12",
+        "description": "ASRO"
+      }
     }
-  ]
+ ]
 }

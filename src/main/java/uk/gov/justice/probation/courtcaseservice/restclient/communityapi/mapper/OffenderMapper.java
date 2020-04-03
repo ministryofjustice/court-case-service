@@ -64,14 +64,20 @@ public class OffenderMapper {
 
     private Requirement buildRequirement(CommunityApiRequirementResponse requirement) {
         return Requirement.builder()
-                .rqmntTypeMainCategoryId(requirement.getRqmntTypeMainCategoryId())
-                .rqmntTypeSubCategoryId(requirement.getRqmntTypeSubCategoryId())
-                .adRqmntTypeMainCategoryId(requirement.getAdRqmntTypeMainCategoryId())
-                .adRqmntTypeSubCategoryId(requirement.getAdRqmntTypeSubCategoryId())
-                .length(requirement.getLength())
+                .requirementId(requirement.getRequirementId())
+                .commencementDate(requirement.getCommencementDate())
                 .startDate(requirement.getStartDate())
                 .terminationDate(requirement.getTerminationDate())
-                .rqmntTerminationReasonId(requirement.getRqmntTerminationReasonId())
+                .expectedStartDate(requirement.getExpectedStartDate())
+                .expectedEndDate(requirement.getExpectedEndDate())
+                .active(requirement.getActive() != null && requirement.getActive().booleanValue())
+                .length(requirement.getLength())
+                .lengthUnit(requirement.getLengthUnit())
+                .adRequirementTypeMainCategory(requirement.getAdRequirementTypeMainCategory())
+                .adRequirementTypeSubCategory(requirement.getAdRequirementTypeSubCategory())
+                .requirementTypeMainCategory(requirement.getRequirementTypeMainCategory())
+                .requirementTypeSubCategory(requirement.getRequirementTypeSubCategory())
+                .terminationReason(requirement.getTerminationReason())
                 .build();
     }
 }

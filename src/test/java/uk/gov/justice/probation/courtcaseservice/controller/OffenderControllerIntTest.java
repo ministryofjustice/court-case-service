@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles(profiles = "test")
@@ -100,36 +101,30 @@ public class OffenderControllerIntTest {
                     .accept(MediaType.APPLICATION_JSON_VALUE)
                   .when()
                       .get("/offender/X320741/convictions/2500297061/requirements")
-                            .then()
-                            .statusCode(200)
-                            .body("requirements[0].rqmntTypeMainCategoryId",  equalTo("11"))
-                            .body("requirements[0].rqmntTypeSubCategoryId", equalTo("1256"))
-                            .body("requirements[0].adRqmntTypeMainCategoryId", equalTo(null))
-                            .body("requirements[0].adRqmntTypeSubCategoryId", equalTo(null))
-                            .body("requirements[0].length", equalTo(60))
-                            .body("requirements[0].startDate", equalTo(standardDateOf(2017, 6,1)))
-                            .body("requirements[0].terminationDate", equalTo(standardDateOf(2017, 12, 1)))
-                            .body("requirements[0].rqmntTerminationReasonId", equalTo("2500052883"))
-
-                            .body("requirements[1].rqmntTypeMainCategoryId",  equalTo("12345677"))
-                            .body("requirements[1].rqmntTypeSubCategoryId", equalTo("1256"))
-                            .body("requirements[1].adRqmntTypeMainCategoryId", equalTo(null))
-                            .body("requirements[1].adRqmntTypeSubCategoryId", equalTo(null))
-                            .body("requirements[1].length", equalTo(60))
-                            .body("requirements[1].startDate", equalTo(standardDateOf(2019, 6,1)))
-                            .body("requirements[1].terminationDate", equalTo(standardDateOf(2019, 12,1)))
-                            .body("requirements[1].rqmntTerminationReasonId", equalTo("2500052885"))
-
-
-                            .body("requirements[2].rqmntTypeMainCategoryId",  equalTo("1778990"))
-                            .body("requirements[2].rqmntTypeSubCategoryId", equalTo("1256789"))
-                            .body("requirements[2].adRqmntTypeMainCategoryId", equalTo(null))
-                            .body("requirements[2].adRqmntTypeSubCategoryId", equalTo(null))
-                            .body("requirements[2].length", equalTo(60))
-                            .body("requirements[2].startDate", equalTo(standardDateOf(2018, 6,1)))
-                            .body("requirements[2].terminationDate", equalTo(standardDateOf(2018, 12,1)))
-                            .body("requirements[2].rqmntTerminationReasonId", equalTo("2500052884"))
-
+                .then()
+                    .statusCode(200)
+                    .body("requirements[0].requirementId", equalTo(2500083652L))
+                    .body("requirements[0].startDate", equalTo(standardDateOf(2017, 6,1)))
+                    .body("requirements[0].terminationDate", equalTo(standardDateOf(2017, 12, 1)))
+                    .body("requirements[0].expectedStartDate", equalTo(standardDateOf(2017, 6,1)))
+                    .body("requirements[0].expectedEndDate", equalTo(standardDateOf(2017, 12, 1)))
+                    .body("requirements[0].active", is(false))
+                    .body("requirements[0].requirementTypeSubCategory.code",  equalTo("W01"))
+                    .body("requirements[0].requirementTypeSubCategory.description", equalTo("Regular"))
+                    .body("requirements[0].requirementTypeMainCategory.code",  equalTo("W"))
+                    .body("requirements[0].requirementTypeMainCategory.description", equalTo("Unpaid Work"))
+                    .body("requirements[0].terminationReason.code",  equalTo("74"))
+                    .body("requirements[0].terminationReason.description", equalTo("Hours Completed Outside 12 months (UPW only)"))
+                    .body("requirements[0].length", equalTo(60))
+                    .body("requirements[0].lengthUnit", equalTo("Hours"))
+                    .body("requirements[1].requirementId",  equalTo(2500007925L))
+                    .body("requirements[1].startDate", equalTo(standardDateOf(2015, 7,1)))
+                    .body("requirements[1].commencementDate", equalTo(standardDateOf(2015, 6,29)))
+                    .body("requirements[1].active", is(true))
+                    .body("requirements[1].adRequirementTypeMainCategory.code",  equalTo("7"))
+                    .body("requirements[1].adRequirementTypeMainCategory.description", equalTo("Court - Accredited Programme"))
+                    .body("requirements[1].adRequirementTypeSubCategory.code",  equalTo("P12"))
+                    .body("requirements[1].adRequirementTypeSubCategory.description", equalTo("ASRO"))
         ;
 
     }

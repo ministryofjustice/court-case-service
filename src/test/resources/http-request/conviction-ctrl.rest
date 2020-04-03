@@ -1,10 +1,32 @@
-### 200, normal execution
-GET http://{{host}}/offenders/X320741/convictions/2500295343
+### Known connvictions for a known offender
+GET http://{{host}}/offenders/{{offenderCrn}}/convictions/{{convictionId}}
 
-### 404 - CRN not found
-GET http://{{host}}/offenders/XX/convictions/2500295343
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+
+    client.test("Response content-type is json", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+%}
+
+### Convictions for an unknown offender
+GET http://{{host}}/offenders/XX/convictions/{{convictionId}}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 404, "Response status is not 404");
+    });
+
+    client.test("Response content-type is json", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+%}
 
 ### 200 - empty attendances
-GET http://{{host}}/offenders/X320741/convictions/0
+GET http://{{host}}/offenders/{{offenderCrn}}/convictions/0
 
 ###

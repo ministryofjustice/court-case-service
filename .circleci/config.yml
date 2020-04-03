@@ -88,7 +88,7 @@ jobs:
           keys:
             - gradle-{{ checksum "build.gradle" }}
             - gradle-
-      - run: ./gradlew build jacocoTestCoverageVerification
+      - run: ./gradlew build jacocoTestReport
       - run:
           name: Record the Application Version
           command: |

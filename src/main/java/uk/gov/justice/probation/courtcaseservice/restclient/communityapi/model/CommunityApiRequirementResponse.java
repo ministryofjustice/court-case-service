@@ -1,31 +1,35 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import lombok.NoArgsConstructor;
+import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CommunityApiRequirementResponse {
-    @JsonProperty
-    private String rqmntTypeMainCategoryId;
-    @JsonProperty
-    private String rqmntTypeSubCategoryId;
-    @JsonProperty
-    private String adRqmntTypeMainCategoryId;
-    @JsonProperty
-    private String adRqmntTypeSubCategoryId;
-    @JsonProperty
-    private Integer length;
-    @JsonProperty
-    @JsonDeserialize(using = CommunityApiDateDeserializer.class)
+
+    private Long requirementId;
+    private String requirementNotes;
+
+    private LocalDate commencementDate;
     private LocalDate startDate;
-    @JsonProperty
-    @JsonDeserialize(using = CommunityApiDateDeserializer.class)
     private LocalDate terminationDate;
-    @JsonProperty
-    private String rqmntTerminationReasonId;
+    private LocalDate expectedStartDate;
+    private LocalDate expectedEndDate;
+
+    private Boolean active;
+    private KeyValue requirementTypeSubCategory;
+    private KeyValue requirementTypeMainCategory;
+    private KeyValue adRequirementTypeMainCategory;
+    private KeyValue adRequirementTypeSubCategory;
+    private KeyValue terminationReason;
+    private Long length;
+    private String lengthUnit;
 }

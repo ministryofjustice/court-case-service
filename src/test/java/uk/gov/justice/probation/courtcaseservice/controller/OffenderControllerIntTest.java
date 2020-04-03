@@ -44,11 +44,11 @@ public class OffenderControllerIntTest {
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when()
-                .get("/offender/NOT-THERE/probation-record")
+                .get("/offender/CRNXXX/probation-record")
                 .then()
                 .statusCode(404)
-                    .body("userMessage", equalTo("Offender with CRN 'NOT-THERE' not found"))
-                    .body("developerMessage" , equalTo("Offender with CRN 'NOT-THERE' not found"));
+                    .body("userMessage", equalTo("Offender with CRN 'CRNXXX' not found"))
+                    .body("developerMessage" , equalTo("Offender with CRN 'CRNXXX' not found"));
     }
 
     @Test

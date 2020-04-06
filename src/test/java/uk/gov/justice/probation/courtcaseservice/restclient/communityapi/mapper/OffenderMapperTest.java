@@ -126,6 +126,7 @@ public class OffenderMapperTest {
         assertThat(conviction2.getSentence().getTerminationReason()).isEqualTo("ICMS Miscellaneous Event");
 
         Conviction conviction3 = convictions.get(2);
+        assertThat(conviction3.getConvictionId()).isEqualTo("2500295343");
         assertThat(conviction3.getSentence().getDescription()).isEqualTo("CJA - Community Order");
 
         assertThat(conviction3.getSentence().getLength()).isEqualTo(12);

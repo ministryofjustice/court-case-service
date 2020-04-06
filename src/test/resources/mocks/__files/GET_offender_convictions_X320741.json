@@ -33,7 +33,9 @@
       "originalLength": 0,
       "originalLengthUnits": "Months",
       "defaultLength": 0,
-      "lengthInDays": 0
+      "lengthInDays": 0,
+      "terminationDate": "2020-01-01",
+      "terminationReason": "Auto Terminated"
     },
     "latestCourtAppearanceOutcome": {
       "code": "412",
@@ -95,7 +97,9 @@
       "secondLength": 5,
       "secondLengthUnits": "Years",
       "defaultLength": 60,
-      "lengthInDays": 1826
+      "lengthInDays": 1826,
+      "terminationDate": "2019-01-01",
+      "terminationReason": "ICMS Miscellaneous Event"
     },
     "latestCourtAppearanceOutcome": {
       "code": "303",

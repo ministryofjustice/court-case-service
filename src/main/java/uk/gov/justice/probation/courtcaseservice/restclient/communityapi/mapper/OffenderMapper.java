@@ -50,6 +50,8 @@ public class OffenderMapper {
                         .length(conviction.getSentence().getOriginalLength())
                         .lengthUnits(conviction.getSentence().getOriginalLengthUnits())
                         .lengthInDays(conviction.getSentence().getLengthInDays())
+                        .terminationDate(conviction.getSentence().getTerminationDate())
+                        .terminationReason(conviction.getSentence().getTerminationReason())
                         .build()
                 )
                 .endDate(conviction.getConvictionDate().plus(conviction.getSentence().getLengthInDays(), ChronoUnit.DAYS))

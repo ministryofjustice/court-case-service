@@ -110,11 +110,12 @@ jobs:
       - store_test_results:
           path: build/test-results
       - store_artifacts:
-          path: build/reports/tests
+          path: build/reports
       - persist_to_workspace:
           root: .
           paths:
             - build/libs
+            - build/reports/jacoco
             - build.gradle
             - app_version.txt
 
@@ -220,11 +221,11 @@ workflows:
   scheduled:
     triggers:
       - schedule:
-          cron: "0 7 * * 1-5"
+          cron: "0 * * * 1-5"
           filters:
             branches:
               only:
-                - master
+                - add-jacoco
     jobs:
       - build:
           filters:

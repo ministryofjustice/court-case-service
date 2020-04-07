@@ -116,8 +116,8 @@ public class OffenderMapperTest {
         assertThat(conviction1.getSentence().getTerminationDate()).isEqualTo(LocalDate.of(2020,1,1));
         assertThat(conviction1.getSentence().getTerminationReason()).isEqualTo("Auto Terminated");
 
-        assertThat(conviction1.getSentence().getUnpaidWork().getOffered()).isEqualTo(480);
-        assertThat(conviction1.getSentence().getUnpaidWork().getCompleted()).isEqualTo(60);
+        assertThat(conviction1.getSentence().getUnpaidWork().getMinutesOffered()).isEqualTo(480);
+        assertThat(conviction1.getSentence().getUnpaidWork().getMinutesCompleted()).isEqualTo(60);
         assertThat(conviction1.getSentence().getUnpaidWork().getAppointmentsToDate()).isEqualTo(12);
         assertThat(conviction1.getSentence().getUnpaidWork().getAttended()).isEqualTo(2);
         assertThat(conviction1.getSentence().getUnpaidWork().getAcceptableAbsences()).isEqualTo(2);
@@ -131,7 +131,7 @@ public class OffenderMapperTest {
         assertThat(conviction2.getSentence().getDescription()).isEqualTo("CJA - Indeterminate Public Prot.");
         assertThat(conviction2.getSentence().getTerminationDate()).isEqualTo(LocalDate.of(2019,1,1));
         assertThat(conviction2.getSentence().getTerminationReason()).isEqualTo("ICMS Miscellaneous Event");
-        assertThat(conviction2.getSentence().getUnpaidWork().getOffered()).isEqualTo(480);
+        assertThat(conviction2.getSentence().getUnpaidWork().getMinutesOffered()).isEqualTo(480);
 
         Conviction conviction3 = convictions.get(2);
         assertThat(conviction3.getConvictionId()).isEqualTo("2500295343");
@@ -141,8 +141,8 @@ public class OffenderMapperTest {
         assertThat(conviction3.getSentence().getLengthUnits()).isEqualTo("Months");
         assertThat(conviction3.getSentence().getLengthInDays()).isEqualTo(364);
 
-        assertThat(conviction3.getSentence().getUnpaidWork().getOffered()).isEqualTo(480);
-        assertThat(conviction3.getSentence().getUnpaidWork().getCompleted()).isEqualTo(360);
+        assertThat(conviction3.getSentence().getUnpaidWork().getMinutesOffered()).isEqualTo(480);
+        assertThat(conviction3.getSentence().getUnpaidWork().getMinutesCompleted()).isEqualTo(360);
         assertThat(conviction3.getSentence().getUnpaidWork().getAppointmentsToDate()).isEqualTo(16);
         assertThat(conviction3.getSentence().getUnpaidWork().getAttended()).isEqualTo(10);
         assertThat(conviction3.getSentence().getUnpaidWork().getAcceptableAbsences()).isEqualTo(0);

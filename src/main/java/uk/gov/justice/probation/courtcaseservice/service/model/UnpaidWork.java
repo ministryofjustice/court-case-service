@@ -8,8 +8,8 @@ import lombok.Getter;
 @Getter
 @Builder
 public class UnpaidWork {
-    private Integer offered;
-    private Integer completed;
+    private Integer minutesOffered;
+    private Integer minutesCompleted;
     private Integer appointmentsToDate;
     private Integer attended;
     private Integer acceptableAbsences;

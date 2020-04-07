@@ -35,7 +35,18 @@
       "defaultLength": 0,
       "lengthInDays": 0,
       "terminationDate": "2020-01-01",
-      "terminationReason": "Auto Terminated"
+      "terminationReason": "Auto Terminated",
+      "unpaidWork": {
+        "minutesOrdered": 480,
+        "minutesCompleted": 60,
+        "appointments": {
+          "total": 12,
+          "attended": 2,
+          "acceptableAbsences": 2,
+          "unacceptableAbsences": 1,
+          "noOutcomeRecorded": 0
+        }
+      }
     },
     "latestCourtAppearanceOutcome": {
       "code": "412",
@@ -99,7 +110,18 @@
       "defaultLength": 60,
       "lengthInDays": 1826,
       "terminationDate": "2019-01-01",
-      "terminationReason": "ICMS Miscellaneous Event"
+      "terminationReason": "ICMS Miscellaneous Event",
+      "unpaidWork": {
+        "minutesOrdered": 480,
+        "minutesCompleted": 300,
+        "appointments": {
+          "total": 6,
+          "attended": 1,
+          "acceptableAbsences": 0,
+          "unacceptableAbsences": 0,
+          "noOutcomeRecorded": 0
+        }
+      }
     },
     "latestCourtAppearanceOutcome": {
       "code": "303",
@@ -156,7 +178,18 @@
       "originalLength": 12,
       "originalLengthUnits": "Months",
       "defaultLength": 12,
-      "lengthInDays": 364
+      "lengthInDays": 364,
+      "unpaidWork": {
+        "minutesOrdered": 480,
+        "minutesCompleted": 360,
+        "appointments": {
+          "total": 16,
+          "attended": 10,
+          "acceptableAbsences": 0,
+          "unacceptableAbsences": 1,
+          "noOutcomeRecorded": 0
+        }
+      }
     },
     "latestCourtAppearanceOutcome": {
       "code": "201",

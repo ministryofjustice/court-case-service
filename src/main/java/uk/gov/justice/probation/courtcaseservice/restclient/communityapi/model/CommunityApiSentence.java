@@ -24,4 +24,6 @@ public class CommunityApiSentence {
     private LocalDate terminationDate;
     @JsonProperty
     private String terminationReason;
+    @JsonProperty
+    private CommunityApiUnpaidWork unpaidWork;
 }

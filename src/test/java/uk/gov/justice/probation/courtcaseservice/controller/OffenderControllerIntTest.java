@@ -73,6 +73,12 @@ public class OffenderControllerIntTest {
                 .body("convictions[0].sentence.lengthInDays", equalTo(0))
                 .body("convictions[0].sentence.terminationDate", equalTo(standardDateOf(2020, 1, 1)))
                 .body("convictions[0].sentence.terminationReason", equalTo("Auto Terminated"))
+                .body("convictions[0].sentence.unpaidWork.offered", equalTo(480))
+                .body("convictions[0].sentence.unpaidWork.completed", equalTo(60))
+                .body("convictions[0].sentence.unpaidWork.appointmentsToDate", equalTo(12))
+                .body("convictions[0].sentence.unpaidWork.attended", equalTo(2))
+                .body("convictions[0].sentence.unpaidWork.acceptableAbsences", equalTo(2))
+                .body("convictions[0].sentence.unpaidWork.unacceptableAbsences", equalTo(1))
                 .body("convictions[0].convictionDate", equalTo(standardDateOf(2019, 9,16)))
 
                 .body("convictions[1].convictionId", equalTo("2500295345"))
@@ -85,6 +91,12 @@ public class OffenderControllerIntTest {
                 .body("convictions[1].sentence.lengthInDays", equalTo(1826))
                 .body("convictions[1].sentence.terminationDate", equalTo(standardDateOf(2019, 1, 1)))
                 .body("convictions[1].sentence.terminationReason", equalTo("ICMS Miscellaneous Event"))
+                .body("convictions[1].sentence.unpaidWork.offered", equalTo(480))
+                .body("convictions[1].sentence.unpaidWork.completed", equalTo(300))
+                .body("convictions[1].sentence.unpaidWork.appointmentsToDate", equalTo(6))
+                .body("convictions[1].sentence.unpaidWork.attended", equalTo(1))
+                .body("convictions[1].sentence.unpaidWork.acceptableAbsences", equalTo(0))
+                .body("convictions[1].sentence.unpaidWork.unacceptableAbsences", equalTo(0))
                 .body("convictions[1].convictionDate", equalTo(standardDateOf(2019, 9,3)))
 
                 .body("convictions[2].convictionId", equalTo("2500295343"))
@@ -94,6 +106,12 @@ public class OffenderControllerIntTest {
                 .body("convictions[2].sentence.length", equalTo(12))
                 .body("convictions[2].sentence.lengthUnits", equalTo("Months"))
                 .body("convictions[2].sentence.lengthInDays", equalTo(364))
+                .body("convictions[2].sentence.unpaidWork.offered", equalTo(480))
+                .body("convictions[2].sentence.unpaidWork.completed", equalTo(360))
+                .body("convictions[2].sentence.unpaidWork.appointmentsToDate", equalTo(16))
+                .body("convictions[2].sentence.unpaidWork.attended", equalTo(10))
+                .body("convictions[2].sentence.unpaidWork.acceptableAbsences", equalTo(0))
+                .body("convictions[2].sentence.unpaidWork.unacceptableAbsences", equalTo(1))
                 .body("convictions[2].convictionDate", equalTo(standardDateOf(2017, 6,1)))
         ;
 

@@ -91,30 +91,13 @@ public class OffenderControllerIntTest {
                 .body("convictions[1].sentence.lengthInDays", equalTo(1826))
                 .body("convictions[1].sentence.terminationDate", equalTo(standardDateOf(2019, 1, 1)))
                 .body("convictions[1].sentence.terminationReason", equalTo("ICMS Miscellaneous Event"))
-                .body("convictions[1].sentence.unpaidWork.minutesOffered", equalTo(480))
-                .body("convictions[1].sentence.unpaidWork.minutesCompleted", equalTo(300))
-                .body("convictions[1].sentence.unpaidWork.appointmentsToDate", equalTo(6))
-                .body("convictions[1].sentence.unpaidWork.attended", equalTo(1))
-                .body("convictions[1].sentence.unpaidWork.acceptableAbsences", equalTo(0))
-                .body("convictions[1].sentence.unpaidWork.unacceptableAbsences", equalTo(0))
                 .body("convictions[1].convictionDate", equalTo(standardDateOf(2019, 9,3)))
 
                 .body("convictions[2].convictionId", equalTo("2500295343"))
-                .body("convictions[2].active", equalTo(false))
+                .body("convictions[2].active", equalTo(null))
                 .body("convictions[2].offences[0].description", equalTo("Arson - 05600"))
-                .body("convictions[2].sentence.description", equalTo("CJA - Community Order"))
-                .body("convictions[2].sentence.length", equalTo(12))
-                .body("convictions[2].sentence.lengthUnits", equalTo("Months"))
-                .body("convictions[2].sentence.lengthInDays", equalTo(364))
-                .body("convictions[2].sentence.unpaidWork.minutesOffered", equalTo(480))
-                .body("convictions[2].sentence.unpaidWork.minutesCompleted", equalTo(360))
-                .body("convictions[2].sentence.unpaidWork.appointmentsToDate", equalTo(16))
-                .body("convictions[2].sentence.unpaidWork.attended", equalTo(10))
-                .body("convictions[2].sentence.unpaidWork.acceptableAbsences", equalTo(0))
-                .body("convictions[2].sentence.unpaidWork.unacceptableAbsences", equalTo(1))
-                .body("convictions[2].convictionDate", equalTo(standardDateOf(2017, 6,1)))
+                .body("convictions[2].convictionDate", equalTo(null))
         ;
-
     }
 
     @Test

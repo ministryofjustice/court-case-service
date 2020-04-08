@@ -13,6 +13,6 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "GET_offender_all_X320741.json"
+    "bodyFileName": "offender-convictions/GET_offender_all_X320741.json"
   }
 }

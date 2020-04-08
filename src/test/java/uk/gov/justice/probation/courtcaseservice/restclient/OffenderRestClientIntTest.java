@@ -50,7 +50,7 @@ public class OffenderRestClientIntTest {
 
     @Test(expected = OffenderNotFoundException.class)
     public void givenOffenderDoesNotExist_whenGetOffenderByCrnCalled_ReturnEmpty() {
-        offenderRestClient.getOffenderByCrn("NOT-THERE").blockOptional();
+        offenderRestClient.getOffenderByCrn("CRNXXX").blockOptional();
     }
 
     @Test(expected = WebClientResponseException.class)
@@ -69,7 +69,7 @@ public class OffenderRestClientIntTest {
 
     @Test(expected = OffenderNotFoundException.class)
     public void givenOffenderDoesNotExist_whenGetConvictionsByCrnCalled_ReturnEmpty() {
-        offenderRestClient.getConvictionsByCrn("NOT-THERE").block();
+        offenderRestClient.getConvictionsByCrn("CRNXXX").block();
     }
 
     @Test(expected = WebClientResponseException.class)
@@ -101,4 +101,5 @@ public class OffenderRestClientIntTest {
 
         assertThat(reqs).isEmpty();
     }
+
 }

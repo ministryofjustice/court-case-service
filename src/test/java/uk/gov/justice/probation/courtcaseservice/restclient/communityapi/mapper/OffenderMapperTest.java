@@ -3,13 +3,16 @@ package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
@@ -18,14 +21,16 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class OffenderMapperTest {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    private static final String BASE_MOCK_PATH = "src/test/resources/mocks/__files/";
 
     public static final Requirement EXPECTED_RQMNT_1 = Requirement.builder()
         .requirementId(2500083652L)
@@ -63,12 +68,12 @@ public class OffenderMapperTest {
         mapper = new OffenderMapper();
     }
 
-    @DisplayName("Maps community API offender to Offender with manager and no convictions")
+    @DisplayName("Maps community API offender to Offender with manager")
     @Test
     void shouldMapOffenderDetailsToOffender() throws IOException {
 
         CommunityApiOffenderResponse offenderResponse
-            = OBJECT_MAPPER.readValue(new File("src/test/resources/mocks/__files/GET_offender_all_X320741.json"), CommunityApiOffenderResponse.class);
+            = OBJECT_MAPPER.readValue(new File(BASE_MOCK_PATH + "offender-convictions/GET_offender_all_X320741.json"), CommunityApiOffenderResponse.class);
 
         var offender = mapper.offenderFrom(offenderResponse);
 
@@ -90,13 +95,13 @@ public class OffenderMapperTest {
                 .isEqualTo(LocalDate.of(2019, 9, 30));
     }
 
-    @DisplayName("Maps community API offender with convictions to court case service conviction")
+    @DisplayName("Maps convictions response to court case service conviction. Includes sentence and unpaid work.")
     @Test
     void shouldMapConvictionDetailsToConviction() throws IOException {
 
         CommunityApiConvictionsResponse convictionsResponse
             = OBJECT_MAPPER
-            .readValue(new File("src/test/resources/mocks/__files/GET_offender_convictions_X320741.json"), CommunityApiConvictionsResponse.class);
+            .readValue(new File(BASE_MOCK_PATH + "offender-convictions/GET_offender_convictions_X320741.json"), CommunityApiConvictionsResponse.class);
 
         List<Conviction> convictions = mapper.convictionsFrom(convictionsResponse);
 
@@ -131,24 +136,95 @@ public class OffenderMapperTest {
         assertThat(conviction2.getSentence().getDescription()).isEqualTo("CJA - Indeterminate Public Prot.");
         assertThat(conviction2.getSentence().getTerminationDate()).isEqualTo(LocalDate.of(2019,1,1));
         assertThat(conviction2.getSentence().getTerminationReason()).isEqualTo("ICMS Miscellaneous Event");
-        assertThat(conviction2.getSentence().getUnpaidWork().getMinutesOffered()).isEqualTo(480);
+        assertThat(conviction2.getSentence().getLengthInDays()).isEqualTo(1826);
+        assertThat(conviction2.getSentence().getUnpaidWork()).isNull();
+        // conviction date + sentence.lengthInDays
+        assertThat(conviction2.getEndDate()).isEqualTo(LocalDate.of(2019,9,3).plusDays(1826));
 
         Conviction conviction3 = convictions.get(2);
         assertThat(conviction3.getConvictionId()).isEqualTo("2500295343");
-        assertThat(conviction3.getSentence().getDescription()).isEqualTo("CJA - Community Order");
+        assertThat(conviction3.getEndDate()).isNull();
+        assertThat(conviction3.getSentence()).isNull();
+    }
 
-        assertThat(conviction3.getSentence().getLength()).isEqualTo(12);
-        assertThat(conviction3.getSentence().getLengthUnits()).isEqualTo("Months");
-        assertThat(conviction3.getSentence().getLengthInDays()).isEqualTo(364);
+    @DisplayName("Maps convictions response to court case service conviction. Empty Offence list and all nullable fields null.")
+    @Test
+    void shouldMapConvictionDetailsToConvictionNull() {
 
-        assertThat(conviction3.getSentence().getUnpaidWork().getMinutesOffered()).isEqualTo(480);
-        assertThat(conviction3.getSentence().getUnpaidWork().getMinutesCompleted()).isEqualTo(360);
-        assertThat(conviction3.getSentence().getUnpaidWork().getAppointmentsToDate()).isEqualTo(16);
-        assertThat(conviction3.getSentence().getUnpaidWork().getAttended()).isEqualTo(10);
-        assertThat(conviction3.getSentence().getUnpaidWork().getAcceptableAbsences()).isEqualTo(0);
-        assertThat(conviction3.getSentence().getUnpaidWork().getUnacceptableAbsences()).isEqualTo(1);
+        final CommunityApiConvictionResponse convictionResponse = CommunityApiConvictionResponse
+                .builder()
+                .convictionId("123")
+                .offences(Collections.emptyList())
+                .build();
+        final CommunityApiConvictionsResponse convictionsResponse = new CommunityApiConvictionsResponse(singletonList(convictionResponse));
 
-        assertThat(conviction3.getEndDate()).isEqualTo(LocalDate.of(2017,6,1).plus(364, ChronoUnit.DAYS));
+        final List<Conviction> convictions = mapper.convictionsFrom(convictionsResponse);
+
+        final Conviction expectedConviction = Conviction.builder()
+            .active(null)
+            .convictionDate(null)
+            .sentence(null)
+            .endDate(null)
+            .convictionId("123")
+            .offences(Collections.emptyList())
+            .build();
+
+        assertThat(convictions).hasSize(1);
+        assertThat(convictions.get(0)).isEqualToComparingFieldByField(expectedConviction);
+    }
+
+    @DisplayName("Maps convictions response to court case service conviction. Sentence set but no unpaid work.")
+    @Test
+    void shouldMapConvictionDetailsToConvictionSentenceSetNullUnpaidWord() {
+
+        final CommunityApiConvictionResponse convictionResponse = CommunityApiConvictionResponse
+            .builder()
+            .convictionId("123")
+            .offences(Collections.emptyList())
+            .build();
+        final CommunityApiConvictionsResponse convictionsResponse = new CommunityApiConvictionsResponse(singletonList(convictionResponse));
+
+        final List<Conviction> convictions = mapper.convictionsFrom(convictionsResponse);
+
+        final Conviction expectedConviction = Conviction.builder()
+            .active(null)
+            .convictionDate(null)
+            .sentence(null)
+            .endDate(null)
+            .convictionId("123")
+            .offences(Collections.emptyList())
+            .build();
+
+        assertThat(convictions).hasSize(1);
+        assertThat(convictions.get(0)).isEqualToComparingFieldByField(expectedConviction);
+    }
+
+    @DisplayName("No end date if convictionDate and sentence are null")
+    @Test
+    void endDateCalculatorNulls() {
+        assertThat(mapper.endDateCalculator.apply(null, null)).isNull();
+    }
+
+    @DisplayName("No end date if sentence is null")
+    @Test
+    void endDateCalculatorNullSentence() {
+        assertThat(mapper.endDateCalculator.apply(LocalDate.of(2019, 10, 1), null)).isNull();
+    }
+
+    @DisplayName("No end date if convictionDate is null")
+    @Test
+    void endDateCalculatorNullDate() {
+        final CommunityApiSentence sentence
+            = new CommunityApiSentence(null, null, null, 1, null, null, null);
+        assertThat(mapper.endDateCalculator.apply(null, sentence)).isNull();
+    }
+
+    @DisplayName("No end date if convictionDate is null")
+    @Test
+    void endDateCalculatorNormal() {
+        final CommunityApiSentence sentence
+            = new CommunityApiSentence(null, null, null, 1, null, null, null);
+        assertThat(mapper.endDateCalculator.apply(LocalDate.of(2019, 10, 1), sentence)).isEqualTo(LocalDate.of(2019, 10, 2));
     }
 
     @DisplayName("Tests mapping of Community API requirements to Court Case Service equivalent")
@@ -156,13 +232,11 @@ public class OffenderMapperTest {
     void shouldMapRequirementDetailsToRequirement() throws IOException {
 
         CommunityApiRequirementsResponse requirementsResponse
-            = OBJECT_MAPPER.readValue(new File("src/test/resources/mocks/__files/GET_offender_requirements_X320741.json"),
+            = OBJECT_MAPPER.readValue(new File(BASE_MOCK_PATH + "GET_offender_requirements_X320741.json"),
             CommunityApiRequirementsResponse.class);
         List<Requirement> requirements = mapper.requirementsFrom(requirementsResponse);
 
         assertThat(requirements).hasSize(2);
-
-
 
         final Requirement rqmt1 = requirements.stream()
             .filter(requirement -> requirement.getRequirementId().equals(2500083652L))
@@ -174,10 +248,11 @@ public class OffenderMapperTest {
         assertThat(EXPECTED_RQMNT_2).isEqualToComparingFieldByField(rqmt2);
     }
 
+    @DisplayName("Tests empty requirements list.")
     @Test
     void shouldMapEmpty() throws IOException {
         CommunityApiRequirementsResponse emptyResponse = OBJECT_MAPPER
-            .readValue(new File("src/test/resources/mocks/__files/GET_offender_requirements_X320741_empty.json"), CommunityApiRequirementsResponse.class);
+            .readValue(new File(BASE_MOCK_PATH + "GET_offender_requirements_X320741_empty.json"), CommunityApiRequirementsResponse.class);
 
         assertThat(emptyResponse.getRequirements()).isEmpty();
     }

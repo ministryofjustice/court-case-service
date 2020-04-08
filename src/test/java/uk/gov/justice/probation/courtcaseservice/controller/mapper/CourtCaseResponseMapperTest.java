@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 
 import java.time.LocalDate;
@@ -33,6 +34,7 @@ public class CourtCaseResponseMapperTest {
     private static final String ACT = "ACT";
     private static final String DEFENDANT_NAME = "DEFENDANT_NAME";
     private static final String CRN = "CRN";
+    private static final CourtSession SESSION = CourtSession.MORNING;
     private CourtCaseEntity courtCaseEntity;
     private List<OffenceEntity> offences;
     private CourtCaseResponseMapper courtCaseResponseMapper = new CourtCaseResponseMapper();
@@ -66,6 +68,7 @@ public class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getDefendantAddress()).isEqualTo(addressPropertiesEntity);
         assertThat(courtCaseResponse.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
         assertThat(courtCaseResponse.getCrn()).isEqualTo(CRN);
+        assertThat(courtCaseResponse.getSession()).isEqualTo(SESSION);
     }
 
     @Test

@@ -15,7 +15,8 @@ public class CaseListResponseTest {
     @Test
     public void whenGetLastUpdated_thenReturnMostRecentUpdatedDate() {
         LocalDateTime mostRecent = LocalDateTime.of(2020, 1, 31, 0, 0);
-        List<CourtCaseResponse> cases = Arrays.asList(buildCourtCaseEntity(mostRecent), buildCourtCaseEntity(LocalDateTime.MIN));
+        LocalDateTime sessionStartTime = LocalDateTime.of(2020, 1, 31, 9, 0);
+        List<CourtCaseResponse> cases = Arrays.asList(buildCourtCaseEntity(mostRecent, sessionStartTime), buildCourtCaseEntity(LocalDateTime.MIN, sessionStartTime));
         CaseListResponse caseListResponse = new CaseListResponse(cases);
 
         assertThat(caseListResponse.getLastUpdated()).isEqualTo(mostRecent);
@@ -28,7 +29,7 @@ public class CaseListResponseTest {
         assertThat(caseListResponse.getLastUpdated()).isNull();
     }
 
-    private CourtCaseResponse buildCourtCaseEntity(LocalDateTime mostRecent) {
-        return new CourtCaseResponseMapper().mapFrom(new CourtCaseEntity(null, mostRecent, null, null, null, null, null, null, null, null, null, Collections.emptyList(), null, null, null, null));
+    private CourtCaseResponse buildCourtCaseEntity(LocalDateTime mostRecent, LocalDateTime sessionStartTime) {
+        return new CourtCaseResponseMapper().mapFrom(new CourtCaseEntity(null, mostRecent, null, null, null, null, sessionStartTime, null, null, null, null, Collections.emptyList(), null, null, null, null));
     }
 }

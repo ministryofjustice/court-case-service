@@ -1,5 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.function.BiFunction;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.*;
 import uk.gov.justice.probation.courtcaseservice.service.model.*;
@@ -45,25 +48,8 @@ public class OffenderMapper {
                     .map(offence -> new Offence(offence.getDetail().getDescription()))
                     .collect(Collectors.toList())
                 )
-                .sentence(Sentence.builder()
-                        .description(conviction.getSentence().getDescription())
-                        .length(conviction.getSentence().getOriginalLength())
-                        .lengthUnits(conviction.getSentence().getOriginalLengthUnits())
-                        .lengthInDays(conviction.getSentence().getLengthInDays())
-                        .terminationDate(conviction.getSentence().getTerminationDate())
-                        .terminationReason(conviction.getSentence().getTerminationReason())
-                        .unpaidWork(UnpaidWork.builder()
-                                .minutesOffered(conviction.getSentence().getUnpaidWork().getMinutesOrdered())
-                                .minutesCompleted(conviction.getSentence().getUnpaidWork().getMinutesCompleted())
-                                .appointmentsToDate(conviction.getSentence().getUnpaidWork().getAppointments().getTotal())
-                                .attended(conviction.getSentence().getUnpaidWork().getAppointments().getAttended())
-                                .acceptableAbsences(conviction.getSentence().getUnpaidWork().getAppointments().getAcceptableAbsences())
-                                .unacceptableAbsences(conviction.getSentence().getUnpaidWork().getAppointments().getUnacceptableAbsences())
-                                .build()
-                        )
-                        .build()
-                )
-                .endDate(conviction.getConvictionDate().plus(conviction.getSentence().getLengthInDays(), ChronoUnit.DAYS))
+                .sentence(Optional.ofNullable(conviction.getSentence()).map(this::buildSentence).orElse(null))
+                .endDate(endDateCalculator.apply(conviction.getConvictionDate(), conviction.getSentence()))
                 .build();
     }
 
@@ -91,4 +77,36 @@ public class OffenderMapper {
                 .terminationReason(requirement.getTerminationReason())
                 .build();
     }
+
+    private Sentence buildSentence(final CommunityApiSentence communityApiSentence) {
+        return Sentence.builder()
+            .description(communityApiSentence.getDescription())
+            .length(communityApiSentence.getOriginalLength())
+            .lengthUnits(communityApiSentence.getOriginalLengthUnits())
+            .lengthInDays(communityApiSentence.getLengthInDays())
+            .terminationDate(communityApiSentence.getTerminationDate())
+            .terminationReason(communityApiSentence.getTerminationReason())
+            .unpaidWork(Optional.ofNullable(communityApiSentence.getUnpaidWork()).map(this::buildUnpaidWork).orElse(null))
+            .build();
+    }
+
+    private UnpaidWork buildUnpaidWork(final CommunityApiUnpaidWork communityApiUnpaidWork) {
+        return UnpaidWork.builder()
+                .minutesOffered(communityApiUnpaidWork.getMinutesOrdered())
+                .minutesCompleted(communityApiUnpaidWork.getMinutesCompleted())
+                .appointmentsToDate(communityApiUnpaidWork.getAppointments().getTotal())
+                .attended(communityApiUnpaidWork.getAppointments().getAttended())
+                .acceptableAbsences(communityApiUnpaidWork.getAppointments().getAcceptableAbsences())
+                .unacceptableAbsences(communityApiUnpaidWork.getAppointments().getUnacceptableAbsences())
+                .build();
+    }
+
+    final BiFunction<LocalDate, CommunityApiSentence, LocalDate> endDateCalculator = (convictionDate, sentence) -> {
+
+        if (convictionDate == null || sentence == null) {
+            return null;
+        }
+
+        return convictionDate.plus(sentence.getLengthInDays(), ChronoUnit.DAYS);
+    };
 }

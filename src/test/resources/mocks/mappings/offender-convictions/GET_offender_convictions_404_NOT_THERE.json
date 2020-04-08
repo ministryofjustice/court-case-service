@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/secure/offenders/crn/X320741/convictions",
+    "urlPath": "/secure/offenders/crn/CRNXXX/convictions",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"
@@ -9,10 +9,10 @@
     }
   },
   "response": {
-    "status": 200,
+    "status": 404,
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "GET_offender_convictions_X320741.json"
+    "body": "{\n    \"status\": 404,\n    \"developerMessage\": \"Offender with crn CRNXXX not found\"\n}"
   }
 }

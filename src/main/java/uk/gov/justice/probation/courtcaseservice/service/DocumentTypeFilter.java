@@ -18,8 +18,8 @@ public class DocumentTypeFilter implements Predicate<OffenderDocumentDetail> {
 
     private final Set<String> subTypeCodes;
 
-    public DocumentTypeFilter(@Value("#{'${community-api.filter.document.types}'.split(',')}") List<DocumentType> documentTypes,
-                            @Value("#{'${community-api.filter.document.subtype.codes}'.split(',')}") List<String> subTypeCodes) {
+    public DocumentTypeFilter(@Value("#{'${community-api.probation-record-filter.document.types}'.split(',')}") List<DocumentType> documentTypes,
+                            @Value("#{'${community-api.probation-record-filter.document.subtype.codes}'.split(',')}") List<String> subTypeCodes) {
         this.documentTypes = documentTypes == null ? new HashSet<>() : new HashSet<>(documentTypes);
         this.subTypeCodes = subTypeCodes == null ? new HashSet<>() : new HashSet<>(subTypeCodes);
     }

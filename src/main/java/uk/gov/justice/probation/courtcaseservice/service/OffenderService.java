@@ -31,26 +31,26 @@ public class OffenderService {
         this.documentTypeFilter = documentTypeFilter;
     }
 
-    public Offender getOffender(String crn, boolean applyFilter) {
+    public Offender getOffender(String crn, boolean applyDocumentFilter) {
 
         Tuple3<Offender, List<Conviction>, GroupedDocuments> tuple3 = Mono.zip(client.getOffenderByCrn(crn), client.getConvictionsByCrn(crn), client.getDocumentsByCrn(crn))
             .blockOptional()
             .orElseThrow(() -> new OffenderNotFoundException(crn));
 
         Offender offender = combineOffenderAndConvictions(tuple3.getT1(), tuple3.getT2());
-        combineConvictionsAndDocuments(offender, tuple3.getT3().getConvictions(), applyFilter);
+        combineConvictionsAndDocuments(offender, tuple3.getT3().getConvictions(), applyDocumentFilter);
 
         return offender;
     }
 
-    private void combineConvictionsAndDocuments(final Offender offender, final List<ConvictionDocuments> convictionDocuments, boolean applyFilter) {
+    private void combineConvictionsAndDocuments(final Offender offender, final List<ConvictionDocuments> convictionDocuments, boolean applyDocumentFilter) {
 
         final ConcurrentMap<String, List<OffenderDocumentDetail>> allConvictionDocuments;
         allConvictionDocuments = convictionDocuments.stream()
                                 .map(convictionDocument -> ConvictionDocuments.builder()
                                                                 .convictionId(convictionDocument.getConvictionId())
                                                                 .documents(convictionDocument.getDocuments().stream()
-                                                                            .filter(doc -> (!applyFilter || documentTypeFilter.test(doc)))
+                                                                            .filter(doc -> (!applyDocumentFilter || documentTypeFilter.test(doc)))
                                                                             .collect(Collectors.toList()))
                                                                 .build())
                                 .collect(Collectors.toConcurrentMap(ConvictionDocuments::getConvictionId, ConvictionDocuments::getDocuments));

@@ -38,7 +38,7 @@ public class OffenderController {
         })
     @GetMapping(path="offender/{crn}/probation-record", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody Offender getOffender(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @PathVariable String crn,
-        @ApiParam(name = "applyDocTypeFilter", value = "Whether or not to apply document filter, optional and defaults to true", example = "true", required = true)
+        @ApiParam(name = "applyDocTypeFilter", value = "Whether or not to apply document filter, optional and defaults to true", example = "true", required = false)
         @RequestParam(value="applyDocTypeFilter", required = false, defaultValue = "true") boolean applyDocTypeFilter) {
         return offenderService.getOffender(crn, applyDocTypeFilter);
     }

@@ -1,20 +1,22 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.Offender;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Api(tags = "Offender Resources", produces = APPLICATION_JSON_VALUE)
 @RestController
@@ -35,8 +37,10 @@ public class OffenderController {
             @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
         })
     @GetMapping(path="offender/{crn}/probation-record", produces = APPLICATION_JSON_VALUE)
-    public @ResponseBody Offender getOffender(@PathVariable String crn) {
-        return offenderService.getOffender(crn);
+    public @ResponseBody Offender getOffender(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @PathVariable String crn,
+        @ApiParam(name = "applyDocTypeFilter", value = "Whether or not to apply document filter, optional and defaults to true", example = "true", required = true)
+        @RequestParam(value="applyDocTypeFilter", required = false, defaultValue = "true") boolean applyDocTypeFilter) {
+        return offenderService.getOffender(crn, applyDocTypeFilter);
     }
 
     @ApiOperation(value = "Gets the requirement data by CRN and conviction ID.")

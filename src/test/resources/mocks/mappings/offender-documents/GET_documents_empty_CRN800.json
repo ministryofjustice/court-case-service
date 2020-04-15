@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/secure/offenders/crn/X320741/all",
+    "urlPath": "/secure/offenders/crn/CRN800/documents/grouped",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"
@@ -9,10 +9,10 @@
     }
   },
   "response": {
-    "status": 200,
+    "status": 200 ,
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "GET_offender_all_X320741.json"
+    "body": "{}"
   }
 }

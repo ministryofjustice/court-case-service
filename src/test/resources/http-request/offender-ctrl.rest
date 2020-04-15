@@ -12,6 +12,22 @@ GET http://{{host}}/offender/{{offenderCrn}}/probation-record
     });
 %}
 
+
+### 200, normal execution
+GET http://{{host}}/offender/{{offenderCrn}}/probation-record?documentTypes=COURT_REPORT_DOCUMENT&documentTypes=CPSPACK_DOCUMENT
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+
+    client.test("Response content-type is json", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+%}
+
+
 ### 404 - CRN not found
 GET http://{{host}}/offender/XX/probation-record
 

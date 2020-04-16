@@ -48,6 +48,7 @@ public class OffenderMapper {
         return Conviction.builder()
                 .convictionId(conviction.getConvictionId())
                 .active(conviction.getActive())
+                .inBreach(conviction.getInBreach())
                 .convictionDate(conviction.getConvictionDate())
                 .offences(conviction.getOffences().stream()
                     .map(offence -> new Offence(offence.getDetail().getDescription()))

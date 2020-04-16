@@ -18,6 +18,8 @@ import java.time.format.DateTimeFormatter;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
+import static org.apache.commons.lang3.BooleanUtils.isFalse;
+import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -67,6 +69,7 @@ public class OffenderControllerIntTest {
 
                 .body("convictions[0].convictionId", equalTo("2500297061"))
                 .body("convictions[0].active", equalTo(false))
+                .body("convictions[0].inBreach", equalTo(true))
                 .body("convictions[0].offences[0].description", equalTo("Assault on Police Officer - 10400"))
                 .body("convictions[0].sentence.description", equalTo("Absolute/Conditional Discharge"))
                 .body("convictions[0].sentence.length", equalTo(0))
@@ -85,6 +88,7 @@ public class OffenderControllerIntTest {
 
                 .body("convictions[1].convictionId", equalTo("2500295345"))
                 .body("convictions[1].active", equalTo(true))
+                .body("convictions[1].inBreach", equalTo(false))
                 .body("convictions[1].offences[0].description", equalTo("Arson - 05600"))
                 .body("convictions[1].offences[1].description", equalTo("Burglary (dwelling) with intent to commit, or the commission of an offence triable only on indictment - 02801"))
                 .body("convictions[1].sentence.description", equalTo("CJA - Indeterminate Public Prot."))
@@ -99,6 +103,7 @@ public class OffenderControllerIntTest {
 
                 .body("convictions[2].convictionId", equalTo("2500295343"))
                 .body("convictions[2].active", equalTo(null))
+                .body("convictions[2].inBreach", equalTo(true))
                 .body("convictions[2].offences[0].description", equalTo("Arson - 05600"))
                 .body("convictions[2].convictionDate", equalTo(null))
                 .body("convictions[2].documents", hasSize(0))

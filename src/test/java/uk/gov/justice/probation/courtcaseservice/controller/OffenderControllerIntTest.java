@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringRunner.class)
@@ -40,7 +41,7 @@ public class OffenderControllerIntTest {
             .usingFilesUnderClasspath("mocks"));
 
     @Test
-    public void givenOffenderDoesNotExist_whenCallMadeToGetOffenderData_thenReturnNotFound() {
+    public void givenOffenderDoesNotExist_whenCallMadeToGetProbationRecord_thenReturnNotFound() {
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when()
@@ -52,7 +53,7 @@ public class OffenderControllerIntTest {
     }
 
     @Test
-    public void whenCallMadeToGetOffenderData_thenReturnCorrectData() {
+    public void whenCallMadeToGetProbationRecord_thenReturnCorrectData() {
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
         .when()
@@ -80,6 +81,7 @@ public class OffenderControllerIntTest {
                 .body("convictions[0].sentence.unpaidWork.acceptableAbsences", equalTo(2))
                 .body("convictions[0].sentence.unpaidWork.unacceptableAbsences", equalTo(1))
                 .body("convictions[0].convictionDate", equalTo(standardDateOf(2019, 9,16)))
+                .body("convictions[0].documents", hasSize(0))
 
                 .body("convictions[1].convictionId", equalTo("2500295345"))
                 .body("convictions[1].active", equalTo(true))
@@ -92,11 +94,33 @@ public class OffenderControllerIntTest {
                 .body("convictions[1].sentence.terminationDate", equalTo(standardDateOf(2019, 1, 1)))
                 .body("convictions[1].sentence.terminationReason", equalTo("ICMS Miscellaneous Event"))
                 .body("convictions[1].convictionDate", equalTo(standardDateOf(2019, 9,3)))
+                .body("convictions[1].documents", hasSize(1))
+                .body("convictions[1].documents[0].documentId", equalTo("1d842fce-ec2d-45dc-ac9a-748d3076ca6b"))
 
                 .body("convictions[2].convictionId", equalTo("2500295343"))
                 .body("convictions[2].active", equalTo(null))
                 .body("convictions[2].offences[0].description", equalTo("Arson - 05600"))
                 .body("convictions[2].convictionDate", equalTo(null))
+                .body("convictions[2].documents", hasSize(0))
+
+        ;
+    }
+
+    @Test
+    public void whenCallMadeToGetProbationRecordNotFiltered_thenReturnExtraDocuments() {
+        given()
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+                .get("/offender/X320741/probation-record?applyDocTypeFilter=false")
+            .then()
+                .statusCode(200)
+                .body("crn",  equalTo("X320741"))
+                .body("convictions[0].convictionId", equalTo("2500297061"))
+                .body("convictions[0].documents", hasSize(0))
+                .body("convictions[1].convictionId", equalTo("2500295345"))
+                .body("convictions[1].documents", hasSize(9))
+                .body("convictions[2].convictionId", equalTo("2500295343"))
+                .body("convictions[2].documents", hasSize(6))
         ;
     }
 

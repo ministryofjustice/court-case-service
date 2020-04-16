@@ -7,6 +7,7 @@ import static uk.gov.justice.probation.courtcaseservice.restclient.communityapi.
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
+import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -37,7 +39,7 @@ public class OffenderRestClientIntTest {
 
     @Test
     public void whenGetOffenderByCrnCalled_thenMakeRestCallToCommunityApi() {
-        var optionalOffender = offenderRestClient.getOffenderByCrn(CRN).blockOptional();
+        var optionalOffender = offenderRestClient.getProbationRecordByCrn(CRN).blockOptional();
 
         assertThat(optionalOffender).isNotEmpty();
         var offender = optionalOffender.get();
@@ -50,12 +52,12 @@ public class OffenderRestClientIntTest {
 
     @Test(expected = OffenderNotFoundException.class)
     public void givenOffenderDoesNotExist_whenGetOffenderByCrnCalled_ReturnEmpty() {
-        offenderRestClient.getOffenderByCrn("CRNXXX").blockOptional();
+        offenderRestClient.getProbationRecordByCrn("CRNXXX").blockOptional();
     }
 
     @Test(expected = WebClientResponseException.class)
     public void givenServiceThrowsError_whenGetOffenderByCrnCalled_thenFailFastAndThrowException() {
-        offenderRestClient.getOffenderByCrn(SERVER_ERROR_CRN).block();
+        offenderRestClient.getProbationRecordByCrn(SERVER_ERROR_CRN).block();
     }
 
     @Test
@@ -102,4 +104,26 @@ public class OffenderRestClientIntTest {
         assertThat(reqs).isEmpty();
     }
 
+    @Test
+    public void whenGetConvictionDocumentsCalled_thenMakeRestCallToCommunityApi() {
+        Optional<GroupedDocuments> documentsResponse = offenderRestClient.getDocumentsByCrn(CRN).blockOptional();
+
+        final GroupedDocuments groupedDocuments = documentsResponse.get();
+
+        assertThat(groupedDocuments.getConvictions()).hasSize(2);
+        assertThat(groupedDocuments.getDocuments()).hasSize(7);
+    }
+
+    @Test
+    public void givenKnownCrnNoDocuments_whenGetConvictionDocumentsCalled_thenMakeRestCallToCommunityApi() {
+        GroupedDocuments documentsResponse = offenderRestClient.getDocumentsByCrn("CRN800").blockOptional().get();
+
+        assertThat(documentsResponse.getDocuments()).isEmpty();
+        assertThat(documentsResponse.getConvictions()).isEmpty();
+    }
+
+    @Test(expected = OffenderNotFoundException.class)
+    public void givenOffenderDoesNotExist_whenGetConvictionsDocumentsByCrnCalled_ThrowException() {
+        offenderRestClient.getDocumentsByCrn("CRNXXX").block();
+    }
 }

@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import org.springframework.stereotype.Component;
@@ -10,11 +11,15 @@ import uk.gov.justice.probation.courtcaseservice.service.model.*;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
+import uk.gov.justice.probation.courtcaseservice.service.model.document.ConvictionDocuments;
+import uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType;
+import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
+import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
 
 @Component
 public class OffenderMapper {
-    public Offender offenderFrom(CommunityApiOffenderResponse offenderResponse) {
-        return Offender.builder()
+    public ProbationRecord probationRecordFrom(CommunityApiOffenderResponse offenderResponse) {
+        return ProbationRecord.builder()
                 .crn(offenderResponse.getOtherIds().getCrn())
                 .offenderManagers(
                         offenderResponse.getOffenderManagers().stream()
@@ -57,6 +62,51 @@ public class OffenderMapper {
         return requirementsResponse.getRequirements().stream()
                 .map(this::buildRequirement)
                 .collect(Collectors.toList());
+    }
+
+    public GroupedDocuments documentsFrom(CommunityApiGroupedDocumentsResponse documentsResponse) {
+        return GroupedDocuments.builder()
+            .documents(Optional.ofNullable(documentsResponse.getDocuments()).map(this::buildDocuments).orElse(Collections.emptyList()))
+            .convictions(Optional.ofNullable(documentsResponse.getConvictions()).map(this::buildConvictionDocuments).orElse(Collections.emptyList()))
+            .build();
+    }
+
+    private List<ConvictionDocuments> buildConvictionDocuments(List<CommunityApiConvictionDocuments> convictionDocuments) {
+        return convictionDocuments.stream()
+                .map(this::buildConvictionDocument)
+                .collect(Collectors.toList());
+    }
+
+    private ConvictionDocuments buildConvictionDocument(CommunityApiConvictionDocuments convictionDocuments) {
+        return ConvictionDocuments.builder()
+            .convictionId(convictionDocuments.getConvictionId())
+            .documents(Optional.ofNullable(convictionDocuments.getDocuments()).map(this::buildConvictionIdDocuments).orElse(Collections.emptyList()))
+            .build();
+    }
+
+    private List<OffenderDocumentDetail> buildConvictionIdDocuments(List<CommunityApiOffenderDocumentDetail> documentDetails) {
+        return documentDetails.stream()
+            .map(this::buildOffenderDocumentDetail)
+            .collect(Collectors.toList());
+    }
+
+    private List<OffenderDocumentDetail> buildDocuments(List<CommunityApiOffenderDocumentDetail> details) {
+        return details.stream()
+            .map(this::buildOffenderDocumentDetail)
+            .collect(Collectors.toList());
+    }
+
+    private OffenderDocumentDetail buildOffenderDocumentDetail(CommunityApiOffenderDocumentDetail detail) {
+        return OffenderDocumentDetail.builder()
+            .documentId(detail.getId())
+            .documentName(detail.getDocumentName())
+            .author(detail.getAuthor())
+            .type(DocumentType.valueOf(detail.getType().getCode()))
+            .extendedDescription(detail.getExtendedDescription())
+            .createdAt(detail.getCreatedAt())
+            .reportDocumentDates(detail.getReportDocumentDates())
+            .subType(detail.getSubType())
+            .build();
     }
 
     private Requirement buildRequirement(CommunityApiRequirementResponse requirement) {
@@ -109,4 +159,6 @@ public class OffenderMapper {
 
         return convictionDate.plus(sentence.getLengthInDays(), ChronoUnit.DAYS);
     };
+
+
 }

@@ -33,11 +33,11 @@ public class OffenderService {
 
     public ProbationRecord getProbationRecord(String crn, boolean applyDocumentFilter) {
 
-        Tuple3<ProbationRecord, List<Conviction>, GroupedDocuments> tuple3 = Mono.zip(client.getOffenderByCrn(crn), client.getConvictionsByCrn(crn), client.getDocumentsByCrn(crn))
+        Tuple3<ProbationRecord, List<Conviction>, GroupedDocuments> tuple3 = Mono.zip(client.getProbationRecordByCrn(crn), client.getConvictionsByCrn(crn), client.getDocumentsByCrn(crn))
             .blockOptional()
             .orElseThrow(() -> new OffenderNotFoundException(crn));
 
-        ProbationRecord probationRecord = combineOffenderAndConvictions(tuple3.getT1(), tuple3.getT2());
+        ProbationRecord probationRecord = addConvictionsToProbationRecord(tuple3.getT1(), tuple3.getT2());
         combineConvictionsAndDocuments(probationRecord, tuple3.getT3().getConvictions(), applyDocumentFilter);
 
         return probationRecord;
@@ -45,8 +45,7 @@ public class OffenderService {
 
     private void combineConvictionsAndDocuments(final ProbationRecord probationRecord, final List<ConvictionDocuments> convictionDocuments, boolean applyDocumentFilter) {
 
-        final ConcurrentMap<String, List<OffenderDocumentDetail>> allConvictionDocuments;
-        allConvictionDocuments = convictionDocuments.stream()
+        final ConcurrentMap<String, List<OffenderDocumentDetail>> allConvictionDocuments = convictionDocuments.stream()
                                 .map(convictionDocument -> ConvictionDocuments.builder()
                                                                 .convictionId(convictionDocument.getConvictionId())
                                                                 .documents(convictionDocument.getDocuments().stream()
@@ -62,7 +61,7 @@ public class OffenderService {
             });
     }
 
-    private ProbationRecord combineOffenderAndConvictions(ProbationRecord probationRecord, List<Conviction> convictions) {
+    private ProbationRecord addConvictionsToProbationRecord(ProbationRecord probationRecord, List<Conviction> convictions) {
         probationRecord.setConvictions(convictions);
         return probationRecord;
     }

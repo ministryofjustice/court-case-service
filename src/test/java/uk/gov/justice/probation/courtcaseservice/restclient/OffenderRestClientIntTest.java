@@ -39,7 +39,7 @@ public class OffenderRestClientIntTest {
 
     @Test
     public void whenGetOffenderByCrnCalled_thenMakeRestCallToCommunityApi() {
-        var optionalOffender = offenderRestClient.getOffenderByCrn(CRN).blockOptional();
+        var optionalOffender = offenderRestClient.getProbationRecordByCrn(CRN).blockOptional();
 
         assertThat(optionalOffender).isNotEmpty();
         var offender = optionalOffender.get();
@@ -52,12 +52,12 @@ public class OffenderRestClientIntTest {
 
     @Test(expected = OffenderNotFoundException.class)
     public void givenOffenderDoesNotExist_whenGetOffenderByCrnCalled_ReturnEmpty() {
-        offenderRestClient.getOffenderByCrn("CRNXXX").blockOptional();
+        offenderRestClient.getProbationRecordByCrn("CRNXXX").blockOptional();
     }
 
     @Test(expected = WebClientResponseException.class)
     public void givenServiceThrowsError_whenGetOffenderByCrnCalled_thenFailFastAndThrowException() {
-        offenderRestClient.getOffenderByCrn(SERVER_ERROR_CRN).block();
+        offenderRestClient.getProbationRecordByCrn(SERVER_ERROR_CRN).block();
     }
 
     @Test

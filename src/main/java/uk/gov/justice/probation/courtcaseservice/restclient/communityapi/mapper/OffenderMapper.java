@@ -18,7 +18,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Offender
 
 @Component
 public class OffenderMapper {
-    public ProbationRecord offenderFrom(CommunityApiOffenderResponse offenderResponse) {
+    public ProbationRecord probationRecordFrom(CommunityApiOffenderResponse offenderResponse) {
         return ProbationRecord.builder()
                 .crn(offenderResponse.getOtherIds().getCrn())
                 .offenderManagers(

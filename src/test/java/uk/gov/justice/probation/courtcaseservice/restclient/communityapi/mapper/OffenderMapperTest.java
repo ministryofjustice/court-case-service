@@ -84,7 +84,7 @@ public class OffenderMapperTest {
         CommunityApiOffenderResponse offenderResponse
             = OBJECT_MAPPER.readValue(new File(BASE_MOCK_PATH + "GET_offender_all_X320741.json"), CommunityApiOffenderResponse.class);
 
-        var offender = mapper.offenderFrom(offenderResponse);
+        var offender = mapper.probationRecordFrom(offenderResponse);
 
         assertThat(offender.getCrn())
                 .isNotNull()

@@ -38,13 +38,13 @@ public class OffenderRestClient {
     @Autowired
     private RestClientHelper clientHelper;
 
-    public Mono<ProbationRecord> getOffenderByCrn(String crn) {
+    public Mono<ProbationRecord> getProbationRecordByCrn(String crn) {
         return clientHelper.get(String.format(offenderUrlTemplate, crn))
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleError(crn, clientResponse))
                 .bodyToMono(CommunityApiOffenderResponse.class)
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender data for CRN '%s'", crn), e))
-                .map(offender -> mapper.offenderFrom(offender));
+                .map(offender -> mapper.probationRecordFrom(offender));
     }
 
     public Mono<List<Conviction>> getConvictionsByCrn(String crn) {

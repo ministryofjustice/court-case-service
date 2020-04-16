@@ -14,7 +14,7 @@ GET http://{{host}}/offender/{{offenderCrn}}/probation-record
 
 
 ### 200, normal execution
-GET http://{{host}}/offender/{{offenderCrn}}/probation-record?documentTypes=COURT_REPORT_DOCUMENT&documentTypes=CPSPACK_DOCUMENT
+GET http://{{host}}/offender/{{offenderCrn}}/probation-record?applyDocTypeFilter=false
 
 > {%
     client.test("Request executed successfully", function() {

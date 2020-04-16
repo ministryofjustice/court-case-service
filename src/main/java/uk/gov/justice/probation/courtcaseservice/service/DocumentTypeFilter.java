@@ -31,9 +31,8 @@ public class DocumentTypeFilter implements Predicate<OffenderDocumentDetail> {
         }
 
         final Optional<String> subTypeKeyValue = Optional.ofNullable(documentDetail.getSubType()).map(KeyValue::getCode);
-
-        return subTypeKeyValue.isPresent()
-            && documentTypes.contains(documentDetail.getType())
+        return documentTypes.contains(documentDetail.getType())
+            && subTypeKeyValue.isPresent()
             && subTypeCodes.contains(subTypeKeyValue.get());
     }
 }

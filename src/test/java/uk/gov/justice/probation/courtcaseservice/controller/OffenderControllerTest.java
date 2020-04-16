@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
-import uk.gov.justice.probation.courtcaseservice.service.model.Offender;
+import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
 import java.util.Collections;
@@ -26,25 +26,25 @@ public class OffenderControllerTest {
     @Mock
     private OffenderService service;
     @Mock
-    private Offender expectedOffender;
+    private ProbationRecord expectedProbationRecord;
     @Mock
     private Requirement expectedRequirement;
 
     @InjectMocks
     private OffenderController controller;
 
-    @DisplayName("Ensues that the controller calls the service and returns the same offender")
+    @DisplayName("Ensues that the controller calls the service and returns the same offender probation record")
     @Test
-    public void whenGetOffender_thenReturnIt() {
+    public void whenGetProbationRecord_thenReturnIt() {
 
         final boolean applyFilter = true;
-        when(service.getOffender(CRN, applyFilter)).thenReturn(expectedOffender);
+        when(service.getProbationRecord(CRN, applyFilter)).thenReturn(expectedProbationRecord);
 
-        Offender offenderResponse = controller.getOffender(CRN, applyFilter);
+        ProbationRecord probationRecordResponse = controller.getProbationRecord(CRN, applyFilter);
 
-        assertThat(offenderResponse).isNotNull();
-        assertThat(offenderResponse).isEqualTo(expectedOffender);
-        verify(service).getOffender(CRN, applyFilter);
+        assertThat(probationRecordResponse).isNotNull();
+        assertThat(probationRecordResponse).isEqualTo(expectedProbationRecord);
+        verify(service).getProbationRecord(CRN, applyFilter);
         verifyNoMoreInteractions(service);
     }
 

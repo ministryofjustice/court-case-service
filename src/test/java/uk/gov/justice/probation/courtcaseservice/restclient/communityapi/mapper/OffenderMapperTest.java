@@ -77,7 +77,7 @@ public class OffenderMapperTest {
         mapper = new OffenderMapper();
     }
 
-    @DisplayName("Maps community API offender to Offender with manager")
+    @DisplayName("Maps community API offender to ProbationRecord with manager")
     @Test
     void shouldMapOffenderDetailsToOffender() throws IOException {
 
@@ -292,17 +292,17 @@ public class OffenderMapperTest {
         assertThat(documentsResponse.getConvictions()).hasSize(2);
 
         assertThat(documentsResponse.getDocuments())
-            .extracting("alfrescoId")
+            .extracting("documentId")
             .containsExactlyInAnyOrder("1e593ff6-d5d6-4048-a671-cdeb8f65608b", "0ec9b16c-b292-4d27-b11a-c0ddde852804",
                                     "aeb43e06-a4a1-460f-9acf-e2495de84604", "b2d92238-215c-4d6d-b91c-208ea747087e",
                                     "5152b060-9650-4f22-9974-038a38590d9f", "7ceda384-3624-4a62-849d-7c729b6d0dd1",
                                     "2b167448-31a5-45a5-85a5-dcdd4a783f1d");
 
         OffenderDocumentDetail documentDetail = documentsResponse.getDocuments().stream()
-                                                    .filter(doc -> doc.getAlfrescoId().equals("1e593ff6-d5d6-4048-a671-cdeb8f65608b"))
+                                                    .filter(doc -> doc.getDocumentId().equals("1e593ff6-d5d6-4048-a671-cdeb8f65608b"))
                                                     .findFirst().get();
         assertThat(documentDetail).isEqualToComparingFieldByField(OffenderDocumentDetail.builder()
-                                                                    .alfrescoId("1e593ff6-d5d6-4048-a671-cdeb8f65608b")
+                                                                    .documentId("1e593ff6-d5d6-4048-a671-cdeb8f65608b")
                                                                     .documentName("PRE-CONS.pdf")
                                                                     .author("Andy Marke")
                                                                     .type(PRECONS_DOCUMENT)
@@ -315,7 +315,7 @@ public class OffenderMapperTest {
             .findFirst().get();
         assertThat(convictionDocuments1.getDocuments()).hasSize(6);
         assertThat(convictionDocuments1.getDocuments())
-            .extracting("alfrescoId")
+            .extracting("documentId")
             .containsExactlyInAnyOrder("cc8bf04c-2f8c-4e72-a14b-ab6a5702bf59", "ec450eca-cf81-420d-8712-873a5df2274b",
                 "086bfb96-28a7-4b0a-80d5-7b877dd7bb75", "5058ca66-3751-4701-855a-86bf518d9392",
                 "44f37749-18b8-46ff-803a-150746f6d1bc", "b88547cf-7464-4cbc-b5f9-ebe2bafc19d9");
@@ -328,7 +328,7 @@ public class OffenderMapperTest {
             .filter(document -> document.getDocumentName().startsWith("shortFormatPreSentenceReport"))
             .findFirst().get();
         assertThat(preSentenceReport).isEqualToComparingFieldByField(OffenderDocumentDetail.builder()
-            .alfrescoId("1d842fce-ec2d-45dc-ac9a-748d3076ca6b")
+            .documentId("1d842fce-ec2d-45dc-ac9a-748d3076ca6b")
             .documentName("shortFormatPreSentenceReport_04092019_121424_OMIC_A_X320741.pdf")
             .author("Andy Marke")
             .type(COURT_REPORT_DOCUMENT)

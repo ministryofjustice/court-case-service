@@ -22,7 +22,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
-import uk.gov.justice.probation.courtcaseservice.service.model.Offender;
+import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.ConvictionDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType;
@@ -73,16 +73,16 @@ class OffenderServiceTest {
     @DisplayName("Getting offender also includes calls to get convictions and conviction documents and merges the results")
     @Test
     void whenGetOffender_returnOffenderWithConvictionsDocumentsNotFiltered() {
-        when(offenderRestClient.getOffenderByCrn(CRN)).thenReturn(Mono.just(Offender.builder().crn(CRN).build()));
+        when(offenderRestClient.getOffenderByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
 
-        Offender offender = service.getOffender(CRN, false);
+        ProbationRecord probationRecord = service.getProbationRecord(CRN, false);
 
-        assertThat(offender).isNotNull();
-        assertThat(offender).isEqualTo(offender);
-        assertThat(offender.getConvictions()).hasSize(1);
-        final Conviction conviction = offender.getConvictions().get(0);
+        assertThat(probationRecord).isNotNull();
+        assertThat(probationRecord).isEqualTo(probationRecord);
+        assertThat(probationRecord.getConvictions()).hasSize(1);
+        final Conviction conviction = probationRecord.getConvictions().get(0);
         assertThat(conviction.getDocuments()).hasSize(2);
         assertThat(conviction.getDocuments().get(0).getDocumentName()).isEqualTo("PSR");
         assertThat(conviction.getDocuments().get(1).getDocumentName()).isEqualTo("CPS");
@@ -95,13 +95,13 @@ class OffenderServiceTest {
     @DisplayName("Getting offender filtering out 1 of the 2 documents attached to the conviction")
     @Test
     public void whenGetOffender_returnOffenderWithConvictionsFilterDocuments() {
-        when(offenderRestClient.getOffenderByCrn(CRN)).thenReturn(Mono.just(Offender.builder().crn(CRN).build()));
+        when(offenderRestClient.getOffenderByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
 
-        Offender offender = service.getOffender(CRN, true);
+        ProbationRecord probationRecord = service.getProbationRecord(CRN, true);
 
-        final Conviction conviction = offender.getConvictions().get(0);
+        final Conviction conviction = probationRecord.getConvictions().get(0);
         assertThat(conviction.getDocuments()).hasSize(1);
         assertThat(conviction.getDocuments().stream().filter(doc -> COURT_REPORT_DOCUMENT.equals(doc.getType())).findFirst().get().getDocumentName())
             .isEqualTo("PSR");
@@ -119,19 +119,19 @@ class OffenderServiceTest {
         when(offenderRestClient.getOffenderByCrn(CRN)).thenReturn(Mono.empty());
 
         assertThatExceptionOfType(OffenderNotFoundException.class)
-                .isThrownBy(() -> service.getOffender(CRN, true))
+                .isThrownBy(() -> service.getProbationRecord(CRN, true))
                 .withMessageContaining(CRN);
     }
 
     @DisplayName("Getting offender convictions throws exception when CRN not found, even if other calls succeed")
     @Test
     public void givenConvictionsNotFound_whenGetOffender_thenThrowException() {
-        when(offenderRestClient.getOffenderByCrn(CRN)).thenReturn(Mono.just(Offender.builder().crn(CRN).build()));
+        when(offenderRestClient.getOffenderByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.empty());
 
         assertThatExceptionOfType(OffenderNotFoundException.class)
-                .isThrownBy(() -> service.getOffender(CRN, true))
+                .isThrownBy(() -> service.getProbationRecord(CRN, true))
                 .withMessageContaining(CRN);
     }
 

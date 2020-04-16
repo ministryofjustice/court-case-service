@@ -12,7 +12,7 @@ import reactor.util.function.Tuple3;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
-import uk.gov.justice.probation.courtcaseservice.service.model.Offender;
+import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.ConvictionDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
@@ -31,19 +31,19 @@ public class OffenderService {
         this.documentTypeFilter = documentTypeFilter;
     }
 
-    public Offender getOffender(String crn, boolean applyDocumentFilter) {
+    public ProbationRecord getProbationRecord(String crn, boolean applyDocumentFilter) {
 
-        Tuple3<Offender, List<Conviction>, GroupedDocuments> tuple3 = Mono.zip(client.getOffenderByCrn(crn), client.getConvictionsByCrn(crn), client.getDocumentsByCrn(crn))
+        Tuple3<ProbationRecord, List<Conviction>, GroupedDocuments> tuple3 = Mono.zip(client.getOffenderByCrn(crn), client.getConvictionsByCrn(crn), client.getDocumentsByCrn(crn))
             .blockOptional()
             .orElseThrow(() -> new OffenderNotFoundException(crn));
 
-        Offender offender = combineOffenderAndConvictions(tuple3.getT1(), tuple3.getT2());
-        combineConvictionsAndDocuments(offender, tuple3.getT3().getConvictions(), applyDocumentFilter);
+        ProbationRecord probationRecord = combineOffenderAndConvictions(tuple3.getT1(), tuple3.getT2());
+        combineConvictionsAndDocuments(probationRecord, tuple3.getT3().getConvictions(), applyDocumentFilter);
 
-        return offender;
+        return probationRecord;
     }
 
-    private void combineConvictionsAndDocuments(final Offender offender, final List<ConvictionDocuments> convictionDocuments, boolean applyDocumentFilter) {
+    private void combineConvictionsAndDocuments(final ProbationRecord probationRecord, final List<ConvictionDocuments> convictionDocuments, boolean applyDocumentFilter) {
 
         final ConcurrentMap<String, List<OffenderDocumentDetail>> allConvictionDocuments;
         allConvictionDocuments = convictionDocuments.stream()
@@ -55,16 +55,16 @@ public class OffenderService {
                                                                 .build())
                                 .collect(Collectors.toConcurrentMap(ConvictionDocuments::getConvictionId, ConvictionDocuments::getDocuments));
 
-        offender.getConvictions()
+        probationRecord.getConvictions()
             .forEach((conviction) -> {
                 final String convictionId = conviction.getConvictionId();
                 conviction.setDocuments(allConvictionDocuments.getOrDefault(convictionId, Collections.emptyList()));
             });
     }
 
-    private Offender combineOffenderAndConvictions(Offender offender, List<Conviction> convictions) {
-        offender.setConvictions(convictions);
-        return offender;
+    private ProbationRecord combineOffenderAndConvictions(ProbationRecord probationRecord, List<Conviction> convictions) {
+        probationRecord.setConvictions(convictions);
+        return probationRecord;
     }
 
     public List<Requirement> getConvictionRequirements(String crn, String convictionId) {

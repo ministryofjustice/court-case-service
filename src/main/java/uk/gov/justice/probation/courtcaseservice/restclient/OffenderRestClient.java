@@ -14,7 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
-import uk.gov.justice.probation.courtcaseservice.service.model.Offender;
+import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
 import java.util.List;
@@ -38,7 +38,7 @@ public class OffenderRestClient {
     @Autowired
     private RestClientHelper clientHelper;
 
-    public Mono<Offender> getOffenderByCrn(String crn) {
+    public Mono<ProbationRecord> getOffenderByCrn(String crn) {
         return clientHelper.get(String.format(offenderUrlTemplate, crn))
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleError(crn, clientResponse))

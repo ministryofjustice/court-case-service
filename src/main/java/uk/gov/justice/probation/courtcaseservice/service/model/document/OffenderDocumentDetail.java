@@ -17,7 +17,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 public class OffenderDocumentDetail {
 
     @ApiModelProperty(required = true)
-    private final String alfrescoId;
+    private final String documentId;
     private final String documentName;
     private final String author;
     private final DocumentType type;

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
-import uk.gov.justice.probation.courtcaseservice.service.model.Offender;
+import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 
 @Api(tags = "Offender Resources", produces = APPLICATION_JSON_VALUE)
 @RestController
@@ -26,10 +26,10 @@ public class OffenderController {
     @Autowired
     private OffenderService offenderService;
 
-    @ApiOperation(value = "Gets the offender data by CRN")
+    @ApiOperation(value = "Gets the offender probation record by CRN")
     @ApiResponses(
         value = {
-            @ApiResponse(code = 200, message = "OK", response = Offender.class),
+            @ApiResponse(code = 200, message = "OK", response = ProbationRecord.class),
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
@@ -37,10 +37,11 @@ public class OffenderController {
             @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
         })
     @GetMapping(path="offender/{crn}/probation-record", produces = APPLICATION_JSON_VALUE)
-    public @ResponseBody Offender getOffender(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @PathVariable String crn,
-        @ApiParam(name = "applyDocTypeFilter", value = "Whether or not to apply document filter, optional and defaults to true", example = "true", required = false)
+    public @ResponseBody
+    ProbationRecord getProbationRecord(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @PathVariable String crn,
+        @ApiParam(name = "applyDocTypeFilter", value = "Whether or not to apply document filter, optional and defaults to true", example = "true")
         @RequestParam(value="applyDocTypeFilter", required = false, defaultValue = "true") boolean applyDocTypeFilter) {
-        return offenderService.getOffender(crn, applyDocTypeFilter);
+        return offenderService.getProbationRecord(crn, applyDocTypeFilter);
     }
 
     @ApiOperation(value = "Gets the requirement data by CRN and conviction ID.")

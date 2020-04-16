@@ -7,10 +7,10 @@ import lombok.Setter;
 
 import java.util.List;
 
-@ApiModel("Offender")
+@ApiModel("Probation Record")
 @Getter
 @Builder
-public class Offender {
+public class ProbationRecord {
     private String crn;
     private List<OffenderManager> offenderManagers;
     @Setter

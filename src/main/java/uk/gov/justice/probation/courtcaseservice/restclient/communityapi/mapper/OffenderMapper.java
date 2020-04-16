@@ -18,8 +18,8 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Offender
 
 @Component
 public class OffenderMapper {
-    public Offender offenderFrom(CommunityApiOffenderResponse offenderResponse) {
-        return Offender.builder()
+    public ProbationRecord offenderFrom(CommunityApiOffenderResponse offenderResponse) {
+        return ProbationRecord.builder()
                 .crn(offenderResponse.getOtherIds().getCrn())
                 .offenderManagers(
                         offenderResponse.getOffenderManagers().stream()
@@ -98,7 +98,7 @@ public class OffenderMapper {
 
     private OffenderDocumentDetail buildOffenderDocumentDetail(CommunityApiOffenderDocumentDetail detail) {
         return OffenderDocumentDetail.builder()
-            .alfrescoId(detail.getId())
+            .documentId(detail.getId())
             .documentName(detail.getDocumentName())
             .author(detail.getAuthor())
             .type(DocumentType.valueOf(detail.getType().getCode()))

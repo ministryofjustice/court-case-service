@@ -1,8 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,10 +37,13 @@ public class OffenderControllerIntTest {
         TestConfig.configureRestAssuredForIntTest(port);
     }
 
+    @ClassRule
+    public static WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
+                                                                .port(8090)
+                                                                .usingFilesUnderClasspath("mocks"));
+
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
-            .port(8090)
-            .usingFilesUnderClasspath("mocks"));
+    public WireMockClassRule instanceRule = wireMockRule;
 
     @Test
     public void givenOffenderDoesNotExist_whenCallMadeToGetProbationRecord_thenReturnNotFound() {

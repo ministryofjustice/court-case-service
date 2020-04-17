@@ -7,11 +7,15 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.justice.probation.courtcaseservice.RetryService;
 import uk.gov.justice.probation.courtcaseservice.TestConfig;
 
 import java.time.LocalDate;
@@ -22,23 +26,31 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 
 @RunWith(SpringRunner.class)
+@EnableRetry
 @ActiveProfiles(profiles = "test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
+@Import(TestConfig.class)
 public class OffenderControllerIntTest {
 
     @LocalServerPort
     private int port;
 
+    @Autowired
+    private RetryService retryService;
+
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         TestConfig.configureRestAssuredForIntTest(port);
+
+        retryService.tryWireMockStub();
     }
 
     @ClassRule
     public static WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
-                                                                .port(8090)
+                                                                .port(WIREMOCK_PORT)
                                                                 .usingFilesUnderClasspath("mocks"));
 
     @Rule
@@ -168,4 +180,5 @@ public class OffenderControllerIntTest {
     private String standardDateOf(int year, int month, int dayOfMonth) {
         return LocalDate.of(year, month, dayOfMonth).format(DateTimeFormatter.ISO_DATE);
     }
+
 }

@@ -172,6 +172,7 @@ dependencies {
     }
 
     testCompile "com.github.tomakehurst:wiremock-jre8:2.26.2"
+    testCompile("org.springframework.retry:spring-retry:1.2.5.RELEASE")
 
     implementation ('org.springframework:spring-web:5.2.3.RELEASE') {
         because 'Transitive dependency. Previous versions have a known vulnerability'

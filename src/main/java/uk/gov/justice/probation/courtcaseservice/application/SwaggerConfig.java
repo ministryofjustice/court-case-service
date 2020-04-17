@@ -3,8 +3,6 @@ package uk.gov.justice.probation.courtcaseservice.application;
 import static springfox.documentation.builders.PathSelectors.regex;
 
 import com.google.common.base.Predicates;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

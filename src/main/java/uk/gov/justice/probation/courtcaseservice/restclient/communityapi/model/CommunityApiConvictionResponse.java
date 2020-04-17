@@ -21,6 +21,8 @@ public class CommunityApiConvictionResponse {
     @JsonProperty
     private Boolean active;
     @JsonProperty
+    private Boolean inBreach;
+    @JsonProperty
     private LocalDate convictionDate;
     @JsonProperty
     private List<CommunityApiOffence> offences;

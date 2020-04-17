@@ -15,6 +15,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Offender
 public class Conviction {
     private String convictionId;
     private Boolean active;
+    private Boolean inBreach;
     private LocalDate convictionDate;
     private List<Offence> offences;
     private Sentence sentence;

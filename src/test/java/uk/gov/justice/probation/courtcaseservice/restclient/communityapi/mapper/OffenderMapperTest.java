@@ -118,6 +118,7 @@ public class OffenderMapperTest {
         Conviction conviction1 = convictions.get(0);
         assertThat(conviction1.getConvictionId()).isEqualTo("2500297061");
         assertThat(conviction1.getActive()).isEqualTo(false);
+        assertThat(conviction1.getInBreach()).isTrue();
         assertThat(conviction1.getConvictionDate()).isEqualTo(LocalDate.of(2019,9,16));
 
         assertThat(conviction1.getOffences()).hasSize(1);
@@ -142,6 +143,7 @@ public class OffenderMapperTest {
 
         Conviction conviction2 = convictions.get(1);
         assertThat(conviction2.getConvictionId()).isEqualTo("2500295345");
+        assertThat(conviction2.getInBreach()).isFalse();
         assertThat(conviction2.getSentence().getDescription()).isEqualTo("CJA - Indeterminate Public Prot.");
         assertThat(conviction2.getSentence().getTerminationDate()).isEqualTo(LocalDate.of(2019,1,1));
         assertThat(conviction2.getSentence().getTerminationReason()).isEqualTo("ICMS Miscellaneous Event");

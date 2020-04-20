@@ -11,7 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
-@ApiModel(description = "Attendance Wrapper")
+@ApiModel(description = "Conviction Response")
 @Data
 @Builder
 @AllArgsConstructor

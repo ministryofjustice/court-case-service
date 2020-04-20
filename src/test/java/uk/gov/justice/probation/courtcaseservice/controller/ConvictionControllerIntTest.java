@@ -4,14 +4,16 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.CRN;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.SOME_CONVICTION_ID;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.UNKNOWN_CRN;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import java.time.LocalDate;
 import java.time.Month;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,8 +22,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.justice.probation.courtcaseservice.RetryService;
 import uk.gov.justice.probation.courtcaseservice.TestConfig;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
@@ -30,6 +34,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ConvictionResp
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
 @RunWith(SpringRunner.class)
+@EnableRetry
 @ActiveProfiles(profiles = "test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
 public class ConvictionControllerIntTest {
@@ -39,19 +44,27 @@ public class ConvictionControllerIntTest {
     @Autowired
     private FeatureFlags featureFlags;
 
+    @Autowired
+    private RetryService retryService;
+
     @LocalServerPort
     private int port;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         featureFlags.setFlagValue("fetch-attendance-data",true);
         TestConfig.configureRestAssuredForIntTest(port);
+
+        retryService.tryWireMockStub();
     }
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
-        .port(8090)
+    @ClassRule
+    public static WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
+        .port(WIREMOCK_PORT)
         .usingFilesUnderClasspath("mocks"));
+
+    @Rule
+    public WireMockClassRule instanceRule = wireMockRule;
 
     @Test
     public void whenCallMadeToGetConvictionKnownCrnAndConvictionId() {

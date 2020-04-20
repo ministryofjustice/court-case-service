@@ -53,6 +53,7 @@ spring:
 community-api:
   offender-by-crn-url-template: ${community-api.base-url}/secure/offenders/crn/%s/all
   convictions-by-crn-url-template: ${community-api.base-url}/secure/offenders/crn/%s/convictions
+  conviction-by-crn-url-template: ${community-api.base-url}/secure/offenders/crn/%s/convictions/%s
   attendances-by-crn-and-conviction-url-template: ${community-api.base-url}/secure/offenders/crn/%s/convictions/%s/attendances
   requirements-by-crn-url-template: ${community-api.base-url}/secure/offenders/crn/%s/convictions/%s/requirements
   grouped-documents-by-crn-url-template: ${community-api.base-url}/secure/offenders/crn/%s/documents/grouped

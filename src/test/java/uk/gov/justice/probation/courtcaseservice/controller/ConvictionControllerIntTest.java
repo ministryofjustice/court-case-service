@@ -26,7 +26,8 @@ import uk.gov.justice.probation.courtcaseservice.TestConfig;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse.ContactTypeDetail;
-import uk.gov.justice.probation.courtcaseservice.controller.model.AttendancesResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ConvictionResponse;
+import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles(profiles = "test")
@@ -53,10 +54,10 @@ public class ConvictionControllerIntTest {
         .usingFilesUnderClasspath("mocks"));
 
     @Test
-    public void whenCallMadeToGetAttendanceKnownCrnAndConvictionId() {
+    public void whenCallMadeToGetConvictionKnownCrnAndConvictionId() {
 
         final String getPath = String.format(PATH, CRN, SOME_CONVICTION_ID);
-        final AttendancesResponse response = given()
+        final ConvictionResponse response = given()
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .when()
             .get(getPath)
@@ -64,10 +65,8 @@ public class ConvictionControllerIntTest {
             .statusCode(HttpStatus.OK.value())
             .extract()
             .body()
-            .as(AttendancesResponse.class);
+            .as(ConvictionResponse.class);
 
-        assertThat(response.getCrn()).isEqualTo(CRN);
-        assertThat(response.getConvictionId()).isEqualTo(SOME_CONVICTION_ID);
         assertThat(response.getAttendances()).hasSize(2);
 
         final AttendanceResponse expectedAttendance1 = AttendanceResponse.builder().contactId(1325L)
@@ -80,15 +79,23 @@ public class ConvictionControllerIntTest {
             .contactType(ContactTypeDetail.builder().description("8888888 Description of contact type").code("DSC02").build()).build();
 
         assertThat(response.getAttendances()).containsExactlyInAnyOrder(expectedAttendance1, expectedAttendance2);
+
+        assertThat(response.getUnpaidWork()).isEqualToComparingFieldByField(UnpaidWork.builder()
+                                                                                            .minutesOffered(3600)
+                                                                                            .minutesCompleted(360)
+                                                                                            .appointmentsToDate(5)
+                                                                                            .attended(2)
+                                                                                            .acceptableAbsences(1)
+                                                                                            .unacceptableAbsences(1));
     }
 
     @Test
-    public void whenCallMadeToGetAttendanceFlagFalseKnownCrnAndConvictionId() {
+    public void whenCallMadeToGeConvictionAttendanceFlagFalseKnownCrnAndConvictionId() {
 
         featureFlags.setFlagValue("fetch-attendance-data", false);
 
         final String getPath = String.format(PATH, CRN, SOME_CONVICTION_ID);
-        final AttendancesResponse response = given()
+        final ConvictionResponse response = given()
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .when()
             .get(getPath)
@@ -96,15 +103,14 @@ public class ConvictionControllerIntTest {
                 .statusCode(HttpStatus.OK.value())
             .extract()
             .body()
-            .as(AttendancesResponse.class);
+            .as(ConvictionResponse.class);
 
-        assertThat(response.getCrn()).isEqualTo(CRN);
-        assertThat(response.getConvictionId()).isEqualTo(SOME_CONVICTION_ID);
-        assertThat(response.getAttendances()).isNull();
+        assertThat(response.getAttendances()).isEmpty();
+        assertThat(response.getUnpaidWork()).isNotNull();
     }
 
     @Test
-    public void whenCallMadeToGetAttendanceOnCommunityApiReturns404() {
+    public void whenCallMadeToGetConvictionOnCommunityApiReturns404() {
 
         final String getPath = String.format(PATH, UNKNOWN_CRN, SOME_CONVICTION_ID);
         given()

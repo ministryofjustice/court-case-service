@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -14,8 +13,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
-import uk.gov.justice.probation.courtcaseservice.controller.model.AttendancesResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.service.ConvictionService;
+import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
 @ExtendWith(MockitoExtension.class)
 class ConvictionControllerTest {
@@ -39,12 +39,12 @@ class ConvictionControllerTest {
     @DisplayName("Normal service call returns response")
     @Test
     void callReturnsResponse() {
-        final AttendancesResponse attendancesResponse = AttendancesResponse.builder().attendances(Collections.emptyList()).build();
-        when(convictionService.getAttendances(CRN, SOME_EVENT_ID)).thenReturn(attendancesResponse);
+        final ConvictionResponse attendancesResponse = ConvictionResponse.builder().attendances(Collections.emptyList()).build();
+        when(convictionService.getConviction(CRN, SOME_EVENT_ID)).thenReturn(attendancesResponse);
 
-        assertThat(convictionController.getAttendances(CRN, SOME_EVENT_ID)).isEqualTo(attendancesResponse);
+        assertThat(convictionController.getConviction(CRN, SOME_EVENT_ID)).isEqualTo(attendancesResponse);
 
-        verify(convictionService).getAttendances(CRN, SOME_EVENT_ID);
+        verify(convictionService).getConviction(CRN, SOME_EVENT_ID);
         verifyNoMoreInteractions(convictionService);
     }
 
@@ -52,10 +52,14 @@ class ConvictionControllerTest {
     @Test
     void featureToggleFalse() {
         featureFlags.setFlagValue("fetch-attendance-data", false);
+        final ConvictionResponse convictionResponse = ConvictionResponse.builder()
+            .attendances(Collections.emptyList())
+            .unpaidWork(UnpaidWork.builder().build())
+            .build();
+        when(convictionService.getConvictionNoAttendances(CRN, SOME_EVENT_ID)).thenReturn(convictionResponse);
 
-        final AttendancesResponse attendancesResponse = AttendancesResponse.builder().crn(CRN).convictionId(SOME_EVENT_ID).build();
-
-        assertThat(convictionController.getAttendances(CRN, SOME_EVENT_ID)).isEqualTo(attendancesResponse);
-        verify(convictionService, times(0)).getAttendances(CRN, SOME_EVENT_ID);
+        assertThat(convictionController.getConviction(CRN, SOME_EVENT_ID)).isEqualToComparingFieldByField(convictionResponse);
+        verify(convictionService).getConvictionNoAttendances(CRN, SOME_EVENT_ID);
+        verifyNoMoreInteractions(convictionService);
     }
 }

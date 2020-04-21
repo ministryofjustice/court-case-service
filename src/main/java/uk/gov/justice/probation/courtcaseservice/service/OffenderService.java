@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple4;
+import reactor.util.function.Tuple3;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
@@ -38,17 +38,25 @@ public class OffenderService {
     }
 
     public ProbationRecord getProbationRecord(String crn, boolean applyDocumentFilter) {
-        Tuple4<ProbationRecord, List<Conviction>, GroupedDocuments, Assessment> tuple4 = Mono.zip(
+        // These calls are split into 2 monos to allow different behaviour depending on whether the data
+        // is missing from the community api (delius) or the assessments api (oasys). In the latter case
+        // we can still get most of the important information to populate the response so do not need to
+        // throw an exception. In this sense, the oasys assessment data is optional.
+        Mono<Tuple3<ProbationRecord, List<Conviction>, GroupedDocuments>> probationMono = Mono.zip(
             defaultClient.getProbationRecordByCrn(crn),
             defaultClient.getConvictionsByCrn(crn),
-            defaultClient.getDocumentsByCrn(crn),
-            assessmentsClient.getAssessmentByCrn(crn))
-            .blockOptional()
-            .orElseThrow(() -> new OffenderNotFoundException(crn));
+            defaultClient.getDocumentsByCrn(crn)
+        );
+        Mono<Assessment> assessmentMono = assessmentsClient.getAssessmentByCrn(crn);
 
-        ProbationRecord probationRecord = addConvictionsToProbationRecord(tuple4.getT1(), tuple4.getT2());
-        combineConvictionsAndDocuments(probationRecord, tuple4.getT3().getConvictions(), applyDocumentFilter);
-        addAssessmentToProbationRecord(probationRecord, tuple4.getT4());
+        var tuple3 = probationMono.blockOptional().orElseThrow(() -> new OffenderNotFoundException(crn));
+        ProbationRecord probationRecord = addConvictionsToProbationRecord(tuple3.getT1(), tuple3.getT2());
+        combineConvictionsAndDocuments(probationRecord, tuple3.getT3().getConvictions(), applyDocumentFilter);
+
+        assessmentMono.blockOptional().ifPresentOrElse(
+            (assessment) -> {probationRecord.setAssessment(assessment);},
+            () -> {log.warn("Oasys assessment data not found for CRN:{}", crn);}
+        );
 
         return probationRecord;
     }
@@ -73,11 +81,6 @@ public class OffenderService {
 
     private ProbationRecord addConvictionsToProbationRecord(ProbationRecord probationRecord, List<Conviction> convictions) {
         probationRecord.setConvictions(convictions);
-        return probationRecord;
-    }
-
-    private ProbationRecord addAssessmentToProbationRecord(ProbationRecord probationRecord, Assessment assessment) {
-        probationRecord.setAssessment(assessment);
         return probationRecord;
     }
 

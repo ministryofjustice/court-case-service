@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/secure/offenders/crn/XXXXXX/convictions/2500295343/attendances",
+    "urlPath": "/secure/offenders/crn/X320500/convictions/2500295343",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"
@@ -9,10 +9,10 @@
     }
   },
   "response": {
-    "status": 400,
+    "status": 500,
     "headers": {
       "Content-Type": "application/json"
     },
-    "body": "{\"developerMessage\": \"Bad request\"}"
+    "body": "{\"message\": \"Server error\"}"
   }
 }

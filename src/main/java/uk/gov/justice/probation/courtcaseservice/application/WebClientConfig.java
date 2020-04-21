@@ -9,21 +9,48 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 
-@Configuration
-public class WebClientConfig {
+import lombok.Getter;
+import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper;
 
+@Configuration
+@Getter
+public class WebClientConfig {
+    @Value("${feature.flags.disable-auth:false}")
+    private boolean disableAuthentication;
 
     @Value("${community-api.base-url}")
     private String communityApiBaseUrl;
 
+    @Value("${offender-assessments-api.base-url")
+    private String assessmentsApiBaseUrl;
+
     @Bean(name = "communityApiClient")
-    public WebClient getCommunityApiClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+    public RestClientHelper getCommunityApiClient(WebClient communityWebClient) {
+        return new RestClientHelper(communityWebClient, "community-api-client", disableAuthentication);
+    }
+
+    @Bean(name = "assessmentsApiClient")
+    public RestClientHelper getAssessmentsApiClient(WebClient assessmentsWebClient) {
+        return new RestClientHelper(assessmentsWebClient, "offender-assessments-api-client", disableAuthentication);
+    }
+
+    @Bean
+    public WebClient communityWebClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+        return webClientFactory(communityApiBaseUrl, authorizedClientManager);
+    }
+
+    @Bean
+    public WebClient assessmentsWebClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+        return webClientFactory(assessmentsApiBaseUrl, authorizedClientManager);
+    }
+
+    private WebClient webClientFactory(String baseUrl, OAuth2AuthorizedClientManager authorizedClientManager) {
         ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2Client =
                 new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
 
         return WebClient
                 .builder()
-                .baseUrl(communityApiBaseUrl)
+                .baseUrl(baseUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .apply(oauth2Client.oauth2Configuration())
                 .build();

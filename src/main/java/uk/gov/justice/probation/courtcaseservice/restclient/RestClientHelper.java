@@ -3,13 +3,11 @@ package uk.gov.justice.probation.courtcaseservice.restclient;
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 
 import java.nio.charset.StandardCharsets;
+
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -17,28 +15,25 @@ import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 
 @Slf4j
-@Component
+@AllArgsConstructor
 public class RestClientHelper {
-
-    @Value("${feature.flags.community-api-auth:true}")
-    private boolean authenticateWithCommunityApi;
-
-    @Autowired
-    @Qualifier("communityApiClient")
-    private WebClient communityApiClient;
+    private WebClient client;
+    private String oauthClient;
+    private Boolean disableAuthentication;
 
     WebClient.RequestHeadersSpec<?> get(final String url) {
-        final WebClient.RequestHeadersSpec<?> spec = communityApiClient.get()
-                                                                    .uri(url)
-                                                                    .accept(MediaType.APPLICATION_JSON);
+        final WebClient.RequestHeadersSpec<?> spec = client
+            .get()
+            .uri(url)
+            .accept(MediaType.APPLICATION_JSON);
 
-        if (authenticateWithCommunityApi) {
-            log.info(String.format("Authenticating with community api for call to %s", url));
-            return spec.attributes(clientRegistrationId("nomis-oauth-client"));
-        } else {
+        if (disableAuthentication) {
             log.info(String.format("Skipping authentication with community api for call to %s", url));
             return spec;
         }
+
+        log.info(String.format("Authenticating with %s for call to %s", oauthClient, url));
+        return spec.attributes(clientRegistrationId(oauthClient));
     }
 
     public Mono<? extends Throwable> handleError(final String crn, final ClientResponse clientResponse) {

@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
@@ -35,6 +36,8 @@ class OffenderServiceTest {
     public static final String CRN = "CRN";
     public static final String CONVICTION_ID = "CONVICTION_ID";
 
+    @Mock
+    private AssessmentsRestClient assessmentsRestClient;
     @Mock
     private OffenderRestClient offenderRestClient;
     @Mock
@@ -67,7 +70,7 @@ class OffenderServiceTest {
             .documents(Collections.emptyList())
             .build();
         this.conviction = Conviction.builder().convictionId("123").build();
-        this.service = new OffenderService(offenderRestClient, documentTypeFilter);
+        this.service = new OffenderService(offenderRestClient, assessmentsRestClient, documentTypeFilter);
     }
 
     @DisplayName("Getting offender also includes calls to get convictions and conviction documents and merges the results")

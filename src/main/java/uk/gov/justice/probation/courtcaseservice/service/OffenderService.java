@@ -8,9 +8,11 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple3;
+import reactor.util.function.Tuple4;
+import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
@@ -22,23 +24,31 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Offender
 @Slf4j
 public class OffenderService {
 
-    private final OffenderRestClient client;
+    private final OffenderRestClient defaultClient;
+    private final AssessmentsRestClient assessmentsClient;
 
     private final Predicate<OffenderDocumentDetail> documentTypeFilter;
 
-    public OffenderService(final OffenderRestClient client, final DocumentTypeFilter documentTypeFilter) {
-        this.client = client;
+    public OffenderService(final OffenderRestClient defaultClient,
+                           final AssessmentsRestClient assessmentsClient,
+                           final DocumentTypeFilter documentTypeFilter) {
+        this.defaultClient = defaultClient;
+        this.assessmentsClient = assessmentsClient;
         this.documentTypeFilter = documentTypeFilter;
     }
 
     public ProbationRecord getProbationRecord(String crn, boolean applyDocumentFilter) {
-
-        Tuple3<ProbationRecord, List<Conviction>, GroupedDocuments> tuple3 = Mono.zip(client.getProbationRecordByCrn(crn), client.getConvictionsByCrn(crn), client.getDocumentsByCrn(crn))
+        Tuple4<ProbationRecord, List<Conviction>, GroupedDocuments, Assessment> tuple4 = Mono.zip(
+            defaultClient.getProbationRecordByCrn(crn),
+            defaultClient.getConvictionsByCrn(crn),
+            defaultClient.getDocumentsByCrn(crn),
+            assessmentsClient.getAssessmentByCrn(crn))
             .blockOptional()
             .orElseThrow(() -> new OffenderNotFoundException(crn));
 
-        ProbationRecord probationRecord = addConvictionsToProbationRecord(tuple3.getT1(), tuple3.getT2());
-        combineConvictionsAndDocuments(probationRecord, tuple3.getT3().getConvictions(), applyDocumentFilter);
+        ProbationRecord probationRecord = addConvictionsToProbationRecord(tuple4.getT1(), tuple4.getT2());
+        combineConvictionsAndDocuments(probationRecord, tuple4.getT3().getConvictions(), applyDocumentFilter);
+        addAssessmentToProbationRecord(probationRecord, tuple4.getT4());
 
         return probationRecord;
     }
@@ -66,8 +76,13 @@ public class OffenderService {
         return probationRecord;
     }
 
+    private ProbationRecord addAssessmentToProbationRecord(ProbationRecord probationRecord, Assessment assessment) {
+        probationRecord.setAssessment(assessment);
+        return probationRecord;
+    }
+
     public List<Requirement> getConvictionRequirements(String crn, String convictionId) {
-        return client.getConvictionRequirements(crn, convictionId).block();
+        return defaultClient.getConvictionRequirements(crn, convictionId).block();
     }
 
 }

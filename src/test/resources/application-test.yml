@@ -1,6 +1,6 @@
 feature:
   flags:
-    community-api-auth: false
+    disable-auth: true
     fetch-attendance-data: true
 
 database:

@@ -30,8 +30,7 @@ public class ConvictionController {
     }
 
     @GetMapping(value = "/offenders/{crn}/convictions/{convictionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Return the attendances/contacts for a CRN and a conviction id where enforcement is flagged",
-        notes = "Will return ")
+    @ApiOperation(value = "Return the conviction detail for attendances and Unpaid Work for a CRN and a conviction id where enforcement is flagged")
     @ApiResponses(
         value = {
             @ApiResponse(code = 200, message = "OK", response = ConvictionResponse.class),

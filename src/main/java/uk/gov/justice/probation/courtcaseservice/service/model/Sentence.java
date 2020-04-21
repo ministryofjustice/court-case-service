@@ -17,4 +17,5 @@ public class Sentence {
     private Integer lengthInDays;
     private LocalDate terminationDate;
     private String terminationReason;
+    private UnpaidWork unpaidWork;
 }

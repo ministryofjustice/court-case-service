@@ -4,14 +4,16 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.CRN;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.SOME_CONVICTION_ID;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.UNKNOWN_CRN;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import java.time.LocalDate;
 import java.time.Month;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,15 +22,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.justice.probation.courtcaseservice.RetryService;
 import uk.gov.justice.probation.courtcaseservice.TestConfig;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse.ContactTypeDetail;
-import uk.gov.justice.probation.courtcaseservice.controller.model.AttendancesResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ConvictionResponse;
+import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
 @RunWith(SpringRunner.class)
+@EnableRetry
 @ActiveProfiles(profiles = "test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
 public class ConvictionControllerIntTest {
@@ -38,25 +44,33 @@ public class ConvictionControllerIntTest {
     @Autowired
     private FeatureFlags featureFlags;
 
+    @Autowired
+    private RetryService retryService;
+
     @LocalServerPort
     private int port;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         featureFlags.setFlagValue("fetch-attendance-data",true);
         TestConfig.configureRestAssuredForIntTest(port);
+
+        retryService.tryWireMockStub();
     }
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
-        .port(8090)
+    @ClassRule
+    public static WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
+        .port(WIREMOCK_PORT)
         .usingFilesUnderClasspath("mocks"));
 
+    @Rule
+    public WireMockClassRule instanceRule = wireMockRule;
+
     @Test
-    public void whenCallMadeToGetAttendanceKnownCrnAndConvictionId() {
+    public void whenCallMadeToGetConvictionKnownCrnAndConvictionId() {
 
         final String getPath = String.format(PATH, CRN, SOME_CONVICTION_ID);
-        final AttendancesResponse response = given()
+        final ConvictionResponse response = given()
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .when()
             .get(getPath)
@@ -64,10 +78,8 @@ public class ConvictionControllerIntTest {
             .statusCode(HttpStatus.OK.value())
             .extract()
             .body()
-            .as(AttendancesResponse.class);
+            .as(ConvictionResponse.class);
 
-        assertThat(response.getCrn()).isEqualTo(CRN);
-        assertThat(response.getConvictionId()).isEqualTo(SOME_CONVICTION_ID);
         assertThat(response.getAttendances()).hasSize(2);
 
         final AttendanceResponse expectedAttendance1 = AttendanceResponse.builder().contactId(1325L)
@@ -80,15 +92,23 @@ public class ConvictionControllerIntTest {
             .contactType(ContactTypeDetail.builder().description("8888888 Description of contact type").code("DSC02").build()).build();
 
         assertThat(response.getAttendances()).containsExactlyInAnyOrder(expectedAttendance1, expectedAttendance2);
+
+        assertThat(response.getUnpaidWork()).isEqualToComparingFieldByField(UnpaidWork.builder()
+                                                                                            .minutesOffered(3600)
+                                                                                            .minutesCompleted(360)
+                                                                                            .appointmentsToDate(5)
+                                                                                            .attended(2)
+                                                                                            .acceptableAbsences(1)
+                                                                                            .unacceptableAbsences(1));
     }
 
     @Test
-    public void whenCallMadeToGetAttendanceFlagFalseKnownCrnAndConvictionId() {
+    public void whenCallMadeToGeConvictionAttendanceFlagFalseKnownCrnAndConvictionId() {
 
         featureFlags.setFlagValue("fetch-attendance-data", false);
 
         final String getPath = String.format(PATH, CRN, SOME_CONVICTION_ID);
-        final AttendancesResponse response = given()
+        final ConvictionResponse response = given()
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .when()
             .get(getPath)
@@ -96,15 +116,14 @@ public class ConvictionControllerIntTest {
                 .statusCode(HttpStatus.OK.value())
             .extract()
             .body()
-            .as(AttendancesResponse.class);
+            .as(ConvictionResponse.class);
 
-        assertThat(response.getCrn()).isEqualTo(CRN);
-        assertThat(response.getConvictionId()).isEqualTo(SOME_CONVICTION_ID);
-        assertThat(response.getAttendances()).isNull();
+        assertThat(response.getAttendances()).isEmpty();
+        assertThat(response.getUnpaidWork()).isNotNull();
     }
 
     @Test
-    public void whenCallMadeToGetAttendanceOnCommunityApiReturns404() {
+    public void whenCallMadeToGetConvictionOnCommunityApiReturns404() {
 
         final String getPath = String.format(PATH, UNKNOWN_CRN, SOME_CONVICTION_ID);
         given()

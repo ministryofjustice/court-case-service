@@ -1,16 +1,21 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.justice.probation.courtcaseservice.RetryService;
 import uk.gov.justice.probation.courtcaseservice.TestConfig;
 
 import java.time.LocalDate;
@@ -19,28 +24,40 @@ import java.time.format.DateTimeFormatter;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 
 @RunWith(SpringRunner.class)
+@EnableRetry
 @ActiveProfiles(profiles = "test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
+@Import(TestConfig.class)
 public class OffenderControllerIntTest {
 
     @LocalServerPort
     private int port;
 
+    @Autowired
+    private RetryService retryService;
+
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         TestConfig.configureRestAssuredForIntTest(port);
+
+        retryService.tryWireMockStub();
     }
 
+    @ClassRule
+    public static WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
+                                                                .port(WIREMOCK_PORT)
+                                                                .usingFilesUnderClasspath("mocks"));
+
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
-            .port(8090)
-            .usingFilesUnderClasspath("mocks"));
+    public WireMockClassRule instanceRule = wireMockRule;
 
     @Test
-    public void givenOffenderDoesNotExist_whenCallMadeToGetOffenderData_thenReturnNotFound() {
+    public void givenOffenderDoesNotExist_whenCallMadeToGetProbationRecord_thenReturnNotFound() {
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when()
@@ -52,7 +69,7 @@ public class OffenderControllerIntTest {
     }
 
     @Test
-    public void whenCallMadeToGetOffenderData_thenReturnCorrectData() {
+    public void whenCallMadeToGetProbationRecord_thenReturnCorrectData() {
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
         .when()
@@ -66,6 +83,7 @@ public class OffenderControllerIntTest {
 
                 .body("convictions[0].convictionId", equalTo("2500297061"))
                 .body("convictions[0].active", equalTo(false))
+                .body("convictions[0].inBreach", equalTo(true))
                 .body("convictions[0].offences[0].description", equalTo("Assault on Police Officer - 10400"))
                 .body("convictions[0].sentence.description", equalTo("Absolute/Conditional Discharge"))
                 .body("convictions[0].sentence.length", equalTo(0))
@@ -73,10 +91,18 @@ public class OffenderControllerIntTest {
                 .body("convictions[0].sentence.lengthInDays", equalTo(0))
                 .body("convictions[0].sentence.terminationDate", equalTo(standardDateOf(2020, 1, 1)))
                 .body("convictions[0].sentence.terminationReason", equalTo("Auto Terminated"))
+                .body("convictions[0].sentence.unpaidWork.minutesOffered", equalTo(480))
+                .body("convictions[0].sentence.unpaidWork.minutesCompleted", equalTo(60))
+                .body("convictions[0].sentence.unpaidWork.appointmentsToDate", equalTo(12))
+                .body("convictions[0].sentence.unpaidWork.attended", equalTo(2))
+                .body("convictions[0].sentence.unpaidWork.acceptableAbsences", equalTo(2))
+                .body("convictions[0].sentence.unpaidWork.unacceptableAbsences", equalTo(1))
                 .body("convictions[0].convictionDate", equalTo(standardDateOf(2019, 9,16)))
+                .body("convictions[0].documents", hasSize(0))
 
                 .body("convictions[1].convictionId", equalTo("2500295345"))
                 .body("convictions[1].active", equalTo(true))
+                .body("convictions[1].inBreach", equalTo(false))
                 .body("convictions[1].offences[0].description", equalTo("Arson - 05600"))
                 .body("convictions[1].offences[1].description", equalTo("Burglary (dwelling) with intent to commit, or the commission of an offence triable only on indictment - 02801"))
                 .body("convictions[1].sentence.description", equalTo("CJA - Indeterminate Public Prot."))
@@ -86,17 +112,35 @@ public class OffenderControllerIntTest {
                 .body("convictions[1].sentence.terminationDate", equalTo(standardDateOf(2019, 1, 1)))
                 .body("convictions[1].sentence.terminationReason", equalTo("ICMS Miscellaneous Event"))
                 .body("convictions[1].convictionDate", equalTo(standardDateOf(2019, 9,3)))
+                .body("convictions[1].documents", hasSize(1))
+                .body("convictions[1].documents[0].documentId", equalTo("1d842fce-ec2d-45dc-ac9a-748d3076ca6b"))
 
                 .body("convictions[2].convictionId", equalTo("2500295343"))
-                .body("convictions[2].active", equalTo(false))
+                .body("convictions[2].active", equalTo(null))
+                .body("convictions[2].inBreach", equalTo(true))
                 .body("convictions[2].offences[0].description", equalTo("Arson - 05600"))
-                .body("convictions[2].sentence.description", equalTo("CJA - Community Order"))
-                .body("convictions[2].sentence.length", equalTo(12))
-                .body("convictions[2].sentence.lengthUnits", equalTo("Months"))
-                .body("convictions[2].sentence.lengthInDays", equalTo(364))
-                .body("convictions[2].convictionDate", equalTo(standardDateOf(2017, 6,1)))
-        ;
+                .body("convictions[2].convictionDate", equalTo(null))
+                .body("convictions[2].documents", hasSize(0))
 
+        ;
+    }
+
+    @Test
+    public void whenCallMadeToGetProbationRecordNotFiltered_thenReturnExtraDocuments() {
+        given()
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+                .get("/offender/X320741/probation-record?applyDocTypeFilter=false")
+            .then()
+                .statusCode(200)
+                .body("crn",  equalTo("X320741"))
+                .body("convictions[0].convictionId", equalTo("2500297061"))
+                .body("convictions[0].documents", hasSize(0))
+                .body("convictions[1].convictionId", equalTo("2500295345"))
+                .body("convictions[1].documents", hasSize(9))
+                .body("convictions[2].convictionId", equalTo("2500295343"))
+                .body("convictions[2].documents", hasSize(6))
+        ;
     }
 
     @Test
@@ -136,4 +180,5 @@ public class OffenderControllerIntTest {
     private String standardDateOf(int year, int month, int dayOfMonth) {
         return LocalDate.of(year, month, dayOfMonth).format(DateTimeFormatter.ISO_DATE);
     }
+
 }

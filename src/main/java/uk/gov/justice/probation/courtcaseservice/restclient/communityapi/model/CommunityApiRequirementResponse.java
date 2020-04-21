@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

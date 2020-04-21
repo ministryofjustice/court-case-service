@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
-import uk.gov.justice.probation.courtcaseservice.controller.model.AttendancesResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.service.ConvictionService;
 
 @Api(tags = "Conviction Resources")
@@ -30,21 +30,21 @@ public class ConvictionController {
     }
 
     @GetMapping(value = "/offenders/{crn}/convictions/{convictionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Return the attendances/contacts for a CRN and a conviction id where enforcement is flagged",
-        notes = "Will return ")
+    @ApiOperation(value = "Return the conviction detail for attendances and Unpaid Work for a CRN and a conviction id where enforcement is flagged")
     @ApiResponses(
         value = {
-            @ApiResponse(code = 200, message = "OK", response = AttendancesResponse.class),
+            @ApiResponse(code = 200, message = "OK", response = ConvictionResponse.class),
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Not found. For example if the CRN can't be matched.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
         })
-    public AttendancesResponse getAttendances(@PathVariable String crn, @PathVariable Long convictionId) {
+    public ConvictionResponse getConviction(@PathVariable String crn, @PathVariable Long convictionId) {
         if (!featureFlags.attendanceData()) {
-            return new AttendancesResponse(crn, convictionId, null);
+            return convictionService.getConvictionNoAttendances(crn, convictionId);
         }
-        return convictionService.getAttendances(crn, convictionId);
+        return convictionService.getConviction(crn, convictionId);
     }
 
 }

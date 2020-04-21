@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,6 +25,7 @@ public class CourtCaseResponse {
     private String courtCode;
     private String courtRoom;
     private LocalDateTime sessionStartTime;
+    private CourtSession session;
     private String probationStatus;
     private LocalDate previouslyKnownTerminationDate;
     private Boolean suspendedSentenceOrder;

@@ -3,7 +3,7 @@
     "convictionId": 2500297061,
     "index": "3",
     "active": false,
-    "inBreach": false,
+    "inBreach": true,
     "convictionDate": "2019-09-16",
     "referralDate": "2019-09-16",
     "offences": [
@@ -35,7 +35,18 @@
       "defaultLength": 0,
       "lengthInDays": 0,
       "terminationDate": "2020-01-01",
-      "terminationReason": "Auto Terminated"
+      "terminationReason": "Auto Terminated",
+      "unpaidWork": {
+        "minutesOrdered": 480,
+        "minutesCompleted": 60,
+        "appointments": {
+          "total": 12,
+          "attended": 2,
+          "acceptableAbsences": 2,
+          "unacceptableAbsences": 1,
+          "noOutcomeRecorded": 0
+        }
+      }
     },
     "latestCourtAppearanceOutcome": {
       "code": "412",
@@ -100,7 +111,7 @@
       "lengthInDays": 1826,
       "terminationDate": "2019-01-01",
       "terminationReason": "ICMS Miscellaneous Event"
-    },
+      },
     "latestCourtAppearanceOutcome": {
       "code": "303",
       "description": "CJA - Indeterminate Public Prot."
@@ -125,9 +136,7 @@
   {
     "convictionId": 2500295343,
     "index": "1",
-    "active": false,
-    "inBreach": false,
-    "convictionDate": "2017-06-01",
+    "inBreach": true,
     "referralDate": "2017-06-01",
     "offences": [
       {
@@ -151,13 +160,6 @@
         "lastUpdatedDatetime": "2019-09-04T00:00:00"
       }
     ],
-    "sentence": {
-      "description": "CJA - Community Order",
-      "originalLength": 12,
-      "originalLengthUnits": "Months",
-      "defaultLength": 12,
-      "lengthInDays": 364
-    },
     "latestCourtAppearanceOutcome": {
       "code": "201",
       "description": "CJA - Community Order"

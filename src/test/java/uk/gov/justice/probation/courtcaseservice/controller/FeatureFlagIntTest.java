@@ -2,7 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static uk.gov.justice.probation.courtcaseservice.TestConfig.configureRestAssuredForIntTest;
 
 import org.junit.Before;

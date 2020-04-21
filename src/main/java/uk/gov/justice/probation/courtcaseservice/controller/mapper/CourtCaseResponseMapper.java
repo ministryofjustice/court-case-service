@@ -25,6 +25,7 @@ public class CourtCaseResponseMapper {
                 .previouslyKnownTerminationDate(courtCaseEntity.getPreviouslyKnownTerminationDate())
                 .probationStatus(courtCaseEntity.getProbationStatus())
                 .sessionStartTime(courtCaseEntity.getSessionStartTime())
+                .session(courtCaseEntity.getSession())
                 .suspendedSentenceOrder(courtCaseEntity.getSuspendedSentenceOrder())
                 .breach(courtCaseEntity.getBreach())
                 .defendantName(courtCaseEntity.getDefendantName())

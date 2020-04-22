@@ -40,11 +40,11 @@ public class OffenderMapper {
 
     public List<Conviction> convictionsFrom(CommunityApiConvictionsResponse convictionsResponse) {
         return convictionsResponse.getConvictions().stream()
-                .map(this::buildConviction)
+                .map(this::convictionFrom)
                 .collect(Collectors.toList());
     }
 
-    private Conviction buildConviction(CommunityApiConvictionResponse conviction) {
+    public Conviction convictionFrom(CommunityApiConvictionResponse conviction) {
         return Conviction.builder()
                 .convictionId(conviction.getConvictionId())
                 .active(conviction.getActive())

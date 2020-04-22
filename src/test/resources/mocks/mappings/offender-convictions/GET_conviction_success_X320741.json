@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/secure/offenders/crn/XXXXXX/convictions/2500295343/attendances",
+    "urlPath": "/secure/offenders/crn/X320741/convictions/2500295343",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"
@@ -9,10 +9,10 @@
     }
   },
   "response": {
-    "status": 400,
+    "status": 200,
     "headers": {
       "Content-Type": "application/json"
     },
-    "body": "{\"developerMessage\": \"Bad request\"}"
+    "bodyFileName": "offender-convictions/GET_conviction.json"
   }
 }

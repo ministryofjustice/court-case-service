@@ -53,10 +53,12 @@ public class OffenderService {
         ProbationRecord probationRecord = addConvictionsToProbationRecord(tuple3.getT1(), tuple3.getT2());
         combineConvictionsAndDocuments(probationRecord, tuple3.getT3().getConvictions(), applyDocumentFilter);
 
-        assessmentMono.blockOptional().ifPresentOrElse(
-            (assessment) -> {probationRecord.setAssessment(assessment);},
-            () -> {log.warn("Oasys assessment data not found for CRN:{}", crn);}
-        );
+        try {
+            assessmentMono.blockOptional().ifPresent(assessment -> probationRecord.setAssessment(assessment));
+        } catch (OffenderNotFoundException e) {
+            // See comment above. Note that an error is already logged by the rest client, so we don't need to
+            // log anything here.
+        }
 
         return probationRecord;
     }

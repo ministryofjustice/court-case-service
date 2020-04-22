@@ -13,7 +13,6 @@ import lombok.Getter;
 import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper;
 
 @Configuration
-@Getter
 public class WebClientConfig {
     @Value("${feature.flags.disable-auth:false}")
     private boolean disableAuthentication;

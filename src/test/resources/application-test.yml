@@ -10,6 +10,9 @@ database:
 community-api:
   base-url: http://localhost:8090
 
+offender-assessments-api:
+  base-url: http://localhost:8097
+
 spring:
   flyway:
     clean-on-validation-error: true

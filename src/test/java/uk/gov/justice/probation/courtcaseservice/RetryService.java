@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice;
 
 import static java.time.Duration.ofSeconds;
+import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -19,8 +20,8 @@ public class RetryService {
 
     private final WebClient webClient;
 
-    public RetryService(WebClient webClient) {
-        this.webClient = webClient;
+    public RetryService() {
+        this.webClient = WebClient.create("http://localhost:" + WIREMOCK_PORT + "/");;
     }
 
     /**

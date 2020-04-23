@@ -15,7 +15,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 
 
 @Component
-@AllArgsConstructor
 @NoArgsConstructor
 @Slf4j
 public class AssessmentsRestClient {

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType.COURT_REPORT_DOCUMENT;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +22,7 @@ import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
@@ -49,6 +51,7 @@ class OffenderServiceTest {
     private OffenderService service;
     private GroupedDocuments groupedDocuments;
     private Conviction conviction;
+    private Assessment assessment;
 
     @BeforeEach
     void beforeEach() {
@@ -70,6 +73,7 @@ class OffenderServiceTest {
             .documents(Collections.emptyList())
             .build();
         this.conviction = Conviction.builder().convictionId("123").build();
+        this.assessment = Assessment.builder().type("LAYER_3").completed(LocalDateTime.of(2020,4,23,10,5,20)).build();
         this.service = new OffenderService(offenderRestClient, assessmentsRestClient, documentTypeFilter);
     }
 
@@ -79,6 +83,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         ProbationRecord probationRecord = service.getProbationRecord(CRN, false);
 
@@ -101,6 +106,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         ProbationRecord probationRecord = service.getProbationRecord(CRN, true);
 
@@ -120,6 +126,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.empty());
+        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         assertThatExceptionOfType(OffenderNotFoundException.class)
                 .isThrownBy(() -> service.getProbationRecord(CRN, true))
@@ -132,6 +139,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.empty());
+        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         assertThatExceptionOfType(OffenderNotFoundException.class)
                 .isThrownBy(() -> service.getProbationRecord(CRN, true))

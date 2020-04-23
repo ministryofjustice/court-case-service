@@ -3,7 +3,6 @@ package uk.gov.justice.probation.courtcaseservice;
 import io.restassured.RestAssured;
 import org.springframework.boot.test.context.TestConfiguration;
 
-@TestConfiguration
 public class TestConfig {
     public static final String CONFIGURED_TWICE = "Attempt to configure RestAssured for both Integration and Smoke tests is not allowed";
     public static final int WIREMOCK_PORT = 8090;

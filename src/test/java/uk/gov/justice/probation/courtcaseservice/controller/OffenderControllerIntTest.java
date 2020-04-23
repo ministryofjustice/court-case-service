@@ -32,7 +32,6 @@ import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT
 @EnableRetry
 @ActiveProfiles(profiles = "test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
-@Import(TestConfig.class)
 public class OffenderControllerIntTest {
 
     @LocalServerPort

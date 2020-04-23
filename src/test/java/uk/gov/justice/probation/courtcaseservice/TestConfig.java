@@ -2,8 +2,6 @@ package uk.gov.justice.probation.courtcaseservice;
 
 import io.restassured.RestAssured;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.web.reactive.function.client.WebClient;
 
 @TestConfiguration
 public class TestConfig {
@@ -39,10 +37,5 @@ public class TestConfig {
         if (configuredForSmoke) return;
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         configuredForSmoke = true;
-    }
-
-    @Bean
-    public WebClient webClient() {
-        return WebClient.create("http://localhost:" + WIREMOCK_PORT + "/");
     }
 }

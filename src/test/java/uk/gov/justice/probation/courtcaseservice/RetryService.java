@@ -19,8 +19,8 @@ public class RetryService {
 
     private final WebClient webClient;
 
-    public RetryService(WebClient webClient) {
-        this.webClient = webClient;
+    public RetryService() {
+        this.webClient = WebClient.create("http://localhost:" + TestConfig.WIREMOCK_PORT + "/");
     }
 
     /**

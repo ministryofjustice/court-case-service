@@ -55,9 +55,9 @@ public class OffenderService {
 
         try {
             assessmentMono.blockOptional().ifPresent(assessment -> probationRecord.setAssessment(assessment));
-        } catch (OffenderNotFoundException e) {
-            // See comment above. Note that an error is already logged by the rest client, so we don't need to
-            // log anything here.
+        } catch (Exception e) {
+            // See comment above. We are catching general exception here since it doesn't matter how the request
+            // failed. Note that an error is already logged by the rest client, so we don't need to log anything here.
         }
 
         return probationRecord;

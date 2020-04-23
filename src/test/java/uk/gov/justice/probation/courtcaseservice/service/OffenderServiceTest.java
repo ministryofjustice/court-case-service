@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType.COURT_REPORT_DOCUMENT;
 
+import java.net.ConnectException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -94,9 +95,11 @@ class OffenderServiceTest {
         assertThat(conviction.getDocuments()).hasSize(2);
         assertThat(conviction.getDocuments().get(0).getDocumentName()).isEqualTo("PSR");
         assertThat(conviction.getDocuments().get(1).getDocumentName()).isEqualTo("CPS");
+        assertThat(probationRecord.getAssessment().getType()).isEqualTo("LAYER_3");
         verify(offenderRestClient).getProbationRecordByCrn(CRN);
         verify(offenderRestClient).getConvictionsByCrn(CRN);
         verify(offenderRestClient).getDocumentsByCrn(CRN);
+        verify(assessmentsRestClient).getAssessmentByCrn(CRN);
         verifyNoMoreInteractions(offenderRestClient);
     }
 
@@ -155,5 +158,47 @@ class OffenderServiceTest {
         List<Requirement> requirements = service.getConvictionRequirements(CRN, CONVICTION_ID);
         assertThat(requirements).isSameAs(expectedRequirements);
         verify(offenderRestClient).getConvictionRequirements(CRN, CONVICTION_ID);
+    }
+
+    @DisplayName("Getting probation record does not throw exception when oasys assessment data is missing")
+    @Test
+    public void givenAssessmentNotFound_whenGetOffender_thenDoNotThrowException() {
+        when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
+        when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
+        when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+        // throw OffenderNotFoundException to simulate a 404 returned by assessments api
+        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
+
+        ProbationRecord probationRecord = service.getProbationRecord(CRN, false);
+        assertThat(probationRecord).isNotNull();
+
+        // the assessment field should just be empty
+        assertThat(probationRecord.getAssessment()).isNull();
+
+        // but the rest of the record should be populated as normal
+        assertThat(probationRecord.getConvictions()).hasSize(1);
+        final Conviction conviction = probationRecord.getConvictions().get(0);
+        assertThat(conviction.getDocuments()).hasSize(2);
+    }
+
+    @DisplayName("Getting probation record does not throw exception when assessment api fails for any reason")
+    @Test
+    public void givenAssessmentRequestFails_whenGetOffender_thenDoNotThrowException() {
+        when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
+        when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
+        when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+        // throw ConnectException to simulate server side connection issues
+        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.error(new ConnectException("Connection refused")));
+
+        ProbationRecord probationRecord = service.getProbationRecord(CRN, false);
+        assertThat(probationRecord).isNotNull();
+
+        // the assessment field should just be empty
+        assertThat(probationRecord.getAssessment()).isNull();
+
+        // but the rest of the record should be populated as normal
+        assertThat(probationRecord.getConvictions()).hasSize(1);
+        final Conviction conviction = probationRecord.getConvictions().get(0);
+        assertThat(conviction.getDocuments()).hasSize(2);
     }
 }

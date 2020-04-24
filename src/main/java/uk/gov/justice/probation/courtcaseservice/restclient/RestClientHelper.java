@@ -36,6 +36,9 @@ public class RestClientHelper {
         return spec.attributes(clientRegistrationId(oauthClient));
     }
 
+    // handleError is a slightly modified version of the default error handler which returns
+    // `OffernderNotFoundException` for 404 status codes, and `WebClientResponseException` for
+    // everything else. Can be used with `WebClient.ResponseSpec::onStatus`.
     public Mono<? extends Throwable> handleError(final String crn, final ClientResponse clientResponse) {
         if (HttpStatus.NOT_FOUND.equals(clientResponse.statusCode())) {
             return Mono.error(new OffenderNotFoundException(crn));

@@ -53,11 +53,15 @@ public class OffenderService {
         ProbationRecord probationRecord = addConvictionsToProbationRecord(tuple3.getT1(), tuple3.getT2());
         combineConvictionsAndDocuments(probationRecord, tuple3.getT3().getConvictions(), applyDocumentFilter);
 
+        // The code below handles 2 different classes of exceptions which could be thrown when the mono is resolved.
+        // Currently the error is ignored in both cases. However there is an ongoing discussion about how we should
+        // populate the response based on the type of error we encounter - see PIC-432 for more details.
         try {
             assessmentMono.blockOptional().ifPresent(assessment -> probationRecord.setAssessment(assessment));
+        } catch (OffenderNotFoundException e) {
+            log.info("assessment data missing from probation record (CRN '{}' not found in oasys)", crn);
         } catch (Exception e) {
-            // See comment above. We are catching general exception here since it doesn't matter how the request
-            // failed. Note that an error is already logged by the rest client, so we don't need to log anything here.
+            log.warn("assessment data missing from probation record for CRN '{}': {}", crn, e.toString());
         }
 
         return probationRecord;

@@ -136,7 +136,7 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - run:
-          name: Build container and publish to docker hub
+          name: Build docker image
           command: |
             APP_VERSION=$(cat ./app_version.txt)
             docker build --rm=false . \

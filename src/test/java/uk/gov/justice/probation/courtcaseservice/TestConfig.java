@@ -1,11 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice;
 
 import io.restassured.RestAssured;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.web.reactive.function.client.WebClient;
 
-@TestConfiguration
 public class TestConfig {
     public static final String CONFIGURED_TWICE = "Attempt to configure RestAssured for both Integration and Smoke tests is not allowed";
     public static final int WIREMOCK_PORT = 8090;
@@ -39,10 +35,5 @@ public class TestConfig {
         if (configuredForSmoke) return;
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         configuredForSmoke = true;
-    }
-
-    @Bean
-    public WebClient webClient() {
-        return WebClient.create("http://localhost:" + WIREMOCK_PORT + "/");
     }
 }

@@ -5,9 +5,15 @@ Service to access court cases imported from HMCTS Libra court lists
 Dev Setup
 ---
 
-In order to run the service locally, a postgres database is required, the easiest way to run locally is using the [docker-compose.yml](docker-compose.yml) file which will pull down the latest version.
+In order to run the service locally, a postgres database and some other backend services are required, the easiest way to run locally is using the [docker-compose.yml](docker-compose.yml) file which will pull down the latest version.
 
 ```docker-compose up```
+
+In order for the authentication to function between services locally you must add the following line to your `/etc/hosts` file before starting:
+
+```
+127.0.0.1 oauth
+```
 
 The service uses Lombok and so annotation processors must be [turned on within the IDE](https://www.baeldung.com/lombok-ide).
 
@@ -20,7 +26,7 @@ This service is built using Gradle. In order to build the project from the comma
 
 To run the service, ensure there is an instance of Postgres running and then run
 
-```./gradlew bootRun```
+```SPRING_PROFILES_ACTIVE=local ./gradlew bootRun```
 
 Dependencies
 ---
@@ -32,7 +38,7 @@ To run against local Dockerised back-ends and database
 
 Once the database container is running, initialise the application database schemas
 
-```initSchema.sh``` 
+```initSchema.sh```
 
 There are also Wiremock stubs for each of the back end calls which the `test` Spring profile runs against, to run these use the following command along with `docker-compose up`
 
@@ -70,7 +76,7 @@ curl -X GET http://localhost:8080/feature-flags
 Flyway commands
 ---
 
-Migrate database 
+Migrate database
 
 ```gradle flywayMigrate -i```
 
@@ -88,9 +94,9 @@ Check dependency versions
 
 ## Deployment
 
-Builds and deployments are setup in [Circle CI](https://circleci.com/gh/ministryofjustice/court-case-service) and configured in the [config file.](.circleci/config.yml) 
+Builds and deployments are setup in [Circle CI](https://circleci.com/gh/ministryofjustice/court-case-service) and configured in the [config file.](.circleci/config.yml)
 
-Helm is used to deploy the service to a Kubernetes Cluster using templates in the helm_deploy folder. 
+Helm is used to deploy the service to a Kubernetes Cluster using templates in the helm_deploy folder.
 
 ## Test data script
 
@@ -98,7 +104,7 @@ The createTestData script can be found [here](./src/kotlin/createTestData.kts). 
 
 Note: To run from the command line the kscript plugin is needed, this currently only works with Java 8. For development it may be easier to run the script from your IDE.
 
-Basic usage with kscript: 
+Basic usage with kscript:
 kscript createTestData.kts
 
 Specify date for sessionStartTime and baseUrl:

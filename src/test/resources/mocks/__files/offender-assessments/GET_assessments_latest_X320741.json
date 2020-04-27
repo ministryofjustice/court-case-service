@@ -1,0 +1,1698 @@
+{
+    "assessmentId": 1,
+    "refAssessmentVersionCode": "LAYER3",
+    "refAssessmentVersionNumber": "1",
+    "refAssessmentId": 4,
+    "assessmentType": "LAYER_3",
+    "assessmentStatus": "COMPLETE",
+    "groupHistoricStatus": "CURRENT",
+    "refAssessmentOasysScoringAlgorithmVersion": 3,
+    "assessorName": "Probation Test",
+    "created": "2016-03-16T10:16:38",
+    "completed": "2018-06-20T23:00:09",
+    "sections": [
+      {
+        "sectionId": 8078565,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "PSRP",
+        "status": "COMPLETE_LOCKED",
+        "questions": []
+      },
+      {
+        "sectionId": 8078553,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "8",
+        "refSectionCrimNeedScoreThreshold": 2,
+        "status": "COMPLETE_LOCKED",
+        "sectionOgpWeightedScore": 0,
+        "sectionOgpRawScore": 0,
+        "sectionOtherWeightedScore": 0,
+        "lowScoreAttentionNeeded": "N",
+        "questions": [
+          {
+            "refQuestionId": 1996,
+            "refQuestionCode": "8.1",
+            "oasysQuestionId": 7387917,
+            "displayOrder": 10,
+            "questionText": "Drugs ever misused (in custody or community)",
+            "answer": {}
+          }
+        ]
+      },
+      {
+        "sectionId": 8078548,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "3",
+        "refSectionCrimNeedScoreThreshold": 2,
+        "status": "COMPLETE_LOCKED",
+        "sectionOgpWeightedScore": 0,
+        "sectionOgpRawScore": 0,
+        "sectionOvpWeightedScore": 0,
+        "sectionOvpRawScore": 0,
+        "sectionOtherWeightedScore": 0,
+        "lowScoreAttentionNeeded": "N",
+        "questions": [
+          {
+            "refQuestionId": 1947,
+            "refQuestionCode": "3.4",
+            "oasysQuestionId": 7387874,
+            "displayOrder": 230,
+            "questionText": "Suitability of accommodation",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1949,
+            "refQuestionCode": "3.6",
+            "oasysQuestionId": 7387876,
+            "displayOrder": 240,
+            "questionText": "Suitability of location of accommodation",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1948,
+            "refQuestionCode": "3.5",
+            "oasysQuestionId": 7387875,
+            "displayOrder": 235,
+            "questionText": "Permanence of accommodation",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1946,
+            "refQuestionCode": "3.3",
+            "oasysQuestionId": 7387873,
+            "displayOrder": 225,
+            "questionText": "Currently of no fixed abode or in transient accommodation",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1950,
+            "refQuestionCode": "3.97",
+            "oasysQuestionId": 7387879,
+            "displayOrder": 970,
+            "questionText": "Identify accommodation issues contributing to risks of offending and harm.  Please include any positive factors.",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1951,
+            "refQuestionCode": "3.98",
+            "oasysQuestionId": 7387877,
+            "displayOrder": 980,
+            "questionText": "Accommodation issues linked to risk of serious harm, risks to the individual & other risks",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1952,
+            "refQuestionCode": "3.99",
+            "oasysQuestionId": 7387878,
+            "displayOrder": 990,
+            "questionText": "Accommodation issues linked to offending behaviour",
+            "answer": {}
+          }
+        ]
+      },
+      {
+        "sectionId": 8078556,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "11",
+        "refSectionCrimNeedScoreThreshold": 4,
+        "status": "COMPLETE_LOCKED",
+        "sectionOgpWeightedScore": 0,
+        "sectionOgpRawScore": 0,
+        "sectionOvpWeightedScore": 0,
+        "sectionOvpRawScore": 0,
+        "sectionOtherWeightedScore": 0,
+        "lowScoreAttentionNeeded": "N",
+        "questions": [
+          {
+            "refQuestionId": 1775,
+            "refQuestionCode": "11.98",
+            "oasysQuestionId": 7387944,
+            "displayOrder": 998,
+            "questionText": "Thinking and behaviour linked to risk of serious harm, risks to the individual and other risks",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1768,
+            "refQuestionCode": "11.4",
+            "oasysQuestionId": 7387937,
+            "displayOrder": 600,
+            "questionText": "Temper control",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1771,
+            "refQuestionCode": "11.7",
+            "oasysQuestionId": 7387940,
+            "displayOrder": 615,
+            "questionText": "Awareness of consequences",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1774,
+            "refQuestionCode": "11.97",
+            "oasysQuestionId": 7387946,
+            "displayOrder": 997,
+            "questionText": "Identify thinking / behavioural issues contributing to risks of offending and harm.  Please include any positive factors.",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1766,
+            "refQuestionCode": "11.2",
+            "oasysQuestionId": 7387935,
+            "displayOrder": 590,
+            "questionText": "Impulsivity",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1764,
+            "refQuestionCode": "11.1",
+            "oasysQuestionId": 7387934,
+            "displayOrder": 585,
+            "questionText": "Level of interpersonal skills",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1765,
+            "refQuestionCode": "11.10",
+            "oasysQuestionId": 7387943,
+            "displayOrder": 630,
+            "questionText": "Concrete / abstract thinking (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1769,
+            "refQuestionCode": "11.5",
+            "oasysQuestionId": 7387938,
+            "displayOrder": 605,
+            "questionText": "Ability to recognise problems",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1776,
+            "refQuestionCode": "11.99",
+            "oasysQuestionId": 7387945,
+            "displayOrder": 999,
+            "questionText": "Thinking and behaviour linked to offending behaviour",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1767,
+            "refQuestionCode": "11.3",
+            "oasysQuestionId": 7387936,
+            "displayOrder": 595,
+            "questionText": "Aggressive / controlling behaviour (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1773,
+            "refQuestionCode": "11.9",
+            "oasysQuestionId": 7387942,
+            "displayOrder": 625,
+            "questionText": "Understands other people's views",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1770,
+            "refQuestionCode": "11.6",
+            "oasysQuestionId": 7387939,
+            "displayOrder": 610,
+            "questionText": "Problem solving skills",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1772,
+            "refQuestionCode": "11.8",
+            "oasysQuestionId": 7387941,
+            "displayOrder": 620,
+            "questionText": "Achieves goals (optional)",
+            "answer": {}
+          }
+        ]
+      },
+      {
+        "sectionId": 8078559,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "SAQ",
+        "status": "COMPLETE_LOCKED",
+        "questions": [
+          {
+            "refQuestionId": 2197,
+            "refQuestionCode": "SAQC24.2",
+            "oasysQuestionId": 7388004,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2200,
+            "refQuestionCode": "SAQC25.2",
+            "oasysQuestionId": 7388006,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2208,
+            "refQuestionCode": "SAQC3.1",
+            "oasysQuestionId": 7387965,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2193,
+            "refQuestionCode": "SAQC23.1",
+            "oasysQuestionId": 7388001,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2163,
+            "refQuestionCode": "SAQC14.1",
+            "oasysQuestionId": 7387985,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2161,
+            "refQuestionCode": "SAQC13.2",
+            "oasysQuestionId": 7387984,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2170,
+            "refQuestionCode": "SAQC16.2",
+            "oasysQuestionId": 7387990,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2226,
+            "refQuestionCode": "SAQC9.1",
+            "oasysQuestionId": 7387975,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2221,
+            "refQuestionCode": "SAQC7.2",
+            "oasysQuestionId": 7387973,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2151,
+            "refQuestionCode": "SAQC10.1",
+            "oasysQuestionId": 7387977,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2158,
+            "refQuestionCode": "SAQC12.2",
+            "oasysQuestionId": 7387982,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2191,
+            "refQuestionCode": "SAQC22.2",
+            "oasysQuestionId": 7388000,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2178,
+            "refQuestionCode": "SAQC19.1",
+            "oasysQuestionId": 7387995,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2220,
+            "refQuestionCode": "SAQC7.1",
+            "oasysQuestionId": 7387972,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2157,
+            "refQuestionCode": "SAQC12.1",
+            "oasysQuestionId": 7387981,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2188,
+            "refQuestionCode": "SAQC21.2",
+            "oasysQuestionId": 7387999,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2167,
+            "refQuestionCode": "SAQC15.2",
+            "oasysQuestionId": 7387988,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2217,
+            "refQuestionCode": "SAQC6.1",
+            "oasysQuestionId": 7387971,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2155,
+            "refQuestionCode": "SAQC11.2",
+            "oasysQuestionId": 7387980,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2176,
+            "refQuestionCode": "SAQC18.2",
+            "oasysQuestionId": 7387994,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2148,
+            "refQuestionCode": "SAQC1.1",
+            "oasysQuestionId": 7387961,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2196,
+            "refQuestionCode": "SAQC24.1",
+            "oasysQuestionId": 7388003,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2227,
+            "refQuestionCode": "SAQC9.2",
+            "oasysQuestionId": 7387976,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2175,
+            "refQuestionCode": "SAQC18.1",
+            "oasysQuestionId": 7387993,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2172,
+            "refQuestionCode": "SAQC17.1",
+            "oasysQuestionId": 7387991,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2149,
+            "refQuestionCode": "SAQC1.2",
+            "oasysQuestionId": 7387962,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2181,
+            "refQuestionCode": "SAQC2.1",
+            "oasysQuestionId": 7387963,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2214,
+            "refQuestionCode": "SAQC5.1",
+            "oasysQuestionId": 7387969,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2184,
+            "refQuestionCode": "SAQC20.1",
+            "oasysQuestionId": 7387997,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2212,
+            "refQuestionCode": "SAQC4.2",
+            "oasysQuestionId": 7387968,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2209,
+            "refQuestionCode": "SAQC3.2",
+            "oasysQuestionId": 7387966,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2166,
+            "refQuestionCode": "SAQC15.1",
+            "oasysQuestionId": 7387987,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2205,
+            "refQuestionCode": "SAQC27.1",
+            "oasysQuestionId": 7388009,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2211,
+            "refQuestionCode": "SAQC4.1",
+            "oasysQuestionId": 7387967,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2182,
+            "refQuestionCode": "SAQC2.2",
+            "oasysQuestionId": 7387964,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2160,
+            "refQuestionCode": "SAQC13.1",
+            "oasysQuestionId": 7387983,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2187,
+            "refQuestionCode": "SAQC21.1",
+            "oasysQuestionId": 7387998,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2154,
+            "refQuestionCode": "SAQC11.1",
+            "oasysQuestionId": 7387979,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2143,
+            "refQuestionCode": "SAQ28",
+            "oasysQuestionId": 7388011,
+            "displayOrder": 140,
+            "questionText": "28. Do you think you are likely to offend in future?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2203,
+            "refQuestionCode": "SAQC26.2",
+            "oasysQuestionId": 7388008,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2169,
+            "refQuestionCode": "SAQC16.1",
+            "oasysQuestionId": 7387989,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2199,
+            "refQuestionCode": "SAQC25.1",
+            "oasysQuestionId": 7388005,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2202,
+            "refQuestionCode": "SAQC26.1",
+            "oasysQuestionId": 7388007,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2164,
+            "refQuestionCode": "SAQC14.2",
+            "oasysQuestionId": 7387986,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2152,
+            "refQuestionCode": "SAQC10.2",
+            "oasysQuestionId": 7387978,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2223,
+            "refQuestionCode": "SAQC8.1",
+            "oasysQuestionId": 7387974,
+            "displayOrder": 5,
+            "questionText": "No/Yes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2215,
+            "refQuestionCode": "SAQC5.2",
+            "oasysQuestionId": 7387970,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2194,
+            "refQuestionCode": "SAQC23.2",
+            "oasysQuestionId": 7388002,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2145,
+            "refQuestionCode": "SAQB",
+            "oasysQuestionId": 7388012,
+            "displayOrder": 4,
+            "questionText": "Date Self Assessment Questionnaire Completed",
+            "answer": {
+              "freeFormText": "24/07/2019"
+            }
+          },
+          {
+            "refQuestionId": 2144,
+            "refQuestionCode": "SAQA",
+            "oasysQuestionId": 7387960,
+            "displayOrder": 2,
+            "questionText": "Did the offender need help to complete the form?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2173,
+            "refQuestionCode": "SAQC17.2",
+            "oasysQuestionId": 7387992,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2179,
+            "refQuestionCode": "SAQC19.2",
+            "oasysQuestionId": 7387996,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2206,
+            "refQuestionCode": "SAQC27.2",
+            "oasysQuestionId": 7388010,
+            "displayOrder": 10,
+            "questionText": "Is this problem linked to your offending?",
+            "answer": {}
+          }
+        ]
+      },
+      {
+        "sectionId": 8078547,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "2",
+        "status": "COMPLETE_LOCKED",
+        "sectionOvpWeightedScore": 0,
+        "sectionOvpRawScore": 0,
+        "lowScoreAttentionNeeded": "N",
+        "questions": [
+          {
+            "refQuestionId": 1933,
+            "refQuestionCode": "2.4.1",
+            "oasysQuestionId": 7387864,
+            "displayOrder": 10,
+            "questionText": "Any other information of specific note, consider vulnerability",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1937,
+            "refQuestionCode": "2.7",
+            "oasysQuestionId": 7387870,
+            "displayOrder": 70,
+            "questionText": "Were there other offenders involved?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1944,
+            "refQuestionCode": "2.98",
+            "oasysQuestionId": 7387868,
+            "displayOrder": 980,
+            "questionText": "Identify offence analysis issues contributing to risks of offending and harm.  Please include any positive factors.",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1942,
+            "refQuestionCode": "2.9",
+            "oasysQuestionId": 7387872,
+            "displayOrder": 90,
+            "questionText": "Please tick each evidenced motivation",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1926,
+            "refQuestionCode": "2.12",
+            "oasysQuestionId": 7387867,
+            "displayOrder": 120,
+            "questionText": "Pattern of offending (consider details of previous convictions)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1945,
+            "refQuestionCode": "2.99",
+            "oasysQuestionId": 7387861,
+            "displayOrder": 990,
+            "questionText": "Analysis of offence issues linked to risk of serious harm, risks to the individual and other risks",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1922,
+            "refQuestionCode": "2.1",
+            "oasysQuestionId": 7387862,
+            "displayOrder": 10,
+            "questionText": "Brief offence(s) details (indicate what exactly happened, when, where and how)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1934,
+            "refQuestionCode": "2.4.2",
+            "oasysQuestionId": 7387863,
+            "displayOrder": 5,
+            "questionText": "Victim - perpetrator relationship",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1924,
+            "refQuestionCode": "2.11",
+            "oasysQuestionId": 7387858,
+            "displayOrder": 110,
+            "questionText": "Does the offender accept responsibility for the current\noffence(s)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1936,
+            "refQuestionCode": "2.6",
+            "oasysQuestionId": 7387869,
+            "displayOrder": 60,
+            "questionText": "Does the offender recognise the impact and consequences of offending on victim, community / wider society?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1925,
+            "refQuestionCode": "2.11.t",
+            "oasysQuestionId": 7387866,
+            "displayOrder": 20,
+            "questionText": "How much responsibility does s/he acknowledge for the offence(s). Does s/he blame others, minimise the extent of his / her offending?",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1939,
+            "refQuestionCode": "2.7.2",
+            "oasysQuestionId": 7387871,
+            "displayOrder": 74,
+            "questionText": "Peer group influences (eg offender easily led, gang member)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1941,
+            "refQuestionCode": "2.8",
+            "oasysQuestionId": 7387865,
+            "displayOrder": 80,
+            "questionText": "Why did it happen - evidence of motivation and triggers",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1928,
+            "refQuestionCode": "2.14",
+            "oasysQuestionId": 7387860,
+            "displayOrder": 140,
+            "questionText": "Are current offence(s) part of an established pattern of similar offending (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1927,
+            "refQuestionCode": "2.13",
+            "oasysQuestionId": 7387859,
+            "displayOrder": 130,
+            "questionText": "Are the current offence(s) an escalation in seriousness from previous offending?",
+            "answer": {}
+          }
+        ]
+      },
+      {
+        "sectionId": 8078557,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "12",
+        "refSectionCrimNeedScoreThreshold": 2,
+        "status": "COMPLETE_LOCKED",
+        "sectionOgpWeightedScore": 1,
+        "sectionOgpRawScore": 2,
+        "sectionOvpWeightedScore": 2,
+        "sectionOvpRawScore": 2,
+        "sectionOtherWeightedScore": 2,
+        "questions": [
+          {
+            "refQuestionId": 1778,
+            "refQuestionCode": "12.3",
+            "oasysQuestionId": 7387948,
+            "displayOrder": 655,
+            "questionText": "Attitude towards staff (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1780,
+            "refQuestionCode": "12.5",
+            "oasysQuestionId": 7387950,
+            "displayOrder": 665,
+            "questionText": "Attitude towards community / society",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1779,
+            "refQuestionCode": "12.4",
+            "oasysQuestionId": 7387949,
+            "displayOrder": 660,
+            "questionText": "Attitude towards supervision / licence",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1777,
+            "refQuestionCode": "12.1",
+            "oasysQuestionId": 7387947,
+            "displayOrder": 645,
+            "questionText": "Pro-criminal attitudes",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1781,
+            "refQuestionCode": "12.6",
+            "oasysQuestionId": 7387951,
+            "displayOrder": 670,
+            "questionText": "Does the offender understand their motivation for offending (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1784,
+            "refQuestionCode": "12.98",
+            "oasysQuestionId": 7387953,
+            "displayOrder": 998,
+            "questionText": "Attitudes linked to risk of serious harm, risks to the individual and other risks",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1785,
+            "refQuestionCode": "12.99",
+            "oasysQuestionId": 7387954,
+            "displayOrder": 999,
+            "questionText": "Attitudes linked to offending behaviour",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1783,
+            "refQuestionCode": "12.97",
+            "oasysQuestionId": 7387955,
+            "displayOrder": 997,
+            "questionText": "Identify issues about attitudes contributing to risks of offending and harm.  Please include any positive factors.",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1782,
+            "refQuestionCode": "12.8",
+            "oasysQuestionId": 7387952,
+            "displayOrder": 690,
+            "questionText": "Motivation to address offending behaviour",
+            "answer": {}
+          }
+        ]
+      },
+      {
+        "sectionId": 8078550,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "5",
+        "status": "COMPLETE_LOCKED",
+        "questions": [
+          {
+            "refQuestionId": 1970,
+            "refQuestionCode": "5.3",
+            "oasysQuestionId": 7387893,
+            "displayOrder": 30,
+            "questionText": "Financial management (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1972,
+            "refQuestionCode": "5.5",
+            "oasysQuestionId": 7387895,
+            "displayOrder": 50,
+            "questionText": "Over-reliance on family / friends / others for financial support (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1976,
+            "refQuestionCode": "5.99",
+            "oasysQuestionId": 7387898,
+            "displayOrder": 999,
+            "questionText": "Financial issues linked to offending behaviour",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1971,
+            "refQuestionCode": "5.4",
+            "oasysQuestionId": 7387894,
+            "displayOrder": 40,
+            "questionText": "Illegal earnings are a source of income (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1974,
+            "refQuestionCode": "5.97",
+            "oasysQuestionId": 7387899,
+            "displayOrder": 997,
+            "questionText": "Identify financial management issues contributing to risks of offending and harm.  Please include any positive factors.",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1973,
+            "refQuestionCode": "5.6",
+            "oasysQuestionId": 7387896,
+            "displayOrder": 60,
+            "questionText": "Severe impediment to budgeting (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1969,
+            "refQuestionCode": "5.2",
+            "oasysQuestionId": 7387892,
+            "displayOrder": 20,
+            "questionText": "What is the offender's financial situation? (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1975,
+            "refQuestionCode": "5.98",
+            "oasysQuestionId": 7387897,
+            "displayOrder": 998,
+            "questionText": "Financial issues linked to risk of serious harm, risks to the individual and other risks",
+            "answer": {}
+          }
+        ]
+      },
+      {
+        "sectionId": 8078552,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "7",
+        "refSectionCrimNeedScoreThreshold": 2,
+        "status": "COMPLETE_LOCKED",
+        "sectionOgpWeightedScore": 0,
+        "sectionOgpRawScore": 0,
+        "sectionOtherWeightedScore": 0,
+        "lowScoreAttentionNeeded": "N",
+        "questions": [
+          {
+            "refQuestionId": 1991,
+            "refQuestionCode": "7.4",
+            "oasysQuestionId": 7387912,
+            "displayOrder": 30,
+            "questionText": "Manipulative / predatory lifestyle (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1993,
+            "refQuestionCode": "7.97",
+            "oasysQuestionId": 7387916,
+            "displayOrder": 997,
+            "questionText": "Identify lifestyle issues contributing to risks of offending and harm.  Please include any positive factors.",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1994,
+            "refQuestionCode": "7.98",
+            "oasysQuestionId": 7387914,
+            "displayOrder": 998,
+            "questionText": "Lifestyle and associates linked to risk of serious harm, risks to the individual and other risks",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1990,
+            "refQuestionCode": "7.3",
+            "oasysQuestionId": 7387911,
+            "displayOrder": 20,
+            "questionText": "Easily influenced by criminal associates",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1989,
+            "refQuestionCode": "7.2",
+            "oasysQuestionId": 7387910,
+            "displayOrder": 10,
+            "questionText": "Regular activities encourage offending",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1995,
+            "refQuestionCode": "7.99",
+            "oasysQuestionId": 7387915,
+            "displayOrder": 999,
+            "questionText": "Lifestyle and associates linked to offending behaviour",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1992,
+            "refQuestionCode": "7.5",
+            "oasysQuestionId": 7387913,
+            "displayOrder": 40,
+            "questionText": "Recklessness and risk-taking behaviour",
+            "answer": {}
+          }
+        ]
+      },
+      {
+        "sectionId": 8078554,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "9",
+        "refSectionCrimNeedScoreThreshold": 4,
+        "status": "COMPLETE_LOCKED",
+        "sectionOvpWeightedScore": 0,
+        "sectionOvpRawScore": 0,
+        "sectionOtherWeightedScore": 0,
+        "lowScoreAttentionNeeded": "N",
+        "questions": [
+          {
+            "refQuestionId": 2078,
+            "refQuestionCode": "9.1",
+            "oasysQuestionId": 7387918,
+            "displayOrder": 505,
+            "questionText": "Is current use a problem",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2086,
+            "refQuestionCode": "9.99",
+            "oasysQuestionId": 7387922,
+            "displayOrder": 999,
+            "questionText": "Alcohol misuse issues linked to offending behaviour",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2080,
+            "refQuestionCode": "9.2",
+            "oasysQuestionId": 7387919,
+            "displayOrder": 510,
+            "questionText": "Binge drinking or excessive use of alcohol in last 6 months",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2081,
+            "refQuestionCode": "9.3",
+            "oasysQuestionId": 7387920,
+            "displayOrder": 515,
+            "questionText": "Frequency and level of alcohol misuse in the past",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2084,
+            "refQuestionCode": "9.97",
+            "oasysQuestionId": 7387923,
+            "displayOrder": 997,
+            "questionText": "Identify alcohol misuse issues contributing to risks of offending and harm.  Please include any positive factors.",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 2085,
+            "refQuestionCode": "9.98",
+            "oasysQuestionId": 7387921,
+            "displayOrder": 998,
+            "questionText": "Alcohol misuse issues linked to risk of serious harm, risks to the individual and other risks",
+            "answer": {}
+          }
+        ]
+      },
+      {
+        "sectionId": 8078560,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "ROSH",
+        "status": "COMPLETE_LOCKED",
+        "questions": [
+          {
+            "refQuestionId": 1486,
+            "refQuestionCode": "R3.4",
+            "oasysQuestionId": 7388026,
+            "displayOrder": 80,
+            "questionText": "Vulnerability",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1488,
+            "refQuestionCode": "R4.2",
+            "oasysQuestionId": 7388023,
+            "displayOrder": 100,
+            "questionText": "Control issues / disruptive behaviour",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1489,
+            "refQuestionCode": "R4.3",
+            "oasysQuestionId": 7388024,
+            "displayOrder": 110,
+            "questionText": "Concerns in respect of breach of trust",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1483,
+            "refQuestionCode": "R3.1",
+            "oasysQuestionId": 7388019,
+            "displayOrder": 50,
+            "questionText": "Risk of suicide",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1490,
+            "refQuestionCode": "R4.4",
+            "oasysQuestionId": 7388025,
+            "displayOrder": 120,
+            "questionText": "Risks to other prisoners",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1481,
+            "refQuestionCode": "R2.2",
+            "oasysQuestionId": 7388018,
+            "displayOrder": 50,
+            "questionText": "Are there any concerns in relation to children",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1492,
+            "refQuestionCode": "R5.1",
+            "oasysQuestionId": 7388029,
+            "displayOrder": 130,
+            "questionText": "Is there anything else about the offender that leads you to consider that a full analysis should be completed.  If YES, give details below",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1397,
+            "refQuestionCode": "R1.2.15.2",
+            "oasysQuestionId": 7388014,
+            "displayOrder": 20,
+            "questionText": "Previous",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1455,
+            "refQuestionCode": "R1.3.19.2",
+            "oasysQuestionId": 7388016,
+            "displayOrder": 20,
+            "questionText": "Previous",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1487,
+            "refQuestionCode": "R4.1",
+            "oasysQuestionId": 7388022,
+            "displayOrder": 90,
+            "questionText": "Escape / abscond",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1484,
+            "refQuestionCode": "R3.2",
+            "oasysQuestionId": 7388020,
+            "displayOrder": 60,
+            "questionText": "Risk of self-harm",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1396,
+            "refQuestionCode": "R1.2.15.1",
+            "oasysQuestionId": 7388013,
+            "displayOrder": 10,
+            "questionText": "Current",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1485,
+            "refQuestionCode": "R3.3",
+            "oasysQuestionId": 7388021,
+            "displayOrder": 70,
+            "questionText": "Coping in custody / hostel setting",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1454,
+            "refQuestionCode": "R1.3.19.1",
+            "oasysQuestionId": 7388015,
+            "displayOrder": 10,
+            "questionText": "Current",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1480,
+            "refQuestionCode": "R2.1",
+            "oasysQuestionId": 7388017,
+            "displayOrder": 40,
+            "questionText": "Is the offender, now or on release, likely to live with, or have frequent contact with, any child who is on the child protection register or is being looked after by the local authority.",
+            "answer": {}
+          }
+        ]
+      },
+      {
+        "sectionId": 8078551,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "6",
+        "refSectionCrimNeedScoreThreshold": 2,
+        "status": "COMPLETE_LOCKED",
+        "sectionOtherWeightedScore": 0,
+        "lowScoreAttentionNeeded": "N",
+        "questions": [
+          {
+            "refQuestionId": 1988,
+            "refQuestionCode": "6.99",
+            "oasysQuestionId": 7387908,
+            "displayOrder": 999,
+            "questionText": "Relationship issues linked to offending behaviour",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1977,
+            "refQuestionCode": "6.1",
+            "oasysQuestionId": 7387900,
+            "displayOrder": 10,
+            "questionText": "Current relationship with close family members",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1986,
+            "refQuestionCode": "6.97",
+            "oasysQuestionId": 7387909,
+            "displayOrder": 997,
+            "questionText": "Identify relationship issues contributing to risks of offending and harm.  Please include any positive factors.",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1979,
+            "refQuestionCode": "6.3",
+            "oasysQuestionId": 7387901,
+            "displayOrder": 30,
+            "questionText": "Experience of childhood",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1985,
+            "refQuestionCode": "6.9",
+            "oasysQuestionId": 7387906,
+            "displayOrder": 80,
+            "questionText": "Parental responsibilities",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1984,
+            "refQuestionCode": "6.8",
+            "oasysQuestionId": 7387902,
+            "displayOrder": 40,
+            "questionText": "Current relationship status",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1981,
+            "refQuestionCode": "6.6",
+            "oasysQuestionId": 7387904,
+            "displayOrder": 60,
+            "questionText": "Previous experience of close relationships",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1987,
+            "refQuestionCode": "6.98",
+            "oasysQuestionId": 7387907,
+            "displayOrder": 998,
+            "questionText": "Relationship issues linked to risk of serious harm, risks to the individual and other risks",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1980,
+            "refQuestionCode": "6.4",
+            "oasysQuestionId": 7387903,
+            "displayOrder": 50,
+            "questionText": "Current relationship with partner",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1982,
+            "refQuestionCode": "6.7",
+            "oasysQuestionId": 7387905,
+            "displayOrder": 70,
+            "questionText": "Evidence of domestic violence / partner abuse",
+            "answer": {}
+          }
+        ]
+      },
+      {
+        "sectionId": 8078555,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "10",
+        "status": "COMPLETE_LOCKED",
+        "sectionOvpWeightedScore": 0,
+        "sectionOvpRawScore": 0,
+        "questions": [
+          {
+            "refQuestionId": 1755,
+            "refQuestionCode": "10.3",
+            "oasysQuestionId": 7387926,
+            "displayOrder": 550,
+            "questionText": "Social isolation",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1758,
+            "refQuestionCode": "10.6",
+            "oasysQuestionId": 7387929,
+            "displayOrder": 565,
+            "questionText": "Current psychiatric problems",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1763,
+            "refQuestionCode": "10.99",
+            "oasysQuestionId": 7387932,
+            "displayOrder": 999,
+            "questionText": "Issues of emotional wellbeing linked to offending behaviour",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1757,
+            "refQuestionCode": "10.5",
+            "oasysQuestionId": 7387928,
+            "displayOrder": 560,
+            "questionText": "Self-harm, attempted suicide, suicidal thoughts or feelings",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1761,
+            "refQuestionCode": "10.97",
+            "oasysQuestionId": 7387933,
+            "displayOrder": 997,
+            "questionText": "Identify any issues of emotional well-being contributing to risks of offending and harm.  Please include any positive factors.",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1756,
+            "refQuestionCode": "10.4",
+            "oasysQuestionId": 7387927,
+            "displayOrder": 555,
+            "questionText": "Offender's attitude to themselves",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1754,
+            "refQuestionCode": "10.2",
+            "oasysQuestionId": 7387925,
+            "displayOrder": 545,
+            "questionText": "Current psychological problems / depression",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1753,
+            "refQuestionCode": "10.1",
+            "oasysQuestionId": 7387924,
+            "displayOrder": 540,
+            "questionText": "Difficulties coping",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1762,
+            "refQuestionCode": "10.98",
+            "oasysQuestionId": 7387931,
+            "displayOrder": 998,
+            "questionText": "Issues of emotional wellbeing linked to risk of serious harm, risks to the individual and other risks",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1760,
+            "refQuestionCode": "10.8",
+            "oasysQuestionId": 7387930,
+            "displayOrder": 575,
+            "questionText": "Is a Specialist Report required?",
+            "answer": {}
+          }
+        ]
+      },
+      {
+        "sectionId": 8078558,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "13",
+        "status": "COMPLETE_LOCKED",
+        "questions": [
+          {
+            "refQuestionId": 1788,
+            "refQuestionCode": "13.2",
+            "oasysQuestionId": 7387957,
+            "displayOrder": 700,
+            "questionText": "Electronic monitoring - any adverse impact to others? (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1790,
+            "refQuestionCode": "13.2.2",
+            "oasysQuestionId": 7387959,
+            "displayOrder": 710,
+            "questionText": "Is there a permanent electricity supply at the offender's address (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1786,
+            "refQuestionCode": "13.1",
+            "oasysQuestionId": 7387956,
+            "displayOrder": 10,
+            "questionText": "General Health - Any physical or mental health conditions? (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1789,
+            "refQuestionCode": "13.2.1",
+            "oasysQuestionId": 7387958,
+            "displayOrder": 705,
+            "questionText": "Is there a fixed telephone line at the offender's address that is not used for any other facilities such as answer phone, faxes, internet access (optional)",
+            "answer": {}
+          }
+        ]
+      },
+      {
+        "sectionId": 8078546,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "1",
+        "status": "COMPLETE_LOCKED",
+        "questions": [
+          {
+            "refQuestionId": 1743,
+            "refQuestionCode": "1.5",
+            "oasysQuestionId": 7387851,
+            "displayOrder": 25,
+            "questionText": "Number of court appearances at which convicted, or received a conditional or absolute discharge aged under 18 years",
+            "answer": {
+              "freeFormText": "4"
+            }
+          },
+          {
+            "refQuestionId": 1745,
+            "refQuestionCode": "1.6",
+            "oasysQuestionId": 7387852,
+            "displayOrder": 30,
+            "questionText": "Number of court appearances at which convicted, or received a conditional or absolute discharge aged 18 years and over. Do not include current appearances.",
+            "answer": {
+              "freeFormText": "4"
+            }
+          },
+          {
+            "refQuestionId": 1748,
+            "refQuestionCode": "1.7.1",
+            "oasysQuestionId": 7387849,
+            "displayOrder": 10,
+            "questionText": "Score",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1749,
+            "refQuestionCode": "1.8",
+            "oasysQuestionId": 7387854,
+            "displayOrder": 40,
+            "questionText": "Age first in contact with police: first recorded caution, reprimand or final warning (record in years)",
+            "answer": {
+              "freeFormText": "12"
+            }
+          },
+          {
+            "refQuestionId": 1742,
+            "refQuestionCode": "1.26",
+            "oasysQuestionId": 7387856,
+            "displayOrder": 130,
+            "questionText": " How many of the sum [1.5, 1.6 and 1.24] previous convictions, conditional or absolute discharges, cautions, reprimands or final warnings included any violent offences?",
+            "answer": {
+              "freeFormText": "0"
+            }
+          },
+          {
+            "refQuestionId": 1752,
+            "refQuestionCode": "S1.54",
+            "oasysQuestionId": 7387857,
+            "displayOrder": 150,
+            "questionText": "How many of the sum [1.6 and 1.24] previous convictions, conditional or absolute discharges, cautions, reprimands or final warnings included any sexual offences (or offences with a sexual element), committed at an age of 16 or over?",
+            "answer": {
+              "freeFormText": "0"
+            }
+          },
+          {
+            "refQuestionId": 1746,
+            "refQuestionCode": "1.6.1",
+            "oasysQuestionId": 7387848,
+            "displayOrder": 30,
+            "questionText": "Score",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1750,
+            "refQuestionCode": "1.8.1",
+            "oasysQuestionId": 7387850,
+            "displayOrder": 10,
+            "questionText": "Score",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1747,
+            "refQuestionCode": "1.7",
+            "oasysQuestionId": 7387853,
+            "displayOrder": 35,
+            "questionText": "Age at first conviction, conditional or absolute discharge (record in years)",
+            "answer": {
+              "freeFormText": "15"
+            }
+          },
+          {
+            "refQuestionId": 1744,
+            "refQuestionCode": "1.5.1",
+            "oasysQuestionId": 7387847,
+            "displayOrder": 10,
+            "questionText": "Score",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1741,
+            "refQuestionCode": "1.24",
+            "oasysQuestionId": 7387855,
+            "displayOrder": 120,
+            "questionText": "Number of previous formal cautions, reprimands and final warnings",
+            "answer": {
+              "freeFormText": "2"
+            }
+          }
+        ]
+      },
+      {
+        "sectionId": 8078549,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "4",
+        "refSectionCrimNeedScoreThreshold": 3,
+        "status": "COMPLETE_LOCKED",
+        "sectionOgpWeightedScore": 0,
+        "sectionOgpRawScore": 0,
+        "sectionOvpWeightedScore": 0,
+        "sectionOvpRawScore": 0,
+        "sectionOtherWeightedScore": 0,
+        "lowScoreAttentionNeeded": "N",
+        "questions": [
+          {
+            "refQuestionId": 1958,
+            "refQuestionCode": "4.6",
+            "oasysQuestionId": 7387884,
+            "displayOrder": 50,
+            "questionText": "School attendance (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1954,
+            "refQuestionCode": "4.2",
+            "oasysQuestionId": 7387880,
+            "displayOrder": 10,
+            "questionText": "Is the person unemployed, or will be unemployed on release",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1955,
+            "refQuestionCode": "4.3",
+            "oasysQuestionId": 7387881,
+            "displayOrder": 20,
+            "questionText": "Employment history",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1968,
+            "refQuestionCode": "4.98",
+            "oasysQuestionId": 7387890,
+            "displayOrder": 998,
+            "questionText": "Education / training / employability issues linked to offending behaviour",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1957,
+            "refQuestionCode": "4.5",
+            "oasysQuestionId": 7387883,
+            "displayOrder": 40,
+            "questionText": "Attitude to employment",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1966,
+            "refQuestionCode": "4.94",
+            "oasysQuestionId": 7387891,
+            "displayOrder": 994,
+            "questionText": "Identify education, training and employability issues contributing to risks of offending and harm. Please include any positive factors.",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1962,
+            "refQuestionCode": "4.9",
+            "oasysQuestionId": 7387887,
+            "displayOrder": 80,
+            "questionText": "Any educational or formal professional / vocational qualifications  (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1961,
+            "refQuestionCode": "4.8",
+            "oasysQuestionId": 7387886,
+            "displayOrder": 70,
+            "questionText": "Has learning difficulties (optional)",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1967,
+            "refQuestionCode": "4.96",
+            "oasysQuestionId": 7387889,
+            "displayOrder": 996,
+            "questionText": "Education / training / employability issues linked to risk of serious harm, risks to the individual & other risks",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1956,
+            "refQuestionCode": "4.4",
+            "oasysQuestionId": 7387882,
+            "displayOrder": 30,
+            "questionText": "Work-related skills",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1959,
+            "refQuestionCode": "4.7",
+            "oasysQuestionId": 7387885,
+            "displayOrder": 60,
+            "questionText": "Has problems with reading, writing or numeracy",
+            "answer": {}
+          },
+          {
+            "refQuestionId": 1953,
+            "refQuestionCode": "4.10",
+            "oasysQuestionId": 7387888,
+            "displayOrder": 90,
+            "questionText": "Attitude to education / training (optional)",
+            "answer": {}
+          }
+        ]
+      },
+      {
+        "sectionId": 8078564,
+        "assessmentId": 1,
+        "refAssessmentVersionCode": "LAYER3",
+        "refSectionVersionNumber": "1",
+        "refSectionCode": "SKILLSCHECKER",
+        "status": "COMPLETE_LOCKED",
+        "questions": []
+      }
+    ],
+    "layer3SentencePlanNeeds": []
+  }

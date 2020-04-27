@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -36,6 +37,7 @@ public class OffenderRestClient {
     @Autowired
     private OffenderMapper mapper;
     @Autowired
+    @Qualifier("communityApiClient")
     private RestClientHelper clientHelper;
 
     public Mono<ProbationRecord> getProbationRecordByCrn(String crn) {

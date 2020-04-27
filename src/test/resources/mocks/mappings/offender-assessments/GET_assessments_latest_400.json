@@ -1,0 +1,18 @@
+{
+    "request": {
+      "method": "GET",
+      "urlPath": "/offenders/crn/CRNXXX/assessments/latest",
+      "headers" : {
+        "Content-Type": {
+          "equalTo": "application/json"
+        }
+      }
+    },
+    "response": {
+      "status": 400,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": "{\"developerMessage\": \"Bad request\"}"
+    }
+  }

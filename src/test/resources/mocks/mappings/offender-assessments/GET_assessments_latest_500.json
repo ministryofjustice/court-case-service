@@ -1,0 +1,18 @@
+{
+    "request": {
+      "method": "GET",
+      "urlPath": "/offenders/crn/CRNXXX/assessments/latest",
+      "headers" : {
+        "Content-Type": {
+          "equalTo": "application/json"
+        }
+      }
+    },
+    "response": {
+      "status": 500,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": "{\"message\": \"Server error\"}"
+    }
+  }

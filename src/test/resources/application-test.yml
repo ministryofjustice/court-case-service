@@ -1,6 +1,6 @@
 feature:
   flags:
-    community-api-auth: false
+    disable-auth: true
     fetch-attendance-data: true
 
 database:
@@ -8,6 +8,9 @@ database:
     name: courtcaseservicetest
 
 community-api:
+  base-url: http://localhost:8090
+
+offender-assessments-api:
   base-url: http://localhost:8090
 
 spring:

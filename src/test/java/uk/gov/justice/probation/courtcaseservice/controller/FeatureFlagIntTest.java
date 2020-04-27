@@ -36,6 +36,6 @@ public class FeatureFlagIntTest {
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("fetch-attendance-data", is(true))
-                .body("community-api-auth", is(false));
+                .body("disable-auth", is(true));
     }
 }

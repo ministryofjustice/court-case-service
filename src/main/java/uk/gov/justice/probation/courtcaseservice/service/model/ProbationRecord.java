@@ -16,4 +16,6 @@ public class ProbationRecord {
     private List<OffenderManager> offenderManagers;
     @Setter
     private List<Conviction> convictions;
+    @Setter
+    private Assessment assessment;
 }

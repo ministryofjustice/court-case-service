@@ -79,6 +79,11 @@ orbs:
   helm: circleci/helm@0.1.2
   snyk: snyk/snyk@0.0.10
 
+_snyk_options: &snyk_options
+  organization: "digital-probation-services"
+  severity-threshold: "high" # note: this does not affect snyk 'monitor' commands
+  fail-on-issues: true
+
 jobs:
   build:
     executor: builder
@@ -120,6 +125,10 @@ jobs:
 
   build_docker:
     executor: deployer
+    parameters:
+      master:
+        type: boolean
+        default: false
     steps:
       - checkout
       - attach_workspace:
@@ -138,38 +147,49 @@ jobs:
                --label "build.number=$CIRCLE_BUILD_NUM" \
                --label "build.url=$CIRCLE_BUILD_URL" \
                --label "build.gitref=$CIRCLE_SHA1"
+      - snyk/scan:
+          project: '${CIRCLE_PROJECT_REPONAME}-docker/${CIRCLE_BRANCH}'
+          docker-image-name: 'mojdigitalstudio/court-case-service:$APP_VERSION'
+          target-file: 'Dockerfile'
+          monitor-on-build: << parameters.master >>
+          <<: *snyk_options
+      - when:
+          condition: << parameters.master >>
+          steps:
+            - run:
+                name: Publish to docker hub
+                command: |
+                  docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+                  docker tag mojdigitalstudio/court-case-service:$APP_VERSION mojdigitalstudio/court-case-service:latest
+                  docker push mojdigitalstudio/court-case-service:$APP_VERSION
+                  docker push mojdigitalstudio/court-case-service:latest
+                  fi
 
-            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
-              # publish to docker hub as the tag
-             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-             docker tag mojdigitalstudio/court-case-service:$APP_VERSION mojdigitalstudio/court-case-service:latest
-             docker push mojdigitalstudio/court-case-service:$APP_VERSION
-             docker push mojdigitalstudio/court-case-service:latest
-            fi
-
-  app-scan:
+  app_scan:
     executor: builder
+    parameters:
+      master:
+        type: boolean
+        default: false
     steps:
       - checkout
       - snyk/scan:
-          fail-on-issues: false
-          monitor-on-build: true
           project: '${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH}'
-          organization: 'digital-probation-services'
+          monitor-on-build: << parameters.master >>
+          <<: *snyk_options
 
-  image-scan:
+  image_scan:
     executor: deployer
     steps:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
       - snyk/scan:
+          project: '${CIRCLE_PROJECT_REPONAME}-docker/${CIRCLE_BRANCH}'
           docker-image-name: 'mojdigitalstudio/court-case-service:latest'
           target-file: 'Dockerfile'
-          fail-on-issues: false
           monitor-on-build: true
-          project: '${CIRCLE_PROJECT_REPONAME}/latest'
-          organization: 'digital-probation-services'
+          <<: *snyk_options
 
   sonar-scan:
     executor: sonar-scanner
@@ -233,10 +253,21 @@ workflows:
       - sonar-scan:
           requires:
             - build
-      - app-scan
-      - image-scan
+      - app_scan:
+          master: true
+      - image_scan
   build-test-and-deploy:
     jobs:
+      - app_scan:
+          filters:
+            branches:
+              ignore: master
+      - app_scan:
+          name: app_scan_master
+          filters:
+            branches:
+              only: master
+          master: true
       - build:
           filters:
             tags:
@@ -246,7 +277,15 @@ workflows:
             - build
           filters:
             branches:
+              ignore: master
+      - build_docker:
+          name: build_docker_master
+          requires:
+            - build
+          filters:
+            branches:
               only: master
+          master: true
       - deploy_dev:
           requires:
             - build_docker

@@ -24,8 +24,10 @@ import java.time.format.DateTimeFormatter;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 
 @RunWith(SpringRunner.class)
@@ -49,7 +51,7 @@ public class OffenderControllerIntTest {
     }
 
     @ClassRule
-    public static WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
+    public static  final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
                                                                 .port(WIREMOCK_PORT)
                                                                 .usingFilesUnderClasspath("mocks"));
 
@@ -91,12 +93,7 @@ public class OffenderControllerIntTest {
                 .body("convictions[0].sentence.lengthInDays", equalTo(0))
                 .body("convictions[0].sentence.terminationDate", equalTo(standardDateOf(2020, 1, 1)))
                 .body("convictions[0].sentence.terminationReason", equalTo("Auto Terminated"))
-                .body("convictions[0].sentence.unpaidWork.minutesOffered", equalTo(480))
-                .body("convictions[0].sentence.unpaidWork.minutesCompleted", equalTo(60))
-                .body("convictions[0].sentence.unpaidWork.appointmentsToDate", equalTo(12))
-                .body("convictions[0].sentence.unpaidWork.attended", equalTo(2))
-                .body("convictions[0].sentence.unpaidWork.acceptableAbsences", equalTo(2))
-                .body("convictions[0].sentence.unpaidWork.unacceptableAbsences", equalTo(1))
+                .body("convictions[0].sentence", not(hasKey("unpaidWork")))
                 .body("convictions[0].convictionDate", equalTo(standardDateOf(2019, 9,16)))
                 .body("convictions[0].documents", hasSize(0))
 

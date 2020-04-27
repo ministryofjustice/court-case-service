@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import java.time.LocalDate;
@@ -17,5 +18,7 @@ public class Sentence {
     private Integer lengthInDays;
     private LocalDate terminationDate;
     private String terminationReason;
+
+    @JsonIgnore
     private UnpaidWork unpaidWork;
 }

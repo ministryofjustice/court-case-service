@@ -184,7 +184,7 @@ public class OffenderMapperTest {
         assertThat(convictions.get(0)).isEqualToComparingFieldByField(expectedConviction);
     }
 
-    @DisplayName("Maps convictions response to court case service conviction. Sentence set but no unpaid work.")
+    @DisplayName("Maps convictions response to court case service conviction.")
     @Test
     void shouldMapConvictionDetailsToConvictionSentenceSetNullUnpaidWord() {
 

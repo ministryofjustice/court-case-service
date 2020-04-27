@@ -149,6 +149,7 @@ public class OffenderMapper {
                 .attended(communityApiUnpaidWork.getAppointments().getAttended())
                 .acceptableAbsences(communityApiUnpaidWork.getAppointments().getAcceptableAbsences())
                 .unacceptableAbsences(communityApiUnpaidWork.getAppointments().getUnacceptableAbsences())
+                .status(communityApiUnpaidWork.getStatus())
                 .build();
     }
 

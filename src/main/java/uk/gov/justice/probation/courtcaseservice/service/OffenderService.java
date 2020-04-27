@@ -9,8 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
+import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
@@ -22,23 +24,45 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Offender
 @Slf4j
 public class OffenderService {
 
-    private final OffenderRestClient client;
+    private final OffenderRestClient defaultClient;
+    private final AssessmentsRestClient assessmentsClient;
 
     private final Predicate<OffenderDocumentDetail> documentTypeFilter;
 
-    public OffenderService(final OffenderRestClient client, final DocumentTypeFilter documentTypeFilter) {
-        this.client = client;
+    public OffenderService(final OffenderRestClient defaultClient,
+                           final AssessmentsRestClient assessmentsClient,
+                           final DocumentTypeFilter documentTypeFilter) {
+        this.defaultClient = defaultClient;
+        this.assessmentsClient = assessmentsClient;
         this.documentTypeFilter = documentTypeFilter;
     }
 
     public ProbationRecord getProbationRecord(String crn, boolean applyDocumentFilter) {
+        // These calls are split into 2 monos to allow different behaviour depending on whether the data
+        // is missing from the community api (delius) or the assessments api (oasys). In the latter case
+        // we can still get most of the important information to populate the response so do not need to
+        // throw an exception. In this sense, the oasys assessment data is optional.
+        Mono<Tuple3<ProbationRecord, List<Conviction>, GroupedDocuments>> probationMono = Mono.zip(
+            defaultClient.getProbationRecordByCrn(crn),
+            defaultClient.getConvictionsByCrn(crn),
+            defaultClient.getDocumentsByCrn(crn)
+        );
+        Mono<Assessment> assessmentMono = assessmentsClient.getAssessmentByCrn(crn);
 
-        Tuple3<ProbationRecord, List<Conviction>, GroupedDocuments> tuple3 = Mono.zip(client.getProbationRecordByCrn(crn), client.getConvictionsByCrn(crn), client.getDocumentsByCrn(crn))
-            .blockOptional()
-            .orElseThrow(() -> new OffenderNotFoundException(crn));
-
+        var tuple3 = probationMono.blockOptional().orElseThrow(() -> new OffenderNotFoundException(crn));
         ProbationRecord probationRecord = addConvictionsToProbationRecord(tuple3.getT1(), tuple3.getT2());
         combineConvictionsAndDocuments(probationRecord, tuple3.getT3().getConvictions(), applyDocumentFilter);
+
+        // The code below handles 2 different classes of exceptions which could be thrown when the mono is resolved.
+        // Currently the error is ignored in both cases. However there is an ongoing discussion about how we should
+        // populate the response based on the type of error we encounter - see PIC-432 for more details.
+        try {
+            assessmentMono.blockOptional().ifPresent(assessment -> probationRecord.setAssessment(assessment));
+        } catch (OffenderNotFoundException e) {
+            log.info("assessment data missing from probation record (CRN '{}' not found in oasys)", crn);
+        } catch (Exception e) {
+            log.warn("assessment data missing from probation record for CRN '{}': {}", crn, e.toString());
+        }
 
         return probationRecord;
     }
@@ -67,7 +91,7 @@ public class OffenderService {
     }
 
     public List<Requirement> getConvictionRequirements(String crn, String convictionId) {
-        return client.getConvictionRequirements(crn, convictionId).block();
+        return defaultClient.getConvictionRequirements(crn, convictionId).block();
     }
 
 }

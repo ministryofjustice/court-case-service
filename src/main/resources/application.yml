@@ -25,15 +25,23 @@ spring:
     oauth2:
       client:
         registration:
-          nomis-oauth-client:
-            client-name: nomis-oauth-client
-            client-id: ${nomis-oauth-client-id:community-api-client}
-            client-secret: ${nomis-oauth-client-secret:clientsecret}
+          community-api-client:
+            client-name: community-api-client
+            client-id: ${community-api-client-id:community-api-client}
+            client-secret: ${community-api-client-secret:clientsecret}
             client-authentication-method: basic
             authorization-grant-type: client_credentials
+            provider: nomis-oauth-service
+          offender-assessments-api-client:
+            client-name: offender-assessments-api-client
+            client-id: ${offender-assessments-api.client-id}
+            client-secret: ${offender-assessments-api.client-secret}
+            client-authentication-method: basic
+            authorization-grant-type: client_credentials
+            provider: nomis-oauth-service
         provider:
-          nomis-oauth-client:
-            token-uri: ${nomis-oauth.base-url:http://localhost:8095}/auth/oauth/token
+          nomis-oauth-service:
+            token-uri: ${nomis-oauth.base-url:http://oauth:8095}/auth/oauth/token
 
   datasource:
     url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=${database.schema.name}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
@@ -59,3 +67,6 @@ community-api:
   grouped-documents-by-crn-url-template: ${community-api.base-url}/secure/offenders/crn/%s/documents/grouped
   probation-record-filter.document.types: "COURT_REPORT_DOCUMENT"
   probation-record-filter.document.subtype.codes: "CJF,CJO,CJS,PSA,PSB,PSN,PSR,SSR,XPR,CR02,CR05"
+
+offender-assessments-api:
+  latest-assessment-crn-url-template: ${offender-assessments-api.base-url}/offenders/crn/%s/assessments/latest

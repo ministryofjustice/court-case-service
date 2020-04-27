@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,6 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Offender
 @ApiModel("Conviction")
 @Getter
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Conviction {
     private String convictionId;
     private Boolean active;

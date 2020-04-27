@@ -59,7 +59,7 @@ public class ConvictionControllerIntTest {
     }
 
     @ClassRule
-    public static WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
+    public static final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
         .port(WIREMOCK_PORT)
         .usingFilesUnderClasspath("mocks"));
 
@@ -99,7 +99,9 @@ public class ConvictionControllerIntTest {
                                                                                             .appointmentsToDate(5)
                                                                                             .attended(2)
                                                                                             .acceptableAbsences(1)
-                                                                                            .unacceptableAbsences(1));
+                                                                                            .unacceptableAbsences(1)
+                                                                                            .status("Being worked")
+                                                                                            .build());
     }
 
     @Test

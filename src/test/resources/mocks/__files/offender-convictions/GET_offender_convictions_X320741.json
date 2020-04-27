@@ -39,6 +39,7 @@
       "unpaidWork": {
         "minutesOrdered": 480,
         "minutesCompleted": 60,
+        "status": "Being worked",
         "appointments": {
           "total": 12,
           "attended": 2,

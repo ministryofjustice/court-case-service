@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDate;
@@ -11,6 +12,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AttendanceResponse {
 
     @ApiModelProperty(required = true)

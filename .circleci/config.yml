@@ -288,7 +288,10 @@ workflows:
           master: true
       - deploy_dev:
           requires:
-            - build_docker
+            - build_docker_master
+          filters:
+            branches:
+              only: master
       - request-preprod-approval:
           type: approval
           requires:

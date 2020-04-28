@@ -75,6 +75,7 @@ executors:
 
 orbs:
   aws-cli: circleci/aws-cli@0.1.13
+  dps: ministryofjustice/dps@1.2.1
   kubernetes: circleci/kubernetes@0.3.0
   helm: circleci/helm@0.1.2
   snyk: snyk/snyk@0.0.10
@@ -241,6 +242,10 @@ workflows:
           filters:
             tags:
               ignore: /.*/
+      - dps/helm_lint:
+          name: helm_lint_dev
+          env: dev
+          chart_name: court-case-service
       - build_docker:
           requires:
             - build
@@ -249,7 +254,11 @@ workflows:
               only: master
       - deploy_dev:
           requires:
+            - helm_lint_dev
             - build_docker
+          filters:
+            branches:
+              only: master
       - request-preprod-approval:
           type: approval
           requires:

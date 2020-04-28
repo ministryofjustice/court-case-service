@@ -3,7 +3,7 @@ import java.time.LocalDate
 
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.2.2.RELEASE'
+    id 'org.springframework.boot' version '2.2.6.RELEASE'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'com.github.ben-manes.versions' version '0.26.0'
     id "org.flywaydb.flyway" version "6.1.0"
@@ -164,16 +164,11 @@ dependencies {
     testCompile "com.github.tomakehurst:wiremock-jre8:2.26.2"
     testCompile("org.springframework.retry:spring-retry:1.2.5.RELEASE")
 
-    implementation ('org.springframework:spring-web:5.2.3.RELEASE') {
-        because 'Transitive dependency. Previous versions have a known vulnerability'
-    }
     implementation ('org.dom4j:dom4j:2.1.3') {
         because 'Transitive dependency. Previous versions have a known vulnerability'
     }
-    implementation ('io.netty:netty-codec-http:4.1.44.Final') {
-        because 'Transitive dependency. Previous versions have a known vulnerability'
-    }
-    implementation ('io.netty:netty-codec:4.1.49.Final') {
+
+    implementation ('org.yaml:snakeyaml:1.26') {
         because 'Transitive dependency. Previous versions have a known vulnerability'
     }
 

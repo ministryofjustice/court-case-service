@@ -43,6 +43,9 @@ env:
   - name: NOMIS_OAUTH_BASE_URL
     value: "{{ .Values.env.nomis_oauth.base_url }}"
 
+  - name: OFFENDER_ASSESSMENTS_API_BASE_URL
+    value: "{{ .Values.env.offender_assessments_api.base_url }}"
+
   - name: NOMIS_OAUTH_CLIENT_ID
     valueFrom:
       secretKeyRef:

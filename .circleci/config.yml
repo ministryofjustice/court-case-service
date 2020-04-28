@@ -171,7 +171,6 @@ jobs:
                   docker tag mojdigitalstudio/court-case-service:$APP_VERSION mojdigitalstudio/court-case-service:latest
                   docker push mojdigitalstudio/court-case-service:$APP_VERSION
                   docker push mojdigitalstudio/court-case-service:latest
-                  fi
 
   app_scan:
     executor: builder
@@ -199,7 +198,7 @@ jobs:
           monitor-on-build: true
           <<: *snyk_options
 
-  sonar-scan:
+  sonar_scan:
     executor: sonar-scanner
     steps:
       - checkout
@@ -258,7 +257,7 @@ workflows:
           filters:
             tags:
               ignore: /.*/
-      - sonar-scan:
+      - sonar_scan:
           requires:
             - build
       - app_scan:
@@ -300,19 +299,19 @@ workflows:
           filters:
             branches:
               only: master
-      - request-preprod-approval:
+      - request_preprod_approval:
           type: approval
           requires:
             - deploy_dev
       - deploy_preprod:
           context: court-probation-preprod
           requires:
-            - request-preprod-approval
-      - request-prod-approval:
+            - request_preprod_approval
+      - request_prod_approval:
           type: approval
           requires:
             - deploy_preprod
       - deploy_prod:
           context: court-probation-prod
           requires:
-            - request-prod-approval
+            - request_prod_approval

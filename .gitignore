@@ -3,6 +3,7 @@ HELP.md
 /build/
 !gradle/wrapper/gradle-wrapper.jar
 **/.DS_Store
+/bin/
 
 
 ### STS ###

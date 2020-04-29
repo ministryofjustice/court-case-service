@@ -51,13 +51,13 @@ public class CourtCaseControllerIntTest {
 
     private static final String CRN = "X320741";
     private static final String CASE_ID = "123456";
-    private final String COURT_CODE = "SHF";
-    private final String NEW_CASE_ID = "654321";
-    private final String CASE_NO = "1600028913";
-    private final String NEW_CASE_NO = "1700028914";
-    private final String PROBATION_STATUS = "Previously known";
-    private final String NOT_FOUND_COURT_CODE = "LPL";
-    private final String DEFENDANT_NAME = "JTEST";
+    private static final String COURT_CODE = "SHF";
+    private static final String NEW_CASE_ID = "654321";
+    private static final String CASE_NO = "1600028913";
+    private static final String NEW_CASE_NO = "1700028914";
+    private static final String PROBATION_STATUS = "Previously known";
+    private static final String NOT_FOUND_COURT_CODE = "LPL";
+    private static final String DEFENDANT_NAME = "JTEST";
     private final LocalDateTime now = LocalDateTime.now();
     private final LocalDateTime sessionStartTime = LocalDateTime.of(2019, 12, 14,9, 0);
     private final CourtCaseEntity caseDetails = new CourtCaseEntity();

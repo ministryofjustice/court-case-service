@@ -16,7 +16,7 @@ class RestClientHelperTest {
 
     @BeforeEach
     void beforeEach() {
-        this.restClientHelper = new RestClientHelper();
+        this.restClientHelper = new RestClientHelper(null, "", false);
     }
 
     @DisplayName("CRN error handling when we get a NOT FOUND HttpStatus")

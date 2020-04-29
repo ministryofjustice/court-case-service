@@ -8,6 +8,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType.COURT_REPORT_DOCUMENT;
 
+import java.net.ConnectException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -18,8 +20,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
@@ -36,6 +40,8 @@ class OffenderServiceTest {
     public static final String CONVICTION_ID = "CONVICTION_ID";
 
     @Mock
+    private AssessmentsRestClient assessmentsRestClient;
+    @Mock
     private OffenderRestClient offenderRestClient;
     @Mock
     private List<Requirement> expectedRequirements;
@@ -46,6 +52,7 @@ class OffenderServiceTest {
     private OffenderService service;
     private GroupedDocuments groupedDocuments;
     private Conviction conviction;
+    private Assessment assessment;
 
     @BeforeEach
     void beforeEach() {
@@ -67,7 +74,8 @@ class OffenderServiceTest {
             .documents(Collections.emptyList())
             .build();
         this.conviction = Conviction.builder().convictionId("123").build();
-        this.service = new OffenderService(offenderRestClient, documentTypeFilter);
+        this.assessment = Assessment.builder().type("LAYER_3").completed(LocalDateTime.of(2020,4,23,10,5,20)).build();
+        this.service = new OffenderService(offenderRestClient, assessmentsRestClient, documentTypeFilter);
     }
 
     @DisplayName("Getting offender also includes calls to get convictions and conviction documents and merges the results")
@@ -76,6 +84,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         ProbationRecord probationRecord = service.getProbationRecord(CRN, false);
 
@@ -86,9 +95,11 @@ class OffenderServiceTest {
         assertThat(conviction.getDocuments()).hasSize(2);
         assertThat(conviction.getDocuments().get(0).getDocumentName()).isEqualTo("PSR");
         assertThat(conviction.getDocuments().get(1).getDocumentName()).isEqualTo("CPS");
+        assertThat(probationRecord.getAssessment().getType()).isEqualTo("LAYER_3");
         verify(offenderRestClient).getProbationRecordByCrn(CRN);
         verify(offenderRestClient).getConvictionsByCrn(CRN);
         verify(offenderRestClient).getDocumentsByCrn(CRN);
+        verify(assessmentsRestClient).getAssessmentByCrn(CRN);
         verifyNoMoreInteractions(offenderRestClient);
     }
 
@@ -98,6 +109,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         ProbationRecord probationRecord = service.getProbationRecord(CRN, true);
 
@@ -117,6 +129,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.empty());
+        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         assertThatExceptionOfType(OffenderNotFoundException.class)
                 .isThrownBy(() -> service.getProbationRecord(CRN, true))
@@ -129,6 +142,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.empty());
+        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         assertThatExceptionOfType(OffenderNotFoundException.class)
                 .isThrownBy(() -> service.getProbationRecord(CRN, true))
@@ -144,5 +158,47 @@ class OffenderServiceTest {
         List<Requirement> requirements = service.getConvictionRequirements(CRN, CONVICTION_ID);
         assertThat(requirements).isSameAs(expectedRequirements);
         verify(offenderRestClient).getConvictionRequirements(CRN, CONVICTION_ID);
+    }
+
+    @DisplayName("Getting probation record does not throw exception when oasys assessment data is missing")
+    @Test
+    public void givenAssessmentNotFound_whenGetOffender_thenDoNotThrowException() {
+        when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
+        when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
+        when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+        // throw OffenderNotFoundException to simulate a 404 returned by assessments api
+        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
+
+        ProbationRecord probationRecord = service.getProbationRecord(CRN, false);
+        assertThat(probationRecord).isNotNull();
+
+        // the assessment field should just be empty
+        assertThat(probationRecord.getAssessment()).isNull();
+
+        // but the rest of the record should be populated as normal
+        assertThat(probationRecord.getConvictions()).hasSize(1);
+        final Conviction conviction = probationRecord.getConvictions().get(0);
+        assertThat(conviction.getDocuments()).hasSize(2);
+    }
+
+    @DisplayName("Getting probation record does not throw exception when assessment api fails for any reason")
+    @Test
+    public void givenAssessmentRequestFails_whenGetOffender_thenDoNotThrowException() {
+        when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
+        when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
+        when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+        // throw ConnectException to simulate server side connection issues
+        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.error(new ConnectException("Connection refused")));
+
+        ProbationRecord probationRecord = service.getProbationRecord(CRN, false);
+        assertThat(probationRecord).isNotNull();
+
+        // the assessment field should just be empty
+        assertThat(probationRecord.getAssessment()).isNull();
+
+        // but the rest of the record should be populated as normal
+        assertThat(probationRecord.getConvictions()).hasSize(1);
+        final Conviction conviction = probationRecord.getConvictions().get(0);
+        assertThat(conviction.getDocuments()).hasSize(2);
     }
 }

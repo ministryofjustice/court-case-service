@@ -3,3 +3,6 @@ community-api:
 
 nomis-oauth:
   base-url: https://gateway.t3.nomis-api.hmpps.dsd.io
+
+offender-assessments-api:
+  base-url: https://dev.devtest.assessment-api.hmpps.dsd.io

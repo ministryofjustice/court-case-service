@@ -42,7 +42,8 @@
         "acceptableAbsences": 1,
         "unacceptableAbsences": 1,
         "noOutcomeRecorded": 1
-      }
+      },
+      "status": "Being worked"
     },
     "startDate": "2017-06-01",
     "terminationDate": "2017-12-01",

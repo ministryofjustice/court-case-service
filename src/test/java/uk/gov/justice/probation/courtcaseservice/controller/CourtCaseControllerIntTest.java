@@ -65,7 +65,7 @@ public class CourtCaseControllerIntTest {
     private static final String NOT_FOUND_COURT_CODE = "LPL";
     private static final String DEFENDANT_NAME = "JTEST";
     private final LocalDateTime now = LocalDateTime.now();
-    private final LocalDateTime sessionStartTime = LocalDateTime.of(2019, 12, 14,9, 0);
+    private final LocalDateTime sessionStartTime = LocalDateTime.of(2019, 12, 14, 9, 0);
     private final CourtCaseEntity caseDetails = new CourtCaseEntity();
     private String caseDetailsJson;
 
@@ -83,7 +83,7 @@ public class CourtCaseControllerIntTest {
         caseDetails.setSessionStartTime(now);
         caseDetails.setProbationStatus(PROBATION_STATUS);
         caseDetails.setLastUpdated(now);
-        caseDetails.setPreviouslyKnownTerminationDate(LocalDate.of(2010,1,1));
+        caseDetails.setPreviouslyKnownTerminationDate(LocalDate.of(2010, 1, 1));
         caseDetails.setSuspendedSentenceOrder(true);
         caseDetails.setBreach(true);
         caseDetails.setDefendantName(DEFENDANT_NAME);
@@ -188,9 +188,6 @@ public class CourtCaseControllerIntTest {
                 .body("defendantAddress.line5", equalTo(null));
 
 
-
-
-
     }
 
 
@@ -236,7 +233,7 @@ public class CourtCaseControllerIntTest {
 
         caseDetails.setCourtCode(NOT_FOUND_COURT_CODE);
 
-        uk.gov.justice.probation.courtcaseservice.controller.ErrorResponse result = (uk.gov.justice.probation.courtcaseservice.controller.ErrorResponse) given()
+        ErrorResponse result = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(caseDetails)

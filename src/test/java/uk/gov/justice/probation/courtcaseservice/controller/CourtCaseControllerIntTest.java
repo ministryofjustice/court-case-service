@@ -50,6 +50,12 @@ public class CourtCaseControllerIntTest {
     CourtCaseRepository courtCaseRepository;
 
     private static final String CRN = "X320741";
+    private static final String PNC = "A/1234560BA";
+    private static final String LIST_NO = "1st";
+    private static final LocalDate DEFENDANT_DOB = LocalDate.of(1958, 12, 14);
+    private static final String DEFENDANT_SEX = "M";
+    private static final String NATIONALITY_1 = "British";
+    private static final String NATIONALITY_2 = "Polish";
     private static final String CASE_ID = "123456";
     private static final String COURT_CODE = "SHF";
     private static final String NEW_CASE_ID = "654321";
@@ -59,7 +65,7 @@ public class CourtCaseControllerIntTest {
     private static final String NOT_FOUND_COURT_CODE = "LPL";
     private static final String DEFENDANT_NAME = "JTEST";
     private final LocalDateTime now = LocalDateTime.now();
-    private final LocalDateTime sessionStartTime = LocalDateTime.of(2019, 12, 14,9, 0);
+    private final LocalDateTime sessionStartTime = LocalDateTime.of(2019, 12, 14, 9, 0);
     private final CourtCaseEntity caseDetails = new CourtCaseEntity();
     private String caseDetailsJson;
 
@@ -76,13 +82,18 @@ public class CourtCaseControllerIntTest {
         caseDetails.setCourtRoom("1");
         caseDetails.setSessionStartTime(now);
         caseDetails.setProbationStatus(PROBATION_STATUS);
-        caseDetails.setData("{}");
         caseDetails.setLastUpdated(now);
-        caseDetails.setPreviouslyKnownTerminationDate(LocalDate.of(2010,1,1));
+        caseDetails.setPreviouslyKnownTerminationDate(LocalDate.of(2010, 1, 1));
         caseDetails.setSuspendedSentenceOrder(true);
         caseDetails.setBreach(true);
         caseDetails.setDefendantName(DEFENDANT_NAME);
         caseDetails.setDefendantAddress(addressProperty);
+        caseDetails.setPnc(PNC);
+        caseDetails.setListNo(LIST_NO);
+        caseDetails.setDefendantDob(DEFENDANT_DOB);
+        caseDetails.setDefendantSex(DEFENDANT_SEX);
+        caseDetails.setNationality1(NATIONALITY_1);
+        caseDetails.setNationality2(NATIONALITY_2);
     }
 
     @Test
@@ -175,9 +186,6 @@ public class CourtCaseControllerIntTest {
                 .body("defendantAddress.line3", equalTo("Bangor"))
                 .body("defendantAddress.line4", equalTo(null))
                 .body("defendantAddress.line5", equalTo(null));
-
-
-
 
 
     }
@@ -306,6 +314,12 @@ public class CourtCaseControllerIntTest {
                 .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
                 .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
                 .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
+                .body("pnc", equalTo(PNC))
+                .body("listNo", equalTo(LIST_NO))
+                .body("defendantDob", equalTo(LocalDate.of(1958, 12, 14).format(DateTimeFormatter.ISO_LOCAL_DATE)))
+                .body("defendantSex", equalTo(DEFENDANT_SEX))
+                .body("nationality1", equalTo(NATIONALITY_1))
+                .body("nationality2", equalTo(NATIONALITY_2))
         ;
 
     }
@@ -328,6 +342,12 @@ public class CourtCaseControllerIntTest {
                 .body("caseId", equalTo(NEW_CASE_ID))
                 .body("caseNo", equalTo(NEW_CASE_NO))
                 .body("crn", equalTo(CRN))
+                .body("pnc", equalTo(PNC))
+                .body("listNo", equalTo(LIST_NO))
+                .body("defendantDob", equalTo(LocalDate.of(1958, 12, 14).format(DateTimeFormatter.ISO_LOCAL_DATE)))
+                .body("defendantSex", equalTo(DEFENDANT_SEX))
+                .body("nationality1", equalTo(NATIONALITY_1))
+                .body("nationality2", equalTo(NATIONALITY_2))
                 .body("courtCode", equalTo(COURT_CODE))
                 .body("courtRoom", equalTo("2"))
                 .body("probationStatus", equalTo(PROBATION_STATUS))
@@ -347,6 +367,7 @@ public class CourtCaseControllerIntTest {
                 .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
                 .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
                 .body("offences[1].offenceTitle", equalTo("Theft from a different shop"));
+
     }
 
     @Test

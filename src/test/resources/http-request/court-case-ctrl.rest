@@ -7,6 +7,8 @@ Content-Type: application/json
   "caseId": "26081969",
   "caseNo": "2608196900",
   "crn": "X111111",
+  "pnc": "A/1234560BA",
+  "listNo": "1st",
   "courtCode": "SHF",
   "courtRoom": "1",
   "sessionStartTime": "2020-01-13T09:00:00",
@@ -14,7 +16,6 @@ Content-Type: application/json
   "previouslyKnownTerminationDate": null,
   "suspendedSentenceOrder": true,
   "breach": true,
-  "data": "{\"inf\": \"POL01\", \"c_id\": 1168463, \"cseq\": 1, \"h_id\": 1246257, \"type\": \"C\", \"valid\": \"Y\", \"caseno\": 1600028974, \"listno\": \"1st\", \"def_age\": 29, \"def_dob\": \"02/08/1990\", \"def_sex\": \"N\", \"def_addr\": {\"line1\": \"line1\", \"line2\": \"line2\", \"line3\": \"line3\", \"pcode\": \"S1 6ua\"}, \"def_name\": \"Mr Dylan Adam Armstrong\", \"def_type\": \"P\", \"offences\": {\"offence\": {\"as\": \"Contrary to section 363(2) and (4) of the Communications Act 2003.\", \"sof\": \".\", \"sum\": \"On 05/09/2016 used a colour television receiver without a licence at the above address.\", \"code\": \"CA03010\", \"oseq\": 1, \"co_id\": 1142431, \"title\": \"Use a television set without a licence\", \"maxpen\": \"S: L3\"}}}",
   "offences": [],
   "defendantName": "Mr Christopher Faulkner Esq.",
   "defendantAddress": {
@@ -24,7 +25,11 @@ Content-Type: application/json
     "line3": "Bangor",
     "line4": null,
     "line5": null
-  }
+  },
+  "defendantSex": "M",
+  "defendantDob": "1977-12-12",
+  "nationality1": "British",
+  "nationality2": null
 }
 
 ###
@@ -38,6 +43,8 @@ Content-Type: application/json
   "caseId": "1168460",
   "caseNo": "2608196900",
   "crn": "X320744",
+  "pnc": "D/1234560BC",
+  "listNo": "2nd",
   "courtCode": "SHF",
   "courtRoom": "1",
   "sessionStartTime": "2020-01-13T09:00:00",
@@ -45,7 +52,6 @@ Content-Type: application/json
   "previouslyKnownTerminationDate": null,
   "suspendedSentenceOrder": true,
   "breach": true,
-  "data": "{\"inf\": \"POL01\", \"c_id\": 1168463, \"cseq\": 1, \"h_id\": 1246257, \"type\": \"C\", \"valid\": \"Y\", \"caseno\": 1600028974, \"listno\": \"1st\", \"def_age\": 29, \"def_dob\": \"02/08/1990\", \"def_sex\": \"N\", \"def_addr\": {\"line1\": \"line1\", \"line2\": \"line2\", \"line3\": \"line3\", \"pcode\": \"S1 6ua\"}, \"def_name\": \"Mr Dylan Adam Armstrong\", \"def_type\": \"P\", \"offences\": {\"offence\": {\"as\": \"Contrary to section 363(2) and (4) of the Communications Act 2003.\", \"sof\": \".\", \"sum\": \"On 05/09/2016 used a colour television receiver without a licence at the above address.\", \"code\": \"CA03010\", \"oseq\": 1, \"co_id\": 1142431, \"title\": \"Use a television set without a licence\", \"maxpen\": \"S: L3\"}}}",
   "offences": [],
   "defendantName": "Mr Dylan Adam Armstrong",
   "defendantAddress": {
@@ -55,7 +61,11 @@ Content-Type: application/json
     "line3": "Bangor",
     "line4": null,
     "line5": null
-  }
+  },
+  "defendantSex": "M",
+  "defendantDob": "1957-12-12",
+  "nationality1": "British",
+  "nationality2": null
 }
 
 ### COURT AND CASE ENDPOINT

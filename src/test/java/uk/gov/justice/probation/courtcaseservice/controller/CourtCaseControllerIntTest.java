@@ -2,7 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
-//import com.nimbusds.oauth2.sdk.ErrorResponse;
 import io.restassured.http.ContentType;
 import org.junit.Before;
 import org.junit.Test;

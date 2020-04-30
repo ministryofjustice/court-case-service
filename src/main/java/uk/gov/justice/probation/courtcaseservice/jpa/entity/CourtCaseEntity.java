@@ -71,12 +71,26 @@ public class CourtCaseEntity implements Serializable {
     @Column(columnDefinition = "jsonb", name = "DEFENDANT_ADDRESS")
     private AddressPropertiesEntity defendantAddress;
 
-    @Type(type = "jsonb")
-    @Column(columnDefinition = "jsonb", name = "DATA")
-    private String data;
-
     @Column(name = "CRN")
     private String crn;
+
+    @Column(name = "PNC")
+    private String pnc;
+
+    @Column(name = "LIST_NO")
+    private String listNo;
+
+    @Column(name = "DEFENDANT_DOB")
+    private LocalDate defendantDob;
+
+    @Column(name = "DEFENDANT_SEX")
+    private String defendantSex;
+
+    @Column(name = "NATIONALITY_1")
+    private String nationality1;
+
+    @Column(name = "NATIONALITY_2")
+    private String nationality2;
 
     public CourtSession getSession() {
         return CourtSession.from(sessionStartTime);

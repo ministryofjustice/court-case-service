@@ -126,4 +126,16 @@ public class OffenderRestClientIntTest {
     public void givenOffenderDoesNotExist_whenGetConvictionsDocumentsByCrnCalled_ThrowException() {
         offenderRestClient.getDocumentsByCrn("CRNXXX").block();
     }
-}
+
+    @Test
+    public void whenGetBreaches_thenMakeRestCallToCommunityApi() {
+        var optionalBreaches = offenderRestClient.getBreaches(CRN, CONVICTION_ID).blockOptional();
+        assertThat(optionalBreaches).isNotEmpty();
+
+        var breaches = optionalBreaches.get();
+        assertThat(breaches.size()).isEqualTo(1);
+
+        var breach = breaches.get(0);
+        assertThat(breach.getStatus()).isEqualTo("Breach Initiated");
+        assertThat(breach.getDescription()).isEqualTo("Community Order");
+    }}

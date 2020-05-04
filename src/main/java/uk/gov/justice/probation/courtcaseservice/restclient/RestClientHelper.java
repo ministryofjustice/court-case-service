@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -21,18 +22,26 @@ public class RestClientHelper {
     private String oauthClient;
     private Boolean disableAuthentication;
 
-    WebClient.RequestHeadersSpec<?> get(final String url) {
+    WebClient.RequestHeadersSpec<?> get(final String path) {
+        return get(path, null);
+    }
+
+    WebClient.RequestHeadersSpec<?> get(final String path, final MultiValueMap<String, String> queryParams) {
         final WebClient.RequestHeadersSpec<?> spec = client
             .get()
-            .uri(url)
+            .uri(uriBuilder -> uriBuilder
+                .path(path)
+                .queryParams(queryParams)
+                .build()
+            )
             .accept(MediaType.APPLICATION_JSON);
 
         if (disableAuthentication) {
-            log.info(String.format("Skipping authentication with community api for call to %s", url));
+            log.info(String.format("Skipping authentication with community api for call to %s", path));
             return spec;
         }
 
-        log.info(String.format("Authenticating with %s for call to %s", oauthClient, url));
+        log.info(String.format("Authenticating with %s for call to %s", oauthClient, path));
         return spec.attributes(clientRegistrationId(oauthClient));
     }
 

@@ -1,0 +1,24 @@
+{
+    "request": {
+      "method": "GET",
+      "urlPath": "/secure/offenders/crn/X320741/convictions/2500311280/nsis",
+      "queryParameters" : {
+        "nsiCodes" : {
+          "equalTo" : "OTHER"
+        }
+      },
+      "headers" : {
+        "Content-Type": {
+          "equalTo": "application/json"
+        }
+      }
+    },
+    "response": {
+      "status": 200,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+
+      "body": "{\"nsis\": []}"
+    }
+  }

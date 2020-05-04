@@ -24,4 +24,6 @@ public class Conviction {
     private LocalDate endDate;
     @Setter
     private List<OffenderDocumentDetail> documents;
+    @Setter
+    private List<Breach> breaches;
 }

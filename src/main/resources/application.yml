@@ -67,6 +67,7 @@ community-api:
   grouped-documents-by-crn-url-template: ${community-api.base-url}/secure/offenders/crn/%s/documents/grouped
   probation-record-filter.document.types: "COURT_REPORT_DOCUMENT"
   probation-record-filter.document.subtype.codes: "CJF,CJO,CJS,PSA,PSB,PSN,PSR,SSR,XPR,CR02,CR05"
+  breaches-url-template: ${community-api.base-url}/secure/offenders/crn/%s/convictions/%s/nsis?nsiCodes=BRE,BRES
 
 offender-assessments-api:
   latest-assessment-crn-url-template: ${offender-assessments-api.base-url}/offenders/crn/%s/assessments/latest

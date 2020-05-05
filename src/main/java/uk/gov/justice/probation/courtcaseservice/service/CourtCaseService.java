@@ -68,7 +68,6 @@ public class CourtCaseService {
         existingCase.setCourtRoom(courtCaseEntity.getCourtRoom());
         existingCase.setProbationStatus(courtCaseEntity.getProbationStatus());
         existingCase.setSessionStartTime(courtCaseEntity.getSessionStartTime());
-        existingCase.setData(courtCaseEntity.getData());
         existingCase.setPreviouslyKnownTerminationDate(courtCaseEntity.getPreviouslyKnownTerminationDate());
         existingCase.setSuspendedSentenceOrder(courtCaseEntity.getSuspendedSentenceOrder());
         existingCase.setBreach(courtCaseEntity.getBreach());

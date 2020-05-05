@@ -41,10 +41,15 @@ public class CourtCaseServiceTest {
     private static final LocalDateTime LAST_UPDATED = LocalDateTime.of(2020, 2, 25, 9, 0);
     private static final boolean SUSPENDED_SENTENCE = true;
     private static final boolean BREACH = true;
-    private static final String DATA = "DATA";
     private static final String DEFENDANT_NAME = "JTEST";
     private static final AddressPropertiesEntity DEFENDANT_ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "AB21 3ES", "Bangor", null, null);
     private static final String CRN = "CRN";
+    private static final String PNC = "PNC";
+    private static final String LIST_NO = "LIST_NO";
+    private static final LocalDate DEFENDANT_DOB = LocalDate.of(1958, 12, 14);
+    private static final String DEFENDANT_SEX = "M";
+    private static final String NATIONALITY_1 = "British";
+    private static final String NATIONALITY_2 = "Polish";
 
     @Mock
     private CourtRepository courtRepository;
@@ -69,7 +74,7 @@ public class CourtCaseServiceTest {
     public void setup() {
         service = new CourtCaseService(courtRepository, courtCaseRepository);
         List<OffenceEntity> offences = Collections.singletonList(new OffenceEntity(null, null, "OFFENCE_TITLE", "OFFENCE_SUMMARY", "ACT", 1));
-        courtCase = new CourtCaseEntity(1234L, LAST_UPDATED, CASE_ID, CASE_NO, COURT_CODE, COURT_ROOM, SESSION_START_TIME, PROBATION_STATUS, TERMINATION_DATE, SUSPENDED_SENTENCE, BREACH, offences, DEFENDANT_NAME, DEFENDANT_ADDRESS, DATA, CRN);
+        courtCase = new CourtCaseEntity(1234L, LAST_UPDATED, CASE_ID, CASE_NO, COURT_CODE, COURT_ROOM, SESSION_START_TIME, PROBATION_STATUS, TERMINATION_DATE, SUSPENDED_SENTENCE, BREACH, offences, DEFENDANT_NAME, DEFENDANT_ADDRESS, CRN, PNC, LIST_NO, DEFENDANT_DOB, DEFENDANT_SEX, NATIONALITY_1, NATIONALITY_2);
 
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(courtEntity);
         when(courtCaseRepository.save(caseEntityCaptor.capture())).thenReturn(courtCase);
@@ -164,7 +169,6 @@ public class CourtCaseServiceTest {
         assertThat(existingCourtCase.getCaseNo()).isEqualTo(CASE_NO);
         assertThat(existingCourtCase.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(existingCourtCase.getCourtRoom()).isEqualTo(COURT_ROOM);
-        assertThat(existingCourtCase.getData()).isEqualTo(DATA);
         assertThat(existingCourtCase.getProbationStatus()).isEqualTo(PROBATION_STATUS);
         assertThat(existingCourtCase.getPreviouslyKnownTerminationDate()).isEqualTo(TERMINATION_DATE);
         assertThat(existingCourtCase.getSessionStartTime()).isEqualTo(SESSION_START_TIME);

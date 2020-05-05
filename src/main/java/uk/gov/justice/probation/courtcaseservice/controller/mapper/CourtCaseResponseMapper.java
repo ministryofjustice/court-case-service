@@ -17,9 +17,10 @@ public class CourtCaseResponseMapper {
                 .caseId(courtCaseEntity.getCaseId())
                 .caseNo(courtCaseEntity.getCaseNo())
                 .crn(courtCaseEntity.getCrn())
+                .pnc(courtCaseEntity.getPnc())
+                .listNo(courtCaseEntity.getListNo())
                 .courtRoom(courtCaseEntity.getCourtRoom())
                 .courtCode(courtCaseEntity.getCourtCode())
-                .data(courtCaseEntity.getData())
                 .lastUpdated(courtCaseEntity.getLastUpdated())
                 .offences(mapOffencesFrom(courtCaseEntity))
                 .previouslyKnownTerminationDate(courtCaseEntity.getPreviouslyKnownTerminationDate())
@@ -30,6 +31,10 @@ public class CourtCaseResponseMapper {
                 .breach(courtCaseEntity.getBreach())
                 .defendantName(courtCaseEntity.getDefendantName())
                 .defendantAddress(courtCaseEntity.getDefendantAddress())
+                .defendantDob(courtCaseEntity.getDefendantDob())
+                .defendantSex(courtCaseEntity.getDefendantSex())
+                .nationality1(courtCaseEntity.getNationality1())
+                .nationality2(courtCaseEntity.getNationality2())
                 .build();
     }
 

@@ -22,6 +22,8 @@ public class CourtCaseResponse {
     private String caseId;
     private String caseNo;
     private String crn;
+    private String pnc;
+    private String listNo;
     private String courtCode;
     private String courtRoom;
     private LocalDateTime sessionStartTime;
@@ -30,8 +32,13 @@ public class CourtCaseResponse {
     private LocalDate previouslyKnownTerminationDate;
     private Boolean suspendedSentenceOrder;
     private Boolean breach;
-    private String data;
     private List<OffenceResponse> offences;
     private String defendantName;
     private AddressPropertiesEntity defendantAddress;
+    private LocalDate defendantDob;
+    private String defendantSex;
+    private String nationality1;
+    private String nationality2;
 }
+
+

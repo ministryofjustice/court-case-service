@@ -9,7 +9,7 @@ import lombok.Getter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CommunityApiNsi {
     @JsonProperty("nsiId")
-    private Integer nsiId;
+    private Long nsiId;
 
     @JsonProperty("actualStartDate")
     private LocalDate actualStartDate;

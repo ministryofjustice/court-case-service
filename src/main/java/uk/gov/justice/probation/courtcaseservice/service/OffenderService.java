@@ -41,7 +41,7 @@ public class OffenderService {
     }
 
     public ProbationRecord getProbationRecord(String crn, boolean applyDocumentFilter) {
-        // FIXME: the reactive code in this method could be written in a much smarter way
+        // FIXME: the reactive code in this method could be written in a more idiomatic way
 
         // The handling of the probation record data is split into two parts to allow different
         // behaviour depending on whether the data is missing from the community api (delius) or

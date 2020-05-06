@@ -12,7 +12,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 public class BreachMapper {
     public Breach breachFrom(CommunityApiNsi nsi) {
         return Breach.builder()
-            .id(Integer.toString(nsi.getNsiId()))
+            .id(Long.toString(nsi.getNsiId()))
             .description(nsi.getSubType().getDescription())
             .status(nsi.getStatus().getDescription())
             .started(nsi.getActualStartDate())

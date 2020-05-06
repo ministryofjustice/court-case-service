@@ -6,9 +6,12 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 @ApiModel("Breach")
 @Getter
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Breach {
     private String id;
     private String description;

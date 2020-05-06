@@ -1,7 +1,7 @@
 {
     "request": {
       "method": "GET",
-      "urlPath": "/secure/offenders/crn/X320741/convictions/2500311280/nsis",
+      "urlPath": "/secure/offenders/crn/X320741/convictions/2500297061/nsis",
       "queryParameters" : {
         "nsiCodes" : {
           "equalTo" : "OTHER"

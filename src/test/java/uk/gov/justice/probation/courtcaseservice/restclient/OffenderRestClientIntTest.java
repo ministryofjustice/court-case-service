@@ -138,4 +138,23 @@ public class OffenderRestClientIntTest {
         var breach = breaches.get(0);
         assertThat(breach.getStatus()).isEqualTo("Breach Initiated");
         assertThat(breach.getDescription()).isEqualTo("Community Order");
-    }}
+    }
+
+    @Test(expected = OffenderNotFoundException.class)
+    public void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoCRN() {
+        var optionalBreaches = offenderRestClient.getBreaches("xxx", CONVICTION_ID).block();
+
+    }
+
+    @Test(expected = OffenderNotFoundException.class)
+    public void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoConvictionId() {
+        var optionalBreaches = offenderRestClient.getBreaches(CRN, "123").block();
+
+    }
+
+    @Test(expected = WebClientResponseException.class)
+    public void whenGetBreaches_thenMakeRestCallToCommunityApi_500ServerError() {
+        var optionalBreaches = offenderRestClient.getBreaches(SERVER_ERROR_CRN, CONVICTION_ID).block();
+
+    }
+}

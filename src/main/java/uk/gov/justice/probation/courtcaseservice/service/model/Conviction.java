@@ -14,7 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Offender
 @Getter
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Conviction {
+public class Conviction implements Comparable<Conviction>{
     private String convictionId;
     private Boolean active;
     private Boolean inBreach;
@@ -26,4 +26,9 @@ public class Conviction {
     private List<OffenderDocumentDetail> documents;
     @Setter
     private List<Breach> breaches;
+
+    @Override
+    public int compareTo(Conviction other) {
+        return ((Long)Long.parseLong(convictionId)).compareTo(Long.parseLong(other.getConvictionId()));
+    }
 }

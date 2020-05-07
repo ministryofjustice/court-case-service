@@ -61,7 +61,7 @@ public class OffenderService {
                         return conviction;
                     });
             })
-            .collectList();
+            .collectSortedList();
 
         // This Mono resolves to a 3 tuple containing the record itself, the above-mentioned convictions, and the documents
         Mono<Tuple3<ProbationRecord, List<Conviction>, GroupedDocuments>> probationMono = Mono.zip(

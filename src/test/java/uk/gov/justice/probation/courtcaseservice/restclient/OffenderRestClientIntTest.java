@@ -142,19 +142,16 @@ public class OffenderRestClientIntTest {
 
     @Test(expected = OffenderNotFoundException.class)
     public void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoCRN() {
-        var optionalBreaches = offenderRestClient.getBreaches("xxx", CONVICTION_ID).block();
-
+        offenderRestClient.getBreaches("xxx", CONVICTION_ID).block();
     }
 
     @Test(expected = OffenderNotFoundException.class)
     public void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoConvictionId() {
-        var optionalBreaches = offenderRestClient.getBreaches(CRN, "123").block();
-
+        offenderRestClient.getBreaches(CRN, "123").block();
     }
 
     @Test(expected = WebClientResponseException.class)
     public void whenGetBreaches_thenMakeRestCallToCommunityApi_500ServerError() {
-        var optionalBreaches = offenderRestClient.getBreaches(SERVER_ERROR_CRN, CONVICTION_ID).block();
-
+        offenderRestClient.getBreaches(SERVER_ERROR_CRN, CONVICTION_ID).block();
     }
 }

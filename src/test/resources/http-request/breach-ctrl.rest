@@ -1,0 +1,55 @@
+### Known breach for a known conviction and offender
+GET http://{{host}}/offenders/{{offenderCrn}}/convictions/{{convictionId}}/breaches/{{breachId}}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+
+    client.test("Response content-type is json", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+%}
+
+### Breach for an unknown offender
+GET http://{{host}}/offenders/XX/convictions/{{convictionId}}/breaches/{{breachId}}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 404, "Response status is not 404");
+    });
+
+    client.test("Response content-type is json", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+%}
+
+### Breach for an unknown conviction
+GET http://{{host}}/offenders/{{offenderCrn}}/convictions/XX/breaches/{{breachId}}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 404, "Response status is not 404");
+    });
+
+    client.test("Response content-type is json", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+%}
+
+### Unknown breach
+GET http://{{host}}/offenders/{{offenderCrn}}/convictions/{{convictionId}}/breaches/XX
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 404, "Response status is not 404");
+    });
+
+    client.test("Response content-type is json", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+%}

@@ -126,4 +126,32 @@ public class OffenderRestClientIntTest {
     public void givenOffenderDoesNotExist_whenGetConvictionsDocumentsByCrnCalled_ThrowException() {
         offenderRestClient.getDocumentsByCrn("CRNXXX").block();
     }
+
+    @Test
+    public void whenGetBreaches_thenMakeRestCallToCommunityApi() {
+        var optionalBreaches = offenderRestClient.getBreaches(CRN, CONVICTION_ID).blockOptional();
+        assertThat(optionalBreaches).isNotEmpty();
+
+        var breaches = optionalBreaches.get();
+        assertThat(breaches.size()).isEqualTo(1);
+
+        var breach = breaches.get(0);
+        assertThat(breach.getStatus()).isEqualTo("Breach Initiated");
+        assertThat(breach.getDescription()).isEqualTo("Community Order");
+    }
+
+    @Test(expected = OffenderNotFoundException.class)
+    public void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoCRN() {
+        offenderRestClient.getBreaches("xxx", CONVICTION_ID).block();
+    }
+
+    @Test(expected = OffenderNotFoundException.class)
+    public void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoConvictionId() {
+        offenderRestClient.getBreaches(CRN, "123").block();
+    }
+
+    @Test(expected = WebClientResponseException.class)
+    public void whenGetBreaches_thenMakeRestCallToCommunityApi_500ServerError() {
+        offenderRestClient.getBreaches(SERVER_ERROR_CRN, CONVICTION_ID).block();
+    }
 }

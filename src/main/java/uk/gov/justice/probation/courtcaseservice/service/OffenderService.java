@@ -7,12 +7,15 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
+import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
@@ -38,13 +41,32 @@ public class OffenderService {
     }
 
     public ProbationRecord getProbationRecord(String crn, boolean applyDocumentFilter) {
-        // These calls are split into 2 monos to allow different behaviour depending on whether the data
-        // is missing from the community api (delius) or the assessments api (oasys). In the latter case
-        // we can still get most of the important information to populate the response so do not need to
-        // throw an exception. In this sense, the oasys assessment data is optional.
+        // FIXME: the reactive code in this method could be written in a more idiomatic way
+
+        // The handling of the probation record data is split into two parts to allow different
+        // behaviour depending on whether the data is missing from the community api (delius) or
+        // the assessments api (oasys). In the latter case we can still get most of the important
+        // information to populate the response so do not need to throw an exception. In this
+        // sense, the oasys assessment data is optional.
+
+        // This Mono resolves to a list of convictions including a list of breaches for each conviction
+        Mono<List<Conviction>> convictions = defaultClient.getConvictionsByCrn(crn)
+            .flatMapMany(Flux::fromIterable)
+            .flatMap(conviction -> {
+                var convictionId = conviction.getConvictionId();
+                log.debug("getting breaches for crn {} and conviction id {}", crn, convictionId);
+                return defaultClient.getBreaches(crn, convictionId)
+                    .map(breaches -> {
+                        conviction.setBreaches(breaches);
+                        return conviction;
+                    });
+            })
+            .collectSortedList();
+
+        // This Mono resolves to a 3 tuple containing the record itself, the above-mentioned convictions, and the documents
         Mono<Tuple3<ProbationRecord, List<Conviction>, GroupedDocuments>> probationMono = Mono.zip(
             defaultClient.getProbationRecordByCrn(crn),
-            defaultClient.getConvictionsByCrn(crn),
+            convictions,
             defaultClient.getDocumentsByCrn(crn)
         );
         Mono<Assessment> assessmentMono = assessmentsClient.getAssessmentByCrn(crn);

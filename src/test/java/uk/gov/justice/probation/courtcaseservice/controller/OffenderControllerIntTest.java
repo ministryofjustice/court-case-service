@@ -82,19 +82,14 @@ public class OffenderControllerIntTest {
                 .body("offenderManagers[0].surname", equalTo("Brennan"))
                 .body("offenderManagers[0].allocatedDate", equalTo(standardDateOf(2019, 9, 30)))
 
-                .body("convictions[0].convictionId", equalTo("2500297061"))
-                .body("convictions[0].active", equalTo(false))
+                .body("convictions[0].convictionId", equalTo("2500295343"))
+                .body("convictions[0].active", equalTo(null))
                 .body("convictions[0].inBreach", equalTo(true))
-                .body("convictions[0].offences[0].description", equalTo("Assault on Police Officer - 10400"))
-                .body("convictions[0].sentence.description", equalTo("Absolute/Conditional Discharge"))
-                .body("convictions[0].sentence.length", equalTo(0))
-                .body("convictions[0].sentence.lengthUnits", equalTo("Months"))
-                .body("convictions[0].sentence.lengthInDays", equalTo(0))
-                .body("convictions[0].sentence.terminationDate", equalTo(standardDateOf(2020, 1, 1)))
-                .body("convictions[0].sentence.terminationReason", equalTo("Auto Terminated"))
-                .body("convictions[0].sentence", not(hasKey("unpaidWork")))
-                .body("convictions[0].convictionDate", equalTo(standardDateOf(2019, 9,16)))
+                .body("convictions[0].offences[0].description", equalTo("Arson - 05600"))
+                .body("convictions[0].convictionDate", equalTo(null))
                 .body("convictions[0].documents", hasSize(0))
+                .body("convictions[0].breaches", hasSize(1))
+                .body("convictions[0].breaches[0].id", equalTo(11131321))
 
                 .body("convictions[1].convictionId", equalTo("2500295345"))
                 .body("convictions[1].active", equalTo(true))
@@ -110,13 +105,23 @@ public class OffenderControllerIntTest {
                 .body("convictions[1].convictionDate", equalTo(standardDateOf(2019, 9,3)))
                 .body("convictions[1].documents", hasSize(1))
                 .body("convictions[1].documents[0].documentId", equalTo("1d842fce-ec2d-45dc-ac9a-748d3076ca6b"))
+                .body("convictions[1].breaches", hasSize(0))
 
-                .body("convictions[2].convictionId", equalTo("2500295343"))
-                .body("convictions[2].active", equalTo(null))
+                .body("convictions[2].convictionId", equalTo("2500297061"))
+                .body("convictions[2].active", equalTo(false))
                 .body("convictions[2].inBreach", equalTo(true))
-                .body("convictions[2].offences[0].description", equalTo("Arson - 05600"))
-                .body("convictions[2].convictionDate", equalTo(null))
+                .body("convictions[2].offences[0].description", equalTo("Assault on Police Officer - 10400"))
+                .body("convictions[2].sentence.description", equalTo("Absolute/Conditional Discharge"))
+                .body("convictions[2].sentence.length", equalTo(0))
+                .body("convictions[2].sentence.lengthUnits", equalTo("Months"))
+                .body("convictions[2].sentence.lengthInDays", equalTo(0))
+                .body("convictions[2].sentence.terminationDate", equalTo(standardDateOf(2020, 1, 1)))
+                .body("convictions[2].sentence.terminationReason", equalTo("Auto Terminated"))
+                .body("convictions[2].sentence", not(hasKey("unpaidWork")))
+                .body("convictions[2].convictionDate", equalTo(standardDateOf(2019, 9,16)))
                 .body("convictions[2].documents", hasSize(0))
+                .body("convictions[2].breaches", hasSize(1))
+                .body("convictions[2].breaches[0].id", equalTo(11131321))
 
         ;
     }
@@ -130,12 +135,14 @@ public class OffenderControllerIntTest {
             .then()
                 .statusCode(200)
                 .body("crn",  equalTo("X320741"))
-                .body("convictions[0].convictionId", equalTo("2500297061"))
-                .body("convictions[0].documents", hasSize(0))
+                .body("convictions[0].convictionId", equalTo("2500295343"))
+                .body("convictions[0].documents", hasSize(6))
+
                 .body("convictions[1].convictionId", equalTo("2500295345"))
                 .body("convictions[1].documents", hasSize(9))
-                .body("convictions[2].convictionId", equalTo("2500295343"))
-                .body("convictions[2].documents", hasSize(6))
+
+                .body("convictions[2].convictionId", equalTo("2500297061"))
+                .body("convictions[2].documents", hasSize(0))
         ;
     }
 

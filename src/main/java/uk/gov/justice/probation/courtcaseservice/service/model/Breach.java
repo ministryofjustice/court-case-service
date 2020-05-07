@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Breach {
-    private String id;
+    private Long id;
     private String description;
     private String status;
     private LocalDate started;

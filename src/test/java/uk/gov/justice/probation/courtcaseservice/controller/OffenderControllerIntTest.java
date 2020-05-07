@@ -89,7 +89,7 @@ public class OffenderControllerIntTest {
                 .body("convictions[0].convictionDate", equalTo(null))
                 .body("convictions[0].documents", hasSize(0))
                 .body("convictions[0].breaches", hasSize(1))
-                .body("convictions[0].breaches[0].id", equalTo("11131321"))
+                .body("convictions[0].breaches[0].id", equalTo(11131321))
 
                 .body("convictions[1].convictionId", equalTo("2500295345"))
                 .body("convictions[1].active", equalTo(true))
@@ -121,7 +121,7 @@ public class OffenderControllerIntTest {
                 .body("convictions[2].convictionDate", equalTo(standardDateOf(2019, 9,16)))
                 .body("convictions[2].documents", hasSize(0))
                 .body("convictions[2].breaches", hasSize(1))
-                .body("convictions[2].breaches[0].id", equalTo("11131321"))
+                .body("convictions[2].breaches[0].id", equalTo(11131321))
 
         ;
     }

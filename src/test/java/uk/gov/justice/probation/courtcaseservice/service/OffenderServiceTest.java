@@ -77,7 +77,7 @@ class OffenderServiceTest {
             .documents(Collections.emptyList())
             .build();
         this.breach = Breach.builder()
-            .id("2500020697")
+            .id(2500020697L)
             .description("Community Order")
             .status("Breach Initiated")
             .started(LocalDate.of(2020,4,23))

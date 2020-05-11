@@ -10,7 +10,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,11 +22,7 @@ import java.time.format.DateTimeFormatter;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 
 @RunWith(SpringRunner.class)
@@ -171,6 +166,24 @@ public class OffenderControllerIntTest {
                     .body("requirements[1].adRequirementTypeSubCategory.description", equalTo("ASRO"))
         ;
 
+    }
+
+    @Test
+    public void whenCallMadeToGetBreach_thenReturnCorrectData() {
+        given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .get("/offender/X320741/convictions/2500297061/breach/250023456")
+                .then()
+                .statusCode(200)
+                .body("incidentDate", equalTo("2020-02-19"))
+                .body("started", equalTo("2020-05-22"))
+                .body("provider", equalTo("NPS North East"))
+                .body("team", equalTo("Enforcement hub - Sheffield and Rotherham"))
+                .body("officer", equalTo("Unallocated"))
+                .body("status", equalTo("Breach initiated"))
+                .body("conviction.description", equalTo("ORA Community Order (12 Months)"))
+        ;
     }
 
     private String standardDateOf(int year, int month, int dayOfMonth) {

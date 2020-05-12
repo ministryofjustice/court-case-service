@@ -1,0 +1,81 @@
+{
+  "nsiId": 2500003903,
+  "nsiType": {
+    "code": "ROL",
+    "description": "Role"
+  },
+  "nsiSubType": {
+    "code": "ROL02",
+    "description": "Case Administrator"
+  },
+  "nsiStatus": {
+    "code": "ESF02",
+    "description": "Induction Completed - Opted Out"
+  },
+  "actualStartDate": "2017-03-22",
+  "referralDate": "2017-03-21",
+  "lengthUnit": "Months",
+  "nsiManagers": [
+    {
+      "probationArea": {
+        "probationAreaId": 1500001011,
+        "code": "C05",
+        "description": "CPA West Yorkshire",
+        "organisation": {
+          "code": "PVD03",
+          "description": "Purple Futures"
+        }
+      },
+      "team": {
+        "code": "C05UAT",
+        "description": "Unallocated",
+        "localDeliveryUnit": {
+          "code": "C05CRCA",
+          "description": "C05 County"
+        },
+        "teamType": {
+          "code": "C05CRC1",
+          "description": "C05 LDU 1"
+        },
+        "district": {
+          "code": "C05CRCA",
+          "description": "C05 County"
+        },
+        "borough": {
+          "code": "C05100",
+          "description": "C05 Cluster 1"
+        }
+      },
+      "staff": {
+        "staffCode": "C05UATU",
+        "staff": {
+          "forenames": "Unallocated",
+          "surname": "Staff"
+        },
+        "teams": [
+          {
+            "code": "C05UAT",
+            "description": "Unallocated",
+            "localDeliveryUnit": {
+              "code": "C05CRCA",
+              "description": "C05 County"
+            },
+            "teamType": {
+              "code": "C05CRC1",
+              "description": "C05 LDU 1"
+            },
+            "district": {
+              "code": "C05CRCA",
+              "description": "C05 County"
+            },
+            "borough": {
+              "code": "C05100",
+              "description": "C05 Cluster 1"
+            }
+          }
+        ]
+      },
+      "startDate": "2017-03-21"
+    }
+  ]
+}

@@ -173,16 +173,15 @@ public class OffenderControllerIntTest {
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when()
-                .get("/offender/X320741/convictions/2500297061/breach/250023456")
+                .get("/offender/D003080/convictions/2500005095/breach/2500003903")
                 .then()
                 .statusCode(200)
-                .body("incidentDate", equalTo("2020-02-19"))
-                .body("started", equalTo("2020-05-22"))
-                .body("provider", equalTo("NPS North East"))
-                .body("team", equalTo("Enforcement hub - Sheffield and Rotherham"))
-                .body("officer", equalTo("Unallocated"))
-                .body("status", equalTo("Breach initiated"))
-                .body("conviction.description", equalTo("ORA Community Order (12 Months)"))
+                .body("incidentDate", equalTo("2017-03-21"))
+                .body("started", equalTo("2017-03-22"))
+                .body("provider", equalTo("CPA West Yorkshire"))
+                .body("team", equalTo("Unallocated"))
+                .body("officer", equalTo("Unallocated Staff"))
+                .body("status", equalTo("Induction Completed - Opted Out"))
         ;
     }
 

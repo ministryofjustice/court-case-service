@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
+import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
+import uk.gov.justice.probation.courtcaseservice.service.BreachService;
 import uk.gov.justice.probation.courtcaseservice.service.ConvictionService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
@@ -23,6 +25,9 @@ public class OffenderController {
 
     @Autowired
     private final ConvictionService convictionService;
+
+    @Autowired
+    private final BreachService breachService;
 
     @Autowired
     private final FeatureFlags featureFlags;
@@ -77,5 +82,21 @@ public class OffenderController {
             return convictionService.getConvictionNoAttendances(crn, convictionId);
         }
         return convictionService.getConviction(crn, convictionId);
+    }
+
+    @ApiOperation(value = "Gets Breach data by CRN, conviction ID and breach id.")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(code = 200, message = "OK", response = RequirementsResponse.class),
+                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+                    @ApiResponse(code = 404, message = "Not Found. For example if the CRN can't be matched.", response = ErrorResponse.class),
+                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+            })
+    @GetMapping(path="offender/{crn}/convictions/{convictionId}/breach/{breachId}", produces = APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    BreachResponse getBreach(@PathVariable String crn, @PathVariable Long convictionId, @PathVariable Long breachId) {
+        return breachService.getBreach(crn, convictionId, breachId);
     }
 }

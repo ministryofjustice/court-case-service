@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.service.exceptions.BreachNotFoundException;
 
 @Slf4j
 @AllArgsConstructor
@@ -39,10 +40,24 @@ public class RestClientHelper {
     // handleError is a slightly modified version of the default error handler which returns
     // `OffenderNotFoundException` for 404 status codes, and `WebClientResponseException` for
     // everything else. Can be used with `WebClient.ResponseSpec::onStatus`.
-    public Mono<? extends Throwable> handleError(final String crn, final ClientResponse clientResponse) {
+    public Mono<? extends Throwable> handleOffenderError(final String crn, final ClientResponse clientResponse) {
         if (HttpStatus.NOT_FOUND.equals(clientResponse.statusCode())) {
             return Mono.error(new OffenderNotFoundException(crn));
         }
+        return handleError(clientResponse);
+    }
+
+    // handleError is a slightly modified version of the default error handler which returns
+    // `BreachNotFoundException` for 404 status codes, and `WebClientResponseException` for
+    // everything else. Can be used with `WebClient.ResponseSpec::onStatus`.
+    public Mono<? extends Throwable> handleNsiError(final Long breachId, final ClientResponse clientResponse) {
+        if (HttpStatus.NOT_FOUND.equals(clientResponse.statusCode())) {
+            return Mono.error(new BreachNotFoundException("NSI with id %s does not exist", breachId));
+        }
+        return handleError(clientResponse);
+    }
+
+    private Mono<? extends Throwable> handleError(ClientResponse clientResponse) {
         final HttpStatus httpStatus = clientResponse.statusCode();
         throw WebClientResponseException.create(httpStatus.value(),
             httpStatus.name(),

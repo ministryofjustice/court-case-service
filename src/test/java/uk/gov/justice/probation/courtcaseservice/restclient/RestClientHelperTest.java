@@ -24,7 +24,7 @@ class RestClientHelperTest {
     void handleError() {
         final ClientResponse clientResponse = ClientResponse.create(HttpStatus.NOT_FOUND).build();
 
-        assertThrows(OffenderNotFoundException.class, () -> restClientHelper.handleError("CRN", clientResponse).block());
+        assertThrows(OffenderNotFoundException.class, () -> restClientHelper.handleOffenderError("CRN", clientResponse).block());
     }
 
     @DisplayName("Error handling when the code is in the range of 400 but other than NOT FOUND")
@@ -32,6 +32,6 @@ class RestClientHelperTest {
     void handleNonNotFoundError() {
         final ClientResponse clientResponse = ClientResponse.create(HttpStatus.BAD_REQUEST).build();
 
-        assertThrows(WebClientResponseException.class, () -> restClientHelper.handleError("CRN", clientResponse).block());
+        assertThrows(WebClientResponseException.class, () -> restClientHelper.handleOffenderError("CRN", clientResponse).block());
     }
 }

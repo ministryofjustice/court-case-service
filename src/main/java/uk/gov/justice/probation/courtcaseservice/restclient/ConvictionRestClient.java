@@ -45,7 +45,7 @@ public class ConvictionRestClient {
         final String path = String.format(convictionAttendanceUrlTemplate, crn, convictionId);
         return clientHelper.get(path)
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleError(crn, clientResponse))
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
             .bodyToMono(CommunityApiAttendances.class)
             .doOnError(e -> log.error(String.format(ERROR_MSG_FORMAT, "conviction attendance", crn, convictionId), e))
             .map(attendances -> attendanceMapper.attendancesFrom(attendances, crn, convictionId));
@@ -56,7 +56,7 @@ public class ConvictionRestClient {
         final String path = String.format(convictionUrlTemplate, crn, convictionId);
         return clientHelper.get(path)
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleError(crn, clientResponse))
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
             .bodyToMono(CommunityApiConvictionResponse.class)
             .doOnError(e -> log.error(String.format(ERROR_MSG_FORMAT, "conviction", crn, convictionId), e))
             .map(convictionResponse -> offenderMapper.convictionFrom(convictionResponse));

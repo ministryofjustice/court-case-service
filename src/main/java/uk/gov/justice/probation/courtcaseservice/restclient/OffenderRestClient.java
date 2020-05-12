@@ -43,7 +43,7 @@ public class OffenderRestClient {
     public Mono<ProbationRecord> getProbationRecordByCrn(String crn) {
         return clientHelper.get(String.format(offenderUrlTemplate, crn))
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleError(crn, clientResponse))
+                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
                 .bodyToMono(CommunityApiOffenderResponse.class)
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender data for CRN '%s'", crn), e))
                 .map(offender -> mapper.probationRecordFrom(offender));
@@ -52,7 +52,7 @@ public class OffenderRestClient {
     public Mono<List<Conviction>> getConvictionsByCrn(String crn) {
         return clientHelper.get(String.format(convictionsUrlTemplate, crn))
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleError(crn, clientResponse))
+                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
                 .bodyToMono(CommunityApiConvictionsResponse.class)
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving convictions data for CRN '%s'", crn), e))
                 .map( convictionsResponse -> mapper.convictionsFrom(convictionsResponse));
@@ -61,7 +61,7 @@ public class OffenderRestClient {
     public Mono<List<Requirement>> getConvictionRequirements(String crn, String convictionId) {
         return clientHelper.get(String.format(requirementsUrlTemplate, crn, convictionId))
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleError(crn, clientResponse))
+                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
                 .bodyToMono(CommunityApiRequirementsResponse.class)
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving requirements data for CONVICTIONID '%s'", convictionId), e))
                 .map( requirementsResponse -> mapper.requirementsFrom(requirementsResponse));
@@ -70,7 +70,7 @@ public class OffenderRestClient {
     public Mono<GroupedDocuments> getDocumentsByCrn(String crn) {
         return clientHelper.get(String.format(groupedDocumentsUrlTemplate, crn))
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleError(crn, clientResponse))
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
             .bodyToMono(CommunityApiGroupedDocumentsResponse.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when retrieving grouped document data for CRN '%s'", crn), e))
             .map(documentsResponse -> mapper.documentsFrom(documentsResponse));

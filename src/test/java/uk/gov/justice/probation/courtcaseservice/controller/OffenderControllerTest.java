@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
+import uk.gov.justice.probation.courtcaseservice.service.BreachService;
 import uk.gov.justice.probation.courtcaseservice.service.ConvictionService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
@@ -32,9 +33,10 @@ public class OffenderControllerTest {
     private ProbationRecord expectedProbationRecord;
     @Mock
     private Requirement expectedRequirement;
-
     @Mock
     private ConvictionService convictionService;
+    @Mock
+    private BreachService breachService;
 
     private FeatureFlags featureFlags;
 
@@ -43,7 +45,7 @@ public class OffenderControllerTest {
     @BeforeEach
     void beforeEach() {
         featureFlags = new FeatureFlags();
-        controller = new OffenderController(offenderService, convictionService, featureFlags);
+        controller = new OffenderController(offenderService, convictionService, breachService, featureFlags);
     }
 
     @DisplayName("Normal service call returns response")

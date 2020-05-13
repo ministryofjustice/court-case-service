@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Staff {
-    private String forenames;
-    private String surname;
+public class NsiStatus {
+    private String code;
+    private String description;
 }

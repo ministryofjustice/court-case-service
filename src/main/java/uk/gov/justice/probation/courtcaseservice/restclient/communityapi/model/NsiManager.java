@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Staff {
-    private String forenames;
-    private String surname;
+public class NsiManager {
+    private StaffWrapper staff;
+    private ProbationArea probationArea;
+    private Team team;
 }

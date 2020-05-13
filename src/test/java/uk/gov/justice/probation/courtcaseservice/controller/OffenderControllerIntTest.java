@@ -176,7 +176,7 @@ public class OffenderControllerIntTest {
                 .get("/offender/D003080/convictions/2500005095/breach/2500003903")
                 .then()
                 .statusCode(200)
-                .body("breachId", equalTo("2500003903"))
+                .body("breachId", equalTo(2500003903L))
                 .body("incidentDate", equalTo("2017-03-21"))
                 .body("started", equalTo("2017-03-22"))
                 .body("provider", equalTo("CPA West Yorkshire"))

@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
@@ -125,5 +126,33 @@ public class OffenderRestClientIntTest {
     @Test(expected = OffenderNotFoundException.class)
     public void givenOffenderDoesNotExist_whenGetConvictionsDocumentsByCrnCalled_ThrowException() {
         offenderRestClient.getDocumentsByCrn("CRNXXX").block();
+    }
+
+    @Test
+    public void whenGetBreaches_thenMakeRestCallToCommunityApi() {
+        var optionalBreaches = offenderRestClient.getBreaches(CRN, CONVICTION_ID).blockOptional();
+        assertThat(optionalBreaches).isNotEmpty();
+
+        var breaches = optionalBreaches.get();
+        assertThat(breaches.size()).isEqualTo(1);
+
+        var breach = breaches.get(0);
+        assertThat(breach.getStatus()).isEqualTo("Breach Initiated");
+        assertThat(breach.getDescription()).isEqualTo("Community Order");
+    }
+
+    @Test(expected = ConvictionNotFoundException.class)
+    public void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoCRN() {
+        offenderRestClient.getBreaches("xxx", CONVICTION_ID).block();
+    }
+
+    @Test(expected = ConvictionNotFoundException.class)
+    public void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoConvictionId() {
+        offenderRestClient.getBreaches(CRN, "123").block();
+    }
+
+    @Test(expected = WebClientResponseException.class)
+    public void whenGetBreaches_thenMakeRestCallToCommunityApi_500ServerError() {
+        offenderRestClient.getBreaches(SERVER_ERROR_CRN, CONVICTION_ID).block();
     }
 }

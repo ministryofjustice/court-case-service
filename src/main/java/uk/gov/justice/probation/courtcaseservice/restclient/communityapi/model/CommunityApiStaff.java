@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Team {
-    private String description;
+public class CommunityApiStaff {
+    private String forenames;
+    private String surname;
 }

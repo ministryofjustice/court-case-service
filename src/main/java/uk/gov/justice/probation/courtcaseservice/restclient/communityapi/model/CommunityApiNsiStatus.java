@@ -1,15 +1,21 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder
 @Getter
+@Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class NsiStatus {
+public class CommunityApiNsiStatus {
+    @JsonProperty("code")
     private String code;
+
+    @JsonProperty("description")
     private String description;
 }

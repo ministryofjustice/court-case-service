@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class CommunityApiOffenderManager {
     @JsonProperty("staff")
-    private Staff staff;
+    private CommunityApiStaff staff;
     @JsonProperty("fromDate")
     @JsonDeserialize(using = CommunityApiDateDeserializer.class)
     private LocalDate fromDate;

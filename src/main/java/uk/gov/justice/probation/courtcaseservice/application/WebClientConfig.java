@@ -19,7 +19,7 @@ public class WebClientConfig {
     @Value("${community-api.base-url}")
     private String communityApiBaseUrl;
 
-    @Value("${offender-assessments-api.base-url")
+    @Value("${offender-assessments-api.base-url}")
     private String assessmentsApiBaseUrl;
 
     @Bean(name = "communityApiClient")

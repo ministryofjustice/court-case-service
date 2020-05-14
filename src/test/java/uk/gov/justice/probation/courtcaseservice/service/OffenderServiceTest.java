@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType.COURT_REPORT_DOCUMENT;
 
 import java.net.ConnectException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,6 +25,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClien
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
+import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
@@ -37,7 +39,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Offender
 class OffenderServiceTest {
 
     public static final String CRN = "CRN";
-    public static final String CONVICTION_ID = "CONVICTION_ID";
+    public static final String CONVICTION_ID = "123";
 
     @Mock
     private AssessmentsRestClient assessmentsRestClient;
@@ -53,6 +55,7 @@ class OffenderServiceTest {
     private GroupedDocuments groupedDocuments;
     private Conviction conviction;
     private Assessment assessment;
+    private Breach breach;
 
     @BeforeEach
     void beforeEach() {
@@ -66,14 +69,20 @@ class OffenderServiceTest {
             .type(DocumentType.CPSPACK_DOCUMENT)
             .build();
         final ConvictionDocuments documents = ConvictionDocuments.builder()
-            .convictionId("123")
+            .convictionId(CONVICTION_ID)
             .documents(Arrays.asList(courtReportDocumentDetail, cpsPackDocumentDetail))
             .build();
         this.groupedDocuments = GroupedDocuments.builder()
             .convictions(singletonList(documents))
             .documents(Collections.emptyList())
             .build();
-        this.conviction = Conviction.builder().convictionId("123").build();
+        this.breach = Breach.builder()
+            .id(2500020697L)
+            .description("Community Order")
+            .status("Breach Initiated")
+            .started(LocalDate.of(2020,4,23))
+            .build();
+        this.conviction = Conviction.builder().convictionId(CONVICTION_ID).build();
         this.assessment = Assessment.builder().type("LAYER_3").completed(LocalDateTime.of(2020,4,23,10,5,20)).build();
         this.service = new OffenderService(offenderRestClient, assessmentsRestClient, documentTypeFilter);
     }
@@ -83,6 +92,7 @@ class OffenderServiceTest {
     void whenGetOffender_returnOffenderWithConvictionsDocumentsNotFiltered() {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
+        when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
         when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
@@ -92,6 +102,9 @@ class OffenderServiceTest {
         assertThat(probationRecord).isEqualTo(probationRecord);
         assertThat(probationRecord.getConvictions()).hasSize(1);
         final Conviction conviction = probationRecord.getConvictions().get(0);
+        assertThat(conviction.getBreaches()).hasSize(1);
+        assertThat(conviction.getBreaches().get(0).getDescription()).isEqualTo("Community Order");
+        assertThat(conviction.getBreaches().get(0).getStarted()).isEqualTo(LocalDate.of(2020,4,23));
         assertThat(conviction.getDocuments()).hasSize(2);
         assertThat(conviction.getDocuments().get(0).getDocumentName()).isEqualTo("PSR");
         assertThat(conviction.getDocuments().get(1).getDocumentName()).isEqualTo("CPS");
@@ -108,6 +121,7 @@ class OffenderServiceTest {
     public void whenGetOffender_returnOffenderWithConvictionsFilterDocuments() {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
+        when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
         when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
@@ -128,7 +142,7 @@ class OffenderServiceTest {
     public void givenOffenderNotFound_whenGetOffender_thenThrowException() {
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
-        when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.empty());
+        when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
         when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         assertThatExceptionOfType(OffenderNotFoundException.class)
@@ -141,7 +155,7 @@ class OffenderServiceTest {
     public void givenConvictionsNotFound_whenGetOffender_thenThrowException() {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
-        when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.empty());
+        when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
         when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         assertThatExceptionOfType(OffenderNotFoundException.class)
@@ -165,6 +179,7 @@ class OffenderServiceTest {
     public void givenAssessmentNotFound_whenGetOffender_thenDoNotThrowException() {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
+        when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
         // throw OffenderNotFoundException to simulate a 404 returned by assessments api
         when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
@@ -185,7 +200,8 @@ class OffenderServiceTest {
     @Test
     public void givenAssessmentRequestFails_whenGetOffender_thenDoNotThrowException() {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
-        when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
+        when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));        when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
+        when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
         when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
         // throw ConnectException to simulate server side connection issues
         when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.error(new ConnectException("Connection refused")));
@@ -200,5 +216,40 @@ class OffenderServiceTest {
         assertThat(probationRecord.getConvictions()).hasSize(1);
         final Conviction conviction = probationRecord.getConvictions().get(0);
         assertThat(conviction.getDocuments()).hasSize(2);
+    }
+
+    @DisplayName("getting probation record throws exception if breach data is missing for a conviction")
+    @Test
+    public void givenBreachRequestFailsWith404_whenGetOffender_thenThrowException() {
+        // all these are normal return values
+        when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
+        when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
+        when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
+
+        // OffenderNotFound returned on 404 from community api
+        when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
+
+        assertThatExceptionOfType(OffenderNotFoundException.class)
+            .isThrownBy(() -> service.getProbationRecord(CRN, true))
+            .withMessageContaining(CRN);
+    }
+
+    @DisplayName("get probation record propagates connection errors from getBreaches()")
+    @Test
+    public void givenBreachRequestFailsWithConnectionIssue_whenGetOffender_thenThrowException() {
+        // all these are normal return values
+        when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
+        when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
+        when(offenderRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
+
+        // throw ConnectException to simulate server side connection issues
+        when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.error(new ConnectException("Connection refused")));
+
+        // this actually throws `<reactor.core.Exceptions$ReactiveException: java.net.ConnectException: Connection refused>`
+        // but i can't figure out how to test for that
+        assertThatExceptionOfType(RuntimeException.class)
+            .isThrownBy(() -> service.getProbationRecord(CRN, true));
     }
 }

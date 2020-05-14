@@ -27,7 +27,7 @@ class NsiMapperTest {
 
     @Test
     public void mapValues() {
-        List<NsiManager> nsiManagers = Collections.singletonList(
+        List<CommunityApiNsiManager> nsiManagers = Collections.singletonList(
                 buildNsiManager(LocalDate.of(2020, 5, 1), TEAM));
 
         CommunityApiNsi communityApiNsi = buildNsi(nsiManagers);
@@ -54,7 +54,7 @@ class NsiMapperTest {
 
     @Test
     public void givenMultipleNsiManagers_thenGetValuesFromMostRecent() {
-        List<NsiManager> nsiManagers = Arrays.asList(
+        List<CommunityApiNsiManager> nsiManagers = Arrays.asList(
                 buildNsiManager(LocalDate.of(2020, 5, 5), "Wrong Team"),
                 buildNsiManager(LocalDate.of(2020, 5, 1), "Wrong Team"),
                 buildNsiManager(LocalDate.of(2020, 5, 13), "Expected Team"),
@@ -70,7 +70,7 @@ class NsiMapperTest {
 
     @Test
     public void givenZeroNsiManagers_thenReturnNullValues() {
-        List<NsiManager> nsiManagers = Collections.emptyList();
+        List<CommunityApiNsiManager> nsiManagers = Collections.emptyList();
 
         CommunityApiNsi communityApiNsi = buildNsi(nsiManagers);
         Conviction conviction = buildConviction();
@@ -81,30 +81,30 @@ class NsiMapperTest {
         assertThat(breach.getTeam()).isEqualTo(null);
     }
 
-    private CommunityApiNsi buildNsi(List<NsiManager> nsiManagers) {
+    private CommunityApiNsi buildNsi(List<CommunityApiNsiManager> nsiManagers) {
         return CommunityApiNsi.builder()
                 .nsiId(NSI_ID)
                 .referralDate(INCIDENT_DATE)
                 .actualStartDate(STARTED_DATE)
                 .nsiManagers(nsiManagers)
-                .nsiStatus(NsiStatus.builder()
+                .status(CommunityApiNsiStatus.builder()
                         .description(BREACH_STATUS)
                         .build())
                 .build();
     }
 
-    private NsiManager buildNsiManager(LocalDate startDate, String team) {
-        return NsiManager.builder()
-                    .staff(StaffWrapper.builder()
-                            .staff(Staff.builder()
+    private CommunityApiNsiManager buildNsiManager(LocalDate startDate, String team) {
+        return CommunityApiNsiManager.builder()
+                    .staff(CommunityApiStaffWrapper.builder()
+                            .staff(CommunityApiStaff.builder()
                                     .forenames("Forename")
                                     .surname("Lastname")
                                     .build())
                             .build())
-                    .probationArea(ProbationArea.builder()
+                    .probationArea(CommunityApiProbationArea.builder()
                             .description(PROVIDER)
                             .build())
-                    .team(Team.builder()
+                    .team(CommunityApiTeam.builder()
                             .description(team)
                             .build())
                     .startDate(startDate)

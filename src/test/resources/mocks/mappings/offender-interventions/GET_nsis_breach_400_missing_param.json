@@ -1,0 +1,23 @@
+{
+    "request": {
+      "method": "GET",
+      "urlPath": "/secure/offenders/crn/X320741/convictions/2500297061/nsis",
+      "queryParameters" : {
+        "nsiCodes" : {
+          "absent": true
+        }
+      },
+      "headers" : {
+        "Content-Type": {
+          "equalTo": "application/json"
+        }
+      }
+    },
+    "response": {
+      "status": 400,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": "{\"status\": 400, \"error\": \"Bad Request\",\"message\": \"Required List parameter 'nsiCodes' is not present\"}"
+    }
+  }

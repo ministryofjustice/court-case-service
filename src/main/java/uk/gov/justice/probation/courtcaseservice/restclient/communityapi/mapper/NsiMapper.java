@@ -11,8 +11,8 @@ import java.util.Optional;
 @Component
 public class NsiMapper {
     public BreachResponse breachOf(CommunityApiNsi nsi, Conviction conviction) {
-        NsiManager nsiManager = getMostRecentNsiManager(nsi)
-                .orElse(NsiManager.builder()
+        CommunityApiNsiManager nsiManager = getMostRecentNsiManager(nsi)
+                .orElse(CommunityApiNsiManager.builder()
                         .build());
 
         return BreachResponse.builder()
@@ -28,33 +28,33 @@ public class NsiMapper {
     }
 
     private String getStatus(CommunityApiNsi nsi) {
-        return Optional.ofNullable(nsi.getNsiStatus())
-                .map(NsiStatus::getDescription)
+        return Optional.ofNullable(nsi.getStatus())
+                .map(CommunityApiNsiStatus::getDescription)
                 .orElse(null);
     }
 
-    private String getTeam(NsiManager nsiManager) {
+    private String getTeam(CommunityApiNsiManager nsiManager) {
         return Optional.ofNullable(nsiManager.getTeam())
-                .map(Team::getDescription)
+                .map(CommunityApiTeam::getDescription)
                 .orElse(null);
     }
 
-    private String getProvider(NsiManager nsiManager) {
+    private String getProvider(CommunityApiNsiManager nsiManager) {
         return Optional.ofNullable(nsiManager.getProbationArea())
-                .map(ProbationArea::getDescription)
+                .map(CommunityApiProbationArea::getDescription)
                 .orElse(null);
     }
 
-    private String getOfficer(NsiManager nsiManager) {
+    private String getOfficer(CommunityApiNsiManager nsiManager) {
         return Optional.ofNullable(nsiManager.getStaff())
-                .map(StaffWrapper::getStaff)
+                .map(CommunityApiStaffWrapper::getStaff)
                 .map(staff -> String.format("%s %s", staff.getForenames(), staff.getSurname()))
                 .orElse(null);
     }
 
-    private Optional<NsiManager> getMostRecentNsiManager(CommunityApiNsi nsi) {
+    private Optional<CommunityApiNsiManager> getMostRecentNsiManager(CommunityApiNsi nsi) {
         return nsi.getNsiManagers()
                 .stream()
-                .max(Comparator.comparing(NsiManager::getStartDate));
+                .max(Comparator.comparing(CommunityApiNsiManager::getStartDate));
     }
 }

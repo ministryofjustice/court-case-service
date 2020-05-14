@@ -1,0 +1,31 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/secure/offenders/crn/X320741/documents/abc-def",
+    "headers": {
+      "Content-Type": {
+        "equalTo": "application/json"
+      }
+    }
+  },
+  "response": {
+    "headers": {
+      "Content-Type": "application/msword;charset=UTF-8",
+      "Accept-Ranges": "bytes",
+      "Cache-Control": "max-age=0, must-revalidate",
+      "Content-Disposition": "attachment; filename=\"sample_word_doc.doc\"",
+      "Content-Length": "20992",
+      "Date": "Fri, 05 Jan 2018 09:50:45 GMT",
+      "ETag": "9514985635950",
+      "Last-Modified": "Wed, 03 Jan 2018 13:20:35 GMT",
+      "Server": "Apache-Coyote/1.1"
+    },
+    "delayDistribution": {
+      "type": "lognormal",
+      "median": 30,
+      "sigma": 0.4
+    },
+    "bodyFileName": "offender-documents/sample_word_doc.doc",
+    "status": 200
+  }
+}

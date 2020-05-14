@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import io.swagger.annotations.Api;
@@ -7,14 +8,20 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.util.Optional;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
+import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 
@@ -25,6 +32,9 @@ public class OffenderController {
 
     @Autowired
     private OffenderService offenderService;
+
+    @Autowired
+    private DocumentService documentService;
 
     @ApiOperation(value = "Gets the offender probation record by CRN")
     @ApiResponses(
@@ -58,5 +68,24 @@ public class OffenderController {
     public @ResponseBody
     RequirementsResponse getRequirements(@PathVariable String crn, @PathVariable String convictionId) {
         return new RequirementsResponse(offenderService.getConvictionRequirements(crn, convictionId));
+    }
+
+    @ApiOperation(value = "Gets a document by ID for a CRN.")
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 200, message = "OK", response = RequirementsResponse.class),
+            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Not Found. If the CRN can't be matched.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+        })
+    @GetMapping(path="offender/{crn}/documents/{documentId}")
+    public HttpEntity<Resource> getOffenderDocumentByCrn(
+        @ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @NotNull final @PathVariable("crn") String crn,
+        @ApiParam(name = "documentId", value = "Document Id", example = "12312322", required = true) @NotNull final @PathVariable("documentId") String documentId) {
+
+        return Optional.ofNullable(documentService.getDocument(crn, documentId))
+            .orElse(new ResponseEntity<>(NOT_FOUND));
     }
 }

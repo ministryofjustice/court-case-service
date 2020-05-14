@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,11 +23,16 @@ import java.time.format.DateTimeFormatter;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.springframework.http.HttpHeaders.ACCEPT_RANGES;
+import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
+import static org.springframework.http.HttpHeaders.LAST_MODIFIED;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 
 @RunWith(SpringRunner.class)
@@ -35,6 +40,10 @@ import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT
 @ActiveProfiles(profiles = "test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
 public class OffenderControllerIntTest {
+
+    private static final String GET_DOCUMENT_PATH = "/offender/%s/documents/%s";
+
+    private static final String KNOWN_CRN = "X320741";
 
     @LocalServerPort
     private int port;
@@ -178,6 +187,46 @@ public class OffenderControllerIntTest {
                     .body("requirements[1].adRequirementTypeSubCategory.description", equalTo("ASRO"))
         ;
 
+    }
+
+    @Test
+    public void singleDocument_givenExistingDocumentIdThenReturn200AndHeaders() {
+        final byte[] bytes =
+            given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+                .get(String.format(GET_DOCUMENT_PATH, KNOWN_CRN, "abc-def"))
+            .then()
+                .statusCode(HttpStatus.OK.value())
+                .contentType("application/msword;charset=UTF-8")
+                .header(CONTENT_DISPOSITION, "attachment; filename=\"sample_word_doc.doc\"")
+                .header(ACCEPT_RANGES, "bytes")
+                .header(LAST_MODIFIED, "Wed, 03 Jan 2018 13:20:35 GMT")
+                .header("Server", "Apache-Coyote/1.1")
+                .extract()
+                .asByteArray();
+
+        assertThat(bytes.length).isEqualTo(20992);
+    }
+
+    @Test
+    public void singleDocument_givenUnknownDocumentIdThenReturn404() {
+        given()
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+        .when()
+            .get(String.format(GET_DOCUMENT_PATH, KNOWN_CRN, "xxx"))
+        .then()
+            .statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    public void singleDocument_givenServerError() {
+        given()
+            .contentType(APPLICATION_JSON_VALUE)
+        .when()
+            .get(String.format(GET_DOCUMENT_PATH, "X320500", "abc-def"))
+        .then()
+            .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
 
     private String standardDateOf(int year, int month, int dayOfMonth) {

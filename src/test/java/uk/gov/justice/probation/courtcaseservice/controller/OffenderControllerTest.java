@@ -1,12 +1,17 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
+import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
+import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
@@ -14,6 +19,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -24,6 +30,8 @@ public class OffenderControllerTest {
     public static final String CONVICTION_ID = "CONVICTION_ID";
 
     @Mock
+    private DocumentService documentService;
+    @Mock
     private OffenderService service;
     @Mock
     private ProbationRecord expectedProbationRecord;
@@ -33,7 +41,7 @@ public class OffenderControllerTest {
     @InjectMocks
     private OffenderController controller;
 
-    @DisplayName("Ensues that the controller calls the service and returns the same offender probation record")
+    @DisplayName("Ensures that the controller calls the service and returns the same offender probation record")
     @Test
     public void whenGetProbationRecord_thenReturnIt() {
 
@@ -48,7 +56,7 @@ public class OffenderControllerTest {
         verifyNoMoreInteractions(service);
     }
 
-    @DisplayName("Ensues that the controller calls the service and returns the same list of requirements")
+    @DisplayName("Ensures that the controller calls the service and returns the same list of requirements")
     @Test
     public void whenGetRequirements_thenReturnIt() {
 
@@ -61,4 +69,18 @@ public class OffenderControllerTest {
         assertThat(requirementResponse.getRequirements().get(0)).isEqualTo(expectedRequirement);
         verify(service).getConvictionRequirements(CRN, CONVICTION_ID);
     }
+
+    @DisplayName("Ensures that the controller calls the document service and returns the same document")
+    @Test
+    public void whenGetDocument_thenReturnIt() {
+
+        final ResponseEntity expectedResponse = mock(ResponseEntity.class);
+        when(documentService.getDocument(CRN, CONVICTION_ID)).thenReturn(expectedResponse);
+
+        HttpEntity responseEntity = controller.getOffenderDocumentByCrn(CRN, CONVICTION_ID);
+
+        assertThat(responseEntity).isSameAs(expectedResponse);
+        verify(documentService).getDocument(CRN, CONVICTION_ID);
+    }
+
 }

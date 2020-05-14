@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.restclient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -13,7 +14,8 @@ public class NsiRestClient {
     @Autowired
     @Qualifier("communityApiClient")
     private RestClientHelper clientHelper;
-    private String nsiUrlTemplate = "/secure/offenders/crn/%s/convictions/%s/nsis/%s";
+    @Value("${community-api.nsi-by-id-url-template}")
+    private String nsiUrlTemplate;
 
     public Mono<CommunityApiNsi> getNsiById(String crn, Long convictionId, Long nsiId) {
         return clientHelper.get(String.format(nsiUrlTemplate, crn, convictionId, nsiId))

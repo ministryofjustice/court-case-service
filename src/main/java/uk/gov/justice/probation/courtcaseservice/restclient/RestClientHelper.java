@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
@@ -25,7 +27,7 @@ public class RestClientHelper {
     private Boolean disableAuthentication;
 
     WebClient.RequestHeadersSpec<?> get(final String path) {
-        return get(path, null);
+        return get(path, new LinkedMultiValueMap(0));
     }
 
     WebClient.RequestHeadersSpec<?> get(final String path, final MultiValueMap<String, String> queryParams) {
@@ -38,6 +40,22 @@ public class RestClientHelper {
             )
             .accept(MediaType.APPLICATION_JSON);
 
+        return addSpecAuthAttribute(spec, path);
+    }
+
+    WebClient.RequestHeadersSpec<?> get(final String path, final MediaType mediaType) {
+        final WebClient.RequestHeadersSpec<?> spec = client
+            .get()
+            .uri(uriBuilder -> uriBuilder
+                .path(path)
+                .build()
+            )
+            .accept(mediaType);
+
+        return addSpecAuthAttribute(spec, path);
+    }
+
+    private RequestHeadersSpec<?> addSpecAuthAttribute(RequestHeadersSpec<?> spec, String path) {
         if (disableAuthentication) {
             log.info(String.format("Skipping authentication with community api for call to %s", path));
             return spec;

@@ -7,6 +7,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import uk.gov.justice.probation.courtcaseservice.controller.ErrorResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.DocumentNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.DuplicateEntityException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
@@ -33,6 +34,12 @@ public class ApplicationExceptionHandlerTest {
         ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(new ConvictionNotFoundException("CRN", 123456L));
 
         assertGoodErrorResponse(response, HttpStatus.NOT_FOUND, "Conviction with id '123456' for offender with CRN 'CRN' not found");
+    }
+    @Test
+    public void whenDocumentNotFoundExceptionCaught_thenReturnAppropriateErrorResponse() {
+        ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(new DocumentNotFoundException("abc-def", "BAD_CRN"));
+
+        assertGoodErrorResponse(response, HttpStatus.NOT_FOUND, "Document with ID 'abc-def' not found for offender with CRN 'BAD_CRN'");
     }
 
     @Test

@@ -65,6 +65,7 @@ community-api:
   attendances-by-crn-and-conviction-url-template: /secure/offenders/crn/%s/convictions/%s/attendances
   requirements-by-crn-url-template: /secure/offenders/crn/%s/convictions/%s/requirements
   grouped-documents-by-crn-url-template: /secure/offenders/crn/%s/documents/grouped
+  offender-document-by-crn-url-template: /secure/offenders/crn/%s/documents/%s
   nsis-url-template: /secure/offenders/crn/%s/convictions/%s/nsis
   nsi-by-id-url-template: "/secure/offenders/crn/%s/convictions/%s/nsis/%s"
 

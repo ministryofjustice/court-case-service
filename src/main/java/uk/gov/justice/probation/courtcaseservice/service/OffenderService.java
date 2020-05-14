@@ -12,10 +12,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
+import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
-import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
@@ -29,14 +29,17 @@ public class OffenderService {
 
     private final OffenderRestClient defaultClient;
     private final AssessmentsRestClient assessmentsClient;
+    private final DocumentRestClient documentRestClient;
 
     private final Predicate<OffenderDocumentDetail> documentTypeFilter;
 
     public OffenderService(final OffenderRestClient defaultClient,
                            final AssessmentsRestClient assessmentsClient,
+                           final DocumentRestClient documentRestClient,
                            final DocumentTypeFilter documentTypeFilter) {
         this.defaultClient = defaultClient;
         this.assessmentsClient = assessmentsClient;
+        this.documentRestClient = documentRestClient;
         this.documentTypeFilter = documentTypeFilter;
     }
 
@@ -67,7 +70,7 @@ public class OffenderService {
         Mono<Tuple3<ProbationRecord, List<Conviction>, GroupedDocuments>> probationMono = Mono.zip(
             defaultClient.getProbationRecordByCrn(crn),
             convictions,
-            defaultClient.getDocumentsByCrn(crn)
+            documentRestClient.getDocumentsByCrn(crn)
         );
         Mono<Assessment> assessmentMono = assessmentsClient.getAssessmentByCrn(crn);
 

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.probation.courtcaseservice.controller.ErrorResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.DocumentNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.DuplicateEntityException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
@@ -24,6 +25,14 @@ public class ApplicationExceptionHandler {
         return new ResponseEntity<>(ErrorResponse.builder().status(404)
                 .developerMessage(e.getMessage())
                 .userMessage(e.getMessage()).build(), NOT_FOUND);
+    }
+
+    @ExceptionHandler(DocumentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handle(DocumentNotFoundException e) {
+        log.error("DocumentNotFound: {}", e.getMessage());
+        return new ResponseEntity<>(ErrorResponse.builder().status(404)
+            .developerMessage(e.getMessage())
+            .userMessage(e.getMessage()).build(), NOT_FOUND);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)

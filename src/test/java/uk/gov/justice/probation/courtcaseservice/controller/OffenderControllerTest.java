@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 import org.junit.jupiter.api.BeforeEach;
-import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
-import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ConvictionResponse;
@@ -60,7 +58,7 @@ public class OffenderControllerTest {
     @BeforeEach
     void beforeEach() {
         featureFlags = new FeatureFlags();
-        controller = new OffenderController(offenderService, convictionService, breachService, featureFlags);
+        controller = new OffenderController(offenderService, convictionService, breachService, featureFlags, documentService);
     }
 
     @DisplayName("Normal service call returns response")

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
+import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.service.BreachService;
@@ -23,8 +24,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class OffenderControllerTest {
-    public static final String CRN = "CRN";
-    public static final String CONVICTION_ID = "CONVICTION_ID";
+    private static final String CRN = "CRN";
+    private static final String CONVICTION_ID = "CONVICTION_ID";
     static final Long SOME_EVENT_ID = 1234L;
 
     @Mock
@@ -34,6 +35,8 @@ public class OffenderControllerTest {
     @Mock
     private Requirement expectedRequirement;
     @Mock
+    private BreachResponse expectedBreach;
+    @Mock
     private ConvictionService convictionService;
     @Mock
     private BreachService breachService;
@@ -41,6 +44,8 @@ public class OffenderControllerTest {
     private FeatureFlags featureFlags;
 
     private OffenderController controller;
+    public static final long BREACH_CONVICTION_ID = 123455L;
+    public static final long BREACH_ID = 1234456L;
 
     @BeforeEach
     void beforeEach() {
@@ -102,5 +107,18 @@ public class OffenderControllerTest {
         assertThat(requirementResponse.getRequirements()).hasSize(1);
         assertThat(requirementResponse.getRequirements().get(0)).isEqualTo(expectedRequirement);
         verify(offenderService).getConvictionRequirements(CRN, CONVICTION_ID);
+    }
+
+    @DisplayName("Ensures that the controller calls the service and returns the same breach")
+    @Test
+    public void whenGetBreach_thenReturnIt() {
+
+        when(breachService.getBreach(CRN, BREACH_CONVICTION_ID, BREACH_ID)).thenReturn(expectedBreach);
+
+        BreachResponse actualBreach = controller.getBreach(CRN, BREACH_CONVICTION_ID, BREACH_ID);
+
+        assertThat(actualBreach).isNotNull();
+        assertThat(actualBreach).isEqualTo(expectedBreach);
+        verify(breachService).getBreach(CRN, BREACH_CONVICTION_ID, BREACH_ID);
     }
 }

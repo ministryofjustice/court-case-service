@@ -199,9 +199,20 @@ public class OffenderControllerIntTest {
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when()
-                .get("/offender/D003080/convictions/2500295343/breach/1230000000")
+                .get("/offender/D003080/convictions/2500295343/breaches/1230000000")
                 .then()
                 .statusCode(404)
+        ;
+    }
+
+    @Test
+    public void whenBreachThrowsServerError_thenReturn500() {
+        given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .get("/offender/X320123/convictions/2500295343/breaches/2500003903")
+                .then()
+                .statusCode(500)
         ;
     }
 

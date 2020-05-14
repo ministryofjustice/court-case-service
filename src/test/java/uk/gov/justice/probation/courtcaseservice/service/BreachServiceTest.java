@@ -33,7 +33,7 @@ class BreachServiceTest {
     @Mock
     private NsiMapper nsiMapper;
     @Mock
-    private BreachResponse breachResponse;
+    private BreachResponse expectedBreachResponse;
     private BreachService breachService;
 
     @BeforeEach
@@ -45,9 +45,9 @@ class BreachServiceTest {
     public void whenGetBreachExists_thenReturnBreach() {
         when(nsiRestClient.getNsiById(CRN, CONVICTION_ID, BREACH_ID)).thenReturn(Mono.just(nsi));
         when(convictionRestClient.getConviction(CRN, CONVICTION_ID)).thenReturn(Mono.just(conviction));
-        when(nsiMapper.breachOf(nsi, conviction)).thenReturn(breachResponse);
-        BreachResponse breachResponse = breachService.getBreach(CRN, CONVICTION_ID, BREACH_ID);
+        when(nsiMapper.breachOf(nsi, conviction)).thenReturn(expectedBreachResponse);
+        BreachResponse actualBreachResponse = breachService.getBreach(CRN, CONVICTION_ID, BREACH_ID);
 
-        assertThat(breachResponse).isEqualTo(breachResponse);
+        assertThat(actualBreachResponse).isEqualTo(expectedBreachResponse);
     }
 }

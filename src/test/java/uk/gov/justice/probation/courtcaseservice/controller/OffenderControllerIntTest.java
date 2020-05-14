@@ -173,7 +173,7 @@ public class OffenderControllerIntTest {
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when()
-                .get("/offender/D003080/convictions/2500005095/breach/2500003903")
+                .get("/offender/D003080/convictions/2500005095/breaches/2500003903")
                 .then()
                 .statusCode(200)
                 .body("breachId", equalTo(2500003903L))

@@ -1,5 +1,5 @@
 ### Known breach for a known conviction and offender
-GET http://{{host}}/offenders/{{offenderCrn}}/convictions/{{convictionId}}/breaches/{{breachId}}
+GET http://{{host}}/offender/{{breach_crn}}/convictions/{{breach_convictionId}}/breaches/{{breach_breachId}}
 
 > {%
     client.test("Request executed successfully", function() {
@@ -13,7 +13,7 @@ GET http://{{host}}/offenders/{{offenderCrn}}/convictions/{{convictionId}}/breac
 %}
 
 ### Breach for an unknown offender
-GET http://{{host}}/offenders/XX/convictions/{{convictionId}}/breaches/{{breachId}}
+GET http://{{host}}/offender/XX/convictions/{{breach_convictionId}}/breaches/{{breach_breachId}}
 
 > {%
     client.test("Request executed successfully", function() {
@@ -27,7 +27,7 @@ GET http://{{host}}/offenders/XX/convictions/{{convictionId}}/breaches/{{breachI
 %}
 
 ### Breach for an unknown conviction
-GET http://{{host}}/offenders/{{offenderCrn}}/convictions/XX/breaches/{{breachId}}
+GET http://{{host}}/offender/{{breach_crn}}/convictions/1234/breaches/{{breach_breachId}}
 
 > {%
     client.test("Request executed successfully", function() {
@@ -41,7 +41,7 @@ GET http://{{host}}/offenders/{{offenderCrn}}/convictions/XX/breaches/{{breachId
 %}
 
 ### Unknown breach
-GET http://{{host}}/offenders/{{offenderCrn}}/convictions/{{convictionId}}/breaches/XX
+GET http://{{host}}/offender/{{breach_crn}}/convictions/{{breach_convictionId}}/breaches/1234
 
 > {%
     client.test("Request executed successfully", function() {

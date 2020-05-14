@@ -94,7 +94,7 @@ public class OffenderController {
                     @ApiResponse(code = 404, message = "Not Found. For example if the CRN can't be matched.", response = ErrorResponse.class),
                     @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
             })
-    @GetMapping(path="offender/{crn}/convictions/{convictionId}/breach/{breachId}", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path="offender/{crn}/convictions/{convictionId}/breaches/{breachId}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     BreachResponse getBreach(@PathVariable String crn, @PathVariable Long convictionId, @PathVariable Long breachId) {
         return breachService.getBreach(crn, convictionId, breachId);

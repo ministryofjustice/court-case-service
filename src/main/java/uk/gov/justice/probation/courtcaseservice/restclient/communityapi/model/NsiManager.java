@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Builder
 @Getter
 @NoArgsConstructor
@@ -13,4 +15,5 @@ public class NsiManager {
     private StaffWrapper staff;
     private ProbationArea probationArea;
     private Team team;
+    private LocalDate startDate;
 }

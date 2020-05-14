@@ -20,6 +20,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 @SpringBootTest
 @ActiveProfiles("test")
 public class NsiRestClientIntTest {
+    private static final String CRN = "X320741";
+    private static final long CONVICTION_ID = 2500295343L;
     @Autowired
     private NsiRestClient client;
 
@@ -30,7 +32,7 @@ public class NsiRestClientIntTest {
 
     @Test
     public void givenNsiExists_whenGetNsi_thenReturnIt() {
-        Mono<CommunityApiNsi> mono = client.getNsiById("D003080", 2500005095L, 2500003903L);
+        Mono<CommunityApiNsi> mono = client.getNsiById(CRN, CONVICTION_ID, 2500003903L);
 
         assertThat(mono.blockOptional()).isPresent();
 
@@ -39,7 +41,7 @@ public class NsiRestClientIntTest {
     @Test
     public void givenNsiDoesNotExist_whenGetNsi_thenReturnEmpty() {
         assertThatExceptionOfType(BreachNotFoundException.class)
-            .isThrownBy(() -> client.getNsiById("D003080", 2500005095L, 1230045000L).block())
+            .isThrownBy(() -> client.getNsiById(CRN, CONVICTION_ID, 1230045000L).block())
             .withMessage("NSI with id 1230045000 does not exist");
     }
 }

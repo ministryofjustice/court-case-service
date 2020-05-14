@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/secure/offenders/crn/D003080/convictions/2500005095/nsis/2500003903",
+    "urlPath": "/secure/offenders/crn/X320741/convictions/2500295343/nsis/2500003903",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"
@@ -13,6 +13,6 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "offender-nsis/GET_nsi_D003080.json"
+    "bodyFileName": "offender-nsis/GET_nsi_X320741.json"
   }
 }

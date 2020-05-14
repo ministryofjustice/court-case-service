@@ -173,7 +173,7 @@ public class OffenderControllerIntTest {
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when()
-                .get("/offender/D003080/convictions/2500005095/breaches/2500003903")
+                .get("/offender/X320741/convictions/2500295343/breaches/2500003903")
                 .then()
                 .statusCode(200)
                 .body("breachId", equalTo(2500003903L))
@@ -183,6 +183,7 @@ public class OffenderControllerIntTest {
                 .body("team", equalTo("Unallocated"))
                 .body("officer", equalTo("Unallocated Staff"))
                 .body("status", equalTo("Induction Completed - Opted Out"))
+                .body("order", equalTo("CJA - Community Order"))
         ;
     }
 
@@ -191,7 +192,7 @@ public class OffenderControllerIntTest {
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when()
-                .get("/offender/D003080/convictions/2500005095/breach/1230000000")
+                .get("/offender/D003080/convictions/2500295343/breach/1230000000")
                 .then()
                 .statusCode(404)
         ;

@@ -61,9 +61,9 @@ public class RestClientHelper {
         return handleError(clientResponse);
     }
 
-    public Mono<? extends Throwable> handleNsiError(final Long nsiId, final ClientResponse clientResponse) {
+    public Mono<? extends Throwable> handleNsiError(String crn, Long convictionId, final Long nsiId, final ClientResponse clientResponse) {
         if (HttpStatus.NOT_FOUND.equals(clientResponse.statusCode())) {
-            return Mono.error(new NsiNotFoundException(nsiId));
+            return Mono.error(new NsiNotFoundException(crn, convictionId, nsiId));
         }
         return handleError(clientResponse);
     }

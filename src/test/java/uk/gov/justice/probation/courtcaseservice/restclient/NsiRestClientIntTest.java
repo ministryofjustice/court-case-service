@@ -42,6 +42,6 @@ public class NsiRestClientIntTest {
     public void givenNsiDoesNotExist_whenGetNsi_thenReturnEmpty() {
         assertThatExceptionOfType(NsiNotFoundException.class)
             .isThrownBy(() -> client.getNsiById(CRN, CONVICTION_ID, 1230045000L).block())
-            .withMessage("Nsi with id '1230045000' not found");
+            .withMessage("Nsi with id '1230045000' not found for convictionId '2500295343' and crn 'X320741'");
     }
 }

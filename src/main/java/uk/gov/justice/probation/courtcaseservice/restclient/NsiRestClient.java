@@ -18,7 +18,7 @@ public class NsiRestClient {
     public Mono<CommunityApiNsi> getNsiById(String crn, Long convictionId, Long nsiId) {
         return clientHelper.get(String.format(nsiUrlTemplate, crn, convictionId, nsiId))
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleNsiError(nsiId, clientResponse))
+                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleNsiError(crn, convictionId, nsiId, clientResponse))
                 .bodyToMono(CommunityApiNsi.class);
     }
 }

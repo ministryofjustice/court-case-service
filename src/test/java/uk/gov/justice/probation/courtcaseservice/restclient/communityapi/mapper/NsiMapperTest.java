@@ -3,6 +3,8 @@ package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.*;
+import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -20,6 +22,7 @@ class NsiMapperTest {
     private static final String PROVIDER = "Some provider";
     private static final String TEAM = "Some Team";
     private static final String BREACH_STATUS = "Breach Status";
+    public static final String ORDER = "Some Order";
     private final NsiMapper mapper = new NsiMapper();
 
     @Test
@@ -28,7 +31,8 @@ class NsiMapperTest {
                 buildNsiManager(LocalDate.of(2020, 5, 1), TEAM));
 
         CommunityApiNsi communityApiNsi = buildNsi(nsiManagers);
-        BreachResponse breach = mapper.breachOf(communityApiNsi);
+        Conviction conviction = buildConviction();
+        BreachResponse breach = mapper.breachOf(communityApiNsi, conviction);
 
         assertThat(breach.getBreachId()).isEqualTo(NSI_ID);
         assertThat(breach.getIncidentDate()).isEqualTo(INCIDENT_DATE);
@@ -37,16 +41,13 @@ class NsiMapperTest {
         assertThat(breach.getProvider()).isEqualTo(PROVIDER);
         assertThat(breach.getTeam()).isEqualTo(TEAM);
         assertThat(breach.getStatus()).isEqualTo(BREACH_STATUS);
+        assertThat(breach.getOrder()).isEqualTo(ORDER);
     }
 
-    private CommunityApiNsi buildNsi(List<NsiManager> nsiManagers) {
-        return CommunityApiNsi.builder()
-                .nsiId(NSI_ID)
-                .referralDate(INCIDENT_DATE)
-                .actualStartDate(STARTED_DATE)
-                .nsiManagers(nsiManagers)
-                .nsiStatus(NsiStatus.builder()
-                        .description(BREACH_STATUS)
+    private Conviction buildConviction() {
+        return Conviction.builder()
+                .sentence(Sentence.builder()
+                        .description(ORDER)
                         .build())
                 .build();
     }
@@ -61,7 +62,8 @@ class NsiMapperTest {
         );
 
         CommunityApiNsi communityApiNsi = buildNsi(nsiManagers);
-        BreachResponse breach = mapper.breachOf(communityApiNsi);
+        Conviction conviction = buildConviction();
+        BreachResponse breach = mapper.breachOf(communityApiNsi, conviction);
 
         assertThat(breach.getTeam()).isEqualTo("Expected Team");
     }
@@ -71,11 +73,24 @@ class NsiMapperTest {
         List<NsiManager> nsiManagers = Collections.emptyList();
 
         CommunityApiNsi communityApiNsi = buildNsi(nsiManagers);
-        BreachResponse breach = mapper.breachOf(communityApiNsi);
+        Conviction conviction = buildConviction();
+        BreachResponse breach = mapper.breachOf(communityApiNsi, conviction);
 
         assertThat(breach.getOfficer()).isEqualTo(null);
         assertThat(breach.getProvider()).isEqualTo(null);
         assertThat(breach.getTeam()).isEqualTo(null);
+    }
+
+    private CommunityApiNsi buildNsi(List<NsiManager> nsiManagers) {
+        return CommunityApiNsi.builder()
+                .nsiId(NSI_ID)
+                .referralDate(INCIDENT_DATE)
+                .actualStartDate(STARTED_DATE)
+                .nsiManagers(nsiManagers)
+                .nsiStatus(NsiStatus.builder()
+                        .description(BREACH_STATUS)
+                        .build())
+                .build();
     }
 
     private NsiManager buildNsiManager(LocalDate startDate, String team) {

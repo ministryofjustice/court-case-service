@@ -7,15 +7,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.NsiRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.NsiMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsi;
-import uk.gov.justice.probation.courtcaseservice.service.exceptions.BreachNotFoundException;
-
-import java.util.Optional;
+import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.when;
 
 @ExtendWith({MockitoExtension.class})
@@ -27,7 +25,11 @@ class BreachServiceTest {
     @Mock
     private CommunityApiNsi nsi;
     @Mock
-    private NsiRestClient restClient;
+    private Conviction conviction;
+    @Mock
+    private NsiRestClient nsiRestClient;
+    @Mock
+    private ConvictionRestClient convictionRestClient;
     @Mock
     private NsiMapper nsiMapper;
     @Mock
@@ -36,23 +38,16 @@ class BreachServiceTest {
 
     @BeforeEach
     public void setUp() {
-        breachService = new BreachService(restClient, nsiMapper);
+        breachService = new BreachService(nsiRestClient, convictionRestClient, nsiMapper);
     }
 
     @Test
     public void whenGetBreachExists_thenReturnBreach() {
-        when(restClient.getNsiById(CRN, CONVICTION_ID, BREACH_ID)).thenReturn(Mono.just(nsi));
-        when(nsiMapper.breachOf(nsi)).thenReturn(breachResponse);
+        when(nsiRestClient.getNsiById(CRN, CONVICTION_ID, BREACH_ID)).thenReturn(Mono.just(nsi));
+        when(convictionRestClient.getConviction(CRN, CONVICTION_ID)).thenReturn(Mono.just(conviction));
+        when(nsiMapper.breachOf(nsi, conviction)).thenReturn(breachResponse);
         BreachResponse breachResponse = breachService.getBreach(CRN, CONVICTION_ID, BREACH_ID);
 
         assertThat(breachResponse).isEqualTo(breachResponse);
-    }
-
-    @Test
-    public void whenGetBreachDoesNotExist_thenThrowNotFoundException() {
-        when(restClient.getNsiById(CRN, CONVICTION_ID, BREACH_ID)).thenReturn(Mono.empty());
-        assertThatExceptionOfType(BreachNotFoundException.class)
-                .isThrownBy(() -> breachService.getBreach("CRN", 12358073L, 1267523687L))
-                .withMessage("Breach with id 1267523687 does not exist");
     }
 }

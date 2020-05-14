@@ -3,13 +3,14 @@ package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper
 import org.springframework.stereotype.Component;
 import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.*;
+import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 
 import java.util.Comparator;
 import java.util.Optional;
 
 @Component
 public class NsiMapper {
-    public BreachResponse breachOf(CommunityApiNsi nsi) {
+    public BreachResponse breachOf(CommunityApiNsi nsi, Conviction conviction) {
         NsiManager nsiManager = getMostRecentNsiManager(nsi)
                 .orElse(NsiManager.builder()
                         .build());
@@ -22,6 +23,7 @@ public class NsiMapper {
                 .provider(getProvider(nsiManager))
                 .team(getTeam(nsiManager))
                 .status(getStatus(nsi))
+                .order(conviction.getSentence().getDescription())
                 .build();
     }
 

@@ -15,4 +15,5 @@ public class BreachResponse {
     private final String team;
     private final String officer;
     private final String status;
+    private final String order;
 }

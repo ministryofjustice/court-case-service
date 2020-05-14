@@ -1,11 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import java.util.List;
-import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,8 +10,14 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+
+import java.util.List;
+import java.util.Optional;
+
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -62,7 +63,7 @@ public class ConvictionRestClientIntTest {
         webTestClient.getAttendances("XXXXXX", SOME_CONVICTION_ID).blockOptional();
     }
 
-    @Test(expected = OffenderNotFoundException.class)
+    @Test(expected = ConvictionNotFoundException.class)
     public void givenServiceThrows404ThenThrowOffenderNotFoundException() {
         webTestClient.getAttendances(UNKNOWN_CRN, SOME_CONVICTION_ID).blockOptional();
     }
@@ -85,7 +86,7 @@ public class ConvictionRestClientIntTest {
         webTestClient.getConviction("XXXXXX", SOME_CONVICTION_ID).blockOptional();
     }
 
-    @Test(expected = OffenderNotFoundException.class)
+    @Test(expected = ConvictionNotFoundException.class)
     public void givenGetConvictionServiceThrows404ThenThrowOffenderNotFoundException() {
         webTestClient.getAttendances(UNKNOWN_CRN, SOME_CONVICTION_ID).blockOptional();
     }

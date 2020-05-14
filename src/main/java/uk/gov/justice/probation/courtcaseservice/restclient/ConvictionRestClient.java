@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +15,8 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiAttendances;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+
+import java.util.List;
 
 @Component
 @AllArgsConstructor
@@ -45,7 +46,7 @@ public class ConvictionRestClient {
         final String path = String.format(convictionAttendanceUrlTemplate, crn, convictionId);
         return clientHelper.get(path)
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
             .bodyToMono(CommunityApiAttendances.class)
             .doOnError(e -> log.error(String.format(ERROR_MSG_FORMAT, "conviction attendance", crn, convictionId), e))
             .map(attendances -> attendanceMapper.attendancesFrom(attendances, crn, convictionId));
@@ -56,7 +57,7 @@ public class ConvictionRestClient {
         final String path = String.format(convictionUrlTemplate, crn, convictionId);
         return clientHelper.get(path)
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
             .bodyToMono(CommunityApiConvictionResponse.class)
             .doOnError(e -> log.error(String.format(ERROR_MSG_FORMAT, "conviction", crn, convictionId), e))
             .map(convictionResponse -> offenderMapper.convictionFrom(convictionResponse));

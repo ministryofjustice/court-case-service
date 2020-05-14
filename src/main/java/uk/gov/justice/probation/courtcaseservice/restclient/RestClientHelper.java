@@ -1,9 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
-
-import java.nio.charset.StandardCharsets;
-
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,8 +8,13 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.NsiNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
-import uk.gov.justice.probation.courtcaseservice.service.exceptions.BreachNotFoundException;
+
+import java.nio.charset.StandardCharsets;
+
+import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 
 @Slf4j
 @AllArgsConstructor
@@ -37,9 +38,6 @@ public class RestClientHelper {
         return spec.attributes(clientRegistrationId(oauthClient));
     }
 
-    // handleError is a slightly modified version of the default error handler which returns
-    // `OffenderNotFoundException` for 404 status codes, and `WebClientResponseException` for
-    // everything else. Can be used with `WebClient.ResponseSpec::onStatus`.
     public Mono<? extends Throwable> handleOffenderError(final String crn, final ClientResponse clientResponse) {
         if (HttpStatus.NOT_FOUND.equals(clientResponse.statusCode())) {
             return Mono.error(new OffenderNotFoundException(crn));
@@ -47,12 +45,16 @@ public class RestClientHelper {
         return handleError(clientResponse);
     }
 
-    // handleError is a slightly modified version of the default error handler which returns
-    // `BreachNotFoundException` for 404 status codes, and `WebClientResponseException` for
-    // everything else. Can be used with `WebClient.ResponseSpec::onStatus`.
-    public Mono<? extends Throwable> handleNsiError(final Long breachId, final ClientResponse clientResponse) {
+    public Mono<? extends Throwable> handleConvictionError(final String crn, Long convictionId, final ClientResponse clientResponse) {
         if (HttpStatus.NOT_FOUND.equals(clientResponse.statusCode())) {
-            return Mono.error(new BreachNotFoundException("NSI with id %s does not exist", breachId));
+            return Mono.error(new ConvictionNotFoundException(crn, convictionId));
+        }
+        return handleError(clientResponse);
+    }
+
+    public Mono<? extends Throwable> handleNsiError(final Long nsiId, final ClientResponse clientResponse) {
+        if (HttpStatus.NOT_FOUND.equals(clientResponse.statusCode())) {
+            return Mono.error(new NsiNotFoundException(nsiId));
         }
         return handleError(clientResponse);
     }

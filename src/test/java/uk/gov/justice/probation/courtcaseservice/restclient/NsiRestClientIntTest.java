@@ -10,7 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsi;
-import uk.gov.justice.probation.courtcaseservice.service.exceptions.BreachNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.NsiNotFoundException;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,8 +40,8 @@ public class NsiRestClientIntTest {
 
     @Test
     public void givenNsiDoesNotExist_whenGetNsi_thenReturnEmpty() {
-        assertThatExceptionOfType(BreachNotFoundException.class)
+        assertThatExceptionOfType(NsiNotFoundException.class)
             .isThrownBy(() -> client.getNsiById(CRN, CONVICTION_ID, 1230045000L).block())
-            .withMessage("NSI with id 1230045000 does not exist");
+            .withMessage("Nsi with id '1230045000' not found");
     }
 }

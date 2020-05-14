@@ -15,10 +15,10 @@ public class NsiRestClient {
     private RestClientHelper clientHelper;
     private String nsiUrlTemplate = "/secure/offenders/crn/%s/convictions/%s/nsis/%s";
 
-    public Mono<CommunityApiNsi> getNsiById(String crn, Long convictionId, Long breachId) {
-        return clientHelper.get(String.format(nsiUrlTemplate, crn, convictionId, breachId))
+    public Mono<CommunityApiNsi> getNsiById(String crn, Long convictionId, Long nsiId) {
+        return clientHelper.get(String.format(nsiUrlTemplate, crn, convictionId, nsiId))
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleNsiError(breachId, clientResponse))
+                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleNsiError(nsiId, clientResponse))
                 .bodyToMono(CommunityApiNsi.class);
     }
 }

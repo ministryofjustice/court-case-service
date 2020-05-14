@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.probation.courtcaseservice.controller.ErrorResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
-import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.RestResourceNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.DuplicateEntityException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
@@ -18,9 +18,9 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Slf4j
 public class ApplicationExceptionHandler {
 
-    @ExceptionHandler(OffenderNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handle(OffenderNotFoundException e) {
-        log.error("OffenderNotFound: {}", e.getMessage());
+    @ExceptionHandler(RestResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handle(RestResourceNotFoundException e) {
+        log.error("RestResourceNotFound: {}", e.getMessage());
         return new ResponseEntity<>(ErrorResponse.builder().status(404)
                 .developerMessage(e.getMessage())
                 .userMessage(e.getMessage()).build(), NOT_FOUND);

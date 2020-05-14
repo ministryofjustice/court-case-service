@@ -87,7 +87,7 @@ public class OffenderController {
     @ApiOperation(value = "Gets Breach data by CRN, conviction ID and breach id.")
     @ApiResponses(
             value = {
-                    @ApiResponse(code = 200, message = "OK", response = RequirementsResponse.class),
+                    @ApiResponse(code = 200, message = "OK", response = BreachResponse.class),
                     @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
                     @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
                     @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),

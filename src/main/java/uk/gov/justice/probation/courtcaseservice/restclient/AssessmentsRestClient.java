@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,7 @@ public class AssessmentsRestClient {
     public Mono<Assessment> getAssessmentByCrn(String crn) {
         return clientHelper.get(String.format(assessmentsUrlTemplate, crn))
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleError(crn, clientResponse))
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
             .bodyToMono(AssessmentsApiAssessmentResponse.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender assessment data for CRN '%s'", crn), e))
             .map(assessmentResponse -> mapper.assessmentFrom(assessmentResponse));

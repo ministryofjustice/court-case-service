@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
@@ -115,12 +116,12 @@ public class OffenderRestClientIntTest {
         assertThat(breach.getDescription()).isEqualTo("Community Order");
     }
 
-    @Test(expected = OffenderNotFoundException.class)
+    @Test(expected = ConvictionNotFoundException.class)
     public void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoCRN() {
         offenderRestClient.getBreaches("xxx", CONVICTION_ID).block();
     }
 
-    @Test(expected = OffenderNotFoundException.class)
+    @Test(expected = ConvictionNotFoundException.class)
     public void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoConvictionId() {
         offenderRestClient.getBreaches(CRN, "123").block();
     }

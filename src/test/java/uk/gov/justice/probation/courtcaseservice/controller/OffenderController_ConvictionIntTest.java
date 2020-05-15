@@ -1,17 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
-import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.CRN;
-import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.SOME_CONVICTION_ID;
-import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.UNKNOWN_CRN;
-
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import java.time.LocalDate;
-import java.time.Month;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -33,11 +23,20 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResp
 import uk.gov.justice.probation.courtcaseservice.controller.model.ConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
+import java.time.LocalDate;
+import java.time.Month;
+
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
+import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.*;
+
 @RunWith(SpringRunner.class)
 @EnableRetry
 @ActiveProfiles(profiles = "test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
-public class ConvictionControllerIntTest {
+public class OffenderController_ConvictionIntTest {
 
     private static final String PATH = "/offenders/%s/convictions/%s";
 

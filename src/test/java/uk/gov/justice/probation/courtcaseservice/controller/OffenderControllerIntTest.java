@@ -190,6 +190,47 @@ public class OffenderControllerIntTest {
     }
 
     @Test
+    public void whenCallMadeToGetBreach_thenReturnCorrectData() {
+        given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .get("/offender/X320741/convictions/2500295343/breaches/2500003903")
+                .then()
+                .statusCode(200)
+                .body("breachId", equalTo(2500003903L))
+                .body("incidentDate", equalTo("2017-03-21"))
+                .body("started", equalTo("2017-03-22"))
+                .body("provider", equalTo("CPA West Yorkshire"))
+                .body("team", equalTo("Unallocated"))
+                .body("officer", equalTo("Unallocated Staff"))
+                .body("status", equalTo("Induction Completed - Opted Out"))
+                .body("order", equalTo("CJA - Community Order"))
+        ;
+    }
+
+    @Test
+    public void whenBreachDoesNotExist_thenReturn404() {
+        given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .get("/offender/D003080/convictions/2500295343/breaches/1230000000")
+                .then()
+                .statusCode(404)
+        ;
+    }
+
+    @Test
+    public void whenBreachThrowsServerError_thenReturn500() {
+        given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .get("/offender/X320123/convictions/2500295343/breaches/2500003903")
+                .then()
+                .statusCode(500)
+        ;
+    }
+
+    @Test
     public void singleDocument_givenExistingDocumentIdThenReturn200AndHeaders() {
         final byte[] bytes =
             given()

@@ -40,7 +40,7 @@ public class DocumentRestClient {
     public Mono<GroupedDocuments> getDocumentsByCrn(String crn) {
         return clientHelper.get(String.format(groupedDocumentsUrlTemplate, crn))
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleError(crn, clientResponse))
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
             .bodyToMono(CommunityApiGroupedDocumentsResponse.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when retrieving grouped document data for CRN '%s'", crn), e))
             .map(documentsResponse -> mapper.documentsFrom(documentsResponse));

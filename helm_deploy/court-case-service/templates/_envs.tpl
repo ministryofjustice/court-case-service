@@ -57,4 +57,16 @@ env:
       secretKeyRef:
         name: court-case-service-secrets
         key: nomis-oauth-client-secret
+
+  - name: OFFENDER_ASSESSMENTS_API_CLIENT_ID
+    valueFrom:
+      secretKeyRef:
+        name: court-case-service-secrets
+        key: nomis-oauth-client-id
+
+  - name: OFFENDER_ASSESSMENTS_API_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: court-case-service-secrets
+        key: nomis-oauth-client-secret
 {{- end -}}

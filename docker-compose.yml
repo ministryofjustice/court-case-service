@@ -29,7 +29,7 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
 
   community-api:
-    image: mojdigitalstudio/community-api:latest
+    image: quay.io/hmpps/community-api:latest
     networks:
       - hmpps
     container_name: community-api

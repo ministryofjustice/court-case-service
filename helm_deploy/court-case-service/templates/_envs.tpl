@@ -46,13 +46,13 @@ env:
   - name: OFFENDER_ASSESSMENTS_API_BASE_URL
     value: "{{ .Values.env.offender_assessments_api.base_url }}"
 
-  - name: NOMIS_OAUTH_CLIENT_ID
+  - name: COMMUNITY_API_CLIENT_ID
     valueFrom:
       secretKeyRef:
         name: court-case-service-secrets
         key: nomis-oauth-client-id
 
-  - name: NOMIS_OAUTH_CLIENT_SECRET
+  - name: COMMUNITY_API_CLIENT_SECRET
     valueFrom:
       secretKeyRef:
         name: court-case-service-secrets

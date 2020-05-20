@@ -11,9 +11,14 @@ import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient
 import uk.gov.justice.probation.courtcaseservice.restclient.NsiRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.NsiMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsi;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsiType;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.NsiNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 
+import java.util.Arrays;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.when;
 
 @ExtendWith({MockitoExtension.class})
@@ -24,6 +29,8 @@ class BreachServiceTest {
 
     @Mock
     private CommunityApiNsi nsi;
+    @Mock
+    private CommunityApiNsiType nsiType;
     @Mock
     private Conviction conviction;
     @Mock
@@ -38,16 +45,37 @@ class BreachServiceTest {
 
     @BeforeEach
     public void setUp() {
-        breachService = new BreachService(nsiRestClient, convictionRestClient, nsiMapper);
+        breachService = new BreachService(nsiRestClient, convictionRestClient, nsiMapper, Arrays.asList("BRE", "BRES"));
+        when(nsi.getType()).thenReturn(nsiType);
+        when(nsiRestClient.getNsiById(CRN, CONVICTION_ID, BREACH_ID)).thenReturn(Mono.just(nsi));
+        when(convictionRestClient.getConviction(CRN, CONVICTION_ID)).thenReturn(Mono.just(conviction));
     }
 
     @Test
-    public void whenGetBreachExists_thenReturnBreach() {
-        when(nsiRestClient.getNsiById(CRN, CONVICTION_ID, BREACH_ID)).thenReturn(Mono.just(nsi));
-        when(convictionRestClient.getConviction(CRN, CONVICTION_ID)).thenReturn(Mono.just(conviction));
+    public void whenGetBreachHasTypeBRE_thenReturnBreach() {
+        when(nsiType.getCode()).thenReturn("BRE");
         when(nsiMapper.breachOf(nsi, conviction)).thenReturn(expectedBreachResponse);
         BreachResponse actualBreachResponse = breachService.getBreach(CRN, CONVICTION_ID, BREACH_ID);
 
         assertThat(actualBreachResponse).isEqualTo(expectedBreachResponse);
+    }
+
+    @Test
+    public void whenGetBreachHasTypeBRES_thenReturnBreach() {
+        when(nsiType.getCode()).thenReturn("BRES");
+        when(nsiMapper.breachOf(nsi, conviction)).thenReturn(expectedBreachResponse);
+        BreachResponse actualBreachResponse = breachService.getBreach(CRN, CONVICTION_ID, BREACH_ID);
+
+        assertThat(actualBreachResponse).isEqualTo(expectedBreachResponse);
+    }
+
+    @Test
+    public void whenNsiIsNotABreach_thenThrowNotFoundException() {
+        when(nsiType.getCode()).thenReturn("NOTBRE");
+        when(nsi.getNsiId()).thenReturn(BREACH_ID);
+
+        assertThatExceptionOfType(NsiNotFoundException.class)
+                .isThrownBy(() -> breachService.getBreach(CRN, CONVICTION_ID, BREACH_ID))
+                .withMessage("Breach with id '1267523687' does not exist");
     }
 }

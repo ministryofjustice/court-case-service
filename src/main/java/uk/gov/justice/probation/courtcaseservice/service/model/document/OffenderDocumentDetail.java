@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service.model.document;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -23,6 +24,9 @@ public class OffenderDocumentDetail {
     private final DocumentType type;
     private final String extendedDescription;
     private final LocalDateTime createdAt;
+
+    @JsonIgnore
+    private final Long parentPrimaryKeyId;
 
     private KeyValue subType;
     private ReportDocumentDates reportDocumentDates;

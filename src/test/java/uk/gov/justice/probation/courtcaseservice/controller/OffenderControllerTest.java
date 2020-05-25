@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class OffenderControllerTest {
+class OffenderControllerTest {
     private static final String CRN = "CRN";
     private static final String CONVICTION_ID = "CONVICTION_ID";
     static final Long SOME_EVENT_ID = 1234L;

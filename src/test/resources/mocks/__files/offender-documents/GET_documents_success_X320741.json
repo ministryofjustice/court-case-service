@@ -9,7 +9,6 @@
         "description": "PNC previous convictions"
       },
       "extendedDescription": "Previous convictions as of 01/09/2019",
-      "lastModifiedAt": "2019-09-10T15:06:08.219",
       "createdAt": "2019-09-10T00:00:00"
     },
     {
@@ -21,7 +20,8 @@
         "description": "Offender related"
       },
       "lastModifiedAt": "2019-09-10T15:06:08.219",
-      "createdAt": "2019-09-10T00:00:00"
+      "createdAt": "2019-09-10T00:00:00",
+      "parentPrimaryKeyId": 2500343964
     },
     {
       "id": "aeb43e06-a4a1-460f-9acf-e2495de84604",
@@ -32,7 +32,8 @@
         "description": "Offender related"
       },
       "lastModifiedAt": "2019-09-10T15:05:26.947",
-      "createdAt": "2019-09-10T00:00:00"
+      "createdAt": "2019-09-10T00:00:00",
+      "parentPrimaryKeyId": 2500343964
     },
     {
       "id": "b2d92238-215c-4d6d-b91c-208ea747087e",
@@ -44,7 +45,8 @@
       },
       "extendedDescription": "Address assessment on 02/09/2019",
       "lastModifiedAt": "2019-09-13T14:29:56.242",
-      "createdAt": "2019-09-13T00:00:00"
+      "createdAt": "2019-09-13T00:00:00",
+      "parentPrimaryKeyId": 2500066584
     },
     {
       "id": "5152b060-9650-4f22-9974-038a38590d9f",
@@ -56,7 +58,8 @@
       },
       "extendedDescription": "Personal contact of type GP with Good friend",
       "lastModifiedAt": "2019-09-13T16:24:28.802",
-      "createdAt": "2019-09-13T00:00:00"
+      "createdAt": "2019-09-13T00:00:00",
+      "parentPrimaryKeyId": 2500058493
     },
     {
       "id": "7ceda384-3624-4a62-849d-7c729b6d0dd1",
@@ -68,7 +71,8 @@
       },
       "extendedDescription": "Personal circumstance of AP - Medication in Posession  - Assessment started on 11/09/2019",
       "lastModifiedAt": "2019-09-12T16:10:18.064",
-      "createdAt": "2019-09-12T00:00:00"
+      "createdAt": "2019-09-12T00:00:00",
+      "parentPrimaryKeyId": 2500064995
     },
     {
       "id": "2b167448-31a5-45a5-85a5-dcdd4a783f1d",
@@ -80,7 +84,8 @@
       },
       "extendedDescription": "Non Statutory Intervention for OPD Community Pathway on 16/10/2019",
       "lastModifiedAt": "2019-10-17T09:50:13.186",
-      "createdAt": "2019-10-17T00:00:00"
+      "createdAt": "2019-10-17T00:00:00",
+      "parentPrimaryKeyId": 2500018819
     }
   ],
   "convictions": [
@@ -107,7 +112,8 @@
             "description": "Sentence related"
           },
           "lastModifiedAt": "2019-09-04T11:52:35.298",
-          "createdAt": "2019-09-04T00:00:00"
+          "createdAt": "2019-09-04T00:00:00",
+          "parentPrimaryKeyId": 2500295343
         },
         {
           "id": "086bfb96-28a7-4b0a-80d5-7b877dd7bb75",
@@ -118,7 +124,8 @@
             "description": "Sentence related"
           },
           "lastModifiedAt": "2019-09-05T00:00:00",
-          "createdAt": "2019-09-04T00:00:00"
+          "createdAt": "2019-09-04T00:00:00",
+          "parentPrimaryKeyId": 2500295343
         },
         {
           "id": "5058ca66-3751-4701-855a-86bf518d9392",
@@ -129,7 +136,8 @@
             "description": "Sentence related"
           },
           "lastModifiedAt": "2019-09-04T11:52:57.054",
-          "createdAt": "2019-09-04T00:00:00"
+          "createdAt": "2019-09-04T00:00:00",
+          "parentPrimaryKeyId": 2500295343
         },
         {
           "id": "44f37749-18b8-46ff-803a-150746f6d1bc",
@@ -140,7 +148,8 @@
             "description": "Sentence related"
           },
           "lastModifiedAt": "2019-09-19T15:45:16.432",
-          "createdAt": "2019-09-19T00:00:00"
+          "createdAt": "2019-09-19T00:00:00",
+          "parentPrimaryKeyId": 2500295343
         },
         {
           "id": "b88547cf-7464-4cbc-b5f9-ebe2bafc19d9",
@@ -152,7 +161,21 @@
           },
           "extendedDescription": "Referral for Mental Health Referral on 09/09/2019",
           "lastModifiedAt": "2019-09-13T15:41:34.04",
-          "createdAt": "2019-09-13T00:00:00"
+          "createdAt": "2019-09-13T00:00:00",
+          "parentPrimaryKeyId": 2500080018
+        },
+        {
+          "id": "4191eada-6e03-4bd8-b52d-9e050eefa745",
+          "documentName": "NSI.pdf.pdf",
+          "author": "Andy Marke",
+          "type": {
+            "code": "NSI_DOCUMENT",
+            "description": "Non Statutory Intervention related document"
+          },
+          "extendedDescription": "Non Statutory Intervention for Custody - Accredited Programme on 02/09/2019",
+          "lastModifiedAt": "2019-09-16T08:23:34.842",
+          "createdAt": "2019-09-16T00:00:00",
+          "parentPrimaryKeyId": 2500003903
         }
       ]
     },
@@ -179,7 +202,8 @@
             "description": "Sentence related"
           },
           "lastModifiedAt": "2019-09-04T12:18:41.49",
-          "createdAt": "2019-09-04T00:00:00"
+          "createdAt": "2019-09-04T00:00:00",
+          "parentPrimaryKeyId": 2500295345
         },
         {
           "id": "e7d09bf6-b2e2-44eb-82be-2f561b575f1a",
@@ -190,7 +214,8 @@
             "description": "Sentence related"
           },
           "lastModifiedAt": "2019-09-04T12:19:12.896",
-          "createdAt": "2019-09-04T00:00:00"
+          "createdAt": "2019-09-04T00:00:00",
+          "parentPrimaryKeyId": 2500295345
         },
         {
           "id": "424d3c35-12c5-41cf-8f0a-2e2eea46f45d",
@@ -201,7 +226,8 @@
             "description": "Sentence related"
           },
           "lastModifiedAt": "2019-09-04T12:19:34.156",
-          "createdAt": "2019-09-04T00:00:00"
+          "createdAt": "2019-09-04T00:00:00",
+          "parentPrimaryKeyId": 2500295345
         },
         {
           "id": "1d842fce-ec2d-45dc-ac9a-748d3076ca6b",
@@ -214,6 +240,7 @@
           "extendedDescription": "Pre-Sentence Report - Fast requested by Sheffield Crown Court on 04/09/2018",
           "lastModifiedAt": "2019-09-04T12:14:26.113",
           "createdAt": "2019-09-04T00:00:00",
+          "parentPrimaryKeyId": 2500079873,
           "subType": {
             "code": "CJF",
             "description": "Pre-Sentence Report - Fast"
@@ -235,6 +262,7 @@
           "extendedDescription": "Parole Assessment Report at Berwyn (HMP) requested on 05/09/2019",
           "lastModifiedAt": "2019-09-04T12:21:17.555",
           "createdAt": "2019-09-04T00:00:00",
+          "parentPrimaryKeyId": 2500078391,
           "subType": {
             "code": "PAR",
             "description": "Parole Assessment Report"
@@ -253,7 +281,8 @@
           },
           "extendedDescription": "Contact on 16/09/2019 for Case Conference - MAPPA",
           "lastModifiedAt": "2019-09-16T10:09:07.598",
-          "createdAt": "2019-09-16T00:00:00"
+          "createdAt": "2019-09-16T00:00:00",
+          "parentPrimaryKeyId": 2502721488
         },
         {
           "id": "f4d0fec8-c0bf-4297-9067-a5b410b69157",
@@ -264,19 +293,8 @@
             "description": "Case allocation document"
           },
           "lastModifiedAt": "2019-09-13T15:22:05.598",
-          "createdAt": "2019-09-13T00:00:00"
-        },
-        {
-          "id": "4191eada-6e03-4bd8-b52d-9e050eefa745",
-          "documentName": "NSI.pdf.pdf",
-          "author": "Andy Marke",
-          "type": {
-            "code": "NSI_DOCUMENT",
-            "description": "Non Statutory Intervention related document"
-          },
-          "extendedDescription": "Non Statutory Intervention for Custody - Accredited Programme on 02/09/2019",
-          "lastModifiedAt": "2019-09-16T08:23:34.842",
-          "createdAt": "2019-09-16T00:00:00"
+          "createdAt": "2019-09-13T00:00:00",
+          "parentPrimaryKeyId": 101579
         }
       ]
     }

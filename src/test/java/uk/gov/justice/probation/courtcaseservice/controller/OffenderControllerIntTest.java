@@ -145,10 +145,10 @@ public class OffenderControllerIntTest {
                 .statusCode(200)
                 .body("crn",  equalTo("X320741"))
                 .body("convictions[0].convictionId", equalTo("2500295343"))
-                .body("convictions[0].documents", hasSize(6))
+                .body("convictions[0].documents", hasSize(7))
 
                 .body("convictions[1].convictionId", equalTo("2500295345"))
-                .body("convictions[1].documents", hasSize(9))
+                .body("convictions[1].documents", hasSize(8))
 
                 .body("convictions[2].convictionId", equalTo("2500297061"))
                 .body("convictions[2].documents", hasSize(0))
@@ -205,6 +205,7 @@ public class OffenderControllerIntTest {
                 .body("officer", equalTo("Unallocated Staff"))
                 .body("status", equalTo("Induction Completed - Opted Out"))
                 .body("order", equalTo("CJA - Community Order"))
+                .body("documents", hasSize(1))
         ;
     }
 

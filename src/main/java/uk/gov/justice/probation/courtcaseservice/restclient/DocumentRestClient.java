@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.DocumentMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiGroupedDocumentsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.DocumentNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
@@ -32,7 +32,8 @@ public class DocumentRestClient {
     @Value("${community-api.offender-document-by-crn-url-template}")
     private String offenderDocumentUrlTemplate;
     @Autowired
-    private OffenderMapper mapper;
+    private DocumentMapper documentMapper;
+
     @Autowired
     @Qualifier("communityApiClient")
     private RestClientHelper clientHelper;
@@ -43,7 +44,7 @@ public class DocumentRestClient {
             .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
             .bodyToMono(CommunityApiGroupedDocumentsResponse.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when retrieving grouped document data for CRN '%s'", crn), e))
-            .map(documentsResponse -> mapper.documentsFrom(documentsResponse));
+            .map(documentsResponse -> documentMapper.documentsFrom(documentsResponse));
     }
 
     public Mono<ResponseEntity<Resource>> getDocument(String crn, String documentId)  {

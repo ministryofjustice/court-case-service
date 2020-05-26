@@ -1,4 +1,7 @@
-SNYK-JAVA-ORGAPACHETOMCATEMBED-570072:
-  - 'org.apache.tomcat.embed:tomcat-embed-core':
-      reason: This comes from spring-boot-starter-web and latest version of that does not fix.
-      expires: 2020-06-27T00:00:00.000Z
+ignore:
+  SNYK-JAVA-ORGAPACHETOMCATEMBED-570072:
+    - '*':
+        reason: Latest version of springboot-starter-web brings in the tomcat-embed-core.
+                We do not want to pick apart spring-managed dependencies
+        expires: 2020-06-25T10:44:01.559Z
+patch: {}

@@ -1,20 +1,27 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import org.springframework.stereotype.Component;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.*;
-import uk.gov.justice.probation.courtcaseservice.service.model.*;
-
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
-import uk.gov.justice.probation.courtcaseservice.service.model.document.ConvictionDocuments;
-import uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType;
-import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
-import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
+import org.springframework.stereotype.Component;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderManager;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentence;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiUnpaidWork;
+import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.Offence;
+import uk.gov.justice.probation.courtcaseservice.service.model.OffenderManager;
+import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
+import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
+import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
+import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
 @Component
 public class OffenderMapper {
@@ -63,51 +70,6 @@ public class OffenderMapper {
         return requirementsResponse.getRequirements().stream()
                 .map(this::buildRequirement)
                 .collect(Collectors.toList());
-    }
-
-    public GroupedDocuments documentsFrom(CommunityApiGroupedDocumentsResponse documentsResponse) {
-        return GroupedDocuments.builder()
-            .documents(Optional.ofNullable(documentsResponse.getDocuments()).map(this::buildDocuments).orElse(Collections.emptyList()))
-            .convictions(Optional.ofNullable(documentsResponse.getConvictions()).map(this::buildConvictionDocuments).orElse(Collections.emptyList()))
-            .build();
-    }
-
-    private List<ConvictionDocuments> buildConvictionDocuments(List<CommunityApiConvictionDocuments> convictionDocuments) {
-        return convictionDocuments.stream()
-                .map(this::buildConvictionDocument)
-                .collect(Collectors.toList());
-    }
-
-    private ConvictionDocuments buildConvictionDocument(CommunityApiConvictionDocuments convictionDocuments) {
-        return ConvictionDocuments.builder()
-            .convictionId(convictionDocuments.getConvictionId())
-            .documents(Optional.ofNullable(convictionDocuments.getDocuments()).map(this::buildConvictionIdDocuments).orElse(Collections.emptyList()))
-            .build();
-    }
-
-    private List<OffenderDocumentDetail> buildConvictionIdDocuments(List<CommunityApiOffenderDocumentDetail> documentDetails) {
-        return documentDetails.stream()
-            .map(this::buildOffenderDocumentDetail)
-            .collect(Collectors.toList());
-    }
-
-    private List<OffenderDocumentDetail> buildDocuments(List<CommunityApiOffenderDocumentDetail> details) {
-        return details.stream()
-            .map(this::buildOffenderDocumentDetail)
-            .collect(Collectors.toList());
-    }
-
-    private OffenderDocumentDetail buildOffenderDocumentDetail(CommunityApiOffenderDocumentDetail detail) {
-        return OffenderDocumentDetail.builder()
-            .documentId(detail.getId())
-            .documentName(detail.getDocumentName())
-            .author(detail.getAuthor())
-            .type(DocumentType.valueOf(detail.getType().getCode()))
-            .extendedDescription(detail.getExtendedDescription())
-            .createdAt(detail.getCreatedAt())
-            .reportDocumentDates(detail.getReportDocumentDates())
-            .subType(detail.getSubType())
-            .build();
     }
 
     private Requirement buildRequirement(CommunityApiRequirementResponse requirement) {

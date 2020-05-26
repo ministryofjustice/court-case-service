@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
+import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.NsiRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.NsiMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsi;
@@ -16,6 +17,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.exception.NsiNotFoun
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 
 import java.util.Arrays;
+import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -32,11 +34,15 @@ class BreachServiceTest {
     @Mock
     private CommunityApiNsiType nsiType;
     @Mock
+    private GroupedDocuments groupedDocuments;
+    @Mock
     private Conviction conviction;
     @Mock
     private NsiRestClient nsiRestClient;
     @Mock
     private ConvictionRestClient convictionRestClient;
+    @Mock
+    private DocumentRestClient documentRestClient;
     @Mock
     private NsiMapper nsiMapper;
     @Mock
@@ -45,16 +51,17 @@ class BreachServiceTest {
 
     @BeforeEach
     public void setUp() {
-        breachService = new BreachService(nsiRestClient, convictionRestClient, nsiMapper, Arrays.asList("BRE", "BRES"));
+        breachService = new BreachService(nsiRestClient, convictionRestClient, documentRestClient, nsiMapper, Arrays.asList("BRE", "BRES"));
         when(nsi.getType()).thenReturn(nsiType);
         when(nsiRestClient.getNsiById(CRN, CONVICTION_ID, BREACH_ID)).thenReturn(Mono.just(nsi));
         when(convictionRestClient.getConviction(CRN, CONVICTION_ID)).thenReturn(Mono.just(conviction));
+        when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
     }
 
     @Test
     public void whenGetBreachHasTypeBRE_thenReturnBreach() {
         when(nsiType.getCode()).thenReturn("BRE");
-        when(nsiMapper.breachOf(nsi, conviction)).thenReturn(expectedBreachResponse);
+        when(nsiMapper.breachOf(nsi, conviction, groupedDocuments)).thenReturn(expectedBreachResponse);
         BreachResponse actualBreachResponse = breachService.getBreach(CRN, CONVICTION_ID, BREACH_ID);
 
         assertThat(actualBreachResponse).isEqualTo(expectedBreachResponse);
@@ -63,7 +70,7 @@ class BreachServiceTest {
     @Test
     public void whenGetBreachHasTypeBRES_thenReturnBreach() {
         when(nsiType.getCode()).thenReturn("BRES");
-        when(nsiMapper.breachOf(nsi, conviction)).thenReturn(expectedBreachResponse);
+        when(nsiMapper.breachOf(nsi, conviction, groupedDocuments)).thenReturn(expectedBreachResponse);
         BreachResponse actualBreachResponse = breachService.getBreach(CRN, CONVICTION_ID, BREACH_ID);
 
         assertThat(actualBreachResponse).isEqualTo(expectedBreachResponse);

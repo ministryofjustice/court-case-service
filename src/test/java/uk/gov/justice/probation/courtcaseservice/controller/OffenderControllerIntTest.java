@@ -2,10 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -214,6 +211,7 @@ public class OffenderControllerIntTest {
         ;
     }
 
+    @Ignore("This test is non-deterministic because there are three calls made but only one has been mocked to return a 500. Defect: PIC-507")
     @Test
     public void whenBreachThrowsServerError_thenReturn500() {
         given()

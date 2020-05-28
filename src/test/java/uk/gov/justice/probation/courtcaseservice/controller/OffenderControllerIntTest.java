@@ -24,14 +24,8 @@ import java.time.format.DateTimeFormatter;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.springframework.http.HttpHeaders.ACCEPT_RANGES;
-import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
-import static org.springframework.http.HttpHeaders.LAST_MODIFIED;
+import static org.hamcrest.Matchers.*;
+import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 
@@ -98,7 +92,7 @@ public class OffenderControllerIntTest {
                 .body("convictions[0].convictionDate", equalTo(null))
                 .body("convictions[0].documents", hasSize(0))
                 .body("convictions[0].breaches", hasSize(1))
-                .body("convictions[0].breaches[0].id", equalTo(11131321))
+                .body("convictions[0].breaches[0].breachId", equalTo(11131321))
 
                 .body("convictions[1].convictionId", equalTo("2500295345"))
                 .body("convictions[1].active", equalTo(true))
@@ -130,7 +124,7 @@ public class OffenderControllerIntTest {
                 .body("convictions[2].convictionDate", equalTo(standardDateOf(2019, 9,16)))
                 .body("convictions[2].documents", hasSize(0))
                 .body("convictions[2].breaches", hasSize(1))
-                .body("convictions[2].breaches[0].id", equalTo(11131321))
+                .body("convictions[2].breaches[0].breachId", equalTo(11131321))
 
         ;
     }

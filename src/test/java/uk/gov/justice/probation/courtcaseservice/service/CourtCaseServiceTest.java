@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,8 +74,8 @@ public class CourtCaseServiceTest {
     @Before
     public void setup() {
         service = new CourtCaseService(courtRepository, courtCaseRepository);
-        List<OffenceEntity> offences = Collections.singletonList(new OffenceEntity(null, null, "OFFENCE_TITLE", "OFFENCE_SUMMARY", "ACT", 1));
-        courtCase = new CourtCaseEntity(1234L, LAST_UPDATED, CASE_ID, CASE_NO, COURT_CODE, COURT_ROOM, SESSION_START_TIME, PROBATION_STATUS, TERMINATION_DATE, SUSPENDED_SENTENCE, BREACH, offences, DEFENDANT_NAME, DEFENDANT_ADDRESS, CRN, PNC, LIST_NO, DEFENDANT_DOB, DEFENDANT_SEX, NATIONALITY_1, NATIONALITY_2);
+
+        courtCase = buildCourtCase();
 
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(courtEntity);
         when(courtCaseRepository.save(caseEntityCaptor.capture())).thenReturn(courtCase);
@@ -104,21 +105,21 @@ public class CourtCaseServiceTest {
 
     @Test
     public void getCourtCaseShouldRetrieveCaseFromRepository() {
-        when(courtCaseRepository.findByCaseNo(CASE_NO)).thenReturn(courtCase);
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(courtCase));
 
         service.getCaseByCaseNumber(COURT_CODE, CASE_NO);
-        verify(courtCaseRepository, times(1)).findByCaseNo(CASE_NO);
+        verify(courtCaseRepository, times(1)).findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO);
     }
 
     @Test
     public void getCourtCaseShouldThrowNotFoundException() {
-        when(courtCaseRepository.findByCaseNo(CASE_NO)).thenReturn(null);
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.empty());
 
         var exception = catchThrowable(() ->
                 service.getCaseByCaseNumber(COURT_CODE, CASE_NO)
         );
         assertThat(exception).isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Case " + CASE_NO + " not found");
+                .hasMessageContaining("Case " + CASE_NO + " not found for court " + COURT_CODE);
 
     }
 
@@ -160,9 +161,10 @@ public class CourtCaseServiceTest {
 
     @Test
     public void createOrUpdateCase_shouldUpdateExistingRecordIfItExists() {
-        var existingCourtCase = new CourtCaseEntity();
+        var existingCourtCase = new CourtCaseEntity(COURT_CODE, CASE_NO);
         existingCourtCase.setCaseId(CASE_ID);
-        when(courtCaseRepository.findByCaseId(CASE_ID)).thenReturn(existingCourtCase);
+
+        when(courtCaseRepository.findByCaseId(CASE_ID)).thenReturn(Optional.of(existingCourtCase));
         service.createOrUpdateCase(CASE_ID, courtCase);
 
         assertThat(existingCourtCase.getCaseId()).isEqualTo(CASE_ID);
@@ -182,9 +184,86 @@ public class CourtCaseServiceTest {
 
     @Test
     public void createOrUpdateCase_shouldCreateANewRecordIfNoneExists() {
-        when(courtCaseRepository.findByCaseId(CASE_ID)).thenReturn(null);
+        when(courtCaseRepository.findByCaseId(CASE_ID)).thenReturn(Optional.empty());
         service.createOrUpdateCase(CASE_ID, courtCase);
 
         verify(courtCaseRepository).save(courtCase);
+    }
+
+    @Test
+    public void createOrUpdateCaseByCourtAndCaseShouldThrowExceptionIfCourtDoesNotExist() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(null);
+        assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy( () ->
+            service.createOrUpdateCase(CASE_ID, courtCase)
+        ).withMessage("Court " + COURT_CODE + " not found");
+    }
+
+    @Test
+    public void givenMismatchInputCourtCode_whenUpdateByCourtAndCase_ThenThrowInputMismatch() {
+
+        String misMatchCourt = "NWS";
+        assertThatExceptionOfType(InputMismatchException.class).isThrownBy( () ->
+            service.createOrUpdateCase(misMatchCourt, CASE_NO, courtCase)
+        ).withMessage("Case No " + CASE_NO + " and Court Code " + misMatchCourt + " do not match with values from body " + CASE_NO + " and " + COURT_CODE);
+    }
+
+    @Test
+    public void givenMismatchInputCaseNo_whenUpdateByCourtAndCase_ThenThrowInputMismatch() {
+
+        String misMatchCasNo = "999";
+        assertThatExceptionOfType(InputMismatchException.class).isThrownBy( () ->
+            service.createOrUpdateCase(COURT_CODE, misMatchCasNo, courtCase)
+        ).withMessage("Case No " + misMatchCasNo + " and Court Code " + COURT_CODE + " do not match with values from body " + CASE_NO + " and " + COURT_CODE);
+    }
+
+    @Test
+    public void givenNoMatch_whenUpdateByCourtAndCaseNo_ThenCreate() {
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.empty());
+        when(courtCaseRepository.save(courtCase)).thenReturn(courtCase);
+
+        CourtCaseEntity savedCourtCase = service.createOrUpdateCase(COURT_CODE, CASE_NO, courtCase);
+
+        verify(courtCaseRepository).save(courtCase);
+        assertThat(savedCourtCase).isSameAs(courtCase);
+    }
+
+    @Test
+    public void givenMatch_whenUpdateByCourtAndCaseNo_ThenUpdate() {
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.ofNullable(courtCase));
+
+        CourtCaseEntity updatedCourtCase = buildCourtCase();
+        updatedCourtCase.setPnc("NEW_PNC");
+
+        when(courtCaseRepository.save(courtCase)).thenReturn(updatedCourtCase);
+
+        CourtCaseEntity savedCourtCase = service.createOrUpdateCase(COURT_CODE, CASE_NO, updatedCourtCase);
+
+        verify(courtCaseRepository).save(courtCase);
+        assertThat(savedCourtCase).isSameAs(updatedCourtCase);
+    }
+
+    private CourtCaseEntity buildCourtCase() {
+        List<OffenceEntity> offences = Collections.singletonList(new OffenceEntity(null, null, "OFFENCE_TITLE", "OFFENCE_SUMMARY", "ACT", 1));
+        return CourtCaseEntity.builder().caseId(CASE_ID)
+            .lastUpdated(LAST_UPDATED)
+            .breach(BREACH)
+            .caseNo(CASE_NO)
+            .courtCode(COURT_CODE)
+            .courtRoom(COURT_ROOM)
+            .defendantAddress(DEFENDANT_ADDRESS)
+            .defendantName(DEFENDANT_NAME)
+            .defendantDob(DEFENDANT_DOB)
+            .defendantSex(DEFENDANT_SEX)
+            .crn(CRN)
+            .listNo(LIST_NO)
+            .nationality1(NATIONALITY_1)
+            .nationality2(NATIONALITY_2)
+            .probationStatus(PROBATION_STATUS)
+            .sessionStartTime(SESSION_START_TIME)
+            .suspendedSentenceOrder(SUSPENDED_SENTENCE)
+            .previouslyKnownTerminationDate(TERMINATION_DATE)
+            .pnc(PNC)
+            .offences(offences)
+            .build();
     }
 }

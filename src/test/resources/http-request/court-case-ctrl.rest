@@ -68,11 +68,65 @@ Content-Type: application/json
   "nationality2": null
 }
 
+###
+# Update a case by court and code
+PUT http://{{host}}/court/{{courtCode}}/case/{{caseNo}}
+Content-Type: application/json
+
+{
+  "lastUpdated": "2019-12-14T09:00:00",
+  "caseId": "1168460",
+  "caseNo": "1600028974",
+  "crn": "X320744",
+  "pnc": "D/1234560BC",
+  "listNo": "2nd",
+  "courtCode": "SHF",
+  "courtRoom": "1",
+  "sessionStartTime": "2020-01-13T09:00:00",
+  "probationStatus": "Current",
+  "previouslyKnownTerminationDate": null,
+  "suspendedSentenceOrder": true,
+  "breach": true,
+  "offences": [],
+  "defendantName": "Mr Dylan Adam Armstrong",
+  "defendantAddress": {
+    "line1": "27",
+    "line2": "Elm Place",
+    "postcode": "ad21 5dr",
+    "line3": "Bangor"
+  },
+  "defendantSex": "M",
+  "defendantDob": "1957-12-12",
+  "nationality1": "British"
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 201, "Response status is not 201");
+    });
+
+    client.test("Response content-type is json", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+%}
+
 ### COURT AND CASE ENDPOINT
 ### Get by court and case
 # Gives 200 because it's all known
-GET http://{{host}}/court/SHF/case/1600028974
+GET http://{{host}}/court/{{courtCode}}/case/{{caseNo}}
 Accept: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+
+    client.test("Response content-type is json", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+%}
 
 ###
 # Gives 404 because case no is unknown

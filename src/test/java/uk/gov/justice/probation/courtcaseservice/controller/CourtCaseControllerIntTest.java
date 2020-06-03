@@ -1,8 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.Resources;
-import io.restassured.http.ContentType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,12 +12,8 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.TestConfig;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -49,58 +43,23 @@ public class CourtCaseControllerIntTest {
     @Autowired
     CourtCaseRepository courtCaseRepository;
 
-    private static final String CRN = "X320741";
-    private static final String PNC = "A/1234560BA";
-    private static final String LIST_NO = "1st";
-    private static final LocalDate DEFENDANT_DOB = LocalDate.of(1958, 12, 14);
-    private static final String DEFENDANT_SEX = "M";
-    private static final String NATIONALITY_1 = "British";
-    private static final String NATIONALITY_2 = "Polish";
-    private static final String CASE_ID = "123456";
     private static final String COURT_CODE = "SHF";
-    private static final String NEW_CASE_ID = "654321";
     private static final String CASE_NO = "1600028913";
-    private static final String NEW_CASE_NO = "1700028914";
     private static final String PROBATION_STATUS = "Previously known";
     private static final String NOT_FOUND_COURT_CODE = "LPL";
     private static final String DEFENDANT_NAME = "JTEST";
     private final LocalDateTime now = LocalDateTime.now();
-    private final LocalDateTime sessionStartTime = LocalDateTime.of(2019, 12, 14, 9, 0);
-    private final CourtCaseEntity caseDetails = new CourtCaseEntity();
-    private String caseDetailsJson;
 
     @Before
-    public void setup() throws IOException {
-        caseDetailsJson = getFileAsString("integration/request/PUT_courtCase_success.json");
+    public void setup() {
         TestConfig.configureRestAssuredForIntTest(port);
-
-        var addressProperty = new AddressPropertiesEntity("27", "Elm Place", "ad21 5dr", "Bangor", null, null);
-
-        caseDetails.setCaseId(NEW_CASE_ID);
-        caseDetails.setCaseNo(NEW_CASE_NO);
-        caseDetails.setCourtCode(COURT_CODE);
-        caseDetails.setCourtRoom("1");
-        caseDetails.setSessionStartTime(now);
-        caseDetails.setProbationStatus(PROBATION_STATUS);
-        caseDetails.setLastUpdated(now);
-        caseDetails.setPreviouslyKnownTerminationDate(LocalDate.of(2010, 1, 1));
-        caseDetails.setSuspendedSentenceOrder(true);
-        caseDetails.setBreach(true);
-        caseDetails.setDefendantName(DEFENDANT_NAME);
-        caseDetails.setDefendantAddress(addressProperty);
-        caseDetails.setPnc(PNC);
-        caseDetails.setListNo(LIST_NO);
-        caseDetails.setDefendantDob(DEFENDANT_DOB);
-        caseDetails.setDefendantSex(DEFENDANT_SEX);
-        caseDetails.setNationality1(NATIONALITY_1);
-        caseDetails.setNationality2(NATIONALITY_2);
     }
 
     @Test
     public void cases_shouldGetCaseListWhenCasesExist() {
 
         when()
-                .get("/court/{courtCode}/cases?date={date}", "SHF", LocalDate.of(2019, 12, 14).format(DateTimeFormatter.ISO_DATE))
+                .get("/court/{courtCode}/cases?date={date}", COURT_CODE, LocalDate.of(2019, 12, 14).format(DateTimeFormatter.ISO_DATE))
                 .then()
                 .assertThat()
                 .statusCode(200)
@@ -116,7 +75,7 @@ public class CourtCaseControllerIntTest {
     @Test
     public void GET_cases_shouldGetEmptyCaseListWhenNoCasesMatch() {
         when()
-                .get("/court/{courtCode}/cases?date={date}", "SHF", "2020-02-02")
+                .get("/court/{courtCode}/cases?date={date}", COURT_CODE, "2020-02-02")
                 .then()
                 .assertThat()
                 .statusCode(200)
@@ -127,7 +86,7 @@ public class CourtCaseControllerIntTest {
     @Test
     public void GET_cases_shouldReturn400BadRequestWhenNoDateProvided() {
         when()
-                .get("/court/{courtCode}/cases", "SHF")
+                .get("/court/{courtCode}/cases", COURT_CODE)
                 .then()
                 .assertThat()
                 .statusCode(400)
@@ -228,170 +187,4 @@ public class CourtCaseControllerIntTest {
         assertThat(result.getStatus()).isEqualTo(404);
     }
 
-    @Test
-    public void createCaseDataWithIncorrectCourt() {
-
-        caseDetails.setCourtCode(NOT_FOUND_COURT_CODE);
-
-        ErrorResponse result = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(caseDetails)
-                .when()
-                .put("/case/" + CASE_ID)
-                .then()
-                .statusCode(404)
-                .extract()
-                .body()
-                .as(ErrorResponse.class);
-
-        assertThat(result.getDeveloperMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
-        assertThat(result.getUserMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
-        assertThat(result.getStatus()).isEqualTo(404);
-    }
-
-    @Test
-    public void createCaseDataWithCaseIdMismatch() {
-        String mismatchCaseId = "000000";
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(caseDetails)
-                .when()
-                .put("/case/" + mismatchCaseId)
-                .then()
-                .statusCode(500)
-                .body("message", equalTo("Case ID " + mismatchCaseId + " does not match with " + NEW_CASE_ID));
-    }
-
-    @Test
-    public void createCaseDataWithDuplicateCaseNo() {
-
-        String newCaseId = "666666";
-        caseDetails.setCaseId(newCaseId);
-        caseDetails.setCaseNo(CASE_NO);
-
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(caseDetails)
-                .when()
-                .put("/case/" + newCaseId)
-                .then()
-                .statusCode(500)
-                .body("message", containsString("constraint [court_case_case_no_idempotent]"));
-    }
-
-    @Test
-    public void createCaseData() {
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(caseDetailsJson)
-                .when()
-                .put("/case/" + NEW_CASE_ID)
-                .then()
-                .statusCode(201)
-                .body("caseId", equalTo(NEW_CASE_ID))
-                .body("caseNo", equalTo(NEW_CASE_NO))
-                .body("crn", equalTo(CRN))
-                .body("courtCode", equalTo(COURT_CODE))
-                .body("courtRoom", equalTo("1"))
-                .body("probationStatus", equalTo(PROBATION_STATUS))
-                .body("sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2018, 6, 24).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-                .body("suspendedSentenceOrder", equalTo(true))
-                .body("breach", equalTo(true))
-                .body("defendantName", equalTo(DEFENDANT_NAME))
-                .body("defendantAddress.line1", equalTo("27"))
-                .body("defendantAddress.line2", equalTo("Elm Place"))
-                .body("defendantAddress.postcode", equalTo("ad21 5dr"))
-                .body("defendantAddress.line3", equalTo("Bangor"))
-                .body("defendantAddress.line4", equalTo(null))
-                .body("defendantAddress.line5", equalTo(null))
-                .body("offences", hasSize(2))
-                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
-                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
-                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
-                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
-                .body("pnc", equalTo(PNC))
-                .body("listNo", equalTo(LIST_NO))
-                .body("defendantDob", equalTo(LocalDate.of(1958, 12, 14).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-                .body("defendantSex", equalTo(DEFENDANT_SEX))
-                .body("nationality1", equalTo(NATIONALITY_1))
-                .body("nationality2", equalTo(NATIONALITY_2))
-        ;
-
-    }
-
-    @Test
-    public void updateCaseData() {
-
-        createCaseData();
-
-        String updatedJson = caseDetailsJson.replace("\"courtRoom\": \"1\"", "\"courtRoom\": \"2\"");
-
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(updatedJson)
-                .when()
-                .put("/case/" + NEW_CASE_ID)
-                .then()
-                .statusCode(201)
-                .body("caseId", equalTo(NEW_CASE_ID))
-                .body("caseNo", equalTo(NEW_CASE_NO))
-                .body("crn", equalTo(CRN))
-                .body("pnc", equalTo(PNC))
-                .body("listNo", equalTo(LIST_NO))
-                .body("defendantDob", equalTo(LocalDate.of(1958, 12, 14).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-                .body("defendantSex", equalTo(DEFENDANT_SEX))
-                .body("nationality1", equalTo(NATIONALITY_1))
-                .body("nationality2", equalTo(NATIONALITY_2))
-                .body("courtCode", equalTo(COURT_CODE))
-                .body("courtRoom", equalTo("2"))
-                .body("probationStatus", equalTo(PROBATION_STATUS))
-                .body("sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2018, 6, 24).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-                .body("suspendedSentenceOrder", equalTo(true))
-                .body("breach", equalTo(true))
-                .body("defendantName", equalTo(DEFENDANT_NAME))
-                .body("defendantAddress.line1", equalTo("27"))
-                .body("defendantAddress.line2", equalTo("Elm Place"))
-                .body("defendantAddress.postcode", equalTo("ad21 5dr"))
-                .body("defendantAddress.line3", equalTo("Bangor"))
-                .body("defendantAddress.line4", equalTo(null))
-                .body("defendantAddress.line5", equalTo(null))
-                .body("offences", hasSize(2))
-                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
-                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
-                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
-                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"));
-
-    }
-
-    @Test
-    public void whenCourtCaseCreated_thenOffenceSequenceNumberShouldBeReflectedInResponse() {
-        var modifiedJson = caseDetailsJson
-                .replace("\"sequenceNumber\": 1", "\"sequenceNumber\": 4")
-                .replace("\"sequenceNumber\": 2", "\"sequenceNumber\": 3");
-
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(modifiedJson)
-                .when()
-                .put("/case/" + NEW_CASE_ID)
-                .then()
-                .statusCode(201)
-                .body("offences", hasSize(2))
-                .body("offences[0].offenceTitle", equalTo("Theft from a different shop"))
-                .body("offences[1].offenceTitle", equalTo("Theft from a shop"));
-
-    }
-
-    @SuppressWarnings("UnstableApiUsage")
-    private String getFileAsString(String resourcePath) throws IOException {
-        return Resources.toString(Resources.getResource(resourcePath), Charset.defaultCharset());
-    }
 }

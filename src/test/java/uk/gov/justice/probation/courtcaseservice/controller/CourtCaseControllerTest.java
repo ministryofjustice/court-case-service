@@ -30,9 +30,9 @@ public class CourtCaseControllerTest {
     private CourtCaseResponseMapper courtCaseResponseMapper;
 
     private CourtCaseController courtCaseController;
-    private CourtCaseEntity courtCaseEntity = new CourtCaseEntity();
-    private CourtCaseResponse courtCaseResponse = new CourtCaseResponse();
-    private CourtCaseEntity courtCaseUpdate = new CourtCaseEntity();
+    private final CourtCaseEntity courtCaseEntity = new CourtCaseEntity(COURT_CODE, CASE_NO);
+    private final CourtCaseResponse courtCaseResponse = new CourtCaseResponse();
+    private final CourtCaseEntity courtCaseUpdate = new CourtCaseEntity(COURT_CODE, CASE_NO);
 
     @Before
     public void setUp() {
@@ -53,6 +53,14 @@ public class CourtCaseControllerTest {
     public void updateCase_shouldReturnCourtCaseResponse() {
         CourtCaseResponse courtCase = courtCaseController.updateCase(CASE_ID, courtCaseUpdate);
         assertThat(courtCase).isEqualTo(courtCaseResponse);
+    }
+
+    @Test
+    public void updateCaseByCourtAndCaseNo_shouldReturnCourtCaseResponse() {
+        when(courtCaseService.createOrUpdateCase(COURT_CODE, CASE_NO, courtCaseUpdate)).thenReturn(courtCaseEntity);
+
+        CourtCaseResponse courtCase = courtCaseController.updateCourtCaseNo(COURT_CODE, CASE_NO, courtCaseUpdate);
+        assertThat(courtCase).isSameAs(courtCaseResponse);
     }
 
     @Test

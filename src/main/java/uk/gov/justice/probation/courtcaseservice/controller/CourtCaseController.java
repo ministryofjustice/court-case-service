@@ -53,13 +53,34 @@ public class CourtCaseController {
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
         })
     @PutMapping(value = "/case/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
+    @Deprecated(forRemoval = true)
     public @ResponseBody
     CourtCaseResponse updateCase(@PathVariable(value = "id") String caseId, @Valid @RequestBody CourtCaseEntity courtCaseDetails) {
         return courtCaseResponseMapper.mapFrom(courtCaseService.createOrUpdateCase(caseId, courtCaseDetails));
+    }
+
+    @ApiOperation(value = "Saves and returns the court case entity data, by court and case number. ")
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 201, message = "Created", response = CourtCaseResponse.class),
+            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+        })
+    @PutMapping(value = "/court/{courtCode}/case/{caseNo}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public @ResponseBody
+    CourtCaseResponse updateCourtCaseNo(@PathVariable(value = "courtCode") String courtCode,
+                                        @PathVariable(value = "caseNo") String caseNo ,
+                                        @Valid @RequestBody CourtCaseEntity courtCaseDetails) {
+        return courtCaseResponseMapper.mapFrom(courtCaseService.createOrUpdateCase(courtCode, caseNo, courtCaseDetails));
     }
 
     @ApiOperation(value = "Gets case data for a court on a date.")

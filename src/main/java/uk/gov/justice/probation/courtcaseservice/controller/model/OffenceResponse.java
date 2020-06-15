@@ -1,12 +1,19 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @Builder
 public class OffenceResponse {
-    private String offenceTitle;
-    private String offenceSummary;
-    private String act;
+    private final String offenceTitle;
+    private final String offenceSummary;
+    private final String act;
+    private final int sequenceNumber;
+
 }

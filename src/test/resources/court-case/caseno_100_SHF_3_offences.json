@@ -1,7 +1,7 @@
 {
   "lastUpdated": "2020-02-24T11:30:15.103652",
   "courtCode": "SHF",
-  "caseNo": "1700028914",
+  "caseNo": "100",
   "caseId": "654321",
   "crn": "X320741",
   "pnc": "A/1234560BA",
@@ -14,13 +14,18 @@
   "breach": true,
   "offences": [
     {
-      "offenceTitle": "Theft from a shop",
+      "offenceTitle": "Theft from a shop - Item 1 of 3",
       "offenceSummary": "On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.",
       "act": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
       "sequenceNumber": 1
     },
     {
-      "offenceTitle": "Theft from a different shop",
+      "offenceTitle": "Theft from a different shop - Item 2 of 3",
+      "offenceSummary": "On 02/01/2015 at own, stole article, to the value of £123.00, belonging to person.",
+      "act": "Contrary to section 1(1) and 7 of the Theft Act 1968."
+    },
+    {
+      "offenceTitle": "Theft from a different shop - Item 3 of 3",
       "offenceSummary": "On 02/01/2015 at own, stole article, to the value of £123.00, belonging to person.",
       "act": "Contrary to section 1(1) and 7 of the Theft Act 1968."
     }

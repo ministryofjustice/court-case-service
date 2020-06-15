@@ -2,19 +2,24 @@ package uk.gov.justice.probation.courtcaseservice.service.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @ApiModel("UnpaidWork")
-@Getter
+@Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UnpaidWork {
-    private Integer minutesOffered;
-    private Integer minutesCompleted;
-    private Integer appointmentsToDate;
-    private Integer attended;
-    private Integer acceptableAbsences;
-    private Integer unacceptableAbsences;
-    private String status;
+    private final Integer minutesOffered;
+    private final Integer minutesCompleted;
+    private final Integer appointmentsToDate;
+    private final Integer attended;
+    private final Integer acceptableAbsences;
+    private final Integer unacceptableAbsences;
+    private final String status;
 }

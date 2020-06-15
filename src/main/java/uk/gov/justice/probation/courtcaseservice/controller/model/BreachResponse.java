@@ -1,15 +1,19 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.util.List;
-import lombok.Builder;
-import lombok.Getter;
-
 import java.time.LocalDate;
+import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
 
 @Builder
-@Getter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BreachResponse {
     private final Long breachId;

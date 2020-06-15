@@ -1,34 +1,38 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import io.swagger.annotations.ApiModel;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import lombok.AccessLevel;
+import javax.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 @ApiModel(description = "Court Case")
 @Entity
 @AllArgsConstructor
-@Data
+@RequiredArgsConstructor
 @Builder
+@Data
 @Table(name = "COURT_CASE")
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class CourtCaseEntity implements Serializable {
@@ -46,11 +50,9 @@ public class CourtCaseEntity implements Serializable {
     private String caseId;
 
     @Column(name = "CASE_NO", nullable = false)
-    @Setter(AccessLevel.NONE)
     private String caseNo;
 
     @Column(name = "COURT_CODE", nullable = false)
-    @Setter(AccessLevel.NONE)
     private String courtCode;
 
     @Column(name = "COURT_ROOM")
@@ -71,8 +73,9 @@ public class CourtCaseEntity implements Serializable {
     @Column(name = "BREACH", nullable = false)
     private Boolean breach;
 
-    @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL)
-    private List<OffenceEntity> offences;
+    @JsonManagedReference
+    @OneToMany(mappedBy = "courtCase", fetch = FetchType.EAGER, cascade = { CascadeType.ALL }, orphanRemoval=true)
+    private List<OffenceEntity> offences = new ArrayList<>();
 
     @Column(name = "DEFENDANT_NAME")
     private String defendantName;
@@ -80,6 +83,12 @@ public class CourtCaseEntity implements Serializable {
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "DEFENDANT_ADDRESS")
     private AddressPropertiesEntity defendantAddress;
+
+    @Column(name = "DEFENDANT_DOB")
+    private LocalDate defendantDob;
+
+    @Column(name = "DEFENDANT_SEX")
+    private String defendantSex;
 
     @Column(name = "CRN")
     private String crn;
@@ -90,43 +99,57 @@ public class CourtCaseEntity implements Serializable {
     @Column(name = "LIST_NO")
     private String listNo;
 
-    @Column(name = "DEFENDANT_DOB")
-    private LocalDate defendantDob;
-
-    @Column(name = "DEFENDANT_SEX")
-    private String defendantSex;
-
     @Column(name = "NATIONALITY_1")
     private String nationality1;
 
     @Column(name = "NATIONALITY_2")
     private String nationality2;
 
-    protected CourtCaseEntity() {
-        super();
-        this.lastUpdated = LocalDateTime.now();
-        this.offences = Collections.emptyList();
-    }
-
-
-    /**
-     * Construct with required identifying fields which form a unique key.
-     * Application should construct with this and do not need setter access for either field.
-     * @param courtCode
-     *             the court code
-     * @param caseNo
-     *              the case number
-     */
-    public CourtCaseEntity(String courtCode, String caseNo) {
-        super();
-        this.courtCode = courtCode;
-        this.caseNo = caseNo;
-        this.lastUpdated = LocalDateTime.now();
-        this.offences = Collections.emptyList();
-    }
+    @Version
+    private int version;
 
     public CourtSession getSession() {
         return CourtSession.from(sessionStartTime);
+    }
+
+    public void clearOffences() {
+        for (OffenceEntity offenceEntity : this.offences) {
+            offenceEntity.setCourtCase(null);
+        }
+        this.offences.clear();
+    }
+
+    public void removeOffences(List<OffenceEntity> offences) {
+        this.offences.removeAll(offences);
+        for (OffenceEntity offenceEntity : offences) {
+            offenceEntity.setCourtCase(null);
+        }
+    }
+
+    public void addOffence(OffenceEntity offenceEntity) {
+        offenceEntity.setCourtCase(this);
+        this.offences.add(offenceEntity);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof CourtCaseEntity)) {
+            return false;
+        }
+
+        CourtCaseEntity that = (CourtCaseEntity) other;
+
+        return Objects.equals(this.caseNo, that.getCaseNo()) && Objects.equals(this.courtCode, that.getCourtCode());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getCaseNo() != null ? getCaseNo().hashCode() : 0;
+        result = 31 * result + (getCourtCode() != null ? getCourtCode().hashCode() : 0);
+        return result;
     }
 
 }

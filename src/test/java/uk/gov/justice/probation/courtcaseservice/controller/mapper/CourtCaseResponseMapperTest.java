@@ -1,18 +1,20 @@
 package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class CourtCaseResponseMapperTest {
@@ -42,15 +44,14 @@ public class CourtCaseResponseMapperTest {
     private static final CourtSession SESSION = CourtSession.MORNING;
     private CourtCaseEntity courtCaseEntity;
     private List<OffenceEntity> offences;
-    private CourtCaseResponseMapper courtCaseResponseMapper = new CourtCaseResponseMapper();
-    private AddressPropertiesEntity addressPropertiesEntity = new AddressPropertiesEntity("27", "Elm Place", "ad21 5dr", "Bangor", null, null);
-
+    private final CourtCaseResponseMapper courtCaseResponseMapper = new CourtCaseResponseMapper();
+    private final AddressPropertiesEntity addressPropertiesEntity = new AddressPropertiesEntity("27", "Elm Place", "ad21 5dr", "Bangor", null, null);
 
     @Before
     public void setUp() {
         offences = Arrays.asList(
-                new OffenceEntity(null, null, OFFENCE_TITLE, OFFENCE_SUMMARY, ACT, 1),
-                new OffenceEntity(null, null, OFFENCE_TITLE + "2", OFFENCE_SUMMARY + "2", ACT + "2", 2)
+            OffenceEntity.builder().offenceTitle(OFFENCE_TITLE).offenceSummary(OFFENCE_SUMMARY).act(ACT).sequenceNumber(1).build(),
+            OffenceEntity.builder().offenceTitle(OFFENCE_TITLE + "2").offenceSummary(OFFENCE_SUMMARY + "2").act(ACT + "2").sequenceNumber(2).build()
         );
         courtCaseEntity = buildCourtCaseEntity(offences);
     }
@@ -105,7 +106,11 @@ public class CourtCaseResponseMapperTest {
 
     @Test
     public void shouldReflectOffenceSequenceNumberInResponseOrdering() {
-        var reorderedOffences = Arrays.asList(offences.get(1), offences.get(0));
+        var reorderedOffences = offences.stream()
+            .sorted(Comparator.comparing(OffenceEntity::getSequenceNumber))
+            .collect(Collectors.toList());
+        Collections.reverse(reorderedOffences);
+
         var reorderedCourtCaseEntity = buildCourtCaseEntity(reorderedOffences);
 
         var courtCaseResponse = courtCaseResponseMapper.mapFrom(reorderedCourtCaseEntity);
@@ -118,25 +123,31 @@ public class CourtCaseResponseMapperTest {
 
     }
 
-    @Test
-    public void shouldTolerateMissingSequenceNumbersInResponseOrdering() {
-        var unorderedOffences = Arrays.asList(
-            new OffenceEntity(null, null, OFFENCE_TITLE, OFFENCE_SUMMARY, ACT, null),
-            new OffenceEntity(null, null, OFFENCE_TITLE + "2", OFFENCE_SUMMARY + "2", ACT + "2", null)
-        );
-        var unorderedCourtCaseEntity = buildCourtCaseEntity(unorderedOffences);
-
-        var courtCaseResponse = courtCaseResponseMapper.mapFrom(unorderedCourtCaseEntity);
-
-        var firstOffence = courtCaseResponse.getOffences().get(0);
-        assertThat(firstOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE);
-
-        var secondOffence = courtCaseResponse.getOffences().get(1);
-        assertThat(secondOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE + "2");
-
-    }
-
     private CourtCaseEntity buildCourtCaseEntity(List<OffenceEntity> offences) {
-        return new CourtCaseEntity(ID, LAST_UPDATED, CASE_ID, CASE_NO, COURT_CODE, COURT_ROOM, SESSION_START_TIME, PROBATION_STATUS, PREVIOUSLY_KNOWN_TERMINATION_DATE, SUSPENDED_SENTENCE_ORDER, BREACH, offences, DEFENDANT_NAME, addressPropertiesEntity, CRN, PNC, LIST_NO, DEFENDANT_DOB, DEFENDANT_SEX, NATIONALITY_1, NATIONALITY_2);
+        CourtCaseEntity courtCase = CourtCaseEntity.builder()
+            .id(ID)
+            .pnc(PNC)
+            .previouslyKnownTerminationDate(PREVIOUSLY_KNOWN_TERMINATION_DATE)
+            .suspendedSentenceOrder(SUSPENDED_SENTENCE_ORDER)
+            .sessionStartTime(SESSION_START_TIME)
+            .probationStatus(PROBATION_STATUS)
+            .nationality2(NATIONALITY_2)
+            .nationality1(NATIONALITY_1)
+            .listNo(LIST_NO)
+            .crn(CRN)
+            .defendantSex(DEFENDANT_SEX)
+            .defendantDob(DEFENDANT_DOB)
+            .defendantName(DEFENDANT_NAME)
+            .defendantAddress(addressPropertiesEntity)
+            .courtRoom(COURT_ROOM)
+            .courtCode(COURT_CODE)
+            .caseNo(CASE_NO)
+            .breach(BREACH)
+            .lastUpdated(LAST_UPDATED)
+            .caseId(CASE_ID)
+            .offences(offences)
+            .build();
+        offences.forEach(offenceEntity -> offenceEntity.setCourtCase(courtCase));
+        return courtCase;
     }
 }

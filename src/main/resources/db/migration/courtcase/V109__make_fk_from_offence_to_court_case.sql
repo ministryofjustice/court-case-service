@@ -1,0 +1,25 @@
+-- Case ID is not our unique key on court_case so no longer our FK either.
+-- The existing FK was named misleadingly
+ALTER TABLE OFFENCE DROP CONSTRAINT fk_court_case_court;
+ALTER TABLE OFFENCE DROP COLUMN case_id;
+ALTER TABLE COURT_CASE DROP CONSTRAINT court_case_case_id_idempotent;
+
+-- Add columns to make the FK
+ALTER TABLE OFFENCE ADD COLUMN CASE_NO TEXT NOT NULL;
+ALTER TABLE OFFENCE ADD COLUMN COURT_CODE TEXT NOT NULL;
+
+ALTER TABLE OFFENCE ADD CONSTRAINT fk_offence_court_case
+                    FOREIGN KEY (case_no, court_code)
+                    REFERENCES court_case (case_no, court_code);
+
+ALTER TABLE OFFENCE ALTER COLUMN SEQUENCE_NUMBER SET NOT NULL;
+
+CREATE UNIQUE INDEX offence_court_case_seq_uq ON OFFENCE (CASE_NO, COURT_CODE, SEQUENCE_NUMBER);
+
+ALTER TABLE OFFENCE ADD CONSTRAINT offence_uq UNIQUE USING INDEX offence_court_case_seq_uq;
+
+ALTER TABLE COURT ADD COLUMN VERSION int4 NOT NULL DEFAULT 1;
+ALTER TABLE COURT_CASE ADD COLUMN VERSION int4 NOT NULL DEFAULT 1;
+ALTER TABLE OFFENCE ADD COLUMN VERSION int4 NOT NULL DEFAULT 1;
+
+

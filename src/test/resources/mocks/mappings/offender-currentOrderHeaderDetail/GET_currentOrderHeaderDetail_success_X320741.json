@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/secure/offenders/crn/X320741/convictions/2500295343/sentences/2500298861/custodialStatus",
+    "headers" : {
+      "Content-Type": {
+        "equalTo": "application/json"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "offender-currentOrderHeaderDetail/GET_currentOrderHeaderDetail_X320741.json"
+  }
+}

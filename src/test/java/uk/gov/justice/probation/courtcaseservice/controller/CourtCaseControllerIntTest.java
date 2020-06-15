@@ -279,7 +279,7 @@ public class CourtCaseControllerIntTest {
                 .put("/case/" + newCaseId)
                 .then()
                 .statusCode(500)
-                .body("message", containsString("constraint [court_case_case_no_idempotent]"));
+                .body("message", containsString("constraint [court_case_uq]"));
     }
 
     @Test

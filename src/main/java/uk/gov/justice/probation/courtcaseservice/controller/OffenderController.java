@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import io.swagger.annotations.*;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -13,10 +12,8 @@ import java.util.Optional;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ConvictionResponse;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
@@ -25,14 +22,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
 import uk.gov.justice.probation.courtcaseservice.service.BreachService;
 import uk.gov.justice.probation.courtcaseservice.service.ConvictionService;
 import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Api(tags = "Offender Resources", produces = APPLICATION_JSON_VALUE)
 @RestController
@@ -88,22 +85,26 @@ public class OffenderController {
         return new RequirementsResponse(offenderService.getConvictionRequirements(crn, convictionId));
     }
 
-    @GetMapping(value = "/offenders/{crn}/convictions/{convictionId}", produces = APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Return the conviction detail for attendances and Unpaid Work for a CRN and a conviction id where enforcement is flagged")
+    @GetMapping(value = "/offender/{crn}/convictions/{convictionId}/sentences/{sentenceId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Return the Sentence detail with attendances, Unpaid Work and current order details for a CRN, conviction id and sentence id  where enforcement is flagged")
     @ApiResponses(
         value = {
-            @ApiResponse(code = 200, message = "OK", response = ConvictionResponse.class),
+            @ApiResponse(code = 200, message = "OK", response = SentenceResponse.class),
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Not found. For example if the CRN can't be matched.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
         })
-    public ConvictionResponse getConviction(@PathVariable String crn, @PathVariable Long convictionId) {
-        if (!featureFlags.attendanceData()) {
-            return convictionService.getConvictionNoAttendances(crn, convictionId);
+    public SentenceResponse getSentence(@PathVariable String crn, @PathVariable Long convictionId, @PathVariable Long sentenceId) {
+        if (!featureFlags.sentenceData()) {
+            return convictionService.getConvictionOnly(crn, convictionId);
         }
-        return convictionService.getConviction(crn, convictionId);
+        return convictionService.getSentence(crn, convictionId, sentenceId);
+    }
+
+    public CurrentOrderHeaderResponse getCurrentOrderHeaderDetail(@PathVariable String crn, @PathVariable Long convictionId, @PathVariable Long sentenceId) {
+        return convictionService.getCurrentOrderHeader(crn, convictionId, sentenceId);
     }
 
     @ApiOperation(value = "Gets Breach data by CRN, conviction ID and breach id.")

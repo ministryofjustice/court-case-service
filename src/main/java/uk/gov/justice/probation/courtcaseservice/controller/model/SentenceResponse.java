@@ -11,17 +11,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
-@ApiModel(description = "Conviction Response")
+@ApiModel(description = "Sentence Response")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
-public class ConvictionResponse {
+public class SentenceResponse {
+
+        @ApiModelProperty(value = "Sentence id")
+        private Long sentenceId;
 
         @ApiModelProperty(value = "List of Attendances")
         private List<AttendanceResponse> attendances;
 
         @ApiModelProperty(value = "UPW")
         private UnpaidWork unpaidWork;
+
+        @ApiModelProperty(value = "Sentence with current order header info")
+        private CurrentOrderHeaderResponse currentOrderHeaderDetail;
+
+
 }

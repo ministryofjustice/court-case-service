@@ -10,7 +10,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.CurrentOrderHeaderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 
 import java.util.List;
@@ -26,6 +28,7 @@ public class ConvictionRestClientIntTest {
 
     public static final String CRN = "X320741";
     public static final Long SOME_CONVICTION_ID = 2500295343L;
+    public static final Long SOME_SENTENCE_ID = 2500298861L;
     public static final Long UNKNOWN_CONVICTION_ID = 9999L;
     public static final String SERVER_ERROR_CRN = "X320500";
     public static final String UNKNOWN_CRN = "X320999";
@@ -90,4 +93,17 @@ public class ConvictionRestClientIntTest {
     public void givenGetConvictionServiceThrows404ThenThrowOffenderNotFoundException() {
         webTestClient.getAttendances(UNKNOWN_CRN, SOME_CONVICTION_ID).blockOptional();
     }
+
+    @Test
+    public void whenGetCurrentOrderHeaderDetailByCrnAndConvictionIdAndSentenceIdToCommunityApi() {
+        final Optional<CurrentOrderHeaderResponse> response = webTestClient.getCurrentOrderHeaderDetail(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID).blockOptional();
+
+        assertThat(response).isPresent();
+    }
+
+    @Test(expected = CurrentOrderHeaderNotFoundException.class)
+    public void givenServiceThrowsError_whenGetCurrentOrderHeaderByCrnCalled_thenFailFastAndThrowException() {
+        webTestClient.getCurrentOrderHeaderDetail(UNKNOWN_CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID).block();
+    }
+
 }

@@ -18,7 +18,7 @@ class FeatureFlagsTest {
     @DisplayName("get toggle value default true")
     @Test
     void getSimpleFlagDefault() {
-        assertThat(featureFlags.attendanceData()).isTrue();
+        assertThat(featureFlags.sentenceData()).isTrue();
     }
 
     @DisplayName("Set and get toggle value")

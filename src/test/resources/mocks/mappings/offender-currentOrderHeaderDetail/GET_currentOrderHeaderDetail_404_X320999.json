@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/secure/offenders/crn/X320741/convictions/2500295343/sentences/2500298833/custodialStatus",
+    "headers" : {
+      "Content-Type": {
+        "equalTo": "application/json"
+      }
+    }
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"status\":404,\"userMessage\":\"CurrentOrderHeader with id '2500298833' not found for convictionId '2500295343' and crn 'X320741'\",\"developerMessage\":\"CurrentOrderHeader with id '2500298833' not found for convictionId '2500295343' and crn 'X320741\"}"
+  }
+}

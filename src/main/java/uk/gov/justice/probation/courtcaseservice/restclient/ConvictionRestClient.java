@@ -10,10 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.AttendanceMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiAttendances;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCurrentOrderHeaderDetailResponse;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 
 import java.util.List;
@@ -32,6 +34,9 @@ public class ConvictionRestClient {
     @Value("${community-api.conviction-by-crn-url-template}")
     private String convictionUrlTemplate;
 
+    @Value("${community-api.current-order-header-url-template}")
+    private String currentOrderHeaderTemplate;
+
     @Autowired
     private AttendanceMapper attendanceMapper;
 
@@ -48,7 +53,7 @@ public class ConvictionRestClient {
             .retrieve()
             .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
             .bodyToMono(CommunityApiAttendances.class)
-            .doOnError(e -> log.error(String.format(ERROR_MSG_FORMAT, "conviction attendance", crn, convictionId), e))
+            .doOnError(e -> log.error(String.format(ERROR_MSG_FORMAT, "sentence attendance", crn, convictionId), e))
             .map(attendances -> attendanceMapper.attendancesFrom(attendances, crn, convictionId));
     }
 
@@ -61,5 +66,16 @@ public class ConvictionRestClient {
             .bodyToMono(CommunityApiConvictionResponse.class)
             .doOnError(e -> log.error(String.format(ERROR_MSG_FORMAT, "conviction", crn, convictionId), e))
             .map(convictionResponse -> offenderMapper.convictionFrom(convictionResponse));
+    }
+
+
+    public Mono<CurrentOrderHeaderResponse> getCurrentOrderHeaderDetail(final String crn, final Long convictionId, final Long sentenceId) {
+        final String path = String.format(currentOrderHeaderTemplate, crn, convictionId, sentenceId);
+        return clientHelper.get(path)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleCurrentOrderHeaderError(crn, convictionId, sentenceId, clientResponse))
+                .bodyToMono(CommunityApiCurrentOrderHeaderDetailResponse.class)
+                .doOnError(e -> log.error(String.format(ERROR_MSG_FORMAT, "sentence current order header detail ", crn, convictionId), e))
+                .map(currentOrderHeaderDetailResponse -> offenderMapper.buildCurrentOrderHeaderDetail(currentOrderHeaderDetailResponse));
     }
 }

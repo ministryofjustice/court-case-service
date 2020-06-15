@@ -1,0 +1,24 @@
+feature:
+  flags:
+    disable-auth: true
+    fetch-attendance-data: true
+
+database:
+  schema:
+    name: courtcaseservicetest
+
+community-api:
+  base-url: http://localhost:8090
+
+offender-assessments-api:
+  base-url: http://localhost:8090
+
+spring:
+  flyway:
+    clean-on-validation-error: true
+  security:
+    oauth2:
+      client:
+        provider:
+          nomis-oauth-client:
+            token-uri: http://localhost:8090/auth/oauth/token

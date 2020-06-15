@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CourtCaseResponse {
     private LocalDateTime lastUpdated;
     private String caseId;

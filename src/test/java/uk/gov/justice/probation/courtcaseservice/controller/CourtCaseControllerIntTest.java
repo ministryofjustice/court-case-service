@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Month;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -124,6 +125,8 @@ public class CourtCaseControllerIntTest {
 
     @Test
     public void shouldGetCaseWhenExists() {
+        String startTime = LocalDateTime.of(2019, Month.DECEMBER, 14, 9, 0, 0)
+            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         given()
                 .when()
                 .header("Accept", "application/json")
@@ -140,13 +143,25 @@ public class CourtCaseControllerIntTest {
                 .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)))
                 .body("suspendedSentenceOrder", equalTo(true))
                 .body("breach", equalTo(true))
+                .body("crn", equalTo("X320741"))
+                .body("cro", equalTo("311462/13E"))
+                .body("pnc", equalTo("A/1234560BA"))
+                .body("listNo", equalTo("3rd"))
+                .body("courtCode", equalTo(COURT_CODE))
+                .body("sessionStartTime", equalTo(startTime))
+                .body("lastUpdated", equalTo(startTime))
                 .body("defendantName", equalTo(DEFENDANT_NAME))
                 .body("defendantAddress.line1", equalTo("27"))
                 .body("defendantAddress.line2", equalTo("Elm Place"))
                 .body("defendantAddress.postcode", equalTo("ad21 5dr"))
                 .body("defendantAddress.line3", equalTo("Bangor"))
-                .body("defendantAddress.line4", equalTo(null))
-                .body("defendantAddress.line5", equalTo(null));
+                .body("defendantAddress.line4", nullValue())
+                .body("defendantAddress.line5", equalTo(null))
+                .body("defendantDob", equalTo(LocalDate.of(1958, Month.OCTOBER, 10).format(DateTimeFormatter.ISO_LOCAL_DATE)))
+                .body("defendantSex", equalTo("M"))
+                .body("nationality1", equalTo("British"))
+                .body("nationality2", equalTo("Polish"))
+        ;
     }
 
 

@@ -96,6 +96,9 @@ public class CourtCaseEntity implements Serializable {
     @Column(name = "PNC")
     private String pnc;
 
+    @Column(name = "CRO")
+    private String cro;
+
     @Column(name = "LIST_NO")
     private String listNo;
 

@@ -14,15 +14,15 @@ import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
 @ApiModel(description = "Conviction Response")
 @Data
-@Builder
 @AllArgsConstructor
+@Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @JsonInclude(Include.NON_NULL)
 public class ConvictionResponse {
 
         @ApiModelProperty(value = "List of Attendances")
-        private List<AttendanceResponse> attendances;
+        private final List<AttendanceResponse> attendances;
 
         @ApiModelProperty(value = "UPW")
-        private UnpaidWork unpaidWork;
+        private final UnpaidWork unpaidWork;
 }

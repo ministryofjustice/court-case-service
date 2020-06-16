@@ -53,7 +53,7 @@ public class OffenderController_ConvictionIntTest {
 
     @Before
     public void setUp() throws Exception {
-        featureFlags.setFlagValue("fetch-attendance-data",true);
+        featureFlags.setFlagValue("fetch-sentence-data",true);
         TestConfig.configureRestAssuredForIntTest(port);
 
         retryService.tryWireMockStub();
@@ -81,8 +81,6 @@ public class OffenderController_ConvictionIntTest {
             .body()
             .as(SentenceResponse.class);
 
-        assertThat(response.getSentenceId()).isNotNull();
-
         assertThat(response.getAttendances()).hasSize(2);
 
         final AttendanceResponse expectedAttendance1 = AttendanceResponse.builder().contactId(1325L)
@@ -107,7 +105,7 @@ public class OffenderController_ConvictionIntTest {
                                                                                             .build());
 
         assertThat(response.getCurrentOrderHeaderDetail()).isEqualToComparingFieldByField(CurrentOrderHeaderResponse.builder()
-//                .sentenceId(2500298861L)
+                .sentenceId(2500298861L)
                 .custodialType(KeyValue.builder().code("P").description("Post Sentence Supervision").build())
                 .sentenceDescription("CJA - Intermediate Public Prot.")
                 .mainOffenceDescription("Common assault and battery - 10501")

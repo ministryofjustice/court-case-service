@@ -1,8 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -13,14 +10,17 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceRespon
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.CurrentOrderHeaderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
-import uk.gov.justice.probation.courtcaseservice.service.model.*;
+import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ConvictionService {
 
     private final ConvictionRestClient restClient;
-
-    private CurrentOrderHeaderResponse currentOrderHeaderResponse = new CurrentOrderHeaderResponse(null, null, null, null, null, null, null, null, null, null);
 
     @Autowired
     public ConvictionService(final ConvictionRestClient client) {
@@ -55,7 +55,6 @@ public class ConvictionService {
 
     private SentenceResponse combineOffenderAndConvictions(List<AttendanceResponse> attendanceResponses, Conviction conviction, CurrentOrderHeaderResponse currentOrderHeaderResponse) {
         return SentenceResponse.builder()
-                .sentenceId(currentOrderHeaderResponse.getSentenceId())
                 .attendances(attendanceResponses)
                 .unpaidWork(Optional.ofNullable(conviction.getSentence()).map(Sentence::getUnpaidWork).orElse(null))
                 .currentOrderHeaderDetail(currentOrderHeaderResponse)

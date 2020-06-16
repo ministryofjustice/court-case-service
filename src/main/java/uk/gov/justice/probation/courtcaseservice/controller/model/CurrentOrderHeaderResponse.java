@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
@@ -16,17 +15,16 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CurrentOrderHeaderResponse {
-    @JsonIgnore
-    private Long sentenceId;
-    private String sentenceDescription;
-    private KeyValue custodialType;
-    private String mainOffenceDescription;
-    private LocalDate sentenceDate;
-    private LocalDate actualReleaseDate;
-    private LocalDate licenceExpiryDate;
-    private LocalDate pssEndDate;
-    private Integer length;
-    private String lengthUnits;
+    private final Long sentenceId;
+    private final String sentenceDescription;
+    private final KeyValue custodialType;
+    private final String mainOffenceDescription;
+    private final LocalDate sentenceDate;
+    private final LocalDate actualReleaseDate;
+    private final LocalDate licenceExpiryDate;
+    private final LocalDate pssEndDate;
+    private final Integer length;
+    private final String lengthUnits;
 }
 
 

@@ -1,7 +1,7 @@
 feature:
   flags:
     disable-auth: true
-    fetch-attendance-data: true
+    fetch-sentence-data: true
 
 database:
   schema:

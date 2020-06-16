@@ -13,11 +13,10 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
-import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.BreachService;
 import uk.gov.justice.probation.courtcaseservice.service.ConvictionService;
+import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
-import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
@@ -86,16 +85,6 @@ class OffenderControllerTest {
         final SentenceResponse sentenceResponse = SentenceResponse.builder()
                 .attendances(Collections.emptyList())
                 .unpaidWork(UnpaidWork.builder().build())
-                .currentOrderHeaderDetail(CurrentOrderHeaderResponse.builder().custodialType(KeyValue.builder().code(null).description(null).build())
-                        .sentenceDescription(null)
-                        .mainOffenceDescription(null)
-                        .sentenceDate(null)
-                        .actualReleaseDate(null)
-                        .licenceExpiryDate(null)
-                        .pssEndDate(null)
-                        .length(null)
-                        .lengthUnits(null)
-                        .build())
                 .build();
         when(convictionService.getConvictionOnly(CRN, SOME_EVENT_ID)).thenReturn(sentenceResponse);
 

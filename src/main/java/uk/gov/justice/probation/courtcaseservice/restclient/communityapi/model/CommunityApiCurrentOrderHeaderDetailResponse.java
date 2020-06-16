@@ -1,10 +1,12 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 
 import java.time.LocalDate;

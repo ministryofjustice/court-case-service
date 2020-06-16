@@ -4,32 +4,28 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
+
+import java.util.List;
 
 @ApiModel(description = "Sentence Response")
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
 public class SentenceResponse {
 
-        @ApiModelProperty(value = "Sentence id")
-        private Long sentenceId;
-
         @ApiModelProperty(value = "List of Attendances")
-        private List<AttendanceResponse> attendances;
+        private final List<AttendanceResponse> attendances;
 
         @ApiModelProperty(value = "UPW")
-        private UnpaidWork unpaidWork;
+        private final UnpaidWork unpaidWork;
 
         @ApiModelProperty(value = "Sentence with current order header info")
-        private CurrentOrderHeaderResponse currentOrderHeaderDetail;
+        private final CurrentOrderHeaderResponse currentOrderHeaderDetail;
 
 
 }

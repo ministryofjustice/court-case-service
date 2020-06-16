@@ -1,22 +1,18 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
-  SNYK-JAVA-ORGAPACHETOMCATEMBED-570072:
-    - '*':
-        reason: >-
-          Latest version of springboot-starter-web brings in the
-          tomcat-embed-core. We do not want to pick apart spring-managed
-          dependencies
-        expires: 2020-06-25T10:44:01.559Z
   SNYK-DEBIAN10-PERL-570792:
     - '*':
-        reason: >-
-          No use of perl. Not in production yet.
-        expires: 2020-07-16T10:56:58.180Z
+        reason: Not production and no use of perl
+        expires: 2020-07-15T00:00:00.000Z
   SNYK-DEBIAN10-PERL-570802:
     - '*':
-        reason: >-
-          No use of perl. Not in production yet.
-        expires: 2020-07-16T10:57:39.351Z
+        reason: Not production and no use of perl
+        expires: 2020-07-16T11:17:15.911Z
+  SNYK-JAVA-ORGAPACHETOMCATEMBED-570072:
+    - '*':
+        reason: Latest version of springboot-starter-web brings in the tomcat-embed-core.
+                We do not want to pick apart spring-managed dependencies
+        expires: 2020-06-25T10:44:01.559Z
 patch: {}
 version: v1.13.5

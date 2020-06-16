@@ -43,6 +43,7 @@ public class CourtCaseService {
 
     private CourtCaseEntity createCase(CourtCaseEntity courtCaseEntity) {
         log.info("Court case created for case number {}", courtCaseEntity.getCaseNo());
+        courtCaseEntity.setLastUpdated(LocalDateTime.now());
         return courtCaseRepository.save(courtCaseEntity);
     }
 
@@ -85,7 +86,7 @@ public class CourtCaseService {
     private CourtCaseEntity updateAndSave(CourtCaseEntity existingCase, CourtCaseEntity courtCaseEntity) {
         // We have checked and matched court ode and case no. They are immutable fields. No need to update.
 
-        existingCase.setLastUpdated(courtCaseEntity.getLastUpdated());
+        existingCase.setLastUpdated(courtCaseEntity.getLastUpdated() != null ? courtCaseEntity.getLastUpdated() : LocalDateTime.now());
         existingCase.setCaseId(courtCaseEntity.getCaseId());
         existingCase.setCourtRoom(courtCaseEntity.getCourtRoom());
         existingCase.setSessionStartTime(courtCaseEntity.getSessionStartTime());

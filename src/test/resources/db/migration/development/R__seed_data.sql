@@ -7,13 +7,15 @@ INSERT INTO court_case (case_id, case_no, court_code, court_room, session_start_
 
 
 INSERT INTO OFFENCE (
-	CASE_ID,
+	CASE_NO,
+	COURT_CODE,
 	OFFENCE_TITLE,
     OFFENCE_SUMMARY,
     ACT,
 	SEQUENCE_NUMBER
 	) VALUES (
-        1168460,
+        1600028912,
+        'SHF',
         'Theft from a shop',
         'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.',
         'Contrary to section 1(1) and 7 of the Theft Act 1968.',
@@ -21,13 +23,15 @@ INSERT INTO OFFENCE (
 	);
 
 INSERT INTO OFFENCE (
-	CASE_ID,
+	CASE_NO,
+	COURT_CODE,
 	OFFENCE_TITLE,
     OFFENCE_SUMMARY,
     ACT,
 	SEQUENCE_NUMBER
 	) VALUES (
-        1168460,
+        1600028912,
+        'SHF',
         'Theft from a different shop',
         'On 02/01/2015 at own, stole article, to the value of £987.00, belonging to person.',
         'Contrary to section 1(1) and 7 of the Theft Act 1968.',

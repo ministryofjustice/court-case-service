@@ -2,26 +2,30 @@ package uk.gov.justice.probation.courtcaseservice.service.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
-import lombok.Builder;
-import lombok.Getter;
-
 import java.time.LocalDate;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
 
 @ApiModel("Conviction")
-@Getter
+@Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Conviction implements Comparable<Conviction>{
-    private String convictionId;
-    private Boolean active;
-    private Boolean inBreach;
-    private LocalDate convictionDate;
-    private List<Offence> offences;
-    private Sentence sentence;
-    private LocalDate endDate;
+    private final String convictionId;
+    private final Boolean active;
+    private final Boolean inBreach;
+    private final LocalDate convictionDate;
+    private final List<Offence> offences;
+    private final Sentence sentence;
+    private final LocalDate endDate;
     @Setter
     private List<OffenderDocumentDetail> documents;
     @Setter

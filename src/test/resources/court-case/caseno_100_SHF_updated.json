@@ -1,0 +1,42 @@
+{
+  "lastUpdated": "2020-02-24T11:30:15.103652",
+  "courtCode": "SHF",
+  "caseNo": "100",
+  "caseId": "654321",
+  "crn": "crn",
+  "pnc": "pnc",
+  "listNo": "listNo",
+  "courtRoom": "courtRoom",
+  "sessionStartTime": "2019-12-14T09:10:00",
+  "probationStatus": "probationStatus",
+  "previouslyKnownTerminationDate": "2018-06-25",
+  "suspendedSentenceOrder": false,
+  "breach": false,
+  "offences": [
+    {
+      "offenceTitle": "Theft from a shop",
+      "offenceSummary": "On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.",
+      "act": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
+      "sequenceNumber": 1
+    },
+    {
+      "offenceTitle": "Theft from a different shop",
+      "offenceSummary": "On 02/01/2015 at own, stole article, to the value of £123.00, belonging to person.",
+      "act": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
+      "sequenceNumber": 2
+    }
+  ],
+  "defendantName": "defendantName",
+  "defendantAddress": {
+    "line1": "line1",
+    "line2": "line2",
+    "postcode": "postcode",
+    "line3": "line3",
+    "line4": "line4",
+    "line5": "line5"
+  },
+  "defendantDob": "1960-12-14",
+  "defendantSex": "defendantSex",
+  "nationality1": "nationality1",
+  "nationality2": "nationality2"
+}

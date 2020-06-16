@@ -5,15 +5,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 
 @ApiModel("Offender Document Details")
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OffenderDocumentDetail {
 
@@ -28,7 +31,7 @@ public class OffenderDocumentDetail {
     @JsonIgnore
     private final Long parentPrimaryKeyId;
 
-    private KeyValue subType;
-    private ReportDocumentDates reportDocumentDates;
+    private final KeyValue subType;
+    private final ReportDocumentDates reportDocumentDates;
 }
 

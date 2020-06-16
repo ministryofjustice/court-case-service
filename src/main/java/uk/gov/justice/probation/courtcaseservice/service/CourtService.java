@@ -17,7 +17,7 @@ public class CourtService {
     private CourtRepository courtRepository;
 
     public CourtEntity updateCourt(CourtEntity courtEntity) {
-        if (null != courtRepository.findByCourtCode(courtEntity.getCourtCode())) {
+        if (courtRepository.findByCourtCode(courtEntity.getCourtCode()).isPresent()) {
             throw new DuplicateEntityException(String.format("Court with courtCode '%s' already exists", courtEntity.getCourtCode()));
         }
         return courtRepository.save(courtEntity);

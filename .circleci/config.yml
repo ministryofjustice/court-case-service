@@ -105,6 +105,7 @@ _snyk_options: &snyk_options
   organization: "digital-probation-services"
   severity-threshold: "high" # note: this does not affect snyk 'monitor' commands
   fail-on-issues: true
+  additional-arguments: "--policy-path=.snyk"
 
 jobs:
   build:

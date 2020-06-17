@@ -1,6 +1,20 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
+import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,17 +27,6 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.TestConfig;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
-import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.when;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
-import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
@@ -67,6 +70,8 @@ public class CourtCaseControllerIntTest {
                 .body("cases[0].caseId", equalTo("5555555"))
                 .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 9, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[0].offences", hasSize(2))
+                .body("cases[0].offences[0].sequenceNumber", equalTo(1))
+                .body("cases[0].offences[1].sequenceNumber", equalTo(2))
                 .body("cases[1].lastUpdated", containsString(now.format(DateTimeFormatter.ISO_DATE)))
                 .body("cases[1].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 0, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[2].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)));
@@ -122,6 +127,8 @@ public class CourtCaseControllerIntTest {
 
     @Test
     public void shouldGetCaseWhenExists() {
+        String startTime = LocalDateTime.of(2019, Month.DECEMBER, 14, 9, 0, 0)
+            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         given()
                 .when()
                 .header("Accept", "application/json")
@@ -138,15 +145,25 @@ public class CourtCaseControllerIntTest {
                 .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)))
                 .body("suspendedSentenceOrder", equalTo(true))
                 .body("breach", equalTo(true))
+                .body("crn", equalTo("X320741"))
+                .body("cro", equalTo("311462/13E"))
+                .body("pnc", equalTo("A/1234560BA"))
+                .body("listNo", equalTo("3rd"))
+                .body("courtCode", equalTo(COURT_CODE))
+                .body("sessionStartTime", equalTo(startTime))
+                .body("lastUpdated", equalTo(startTime))
                 .body("defendantName", equalTo(DEFENDANT_NAME))
                 .body("defendantAddress.line1", equalTo("27"))
                 .body("defendantAddress.line2", equalTo("Elm Place"))
                 .body("defendantAddress.postcode", equalTo("ad21 5dr"))
                 .body("defendantAddress.line3", equalTo("Bangor"))
                 .body("defendantAddress.line4", equalTo(null))
-                .body("defendantAddress.line5", equalTo(null));
-
-
+                .body("defendantAddress.line5", equalTo(null))
+                .body("defendantDob", equalTo(LocalDate.of(1958, Month.OCTOBER, 10).format(DateTimeFormatter.ISO_LOCAL_DATE)))
+                .body("defendantSex", equalTo("M"))
+                .body("nationality1", equalTo("British"))
+                .body("nationality2", equalTo("Polish"))
+        ;
     }
 
 

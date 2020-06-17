@@ -1,5 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 
+import java.util.Collections;
+import java.util.Optional;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
@@ -18,6 +20,7 @@ public class CourtCaseResponseMapper {
                 .caseNo(courtCaseEntity.getCaseNo())
                 .crn(courtCaseEntity.getCrn())
                 .pnc(courtCaseEntity.getPnc())
+                .cro(courtCaseEntity.getCro())
                 .listNo(courtCaseEntity.getListNo())
                 .courtRoom(courtCaseEntity.getCourtRoom())
                 .courtCode(courtCaseEntity.getCourtCode())
@@ -39,7 +42,7 @@ public class CourtCaseResponseMapper {
     }
 
     private List<OffenceResponse> mapOffencesFrom(CourtCaseEntity courtCaseEntity) {
-        return courtCaseEntity.getOffences()
+        return Optional.ofNullable(courtCaseEntity.getOffences()).orElse(Collections.emptyList())
                 .stream()
                 .sorted(Comparator.comparing(offenceEntity ->
                         // Default to very high number so that unordered items are last
@@ -53,6 +56,7 @@ public class CourtCaseResponseMapper {
                 .offenceTitle(offenceEntity.getOffenceTitle())
                 .offenceSummary(offenceEntity.getOffenceSummary())
                 .act(offenceEntity.getAct())
+                 .sequenceNumber(offenceEntity.getSequenceNumber())
                 .build();
     }
 }

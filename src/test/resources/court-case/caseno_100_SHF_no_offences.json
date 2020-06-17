@@ -1,0 +1,30 @@
+{
+  "lastUpdated": "2020-02-24T11:30:15.103652",
+  "courtCode": "SHF",
+  "caseNo": "100",
+  "caseId": "654321",
+  "crn": "crn",
+  "cro": "311462/13E",
+  "pnc": "pnc",
+  "listNo": "listNo",
+  "courtRoom": "courtRoom",
+  "sessionStartTime": "2019-12-14T09:10:00",
+  "probationStatus": "probationStatus",
+  "previouslyKnownTerminationDate": "2018-06-25",
+  "suspendedSentenceOrder": false,
+  "breach": false,
+  "offences": [],
+  "defendantName": "defendantName",
+  "defendantAddress": {
+    "line1": "line1",
+    "line2": "line2",
+    "postcode": "postcode",
+    "line3": "line3",
+    "line4": "line4",
+    "line5": "line5"
+  },
+  "defendantDob": "1960-12-14",
+  "defendantSex": "F",
+  "nationality1": "Polish",
+  "nationality2": "British"
+}

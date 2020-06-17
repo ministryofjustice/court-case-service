@@ -3,16 +3,18 @@ package uk.gov.justice.probation.courtcaseservice.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
+import java.util.List;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
-import java.util.List;
-
 @ApiModel("Lists of Requirements")
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor
-@Getter
+@Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RequirementsResponse {
-    private List<Requirement> requirements;
+    private final List<Requirement> requirements;
 }

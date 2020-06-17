@@ -2,18 +2,22 @@ package uk.gov.justice.probation.courtcaseservice.service.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
-import lombok.Builder;
-import lombok.Getter;
-
 import java.time.LocalDate;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @ApiModel("Breach")
-@Getter
+@Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Breach {
-    private Long breachId;
-    private String description;
-    private String status;
-    private LocalDate started;
+    private final Long breachId;
+    private final String description;
+    private final String status;
+    private final LocalDate started;
 }

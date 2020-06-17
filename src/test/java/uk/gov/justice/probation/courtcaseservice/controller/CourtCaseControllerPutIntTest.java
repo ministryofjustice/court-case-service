@@ -3,7 +3,9 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 
@@ -79,156 +81,6 @@ public class CourtCaseControllerPutIntTest {
     }
 
     @Test
-    public void whenCreateCourtCaseWithUnknownCourt_ThenRaise404() {
-
-        CourtCaseEntity courtCaseEntity = createCaseDetails(NOT_FOUND_COURT_CODE, JSON_CASE_NO, JSON_CASE_ID);
-
-        ErrorResponse result = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(courtCaseEntity)
-                .when()
-                .put("/case/" + JSON_CASE_ID)
-                .then()
-                .statusCode(404)
-                .extract()
-                .body()
-                .as(ErrorResponse.class);
-
-        assertThat(result.getDeveloperMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
-        assertThat(result.getUserMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
-        assertThat(result.getStatus()).isEqualTo(404);
-    }
-
-    @Test
-    public void whenCreateCourtCaseWithMismatchCaseId_ThenRaise500() {
-        String mismatchCaseId = "000000";
-        CourtCaseEntity courtCaseEntity = createCaseDetails(COURT_CODE, JSON_CASE_NO, JSON_CASE_ID);
-
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(courtCaseEntity)
-                .when()
-                .put("/case/" + mismatchCaseId)
-                .then()
-                .statusCode(500)
-                .body("message", equalTo("Case ID " + mismatchCaseId + " does not match with " + JSON_CASE_ID));
-    }
-
-    @Test
-    public void whenCreateCaseDataById_ThenCreateNewRecord() {
-
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(caseDetailsJson)
-                .when()
-                .put("/case/" + JSON_CASE_ID)
-                .then()
-                .statusCode(201)
-                .body("caseId", equalTo(JSON_CASE_ID))
-                .body("caseNo", equalTo(JSON_CASE_NO))
-                .body("crn", equalTo(CRN))
-                .body("courtCode", equalTo(COURT_CODE))
-                .body("courtRoom", equalTo(COURT_ROOM))
-                .body("probationStatus", equalTo(PROBATION_STATUS))
-                .body("sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2018, 6, 24).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-                .body("suspendedSentenceOrder", equalTo(true))
-                .body("breach", equalTo(true))
-                .body("defendantName", equalTo(DEFENDANT_NAME))
-                .body("defendantAddress.line1", equalTo(ADDRESS.getLine1()))
-                .body("defendantAddress.line2", equalTo(ADDRESS.getLine2()))
-                .body("defendantAddress.postcode", equalTo(ADDRESS.getPostcode()))
-                .body("defendantAddress.line3", equalTo(ADDRESS.getLine3()))
-                .body("defendantAddress.line4", equalTo(null))
-                .body("defendantAddress.line5", equalTo(null))
-                .body("offences", hasSize(2))
-                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
-                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
-                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
-                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
-                .body("pnc", equalTo(PNC))
-                .body("listNo", equalTo(LIST_NO))
-                .body("defendantDob", equalTo(LocalDate.of(1958, 12, 14).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-                .body("defendantSex", equalTo(DEFENDANT_SEX))
-                .body("nationality1", equalTo(NATIONALITY_1))
-                .body("nationality2", equalTo(NATIONALITY_2))
-        ;
-
-    }
-
-    @Test
-    public void whenUpdateCaseDataById_ThenUpdate() {
-
-        createCase();
-
-        String newCourtRoom = "2";
-        String updatedJson = caseDetailsJson.replace("\"courtRoom\": \"1\"", "\"courtRoom\": \"" + newCourtRoom + "\"");
-
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(updatedJson)
-                .when()
-                .put("/case/" + JSON_CASE_ID)
-                .then()
-                .statusCode(201)
-                .body("caseId", equalTo(JSON_CASE_ID))
-                .body("caseNo", equalTo(JSON_CASE_NO))
-                .body("crn", equalTo(CRN))
-                .body("pnc", equalTo(PNC))
-                .body("listNo", equalTo(LIST_NO))
-                .body("defendantDob", equalTo(LocalDate.of(1958, 12, 14).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-                .body("defendantSex", equalTo(DEFENDANT_SEX))
-                .body("nationality1", equalTo(NATIONALITY_1))
-                .body("nationality2", equalTo(NATIONALITY_2))
-                .body("courtCode", equalTo(COURT_CODE))
-                .body("courtRoom", equalTo(newCourtRoom))
-                .body("probationStatus", equalTo(PROBATION_STATUS))
-                .body("sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2018, 6, 24).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-                .body("suspendedSentenceOrder", equalTo(true))
-                .body("breach", equalTo(true))
-                .body("defendantName", equalTo(DEFENDANT_NAME))
-                .body("defendantAddress.line1", equalTo(ADDRESS.getLine1()))
-                .body("defendantAddress.line2", equalTo(ADDRESS.getLine2()))
-                .body("defendantAddress.postcode", equalTo(ADDRESS.getPostcode()))
-                .body("defendantAddress.line3", equalTo(ADDRESS.getLine3()))
-                .body("defendantAddress.line4", equalTo(null))
-                .body("defendantAddress.line5", equalTo(null))
-                .body("offences", hasSize(2))
-                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
-                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
-                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
-                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
-        ;
-
-    }
-
-    @Test
-    public void whenCourtCaseCreated_thenOffenceSequenceNumberShouldBeReflectedInResponse() {
-        var modifiedJson = caseDetailsJson
-            .replace("\"sequenceNumber\": 1", "\"sequenceNumber\": 4")
-            .replace("\"sequenceNumber\": 2", "\"sequenceNumber\": 3");
-
-        given()
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(modifiedJson)
-            .when()
-            .put("/case/" + JSON_CASE_ID)
-            .then()
-            .statusCode(201)
-            .body("offences", hasSize(2))
-            .body("offences[0].offenceTitle", equalTo("Theft from a different shop"))
-            .body("offences[1].offenceTitle", equalTo("Theft from a shop"))
-        ;
-
-    }
-
-    @Test
     public void whenCreateCaseDataByCourtAndCaseNo_ThenCreateNewRecord() {
 
         given()
@@ -260,6 +112,7 @@ public class CourtCaseControllerPutIntTest {
             .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
             .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
             .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
+            .body("offences[0]", not(hasKey("courtCase")))
             .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
             .body("pnc", equalTo(PNC))
             .body("listNo", equalTo(LIST_NO))
@@ -360,7 +213,9 @@ public class CourtCaseControllerPutIntTest {
 
     private CourtCaseEntity createCaseDetails(String courtCode, String caseNo, String caseId) {
 
-        CourtCaseEntity caseDetails = new CourtCaseEntity(courtCode, caseNo);
+        CourtCaseEntity caseDetails = new CourtCaseEntity();
+        caseDetails.setCourtCode(courtCode);
+        caseDetails.setCaseNo(caseNo);
         caseDetails.setCaseId(caseId);
         caseDetails.setCourtRoom("1");
         caseDetails.setSessionStartTime(LocalDateTime.now());
@@ -381,13 +236,19 @@ public class CourtCaseControllerPutIntTest {
     }
 
     private void createCase() {
+
         given()
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
             .body(caseDetailsJson)
             .when()
-            .put("/case/" + JSON_CASE_ID)
+            .put(String.format("/court/%s/case/%s", COURT_CODE, JSON_CASE_NO))
             .then()
-            .statusCode(201);
+            .statusCode(201)
+            .body("caseId", equalTo(JSON_CASE_ID))
+            .body("caseNo", equalTo(JSON_CASE_NO))
+            .body("crn", equalTo(CRN))
+            .body("courtCode", equalTo(COURT_CODE))
+        ;
     }
 }

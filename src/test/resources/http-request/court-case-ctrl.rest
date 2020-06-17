@@ -75,7 +75,7 @@ Content-Type: application/json
 
 {
   "lastUpdated": "2019-12-14T09:00:00",
-  "caseId": "1168460",
+  "caseId": "1168461",
   "caseNo": "1600028974",
   "crn": "X320744",
   "pnc": "D/1234560BC",
@@ -83,11 +83,18 @@ Content-Type: application/json
   "courtCode": "SHF",
   "courtRoom": "1",
   "sessionStartTime": "2020-01-13T09:00:00",
-  "probationStatus": "Current",
+  "probationStatus": "Not known",
   "previouslyKnownTerminationDate": null,
   "suspendedSentenceOrder": true,
   "breach": true,
-  "offences": [],
+  "offences": [
+    {
+      "offenceTitle": "1Theft from a shop",
+      "offenceSummary": "On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.",
+      "act": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
+      "sequenceNumber": 2
+    }
+  ],
   "defendantName": "Mr Dylan Adam Armstrong",
   "defendantAddress": {
     "line1": "27",

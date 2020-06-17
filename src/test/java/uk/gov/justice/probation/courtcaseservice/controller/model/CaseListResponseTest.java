@@ -30,6 +30,9 @@ public class CaseListResponseTest {
     }
 
     private CourtCaseResponse buildCourtCaseEntity(LocalDateTime mostRecent, LocalDateTime sessionStartTime) {
-        return new CourtCaseResponseMapper().mapFrom(new CourtCaseEntity(null, mostRecent, null, null, null, null, sessionStartTime, null, null, null, null, Collections.emptyList(), null, null, null, null, null, null, null, null, null));
+        return new CourtCaseResponseMapper().mapFrom(CourtCaseEntity.builder()
+            .lastUpdated(mostRecent)
+            .sessionStartTime(sessionStartTime)
+            .offences(Collections.emptyList()).build());
     }
 }

@@ -1,15 +1,19 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
 import io.swagger.annotations.ApiModel;
-import lombok.Builder;
-import lombok.Getter;
-
 import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @ApiModel("Assessment")
-@Getter
+@Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class Assessment {
-    private String type;
-    private LocalDateTime completed;
+    private final String type;
+    private final LocalDateTime completed;
 }

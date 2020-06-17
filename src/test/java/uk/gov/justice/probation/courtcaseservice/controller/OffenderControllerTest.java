@@ -10,11 +10,12 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ConvictionResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
-import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
+import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
 import uk.gov.justice.probation.courtcaseservice.service.BreachService;
 import uk.gov.justice.probation.courtcaseservice.service.ConvictionService;
+import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
@@ -32,7 +33,9 @@ import static org.mockito.Mockito.when;
 class OffenderControllerTest {
     private static final String CRN = "CRN";
     private static final String CONVICTION_ID = "CONVICTION_ID";
+    private static final Long SENTENCE_ID = 5467L;
     static final Long SOME_EVENT_ID = 1234L;
+    static final Long SOME_SENTENCE_ID = 1234L;
 
     @Mock
     private DocumentService documentService;
@@ -44,6 +47,8 @@ class OffenderControllerTest {
     private Requirement expectedRequirement;
     @Mock
     private BreachResponse expectedBreach;
+    @Mock
+    private CurrentOrderHeaderResponse expectedCurrentOrderHeaderResponse;
     @Mock
     private ConvictionService convictionService;
     @Mock
@@ -64,27 +69,27 @@ class OffenderControllerTest {
     @DisplayName("Normal service call returns response")
     @Test
     void callReturnsResponse() {
-        final ConvictionResponse attendancesResponse = ConvictionResponse.builder().attendances(Collections.emptyList()).build();
-        when(convictionService.getConviction(CRN, SOME_EVENT_ID)).thenReturn(attendancesResponse);
+        final SentenceResponse attendancesResponse = SentenceResponse.builder().attendances(Collections.emptyList()).build();
+        when(convictionService.getSentence(CRN, SOME_EVENT_ID, SOME_SENTENCE_ID)).thenReturn(attendancesResponse);
 
-        assertThat(controller.getConviction(CRN, SOME_EVENT_ID)).isEqualTo(attendancesResponse);
+        assertThat(controller.getSentence(CRN, SOME_EVENT_ID, SOME_SENTENCE_ID)).isEqualTo(attendancesResponse);
 
-        verify(convictionService).getConviction(CRN, SOME_EVENT_ID);
+        verify(convictionService).getSentence(CRN, SOME_EVENT_ID, SOME_SENTENCE_ID);
         verifyNoMoreInteractions(convictionService);
     }
 
-    @DisplayName("Feature toggle is off")
+    @DisplayName("Feature toggle for sentence data is off")
     @Test
-    void featureToggleFalse() {
-        featureFlags.setFlagValue("fetch-attendance-data", false);
-        final ConvictionResponse convictionResponse = ConvictionResponse.builder()
+    void featureToggleFalseSentenceData() {
+        featureFlags.setFlagValue("fetch-sentence-data", false);
+        final SentenceResponse sentenceResponse = SentenceResponse.builder()
                 .attendances(Collections.emptyList())
                 .unpaidWork(UnpaidWork.builder().build())
                 .build();
-        when(convictionService.getConvictionNoAttendances(CRN, SOME_EVENT_ID)).thenReturn(convictionResponse);
+        when(convictionService.getConvictionOnly(CRN, SOME_EVENT_ID)).thenReturn(sentenceResponse);
 
-        assertThat(controller.getConviction(CRN, SOME_EVENT_ID)).isEqualToComparingFieldByField(convictionResponse);
-        verify(convictionService).getConvictionNoAttendances(CRN, SOME_EVENT_ID);
+        assertThat(controller.getSentence(CRN, SOME_EVENT_ID, SOME_SENTENCE_ID)).isEqualToComparingFieldByField(sentenceResponse);
+        verify(convictionService).getConvictionOnly(CRN, SOME_EVENT_ID);
         verifyNoMoreInteractions(convictionService);
     }
 
@@ -115,6 +120,19 @@ class OffenderControllerTest {
         assertThat(requirementResponse.getRequirements()).hasSize(1);
         assertThat(requirementResponse.getRequirements().get(0)).isEqualTo(expectedRequirement);
         verify(offenderService).getConvictionRequirements(CRN, CONVICTION_ID);
+    }
+
+    @DisplayName("Ensures that the controller calls the service and returns the same current order header details")
+    @Test
+    public void whenGetCurrentOrderHeaderDetail_thenReturnIt() {
+
+        when(convictionService.getCurrentOrderHeader(CRN, 1234L, SENTENCE_ID)).thenReturn(expectedCurrentOrderHeaderResponse);
+
+        CurrentOrderHeaderResponse currentOrderHeaderResponse = controller.getCurrentOrderHeaderDetail(CRN, 1234L, SENTENCE_ID);
+
+        assertThat(currentOrderHeaderResponse).isNotNull();
+        assertThat(currentOrderHeaderResponse).isEqualTo(expectedCurrentOrderHeaderResponse);
+        verify(convictionService).getCurrentOrderHeader(CRN, 1234L, SENTENCE_ID);
     }
 
     @DisplayName("Ensures that the controller calls the service and returns the same breach")

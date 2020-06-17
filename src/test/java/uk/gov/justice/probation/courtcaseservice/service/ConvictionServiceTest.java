@@ -17,7 +17,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ConvictionResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
@@ -29,11 +30,14 @@ class ConvictionServiceTest {
 
     public static final String CRN = "X370652";
     public static final Long SOME_CONVICTION_ID = 1234L;
-
+    public static final Long SOME_SENTENCE_ID = 5467L;
     private Conviction conviction;
 
     @Mock
     private List<AttendanceResponse> attendancesResponse;
+
+    @Mock
+    private CurrentOrderHeaderResponse currentOrderHeaderResponse;
 
     @Mock
     private ConvictionRestClient restClient;
@@ -53,8 +57,9 @@ class ConvictionServiceTest {
 
         when(restClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(attendancesResponse));
         when(restClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(conviction));
+        when(restClient.getCurrentOrderHeaderDetail(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
 
-        final ConvictionResponse response = service.getConviction(CRN, SOME_CONVICTION_ID);
+        final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
 
         assertThat(response.getAttendances()).isSameAs(attendancesResponse);
         assertThat(response.getUnpaidWork().getAcceptableAbsences()).isEqualTo(100);
@@ -65,13 +70,14 @@ class ConvictionServiceTest {
 
     @DisplayName("Retrieval of conviction with null sentence and therefore no unpaid work")
     @Test
-    public void givenNullSentenceOnConviction_whenGetConviction_returnConvictionNoUnPaidWork() {
+    public void givenNullSentenceOnConviction_whenGetSentence_returnSentenceNoUnPaidWork() {
 
         conviction = Conviction.builder().convictionId(String.valueOf(SOME_CONVICTION_ID)).build();
         when(restClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(attendancesResponse));
         when(restClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(conviction));
+        when(restClient.getCurrentOrderHeaderDetail(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
 
-        final ConvictionResponse response = service.getConviction(CRN, SOME_CONVICTION_ID);
+        final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
 
         assertThat(response.getAttendances()).isSameAs(attendancesResponse);
         assertThat(response.getUnpaidWork()).isNull();
@@ -86,8 +92,9 @@ class ConvictionServiceTest {
 
         when(restClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
         when(restClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(conviction));
+        when(restClient.getCurrentOrderHeaderDetail(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
 
-        final ConvictionResponse response = service.getConviction(CRN, SOME_CONVICTION_ID);
+        final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
 
         assertThat(response.getAttendances()).isEmpty();
         assertThat(response.getUnpaidWork().getAcceptableAbsences()).isEqualTo(100);
@@ -102,9 +109,22 @@ class ConvictionServiceTest {
 
         when(restClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
         when(restClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
+        when(restClient.getCurrentOrderHeaderDetail(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
 
         assertThatExceptionOfType(OffenderNotFoundException.class)
-            .isThrownBy(() -> service.getConviction(CRN, SOME_CONVICTION_ID))
+            .isThrownBy(() -> service.getSentence(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID))
             .withMessageContaining(CRN);
+    }
+
+    @DisplayName("Successful retrieval of current order header detail")
+    @Test
+    public void givenCurrentOrderHeaderDetail_whenGetCurrentOrderHeaderDetail_returnCurrentOrderHeaderDetail() {
+
+        when(restClient.getCurrentOrderHeaderDetail(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
+
+        final CurrentOrderHeaderResponse response = service.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
+
+        assertThat(response).isEqualTo(currentOrderHeaderResponse);
+        verify(restClient).getCurrentOrderHeaderDetail(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
     }
 }

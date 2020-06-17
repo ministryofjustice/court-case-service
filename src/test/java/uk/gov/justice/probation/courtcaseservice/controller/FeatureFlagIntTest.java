@@ -1,9 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.is;
-import static uk.gov.justice.probation.courtcaseservice.TestConfig.configureRestAssuredForIntTest;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +8,10 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
+import static uk.gov.justice.probation.courtcaseservice.TestConfig.configureRestAssuredForIntTest;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -35,7 +35,7 @@ public class FeatureFlagIntTest {
                 .get("/feature-flags")
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("fetch-attendance-data", is(true))
+                .body("fetch-sentence-data", is(true))
                 .body("disable-auth", is(true));
     }
 }

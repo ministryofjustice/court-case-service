@@ -1,0 +1,19 @@
+{
+  "sentenceId": 2500298861,
+  "custodialType": {
+    "code": "P",
+    "description": "Post Sentence Supervision"
+  },
+  "sentence": {
+    "description": "CJA - Intermediate Public Prot."
+  },
+  "mainOffence": {
+    "description": "Common assault and battery - 10501"
+  },
+  "sentenceDate": "2018-12-03",
+  "actualReleaseDate": "2019-07-03",
+  "licenceExpiryDate": "2019-11-03",
+  "pssEndDate": "2020-06-03",
+  "length": 11,
+  "lengthUnits": "Months"
+}

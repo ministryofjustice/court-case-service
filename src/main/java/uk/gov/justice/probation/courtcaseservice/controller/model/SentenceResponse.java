@@ -4,25 +4,26 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
-@ApiModel(description = "Conviction Response")
+import java.util.List;
+
+@ApiModel(description = "Sentence Response")
 @Data
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @JsonInclude(Include.NON_NULL)
-public class ConvictionResponse {
+public class SentenceResponse {
 
         @ApiModelProperty(value = "List of Attendances")
         private final List<AttendanceResponse> attendances;
 
         @ApiModelProperty(value = "UPW")
         private final UnpaidWork unpaidWork;
+
+        @ApiModelProperty(value = "Sentence with current order header info")
+        private final CurrentOrderHeaderResponse currentOrderHeaderDetail;
+
 }

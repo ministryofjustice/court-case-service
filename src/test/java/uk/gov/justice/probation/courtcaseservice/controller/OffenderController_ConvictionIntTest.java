@@ -20,7 +20,9 @@ import uk.gov.justice.probation.courtcaseservice.TestConfig;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse.ContactTypeDetail;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ConvictionResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
+import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
 import java.time.LocalDate;
@@ -38,7 +40,7 @@ import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRes
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
 public class OffenderController_ConvictionIntTest {
 
-    private static final String PATH = "/offenders/%s/convictions/%s";
+    private static final String PATH = "/offender/%s/convictions/%s/sentences/%s";
 
     @Autowired
     private FeatureFlags featureFlags;
@@ -51,7 +53,7 @@ public class OffenderController_ConvictionIntTest {
 
     @Before
     public void setUp() throws Exception {
-        featureFlags.setFlagValue("fetch-attendance-data",true);
+        featureFlags.setFlagValue("fetch-sentence-data",true);
         TestConfig.configureRestAssuredForIntTest(port);
 
         retryService.tryWireMockStub();
@@ -66,10 +68,10 @@ public class OffenderController_ConvictionIntTest {
     public WireMockClassRule instanceRule = wireMockRule;
 
     @Test
-    public void whenCallMadeToGetConvictionKnownCrnAndConvictionId() {
+    public void whenCallMadeToGetSentenceKnownCrnAndConvictionId() {
 
-        final String getPath = String.format(PATH, CRN, SOME_CONVICTION_ID);
-        final ConvictionResponse response = given()
+        final String getPath = String.format(PATH, CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
+        final SentenceResponse response = given()
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .when()
             .get(getPath)
@@ -77,7 +79,7 @@ public class OffenderController_ConvictionIntTest {
             .statusCode(HttpStatus.OK.value())
             .extract()
             .body()
-            .as(ConvictionResponse.class);
+            .as(SentenceResponse.class);
 
         assertThat(response.getAttendances()).hasSize(2);
 
@@ -101,15 +103,28 @@ public class OffenderController_ConvictionIntTest {
                                                                                             .unacceptableAbsences(1)
                                                                                             .status("Being worked")
                                                                                             .build());
+
+        assertThat(response.getCurrentOrderHeaderDetail()).isEqualToComparingFieldByField(CurrentOrderHeaderResponse.builder()
+                .sentenceId(2500298861L)
+                .custodialType(KeyValue.builder().code("P").description("Post Sentence Supervision").build())
+                .sentenceDescription("CJA - Intermediate Public Prot.")
+                .mainOffenceDescription("Common assault and battery - 10501")
+                .sentenceDate(LocalDate.of(2018, Month.DECEMBER, 03))
+                .actualReleaseDate(LocalDate.of(2019, Month.JULY, 03))
+                .licenceExpiryDate(LocalDate.of(2019, Month.NOVEMBER, 03))
+                .pssEndDate(LocalDate.of(2020, Month.JUNE, 03))
+                .length(11)
+                .lengthUnits("Months")
+                .build());
     }
 
     @Test
-    public void whenCallMadeToGeConvictionAttendanceFlagFalseKnownCrnAndConvictionId() {
+    public void whenCallMadeToGetSentenceAttendanceFlagFalseKnownCrnAndConvictionId() {
 
-        featureFlags.setFlagValue("fetch-attendance-data", false);
+        featureFlags.setFlagValue("fetch-sentence-data", false);
 
-        final String getPath = String.format(PATH, CRN, SOME_CONVICTION_ID);
-        final ConvictionResponse response = given()
+        final String getPath = String.format(PATH, CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
+        final SentenceResponse response = given()
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .when()
             .get(getPath)
@@ -117,16 +132,18 @@ public class OffenderController_ConvictionIntTest {
                 .statusCode(HttpStatus.OK.value())
             .extract()
             .body()
-            .as(ConvictionResponse.class);
+            .as(SentenceResponse.class);
 
+        assertThat(response.getCurrentOrderHeaderDetail()).isNull();
         assertThat(response.getAttendances()).isEmpty();
         assertThat(response.getUnpaidWork()).isNotNull();
+        assertThat(response.getCurrentOrderHeaderDetail()).isNull();
     }
 
     @Test
-    public void whenCallMadeToGetConvictionOnCommunityApiReturns404() {
+    public void whenCallMadeToGetSentenceOnCommunityApiReturns404() {
 
-        final String getPath = String.format(PATH, UNKNOWN_CRN, SOME_CONVICTION_ID);
+        final String getPath = String.format(PATH, UNKNOWN_CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
         given()
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .when()

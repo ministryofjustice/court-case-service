@@ -1,14 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCurrentOrderHeaderDetailResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderManager;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementResponse;
@@ -22,6 +18,14 @@ import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+
 
 @Component
 public class OffenderMapper {
@@ -65,6 +69,22 @@ public class OffenderMapper {
                 .endDate(endDateCalculator.apply(conviction.getConvictionDate(), conviction.getSentence()))
                 .build();
     }
+
+    public CurrentOrderHeaderResponse buildCurrentOrderHeaderDetail(CommunityApiCurrentOrderHeaderDetailResponse currentOrderHeaderDetail) {
+        return CurrentOrderHeaderResponse.builder()
+                .sentenceId(currentOrderHeaderDetail.getSentenceId())
+                .custodialType(currentOrderHeaderDetail.getCustodialType())
+                .sentenceDescription(currentOrderHeaderDetail.getSentence().getDescription())
+                .mainOffenceDescription(currentOrderHeaderDetail.getMainOffence().getDescription())
+                .sentenceDate(currentOrderHeaderDetail.getSentenceDate())
+                .actualReleaseDate(currentOrderHeaderDetail.getActualReleaseDate())
+                .licenceExpiryDate(currentOrderHeaderDetail.getLicenceExpiryDate())
+                .pssEndDate(currentOrderHeaderDetail.getPssEndDate())
+                .length(currentOrderHeaderDetail.getLength())
+                .lengthUnits(currentOrderHeaderDetail.getLengthUnits())
+                .build();
+    }
+
 
     public List<Requirement> requirementsFrom(CommunityApiRequirementsResponse requirementsResponse) {
         return requirementsResponse.getRequirements().stream()

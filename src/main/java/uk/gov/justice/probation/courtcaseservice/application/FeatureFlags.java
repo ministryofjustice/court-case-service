@@ -19,8 +19,8 @@ public class FeatureFlags {
         return flags;
     }
 
-    public boolean attendanceData() {
-        return flags.getOrDefault("fetch-attendance-data", true);
+    public boolean sentenceData() {
+        return flags.getOrDefault("fetch-sentence-data", true);
     }
 
     public void setFlagValue(final String flagName, final boolean value) {

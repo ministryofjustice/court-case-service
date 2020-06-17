@@ -36,6 +36,7 @@ public class CourtCaseResponseMapperTest {
     private static final String DEFENDANT_NAME = "DEFENDANT_NAME";
     private static final String CRN = "CRN";
     private static final String PNC = "PNC";
+    private static final String CRO = "CRO";
     private static final String LIST_NO = "LIST_NO";
     private static final LocalDate DEFENDANT_DOB = LocalDate.of(1958, 2, 26);
     private static final String DEFENDANT_SEX = "DEFENDANT_SEX";
@@ -75,6 +76,7 @@ public class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getCrn()).isEqualTo(CRN);
         assertThat(courtCaseResponse.getSession()).isEqualTo(SESSION);
         assertThat(courtCaseResponse.getPnc()).isEqualTo(PNC);
+        assertThat(courtCaseResponse.getCro()).isEqualTo(CRO);
         assertThat(courtCaseResponse.getListNo()).isEqualTo(LIST_NO);
         assertThat(courtCaseResponse.getDefendantDob()).isEqualTo(DEFENDANT_DOB);
         assertThat(courtCaseResponse.getDefendantSex()).isEqualTo(DEFENDANT_SEX);
@@ -127,6 +129,7 @@ public class CourtCaseResponseMapperTest {
         CourtCaseEntity courtCase = CourtCaseEntity.builder()
             .id(ID)
             .pnc(PNC)
+            .cro(CRO)
             .previouslyKnownTerminationDate(PREVIOUSLY_KNOWN_TERMINATION_DATE)
             .suspendedSentenceOrder(SUSPENDED_SENTENCE_ORDER)
             .sessionStartTime(SESSION_START_TIME)

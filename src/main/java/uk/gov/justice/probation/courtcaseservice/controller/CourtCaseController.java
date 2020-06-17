@@ -84,7 +84,7 @@ public class CourtCaseController {
         List<CourtCaseResponse> courtCaseResponses = courtCases.stream()
                 .map(courtCaseResponseMapper::mapFrom)
                 .collect(Collectors.toList());
-        return new CaseListResponse(courtCaseResponses);
+        return CaseListResponse.builder().cases(courtCaseResponses).build();
     }
 
 

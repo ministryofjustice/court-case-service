@@ -25,6 +25,7 @@ public class CourtCaseResponse {
     private final String caseNo;
     private final String crn;
     private final String pnc;
+    private final String cro;
     private final String listNo;
     private final String courtCode;
     private final String courtRoom;

@@ -11,7 +11,6 @@ import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
@@ -99,6 +98,7 @@ public class CourtCaseService {
         existingCase.setDefendantDob(courtCaseEntity.getDefendantDob());
         existingCase.setDefendantSex(courtCaseEntity.getDefendantSex());
         existingCase.setCrn(courtCaseEntity.getCrn());
+        existingCase.setCro(courtCaseEntity.getCro());
         existingCase.setPnc(courtCaseEntity.getPnc());
         existingCase.setListNo(courtCaseEntity.getListNo());
         existingCase.setNationality1(courtCaseEntity.getNationality1());

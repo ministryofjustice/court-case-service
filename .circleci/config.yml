@@ -34,7 +34,7 @@ commands:
             VERSION=$(grep 'build.version=' BOOT-INF/classes/META-INF/build-info.properties | awk -F= '{print $2}')
             rm BOOT-INF/classes/META-INF/build-info.properties
             FULL_VERSION=${VERSION}.${CIRCLE_BRANCH}
-            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
+            if [[ "${CIRCLE_BRANCH}" == "main" ]]; then
               FULL_VERSION=${VERSION}
             fi
             echo "export APP_VERSION=$FULL_VERSION" >> $BASH_ENV
@@ -135,7 +135,7 @@ jobs:
   build_docker:
     executor: deployer
     parameters:
-      master:
+      main:
         type: boolean
         default: false
     steps:
@@ -161,10 +161,10 @@ jobs:
           project: '${CIRCLE_PROJECT_REPONAME}-docker/${CIRCLE_BRANCH}'
           docker-image-name: 'mojdigitalstudio/court-case-service:$APP_VERSION'
           target-file: 'Dockerfile'
-          monitor-on-build: << parameters.master >>
+          monitor-on-build: << parameters.main >>
           <<: *snyk_options
       - when:
-          condition: << parameters.master >>
+          condition: << parameters.main >>
           steps:
             - run:
                 name: Publish to docker hub
@@ -177,14 +177,14 @@ jobs:
   app_scan:
     executor: builder
     parameters:
-      master:
+      main:
         type: boolean
         default: false
     steps:
       - checkout
       - snyk/scan:
           project: '${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH}'
-          monitor-on-build: << parameters.master >>
+          monitor-on-build: << parameters.main >>
           <<: *snyk_options
 
   image_scan:
@@ -253,7 +253,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
     jobs:
       - build:
           filters:
@@ -263,20 +263,20 @@ workflows:
           requires:
             - build
       - app_scan:
-          master: true
+          main: true
       - image_scan
   build-test-and-deploy:
     jobs:
       - app_scan:
           filters:
             branches:
-              ignore: master
+              ignore: main
       - app_scan:
-          name: app_scan_master
+          name: app_scan_main
           filters:
             branches:
-              only: master
-          master: true
+              only: main
+          main: true
       - build:
           filters:
             tags:
@@ -290,22 +290,22 @@ workflows:
             - build
           filters:
             branches:
-              ignore: master
+              ignore: main
       - build_docker:
-          name: build_docker_master
+          name: build_docker_main
           requires:
             - build
           filters:
             branches:
-              only: master
-          master: true
+              only: main
+          main: true
       - deploy_dev:
           requires:
             - helm_lint_dev
-            - build_docker_master
+            - build_docker_main
           filters:
             branches:
-              only: master
+              only: main
       - request_preprod_approval:
           type: approval
           requires:

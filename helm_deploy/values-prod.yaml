@@ -23,6 +23,8 @@ env:
     base_url: https://placeholder
   nomis_oauth:
     base_url: https://placeholder
+  offender_assessments_api:
+    base_url: https://placeholder
 
 whitelist:
   office: "217.33.148.210/32"

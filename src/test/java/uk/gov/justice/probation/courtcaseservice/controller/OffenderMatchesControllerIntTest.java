@@ -13,6 +13,8 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.RetryService;
 import uk.gov.justice.probation.courtcaseservice.TestConfig;
@@ -22,14 +24,27 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
+import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 
 @RunWith(SpringRunner.class)
 @EnableRetry
 @ActiveProfiles(profiles = "test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
+@Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
+@Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class OffenderMatchesControllerIntTest {
 
+    public static final String BODY = "{\n" +
+            "    \"matchIdentifiers\": {\n" +
+            "        \"crn\": \"X346204\",\n" +
+            "        \"pnc\": \"pnc123\",\n" +
+            "        \"cro\": \"cro456\"\n" +
+            "    },\n" +
+            "    \"matchType\": \"NAME_DOB\",\n" +
+            "    \"confirmed\": \"true\"\n" +
+            "}";
     @LocalServerPort
     private int port;
 
@@ -55,15 +70,8 @@ public class OffenderMatchesControllerIntTest {
     public void givenCaseExists_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {
         String location = given()
                 .accept(APPLICATION_JSON_VALUE)
-                .body("{\n" +
-                        "    \"matchIdentifiers\": {\n" +
-                        "        \"crn\": \"X346204\",\n" +
-                        "        \"pnc\": \"pnc123\",\n" +
-                        "        \"cro\": \"cro456\"\n" +
-                        "    },\n" +
-                        "    \"matchType\": \"NAME_DOB\",\n" +
-                        "    \"confirmed\": \"true\"\n" +
-                        "}")
+                .contentType(APPLICATION_JSON_VALUE)
+                .body(BODY)
                 .when()
                 .post("/court/SHF/case/1234567891/offender-matches")
                 .then()
@@ -89,24 +97,28 @@ public class OffenderMatchesControllerIntTest {
     public void givenCourtDoesNotExist_whenPostMadeToOffenderMatches_thenReturnNotFound() {
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(APPLICATION_JSON_VALUE)
+                .body(BODY)
                 .when()
                 .post("/court/FOO/case/1234567890/offender-matches")
                 .then()
                 .statusCode(404)
-                    .body("userMessage", equalTo("Court with courtCode 'FOO' not found"))
-                    .body("developerMessage" , equalTo("Court with courtCode 'FOO' not found"));
+                    .body("userMessage", equalTo("Court FOO not found"))
+                    .body("developerMessage" , equalTo("Court FOO not found"));
     }
 
     @Test
     public void givenCaseDoesNotExist_whenPostMadeToOffenderMatches_thenReturnNotFound() {
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(APPLICATION_JSON_VALUE)
+                .body(BODY)
                 .when()
                 .post("/court/SHF/case/1234567890/offender-matches")
                 .then()
                 .statusCode(404)
-                    .body("userMessage", equalTo("Case with caseNo '1234567890', courtCode 'SHF' not found"))
-                    .body("developerMessage" , equalTo("Case with caseNo '1234567890', courtCode 'SHF' not found"));
+                    .body("userMessage", equalTo("Case 1234567890 not found for court SHF"))
+                    .body("developerMessage" , equalTo("Case 1234567890 not found for court SHF"));
     }
 
 }

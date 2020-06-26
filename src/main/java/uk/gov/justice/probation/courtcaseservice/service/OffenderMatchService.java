@@ -4,8 +4,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderMatchRepository;
+import uk.gov.justice.probation.courtcaseservice.service.mapper.OffenderMatchMapper;
 
 @Service
 @AllArgsConstructor
@@ -16,8 +17,13 @@ public class OffenderMatchService {
     @Autowired
     private OffenderMatchRepository offenderMatchRepository;
 
-    public OffenderMatchEntity createGroupedMatches(String courtCode, String caseNo, GroupedOffenderMatchesRequest offenderMatchRequest) {
-//        CourtCaseEntity courtCase = courtCaseService.getCaseByCaseNumber(courtCode, caseNo);
-        return null;
+    @Autowired
+    private OffenderMatchMapper mapper;
+
+    public GroupedOffenderMatchesEntity createGroupedMatches(String courtCode, String caseNo, GroupedOffenderMatchesRequest offenderMatches) {
+        var courtCase = courtCaseService.getCaseByCaseNumber(courtCode, caseNo);
+        GroupedOffenderMatchesEntity matchesEntity = mapper.entityOf(offenderMatches, courtCase);
+        offenderMatchRepository.save(matchesEntity);
+        return matchesEntity;
     }
 }

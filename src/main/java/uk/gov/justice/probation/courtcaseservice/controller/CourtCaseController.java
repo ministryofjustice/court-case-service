@@ -23,7 +23,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListRespon
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
@@ -116,7 +116,7 @@ public class CourtCaseController {
     ResponseEntity<Void> createGroupedOffenderMatches(@PathVariable(value = "courtCode") String courtCode,
                                        @PathVariable(value = "caseNo") String caseNo,
                                        @Valid @RequestBody GroupedOffenderMatchesRequest request) {
-        OffenderMatchEntity match = offenderMatchService.createGroupedMatches(courtCode, caseNo, request);
+        GroupedOffenderMatchesEntity match = offenderMatchService.createGroupedMatches(courtCode, caseNo, request);
          return ResponseEntity.created(URI.create(String.format("/court/%s/case/%s/grouped-offender-matches/%s", courtCode, caseNo, match.getId())))
                 .build();
     }

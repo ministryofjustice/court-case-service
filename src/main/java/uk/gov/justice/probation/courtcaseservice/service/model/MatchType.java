@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtcaseservice.controller.model;
+package uk.gov.justice.probation.courtcaseservice.service.model;
 
 public enum MatchType {
     NAME_DOB,
@@ -6,5 +6,5 @@ public enum MatchType {
     EXTERNAL_KEY,
     NAME,
     PARTIAL_NAME,
-    PARTIAL_NAME_DOB_LENIENT;
+    PARTIAL_NAME_DOB_LENIENT
 }

@@ -7,11 +7,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @ApiModel(description = "Offender Match")
@@ -22,15 +26,38 @@ import javax.persistence.Table;
 @Data
 @Table(name = "OFFENDER_MATCH")
 public class OffenderMatchEntity {
+
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private Long id;
 
-    @Column(name = "CASE_NO", nullable = false)
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumns({
+            @JoinColumn(name = "CASE_NO", referencedColumnName = "case_no", nullable = false),
+            @JoinColumn(name = "COURT_CODE", referencedColumnName = "court_code", nullable = false),
+    })
+    private CourtCaseEntity courtCaseEntity;
+
+    @Column(name = "CASE_NO", nullable = false, insertable = false, updatable = false)
     private String caseNo;
 
-    @Column(name = "COURT_CODE", nullable = false)
+    @Column(name = "COURT_CODE", nullable = false, insertable = false, updatable = false)
     private String courtCode;
+
+    @Column(name = "CRN", nullable = false)
+    private String crn;
+
+    @Column(name = "PNC")
+    private String pnc;
+
+    @Column(name = "CRO")
+    private String cro;
+
+    @Column(name = "MATCH_TYPE", nullable = false)
+    private String matchType;
+
+    @Column(name = "CONFIRMED", nullable = false)
+    private Boolean confirmed;
 }

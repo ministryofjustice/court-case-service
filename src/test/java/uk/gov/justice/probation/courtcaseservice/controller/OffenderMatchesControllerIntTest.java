@@ -36,14 +36,18 @@ import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class OffenderMatchesControllerIntTest {
 
-    public static final String BODY = "{\n" +
-            "    \"matchIdentifiers\": {\n" +
-            "        \"crn\": \"X346204\",\n" +
-            "        \"pnc\": \"pnc123\",\n" +
-            "        \"cro\": \"cro456\"\n" +
-            "    },\n" +
-            "    \"matchType\": \"NAME_DOB\",\n" +
-            "    \"confirmed\": \"true\"\n" +
+    public static final String SINGLE_EXACT_MATCH_BODY = "{\n" +
+            "    \"matches\": [\n" +
+            "        {\n" +
+            "                \"matchIdentifiers\": {\n" +
+            "                \"crn\": \"X346204\",\n" +
+            "                \"pnc\": \"pnc123\",\n" +
+            "                \"cro\": \"cro456\"\n" +
+            "            },\n" +
+            "            \"matchType\": \"NAME_DOB\",\n" +
+            "            \"confirmed\": \"true\"\n" +
+            "        }\n" +
+            "    ]\n" +
             "}";
     @LocalServerPort
     private int port;
@@ -71,12 +75,12 @@ public class OffenderMatchesControllerIntTest {
         String location = given()
                 .accept(APPLICATION_JSON_VALUE)
                 .contentType(APPLICATION_JSON_VALUE)
-                .body(BODY)
+                .body(SINGLE_EXACT_MATCH_BODY)
                 .when()
-                .post("/court/SHF/case/1234567891/offender-matches")
+                .post("/court/SHF/case/1600028913/grouped-offender-matches")
                 .then()
                 .statusCode(201)
-                .header("Location", matchesPattern("/court/SHF/case/1234567891/offender-matches/[0-9]*"))
+                .header("Location", matchesPattern("/court/SHF/case/1600028913/grouped-offender-matches/[0-9]*"))
                 .extract()
                 .header("Location");
 
@@ -98,9 +102,9 @@ public class OffenderMatchesControllerIntTest {
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(APPLICATION_JSON_VALUE)
-                .body(BODY)
+                .body(SINGLE_EXACT_MATCH_BODY)
                 .when()
-                .post("/court/FOO/case/1234567890/offender-matches")
+                .post("/court/FOO/case/1234567890/grouped-offender-matches")
                 .then()
                 .statusCode(404)
                     .body("userMessage", equalTo("Court FOO not found"))
@@ -112,13 +116,12 @@ public class OffenderMatchesControllerIntTest {
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(APPLICATION_JSON_VALUE)
-                .body(BODY)
+                .body(SINGLE_EXACT_MATCH_BODY)
                 .when()
-                .post("/court/SHF/case/1234567890/offender-matches")
+                .post("/court/SHF/case/1234567890/grouped-offender-matches")
                 .then()
                 .statusCode(404)
                     .body("userMessage", equalTo("Case 1234567890 not found for court SHF"))
                     .body("developerMessage" , equalTo("Case 1234567890 not found for court SHF"));
     }
-
 }

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchRequest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
@@ -110,14 +110,14 @@ public class CourtCaseController {
                     @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
                     @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
             })
-    @PostMapping(value = "/court/{courtCode}/case/{caseNo}/offender-matches", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/court/{courtCode}/case/{caseNo}/grouped-offender-matches", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    ResponseEntity<Void> createOffenderMatch(@PathVariable(value = "courtCode") String courtCode,
+    ResponseEntity<Void> createGroupedOffenderMatches(@PathVariable(value = "courtCode") String courtCode,
                                        @PathVariable(value = "caseNo") String caseNo,
-                                       @Valid @RequestBody OffenderMatchRequest offenderMatchRequest) {
-        OffenderMatchEntity match = offenderMatchService.createMatch(courtCode, caseNo, offenderMatchRequest);
-        return ResponseEntity.created(URI.create(String.format("/court/%s/case/%s/offender-matches/%s", courtCode, caseNo, match.getId())))
+                                       @Valid @RequestBody GroupedOffenderMatchesRequest request) {
+        OffenderMatchEntity match = offenderMatchService.createGroupedMatches(courtCode, caseNo, request);
+         return ResponseEntity.created(URI.create(String.format("/court/%s/case/%s/grouped-offender-matches/%s", courtCode, caseNo, match.getId())))
                 .build();
     }
 }

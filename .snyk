@@ -22,5 +22,9 @@ ignore:
           Not production and no use of PCRE (Perl Compatible Regular
           Expressions)
         expires: 2020-07-07T00:00:00.000Z
+  SNYK-DEBIAN10-PERL-570797:
+    - '*':
+        reason: Not production and no use of Perl
+        expires: 2020-07-25T12:29:18.476Z
 patch: {}
 version: v1.13.5

@@ -14,6 +14,9 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
@@ -35,4 +38,18 @@ public class GroupedOffenderMatchesEntity  implements Serializable {
 
     @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.ALL }, orphanRemoval=true)
     private List<OffenderMatchEntity> offenderMatches;
+
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumns({
+            @JoinColumn(name = "CASE_NO", referencedColumnName = "case_no", nullable = false),
+            @JoinColumn(name = "COURT_CODE", referencedColumnName = "court_code", nullable = false),
+    })
+    @JsonIgnore
+    private CourtCaseEntity courtCaseEntity;
+
+    @Column(name = "CASE_NO", nullable = false, insertable = false, updatable = false)
+    private String caseNo;
+
+    @Column(name = "COURT_CODE", nullable = false, insertable = false, updatable = false)
+    private String courtCode;
 }

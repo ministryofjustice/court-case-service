@@ -27,6 +27,9 @@ public class OffenderMatchMapper {
                                     .build()
                         ).collect(Collectors.toList())
                 )
+                .courtCaseEntity(courtCase)
+                .courtCode(courtCase.getCourtCode())
+                .caseNo(courtCase.getCaseNo())
                 .build();
     }
 }

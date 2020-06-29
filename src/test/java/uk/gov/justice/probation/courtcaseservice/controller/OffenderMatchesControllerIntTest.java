@@ -91,6 +91,8 @@ public class OffenderMatchesControllerIntTest {
                 .get(location)
                 .then()
                 .statusCode(200)
+                .body("courtCode", equalTo("SHF"))
+                .body("caseNo", equalTo("1600028913"))
                 .body("offenderMatches[0].crn", equalTo("X346204"))
                 .body("offenderMatches[0].pnc", equalTo("pnc123"))
                 .body("offenderMatches[0].cro", equalTo("cro456"))

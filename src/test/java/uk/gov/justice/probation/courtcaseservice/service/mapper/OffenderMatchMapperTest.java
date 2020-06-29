@@ -44,15 +44,18 @@ class OffenderMatchMapperTest {
 
         assertThat(matchesEntity.getOffenderMatches()).hasSize(2);
         assertThat(matchesEntity.getId()).isNull();
+        assertThat(matchesEntity.getCourtCaseEntity()).isEqualTo(courtCaseEntity);
+        assertThat(matchesEntity.getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(matchesEntity.getCaseNo()).isEqualTo(CASE_NO);
 
         OffenderMatchEntity first = matchesEntity.getOffenderMatches().get(0);
+        assertThat(first.getCourtCaseEntity()).isEqualTo(courtCaseEntity);
         assertThat(first.getCaseNo()).isEqualTo(CASE_NO);
         assertThat(first.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(first.getConfirmed()).isEqualTo(false);
         assertThat(first.getCrn()).isEqualTo("CRN1");
         assertThat(first.getPnc()).isEqualTo("PNC1");
         assertThat(first.getCro()).isEqualTo("CRO1");
-        assertThat(first.getCourtCaseEntity()).isEqualTo(courtCaseEntity);
         assertThat(first.getMatchType()).isEqualTo(MatchType.NAME.toString());
 
         OffenderMatchEntity second = matchesEntity.getOffenderMatches().get(1);

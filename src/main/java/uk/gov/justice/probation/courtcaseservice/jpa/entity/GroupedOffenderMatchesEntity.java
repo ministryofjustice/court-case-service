@@ -44,12 +44,5 @@ public class GroupedOffenderMatchesEntity  implements Serializable {
             @JoinColumn(name = "CASE_NO", referencedColumnName = "case_no", nullable = false),
             @JoinColumn(name = "COURT_CODE", referencedColumnName = "court_code", nullable = false),
     })
-    @JsonIgnore
-    private CourtCaseEntity courtCaseEntity;
-
-    @Column(name = "CASE_NO", nullable = false, insertable = false, updatable = false)
-    private String caseNo;
-
-    @Column(name = "COURT_CODE", nullable = false, insertable = false, updatable = false)
-    private String courtCode;
+    private CourtCaseEntity courtCase;
 }

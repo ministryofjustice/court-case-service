@@ -6,17 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import uk.gov.justice.probation.courtcaseservice.service.model.MatchType;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @ApiModel(description = "Offender Match")
@@ -34,20 +32,6 @@ public class OffenderMatchEntity {
     @JsonIgnore
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumns({
-            @JoinColumn(name = "CASE_NO", referencedColumnName = "case_no", nullable = false),
-            @JoinColumn(name = "COURT_CODE", referencedColumnName = "court_code", nullable = false),
-    })
-    @JsonIgnore
-    private CourtCaseEntity courtCaseEntity;
-
-    @Column(name = "CASE_NO", nullable = false, insertable = false, updatable = false)
-    private String caseNo;
-
-    @Column(name = "COURT_CODE", nullable = false, insertable = false, updatable = false)
-    private String courtCode;
-
     @Column(name = "CRN", nullable = false)
     private String crn;
 
@@ -58,7 +42,8 @@ public class OffenderMatchEntity {
     private String cro;
 
     @Column(name = "MATCH_TYPE", nullable = false)
-    private String matchType;
+    @Enumerated(EnumType.STRING)
+    private MatchType matchType;
 
     @Column(name = "CONFIRMED", nullable = false)
     private Boolean confirmed;

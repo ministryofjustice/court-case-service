@@ -31,7 +31,7 @@ public class OffenderMatchService {
     public Mono<GroupedOffenderMatchesEntity> getGroupedMatches(String courtCode, String caseNo, Long groupId) {
         return Mono.justOrEmpty(offenderMatchRepository.findById(groupId))
                 .map(e -> {
-                    if (!caseNo.equals(e.getCaseNo()) || !courtCode.equals(e.getCourtCode())) {
+                    if (!caseNo.equals(e.getCourtCase().getCaseNo()) || !courtCode.equals(e.getCourtCase().getCourtCode())) {
                         throw new EntityNotFoundException(String.format("Grouped Matches %s not found for court %s and caseNo %s", groupId, courtCode, caseNo));
                     }
                     return e;

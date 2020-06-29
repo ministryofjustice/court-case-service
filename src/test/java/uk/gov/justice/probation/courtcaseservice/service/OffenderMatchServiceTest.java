@@ -57,8 +57,9 @@ class OffenderMatchServiceTest {
 
     @Test
     public void givenValidRequest_whenGetGroupedMatches_thenReturnValidMatch() {
-        when(groupedOffenderMatchesEntity.getCourtCode()).thenReturn(COURT_CODE);
-        when(groupedOffenderMatchesEntity.getCaseNo()).thenReturn(CASE_NO);
+        when(groupedOffenderMatchesEntity.getCourtCase()).thenReturn(courtCaseEntity);
+        when(courtCaseEntity.getCourtCode()).thenReturn(COURT_CODE);
+        when(courtCaseEntity.getCaseNo()).thenReturn(CASE_NO);
         when(offenderMatchRepository.findById(ID)).thenReturn(Optional.of(groupedOffenderMatchesEntity));
 
         Optional<GroupedOffenderMatchesEntity> entity = service.getGroupedMatches(COURT_CODE, CASE_NO, ID).blockOptional();
@@ -68,8 +69,9 @@ class OffenderMatchServiceTest {
 
     @Test
     public void givenCourtCodeDoesNotMatch_whenGetGroupedMatches_thenThrowEntityNotFound() {
-        when(groupedOffenderMatchesEntity.getCourtCode()).thenReturn(COURT_CODE);
-        when(groupedOffenderMatchesEntity.getCaseNo()).thenReturn(CASE_NO);
+        when(groupedOffenderMatchesEntity.getCourtCase()).thenReturn(courtCaseEntity);
+        when(courtCaseEntity.getCourtCode()).thenReturn(COURT_CODE);
+        when(courtCaseEntity.getCaseNo()).thenReturn(CASE_NO);
         when(offenderMatchRepository.findById(ID)).thenReturn(Optional.of(groupedOffenderMatchesEntity));
 
         assertThatExceptionOfType(EntityNotFoundException.class)
@@ -78,7 +80,8 @@ class OffenderMatchServiceTest {
 
     @Test
     public void givenCaseNoDoesNotMatch_whenGetGroupedMatches_thenThrowEntityNotFound() {
-        when(groupedOffenderMatchesEntity.getCaseNo()).thenReturn(CASE_NO);
+        when(groupedOffenderMatchesEntity.getCourtCase()).thenReturn(courtCaseEntity);
+        when(courtCaseEntity.getCaseNo()).thenReturn(CASE_NO);
         when(offenderMatchRepository.findById(ID)).thenReturn(Optional.of(groupedOffenderMatchesEntity));
 
         assertThatExceptionOfType(EntityNotFoundException.class)

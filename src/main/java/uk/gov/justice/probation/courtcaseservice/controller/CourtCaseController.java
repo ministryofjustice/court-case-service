@@ -8,10 +8,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,14 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
-import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,7 +36,6 @@ public class CourtCaseController {
 
     private final CourtCaseService courtCaseService;
     private final CourtCaseResponseMapper courtCaseResponseMapper;
-    private final OffenderMatchService offenderMatchService;
 
     @ApiOperation(value = "Gets the court case data by case number.")
     @ApiResponses(
@@ -99,25 +92,5 @@ public class CourtCaseController {
                 .map(courtCaseResponseMapper::mapFrom)
                 .collect(Collectors.toList());
         return CaseListResponse.builder().cases(courtCaseResponses).build();
-    }
-
-    @ApiOperation(value = "Creates a new offender-match entity associated with a case")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-                    @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
-                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-            })
-    @PostMapping(value = "/court/{courtCode}/case/{caseNo}/grouped-offender-matches", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
-    public @ResponseBody
-    ResponseEntity<Void> createGroupedOffenderMatches(@PathVariable(value = "courtCode") String courtCode,
-                                       @PathVariable(value = "caseNo") String caseNo,
-                                       @Valid @RequestBody GroupedOffenderMatchesRequest request) {
-        GroupedOffenderMatchesEntity match = offenderMatchService.createGroupedMatches(courtCode, caseNo, request);
-         return ResponseEntity.created(URI.create(String.format("/court/%s/case/%s/grouped-offender-matches/%s", courtCode, caseNo, match.getId())))
-                .build();
     }
 }

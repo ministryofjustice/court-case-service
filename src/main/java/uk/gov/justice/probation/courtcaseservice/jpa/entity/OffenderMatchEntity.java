@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -33,11 +34,12 @@ public class OffenderMatchEntity {
     @JsonIgnore
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumns({
             @JoinColumn(name = "CASE_NO", referencedColumnName = "case_no", nullable = false),
             @JoinColumn(name = "COURT_CODE", referencedColumnName = "court_code", nullable = false),
     })
+    @JsonIgnore
     private CourtCaseEntity courtCaseEntity;
 
     @Column(name = "CASE_NO", nullable = false, insertable = false, updatable = false)

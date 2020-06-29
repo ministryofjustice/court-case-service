@@ -80,21 +80,22 @@ public class OffenderMatchesControllerIntTest {
                 .post("/court/SHF/case/1600028913/grouped-offender-matches")
                 .then()
                 .statusCode(201)
-                .header("Location", matchesPattern("/court/SHF/case/1600028913/grouped-offender-matches/[0-9]*"))
+                .header("Location", matchesPattern("/court/SHF/case/1600028913/grouped-offender-matches/[0-9]+"))
                 .extract()
                 .header("Location");
 
         given()
                 .accept(APPLICATION_JSON_VALUE)
+                .contentType(APPLICATION_JSON_VALUE)
                 .when()
                 .get(location)
                 .then()
                 .statusCode(200)
-                .body("matchIdentifiers.crn", equalTo("X346204"))
-                .body("matchIdentifiers.pnc", equalTo("pnc123"))
-                .body("matchIdentifiers.cro", equalTo("cro456"))
-                .body("matchType",  equalTo("NAME_DOB"))
-                .body("confirmed", equalTo("true"));
+                .body("offenderMatches[0].crn", equalTo("X346204"))
+                .body("offenderMatches[0].pnc", equalTo("pnc123"))
+                .body("offenderMatches[0].cro", equalTo("cro456"))
+                .body("offenderMatches[0].matchType",  equalTo("NAME_DOB"))
+                .body("offenderMatches[0].confirmed", equalTo(true));
     }
 
     @Test

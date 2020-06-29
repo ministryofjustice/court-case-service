@@ -7,6 +7,7 @@ import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderMatchRepository;
+import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.OffenderMatchMapper;
 
 @Service
@@ -29,6 +30,12 @@ public class OffenderMatchService {
     }
 
     public Mono<GroupedOffenderMatchesEntity> getGroupedMatches(String courtCode, String caseNo, Long groupId) {
-        return Mono.justOrEmpty(offenderMatchRepository.findById(groupId));
+        return Mono.justOrEmpty(offenderMatchRepository.findById(groupId))
+                .map(e -> {
+                    if (!caseNo.equals(e.getCaseNo()) || !courtCode.equals(e.getCourtCode())) {
+                        throw new EntityNotFoundException(String.format("Grouped Matches %s not found for court %s and caseNo %s", groupId, courtCode, caseNo));
+                    }
+                    return e;
+                });
     }
 }

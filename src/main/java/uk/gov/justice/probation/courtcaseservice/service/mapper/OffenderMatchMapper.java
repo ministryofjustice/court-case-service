@@ -17,8 +17,10 @@ public class OffenderMatchMapper {
                         .map(offenderMatchRequest ->
                             OffenderMatchEntity.builder()
                                     .courtCaseEntity(courtCase)
+                                    .caseNo(courtCase.getCaseNo())
+                                    .courtCode(courtCase.getCourtCode())
                                     .confirmed(offenderMatchRequest.getConfirmed())
-                                    .matchType(offenderMatchRequest.getMatchType().name())
+                                    .matchType(offenderMatchRequest.getMatchType().toString())
                                     .crn(offenderMatchRequest.getMatchIdentifiers().getCrn())
                                     .pnc(offenderMatchRequest.getMatchIdentifiers().getPnc())
                                     .cro(offenderMatchRequest.getMatchIdentifiers().getCro())

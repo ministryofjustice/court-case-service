@@ -49,9 +49,10 @@ class OffenderMatchServiceTest {
         when(courtCaseService.getCaseByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(courtCaseEntity);
         when(offenderMatchRepository.save(any(GroupedOffenderMatchesEntity.class))).thenReturn(groupedOffenderMatchesEntity);
         when(mapper.entityOf(groupedOffenderMatchesRequest, courtCaseEntity)).thenReturn(groupedOffenderMatchesEntity);
-        GroupedOffenderMatchesEntity match = service.createGroupedMatches(COURT_CODE, CASE_NO, groupedOffenderMatchesRequest);
+        Optional<GroupedOffenderMatchesEntity> match = service.createGroupedMatches(COURT_CODE, CASE_NO, groupedOffenderMatchesRequest).blockOptional();
 
-        assertThat(match).isEqualTo(groupedOffenderMatchesEntity);
+        assertThat(match).isPresent();
+        assertThat(match.get()).isEqualTo(groupedOffenderMatchesEntity);
     }
 
     @Test

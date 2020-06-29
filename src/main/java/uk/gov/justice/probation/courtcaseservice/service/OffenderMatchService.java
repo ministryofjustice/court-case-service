@@ -22,11 +22,10 @@ public class OffenderMatchService {
     @Autowired
     private OffenderMatchMapper mapper;
 
-    public GroupedOffenderMatchesEntity createGroupedMatches(String courtCode, String caseNo, GroupedOffenderMatchesRequest offenderMatches) {
-        var courtCase = courtCaseService.getCaseByCaseNumber(courtCode, caseNo);
-        GroupedOffenderMatchesEntity matchesEntity = mapper.entityOf(offenderMatches, courtCase);
-        offenderMatchRepository.save(matchesEntity);
-        return matchesEntity;
+    public Mono<GroupedOffenderMatchesEntity> createGroupedMatches(String courtCode, String caseNo, GroupedOffenderMatchesRequest offenderMatches) {
+        return Mono.just(courtCaseService.getCaseByCaseNumber(courtCode, caseNo))
+                .map(courtCase -> mapper.entityOf(offenderMatches, courtCase))
+                .map(matchesEntity -> offenderMatchRepository.save(matchesEntity));
     }
 
     public Mono<GroupedOffenderMatchesEntity> getGroupedMatches(String courtCode, String caseNo, Long groupId) {

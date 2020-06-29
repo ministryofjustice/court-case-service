@@ -42,12 +42,12 @@ public class OffenderMatchesController {
     @PostMapping(value = "/court/{courtCode}/case/{caseNo}/grouped-offender-matches", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    ResponseEntity<Void> createGroupedOffenderMatches(@PathVariable(value = "courtCode") String courtCode,
+    Mono<ResponseEntity<Object>> createGroupedOffenderMatches(@PathVariable(value = "courtCode") String courtCode,
                                        @PathVariable(value = "caseNo") String caseNo,
                                        @Valid @RequestBody GroupedOffenderMatchesRequest request) {
-        GroupedOffenderMatchesEntity match = offenderMatchService.createGroupedMatches(courtCode, caseNo, request);
-         return ResponseEntity.created(URI.create(String.format("/court/%s/case/%s/grouped-offender-matches/%s", courtCode, caseNo, match.getId())))
-                .build();
+        return offenderMatchService.createGroupedMatches(courtCode, caseNo, request)
+            .map(match -> ResponseEntity.created(URI.create(String.format("/court/%s/case/%s/grouped-offender-matches/%s", courtCode, caseNo, match.getId())))
+                    .build());
     }
 
     @ApiOperation(value = "Creates a new offender-match entity associated with a case")

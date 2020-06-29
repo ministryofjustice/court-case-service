@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.service.model.MatchType;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @AllArgsConstructor
@@ -15,6 +16,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class OffenderMatchRequest {
     @NotNull
+    @Valid
     private final MatchIdentifiers matchIdentifiers;
     @NotNull
     private final MatchType matchType;

@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -18,5 +19,6 @@ import java.util.List;
 public class GroupedOffenderMatchesRequest {
     @NotNull
     @JsonProperty("matches")
+    @Valid
     private final List<OffenderMatchRequest> matches;
 }

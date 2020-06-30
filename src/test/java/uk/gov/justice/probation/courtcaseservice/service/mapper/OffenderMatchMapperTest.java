@@ -5,8 +5,6 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffende
 import uk.gov.justice.probation.courtcaseservice.controller.model.MatchIdentifiers;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.service.model.MatchType;
 
 import java.util.Arrays;
@@ -22,13 +20,13 @@ class OffenderMatchMapperTest {
 
     @Test
     public void givenMultipleMatches_thenMapAllFields() {
-        OffenderMatchMapper offenderMatchMapper = new OffenderMatchMapper();
-        CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder()
+        var offenderMatchMapper = new OffenderMatchMapper();
+        var courtCaseEntity = CourtCaseEntity.builder()
                 .id(CASE_ID)
                 .caseNo(CASE_NO)
                 .courtCode(COURT_CODE)
                 .build();
-        GroupedOffenderMatchesRequest groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
+        var groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
                 .matches(Arrays.asList(OffenderMatchRequest.builder()
                             .matchType(MatchType.NAME)
                             .confirmed(false)
@@ -40,20 +38,22 @@ class OffenderMatchMapperTest {
                                 .matchIdentifiers(new MatchIdentifiers("CRN2", "PNC2", "CRO2"))
                                 .build()))
                 .build();
-        GroupedOffenderMatchesEntity matchesEntity = offenderMatchMapper.entityOf(groupedOffenderMatchesRequest, courtCaseEntity);
+        var matchesEntity = offenderMatchMapper.groupedMatchesOf(groupedOffenderMatchesRequest, courtCaseEntity);
 
         assertThat(matchesEntity.getOffenderMatches()).hasSize(2);
         assertThat(matchesEntity.getId()).isNull();
         assertThat(matchesEntity.getCourtCase()).isEqualTo(courtCaseEntity);
 
-        OffenderMatchEntity first = matchesEntity.getOffenderMatches().get(0);
+        var first = matchesEntity.getOffenderMatches().get(0);
+        assertThat(first.getGroup()).isEqualTo(matchesEntity);
         assertThat(first.getConfirmed()).isEqualTo(false);
         assertThat(first.getCrn()).isEqualTo("CRN1");
         assertThat(first.getPnc()).isEqualTo("PNC1");
         assertThat(first.getCro()).isEqualTo("CRO1");
         assertThat(first.getMatchType()).isEqualTo(MatchType.NAME);
 
-        OffenderMatchEntity second = matchesEntity.getOffenderMatches().get(1);
+        var second = matchesEntity.getOffenderMatches().get(1);
+        assertThat(second.getGroup()).isEqualTo(matchesEntity);
         assertThat(second.getConfirmed()).isEqualTo(false);
         assertThat(second.getCrn()).isEqualTo("CRN2");
         assertThat(second.getPnc()).isEqualTo("PNC2");
@@ -63,14 +63,14 @@ class OffenderMatchMapperTest {
 
     @Test
     public void givenZeroMatches_thenMapAllFields() {
-        OffenderMatchMapper offenderMatchMapper = new OffenderMatchMapper();
-        CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder()
+        var offenderMatchMapper = new OffenderMatchMapper();
+        var courtCaseEntity = CourtCaseEntity.builder()
                 .id(CASE_ID)
                 .build();
-        GroupedOffenderMatchesRequest groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
+        var groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
                 .matches(Collections.emptyList())
                 .build();
-        GroupedOffenderMatchesEntity matchesEntity = offenderMatchMapper.entityOf(groupedOffenderMatchesRequest, courtCaseEntity);
+        var matchesEntity = offenderMatchMapper.groupedMatchesOf(groupedOffenderMatchesRequest, courtCaseEntity);
 
         assertThat(matchesEntity.getOffenderMatches()).isEmpty();
         assertThat(matchesEntity.getId()).isNull();

@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 
 @Repository
-public interface OffenderMatchRepository extends JpaRepository<GroupedOffenderMatchesEntity, Long> {
+public interface GroupedOffenderMatchRepository extends JpaRepository<GroupedOffenderMatchesEntity, Long> {
 }

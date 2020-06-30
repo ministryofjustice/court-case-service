@@ -36,7 +36,8 @@ public class GroupedOffenderMatchesEntity  implements Serializable {
     @JsonIgnore
     private Long id;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.ALL }, orphanRemoval=true)
+
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER, cascade = { CascadeType.ALL }, orphanRemoval=true)
     private List<OffenderMatchEntity> offenderMatches;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

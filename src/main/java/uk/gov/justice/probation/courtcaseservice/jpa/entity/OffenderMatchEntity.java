@@ -15,6 +15,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @ApiModel(description = "Offender Match")
@@ -47,4 +49,9 @@ public class OffenderMatchEntity {
 
     @Column(name = "CONFIRMED", nullable = false)
     private Boolean confirmed;
+
+    @JoinColumn(name = "GROUP_ID", referencedColumnName = "ID", nullable = false)
+    @ManyToOne(optional = false)
+    @JsonIgnore
+    private GroupedOffenderMatchesEntity group;
 }

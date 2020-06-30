@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderMatchRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.OffenderMatchMapper;
 
@@ -28,7 +28,7 @@ class OffenderMatchServiceTest {
     @Mock
     private CourtCaseService courtCaseService;
     @Mock
-    private OffenderMatchRepository offenderMatchRepository;
+    private GroupedOffenderMatchRepository offenderMatchRepository;
     @Mock
     private CourtCaseEntity courtCaseEntity;
     @Mock
@@ -48,7 +48,7 @@ class OffenderMatchServiceTest {
     public void givenValidRequest_whenCreateGroupedMatchesCalled_thenCreateAndReturnMatch() {
         when(courtCaseService.getCaseByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(courtCaseEntity);
         when(offenderMatchRepository.save(any(GroupedOffenderMatchesEntity.class))).thenReturn(groupedOffenderMatchesEntity);
-        when(mapper.entityOf(groupedOffenderMatchesRequest, courtCaseEntity)).thenReturn(groupedOffenderMatchesEntity);
+        when(mapper.groupedMatchesOf(groupedOffenderMatchesRequest, courtCaseEntity)).thenReturn(groupedOffenderMatchesEntity);
         Optional<GroupedOffenderMatchesEntity> match = service.createGroupedMatches(COURT_CODE, CASE_NO, groupedOffenderMatchesRequest).blockOptional();
 
         assertThat(match).isPresent();

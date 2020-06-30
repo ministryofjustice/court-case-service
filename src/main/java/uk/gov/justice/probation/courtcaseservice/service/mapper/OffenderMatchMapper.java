@@ -10,21 +10,24 @@ import java.util.stream.Collectors;
 
 @Component
 public class OffenderMatchMapper {
-    public GroupedOffenderMatchesEntity entityOf(GroupedOffenderMatchesRequest offenderMatches, CourtCaseEntity courtCase) {
-        return GroupedOffenderMatchesEntity.builder()
-                .offenderMatches(offenderMatches.getMatches()
-                        .stream()
-                        .map(offenderMatchRequest ->
-                            OffenderMatchEntity.builder()
-                                    .confirmed(offenderMatchRequest.getConfirmed())
-                                    .matchType(offenderMatchRequest.getMatchType())
-                                    .crn(offenderMatchRequest.getMatchIdentifiers().getCrn())
-                                    .pnc(offenderMatchRequest.getMatchIdentifiers().getPnc())
-                                    .cro(offenderMatchRequest.getMatchIdentifiers().getCro())
-                                    .build()
-                        ).collect(Collectors.toList())
-                )
+    public GroupedOffenderMatchesEntity groupedMatchesOf(GroupedOffenderMatchesRequest offenderMatches, CourtCaseEntity courtCase) {
+        var group = GroupedOffenderMatchesEntity.builder()
                 .courtCase(courtCase)
                 .build();
+
+        var matches = offenderMatches.getMatches().stream()
+                .map(
+                        offenderMatchRequest ->
+                                        OffenderMatchEntity.builder()
+                                                .group(group)
+                                                .confirmed(offenderMatchRequest.getConfirmed())
+                                                .matchType(offenderMatchRequest.getMatchType())
+                                                .crn(offenderMatchRequest.getMatchIdentifiers().getCrn())
+                                                .pnc(offenderMatchRequest.getMatchIdentifiers().getPnc())
+                                                .cro(offenderMatchRequest.getMatchIdentifiers().getCro())
+                                                .build()
+                ).collect(Collectors.toList());
+        group.setOffenderMatches(matches);
+        return group;
     }
 }

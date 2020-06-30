@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderMatchRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.OffenderMatchMapper;
 
@@ -17,14 +17,14 @@ public class OffenderMatchService {
     private CourtCaseService courtCaseService;
 
     @Autowired
-    private OffenderMatchRepository offenderMatchRepository;
+    private GroupedOffenderMatchRepository offenderMatchRepository;
 
     @Autowired
     private OffenderMatchMapper mapper;
 
     public Mono<GroupedOffenderMatchesEntity> createGroupedMatches(String courtCode, String caseNo, GroupedOffenderMatchesRequest offenderMatches) {
         return Mono.just(courtCaseService.getCaseByCaseNumber(courtCode, caseNo))
-                .map(courtCase -> mapper.entityOf(offenderMatches, courtCase))
+                .map(courtCase -> mapper.groupedMatchesOf(offenderMatches, courtCase))
                 .map(matchesEntity -> offenderMatchRepository.save(matchesEntity));
     }
 

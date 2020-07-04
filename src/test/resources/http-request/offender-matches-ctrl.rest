@@ -1,0 +1,108 @@
+# Create multiple group matches successfully
+POST http://{{host}}/court/{{courtCode}}/case/{{caseNo}}/grouped-offender-matches
+Content-Type: application/json
+
+{
+  "matches": [
+    {
+      "matchIdentifiers": {
+        "crn": "X346204",
+        "pnc": "pnc123",
+        "cro": "cro456"
+      },
+      "matchType": "NAME_DOB",
+      "confirmed": "false"
+    },
+    {
+      "matchIdentifiers": {
+        "crn": "X367999",
+        "pnc": "pnc456",
+        "cro": "cro123"
+      },
+      "matchType": "NAME_DOB",
+      "confirmed": "false"
+    }
+  ]
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 201, "Response status is not 201");
+    });
+
+    client.test("Response content-type is json", function() {
+        var type = response.headers.valueOf("Location");
+        client.assert(type.startsWith("/court/SHF/case/"),
+        "Expected 'Location header' but received '" + type + "'");
+    });
+%}
+
+### Create matches but with unknown court - gives 404
+POST http://{{host}}/court/XXX/case/{{caseNo}}/grouped-offender-matches
+Content-Type: application/json
+
+{
+  "matches": [
+    {
+      "matchIdentifiers": {
+        "crn": "X346204",
+        "pnc": "pnc123",
+        "cro": "cro456"
+      },
+      "matchType": "NAME_DOB",
+      "confirmed": "true"
+    }
+  ]
+}
+
+> {%
+    client.test("Request executed with 404 for unknown court", function() {
+        client.assert(response.status === 404, "Response status is not 404 for unknown court");
+    });
+%}
+
+### Create matches but with unknown case - gives 404
+POST http://{{host}}/court/{{courtCode}}/case/999999/grouped-offender-matches
+Content-Type: application/json
+
+{
+  "matches": [
+    {
+      "matchIdentifiers": {
+        "crn": "X346204",
+        "pnc": "pnc123",
+        "cro": "cro456"
+      },
+      "matchType": "NAME_DOB",
+      "confirmed": "true"
+    }
+  ]
+}
+
+> {%
+    client.test("Request executed with 404 for unknown case", function() {
+        client.assert(response.status === 404, "Response status is not 404 for unknown court");
+    });
+%}
+
+### Create matches but with missing mandatory CRN entry
+POST http://{{host}}/court/{{courtCode}}/case/{{caseNo}}/grouped-offender-matches
+Content-Type: application/json
+
+{
+  "matches": [
+    {
+      "matchIdentifiers": {
+        "pnc": "pnc123",
+      },
+      "matchType": "NAME_DOB",
+      "confirmed": "true"
+    }
+  ]
+}
+
+> {%
+    client.test("Request executed with 400 for invalid request body", function() {
+        client.assert(response.status === 400, "Response status is not 400 (Bad request) for missing CRN");
+    });
+%}

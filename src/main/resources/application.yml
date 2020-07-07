@@ -58,6 +58,15 @@ spring:
           lob:
             non_contextual_creation: true
 
+# Uncomment the following lines to generate create.sql on build
+#      javax:
+#        persistence:
+#          schema-generation:
+#            scripts:
+#              create-target: create.sql
+#              action: create
+#              create-source: metadata
+
 community-api:
   offender-by-crn-url-template: /secure/offenders/crn/%s/all
   convictions-by-crn-url-template: /secure/offenders/crn/%s/convictions

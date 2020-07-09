@@ -18,23 +18,24 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.PreRemove;
 import javax.persistence.Table;
-import javax.persistence.Version;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
 
 @Entity
 @Table(name = "OFFENCE")
 @AllArgsConstructor
-@Builder
+@SuperBuilder
+@SQLDelete(sql = "UPDATE OFFENCE SET deleted = true WHERE ID = ? AND version = ?")
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString(exclude = "courtCase")
-public class OffenceEntity implements Serializable  {
+public class OffenceEntity extends BaseEntity implements Serializable  {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -64,9 +65,6 @@ public class OffenceEntity implements Serializable  {
     @Column(name = "SEQUENCE_NUMBER", nullable = false)
     @JsonProperty
     private Integer sequenceNumber;
-
-    @Version
-    private int version;
 
     @PreRemove
     public void preRemove() {

@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiModel;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.CascadeType;
@@ -19,11 +18,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Version;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -31,20 +32,20 @@ import org.hibernate.annotations.TypeDef;
 @Entity
 @AllArgsConstructor
 @RequiredArgsConstructor
-@Builder
-@Data
+@SQLDelete(sql = "UPDATE COURT_CASE SET deleted = true WHERE ID = ? AND VERSION = ?")
+@SuperBuilder
+@ToString
+@Getter
+@Setter
 @Table(name = "COURT_CASE")
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
-public class CourtCaseEntity implements Serializable {
+public class CourtCaseEntity extends BaseEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private Long id;
-
-    @Column(name = "LAST_UPDATED", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime lastUpdated;
 
     @Column(name = "CASE_ID", nullable = false)
     private String caseId;
@@ -75,7 +76,7 @@ public class CourtCaseEntity implements Serializable {
 
     @JsonManagedReference
     @OneToMany(mappedBy = "courtCase", fetch = FetchType.EAGER, cascade = { CascadeType.ALL }, orphanRemoval=true)
-    private List<OffenceEntity> offences = new ArrayList<>();
+    private List<OffenceEntity> offences;
 
     @Column(name = "DEFENDANT_NAME")
     private String defendantName;
@@ -107,9 +108,6 @@ public class CourtCaseEntity implements Serializable {
 
     @Column(name = "NATIONALITY_2")
     private String nationality2;
-
-    @Version
-    private int version;
 
     public CourtSession getSession() {
         return CourtSession.from(sessionStartTime);

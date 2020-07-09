@@ -41,8 +41,7 @@ public class CourtCaseService {
     }
 
     private CourtCaseEntity createCase(CourtCaseEntity courtCaseEntity) {
-        log.info("Court case created for case number {}", courtCaseEntity.getCaseNo());
-        courtCaseEntity.setLastUpdated(LocalDateTime.now());
+        log.info("Court case being created for case number {}", courtCaseEntity.getCaseNo());
         return courtCaseRepository.save(courtCaseEntity);
     }
 
@@ -72,6 +71,10 @@ public class CourtCaseService {
         return courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(court.getCourtCode(), start, start.plusDays(1));
     }
 
+    public void delete(String courtCode, String caseNo) {
+        courtCaseRepository.deleteById(getCaseByCaseNumber(courtCode, caseNo).getId());
+    }
+
     private CourtCaseEntity processAndSave(CourtCaseEntity courtCaseEntity, Optional<CourtCaseEntity> existingCourtCaseEntity) {
 
         if (existingCourtCaseEntity.isEmpty()) {
@@ -85,7 +88,6 @@ public class CourtCaseService {
     private CourtCaseEntity updateAndSave(CourtCaseEntity existingCase, CourtCaseEntity courtCaseEntity) {
         // We have checked and matched court ode and case no. They are immutable fields. No need to update.
 
-        existingCase.setLastUpdated(courtCaseEntity.getLastUpdated() != null ? courtCaseEntity.getLastUpdated() : LocalDateTime.now());
         existingCase.setCaseId(courtCaseEntity.getCaseId());
         existingCase.setCourtRoom(courtCaseEntity.getCourtRoom());
         existingCase.setSessionStartTime(courtCaseEntity.getSessionStartTime());

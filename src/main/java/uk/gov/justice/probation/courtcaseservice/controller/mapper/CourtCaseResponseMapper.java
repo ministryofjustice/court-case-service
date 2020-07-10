@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
@@ -38,6 +39,8 @@ public class CourtCaseResponseMapper {
                 .defendantSex(courtCaseEntity.getDefendantSex())
                 .nationality1(courtCaseEntity.getNationality1())
                 .nationality2(courtCaseEntity.getNationality2())
+                .createdToday(courtCaseEntity.getCreated().toLocalDate().isEqual(LocalDate.now()))
+                .removed(courtCaseEntity.isDeleted())
                 .build();
     }
 

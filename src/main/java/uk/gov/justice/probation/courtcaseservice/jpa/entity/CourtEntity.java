@@ -10,21 +10,22 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Version;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 
 @ApiModel(description = "Court")
 @Entity
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Table(name = "COURT")
-public class CourtEntity implements Serializable {
+public class CourtEntity extends BaseEntity implements Serializable {
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,9 +37,6 @@ public class CourtEntity implements Serializable {
 
     @Column(name = "COURT_CODE", nullable = false)
     private String courtCode;
-
-    @Version
-    private int version;
 
     @Override
     public boolean equals(Object other) {

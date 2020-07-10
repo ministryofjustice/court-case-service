@@ -3,9 +3,9 @@ package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import uk.gov.justice.probation.courtcaseservice.service.model.MatchType;
 
 import javax.persistence.Column;
@@ -23,10 +23,10 @@ import javax.persistence.Table;
 @Entity
 @AllArgsConstructor
 @RequiredArgsConstructor
-@Builder
+@SuperBuilder
 @Data
 @Table(name = "OFFENDER_MATCH")
-public class OffenderMatchEntity {
+public class OffenderMatchEntity extends BaseEntity {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)

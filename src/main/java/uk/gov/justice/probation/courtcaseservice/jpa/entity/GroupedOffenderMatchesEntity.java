@@ -3,7 +3,6 @@ package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -21,21 +20,21 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.List;
+import lombok.experimental.SuperBuilder;
 
 @ApiModel(description = "Grouped Offender Matches")
 @Entity
 @AllArgsConstructor
 @RequiredArgsConstructor
-@Builder
+@SuperBuilder
 @Data
 @Table(name = "OFFENDER_MATCH_GROUP")
-public class GroupedOffenderMatchesEntity  implements Serializable {
+public class GroupedOffenderMatchesEntity extends BaseEntity implements Serializable {
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private Long id;
-
 
     @OneToMany(mappedBy = "group", fetch = FetchType.EAGER, cascade = { CascadeType.ALL }, orphanRemoval=true)
     private List<OffenderMatchEntity> offenderMatches;

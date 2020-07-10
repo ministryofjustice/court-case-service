@@ -146,10 +146,10 @@ public class CourtCaseResponseMapperTest {
             .courtCode(COURT_CODE)
             .caseNo(CASE_NO)
             .breach(BREACH)
-            .lastUpdated(LAST_UPDATED)
             .caseId(CASE_ID)
             .offences(offences)
             .build();
+        courtCase.setLastUpdated(LAST_UPDATED);
         offences.forEach(offenceEntity -> offenceEntity.setCourtCase(courtCase));
         return courtCase;
     }

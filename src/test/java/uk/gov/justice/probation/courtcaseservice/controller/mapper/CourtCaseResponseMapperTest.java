@@ -153,6 +153,7 @@ public class CourtCaseResponseMapperTest {
             .lastUpdated(LAST_UPDATED)
             .offences(offences)
             .build();
+        courtCase.setLastUpdated(LAST_UPDATED);
         offences.forEach(offenceEntity -> offenceEntity.setCourtCase(courtCase));
         return courtCase;
     }

@@ -1,5 +1,0 @@
-community-api:
-  base-url: http://placeholder
-
-offender-assessments-api:
-  base-url: https://offender-prod.aks-live-1.studio-hosting.service.hmpps.dsd.io

@@ -20,9 +20,9 @@ ingress:
 env:
   JAVA_OPTS: "-Xmx512m"
   community_api:
-    base_url: https://community-api-secure.test.delius.probation.hmpps.dsd.io
+    base_url: https://community-api-secure.pre-prod.delius.probation.hmpps.dsd.io
   nomis_oauth:
-    base_url: https://gateway.t3.nomis-api.hmpps.dsd.io
+    base_url: https://gateway.preprod.nomis-api.service.hmpps.dsd.io
   offender_assessments_api:
     base_url: https://offender-preprod.aks-live-1.studio-hosting.service.hmpps.dsd.io
 

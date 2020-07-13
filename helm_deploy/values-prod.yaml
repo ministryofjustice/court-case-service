@@ -20,11 +20,11 @@ ingress:
 env:
   JAVA_OPTS: "-Xmx512m"
   community_api:
-    base_url: https://placeholder
+    base_url: https://community-api-secure.probation.service.justice.gov.uk
   nomis_oauth:
-    base_url: https://placeholder
+    base_url: https://gateway.nomis-api.service.justice.gov.uk
   offender_assessments_api:
-    base_url: https://placeholder
+    base_url: https://offender-prod.aks-live-1.studio-hosting.service.hmpps.dsd.io
 
 whitelist:
   office: "217.33.148.210/32"

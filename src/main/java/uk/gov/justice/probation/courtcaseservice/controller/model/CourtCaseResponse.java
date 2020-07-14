@@ -42,6 +42,8 @@ public class CourtCaseResponse {
     private final String defendantSex;
     private final String nationality1;
     private final String nationality2;
+    private final boolean createdToday;
+    private final boolean removed;
 }
 
 

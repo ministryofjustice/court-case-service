@@ -9,13 +9,6 @@ ignore:
     - '*':
         reason: Not production and no use of perl
         expires: 2020-07-15T00:00:00.000Z
-  SNYK-JAVA-ORGAPACHETOMCATEMBED-570072:
-    - '*':
-        reason: >-
-          Latest version of springboot-starter-web brings in the
-          tomcat-embed-core. We do not want to pick apart spring-managed
-          dependencies
-        expires: 2020-07-15T00:00:00.000Z
   SNYK-DEBIAN10-PCRE3-572367:
     - '*':
         reason: >-

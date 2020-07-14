@@ -3,7 +3,7 @@ import java.time.LocalDate
 
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.2.7.RELEASE'
+    id 'org.springframework.boot' version '2.2.8.RELEASE'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'com.github.ben-manes.versions' version '0.26.0'
     id "org.flywaydb.flyway" version "6.1.0"
@@ -161,7 +161,10 @@ dependencies {
         because 'allows tests to run from IDEs that bundle older version of launcher'
     }
 
-    testCompile "com.github.tomakehurst:wiremock-jre8:2.26.2"
+    testCompile ("com.github.tomakehurst:wiremock-jre8:2.27.1") {
+        exclude group: 'org.eclipse.jetty', module: 'jetty-server'
+    }
+    testRuntimeOnly "org.eclipse.jetty:jetty-server:9.4.30.v20200611"
     testCompile("org.springframework.retry:spring-retry:1.2.5.RELEASE")
 
     implementation ('org.dom4j:dom4j:2.1.3') {

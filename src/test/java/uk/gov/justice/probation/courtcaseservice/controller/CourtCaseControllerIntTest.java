@@ -163,6 +163,8 @@ public class CourtCaseControllerIntTest {
                 .body("defendantSex", equalTo("M"))
                 .body("nationality1", equalTo("British"))
                 .body("nationality2", equalTo("Polish"))
+                .body("removed", equalTo(false))
+                .body("createdToday", equalTo(true))
         ;
     }
 

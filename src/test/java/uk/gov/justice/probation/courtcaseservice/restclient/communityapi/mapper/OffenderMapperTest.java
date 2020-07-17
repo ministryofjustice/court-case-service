@@ -212,19 +212,24 @@ public class OffenderMapperTest {
         assertThat(mapper.endDateCalculator.apply(LocalDate.of(2019, 10, 1), null)).isNull();
     }
 
+    @DisplayName("No end date if length of sentence is null")
+    @Test
+    void endDateCalculatorNullSentenceLength() {
+        final CommunityApiSentence sentence = CommunityApiSentence.builder().build();
+        assertThat(mapper.endDateCalculator.apply(LocalDate.of(2019, 10, 1), sentence)).isNull();
+    }
+
     @DisplayName("No end date if convictionDate is null")
     @Test
     void endDateCalculatorNullDate() {
-        final CommunityApiSentence sentence
-            = new CommunityApiSentence(null, null, null, 1, null, null, null);
+        final CommunityApiSentence sentence = CommunityApiSentence.builder().lengthInDays(1).build();
         assertThat(mapper.endDateCalculator.apply(null, sentence)).isNull();
     }
 
     @DisplayName("No end date if convictionDate is null")
     @Test
     void endDateCalculatorNormal() {
-        final CommunityApiSentence sentence
-            = new CommunityApiSentence(null, null, null, 1, null, null, null);
+        final CommunityApiSentence sentence = CommunityApiSentence.builder().lengthInDays(1).build();
         assertThat(mapper.endDateCalculator.apply(LocalDate.of(2019, 10, 1), sentence)).isEqualTo(LocalDate.of(2019, 10, 2));
     }
 

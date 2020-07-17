@@ -41,7 +41,10 @@ spring:
             provider: nomis-oauth-service
         provider:
           nomis-oauth-service:
-            token-uri: ${nomis-oauth.base-url:http://oauth:8095}/auth/oauth/token
+            token-uri: ${nomis-oauth.base-url}/auth/oauth/token
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
 
   datasource:
     url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=${database.schema.name}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified

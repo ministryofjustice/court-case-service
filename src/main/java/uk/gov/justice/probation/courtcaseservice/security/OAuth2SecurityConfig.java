@@ -21,7 +21,7 @@ public class OAuth2SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and().authorizeRequests(auth ->
                     auth
-                        .antMatchers("/health", "/ping").permitAll()
+                        .mvcMatchers("/health", "/ping").permitAll()
                         .anyRequest().hasRole("PREPARE_A_CASE")
                 ).oauth2ResourceServer().jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());
     }

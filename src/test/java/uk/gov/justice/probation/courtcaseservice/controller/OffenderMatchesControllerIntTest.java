@@ -4,7 +4,6 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +26,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
+import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @RunWith(SpringRunner.class)
 @EnableRetry
@@ -67,29 +67,30 @@ public class OffenderMatchesControllerIntTest {
                                                                 .port(WIREMOCK_PORT)
                                                                 .usingFilesUnderClasspath("mocks"));
 
-    @Rule
-    public WireMockClassRule instanceRule = wireMockRule;
-
     @Test
     public void givenCaseExists_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {
         String location = given()
+                .auth()
+                .oauth2(getToken())
                 .accept(APPLICATION_JSON_VALUE)
                 .contentType(APPLICATION_JSON_VALUE)
                 .body(SINGLE_EXACT_MATCH_BODY)
-                .when()
+            .when()
                 .post("/court/SHF/case/1600028913/grouped-offender-matches")
-                .then()
+            .then()
                 .statusCode(201)
                 .header("Location", matchesPattern("/court/SHF/case/1600028913/grouped-offender-matches/[0-9]+"))
                 .extract()
                 .header("Location");
 
         given()
+                .auth()
+                .oauth2(getToken())
                 .accept(APPLICATION_JSON_VALUE)
                 .contentType(APPLICATION_JSON_VALUE)
-                .when()
+            .when()
                 .get(location)
-                .then()
+            .then()
                 .statusCode(200)
                 .body("courtCase.courtCode", equalTo("SHF"))
                 .body("courtCase.caseNo", equalTo("1600028913"))
@@ -103,12 +104,14 @@ public class OffenderMatchesControllerIntTest {
     @Test
     public void givenCourtDoesNotExist_whenPostMadeToOffenderMatches_thenReturnNotFound() {
         given()
+                .auth()
+                .oauth2(getToken())
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(APPLICATION_JSON_VALUE)
                 .body(SINGLE_EXACT_MATCH_BODY)
-                .when()
+            .when()
                 .post("/court/FOO/case/1234567890/grouped-offender-matches")
-                .then()
+            .then()
                 .statusCode(404)
                     .body("userMessage", equalTo("Court FOO not found"))
                     .body("developerMessage" , equalTo("Court FOO not found"));
@@ -117,12 +120,14 @@ public class OffenderMatchesControllerIntTest {
     @Test
     public void givenCaseDoesNotExist_whenPostMadeToOffenderMatches_thenReturnNotFound() {
         given()
+                .auth()
+                .oauth2(getToken())
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(APPLICATION_JSON_VALUE)
                 .body(SINGLE_EXACT_MATCH_BODY)
-                .when()
+            .when()
                 .post("/court/SHF/case/1234567890/grouped-offender-matches")
-                .then()
+            .then()
                 .statusCode(404)
                     .body("userMessage", equalTo("Case 1234567890 not found for court SHF"))
                     .body("developerMessage" , equalTo("Case 1234567890 not found for court SHF"));

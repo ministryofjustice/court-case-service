@@ -1,22 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.not;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
-import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import io.restassured.http.ContentType;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +20,24 @@ import uk.gov.justice.probation.courtcaseservice.TestConfig;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
+import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
+import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
+import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
@@ -74,6 +80,11 @@ public class CourtCaseControllerPutIntTest {
     private static final String JSON_CASE_NO = "1700028914";
     private static final String JSON_CASE_ID = "654321";
 
+    @ClassRule
+    public static final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
+            .port(WIREMOCK_PORT)
+            .usingFilesUnderClasspath("mocks"));
+
     @Before
     public void setup() throws IOException {
         caseDetailsJson = Files.readString(caseDetailsResource.getFile().toPath());
@@ -84,6 +95,8 @@ public class CourtCaseControllerPutIntTest {
     public void whenCreateCaseDataByCourtAndCaseNo_ThenCreateNewRecord() {
 
         given()
+            .auth()
+            .oauth2(getToken())
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
             .body(caseDetailsJson)
@@ -132,6 +145,8 @@ public class CourtCaseControllerPutIntTest {
         String updatedJson = caseDetailsJson.replace("\"courtRoom\": \"1\"", "\"courtRoom\": \"2\"");
 
         given()
+            .auth()
+            .oauth2(getToken())
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
             .body(updatedJson)
@@ -177,6 +192,8 @@ public class CourtCaseControllerPutIntTest {
         CourtCaseEntity courtCaseEntity = createCaseDetails(NOT_FOUND_COURT_CODE, JSON_CASE_NO, JSON_CASE_ID);
 
         ErrorResponse result = given()
+            .auth()
+            .oauth2(getToken())
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
             .body(courtCaseEntity)
@@ -199,6 +216,8 @@ public class CourtCaseControllerPutIntTest {
         CourtCaseEntity courtCaseEntity = createCaseDetails(COURT_CODE, JSON_CASE_NO, JSON_CASE_ID);
 
         given()
+            .auth()
+            .oauth2(getToken())
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
             .body(courtCaseEntity)
@@ -238,6 +257,8 @@ public class CourtCaseControllerPutIntTest {
     private void createCase() {
 
         given()
+            .auth()
+            .oauth2(getToken())
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
             .body(caseDetailsJson)

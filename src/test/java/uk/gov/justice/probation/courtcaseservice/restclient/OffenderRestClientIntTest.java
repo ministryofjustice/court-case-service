@@ -1,13 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapperTest.EXPECTED_RQMNT_1;
-
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import java.time.LocalDate;
-import java.util.List;
-import org.junit.Rule;
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +12,14 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
+import static uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapperTest.EXPECTED_RQMNT_1;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -31,9 +33,9 @@ public class OffenderRestClientIntTest {
     @Autowired
     private OffenderRestClient offenderRestClient;
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
-            .port(8090)
+    @ClassRule
+    public static final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
+            .port(WIREMOCK_PORT)
             .usingFilesUnderClasspath("mocks"));
 
     @Test

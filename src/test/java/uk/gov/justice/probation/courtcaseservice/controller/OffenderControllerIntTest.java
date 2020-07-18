@@ -2,7 +2,10 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,10 +24,17 @@ import java.time.format.DateTimeFormatter;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.springframework.http.HttpHeaders.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.springframework.http.HttpHeaders.ACCEPT_RANGES;
+import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
+import static org.springframework.http.HttpHeaders.LAST_MODIFIED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
+import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @RunWith(SpringRunner.class)
 @EnableRetry
@@ -54,14 +64,13 @@ public class OffenderControllerIntTest {
                                                                 .port(WIREMOCK_PORT)
                                                                 .usingFilesUnderClasspath("mocks"));
 
-    @Rule
-    public WireMockClassRule instanceRule = wireMockRule;
-
     @Test
     public void givenOffenderDoesNotExist_whenCallMadeToGetProbationRecord_thenReturnNotFound() {
         given()
+            .auth()
+            .oauth2(getToken())
                 .accept(MediaType.APPLICATION_JSON_VALUE)
-                .when()
+        .when()
                 .get("/offender/CRNXXX/probation-record")
                 .then()
                 .statusCode(404)
@@ -72,6 +81,8 @@ public class OffenderControllerIntTest {
     @Test
     public void whenCallMadeToGetProbationRecord_thenReturnCorrectData() {
         given()
+            .auth()
+            .oauth2(getToken())
                 .accept(MediaType.APPLICATION_JSON_VALUE)
         .when()
                 .get("/offender/X320741/probation-record")
@@ -129,8 +140,10 @@ public class OffenderControllerIntTest {
     @Test
     public void whenCallMadeToGetProbationRecordNotFiltered_thenReturnExtraDocuments() {
         given()
+            .auth()
+            .oauth2(getToken())
             .accept(MediaType.APPLICATION_JSON_VALUE)
-            .when()
+        .when()
                 .get("/offender/X320741/probation-record?applyDocTypeFilter=false")
             .then()
                 .statusCode(200)
@@ -148,11 +161,13 @@ public class OffenderControllerIntTest {
 
     @Test
     public void whenCallMadeToGetRequirementData_thenReturnCorrectData() {
-          given()
+        given()
+            .auth()
+            .oauth2(getToken())
                     .accept(MediaType.APPLICATION_JSON_VALUE)
-                  .when()
-                      .get("/offender/X320741/convictions/2500297061/requirements")
-                .then()
+       .when()
+           .get("/offender/X320741/convictions/2500297061/requirements")
+       .then()
                     .statusCode(200)
                     .body("requirements[0].requirementId", equalTo(2500083652L))
                     .body("requirements[0].startDate", equalTo(standardDateOf(2017, 6,1)))
@@ -183,10 +198,12 @@ public class OffenderControllerIntTest {
     @Test
     public void whenCallMadeToGetBreach_thenReturnCorrectData() {
         given()
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .when()
+            .auth()
+            .oauth2(getToken())
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+        .when()
                 .get("/offender/X320741/convictions/2500295343/breaches/2500003903")
-                .then()
+        .then()
                 .statusCode(200)
                 .body("breachId", equalTo(2500003903L))
                 .body("incidentDate", equalTo("2017-03-21"))
@@ -203,11 +220,13 @@ public class OffenderControllerIntTest {
     @Test
     public void whenBreachDoesNotExist_thenReturn404() {
         given()
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .when()
-                .get("/offender/D003080/convictions/2500295343/breaches/1230000000")
-                .then()
-                .statusCode(404)
+            .auth()
+            .oauth2(getToken())
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+        .when()
+            .get("/offender/D003080/convictions/2500295343/breaches/1230000000")
+        .then()
+            .statusCode(404)
         ;
     }
 
@@ -215,30 +234,34 @@ public class OffenderControllerIntTest {
     @Test
     public void whenBreachThrowsServerError_thenReturn500() {
         given()
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .when()
-                .get("/offender/X320123/convictions/2500295343/breaches/2500003903")
-                .then()
-                .statusCode(500)
+            .auth()
+            .oauth2(getToken())
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+        .when()
+            .get("/offender/X320123/convictions/2500295343/breaches/2500003903")
+        .then()
+            .statusCode(500)
         ;
     }
 
     @Test
     public void singleDocument_givenExistingDocumentIdThenReturn200AndHeaders() {
         final byte[] bytes =
-            given()
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-            .when()
-                .get(String.format(GET_DOCUMENT_PATH, KNOWN_CRN, "abc-def"))
-            .then()
-                .statusCode(HttpStatus.OK.value())
-                .contentType("application/msword;charset=UTF-8")
-                .header(CONTENT_DISPOSITION, "attachment; filename=\"sample_word_doc.doc\"")
-                .header(ACCEPT_RANGES, "bytes")
-                .header(LAST_MODIFIED, "Wed, 03 Jan 2018 13:20:35 GMT")
-                .header("Server", "Apache-Coyote/1.1")
-                .extract()
-                .asByteArray();
+        given()
+            .auth()
+            .oauth2(getToken())
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+        .when()
+            .get(String.format(GET_DOCUMENT_PATH, KNOWN_CRN, "abc-def"))
+        .then()
+            .statusCode(HttpStatus.OK.value())
+            .contentType("application/msword;charset=UTF-8")
+            .header(CONTENT_DISPOSITION, "attachment; filename=\"sample_word_doc.doc\"")
+            .header(ACCEPT_RANGES, "bytes")
+            .header(LAST_MODIFIED, "Wed, 03 Jan 2018 13:20:35 GMT")
+            .header("Server", "Apache-Coyote/1.1")
+            .extract()
+            .asByteArray();
 
         assertThat(bytes.length).isEqualTo(20992);
     }
@@ -246,6 +269,8 @@ public class OffenderControllerIntTest {
     @Test
     public void singleDocument_givenUnknownDocumentIdThenReturn404() {
         given()
+            .auth()
+            .oauth2(getToken())
             .accept(MediaType.APPLICATION_JSON_VALUE)
         .when()
             .get(String.format(GET_DOCUMENT_PATH, KNOWN_CRN, "xxx"))
@@ -256,6 +281,8 @@ public class OffenderControllerIntTest {
     @Test
     public void singleDocument_givenServerError() {
         given()
+            .auth()
+            .oauth2(getToken())
             .contentType(APPLICATION_JSON_VALUE)
         .when()
             .get(String.format(GET_DOCUMENT_PATH, "X320500", "abc-def"))

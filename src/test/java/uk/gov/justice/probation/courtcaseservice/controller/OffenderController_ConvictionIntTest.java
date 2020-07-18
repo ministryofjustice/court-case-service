@@ -4,7 +4,6 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,11 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
-import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.*;
+import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.CRN;
+import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.SOME_CONVICTION_ID;
+import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.SOME_SENTENCE_ID;
+import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.UNKNOWN_CRN;
+import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @RunWith(SpringRunner.class)
 @EnableRetry
@@ -64,16 +67,15 @@ public class OffenderController_ConvictionIntTest {
         .port(WIREMOCK_PORT)
         .usingFilesUnderClasspath("mocks"));
 
-    @Rule
-    public WireMockClassRule instanceRule = wireMockRule;
-
     @Test
     public void whenCallMadeToGetSentenceKnownCrnAndConvictionId() {
 
         final String getPath = String.format(PATH, CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
         final SentenceResponse response = given()
+            .auth()
+            .oauth2(getToken())
             .accept(MediaType.APPLICATION_JSON_VALUE)
-            .when()
+        .when()
             .get(getPath)
             .then()
             .statusCode(HttpStatus.OK.value())
@@ -125,8 +127,10 @@ public class OffenderController_ConvictionIntTest {
 
         final String getPath = String.format(PATH, CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
         final SentenceResponse response = given()
+            .auth()
+            .oauth2(getToken())
             .accept(MediaType.APPLICATION_JSON_VALUE)
-            .when()
+        .when()
             .get(getPath)
             .then()
                 .statusCode(HttpStatus.OK.value())
@@ -145,8 +149,10 @@ public class OffenderController_ConvictionIntTest {
 
         final String getPath = String.format(PATH, UNKNOWN_CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
         given()
+            .auth()
+            .oauth2(getToken())
             .accept(MediaType.APPLICATION_JSON_VALUE)
-            .when()
+        .when()
             .get(getPath)
         .then()
             .statusCode(404);

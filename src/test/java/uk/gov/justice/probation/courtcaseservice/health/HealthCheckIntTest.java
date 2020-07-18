@@ -1,6 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.health;
 
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,8 +12,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 import static uk.gov.justice.probation.courtcaseservice.TestConfig.configureRestAssuredForIntTest;
 
 
@@ -27,6 +32,14 @@ public class HealthCheckIntTest {
     public void before() {
         configureRestAssuredForIntTest(port);
     }
+
+    @ClassRule
+    public static final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
+            .port(WIREMOCK_PORT)
+            .usingFilesUnderClasspath("mocks"));
+
+    @Rule
+    public WireMockClassRule instanceRule = wireMockRule;
 
     @Test
     public void testUp() {

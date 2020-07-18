@@ -1,11 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import java.time.LocalDateTime;
-import org.junit.Rule;
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +9,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-
-import uk.gov.justice.probation.courtcaseservice.TestConfig;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
+
+import java.time.LocalDateTime;
+
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 
 
 @RunWith(SpringRunner.class)
@@ -29,9 +29,9 @@ public class AssessmentsRestClientIntTest {
     @Autowired
     private AssessmentsRestClient assessmentsRestClient;
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
-            .port(TestConfig.WIREMOCK_PORT)
+    @ClassRule
+    public static final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
+            .port(WIREMOCK_PORT)
             .usingFilesUnderClasspath("mocks"));
 
     @Test

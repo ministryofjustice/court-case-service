@@ -1,0 +1,20 @@
+
+{
+  "__README__": "This JWKS file contains the private/public key pair corresponding to the public key stored in ./oauth/GET_jwks.json. It is used to generate JWT tokens on the fly for testing.",
+  "keys": [
+    {
+      "p": "u1rM_IP3ZRW7ikMfWlwPWyEtpub9mRzY2RE--9wHhsIGGqWfNqphN8usCx8eScrcGE-xVAoe4l3H7alkShzvHqU4XYUofxAC5J-mFrIBrl_K4knQImjbCLVGnEgXY-D2gJLNknWz9WvsjCDGv1Fp8gjsHOXd1t5NapEXnoZxlTs",
+      "kty": "RSA",
+      "q": "ttCTZyLIwv3YtNHpoEJ9IL8nO46jIVE2yQPbxO1jpQkKpCjR-Ktkmzj_WOvipB2QXTrXECcxxhMfqULKbsb39uJajmyLfcjYJWVv1dHaDGV1_jWZo_Ic2A6dZFEnhBaBkagOE3ZhkPsE2rT4xatsIz5g_OJtEC57jAhsSl5e2Rc",
+      "d": "OgLhROnGNiXMvbF7kg35Ybp3RNHyLHjgH7KKo8C5VBiyamh91WjsZZSg7yvEgshESZ1ZOwreDP6vYXSPplIoypx6br-rCxhFiAB2XBPqk7mlip0DbD-q68s0YrBgq3aZk66rhbMoMOKG-FsRyMOXdzX5mRjQYy76wfMmsyodeYIdDsr3Sl7-E7pfRkxDFzEiaXv0-e-xr-ysNDwfStuHVZcTnvRI_EgBwaMjzwArXYlaQS8jfnMH0tbJRwlCGD-CesBtDoHll7heSXbHlAEpeG2AZA2tbPxvJlZoF9-WVg4Uhm90ffvQzOhHkiTLc_geTxQM9C6hdfAfKZ_g3bBEAQ",
+      "e": "AQAB",
+      "use": "sig",
+      "kid": "mock-key",
+      "qi": "HnbK2AGLQrq3LNpyx_OP1Df8OK_7vFj8IQ60iOP6oEITDhwEdXbd8iDWgYN9SZLAWYiS8LUi0169j6jHeskot5Gucv61x8bPuscxHfYM1y5nkZrjnRiwu1ZtO9yMoMcuvgvobIzXL2qj1YSo3MFTJXO9PJAbGULr8jMvTokAMpE",
+      "dp": "ZcoBULgJ8xuJlqa9JAScOzCdcu5QnZ00m0ppY8C5Phev5U5SYArVYtD_GdPASusyBOtXNoeBHA9DjfXYDQQHTikJpJWx2MbEK54pSG9RxoE44xSjRe6eAe8q-8GXI6aXhmc71PSp3w7Rp5gvIsaCvwLl9RVWH2ULvngx0ujMUP0",
+      "alg": "RS256",
+      "dq": "Xo1yL52mCHQSaTNIikLZRN6ZBAy6ArlmhIEiYbAGIY2Tm2QhdWPwHPhV2T_ncMp5qD6OjSQ4ciHh9kE9Qh5WkbJw88jgPKZsZKsaNJTdGhw_8sL2O_01PeoRLZlrvr2FNjidTyOjQsERuaxwHoyS2Yeh0imqDvx7memhWLWGiPE",
+      "n": "hcszYrGvkR4CDKsuvAzJp6yfIPKoWJqi0OONdkzyWYgheCubFIeDA3f8kyQ2nhjbQpv9VjwwpbyCBO-4vybES5Q5wkDPFoQvke2I5-BZJmFhetV1tH8OOrjLXlAspa_muSfG0GuoG8WxQE6Bedmo495r9KJkScvNICAT8uPlzGX5PZxodMoI0luf8_xg_ieGfpZP6wDVPL--DfjpNcS0TsyBBd1dUndkZwUY9pItBbo5GHSKqEry3055NZMg-dO4piidFnNNzHDb6QXu6yTumsswzM0afMltw102ox3hh_D1lf4ycI4ppuFxKcBc2bKAApDQDgTBU0knQ5jC0V1rTQ"
+    }
+  ]
+}

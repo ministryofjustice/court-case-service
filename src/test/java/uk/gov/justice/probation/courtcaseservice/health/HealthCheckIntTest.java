@@ -1,45 +1,18 @@
 package uk.gov.justice.probation.courtcaseservice.health;
 
-import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
-import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
-import static uk.gov.justice.probation.courtcaseservice.TestConfig.configureRestAssuredForIntTest;
 
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@RunWith(SpringJUnit4ClassRunner.class)
-@ActiveProfiles(profiles = "test")
+@RunWith(SpringRunner.class)
 @DirtiesContext
-public class HealthCheckIntTest {
-
-    @LocalServerPort
-    int port;
-
-    @Before
-    public void before() {
-        configureRestAssuredForIntTest(port);
-    }
-
-    @ClassRule
-    public static final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
-            .port(WIREMOCK_PORT)
-            .usingFilesUnderClasspath("mocks"));
-
-    @Rule
-    public WireMockClassRule instanceRule = wireMockRule;
+public class HealthCheckIntTest extends BaseIntTest {
 
     @Test
     public void testUp() {

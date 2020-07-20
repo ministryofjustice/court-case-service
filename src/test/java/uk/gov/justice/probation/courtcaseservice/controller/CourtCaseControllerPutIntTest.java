@@ -1,33 +1,26 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import io.restassured.http.ContentType;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.io.Resource;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.justice.probation.courtcaseservice.TestConfig;
+import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -36,20 +29,14 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
-import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @RunWith(SpringRunner.class)
-@ActiveProfiles("test")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
-public class CourtCaseControllerPutIntTest {
+public class CourtCaseControllerPutIntTest extends BaseIntTest {
 
     /* before-test.sql sets up a court case in the database */
-
-    @LocalServerPort
-    private int port;
 
     @Autowired
     ObjectMapper mapper;
@@ -80,15 +67,10 @@ public class CourtCaseControllerPutIntTest {
     private static final String JSON_CASE_NO = "1700028914";
     private static final String JSON_CASE_ID = "654321";
 
-    @ClassRule
-    public static final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
-            .port(WIREMOCK_PORT)
-            .usingFilesUnderClasspath("mocks"));
-
     @Before
-    public void setup() throws IOException {
+    public void setup() throws Exception {
         caseDetailsJson = Files.readString(caseDetailsResource.getFile().toPath());
-        TestConfig.configureRestAssuredForIntTest(port);
+        super.setup();
     }
 
     @Test

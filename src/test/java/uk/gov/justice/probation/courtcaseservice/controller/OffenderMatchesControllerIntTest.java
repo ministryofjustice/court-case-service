@@ -1,40 +1,28 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
-import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
-import org.springframework.retry.annotation.EnableRetry;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.justice.probation.courtcaseservice.RetryService;
-import uk.gov.justice.probation.courtcaseservice.TestConfig;
+import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
-import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @RunWith(SpringRunner.class)
-@EnableRetry
-@ActiveProfiles(profiles = "test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
-public class OffenderMatchesControllerIntTest {
+public class OffenderMatchesControllerIntTest extends BaseIntTest {
 
     public static final String SINGLE_EXACT_MATCH_BODY = "{\n" +
             "    \"matches\": [\n" +
@@ -49,23 +37,6 @@ public class OffenderMatchesControllerIntTest {
             "        }\n" +
             "    ]\n" +
             "}";
-    @LocalServerPort
-    private int port;
-
-    @Autowired
-    private RetryService retryService;
-
-    @Before
-    public void setUp() throws Exception {
-        TestConfig.configureRestAssuredForIntTest(port);
-
-        retryService.tryWireMockStub();
-    }
-
-    @ClassRule
-    public static  final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
-                                                                .port(WIREMOCK_PORT)
-                                                                .usingFilesUnderClasspath("mocks"));
 
     @Test
     public void givenCaseExists_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {

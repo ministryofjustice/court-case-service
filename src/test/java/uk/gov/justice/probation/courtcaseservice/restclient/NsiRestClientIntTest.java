@@ -1,37 +1,25 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsi;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.NsiNotFoundException;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
-@ActiveProfiles("test")
-public class NsiRestClientIntTest {
+public class NsiRestClientIntTest extends BaseIntTest {
     private static final String CRN = "X320741";
     private static final long CONVICTION_ID = 2500295343L;
     public static final long NSI_ID = 2500003903L;
     @Autowired
     private NsiRestClient client;
-
-    @ClassRule
-    public static final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
-            .port(WIREMOCK_PORT)
-            .usingFilesUnderClasspath("mocks"));
 
     @Test
     public void givenNsiExists_whenGetNsi_thenReturnIt() {

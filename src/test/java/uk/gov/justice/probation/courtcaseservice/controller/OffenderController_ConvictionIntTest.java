@@ -1,21 +1,15 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
-import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.retry.annotation.EnableRetry;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.justice.probation.courtcaseservice.RetryService;
-import uk.gov.justice.probation.courtcaseservice.TestConfig;
+import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse.ContactTypeDetail;
@@ -27,10 +21,8 @@ import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 import java.time.LocalDate;
 import java.time.Month;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.CRN;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.SOME_CONVICTION_ID;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.SOME_SENTENCE_ID;
@@ -38,34 +30,19 @@ import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRes
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @RunWith(SpringRunner.class)
-@EnableRetry
-@ActiveProfiles(profiles = "test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
-public class OffenderController_ConvictionIntTest {
+public class OffenderController_ConvictionIntTest extends BaseIntTest {
 
     private static final String PATH = "/offender/%s/convictions/%s/sentences/%s";
 
     @Autowired
     private FeatureFlags featureFlags;
 
-    @Autowired
-    private RetryService retryService;
-
-    @LocalServerPort
-    private int port;
-
     @Before
     public void setUp() throws Exception {
+        super.setup();
         featureFlags.setFlagValue("fetch-sentence-data",true);
-        TestConfig.configureRestAssuredForIntTest(port);
-
-        retryService.tryWireMockStub();
     }
-
-    @ClassRule
-    public static final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
-        .port(WIREMOCK_PORT)
-        .usingFilesUnderClasspath("mocks"));
 
     @Test
     public void whenCallMadeToGetSentenceKnownCrnAndConvictionId() {
@@ -111,10 +88,10 @@ public class OffenderController_ConvictionIntTest {
                 .custodialType(KeyValue.builder().code("P").description("Post Sentence Supervision").build())
                 .sentenceDescription("CJA - Intermediate Public Prot.")
                 .mainOffenceDescription("Common assault and battery - 10501")
-                .sentenceDate(LocalDate.of(2018, Month.DECEMBER, 03))
-                .actualReleaseDate(LocalDate.of(2019, Month.JULY, 03))
-                .licenceExpiryDate(LocalDate.of(2019, Month.NOVEMBER, 03))
-                .pssEndDate(LocalDate.of(2020, Month.JUNE, 03))
+                .sentenceDate(LocalDate.of(2018, Month.DECEMBER, 3))
+                .actualReleaseDate(LocalDate.of(2019, Month.JULY, 3))
+                .licenceExpiryDate(LocalDate.of(2019, Month.NOVEMBER, 3))
+                .pssEndDate(LocalDate.of(2020, Month.JUNE, 3))
                 .length(11)
                 .lengthUnits("Months")
                 .build());

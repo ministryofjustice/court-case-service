@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.justice.probation.courtcaseservice.RetryService;
 import uk.gov.justice.probation.courtcaseservice.TestConfig;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 
@@ -61,6 +63,12 @@ public class CourtCaseControllerIntTest {
     public static final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
             .port(WIREMOCK_PORT)
             .usingFilesUnderClasspath("mocks"));
+
+    @BeforeClass
+    public static void setupClass() throws Exception {
+        RetryService.tryWireMockStub();
+    }
+
     @Before
     public void setup() {
         TestConfig.configureRestAssuredForIntTest(port);

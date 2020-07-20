@@ -3,10 +3,10 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
@@ -52,14 +52,14 @@ public class OffenderMatchesControllerIntTest {
     @LocalServerPort
     private int port;
 
-    @Autowired
-    private RetryService retryService;
+    @BeforeClass
+    public static void setupClass() throws Exception {
+        RetryService.tryWireMockStub();
+    }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         TestConfig.configureRestAssuredForIntTest(port);
-
-        retryService.tryWireMockStub();
     }
 
     @ClassRule

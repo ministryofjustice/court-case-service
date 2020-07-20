@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,18 +49,18 @@ public class OffenderController_ConvictionIntTest {
     @Autowired
     private FeatureFlags featureFlags;
 
-    @Autowired
-    private RetryService retryService;
-
     @LocalServerPort
     private int port;
 
+    @BeforeClass
+    public static void setupClass() throws Exception {
+        RetryService.tryWireMockStub();
+    }
+
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         featureFlags.setFlagValue("fetch-sentence-data",true);
         TestConfig.configureRestAssuredForIntTest(port);
-
-        retryService.tryWireMockStub();
     }
 
     @ClassRule

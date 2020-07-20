@@ -18,10 +18,11 @@ public class OAuth2SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and().oauth2Client()
 
-                .and().authorizeRequests()
-                    .antMatchers("/**")
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated();
+
+                .and().authorizeRequests(auth ->
+                    auth
+                        .mvcMatchers("/health", "/ping").permitAll()
+                        .anyRequest().hasRole("PREPARE_A_CASE")
+                ).oauth2ResourceServer().jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());
     }
 }

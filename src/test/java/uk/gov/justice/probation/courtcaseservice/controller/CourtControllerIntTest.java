@@ -1,8 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import io.restassured.http.ContentType;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +17,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.TestConfig;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
+import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
+import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
@@ -40,6 +45,11 @@ public class CourtControllerIntTest {
     @Autowired
     ObjectMapper mapper;
 
+    @ClassRule
+    public static final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
+            .port(WIREMOCK_PORT)
+            .usingFilesUnderClasspath("mocks"));
+
     @Before
     public void setup() {
         TestConfig.configureRestAssuredForIntTest(port);
@@ -48,8 +58,11 @@ public class CourtControllerIntTest {
     @Test
     public void whenCourtCreated_thenReturnSuccess() {
 
-        CourtEntity result = given().body(PUT_BODY)
-                .when()
+        CourtEntity result = given()
+                .auth()
+                .oauth2(getToken())
+                .body(PUT_BODY)
+            .when()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .put("/court/{courtCode}", COURT_CODE)
@@ -66,8 +79,10 @@ public class CourtControllerIntTest {
 
     @Test
     public void givenCourtCodeInPathAndBodyConflict_whenCourtCreated_thenReturnBadRequest() {
-        given().body(PUT_BODY)
-                .when()
+        given()
+                .auth()
+                .oauth2(getToken()).body(PUT_BODY)
+            .when()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .put("/court/BAD")

@@ -16,6 +16,6 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "GET_oauth_token.json"
+    "bodyFileName": "oauth/GET_oauth_token.json"
   }
 }

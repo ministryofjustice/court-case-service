@@ -1,7 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import org.junit.Rule;
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +16,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.exception.NsiNotFoun
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -27,9 +28,9 @@ public class NsiRestClientIntTest {
     @Autowired
     private NsiRestClient client;
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
-            .port(8090)
+    @ClassRule
+    public static final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
+            .port(WIREMOCK_PORT)
             .usingFilesUnderClasspath("mocks"));
 
     @Test

@@ -1,21 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.when;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
-import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.format.DateTimeFormatter;
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +16,30 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.TestConfig;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
+
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
+import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
+import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
+import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
+
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class CourtCaseControllerIntTest {
-
-    /* before-test.sql sets up a court case in the database */
+    public static final String KEY_ID = "mock-key";
 
     @LocalServerPort
     private int port;
@@ -53,6 +57,10 @@ public class CourtCaseControllerIntTest {
     private static final String DEFENDANT_NAME = "JTEST";
     private final LocalDateTime now = LocalDateTime.now();
 
+    @ClassRule
+    public static final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
+            .port(WIREMOCK_PORT)
+            .usingFilesUnderClasspath("mocks"));
     @Before
     public void setup() {
         TestConfig.configureRestAssuredForIntTest(port);
@@ -61,7 +69,10 @@ public class CourtCaseControllerIntTest {
     @Test
     public void cases_shouldGetCaseListWhenCasesExist() {
 
-        when()
+        given()
+                .auth()
+                .oauth2(getToken())
+        .when()
                 .get("/court/{courtCode}/cases?date={date}", COURT_CODE, LocalDate.of(2019, 12, 14).format(DateTimeFormatter.ISO_DATE))
                 .then()
                 .assertThat()
@@ -79,7 +90,10 @@ public class CourtCaseControllerIntTest {
 
     @Test
     public void GET_cases_shouldGetEmptyCaseListWhenNoCasesMatch() {
-        when()
+        given()
+                .auth()
+                .oauth2(getToken())
+        .when()
                 .get("/court/{courtCode}/cases?date={date}", COURT_CODE, "2020-02-02")
                 .then()
                 .assertThat()
@@ -90,7 +104,10 @@ public class CourtCaseControllerIntTest {
 
     @Test
     public void GET_cases_shouldReturn400BadRequestWhenNoDateProvided() {
-        when()
+        given()
+                .auth()
+                .oauth2(getToken())
+        .when()
                 .get("/court/{courtCode}/cases", COURT_CODE)
                 .then()
                 .assertThat()
@@ -100,7 +117,10 @@ public class CourtCaseControllerIntTest {
 
     @Test
     public void GET_cases_shouldReturn404NotFoundWhenCourtDoesNotExist() {
-        ErrorResponse result = when()
+        ErrorResponse result = given()
+                .auth()
+                .oauth2(getToken())
+        .when()
                 .get("/court/{courtCode}/cases?date={date}", NOT_FOUND_COURT_CODE, "2020-02-02")
                 .then()
                 .assertThat()
@@ -118,7 +138,10 @@ public class CourtCaseControllerIntTest {
     @Test
     public void shouldGetCaseWhenCourtExists() {
         given()
-                .when()
+                .given()
+                .auth()
+                .oauth2(getToken())
+        .when()
                 .header("Accept", "application/json")
                 .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, CASE_NO)
                 .then()
@@ -128,9 +151,12 @@ public class CourtCaseControllerIntTest {
     @Test
     public void shouldGetCaseWhenExists() {
         String startTime = LocalDateTime.of(2019, Month.DECEMBER, 14, 9, 0, 0)
-            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         given()
-                .when()
+                .given()
+                .auth()
+                .oauth2(getToken())
+        .when()
                 .header("Accept", "application/json")
                 .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, CASE_NO)
                 .then()
@@ -175,7 +201,10 @@ public class CourtCaseControllerIntTest {
         String NOT_FOUND_CASE_NO = "11111111111";
 
         ErrorResponse result = given()
-                .when()
+                .given()
+                .auth()
+                .oauth2(getToken())
+        .when()
                 .header("Accept", "application/json")
                 .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, NOT_FOUND_CASE_NO)
                 .then()
@@ -192,7 +221,10 @@ public class CourtCaseControllerIntTest {
     @Test
     public void shouldReturnNotFoundForNonexistentCourt() {
         ErrorResponse result = given()
-                .when()
+                .given()
+                .auth()
+                .oauth2(getToken())
+        .when()
                 .header("Accept", "application/json")
                 .get("/court/{courtCode}/case/{caseNo}", NOT_FOUND_COURT_CODE, CASE_NO)
                 .then()

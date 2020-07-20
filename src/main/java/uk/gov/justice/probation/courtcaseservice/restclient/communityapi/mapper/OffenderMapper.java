@@ -137,7 +137,7 @@ public class OffenderMapper {
 
     final BiFunction<LocalDate, CommunityApiSentence, LocalDate> endDateCalculator = (convictionDate, sentence) -> {
 
-        if (convictionDate == null || sentence == null) {
+        if (convictionDate == null || sentence == null || sentence.getLengthInDays() == null) {
             return null;
         }
 

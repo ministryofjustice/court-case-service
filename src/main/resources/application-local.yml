@@ -11,6 +11,9 @@ offender-assessments-api:
   client-id: sentence-plan-api-client
   client-secret: clientsecret
 
+nomis-oauth:
+  base-url: https://gateway.t3.nomis-api.hmpps.dsd.io
+
 spring:
   flyway:
     defaultSchema: ${database.schema.name}

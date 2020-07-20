@@ -1,14 +1,11 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
@@ -16,15 +13,11 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import java.time.LocalDate;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 import static uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapperTest.EXPECTED_RQMNT_1;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
-@ActiveProfiles("test")
-public class OffenderRestClientIntTest {
+public class OffenderRestClientIntTest extends BaseIntTest {
 
     private static final String CRN = "X320741";
     private static final String CONVICTION_ID = "2500297061";
@@ -32,11 +25,6 @@ public class OffenderRestClientIntTest {
 
     @Autowired
     private OffenderRestClient offenderRestClient;
-
-    @ClassRule
-    public static final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
-            .port(WIREMOCK_PORT)
-            .usingFilesUnderClasspath("mocks"));
 
     @Test
     public void whenGetOffenderByCrnCalled_thenMakeRestCallToCommunityApi() {

@@ -1,27 +1,18 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
-import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.retry.annotation.EnableRetry;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.justice.probation.courtcaseservice.RetryService;
-import uk.gov.justice.probation.courtcaseservice.TestConfig;
+import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -33,36 +24,15 @@ import static org.springframework.http.HttpHeaders.ACCEPT_RANGES;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.springframework.http.HttpHeaders.LAST_MODIFIED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @RunWith(SpringRunner.class)
-@EnableRetry
-@ActiveProfiles(profiles = "test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
-public class OffenderControllerIntTest {
+public class OffenderControllerIntTest extends BaseIntTest {
 
     private static final String GET_DOCUMENT_PATH = "/offender/%s/documents/%s";
 
     private static final String KNOWN_CRN = "X320741";
-
-    @LocalServerPort
-    private int port;
-
-    @Autowired
-    private RetryService retryService;
-
-    @Before
-    public void setUp() throws Exception {
-        TestConfig.configureRestAssuredForIntTest(port);
-
-        retryService.tryWireMockStub();
-    }
-
-    @ClassRule
-    public static  final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
-                                                                .port(WIREMOCK_PORT)
-                                                                .usingFilesUnderClasspath("mocks"));
 
     @Test
     public void givenOffenderDoesNotExist_whenCallMadeToGetProbationRecord_thenReturnNotFound() {

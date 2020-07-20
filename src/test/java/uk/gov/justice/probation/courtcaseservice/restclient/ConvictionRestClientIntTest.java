@@ -1,14 +1,11 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
@@ -18,14 +15,10 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
-@ActiveProfiles("test")
-public class ConvictionRestClientIntTest {
+public class ConvictionRestClientIntTest extends BaseIntTest {
 
     public static final String CRN = "X320741";
     public static final Long SOME_CONVICTION_ID = 2500295343L;
@@ -36,11 +29,6 @@ public class ConvictionRestClientIntTest {
 
     @Autowired
     private ConvictionRestClient webTestClient;
-
-    @ClassRule
-    public static final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
-            .port(WIREMOCK_PORT)
-            .usingFilesUnderClasspath("mocks"));
 
     @Test
     public void whenGetAttendancesByCrnAndConvictionIdToCommunityApi() {

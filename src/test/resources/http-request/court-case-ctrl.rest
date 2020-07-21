@@ -98,4 +98,26 @@ GET http://{{host}}/court/SHF/cases?date=1903-01-13
 Accept: application/json
 
 ###
+# Update a case by court and code
+PUT http://{{host}}/court/{{courtCode}}/cases/purge
+Content-Type: application/json
 
+{
+    "2020-01-01": [
+        "1000000",
+        "1000001"
+    ],
+    "2020-01-02": [
+        "1000003",
+        "1000007"
+    ],
+    "2020-01-03": [
+        "1000010"
+    ]
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 204, "Response status is not 204");
+    });
+%}

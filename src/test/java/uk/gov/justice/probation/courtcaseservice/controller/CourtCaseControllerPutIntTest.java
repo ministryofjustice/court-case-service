@@ -2,26 +2,36 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
+import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.BaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 
-import java.nio.file.Files;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 import static io.restassured.RestAssured.given;
+import static java.time.Month.JANUARY;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
@@ -210,6 +220,73 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
             .body("message", equalTo("Case No 99999 and Court Code NWS do not match with values from body 1700028914 and SHF"))
         ;
 
+    }
+
+    @Test
+    public void whenPurgeCases_ThenReturn204NoContent() {
+
+        LocalDate date1Jan = LocalDate.of(2020, JANUARY, 1);
+        LocalDate date2Jan = LocalDate.of(2020, JANUARY, 2);
+        LocalDate date3Jan = LocalDate.of(2020, JANUARY, 3);
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(Map.of(date1Jan, Arrays.asList("1000000", "1000001"), date2Jan, Arrays.asList("1000003", "1000007"), date3Jan, singletonList("1000010")))
+            .when()
+            .put(String.format("/court/%s/cases/purgeAbsent", COURT_CODE))
+            .then()
+            .statusCode(HttpStatus.NO_CONTENT.value())
+        ;
+
+        // 1 Jan - 2 cases - neither deleted
+        LocalDateTime start = LocalDateTime.of(date1Jan, LocalTime.MIDNIGHT);
+        List<CourtCaseEntity> courtCases1 = courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(COURT_CODE, start, start.plusDays(1));
+        assertThat(courtCases1).hasSize(2);
+        assertThat(courtCases1).extracting("deleted").containsOnly(Boolean.FALSE);
+
+        // 2 Jan - 6 cases - 4 removed and deleted also on child offences
+        start = LocalDateTime.of(date2Jan, LocalTime.MIDNIGHT);
+        List<CourtCaseEntity> courtCases2 = courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(COURT_CODE, start, start.plusDays(1));
+        assertThat(courtCases2).hasSize(6);
+        List<String> date2Deleted = courtCases2.stream()
+            .filter(BaseEntity::isDeleted)
+            .map(CourtCaseEntity::getCaseNo)
+            .collect(Collectors.toList());
+        assertThat(date2Deleted).containsAll(Arrays.asList("1000002", "1000005", "1000005", "1000006"));
+        List<OffenceEntity> deletedCaseWithOffences = courtCases2.stream()
+            .filter(e -> e.isDeleted() && !e.getOffences().isEmpty())
+            .findFirst()
+            .map(CourtCaseEntity::getOffences)
+            .orElseThrow();
+        assertThat(deletedCaseWithOffences).extracting("deleted").containsOnly(Boolean.TRUE);
+
+        // 3 Jan - all 2 removed
+        start = LocalDateTime.of(date3Jan, LocalTime.MIDNIGHT);
+        List<CourtCaseEntity> courtCases3 = courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(COURT_CODE, start, start.plusDays(1));
+        assertThat(courtCases3).hasSize(2);
+        assertThat(courtCases3).extracting("deleted").containsOnly(Boolean.TRUE);
+    }
+
+    @Test
+    public void givenUnknownCourtCode_whenPurgeCases_ThenReturn404() {
+
+        Map<LocalDate, List<Long>> existingCases = new HashMap<>(2);
+        existingCases.put(LocalDate.now(), Arrays.asList(1L, 4L));
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(existingCases)
+            .when()
+            .put(String.format("/court/%s/cases/purge", "XXX"))
+            .then()
+            .statusCode(HttpStatus.NOT_FOUND.value())
+        ;
     }
 
     private CourtCaseEntity createCaseDetails(String courtCode, String caseNo, String caseId) {

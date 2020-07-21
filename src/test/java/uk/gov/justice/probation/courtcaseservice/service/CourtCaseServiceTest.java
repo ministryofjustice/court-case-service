@@ -1,22 +1,20 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.ThrowableAssert.catchThrowable;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Month;
+import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.commons.util.StringUtils;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
@@ -26,6 +24,15 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
+
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CourtCaseServiceTest {
@@ -67,12 +74,11 @@ class CourtCaseServiceTest {
 
     private CourtCaseEntity courtCase;
 
+    @InjectMocks
     private CourtCaseService service;
 
     @BeforeEach
     void setup() {
-        service = new CourtCaseService(courtRepository, courtCaseRepository);
-
         courtCase = buildCourtCase();
     }
 
@@ -149,6 +155,35 @@ class CourtCaseServiceTest {
         assertThatExceptionOfType(InputMismatchException.class).isThrownBy( () ->
             service.createOrUpdateCase(COURT_CODE, misMatchCaseNo, courtCase)
         ).withMessage("Case No " + misMatchCaseNo + " and Court Code " + COURT_CODE + " do not match with values from body " + CASE_NO + " and " + COURT_CODE);
+    }
+
+    @Test
+    void whenDeleteMissingCases_ThenCallRepo() {
+
+        LocalDateTime start = LocalDateTime.of(2020, Month.JANUARY, 1, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2020, Month.JANUARY, 2, 0, 0);
+        List<String> caseNos = Arrays.asList("100", "101");
+        final Map<LocalDate, List<String>> existingCases = Map.of(start.toLocalDate(), Arrays.asList("100", "101"));
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        CourtCaseEntity caseToDelete = mock(CourtCaseEntity.class);
+        when(courtCaseRepository.findCourtCasesNotIn(COURT_CODE, start, end, caseNos)).thenReturn(singletonList(caseToDelete));
+
+        service.deleteAbsentCases(COURT_CODE, existingCases);
+
+        verify(courtCaseRepository).deleteAll(Set.of(caseToDelete));
+    }
+
+    @Test
+    void givenUnknownCourt_whenDeleteMissingCases_ThenThrow() {
+
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.empty());
+        LocalDateTime start = LocalDateTime.of(2020, Month.JANUARY, 1, 0, 0);
+        final Map<LocalDate, List<String>> existingCases = Map.of(start.toLocalDate(), Arrays.asList("100", "101"));
+
+        var exception = catchThrowable(() ->
+            service.deleteAbsentCases(COURT_CODE, existingCases));
+        assertThat(exception).isInstanceOf(EntityNotFoundException.class)
+            .hasMessageContaining("Court " + COURT_CODE + " not found");
     }
 
     static CourtCaseEntity buildCourtCase() {

@@ -1,26 +1,29 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import static java.util.stream.Collectors.toMap;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
+
+import static java.util.stream.Collectors.toMap;
 
 @Service
 @Slf4j
@@ -73,6 +76,26 @@ public class CourtCaseService {
 
     public void delete(String courtCode, String caseNo) {
         courtCaseRepository.deleteById(getCaseByCaseNumber(courtCode, caseNo).getId());
+    }
+
+    @Transactional
+    public void deleteAbsentCases(String courtCode, Map<LocalDate, List<String>> existingCasesByDate) {
+        courtRepository.findByCourtCode(courtCode).orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
+
+        final Set<CourtCaseEntity> casesToDelete = new HashSet<>();
+        existingCasesByDate.forEach((dateOfHearing, existingCaseNos) -> {
+            log.debug("Delete cases for court {} on date {}, not in list {}", courtCode, dateOfHearing, existingCaseNos);
+            LocalDateTime start = LocalDateTime.of(dateOfHearing, LocalTime.MIDNIGHT);
+            LocalDateTime end = start.plusDays(1);
+            casesToDelete.addAll(courtCaseRepository.findCourtCasesNotIn(courtCode, start, end, existingCaseNos));
+        });
+
+        if (log.isDebugEnabled()) {
+            casesToDelete.forEach(aCase -> log.debug("Soft delete case no {} for court {}, session time {} ",
+                aCase.getCaseNo(), aCase.getCourtCode(), aCase.getSessionStartTime()));
+        }
+
+        courtCaseRepository.deleteAll(casesToDelete);
     }
 
     private CourtCaseEntity processAndSave(CourtCaseEntity courtCaseEntity, Optional<CourtCaseEntity> existingCourtCaseEntity) {
@@ -155,5 +178,6 @@ public class CourtCaseService {
         IntStream.range(0, sortedOffences.size()).forEach(index -> sortedOffences.get(index).setSequenceNumber(index + 1));
         return sortedOffences;
     }
+
 
 }

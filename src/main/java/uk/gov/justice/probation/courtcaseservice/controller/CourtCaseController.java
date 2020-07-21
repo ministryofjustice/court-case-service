@@ -4,6 +4,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -21,11 +26,6 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListRespon
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
-
-import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -92,5 +92,20 @@ public class CourtCaseController {
                 .map(courtCaseResponseMapper::mapFrom)
                 .collect(Collectors.toList());
         return CaseListResponse.builder().cases(courtCaseResponses).build();
+    }
+
+    @ApiOperation(value = "For the date / cases passed, delete any cases NOT in the list.")
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "If the court is not found by the code passed."),
+            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+        })
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    @PutMapping(value = "/court/{courtCode}/cases/purgeAbsent", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public void purgeAbsentCases(@PathVariable String courtCode, @Valid @RequestBody Map<LocalDate, List<String>> existingCasesByDate) {
+        courtCaseService.deleteAbsentCases(courtCode, existingCasesByDate);
     }
 }

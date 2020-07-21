@@ -1,7 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -28,6 +26,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListRespon
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Api(tags = "Court and Cases Resources")
 @RestController

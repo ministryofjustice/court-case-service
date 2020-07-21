@@ -1,9 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
-import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -18,6 +14,10 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
+import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))

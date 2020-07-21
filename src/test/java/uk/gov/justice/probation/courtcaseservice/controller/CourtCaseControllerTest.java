@@ -1,9 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,6 +15,10 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListRespon
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class CourtCaseControllerTest {
@@ -67,8 +67,8 @@ public class CourtCaseControllerTest {
 
         Map<LocalDate, List<String>> existingCases = Map.of(LocalDate.now(), Arrays.asList("1000003", "1000007"));
 
-        courtCaseController.deleteCasesByDate(COURT_CODE, existingCases);
+        courtCaseController.purgeAbsentCases(COURT_CODE, existingCases);
 
-        verify(courtCaseService).deleteMissingCases(COURT_CODE, existingCases);
+        verify(courtCaseService).deleteAbsentCases(COURT_CODE, existingCases);
     }
 }

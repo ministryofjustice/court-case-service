@@ -1,14 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.ThrowableAssert.catchThrowable;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,6 +24,15 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
+
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CourtCaseServiceTest {
@@ -168,7 +168,7 @@ class CourtCaseServiceTest {
         CourtCaseEntity caseToDelete = mock(CourtCaseEntity.class);
         when(courtCaseRepository.findCourtCasesNotIn(COURT_CODE, start, end, caseNos)).thenReturn(singletonList(caseToDelete));
 
-        service.deleteMissingCases(COURT_CODE, existingCases);
+        service.deleteAbsentCases(COURT_CODE, existingCases);
 
         verify(courtCaseRepository).deleteAll(Set.of(caseToDelete));
     }
@@ -181,7 +181,7 @@ class CourtCaseServiceTest {
         final Map<LocalDate, List<String>> existingCases = Map.of(start.toLocalDate(), Arrays.asList("100", "101"));
 
         var exception = catchThrowable(() ->
-            service.deleteMissingCases(COURT_CODE, existingCases));
+            service.deleteAbsentCases(COURT_CODE, existingCases));
         assertThat(exception).isInstanceOf(EntityNotFoundException.class)
             .hasMessageContaining("Court " + COURT_CODE + " not found");
     }

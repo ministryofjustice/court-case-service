@@ -65,7 +65,7 @@ public class CourtCaseServiceIntTest extends BaseIntTest {
         List<String> existingCases = Arrays.asList("1000003", "1000007");
         final Map<LocalDate, List<String>> existing = Map.of(date2Jan, existingCases);
 
-        courtCaseService.deleteMissingCases(COURT_CODE, existing);
+        courtCaseService.deleteAbsentCases(COURT_CODE, existing);
 
         List<String> expectedDeletions = Arrays.asList("1000002", "1000004", "1000005", "1000006");
         expectedDeletions.forEach(caseNo -> {

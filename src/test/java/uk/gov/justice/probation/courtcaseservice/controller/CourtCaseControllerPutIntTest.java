@@ -77,11 +77,6 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     private static final String JSON_CASE_NO = "1700028914";
     private static final String JSON_CASE_ID = "654321";
 
-//    @ClassRule
-//    public static final WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig()
-//            .port(WIREMOCK_PORT)
-//            .usingFilesUnderClasspath("mocks"));
-//
     @Before
     public void setup() throws Exception {
         caseDetailsJson = Files.readString(caseDetailsResource.getFile().toPath());
@@ -241,7 +236,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
             .accept(ContentType.JSON)
             .body(Map.of(date1Jan, Arrays.asList("1000000", "1000001"), date2Jan, Arrays.asList("1000003", "1000007"), date3Jan, singletonList("1000010")))
             .when()
-            .put(String.format("/court/%s/cases/purge", COURT_CODE))
+            .put(String.format("/court/%s/cases/purgeAbsent", COURT_CODE))
             .then()
             .statusCode(HttpStatus.NO_CONTENT.value())
         ;

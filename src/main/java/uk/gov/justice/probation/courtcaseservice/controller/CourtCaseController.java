@@ -97,7 +97,6 @@ public class CourtCaseController {
     @ApiOperation(value = "For the date / cases passed, delete any cases NOT in the list.")
     @ApiResponses(
         value = {
-            @ApiResponse(code = 204, message = "OK", response = CaseListResponse.class),
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
@@ -105,8 +104,8 @@ public class CourtCaseController {
             @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
         })
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    @PutMapping(value = "/court/{courtCode}/cases/purge", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public void deleteCasesByDate(@PathVariable String courtCode, @Valid @RequestBody Map<LocalDate, List<String>> existingCasesByDate) {
-        courtCaseService.deleteMissingCases(courtCode, existingCasesByDate);
+    @PutMapping(value = "/court/{courtCode}/cases/purgeAbsent", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public void purgeAbsentCases(@PathVariable String courtCode, @Valid @RequestBody Map<LocalDate, List<String>> existingCasesByDate) {
+        courtCaseService.deleteAbsentCases(courtCode, existingCasesByDate);
     }
 }

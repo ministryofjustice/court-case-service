@@ -1,7 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import static java.util.stream.Collectors.toMap;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -24,6 +22,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
+
+import static java.util.stream.Collectors.toMap;
 
 @Service
 @Slf4j
@@ -79,7 +79,7 @@ public class CourtCaseService {
     }
 
     @Transactional
-    public void deleteMissingCases(String courtCode, Map<LocalDate, List<String>> existingCasesByDate) {
+    public void deleteAbsentCases(String courtCode, Map<LocalDate, List<String>> existingCasesByDate) {
         courtRepository.findByCourtCode(courtCode).orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
 
         final Set<CourtCaseEntity> casesToDelete = new HashSet<>();

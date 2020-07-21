@@ -46,4 +46,34 @@ INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court
 '2019-12-14 23:59:59', 'No record', 'X320741');
 
 
+-- See CourtCaseControllerPutIntTest.whenPurgeCases_ThenReturn204NoContent()
+-- These records are used to test edge cases when returning court case list for a given date (midnight to 1 second before midnight the next day)
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn)
+VALUES (1000000, 1000000, 1000000, 'SHF', 1, '2020-01-01 09:00:00', 'No record', 'X320741');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn)
+VALUES (1000001, 1000001, 1000001, 'SHF', 1, '2020-01-01 09:00:00', 'No record', 'X320741');
+
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn)
+VALUES (1000002, 1000002, 1000002, 'SHF', 1, '2020-01-02 09:00:00', 'No record', 'X320741');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn)
+VALUES (1000003, 1000003, 1000003, 'SHF', 1, '2020-01-02 09:00:00', 'No record', 'X320741');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn)
+VALUES (1000004, 1000004, 1000004, 'SHF', 1, '2020-01-02 09:00:00', 'No record', 'X320741');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn)
+VALUES (1000005, 1000005, 1000005, 'SHF', 1, '2020-01-02 09:00:00', 'No record', 'X320741');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn)
+VALUES (1000006, 1000006, 1000006, 'SHF', 1, '2020-01-02 09:00:00', 'No record', 'X320741');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn)
+VALUES (1000007, 1000007, 1000007, 'SHF', 1, '2020-01-02 09:00:00', 'No record', 'X320741');
+
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn)
+VALUES (1000008, 1000008, 1000008, 'SHF', 1, '2020-01-03 09:00:00', 'No record', 'X320741');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn)
+VALUES (1000009, 1000009, 1000009, 'SHF', 1, '2020-01-03 09:00:00', 'No record', 'X320741');
+
+INSERT INTO courtcaseservicetest.OFFENCE (ID, CASE_NO, COURT_CODE, OFFENCE_TITLE, OFFENCE_SUMMARY, ACT, SEQUENCE_NUMBER	)
+VALUES (1000001, 1000001, 'SHF', 'Title', 'Summary.', 'ACT.', 1);
+INSERT INTO courtcaseservicetest.OFFENCE (ID, CASE_NO, COURT_CODE, OFFENCE_TITLE, OFFENCE_SUMMARY, ACT, SEQUENCE_NUMBER	)
+VALUES (1000002, 1000002, 'SHF', 'Title', 'Summary.', 'ACT.', 2);
+
 

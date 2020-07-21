@@ -1,11 +1,14 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collections;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,13 +38,9 @@ public class CourtCaseControllerTest {
     private final CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().caseNo(CASE_NO).courtCode(COURT_CODE).build();
     private final CourtCaseEntity courtCaseUpdate = CourtCaseEntity.builder().caseNo(CASE_NO).courtCode(COURT_CODE).build();
 
-    @BeforeEach
-    public void setUp() {
-        when(courtCaseResponseMapper.mapFrom(courtCaseEntity)).thenReturn(courtCaseResponse);
-    }
-
     @Test
     public void getCourtCase_shouldReturnCourtCaseResponse() {
+        when(courtCaseResponseMapper.mapFrom(courtCaseEntity)).thenReturn(courtCaseResponse);
         when(courtCaseService.getCaseByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(courtCaseEntity);
         CourtCaseResponse courtCase = courtCaseController.getCourtCase(COURT_CODE, CASE_NO);
         assertThat(courtCase).isEqualTo(courtCaseResponse);
@@ -49,6 +48,7 @@ public class CourtCaseControllerTest {
 
     @Test
     public void updateCaseByCourtAndCaseNo_shouldReturnCourtCaseResponse() {
+        when(courtCaseResponseMapper.mapFrom(courtCaseEntity)).thenReturn(courtCaseResponse);
         when(courtCaseService.createOrUpdateCase(COURT_CODE, CASE_NO, courtCaseUpdate)).thenReturn(courtCaseEntity);
         CourtCaseResponse courtCase = courtCaseController.updateCourtCaseNo(COURT_CODE, CASE_NO, courtCaseUpdate);
         assertThat(courtCase).isSameAs(courtCaseResponse);
@@ -56,8 +56,19 @@ public class CourtCaseControllerTest {
 
     @Test
     public void getCaseList_shouldReturnCourtCaseResponse() {
+        when(courtCaseResponseMapper.mapFrom(courtCaseEntity)).thenReturn(courtCaseResponse);
         when(courtCaseService.filterCasesByCourtAndDate(COURT_CODE, DATE)).thenReturn(Collections.singletonList(courtCaseEntity));
         CaseListResponse caseList = courtCaseController.getCaseList(COURT_CODE, DATE);
         assertThat(caseList.getCases().get(0)).isEqualTo(courtCaseResponse);
+    }
+
+    @Test
+    public void whenDeleteMissingCases_ThenCallService() {
+
+        Map<LocalDate, List<String>> existingCases = Map.of(LocalDate.now(), Arrays.asList("1000003", "1000007"));
+
+        courtCaseController.deleteCasesByDate(COURT_CODE, existingCases);
+
+        verify(courtCaseService).deleteMissingCases(COURT_CODE, existingCases);
     }
 }

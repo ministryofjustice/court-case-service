@@ -1,5 +1,15 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
+import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,12 +18,6 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-
-import java.time.LocalDateTime;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
-import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
@@ -51,6 +55,34 @@ public class CourtCaseServiceIntTest extends BaseIntTest {
         assertThat(entity.isDeleted()).isTrue();
         assertThat(entity.getOffences()).hasSize(2);
         assertThat(entity.getOffences()).extracting("deleted").contains(true, true);
+    }
+
+    @Test
+    public void whenDeleteMissingCases_ThenSoftDeleteAppliedIncludingChildOffences() {
+
+        // 2nd Jan has 1000002 through 1000007 to start with so here 1000003 and 1000007 should remain, others soft deleted
+        LocalDate date2Jan = LocalDate.of(2020, Month.JANUARY, 2);
+        List<String> existingCases = Arrays.asList("1000003", "1000007");
+        final Map<LocalDate, List<String>> existing = Map.of(date2Jan, existingCases);
+
+        courtCaseService.deleteMissingCases(COURT_CODE, existing);
+
+        List<String> expectedDeletions = Arrays.asList("1000002", "1000004", "1000005", "1000006");
+        expectedDeletions.forEach(caseNo -> {
+            CourtCaseEntity entity = courtCaseService.getCaseByCaseNumber(COURT_CODE, caseNo);
+            assertThat(entity.isDeleted()).isTrue();
+            if (!entity.getOffences().isEmpty()) {
+                assertThat(entity.getOffences()).extracting("deleted").containsOnly(true);
+            }
+        });
+
+        existingCases.forEach(caseNo -> {
+            CourtCaseEntity entity = courtCaseService.getCaseByCaseNumber(COURT_CODE, caseNo);
+            assertThat(entity.isDeleted()).isFalse();
+            if (!entity.getOffences().isEmpty()) {
+                assertThat(entity.getOffences()).extracting("deleted").containsOnly(false);
+            }
+        });
     }
 
 }

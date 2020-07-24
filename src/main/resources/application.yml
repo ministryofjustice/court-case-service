@@ -21,6 +21,8 @@ database:
     name: courtcaseservice
 
 spring:
+  application:
+    name: court-case-service
   security:
     oauth2:
       client:

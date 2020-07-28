@@ -4,21 +4,21 @@ ignore:
   SNYK-DEBIAN10-PERL-570792:
     - '*':
         reason: Not production and no use of perl
-        expires: 2020-07-25T00:00:00.000Z
+        expires: 2020-08-08T00:00:00.000Z
   SNYK-DEBIAN10-PERL-570802:
     - '*':
         reason: Not production and no use of perl
-        expires: 2020-07-25T00:00:00.000Z
+        expires: 2020-08-08T00:00:00.000Z
   SNYK-DEBIAN10-PCRE3-572367:
     - '*':
         reason: >-
           Not production and no use of PCRE (Perl Compatible Regular
           Expressions)
-        expires: 2020-07-25T00:00:00.000Z
+        expires: 2020-08-08T00:00:00.000Z
   SNYK-DEBIAN10-PERL-570797:
     - '*':
         reason: Not production and no use of Perl
-        expires: 2020-07-25T12:29:18.476Z
+        expires: 2020-08-08T12:29:18.476Z
   SNYK-JAVA-ORGHIBERNATE-584563:
     - '*':
         reason: Cannot fix without replacing spring-boot-jpa-data dependencies

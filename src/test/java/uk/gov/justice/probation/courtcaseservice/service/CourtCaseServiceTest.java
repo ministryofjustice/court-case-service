@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Map;
@@ -167,6 +168,21 @@ class CourtCaseServiceTest {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
         CourtCaseEntity caseToDelete = mock(CourtCaseEntity.class);
         when(courtCaseRepository.findCourtCasesNotIn(COURT_CODE, start, end, caseNos)).thenReturn(singletonList(caseToDelete));
+
+        service.deleteAbsentCases(COURT_CODE, existingCases);
+
+        verify(courtCaseRepository).deleteAll(Set.of(caseToDelete));
+    }
+
+    @Test
+    void whenDeleteMissingCasesForWholeDay_ThenCallRepo() {
+
+        LocalDateTime start = LocalDateTime.of(2020, Month.JANUARY, 1, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2020, Month.JANUARY, 2, 0, 0);
+        final Map<LocalDate, List<String>> existingCases = Map.of(start.toLocalDate(), Collections.emptyList());
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        CourtCaseEntity caseToDelete = mock(CourtCaseEntity.class);
+        when(courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(COURT_CODE, start, end)).thenReturn(singletonList(caseToDelete));
 
         service.deleteAbsentCases(COURT_CODE, existingCases);
 

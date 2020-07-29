@@ -87,7 +87,12 @@ public class CourtCaseService {
             log.debug("Delete cases for court {} on date {}, not in list {}", courtCode, dateOfHearing, existingCaseNos);
             LocalDateTime start = LocalDateTime.of(dateOfHearing, LocalTime.MIDNIGHT);
             LocalDateTime end = start.plusDays(1);
-            casesToDelete.addAll(courtCaseRepository.findCourtCasesNotIn(courtCode, start, end, existingCaseNos));
+            if (existingCaseNos.isEmpty()) {
+                casesToDelete.addAll(courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(courtCode, start, end));
+            }
+            else {
+                casesToDelete.addAll(courtCaseRepository.findCourtCasesNotIn(courtCode, start, end, existingCaseNos));
+            }
         });
 
         if (log.isDebugEnabled()) {

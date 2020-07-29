@@ -91,3 +91,6 @@ community-api:
 
 offender-assessments-api:
   latest-assessment-crn-url-template: /offenders/crn/%s/assessments/latest
+
+health:
+  default-ping-path: /ping

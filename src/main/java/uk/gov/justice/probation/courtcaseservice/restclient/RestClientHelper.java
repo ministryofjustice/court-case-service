@@ -2,8 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.restclient;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.boot.actuate.health.Health;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
@@ -103,20 +101,5 @@ public class RestClientHelper {
             clientResponse.headers().asHttpHeaders(),
             clientResponse.toString().getBytes(),
             StandardCharsets.UTF_8);
-    }
-
-    @NotNull
-    public Mono<Health> ping() {
-        return get("/ping", MediaType.TEXT_PLAIN)
-                .exchange()
-                .map(response -> {
-                    if(response.statusCode().is2xxSuccessful()) {
-                        return new Health.Builder().up().build();
-                    } else {
-                        return Health.down().withDetail("httpStatus", response.statusCode().toString()).build();
-                    }
-
-                })
-                .onErrorResume(ex -> Mono.just(new Health.Builder().down(ex).build()));
     }
 }

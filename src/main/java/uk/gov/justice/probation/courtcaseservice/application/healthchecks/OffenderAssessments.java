@@ -1,22 +1,23 @@
-package uk.gov.justice.probation.courtcaseservice.application;
+package uk.gov.justice.probation.courtcaseservice.application.healthchecks;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.ReactiveHealthIndicator;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper;
 
 @Component
-public class OffenderAssessmentsPing implements ReactiveHealthIndicator {
+public class OffenderAssessments implements ReactiveHealthIndicator {
     @Autowired
-    @Qualifier("assessmentsApiClient")
-    private RestClientHelper assessmentsClient;
+    @Qualifier("assessmentsWebClient")
+    private WebClient assessmentsWebClient;
+    @Autowired
+    private Pinger pinger;
 
     @Override
     public Mono<Health> health() {
-        return assessmentsClient.ping();
+        return pinger.ping(assessmentsWebClient);
     }
-
 }

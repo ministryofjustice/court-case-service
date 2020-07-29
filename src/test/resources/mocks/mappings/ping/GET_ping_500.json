@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/pingbad"
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "Content-Type": "text/plain"
+    },
+    "body": "SERVER ERROR"
+  }
+}

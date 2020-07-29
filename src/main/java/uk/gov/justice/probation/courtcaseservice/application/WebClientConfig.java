@@ -23,6 +23,9 @@ public class WebClientConfig {
     @Value("${offender-assessments-api.base-url}")
     private String assessmentsApiBaseUrl;
 
+    @Value("${nomis-oauth.base-url}")
+    private String oauthApiBaseUrl;
+
     @Bean
     public RestClientHelper communityApiClient(WebClient communityWebClient) {
         return new RestClientHelper(communityWebClient, "community-api-client", disableAuthentication);
@@ -37,10 +40,14 @@ public class WebClientConfig {
     public WebClient communityWebClient(OAuth2AuthorizedClientManager authorizedClientManager) {
         return webClientFactory(communityApiBaseUrl, authorizedClientManager);
     }
-
     @Bean
     public WebClient assessmentsWebClient(OAuth2AuthorizedClientManager authorizedClientManager) {
         return webClientFactory(assessmentsApiBaseUrl, authorizedClientManager);
+    }
+
+    @Bean
+    public WebClient oauthWebClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+        return webClientFactory(oauthApiBaseUrl, authorizedClientManager);
     }
 
     private WebClient webClientFactory(String baseUrl, OAuth2AuthorizedClientManager authorizedClientManager) {

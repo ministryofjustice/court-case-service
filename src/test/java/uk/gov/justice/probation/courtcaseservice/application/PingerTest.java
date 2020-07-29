@@ -54,6 +54,6 @@ public class PingerTest extends BaseIntTest {
                 .block();
 
         assertThat(health.getStatus()).isEqualTo(DOWN);
-        assertThat(health.getDetails().get("error")).isEqualTo("java.net.UnknownHostException: notarealhost: nodename nor servname provided, or not known");
+        assertThat(health.getDetails().get("error")).asString().contains("UnknownHostException");
     }
 }

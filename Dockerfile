@@ -23,6 +23,7 @@ WORKDIR /app
 COPY build/libs/court-case-service-*.jar /app/court-case-service.jar
 COPY build/libs/applicationinsights-agent*.jar /app/agent.jar
 COPY AI-Agent.xml /app
+COPY ApplicationInsights.json /app
 COPY run.sh /app
 RUN chown -R appuser:appgroup /app
 

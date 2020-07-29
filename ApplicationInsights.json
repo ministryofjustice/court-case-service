@@ -1,0 +1,12 @@
+{
+  "instrumentationSettings": {
+    "preview": {
+      "selfDiagnostics": {
+        "destination": "file",
+        "directory": "~/applicationinsights",
+        "level": "DEBUG",
+        "maxSizeMB": 10
+      }
+    }
+  }
+}

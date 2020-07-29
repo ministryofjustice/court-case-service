@@ -9,7 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
-
 import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper;
 
 @EnableJpaAuditing
@@ -24,13 +23,13 @@ public class WebClientConfig {
     @Value("${offender-assessments-api.base-url}")
     private String assessmentsApiBaseUrl;
 
-    @Bean(name = "communityApiClient")
-    public RestClientHelper getCommunityApiClient(WebClient communityWebClient) {
+    @Bean
+    public RestClientHelper communityApiClient(WebClient communityWebClient) {
         return new RestClientHelper(communityWebClient, "community-api-client", disableAuthentication);
     }
 
-    @Bean(name = "assessmentsApiClient")
-    public RestClientHelper getAssessmentsApiClient(WebClient assessmentsWebClient) {
+    @Bean
+    public RestClientHelper assessmentsApiClient(WebClient assessmentsWebClient) {
         return new RestClientHelper(assessmentsWebClient, "offender-assessments-api-client", disableAuthentication);
     }
 

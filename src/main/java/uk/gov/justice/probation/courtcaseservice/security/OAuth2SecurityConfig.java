@@ -21,7 +21,15 @@ public class OAuth2SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and().authorizeRequests(auth ->
                     auth
-                        .mvcMatchers("/health", "/ping").permitAll()
+                        .mvcMatchers(
+                                "/health",
+                                "/ping",
+                                "/swagger-resources/**",
+                                "/v2/api-docs",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/webjars/springfox-swagger-ui/**"
+                        ).permitAll()
                         .anyRequest().hasRole("PREPARE_A_CASE")
                 ).oauth2ResourceServer().jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());
     }

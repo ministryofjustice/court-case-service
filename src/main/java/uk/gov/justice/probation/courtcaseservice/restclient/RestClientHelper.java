@@ -27,11 +27,11 @@ public class RestClientHelper {
     private String oauthClient;
     private Boolean disableAuthentication;
 
-    WebClient.RequestHeadersSpec<?> get(final String path) {
+    public WebClient.RequestHeadersSpec<?> get(final String path) {
         return get(path, new LinkedMultiValueMap(0));
     }
 
-    WebClient.RequestHeadersSpec<?> get(final String path, final MultiValueMap<String, String> queryParams) {
+    public WebClient.RequestHeadersSpec<?> get(final String path, final MultiValueMap<String, String> queryParams) {
         final WebClient.RequestHeadersSpec<?> spec = client
             .get()
             .uri(uriBuilder -> uriBuilder
@@ -44,7 +44,7 @@ public class RestClientHelper {
         return addSpecAuthAttribute(spec, path);
     }
 
-    WebClient.RequestHeadersSpec<?> get(final String path, final MediaType mediaType) {
+    public WebClient.RequestHeadersSpec<?> get(final String path, final MediaType mediaType) {
         final WebClient.RequestHeadersSpec<?> spec = client
             .get()
             .uri(uriBuilder -> uriBuilder

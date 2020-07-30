@@ -94,3 +94,10 @@ offender-assessments-api:
 
 health:
   default-ping-path: /ping
+
+
+web:
+  client:
+    connect-timeout-ms: 20000
+    read-timeout-ms: 5000
+    write-timeout-ms: 5000

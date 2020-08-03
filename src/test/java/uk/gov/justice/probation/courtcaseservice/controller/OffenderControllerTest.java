@@ -122,19 +122,6 @@ class OffenderControllerTest {
         verify(offenderService).getConvictionRequirements(CRN, CONVICTION_ID);
     }
 
-    @DisplayName("Ensures that the controller calls the service and returns the same current order header details")
-    @Test
-    public void whenGetCurrentOrderHeaderDetail_thenReturnIt() {
-
-        when(convictionService.getCurrentOrderHeader(CRN, 1234L, SENTENCE_ID)).thenReturn(expectedCurrentOrderHeaderResponse);
-
-        CurrentOrderHeaderResponse currentOrderHeaderResponse = controller.getCurrentOrderHeaderDetail(CRN, 1234L, SENTENCE_ID);
-
-        assertThat(currentOrderHeaderResponse).isNotNull();
-        assertThat(currentOrderHeaderResponse).isEqualTo(expectedCurrentOrderHeaderResponse);
-        verify(convictionService).getCurrentOrderHeader(CRN, 1234L, SENTENCE_ID);
-    }
-
     @DisplayName("Ensures that the controller calls the service and returns the same breach")
     @Test
     public void whenGetBreach_thenReturnIt() {

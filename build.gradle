@@ -3,7 +3,7 @@ import java.time.LocalDate
 
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.2.8.RELEASE'
+    id 'org.springframework.boot' version '2.2.9.RELEASE'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'com.github.ben-manes.versions' version '0.26.0'
     id "org.flywaydb.flyway" version "6.1.0"

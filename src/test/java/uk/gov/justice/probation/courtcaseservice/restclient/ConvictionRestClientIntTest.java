@@ -9,7 +9,6 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
-import uk.gov.justice.probation.courtcaseservice.restclient.exception.CurrentOrderHeaderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 
 import java.util.List;
@@ -85,14 +84,21 @@ public class ConvictionRestClientIntTest extends BaseIntTest {
 
     @Test
     public void whenGetCurrentOrderHeaderDetailByCrnAndConvictionIdAndSentenceIdToCommunityApi() {
-        final Optional<CurrentOrderHeaderResponse> response = webTestClient.getCurrentOrderHeaderDetail(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID).blockOptional();
+        final Optional<CurrentOrderHeaderResponse> response = webTestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID).blockOptional();
 
         assertThat(response).isPresent();
     }
 
-    @Test(expected = CurrentOrderHeaderNotFoundException.class)
+    @Test(expected = WebClientResponseException.class)
     public void givenServiceThrowsError_whenGetCurrentOrderHeaderByCrnCalled_thenFailFastAndThrowException() {
-        webTestClient.getCurrentOrderHeaderDetail(UNKNOWN_CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID).block();
+        webTestClient.getCurrentOrderHeader(SERVER_ERROR_CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID).block();
     }
 
+    @Test
+    public void givenServiceReturns404_whenGetCurrentOrderHeaderByCrnCalled_thenReturnDefault() {
+        CurrentOrderHeaderResponse response = webTestClient.getCurrentOrderHeader(UNKNOWN_CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID).block();
+        assertThat(response.getSentenceId()).isEqualTo(SOME_SENTENCE_ID);
+        assertThat(response.getCustodialType().getCode()).isEqualTo("NOT_IN_CUSTODY");
+        assertThat(response.getCustodialType().getDescription()).isEqualTo("Not in custody");
+    }
 }

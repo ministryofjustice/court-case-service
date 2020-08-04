@@ -15,8 +15,10 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiAttendances;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCurrentOrderHeaderDetailResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.CustodialStatusNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 
 import java.util.List;
 
@@ -35,7 +37,7 @@ public class ConvictionRestClient {
     private String convictionUrlTemplate;
 
     @Value("${community-api.current-order-header-url-template}")
-    private String currentOrderHeaderTemplate;
+    private String custodialStatusUrlTemplate;
 
     @Autowired
     private AttendanceMapper attendanceMapper;
@@ -53,6 +55,7 @@ public class ConvictionRestClient {
             .retrieve()
             .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
             .bodyToMono(CommunityApiAttendances.class)
+            // TODO: doOnError will swallow the exception and fail later - use onErrorMap
             .doOnError(e -> log.error(String.format(ERROR_MSG_FORMAT, "sentence attendance", crn, convictionId), e))
             .map(attendances -> attendanceMapper.attendancesFrom(attendances, crn, convictionId));
     }
@@ -64,18 +67,38 @@ public class ConvictionRestClient {
             .retrieve()
             .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
             .bodyToMono(CommunityApiConvictionResponse.class)
+            // TODO: doOnError will swallow the exception and fail later - use onErrorMap
             .doOnError(e -> log.error(String.format(ERROR_MSG_FORMAT, "conviction", crn, convictionId), e))
             .map(convictionResponse -> offenderMapper.convictionFrom(convictionResponse));
     }
 
 
-    public Mono<CurrentOrderHeaderResponse> getCurrentOrderHeaderDetail(final String crn, final Long convictionId, final Long sentenceId) {
-        final String path = String.format(currentOrderHeaderTemplate, crn, convictionId, sentenceId);
+    public Mono<CurrentOrderHeaderResponse> getCurrentOrderHeader(final String crn, final Long convictionId, final Long sentenceId) {
+        final String path = String.format(custodialStatusUrlTemplate, crn, convictionId, sentenceId);
         return clientHelper.get(path)
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleCurrentOrderHeaderError(crn, convictionId, sentenceId, clientResponse))
-                .bodyToMono(CommunityApiCurrentOrderHeaderDetailResponse.class)
-                .doOnError(e -> log.error(String.format(ERROR_MSG_FORMAT, "sentence current order header detail ", crn, convictionId), e))
-                .map(currentOrderHeaderDetailResponse -> offenderMapper.buildCurrentOrderHeaderDetail(currentOrderHeaderDetailResponse));
+                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleCustodialStatusError(crn, convictionId, sentenceId, clientResponse))
+                .bodyToMono(CommunityApiCustodialStatusResponse.class)
+                // TODO: Remove onErrorResume step - This fallback is a temporary measure pending fix of PIC-674.
+                // The community api will return a 404 if the offender has no custody associated with their sentence but it
+                // should return a status of 'Not in custody'. This error handling is a temporary measure to allow graceful
+                // degradation when this happens
+                .onErrorResume(CustodialStatusNotFoundException.class, e -> Mono.just(buildNotInCustodyResponse(sentenceId)))
+                .onErrorMap(e1 -> {
+                    log.error(String.format(ERROR_MSG_FORMAT, "sentence current order header detail ", crn, convictionId), e1);
+                    return e1;
+                })
+                .map(custodialStatusResponse -> offenderMapper.buildCurrentOrderHeaderDetail(custodialStatusResponse));
+    }
+
+    public CommunityApiCustodialStatusResponse buildNotInCustodyResponse(Long sentenceId) {
+
+        return CommunityApiCustodialStatusResponse.builder()
+                .sentenceId(sentenceId)
+                .custodialType(KeyValue.builder()
+                        .code("NOT_IN_CUSTODY")
+                        .description("Not in custody")
+                        .build())
+                .build();
     }
 }

@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CommunityApiCurrentOrderHeaderDetailResponse {
+public class CommunityApiCustodialStatusResponse {
     @JsonProperty
     private Long sentenceId;
     @JsonProperty

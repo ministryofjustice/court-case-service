@@ -12,7 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient.RequestHeaders
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
-import uk.gov.justice.probation.courtcaseservice.restclient.exception.CurrentOrderHeaderNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.CustodialStatusNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.NsiNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 
@@ -80,9 +80,9 @@ public class RestClientHelper {
         return handleError(clientResponse);
     }
 
-    public Mono<? extends Throwable> handleCurrentOrderHeaderError(final String crn, Long convictionId, Long sentenceId, final ClientResponse clientResponse) {
+    public Mono<? extends Throwable> handleCustodialStatusError(final String crn, Long convictionId, Long sentenceId, final ClientResponse clientResponse) {
         if (HttpStatus.NOT_FOUND.equals(clientResponse.statusCode())) {
-            return Mono.error(new CurrentOrderHeaderNotFoundException(crn, convictionId, sentenceId));
+            return Mono.error(new CustodialStatusNotFoundException(crn, convictionId, sentenceId));
         }
         return handleError(clientResponse);
     }

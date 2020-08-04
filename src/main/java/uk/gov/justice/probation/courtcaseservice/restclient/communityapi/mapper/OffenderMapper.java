@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCurrentOrderHeaderDetailResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderManager;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementResponse;
@@ -70,18 +70,18 @@ public class OffenderMapper {
                 .build();
     }
 
-    public CurrentOrderHeaderResponse buildCurrentOrderHeaderDetail(CommunityApiCurrentOrderHeaderDetailResponse currentOrderHeaderDetail) {
+    public CurrentOrderHeaderResponse buildCurrentOrderHeaderDetail(CommunityApiCustodialStatusResponse custodialStatusResponse) {
         return CurrentOrderHeaderResponse.builder()
-                .sentenceId(currentOrderHeaderDetail.getSentenceId())
-                .custodialType(currentOrderHeaderDetail.getCustodialType())
-                .sentenceDescription(currentOrderHeaderDetail.getSentence().getDescription())
-                .mainOffenceDescription(currentOrderHeaderDetail.getMainOffence().getDescription())
-                .sentenceDate(currentOrderHeaderDetail.getSentenceDate())
-                .actualReleaseDate(currentOrderHeaderDetail.getActualReleaseDate())
-                .licenceExpiryDate(currentOrderHeaderDetail.getLicenceExpiryDate())
-                .pssEndDate(currentOrderHeaderDetail.getPssEndDate())
-                .length(currentOrderHeaderDetail.getLength())
-                .lengthUnits(currentOrderHeaderDetail.getLengthUnits())
+                .sentenceId(custodialStatusResponse.getSentenceId())
+                .custodialType(custodialStatusResponse.getCustodialType())
+                .sentenceDescription(custodialStatusResponse.getSentence() != null ? custodialStatusResponse.getSentence().getDescription() : null)
+                .mainOffenceDescription(custodialStatusResponse.getMainOffence() != null ?custodialStatusResponse.getMainOffence().getDescription() : null)
+                .sentenceDate(custodialStatusResponse.getSentenceDate())
+                .actualReleaseDate(custodialStatusResponse.getActualReleaseDate())
+                .licenceExpiryDate(custodialStatusResponse.getLicenceExpiryDate())
+                .pssEndDate(custodialStatusResponse.getPssEndDate())
+                .length(custodialStatusResponse.getLength())
+                .lengthUnits(custodialStatusResponse.getLengthUnits())
                 .build();
     }
 

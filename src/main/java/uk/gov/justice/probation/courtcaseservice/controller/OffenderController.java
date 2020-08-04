@@ -1,19 +1,12 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.util.Optional;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
-import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +15,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
+import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
+import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
 import uk.gov.justice.probation.courtcaseservice.service.BreachService;
@@ -30,6 +24,12 @@ import uk.gov.justice.probation.courtcaseservice.service.ConvictionService;
 import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
+
+import javax.validation.constraints.NotNull;
+import java.util.Optional;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Api(tags = "Offender Resources", produces = APPLICATION_JSON_VALUE)
 @RestController
@@ -101,10 +101,6 @@ public class OffenderController {
             return convictionService.getConvictionOnly(crn, convictionId);
         }
         return convictionService.getSentence(crn, convictionId, sentenceId);
-    }
-
-    public CurrentOrderHeaderResponse getCurrentOrderHeaderDetail(@PathVariable String crn, @PathVariable Long convictionId, @PathVariable Long sentenceId) {
-        return convictionService.getCurrentOrderHeader(crn, convictionId, sentenceId);
     }
 
     @ApiOperation(value = "Gets Breach data by CRN, conviction ID and breach id.")

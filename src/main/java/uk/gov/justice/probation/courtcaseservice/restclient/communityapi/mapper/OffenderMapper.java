@@ -100,7 +100,7 @@ public class OffenderMapper {
                 .terminationDate(requirement.getTerminationDate())
                 .expectedStartDate(requirement.getExpectedStartDate())
                 .expectedEndDate(requirement.getExpectedEndDate())
-                .active(requirement.getActive() != null && requirement.getActive().booleanValue())
+                .active(requirement.getActive() != null && requirement.getActive())
                 .length(requirement.getLength())
                 .lengthUnit(requirement.getLengthUnit())
                 .adRequirementTypeMainCategory(requirement.getAdRequirementTypeMainCategory())
@@ -113,6 +113,7 @@ public class OffenderMapper {
 
     private Sentence buildSentence(final CommunityApiSentence communityApiSentence) {
         return Sentence.builder()
+            .sentenceId(communityApiSentence.getSentenceId() != null ? communityApiSentence.getSentenceId().toString() : null)
             .description(communityApiSentence.getDescription())
             .length(communityApiSentence.getOriginalLength())
             .lengthUnits(communityApiSentence.getOriginalLengthUnits())

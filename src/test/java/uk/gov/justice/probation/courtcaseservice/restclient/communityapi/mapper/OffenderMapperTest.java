@@ -1,17 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.io.File;
-import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +15,16 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class OffenderMapperTest {
 
@@ -114,6 +115,7 @@ public class OffenderMapperTest {
         assertThat(conviction1.getOffences()).hasSize(1);
         assertThat(conviction1.getOffences().get(0).getDescription()).isEqualTo("Assault on Police Officer - 10400");
 
+        assertThat(conviction1.getSentence().getSentenceId()).isEqualTo("123456");
         assertThat(conviction1.getSentence().getDescription()).isEqualTo("Absolute/Conditional Discharge");
         assertThat(conviction1.getSentence().getLength()).isEqualTo(0);
         assertThat(conviction1.getSentence().getLengthUnits()).isEqualTo("Months");
@@ -134,6 +136,7 @@ public class OffenderMapperTest {
         Conviction conviction2 = convictions.get(1);
         assertThat(conviction2.getConvictionId()).isEqualTo("2500295345");
         assertThat(conviction2.getInBreach()).isFalse();
+        assertThat(conviction2.getSentence().getSentenceId()).isEqualTo("123457");
         assertThat(conviction2.getSentence().getDescription()).isEqualTo("CJA - Indeterminate Public Prot.");
         assertThat(conviction2.getSentence().getTerminationDate()).isEqualTo(LocalDate.of(2019,1,1));
         assertThat(conviction2.getSentence().getTerminationReason()).isEqualTo("ICMS Miscellaneous Event");

@@ -7,8 +7,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentence;
@@ -264,6 +266,50 @@ public class OffenderMapperTest {
             .readValue(new File(BASE_MOCK_PATH + "offender-requirements/GET_requirements_X320741_empty.json"), CommunityApiRequirementsResponse.class);
 
         assertThat(emptyResponse.getRequirements()).isEmpty();
+    }
+
+    @DisplayName("Test custodial status mapping of values")
+    @Test
+    void shouldMapFullCustodialStatus() {
+        LocalDate actualReleaseDate = LocalDate.of(2020, 8, 5);
+        LocalDate licenceExpiryDate = LocalDate.of(2020, 8, 6);
+        LocalDate pssEndDate = LocalDate.of(2020, 8, 7);
+        LocalDate sentenceDate = LocalDate.of(2020, 8, 8);
+        CommunityApiCustodialStatusResponse response = CommunityApiCustodialStatusResponse.builder()
+                .sentenceId(1234L)
+                .actualReleaseDate(actualReleaseDate)
+                .custodialType(KeyValue.builder().code("CODE").description("DESCRIPTION").build())
+                .length(2)
+                .lengthUnits("Months")
+                .licenceExpiryDate(licenceExpiryDate)
+                .mainOffence(KeyValue.builder().description("Main Offence").build())
+                .pssEndDate(pssEndDate)
+                .sentenceDate(sentenceDate)
+                .sentence(KeyValue.builder().description("Sentence Description").build())
+                .build();
+
+        CurrentOrderHeaderResponse orderHeaderResponse = mapper.buildCurrentOrderHeaderDetail(response);
+
+        assertThat(orderHeaderResponse).isNotNull();
+        assertThat(orderHeaderResponse.getSentenceId()).isEqualTo(1234);
+        assertThat(orderHeaderResponse.getCustodialType().getCode()).isEqualTo("CODE");
+        assertThat(orderHeaderResponse.getCustodialType().getDescription()).isEqualTo("DESCRIPTION");
+        assertThat(orderHeaderResponse.getActualReleaseDate()).isEqualTo(actualReleaseDate);
+        assertThat(orderHeaderResponse.getLength()).isEqualTo(2);
+        assertThat(orderHeaderResponse.getLengthUnits()).isEqualTo("Months");
+        assertThat(orderHeaderResponse.getLicenceExpiryDate()).isEqualTo(licenceExpiryDate);
+        assertThat(orderHeaderResponse.getMainOffenceDescription()).isEqualTo("Main Offence");
+        assertThat(orderHeaderResponse.getPssEndDate()).isEqualTo(pssEndDate);
+        assertThat(orderHeaderResponse.getSentenceDate()).isEqualTo(sentenceDate);
+        assertThat(orderHeaderResponse.getSentenceDescription()).isEqualTo("Sentence Description");
+    }
+
+    @DisplayName("Test custodial status mapping of nulls")
+    @Test
+    void shouldMapEmptyCustodialStatus() {
+        CommunityApiCustodialStatusResponse response = CommunityApiCustodialStatusResponse.builder().build();
+        CurrentOrderHeaderResponse orderHeaderResponse = mapper.buildCurrentOrderHeaderDetail(response);
+        assertThat(orderHeaderResponse).isNotNull();
     }
 
 }

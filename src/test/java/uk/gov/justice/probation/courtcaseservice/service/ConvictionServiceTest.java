@@ -1,7 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +16,9 @@ import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNo
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
+
+import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -57,7 +58,7 @@ class ConvictionServiceTest {
 
         when(restClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(attendancesResponse));
         when(restClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(conviction));
-        when(restClient.getCurrentOrderHeaderDetail(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
+        when(restClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
 
         final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
 
@@ -75,7 +76,7 @@ class ConvictionServiceTest {
         conviction = Conviction.builder().convictionId(String.valueOf(SOME_CONVICTION_ID)).build();
         when(restClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(attendancesResponse));
         when(restClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(conviction));
-        when(restClient.getCurrentOrderHeaderDetail(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
+        when(restClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
 
         final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
 
@@ -92,7 +93,7 @@ class ConvictionServiceTest {
 
         when(restClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
         when(restClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(conviction));
-        when(restClient.getCurrentOrderHeaderDetail(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
+        when(restClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
 
         final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
 
@@ -109,7 +110,7 @@ class ConvictionServiceTest {
 
         when(restClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
         when(restClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
-        when(restClient.getCurrentOrderHeaderDetail(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
+        when(restClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
 
         assertThatExceptionOfType(OffenderNotFoundException.class)
             .isThrownBy(() -> service.getSentence(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID))
@@ -120,11 +121,11 @@ class ConvictionServiceTest {
     @Test
     public void givenCurrentOrderHeaderDetail_whenGetCurrentOrderHeaderDetail_returnCurrentOrderHeaderDetail() {
 
-        when(restClient.getCurrentOrderHeaderDetail(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
+        when(restClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
 
         final CurrentOrderHeaderResponse response = service.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
 
         assertThat(response).isEqualTo(currentOrderHeaderResponse);
-        verify(restClient).getCurrentOrderHeaderDetail(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
+        verify(restClient).getCurrentOrderHeader(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
     }
 }

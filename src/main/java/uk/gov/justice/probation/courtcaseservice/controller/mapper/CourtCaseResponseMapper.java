@@ -1,17 +1,19 @@
 package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Optional;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -42,7 +44,19 @@ public class CourtCaseResponseMapper {
                 .nationality2(courtCaseEntity.getNationality2())
                 .createdToday(LocalDate.now().isEqual(Optional.ofNullable(courtCaseEntity.getCreated()).orElse(LocalDateTime.now()).toLocalDate()))
                 .removed(courtCaseEntity.isDeleted())
+                .numberOfPossibleMatches(calculateNumberOfPossibleMatches(courtCaseEntity.getGroupedOffenderMatches()))
                 .build();
+    }
+
+    public long calculateNumberOfPossibleMatches(List<GroupedOffenderMatchesEntity> groupedOffenderMatches) {
+        if (groupedOffenderMatches == null) {
+            return 0;
+        }
+        return groupedOffenderMatches.stream()
+                .flatMap(group -> group.getOffenderMatches().stream())
+                .map(OffenderMatchEntity::getCrn)
+                .distinct()
+                .count();
     }
 
     private List<OffenceResponse> mapOffencesFrom(CourtCaseEntity courtCaseEntity) {

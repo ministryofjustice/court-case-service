@@ -79,14 +79,14 @@ VALUES (1000002, 1000002, 'SHF', 'Title', 'Summary.', 'ACT.', 2);
 
 
 INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE)
-VALUES (1, '1600028913','SHF');
+VALUES (9999991, '1600028913','SHF');
 INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE)
-VALUES (2, '1600028913','SHF');
+VALUES (9999992, '1600028913','SHF');
 
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
-VALUES (false, '1234', '12345', 'NAME_DOB', '123456', 1);
+VALUES (false, '1234', '12345', 'NAME_DOB', '123456', 9999991);
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
-VALUES (false, '2234', '22345', 'NAME_DOB', '223456', 1);
+VALUES (false, '2234', '22345', 'NAME_DOB', '223456', 9999991);
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
-VALUES (false, '3234', '32345', 'NAME_DOB', '323456', 2);
+VALUES (false, '3234', '32345', 'NAME_DOB', '323456', 9999992);
 

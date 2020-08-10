@@ -143,6 +143,7 @@ jobs:
           name: Build docker image
           command: |
             docker build --rm=false . \
+               --pull \
                --tag "mojdigitalstudio/court-case-service:$APP_VERSION" \
                --label "maintainer=info@digital.justice.gov.uk" \
                --label "app.version=$APP_VERSION" \

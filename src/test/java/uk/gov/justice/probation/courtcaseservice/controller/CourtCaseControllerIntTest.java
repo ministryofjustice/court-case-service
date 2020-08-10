@@ -55,11 +55,13 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
                 .assertThat()
                 .statusCode(200)
                 .body("cases[0].courtCode", equalTo(COURT_CODE))
+                .body("cases[0].caseNo", equalTo("1600028913"))
                 .body("cases[0].caseId", equalTo("5555555"))
                 .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 9, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[0].offences", hasSize(2))
                 .body("cases[0].offences[0].sequenceNumber", equalTo(1))
                 .body("cases[0].offences[1].sequenceNumber", equalTo(2))
+                .body("cases[0].numberOfPossibleMatches", equalTo(3))
                 .body("cases[1].lastUpdated", containsString(now.format(DateTimeFormatter.ISO_DATE)))
                 .body("cases[1].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 0, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[2].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)));
@@ -168,6 +170,7 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
                 .body("nationality2", equalTo("Polish"))
                 .body("removed", equalTo(false))
                 .body("createdToday", equalTo(true))
+                .body("numberOfPossibleMatches", equalTo(3))
         ;
     }
 

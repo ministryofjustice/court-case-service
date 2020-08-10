@@ -3,7 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import uk.gov.justice.probation.courtcaseservice.service.model.MatchType;
@@ -24,7 +24,7 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @SuperBuilder
-@Data
+@Getter
 @Table(name = "OFFENDER_MATCH")
 public class OffenderMatchEntity extends BaseEntity {
 

@@ -212,7 +212,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .accept(APPLICATION_JSON_VALUE)
                 .contentType(APPLICATION_JSON_VALUE)
             .when()
-                .get("/court/SHF/case/1600028913/grouped-offender-matches/9999991")
+                .get("/court/"+ COURT_CODE +"/case/1600028913/grouped-offender-matches/9999991")
             .then()
                 .statusCode(200)
                 .body("offenderMatches[0].crn", equalTo("1234"))

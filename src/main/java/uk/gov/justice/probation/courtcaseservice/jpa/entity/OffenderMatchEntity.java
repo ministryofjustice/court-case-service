@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import uk.gov.justice.probation.courtcaseservice.service.model.MatchType;
 
@@ -47,8 +48,13 @@ public class OffenderMatchEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MatchType matchType;
 
+    @Setter
     @Column(name = "CONFIRMED", nullable = false)
     private Boolean confirmed;
+
+    @Setter
+    @Column(name = "REJECTED", nullable = false)
+    private Boolean rejected;
 
     @JoinColumn(name = "GROUP_ID", referencedColumnName = "ID", nullable = false)
     @ManyToOne(optional = false)

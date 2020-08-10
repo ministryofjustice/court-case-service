@@ -1,0 +1,3 @@
+ALTER TABLE offender_match ADD COLUMN REJECTED BOOLEAN;
+
+

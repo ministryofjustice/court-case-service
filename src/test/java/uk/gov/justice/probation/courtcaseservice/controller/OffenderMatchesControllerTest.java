@@ -50,7 +50,8 @@ public class OffenderMatchesControllerTest {
                 "                \"crn\": \"X346204\"\n" +
                 "            },\n" +
                 "            \"matchType\": \"NAME_DOB\",\n" +
-                "            \"confirmed\": \"true\"\n" +
+                "            \"confirmed\": \"true\",\n" +
+                "            \"rejected\": \"false\"\n" +
                 "        }\n" +
                 "    ]\n" +
                 "}")

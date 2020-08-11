@@ -22,4 +22,6 @@ public class OffenderMatchRequest {
     private final MatchType matchType;
     @NotNull
     private final Boolean confirmed;
+    @NotNull
+    private final Boolean rejected;
 }

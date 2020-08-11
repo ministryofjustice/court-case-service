@@ -29,12 +29,14 @@ class OffenderMatchMapperTest {
         var groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
                 .matches(Arrays.asList(OffenderMatchRequest.builder()
                             .matchType(MatchType.NAME)
-                            .confirmed(false)
+                            .confirmed(true)
+                            .rejected(false)
                             .matchIdentifiers(new MatchIdentifiers("CRN1", "PNC1", "CRO1"))
                             .build(),
                         OffenderMatchRequest.builder()
                                 .matchType(MatchType.NAME)
                                 .confirmed(false)
+                                .rejected(true)
                                 .matchIdentifiers(new MatchIdentifiers("CRN2", "PNC2", "CRO2"))
                                 .build()))
                 .build();
@@ -46,7 +48,8 @@ class OffenderMatchMapperTest {
 
         var first = matchesEntity.getOffenderMatches().get(0);
         assertThat(first.getGroup()).isEqualTo(matchesEntity);
-        assertThat(first.getConfirmed()).isEqualTo(false);
+        assertThat(first.getConfirmed()).isEqualTo(true);
+        assertThat(first.getRejected()).isEqualTo(false);
         assertThat(first.getCrn()).isEqualTo("CRN1");
         assertThat(first.getPnc()).isEqualTo("PNC1");
         assertThat(first.getCro()).isEqualTo("CRO1");
@@ -55,6 +58,7 @@ class OffenderMatchMapperTest {
         var second = matchesEntity.getOffenderMatches().get(1);
         assertThat(second.getGroup()).isEqualTo(matchesEntity);
         assertThat(second.getConfirmed()).isEqualTo(false);
+        assertThat(second.getRejected()).isEqualTo(true);
         assertThat(second.getCrn()).isEqualTo("CRN2");
         assertThat(second.getPnc()).isEqualTo("PNC2");
         assertThat(second.getCro()).isEqualTo("CRO2");

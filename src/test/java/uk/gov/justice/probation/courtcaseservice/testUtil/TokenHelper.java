@@ -9,7 +9,6 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.ClassPathResource;
 import uk.gov.justice.probation.courtcaseservice.controller.CourtCaseControllerIntTest;
 
@@ -67,7 +66,6 @@ public class TokenHelper {
         return signedJWT.serialize();
     }
 
-    @NotNull
     public static KeySpec buildPrivateKeySpec(RSAKey jwk) {
         BigInteger publicKeyModulus = jwk.getModulus().decodeToBigInteger();
         BigInteger publicExponent = jwk.getPublicExponent().decodeToBigInteger();

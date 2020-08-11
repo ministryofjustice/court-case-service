@@ -2,16 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
-import java.nio.file.Files;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +19,17 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 
+import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import static io.restassured.RestAssured.given;
 import static java.time.Month.JANUARY;
 import static java.util.Collections.singletonList;
@@ -37,6 +38,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
@@ -45,6 +47,7 @@ import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.get
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class CourtCaseControllerPutIntTest extends BaseIntTest {
+    public static final String CRO = "CRO";
 
     /* before-test.sql sets up a court case in the database */
 
@@ -176,6 +179,63 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
             .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
         ;
 
+    }
+
+    @Test
+    public void whenUpdateCaseDataByCourtAndCaseNo_ThenUpdateOffenderMatchesConfirmedRejectedFlags() {
+
+        String updatedJson = caseDetailsJson
+                .replace("\"caseNo\": \"1700028914\"", "\"caseNo\": \"1600028913\"")
+                .replace("\"crn\": \"X320741\"", "\"crn\": \"2234\"")
+                .replace("\"pnc\": \"A/1234560BA\"", "\"pnc\": \"223456\"")
+                .replace("\"cro\": \"99999\"", "\"cro\": \"22345\"")
+                ;
+
+        given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(updatedJson)
+            .when()
+                .put(String.format("/court/%s/case/%s", COURT_CODE, "1600028913"))
+            .then()
+                .statusCode(201)
+                .body("caseNo", equalTo("1600028913"))
+                .body("crn", equalTo("2234"))
+                .body("pnc", equalTo("223456"))
+                .body("cro", equalTo("22345"));
+
+        given()
+                .auth()
+                .oauth2(getToken())
+                .accept(APPLICATION_JSON_VALUE)
+                .contentType(APPLICATION_JSON_VALUE)
+            .when()
+                .get("/court/"+ COURT_CODE +"/case/1600028913/grouped-offender-matches/9999991")
+            .then()
+                .statusCode(200)
+                .body("offenderMatches[0].crn", equalTo("1234"))
+                .body("offenderMatches[0].confirmed",  equalTo(false))
+                .body("offenderMatches[0].rejected",  equalTo(true))
+                .body("offenderMatches[1].crn", equalTo("2234"))
+                .body("offenderMatches[1].confirmed",  equalTo(true))
+                .body("offenderMatches[1].rejected",  equalTo(false))
+                ;
+
+        given()
+                .auth()
+                .oauth2(getToken())
+                .accept(APPLICATION_JSON_VALUE)
+                .contentType(APPLICATION_JSON_VALUE)
+            .when()
+                .get("/court/SHF/case/1600028913/grouped-offender-matches/9999992")
+            .then()
+                .statusCode(200)
+                .body("offenderMatches[0].crn", equalTo("3234"))
+                .body("offenderMatches[0].confirmed",  equalTo(false))
+                .body("offenderMatches[0].rejected",  equalTo(true))
+                ;
     }
 
     @Test

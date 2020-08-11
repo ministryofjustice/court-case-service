@@ -1,5 +1,22 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.platform.commons.util.StringUtils;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
+import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -11,21 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.platform.commons.util.StringUtils;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
-import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -191,7 +195,6 @@ class CourtCaseServiceTest {
 
     @Test
     void givenUnknownCourt_whenDeleteMissingCases_ThenThrow() {
-
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.empty());
         LocalDateTime start = LocalDateTime.of(2020, Month.JANUARY, 1, 0, 0);
         final Map<LocalDate, List<String>> existingCases = Map.of(start.toLocalDate(), Arrays.asList("100", "101"));
@@ -200,6 +203,94 @@ class CourtCaseServiceTest {
             service.deleteAbsentCases(COURT_CODE, existingCases));
         assertThat(exception).isInstanceOf(EntityNotFoundException.class)
             .hasMessageContaining("Court " + COURT_CODE + " not found");
+    }
+
+    @Test
+    public void givenOffenderMatchesExistForCase_whenCrnUpdated_thenUpdateMatches() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        CourtCaseEntity caseToUpdate = buildCourtCase();
+        CourtCaseEntity existingCase = buildCourtCase();
+
+        var offenderMatchesEntities = Arrays.asList(
+                GroupedOffenderMatchesEntity.builder()
+                        .courtCase(existingCase)
+                        .offenderMatches(Arrays.asList(OffenderMatchEntity.builder()
+                                        .crn(CRN)
+                                        .confirmed(false)
+                                        .rejected(false)
+                                        .build(),
+                                OffenderMatchEntity.builder()
+                                        .crn("Rejected CRN 1")
+                                        .confirmed(false)
+                                        .rejected(false)
+                                        .build()))
+                        .build(),
+                GroupedOffenderMatchesEntity.builder()
+                        .offenderMatches(Arrays.asList(OffenderMatchEntity.builder()
+                                        .crn("Rejected CRN 2")
+                                        .confirmed(false)
+                                        .rejected(false)
+                                        .build(),
+                                OffenderMatchEntity.builder()
+                                        .crn("Rejected CRN 3")
+                                        .confirmed(false)
+                                        .rejected(false)
+                                        .build()))
+                        .build()
+
+        );
+        existingCase.setGroupedOffenderMatches(offenderMatchesEntities);
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(existingCase));
+        when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
+
+        CourtCaseEntity updatedCase = service.createOrUpdateCase(COURT_CODE, CASE_NO, caseToUpdate);
+
+        assertThat(updatedCase.getGroupedOffenderMatches()).hasSize(2);
+        assertThat(updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches()).hasSize(2);
+        assertThat(updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches()).hasSize(2);
+
+        OffenderMatchEntity correctMatch = updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches().get(0);
+        assertThat(correctMatch.getCrn()).isEqualTo(CRN);
+        assertThat(correctMatch.getConfirmed()).isEqualTo(true);
+        assertThat(correctMatch.getRejected()).isEqualTo(false);
+
+        OffenderMatchEntity rejectedMatch1 = updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches().get(1);
+        assertThat(rejectedMatch1.getCrn()).isEqualTo("Rejected CRN 1");
+        assertThat(rejectedMatch1.getConfirmed()).isEqualTo(false);
+        assertThat(rejectedMatch1.getRejected()).isEqualTo(true);
+
+        OffenderMatchEntity rejectedMatch2 = updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches().get(0);
+        assertThat(rejectedMatch2.getCrn()).isEqualTo("Rejected CRN 2");
+        assertThat(rejectedMatch2.getConfirmed()).isEqualTo(false);
+        assertThat(rejectedMatch2.getRejected()).isEqualTo(true);
+
+        OffenderMatchEntity rejectedMatch3 = updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches().get(1);
+        assertThat(rejectedMatch3.getCrn()).isEqualTo("Rejected CRN 3");
+        assertThat(rejectedMatch3.getConfirmed()).isEqualTo(false);
+        assertThat(rejectedMatch3.getRejected()).isEqualTo(true);
+
+    }
+
+    @Test
+    public void givenMatchesDontExistForCase_whenCrnUpdated_thenDontThrowException() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        CourtCaseEntity caseToUpdate = buildCourtCase();
+        caseToUpdate.setGroupedOffenderMatches(List.of(GroupedOffenderMatchesEntity.builder().offenderMatches(emptyList()).build()));
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(caseToUpdate));
+        when(courtCaseRepository.save(caseToUpdate)).thenReturn(caseToUpdate);
+
+        service.createOrUpdateCase(COURT_CODE, CASE_NO, caseToUpdate);
+    }
+
+    @Test
+    public void givenMatchesAreNullForCase_whenCrnUpdated_thenDontThrowException() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        CourtCaseEntity caseToUpdate = buildCourtCase();
+        caseToUpdate.setGroupedOffenderMatches(null);
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(caseToUpdate));
+        when(courtCaseRepository.save(caseToUpdate)).thenReturn(caseToUpdate);
+
+        service.createOrUpdateCase(COURT_CODE, CASE_NO, caseToUpdate);
     }
 
     static CourtCaseEntity buildCourtCase() {

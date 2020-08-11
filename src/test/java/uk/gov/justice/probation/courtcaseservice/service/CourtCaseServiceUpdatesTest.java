@@ -1,20 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static uk.gov.justice.probation.courtcaseservice.service.CourtCaseServiceTest.buildOffenceEntity;
-
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +20,19 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static uk.gov.justice.probation.courtcaseservice.service.CourtCaseServiceTest.buildOffenceEntity;
 
 @ExtendWith(MockitoExtension.class)
 public class CourtCaseServiceUpdatesTest {
@@ -115,6 +116,7 @@ public class CourtCaseServiceUpdatesTest {
         CourtCaseEntity existing = mapper.readValue(case_no_offences, CourtCaseEntity.class);
         CourtCaseEntity incoming = mapper.readValue(case_fields_altered, CourtCaseEntity.class);
         mockForCaseForUpdate(existing);
+        when(courtCaseRepository.save(existing)).thenReturn(existing);
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, incoming);
 
@@ -136,6 +138,7 @@ public class CourtCaseServiceUpdatesTest {
         CourtCaseEntity existing = mapper.readValue(case_two_offences, CourtCaseEntity.class);
         CourtCaseEntity incoming = mapper.readValue(case_three_offences, CourtCaseEntity.class);
         mockForCaseForUpdate(existing);
+        when(courtCaseRepository.save(existing)).thenReturn(existing);
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, incoming);
 
@@ -157,6 +160,7 @@ public class CourtCaseServiceUpdatesTest {
         CourtCaseEntity existing = mapper.readValue(case_three_offences, CourtCaseEntity.class);
         CourtCaseEntity incoming = mapper.readValue(case_two_offences, CourtCaseEntity.class);
         mockForCaseForUpdate(existing);
+        when(courtCaseRepository.save(existing)).thenReturn(existing);
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, incoming);
 
@@ -174,6 +178,7 @@ public class CourtCaseServiceUpdatesTest {
         CourtCaseEntity existing = mapper.readValue(case_two_offences, CourtCaseEntity.class);
         CourtCaseEntity incoming = mapper.readValue(case_no_offences, CourtCaseEntity.class);
         mockForCaseForUpdate(existing);
+        when(courtCaseRepository.save(existing)).thenReturn(existing);
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, incoming);
 

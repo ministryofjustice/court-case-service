@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -41,21 +40,19 @@ public class CourtCaseService {
     }
 
     public CourtCaseEntity getCaseByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException {
-        checkCourtByCode(courtCode);
+        checkCourtExists(courtCode);
         log.info("Court case requested for court {} for case {}", courtCode, caseNo);
         return courtCaseRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
             .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found for court %s", caseNo, courtCode)));
     }
 
-    public CourtCaseEntity createOrUpdateCase(String courtCode, String caseNo, CourtCaseEntity courtCaseEntity)
+    public CourtCaseEntity createOrUpdateCase(String courtCode, String caseNo, CourtCaseEntity updatedCase)
         throws EntityNotFoundException, InputMismatchException {
-        checkCourtByCode(courtCaseEntity.getCourtCode());
-        if (!caseNo.equals(courtCaseEntity.getCaseNo()) || !courtCode.equals(courtCaseEntity.getCourtCode())) {
-            throw new InputMismatchException(String.format("Case No %s and Court Code %s do not match with values from body %s and %s",
-                caseNo, courtCode, courtCaseEntity.getCaseNo(), courtCaseEntity.getCourtCode()));
-        }
+        validateEntity(courtCode, caseNo, updatedCase);
 
-        return processAndSave(courtCaseEntity, courtCaseRepository.findByCourtCodeAndCaseNo(courtCode, caseNo));
+        return courtCaseRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
+                .map(existingCase -> updateAndSaveCase(existingCase, updatedCase))
+                .orElseGet(() -> createCase(updatedCase));
     }
 
     public List<CourtCaseEntity> filterCasesByCourtAndDate(String courtCode, LocalDate date) {
@@ -95,27 +92,30 @@ public class CourtCaseService {
         courtCaseRepository.deleteAll(casesToDelete);
     }
 
-    private CourtCaseEntity processAndSave(CourtCaseEntity courtCaseEntity, Optional<CourtCaseEntity> existingCourtCaseEntity) {
-
-        if (existingCourtCaseEntity.isEmpty()) {
-            applyOffenceSequencing(courtCaseEntity.getOffences());
-            return createCase(courtCaseEntity);
-        }
-
-        return updateAndSave(existingCourtCaseEntity.get(), courtCaseEntity);
+    private void validateEntity(String courtCode, String caseNo, CourtCaseEntity updatedCase) {
+        checkCourtExists(updatedCase.getCourtCode());
+        checkEntityCaseNoAndCourtAgree(courtCode, caseNo, updatedCase);
     }
 
-    private void checkCourtByCode(String courtCode) throws EntityNotFoundException {
+    private void checkEntityCaseNoAndCourtAgree(String courtCode, String caseNo, CourtCaseEntity updatedCase) {
+        if (!caseNo.equals(updatedCase.getCaseNo()) || !courtCode.equals(updatedCase.getCourtCode())) {
+            throw new InputMismatchException(String.format("Case No %s and Court Code %s do not match with values from body %s and %s",
+                    caseNo, courtCode, updatedCase.getCaseNo(), updatedCase.getCourtCode()));
+        }
+    }
+
+    private void checkCourtExists(String courtCode) throws EntityNotFoundException {
         courtRepository.findByCourtCode(courtCode)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Court %s not found", courtCode)));
     }
 
     private CourtCaseEntity createCase(CourtCaseEntity courtCaseEntity) {
+        applyOffenceSequencing(courtCaseEntity.getOffences());
         log.info("Court case being created for case number {}", courtCaseEntity.getCaseNo());
         return courtCaseRepository.save(courtCaseEntity);
     }
 
-    private CourtCaseEntity updateAndSave(CourtCaseEntity existingCase, CourtCaseEntity updatedCase) {
+    private CourtCaseEntity updateAndSaveCase(CourtCaseEntity existingCase, CourtCaseEntity updatedCase) {
         // We have checked and matched court code and case no. They are immutable fields. No need to update.
 
         existingCase.setCaseId(updatedCase.getCaseId());

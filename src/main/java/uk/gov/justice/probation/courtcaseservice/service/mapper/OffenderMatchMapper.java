@@ -1,11 +1,12 @@
 package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+
+import java.util.stream.Collectors;
 
 @Component
 public class OffenderMatchMapper {
@@ -20,6 +21,7 @@ public class OffenderMatchMapper {
                                         OffenderMatchEntity.builder()
                                                 .group(group)
                                                 .confirmed(offenderMatchRequest.getConfirmed())
+                                                .rejected(offenderMatchRequest.getRejected())
                                                 .matchType(offenderMatchRequest.getMatchType())
                                                 .crn(offenderMatchRequest.getMatchIdentifiers().getCrn())
                                                 .pnc(offenderMatchRequest.getMatchIdentifiers().getPnc())

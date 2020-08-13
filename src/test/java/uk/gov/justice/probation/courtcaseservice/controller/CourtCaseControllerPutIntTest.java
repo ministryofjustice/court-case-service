@@ -2,6 +2,16 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
+import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,17 +28,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.BaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
-
-import java.nio.file.Files;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
 import static java.time.Month.JANUARY;
@@ -215,7 +214,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .get("/court/"+ COURT_CODE +"/case/1600028913/grouped-offender-matches/9999991")
             .then()
                 .statusCode(200)
-                .body("offenderMatches[0].crn", equalTo("1234"))
+                .body("offenderMatches[0].crn", equalTo("X320741"))
                 .body("offenderMatches[0].confirmed",  equalTo(false))
                 .body("offenderMatches[0].rejected",  equalTo(true))
                 .body("offenderMatches[1].crn", equalTo("2234"))

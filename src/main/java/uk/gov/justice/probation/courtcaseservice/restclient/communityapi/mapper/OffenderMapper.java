@@ -1,7 +1,20 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
+import uk.gov.justice.probation.courtcaseservice.controller.model.Address;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.Event;
+import uk.gov.justice.probation.courtcaseservice.controller.model.MatchIdentifiers;
+import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiContactDetails;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
@@ -19,13 +32,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
-
 
 @Component
 public class OffenderMapper {
@@ -40,6 +46,64 @@ public class OffenderMapper {
                 .build();
     }
 
+    public OffenderMatchDetail offenderMatchDetailFrom(CommunityApiOffenderResponse offenderResponse, String addressCode) {
+        return OffenderMatchDetail.builder()
+            .title(offenderResponse.getTitle())
+            .forename(offenderResponse.getFirstName())
+            .middleNames(Optional.ofNullable(offenderResponse.getMiddleNames()).orElse(Collections.emptyList()))
+            .surname(offenderResponse.getSurname())
+            .address(addressFrom(offenderResponse.getContactDetails(), addressCode))
+            .probationStatus(offenderResponse.isCurrentDisposal() ? ProbationStatus.CURRENT : ProbationStatus.PREVIOUSLY_KNOWN)
+            .matchIdentifiers(Optional.ofNullable(offenderResponse.getOtherIds())
+                .map(otherIds -> MatchIdentifiers.builder().crn(otherIds.getCrn())
+                                                            .cro(otherIds.getCroNumber())
+                                                            .pnc(otherIds.getPncNumber())
+                                                            .build())
+                .orElse(null)
+            )
+            .dateOfBirth(offenderResponse.getDateOfBirth())
+            .build();
+    }
+
+    public OffenderMatchDetail offenderMatchDetailFrom(OffenderMatchDetail offenderMatchDetail, Sentence sentence) {
+        OffenderMatchDetail.OffenderMatchDetailBuilder builder = OffenderMatchDetail.builder()
+            .title(offenderMatchDetail.getTitle())
+            .forename(offenderMatchDetail.getForename())
+            .middleNames(Optional.ofNullable(offenderMatchDetail.getMiddleNames()).orElse(Collections.emptyList()))
+            .surname(offenderMatchDetail.getSurname())
+            .address(offenderMatchDetail.getAddress())
+            .probationStatus(offenderMatchDetail.getProbationStatus())
+            .matchIdentifiers(offenderMatchDetail.getMatchIdentifiers())
+            .dateOfBirth(offenderMatchDetail.getDateOfBirth());
+        if (sentence != null) {
+            builder.event(Event.builder()
+                .text(sentence.getDescription())
+                .length(sentence.getLength())
+                .lengthUnits(sentence.getLengthUnits())
+                .startDate(sentence.getStartDate())
+                .build());
+        }
+        return builder.build();
+    }
+
+    private Address addressFrom(CommunityApiContactDetails contactDetails, String addressCode) {
+        if (contactDetails == null || contactDetails.getAddresses() == null) {
+            return null;
+        }
+        return contactDetails.getAddresses().stream()
+            .filter(address -> address.getAddressTypeDetail() != null && address.getAddressTypeDetail().getCode().equalsIgnoreCase(addressCode))
+            .findFirst()
+            .map(address -> Address.builder().addressNumber(address.getAddressNumber())
+                                            .town(address.getTown())
+                                            .buildingName(address.getBuildingName())
+                                            .streetName(address.getStreetName())
+                                            .district(address.getDistrict())
+                                            .county(address.getCounty())
+                                            .postcode(address.getPostcode())
+                                        .build())
+            .orElse(null);
+    }
+
     private OffenderManager buildOffenderManager(CommunityApiOffenderManager offenderManager) {
         var staff = offenderManager.getStaff();
         return OffenderManager.builder()
@@ -51,8 +115,8 @@ public class OffenderMapper {
 
     public List<Conviction> convictionsFrom(CommunityApiConvictionsResponse convictionsResponse) {
         return convictionsResponse.getConvictions().stream()
-                .map(this::convictionFrom)
-                .collect(Collectors.toList());
+            .map(this::convictionFrom)
+            .collect(Collectors.toList());
     }
 
     public Conviction convictionFrom(CommunityApiConvictionResponse conviction) {
@@ -61,7 +125,7 @@ public class OffenderMapper {
                 .active(conviction.getActive())
                 .inBreach(conviction.getInBreach())
                 .convictionDate(conviction.getConvictionDate())
-                .offences(conviction.getOffences().stream()
+                .offences(Optional.ofNullable(conviction.getOffences()).orElse(Collections.emptyList()).stream()
                     .map(offence -> new Offence(offence.getDetail().getDescription()))
                     .collect(Collectors.toList())
                 )
@@ -118,6 +182,7 @@ public class OffenderMapper {
             .length(communityApiSentence.getOriginalLength())
             .lengthUnits(communityApiSentence.getOriginalLengthUnits())
             .lengthInDays(communityApiSentence.getLengthInDays())
+            .startDate(communityApiSentence.getStartDate())
             .terminationDate(communityApiSentence.getTerminationDate())
             .terminationReason(communityApiSentence.getTerminationReason())
             .unpaidWork(Optional.ofNullable(communityApiSentence.getUnpaidWork()).map(this::buildUnpaidWork).orElse(null))
@@ -144,6 +209,7 @@ public class OffenderMapper {
 
         return convictionDate.plus(sentence.getLengthInDays(), ChronoUnit.DAYS);
     };
+
 
 
 }

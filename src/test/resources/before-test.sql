@@ -84,7 +84,7 @@ INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE)
 VALUES (9999992, '1600028913','SHF');
 
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
-VALUES (false, false, '1234', '12345', 'NAME_DOB', '123456', 9999991);
+VALUES (false, false, 'X320741', '12345', 'NAME_DOB', '123456', 9999991);
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (false, false, '2234', '22345', 'NAME_DOB', '223456', 9999991);
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)

@@ -93,7 +93,7 @@ Content-Type: application/json
   "matches": [
     {
       "matchIdentifiers": {
-        "pnc": "pnc123",
+        "pnc": "pnc123"
       },
       "matchType": "NAME_DOB",
       "confirmed": "true"
@@ -106,3 +106,7 @@ Content-Type: application/json
         client.assert(response.status === 400, "Response status is not 400 (Bad request) for missing CRN");
     });
 %}
+
+### Create multiple group matches successfully
+GET http://{{host}}/court/{{courtCode}}/case/{{caseNo}}/matchesDetail
+Content-Type: application/json

@@ -106,6 +106,7 @@
     "sentence": {
       "sentenceId": 123457,
       "description": "CJA - Indeterminate Public Prot.",
+      "startDate": "2014-01-01",
       "originalLength": 5,
       "originalLengthUnits": "Years",
       "secondLength": 5,

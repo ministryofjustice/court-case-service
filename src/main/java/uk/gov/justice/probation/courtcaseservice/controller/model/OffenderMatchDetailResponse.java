@@ -1,21 +1,20 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import javax.validation.constraints.NotNull;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
 @AllArgsConstructor
 @Builder
+@Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MatchIdentifiers {
-    @NotNull
-    private final String crn;
-    private final String pnc;
-    private final String cro;
+public class OffenderMatchDetailResponse {
+
+    private final List<OffenderMatchDetail> offenderMatchDetails;
+
 }

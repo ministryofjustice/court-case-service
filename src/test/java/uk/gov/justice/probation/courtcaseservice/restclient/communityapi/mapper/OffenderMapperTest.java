@@ -3,11 +3,20 @@ package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
@@ -17,13 +26,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
-
-import java.io.File;
-import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
+import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,13 +59,17 @@ public class OffenderMapperTest {
         .adRequirementTypeMainCategory(new KeyValue("7", "Court - Accredited Programme"))
         .adRequirementTypeSubCategory(new KeyValue("P12", "ASRO"))
         .build();
+    private static CommunityApiOffenderResponse offenderResponse;
 
     private OffenderMapper mapper;
 
     @BeforeAll
-    public static void setUpBeforeClass() {
+    public static void setUpBeforeClass() throws IOException {
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         OBJECT_MAPPER.registerModule(new JavaTimeModule());
+
+        offenderResponse
+            = OBJECT_MAPPER.readValue(new File(BASE_MOCK_PATH + "GET_offender_all_X320741.json"), CommunityApiOffenderResponse.class);
     }
 
     @BeforeEach
@@ -72,10 +79,7 @@ public class OffenderMapperTest {
 
     @DisplayName("Maps community API offender to ProbationRecord with manager")
     @Test
-    void shouldMapOffenderDetailsToOffender() throws IOException {
-
-        CommunityApiOffenderResponse offenderResponse
-            = OBJECT_MAPPER.readValue(new File(BASE_MOCK_PATH + "GET_offender_all_X320741.json"), CommunityApiOffenderResponse.class);
+    void shouldMapOffenderDetailsToOffender() {
 
         var offender = mapper.probationRecordFrom(offenderResponse);
 
@@ -153,14 +157,14 @@ public class OffenderMapperTest {
         assertThat(conviction3.getSentence()).isNull();
     }
 
-    @DisplayName("Maps convictions response to court case service conviction. Empty Offence list and all nullable fields null.")
+    @DisplayName("Maps convictions response to court case service conviction. Null offence list and all nullable fields null.")
     @Test
     void shouldMapConvictionDetailsToConvictionNull() {
 
         final CommunityApiConvictionResponse convictionResponse = CommunityApiConvictionResponse
                 .builder()
                 .convictionId("123")
-                .offences(Collections.emptyList())
+                .offences(null)
                 .build();
         final CommunityApiConvictionsResponse convictionsResponse = new CommunityApiConvictionsResponse(singletonList(convictionResponse));
 
@@ -311,5 +315,70 @@ public class OffenderMapperTest {
         CurrentOrderHeaderResponse orderHeaderResponse = mapper.buildCurrentOrderHeaderDetail(response);
         assertThat(orderHeaderResponse).isNotNull();
     }
+
+    @DisplayName("Test mapping of an community API offender to offender match detail")
+    @Test
+    void shouldMapOffenderToMatchDetail() {
+        OffenderMatchDetail offenderMatchDetail = mapper.offenderMatchDetailFrom(offenderResponse, "M");
+        assertOffenderMatchFields(offenderMatchDetail);
+    }
+
+    @DisplayName("Test mapping of an offender to offender match detail with nulls on objects")
+    @Test
+    void shouldMapOffenderToMatchDetailWithNulls() {
+        CommunityApiOffenderResponse offenderResponse = CommunityApiOffenderResponse.builder().title("Mr.").build();
+
+        OffenderMatchDetail offenderMatchDetail = mapper.offenderMatchDetailFrom(offenderResponse, "M");
+
+        assertThat(offenderMatchDetail.getTitle()).isEqualTo("Mr.");
+        assertThat(offenderMatchDetail.getProbationStatus()).isSameAs(ProbationStatus.PREVIOUSLY_KNOWN);
+        assertThat(offenderMatchDetail.getAddress()).isNull();
+        assertThat(offenderMatchDetail.getEvent()).isNull();
+        assertThat(offenderMatchDetail.getMiddleNames()).hasSize(0);
+    }
+
+    @DisplayName("Test mapping of an offender match with additional fields for Event coming from the Sentence")
+    @Test
+    void shouldMapOffenderToMatchDetail_WithSentenceEvent() {
+
+        LocalDate eventDate = LocalDate.of(2020, Month.JULY, 29);
+        OffenderMatchDetail offenderMatch = mapper.offenderMatchDetailFrom(offenderResponse, "M");
+        Sentence sentence = Sentence.builder()
+            .description("Sentence description")
+            .length(6)
+            .lengthUnits("Months")
+            .startDate(eventDate)
+            .build();
+
+        OffenderMatchDetail offenderMatchDetail = mapper.offenderMatchDetailFrom(offenderMatch, sentence);
+
+        assertOffenderMatchFields(offenderMatchDetail);
+        assertThat(offenderMatchDetail.getEvent().getLength()).isEqualTo(6);
+        assertThat(offenderMatchDetail.getEvent().getLengthUnits()).isEqualTo("Months");
+        assertThat(offenderMatchDetail.getEvent().getText()).isEqualTo("Sentence description");
+        assertThat(offenderMatchDetail.getEvent().getStartDate()).isEqualTo(eventDate);
+    }
+
+    private void assertOffenderMatchFields(OffenderMatchDetail offenderMatchDetail) {
+        assertThat(offenderMatchDetail.getForename()).isEqualTo("Aadland");
+        assertThat(offenderMatchDetail.getMiddleNames()).hasSize(2);
+        assertThat(offenderMatchDetail.getMiddleNames()).containsExactlyInAnyOrder("Felix", "Hope");
+        assertThat(offenderMatchDetail.getSurname()).isEqualTo("Bertrand");
+        assertThat(offenderMatchDetail.getDateOfBirth()).isEqualTo(LocalDate.of(2000, Month.JULY, 19));
+        assertThat(offenderMatchDetail.getMatchIdentifiers().getCrn()).isEqualTo("X320741");
+        assertThat(offenderMatchDetail.getMatchIdentifiers().getCro()).isEqualTo("123456/04A");
+        assertThat(offenderMatchDetail.getMatchIdentifiers().getPnc()).isEqualTo("2004/0712343H");
+        assertThat(offenderMatchDetail.getTitle()).isEqualTo("Mr.");
+        assertThat(offenderMatchDetail.getAddress().getAddressNumber()).isEqualTo("19");
+        assertThat(offenderMatchDetail.getAddress().getBuildingName()).isNull();
+        assertThat(offenderMatchDetail.getAddress().getStreetName()).isEqualTo("Junction Road");
+        assertThat(offenderMatchDetail.getAddress().getDistrict()).isEqualTo("Blackheath");
+        assertThat(offenderMatchDetail.getAddress().getTown()).isEqualTo("Sheffield");
+        assertThat(offenderMatchDetail.getAddress().getCounty()).isEqualTo("South Yorkshire");
+        assertThat(offenderMatchDetail.getAddress().getPostcode()).isEqualTo("S10 2NA");
+
+        assertThat(offenderMatchDetail.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
+    }
+
 
 }

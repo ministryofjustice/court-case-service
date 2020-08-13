@@ -150,6 +150,32 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
     }
 
     @Test
+    public void givenMatchWithNoConvictions_whenGetOffenderDetailMatch_thenReturn200WithNoMostRecentEvent() {
+
+        String path = String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, "1000002");
+        given()
+            .auth()
+            .oauth2(getToken())
+            .accept(APPLICATION_JSON_VALUE)
+            .contentType(APPLICATION_JSON_VALUE)
+            .when()
+            .get(path)
+            .then()
+            .statusCode(200)
+            .body("offenderMatchDetails", hasSize(1))
+            .body("offenderMatchDetails[0].title", equalTo(null))
+            .body("offenderMatchDetails[0].forename", equalTo("Nic"))
+            .body("offenderMatchDetails[0].middleNames", hasSize(0))
+            .body("offenderMatchDetails[0].surname", equalTo("Cage"))
+            .body("offenderMatchDetails[0].dateOfBirth", equalTo("1965-07-19"))
+            .body("offenderMatchDetails[0].address", equalTo(null))
+            .body("offenderMatchDetails[0].matchIdentifiers.crn", equalTo("X980123"))
+            .body("offenderMatchDetails[0].probationStatus", equalTo("Previously Known"))
+            .body("offenderMatchDetails[0].mostRecentEvent", equalTo(null))
+        ;
+    }
+
+    @Test
     public void givenCaseDoesNotExist_whenGetOffenderDetailMatch_thenReturnNotFound() {
         String path = String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, "23456541141414");
         given()

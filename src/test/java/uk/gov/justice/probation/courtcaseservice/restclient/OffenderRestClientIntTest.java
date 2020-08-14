@@ -1,5 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
+import java.time.LocalDate;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +11,6 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
-
-import java.time.LocalDate;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapperTest.EXPECTED_RQMNT_1;
@@ -119,5 +118,26 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     @Test(expected = WebClientResponseException.class)
     public void whenGetBreaches_thenMakeRestCallToCommunityApi_500ServerError() {
         offenderRestClient.getBreaches(SERVER_ERROR_CRN, CONVICTION_ID).block();
+    }
+
+    @Test
+    public void whenGetOffenderMatchDetail_thenMakeRestCallToCommunityApi() {
+        var optionalOffenderMatchDetail = offenderRestClient.getOffenderMatchDetailByCrn(CRN).blockOptional();
+        assertThat(optionalOffenderMatchDetail).isNotEmpty();
+
+        var offenderMatchDetail = optionalOffenderMatchDetail.get();
+        assertThat(offenderMatchDetail.getMiddleNames()).containsExactlyInAnyOrder("Felix", "Hope");
+
+    }
+
+    @Test
+    public void givenOffenderDoesNotExist_whenGetOffenderMatchDetail_thenReturnNull() {
+        var optionalOffenderMatchDetail = offenderRestClient.getOffenderMatchDetailByCrn("CRNXXX").blockOptional();
+        assertThat(optionalOffenderMatchDetail.get().getForename()).isNull();
+    }
+
+    @Test(expected = WebClientResponseException.class)
+    public void givenServiceThrowsError_whenGetOffenderMatchDetail_thenFailFastAndThrowException() {
+        offenderRestClient.getOffenderMatchDetailByCrn(SERVER_ERROR_CRN).block();
     }
 }

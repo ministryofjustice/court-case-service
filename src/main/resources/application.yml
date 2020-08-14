@@ -88,6 +88,7 @@ community-api:
   probation-record-filter.document.subtype.codes: "CJF,CJO,CJS,PSA,PSB,PSN,PSR,SSR,XPR,CR02,CR05"
   nsis-filter.codes.queryParameter: nsiCodes
   nsis-filter.codes.breaches: BRE,BRES
+  offender-address-code: M
 
 offender-assessments-api:
   latest-assessment-crn-url-template: /offenders/crn/%s/assessments/latest

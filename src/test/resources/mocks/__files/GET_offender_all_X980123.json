@@ -1,0 +1,22 @@
+{
+  "offenderId": 2500343966,
+  "firstName": "Nic",
+  "surname": "Cage",
+  "dateOfBirth": "1965-07-19",
+  "gender": "Male",
+  "otherIds": {
+    "crn": "X980123",
+    "nomsNumber": "G9542VP",
+    "mostRecentPrisonerNumber": "V74111"
+  },
+  "contactDetails": {
+    "addresses": []
+  },
+  "softDeleted": false,
+  "currentDisposal": "0",
+  "partitionArea": "National Data",
+  "currentRestriction": false,
+  "restrictionMessage": "This is a restricted offender record. Please contact a system administrator",
+  "currentExclusion": false,
+  "exclusionMessage": "You are excluded from viewing this offender record. Please contact a system administrator"
+}

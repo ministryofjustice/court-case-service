@@ -23,6 +23,7 @@ env:
     base_url: https://community-api-secure.probation.service.justice.gov.uk
   nomis_oauth:
     base_url: https://gateway.nomis-api.service.justice.gov.uk
+    issuer_base_url: https://gateway.prod.nomis-api.service.hmpps.dsd.io
   offender_assessments_api:
     base_url: https://offender-prod.aks-live-1.studio-hosting.service.hmpps.dsd.io
 

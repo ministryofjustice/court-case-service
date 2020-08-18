@@ -23,6 +23,7 @@ env:
     base_url: https://community-api-secure.test.delius.probation.hmpps.dsd.io
   nomis_oauth:
     base_url: https://gateway.t3.nomis-api.hmpps.dsd.io
+    issuer_base_url: https://gateway.t3.nomis-api.hmpps.dsd.io
   offender_assessments_api:
     base_url: https://dev.devtest.assessment-api.hmpps.dsd.io
 

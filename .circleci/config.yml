@@ -33,7 +33,7 @@ commands:
             jar xvf build/libs/court-case-service-*.jar BOOT-INF/classes/META-INF/build-info.properties
             VERSION=$(grep 'build.version=' BOOT-INF/classes/META-INF/build-info.properties | awk -F= '{print $2}')
             rm BOOT-INF/classes/META-INF/build-info.properties
-            FULL_VERSION=${VERSION}.${CIRCLE_BRANCH}
+            FULL_VERSION=${VERSION}.${CIRCLE_BRANCH//\//_}}
             if [[ "${CIRCLE_BRANCH}" == "main" ]]; then
               FULL_VERSION=${VERSION}
             fi

@@ -141,7 +141,7 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'com.vladmihalcea:hibernate-types-52:2.4.4'
 
-    runtime 'org.postgresql:postgresql:42.2.13'
+    runtime 'org.postgresql:postgresql:42.2.15'
 
     implementation platform('software.amazon.awssdk:bom:2.10.15')
 

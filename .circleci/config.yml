@@ -33,9 +33,10 @@ commands:
             jar xvf build/libs/court-case-service-*.jar BOOT-INF/classes/META-INF/build-info.properties
             VERSION=$(grep 'build.version=' BOOT-INF/classes/META-INF/build-info.properties | awk -F= '{print $2}')
             rm BOOT-INF/classes/META-INF/build-info.properties
-            FULL_VERSION=${VERSION//\//_}.${CIRCLE_BRANCH//\//_}}
+            SHORT_HASH=$(git rev-parse --short HEAD)
+            FULL_VERSION=${VERSION}.${SHORT_HASH}}
             if [[ "${CIRCLE_BRANCH}" == "main" ]]; then
-              FULL_VERSION=${VERSION//\//_}
+              FULL_VERSION=${VERSION}
             fi
             echo "export APP_VERSION=$FULL_VERSION" >> $BASH_ENV
       - mem/remember:

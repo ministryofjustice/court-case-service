@@ -8,7 +8,7 @@ env:
     value: "{{ .Values.image.port }}"
 
   - name: SPRING_PROFILES_ACTIVE
-    value: "postgres,instrumented"
+    value: "{{ .Values.spring.profile }}"
 
   - name: JAVA_OPTS
     value: "{{ .Values.env.JAVA_OPTS }}"

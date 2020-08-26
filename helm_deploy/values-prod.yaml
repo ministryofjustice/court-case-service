@@ -27,6 +27,9 @@ env:
   offender_assessments_api:
     base_url: https://offender-prod.aks-live-1.studio-hosting.service.hmpps.dsd.io
 
+spring:
+  profile: instrumented,prod
+
 whitelist:
   office: "217.33.148.210/32"
   health-kick: "35.177.252.195/32"

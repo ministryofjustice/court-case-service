@@ -34,7 +34,7 @@ commands:
             VERSION=$(grep 'build.version=' BOOT-INF/classes/META-INF/build-info.properties | awk -F= '{print $2}')
             rm BOOT-INF/classes/META-INF/build-info.properties
             SHORT_HASH=$(git rev-parse --short HEAD)
-            FULL_VERSION=${VERSION}.${SHORT_HASH}}
+            FULL_VERSION=${VERSION}.${SHORT_HASH}
             if [[ "${CIRCLE_BRANCH}" == "main" ]]; then
               FULL_VERSION=${VERSION}
             fi

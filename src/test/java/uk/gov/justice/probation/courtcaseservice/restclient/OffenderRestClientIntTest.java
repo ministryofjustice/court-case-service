@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
@@ -127,7 +129,6 @@ public class OffenderRestClientIntTest extends BaseIntTest {
 
         var offenderMatchDetail = optionalOffenderMatchDetail.get();
         assertThat(offenderMatchDetail.getMiddleNames()).containsExactlyInAnyOrder("Felix", "Hope");
-
     }
 
     @Test
@@ -139,5 +140,31 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     @Test(expected = WebClientResponseException.class)
     public void givenServiceThrowsError_whenGetOffenderMatchDetail_thenFailFastAndThrowException() {
         offenderRestClient.getOffenderMatchDetailByCrn(SERVER_ERROR_CRN).block();
+    }
+
+    @Test
+    public void whenGetOffenderDetailByCrnCalled_thenMakeRestCallToCommunityApi() {
+        var optionalOffender = offenderRestClient.getOffenderDetailByCrn(CRN).blockOptional();
+
+        assertThat(optionalOffender).isNotEmpty();
+        var offenderDetail = optionalOffender.get();
+        assertThat(offenderDetail.getTitle()).isEqualTo("Mr.");
+        assertThat(offenderDetail.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
+        assertThat(offenderDetail.getDateOfBirth()).isEqualTo(LocalDate.of(2000, Month.JULY, 19));
+        assertThat(offenderDetail.getForename()).isEqualTo("Aadland");
+        assertThat(offenderDetail.getSurname()).isEqualTo("Bertrand");
+        assertThat(offenderDetail.getTitle()).isEqualTo("Mr.");
+        assertThat(offenderDetail.getOtherIds().getCrn()).isEqualTo("X320741");
+        assertThat(offenderDetail.getMiddleNames()).containsExactlyInAnyOrder("Hope", "Felix");
+    }
+
+    @Test(expected = OffenderNotFoundException.class)
+    public void givenOffenderDetailDoesNotExist_whenGetOffenderByCrnCalled_thenExpectException() {
+        offenderRestClient.getOffenderDetailByCrn("CRNXXX").blockOptional();
+    }
+
+    @Test(expected = WebClientResponseException.class)
+    public void givenServiceThrowsError_whenGetOffenderDetailByCrnCalled_thenFailFastAndThrowException() {
+        offenderRestClient.getOffenderDetailByCrn(SERVER_ERROR_CRN).block();
     }
 }

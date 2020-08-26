@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,11 +18,10 @@ import uk.gov.justice.probation.courtcaseservice.service.BreachService;
 import uk.gov.justice.probation.courtcaseservice.service.ConvictionService;
 import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
+import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
-
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -148,4 +148,17 @@ class OffenderControllerTest {
         verify(documentService).getDocument(CRN, CONVICTION_ID);
     }
 
+    @DisplayName("Ensures that the controller calls the service and returns the same offender detail record")
+    @Test
+    public void whenGetOffenderDetail_thenReturnIt() {
+        OffenderDetail offenderDetail = mock(OffenderDetail.class);
+
+        when(offenderService.getOffenderDetail(CRN)).thenReturn(offenderDetail);
+
+        OffenderDetail offenderDetailResponse = controller.getOffenderDetail(CRN);
+
+        assertThat(offenderDetailResponse).isSameAs(offenderDetail);
+        verify(offenderService).getOffenderDetail(CRN);
+        verifyNoMoreInteractions(offenderService);
+    }
 }

@@ -1,8 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
@@ -10,6 +7,9 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.Collections;
 import java.util.List;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -79,7 +79,7 @@ public class OffenderMapperTest {
 
     @DisplayName("Maps community API offender to ProbationRecord with manager")
     @Test
-    void shouldMapOffenderDetailsToOffender() {
+    void shouldMapOffenderProbationRecordDetailsToOffender() {
 
         var offender = mapper.probationRecordFrom(offenderResponse);
 
@@ -99,6 +99,26 @@ public class OffenderMapperTest {
         assertThat(actualManager.getAllocatedDate())
                 .isNotNull()
                 .isEqualTo(LocalDate.of(2019, 9, 30));
+    }
+
+    @DisplayName("Maps community API offender to OffenderDetail")
+    @Test
+    void shouldMapOffenderDetailsToOffenderDetail() {
+        offenderResponse.setDateOfBirth(null);
+
+        var offenderDetail = mapper.offenderDetailFrom(offenderResponse);
+
+        assertThat(offenderDetail.getOtherIds().getCrn())
+            .isNotNull()
+            .isEqualTo("X320741");
+        assertThat(offenderDetail.getTitle()).isEqualTo("Mr.");
+        assertThat(offenderDetail.getOtherIds().getCrn()).isEqualTo("X320741");
+        assertThat(offenderDetail.getMiddleNames()).containsExactlyInAnyOrder("Hope", "Felix");
+        assertThat(offenderDetail.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
+        assertThat(offenderDetail.getDateOfBirth()).isNull();
+        assertThat(offenderDetail.getTitle()).isEqualTo("Mr.");
+        assertThat(offenderDetail.getForename()).isEqualTo("Aadland");
+        assertThat(offenderDetail.getSurname()).isEqualTo("Bertrand");
     }
 
     @DisplayName("Maps convictions response to court case service conviction. Includes sentence and unpaid work.")

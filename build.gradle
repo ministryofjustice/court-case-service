@@ -165,7 +165,7 @@ dependencies {
         exclude group: 'org.eclipse.jetty', module: 'jetty-server'
     }
     testRuntimeOnly "org.eclipse.jetty:jetty-server:9.4.30.v20200611"
-    testCompile("org.springframework.retry:spring-retry:1.2.5.RELEASE")
+    testCompile("org.springframework.retry:spring-retry:1.3.0")
 
     implementation ('org.dom4j:dom4j:2.1.3') {
         because 'Transitive dependency. Previous versions have a known vulnerability'

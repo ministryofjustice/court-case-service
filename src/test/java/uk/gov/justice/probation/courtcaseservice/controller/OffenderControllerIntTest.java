@@ -280,6 +280,21 @@ public class OffenderControllerIntTest extends BaseIntTest {
         ;
     }
 
+    @Test
+    public void givenOffenderDoesNotExist_whenCallMadeToGetOffenderDetail_thenReturnNotFound() {
+        given()
+            .auth()
+            .oauth2(getToken())
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .get("/offender/CRNXXX/detail")
+            .then()
+            .statusCode(404)
+            .body("userMessage", equalTo("Offender with CRN 'CRNXXX' not found"))
+            .body("developerMessage" , equalTo("Offender with CRN 'CRNXXX' not found"));
+    }
+
+
     private String standardDateOf(int year, int month, int dayOfMonth) {
         return LocalDate.of(year, month, dayOfMonth).format(DateTimeFormatter.ISO_DATE);
     }

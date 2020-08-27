@@ -1,10 +1,12 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import java.util.Optional;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
@@ -23,10 +26,8 @@ import uk.gov.justice.probation.courtcaseservice.service.BreachService;
 import uk.gov.justice.probation.courtcaseservice.service.ConvictionService;
 import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
+import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
-
-import javax.validation.constraints.NotNull;
-import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -68,6 +69,22 @@ public class OffenderController {
         @RequestParam(value="applyDocTypeFilter", required = false, defaultValue = "true") boolean applyDocTypeFilter) {
         return offenderService.getProbationRecord(crn, applyDocTypeFilter);
     }
+
+    @ApiOperation(value = "Gets the offender detail by CRN")
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Not Found. For example if the CRN can't be matched.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+        })
+    @GetMapping(path="offender/{crn}/detail", produces = APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    Mono<OffenderDetail> getOffenderDetail(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @PathVariable String crn) {
+        return offenderService.getOffenderDetail(crn);
+    }
+
 
     @ApiOperation(value = "Gets the requirement data by CRN and conviction ID.")
     @ApiResponses(

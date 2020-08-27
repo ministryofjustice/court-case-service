@@ -26,6 +26,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiUnpaidWork;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Offence;
+import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderManager;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
@@ -44,6 +45,18 @@ public class OffenderMapper {
                                 .collect(Collectors.toList())
                 )
                 .build();
+    }
+
+    public OffenderDetail offenderDetailFrom(CommunityApiOffenderResponse offenderResponse) {
+        return OffenderDetail.builder()
+            .otherIds(offenderResponse.getOtherIds())
+            .probationStatus(offenderResponse.isCurrentDisposal() ? ProbationStatus.CURRENT : ProbationStatus.PREVIOUSLY_KNOWN)
+            .dateOfBirth(offenderResponse.getDateOfBirth())
+            .forename(offenderResponse.getFirstName())
+            .middleNames(offenderResponse.getMiddleNames())
+            .surname(offenderResponse.getSurname())
+            .title(offenderResponse.getTitle())
+            .build();
     }
 
     public OffenderMatchDetail offenderMatchDetailFrom(CommunityApiOffenderResponse offenderResponse, String addressCode) {

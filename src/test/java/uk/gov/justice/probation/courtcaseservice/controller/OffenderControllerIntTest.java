@@ -1,6 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,9 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -261,6 +260,40 @@ public class OffenderControllerIntTest extends BaseIntTest {
         .then()
             .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
+
+    @Test
+    public void whenCallMadeToGetOffenderDetail_thenReturnCorrectData() {
+        given()
+            .auth()
+            .oauth2(getToken())
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .get("/offender/X320741/detail")
+            .then()
+            .statusCode(200)
+            .body("title",  equalTo("Mr."))
+            .body("probationStatus", equalTo("Current"))
+            .body("dateOfBirth", equalTo("2000-07-19"))
+            .body("forename", equalTo("Aadland"))
+            .body("surname", equalTo("Bertrand"))
+            .body("otherIds.crn", equalTo("X320741"))
+        ;
+    }
+
+    @Test
+    public void givenOffenderDoesNotExist_whenCallMadeToGetOffenderDetail_thenReturnNotFound() {
+        given()
+            .auth()
+            .oauth2(getToken())
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .get("/offender/CRNXXX/detail")
+            .then()
+            .statusCode(404)
+            .body("userMessage", equalTo("Offender with CRN 'CRNXXX' not found"))
+            .body("developerMessage" , equalTo("Offender with CRN 'CRNXXX' not found"));
+    }
+
 
     private String standardDateOf(int year, int month, int dayOfMonth) {
         return LocalDate.of(year, month, dayOfMonth).format(DateTimeFormatter.ISO_DATE);

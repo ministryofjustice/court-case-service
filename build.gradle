@@ -123,7 +123,7 @@ dependencies {
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     compileOnly 'org.projectlombok:lombok'
-    compileOnly 'com.google.guava:guava:27.1-jre'
+    compileOnly 'com.google.guava:guava:29.0-jre'
 
     compile 'org.springframework.boot:spring-boot-starter-webflux'
     compile 'org.projectreactor:reactor-spring:1.0.1.RELEASE'

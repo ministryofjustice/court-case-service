@@ -7,3 +7,10 @@ updates:
     time: "03:00"
     timezone: Europe/London
   open-pull-requests-limit: 10
+  ignore:
+      # The latest version of swagger at time of writing (3.0.0) is known to introduce breaking changes
+      - dependency-name: "io.springfox:springfox-swagger2"
+        versions: ["2.x", "3.x"]
+      - dependency-name: "io.springfox:springfox-swagger-ui"
+        versions: ["2.x", "3.x"]
+        

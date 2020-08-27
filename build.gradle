@@ -181,7 +181,7 @@ dependencies {
     implementation 'org.springframework.security:spring-security-oauth2-resource-server'
     implementation 'org.springframework.security:spring-security-oauth2-jose'
     implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.1'
-    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.0'
+    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.1'
     implementation 'net.logstash.logback:logstash-logback-encoder:6.4'
 
     testImplementation 'com.auth0:jwks-rsa:0.13.0'

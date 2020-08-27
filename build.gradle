@@ -24,7 +24,7 @@ project.targetCompatibility = 11
 group = 'uk.gov.justice.probation'
 
 ext {
-    swaggerVersion = '2.9.2'
+    swaggerVersion = '3.0.0'
 }
 
 def today = Instant.now()

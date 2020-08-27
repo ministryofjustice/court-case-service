@@ -153,7 +153,6 @@ public class OffenderRestClientIntTest extends BaseIntTest {
         assertThat(offenderDetail.getDateOfBirth()).isEqualTo(LocalDate.of(2000, Month.JULY, 19));
         assertThat(offenderDetail.getForename()).isEqualTo("Aadland");
         assertThat(offenderDetail.getSurname()).isEqualTo("Bertrand");
-        assertThat(offenderDetail.getTitle()).isEqualTo("Mr.");
         assertThat(offenderDetail.getOtherIds().getCrn()).isEqualTo("X320741");
         assertThat(offenderDetail.getMiddleNames()).containsExactlyInAnyOrder("Hope", "Felix");
     }

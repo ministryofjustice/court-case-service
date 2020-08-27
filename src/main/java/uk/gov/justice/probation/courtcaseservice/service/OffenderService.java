@@ -119,7 +119,7 @@ public class OffenderService {
         return defaultClient.getConvictionRequirements(crn, convictionId).block();
     }
 
-    public OffenderDetail getOffenderDetail(String crn) {
-        return defaultClient.getOffenderDetailByCrn(crn).block();
+    public Mono<OffenderDetail> getOffenderDetail(String crn) {
+        return defaultClient.getOffenderDetailByCrn(crn);
     }
 }

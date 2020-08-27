@@ -116,7 +116,6 @@ public class OffenderMapperTest {
         assertThat(offenderDetail.getMiddleNames()).containsExactlyInAnyOrder("Hope", "Felix");
         assertThat(offenderDetail.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
         assertThat(offenderDetail.getDateOfBirth()).isNull();
-        assertThat(offenderDetail.getTitle()).isEqualTo("Mr.");
         assertThat(offenderDetail.getForename()).isEqualTo("Aadland");
         assertThat(offenderDetail.getSurname()).isEqualTo("Bertrand");
     }

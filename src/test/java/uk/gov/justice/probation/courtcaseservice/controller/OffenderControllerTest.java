@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
@@ -153,9 +154,9 @@ class OffenderControllerTest {
     public void whenGetOffenderDetail_thenReturnIt() {
         OffenderDetail offenderDetail = mock(OffenderDetail.class);
 
-        when(offenderService.getOffenderDetail(CRN)).thenReturn(offenderDetail);
+        when(offenderService.getOffenderDetail(CRN)).thenReturn(Mono.just(offenderDetail));
 
-        OffenderDetail offenderDetailResponse = controller.getOffenderDetail(CRN);
+        OffenderDetail offenderDetailResponse = controller.getOffenderDetail(CRN).block();
 
         assertThat(offenderDetailResponse).isSameAs(offenderDetail);
         verify(offenderService).getOffenderDetail(CRN);

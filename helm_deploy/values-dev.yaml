@@ -14,7 +14,6 @@ ingress:
   enable_whitelist: true
   hosts:
     - host: court-case-service-dev.apps.live-1.cloud-platform.service.justice.gov.uk
-      cert_secret: court-case-service-cert
   path: /
 
 env:

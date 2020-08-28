@@ -18,6 +18,7 @@ ingress:
   path: /
 
 env:
+  controller: nginx
   JAVA_OPTS: "-Xmx512m"
   community_api:
     base_url: https://community-api-secure.probation.service.justice.gov.uk

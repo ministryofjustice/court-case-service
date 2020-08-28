@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +24,8 @@ import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
+import java.util.List;
+
 @Component
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,6 +33,8 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 public class OffenderRestClient {
     @Value("${community-api.offender-by-crn-url-template}")
     private String offenderUrlTemplate;
+    @Value("${community-api.offender-by-crn-all-url-template}")
+    private String offenderAllUrlTemplate;
     @Value("${community-api.convictions-by-crn-url-template}")
     private String convictionsUrlTemplate;
     @Value("${community-api.requirements-by-crn-url-template}")
@@ -53,7 +56,7 @@ public class OffenderRestClient {
     private RestClientHelper clientHelper;
 
     public Mono<ProbationRecord> getProbationRecordByCrn(String crn) {
-        return clientHelper.get(String.format(offenderUrlTemplate, crn))
+        return clientHelper.get(String.format(offenderAllUrlTemplate, crn))
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
                 .bodyToMono(CommunityApiOffenderResponse.class)
@@ -71,7 +74,7 @@ public class OffenderRestClient {
     }
 
     public Mono<OffenderMatchDetail> getOffenderMatchDetailByCrn(String crn) {
-        return clientHelper.get(String.format(offenderUrlTemplate, crn))
+        return clientHelper.get(String.format(offenderAllUrlTemplate, crn))
             .retrieve()
             .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> Mono.justOrEmpty(null))
             .bodyToMono(CommunityApiOffenderResponse.class)

@@ -1,12 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,10 +16,18 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.OffenderMatchMapper;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -165,6 +167,21 @@ class OffenderMatchServiceTest {
         verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);
         verify(offenderRestClient).getConvictionsByCrn(crn);
         verify(offenderMapper).offenderMatchDetailFrom(matchDetail, null);
+    }
+
+    @Test
+    void given404OnConvictionsCall_whenGetOffenderMatchDetail_thenReturn() {
+
+        OffenderMatchDetail matchDetail = OffenderMatchDetail.builder().forename("Chris").build();
+        String crn = "X320741";
+        when(offenderRestClient.getOffenderMatchDetailByCrn(crn)).thenReturn(Mono.justOrEmpty(matchDetail));
+        when(offenderRestClient.getConvictionsByCrn(crn)).thenReturn(Mono.error( new OffenderNotFoundException(crn)));
+        OffenderMatchDetail resultMatchDetail = mock(OffenderMatchDetail.class);
+        when(offenderMapper.offenderMatchDetailFrom(matchDetail, null)).thenReturn(resultMatchDetail);
+
+        OffenderMatchDetail offenderMatchDetail = service.getOffenderMatchDetail("X320741");
+
+        assertThat(offenderMatchDetail).isSameAs(resultMatchDetail);
     }
 
     @Test

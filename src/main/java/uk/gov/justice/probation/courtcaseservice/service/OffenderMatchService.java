@@ -1,11 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +14,18 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.OffenderMatchMapper;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -76,7 +78,8 @@ public class OffenderMatchService {
     OffenderMatchDetail getOffenderMatchDetail(String crn) {
         log.debug("Looking for offender detail for CRN :{}", crn);
         return Mono.zip(offenderRestClient.getOffenderMatchDetailByCrn(crn),
-                        offenderRestClient.getConvictionsByCrn(crn))
+                        offenderRestClient.getConvictionsByCrn(crn)
+                        .onErrorResume(OffenderNotFoundException.class, e -> Mono.just(Collections.emptyList())))
             .map(tuple -> addMostRecentEventToOffenderMatch(tuple.getT1(), tuple.getT2()))
             .block();
     }

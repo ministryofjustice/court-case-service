@@ -73,7 +73,8 @@ spring:
 #              create-source: metadata
 
 community-api:
-  offender-by-crn-url-template: /secure/offenders/crn/%s/all
+  offender-by-crn-url-template: /secure/offenders/crn/%s
+  offender-by-crn-all-url-template: /secure/offenders/crn/%s/all
   convictions-by-crn-url-template: /secure/offenders/crn/%s/convictions
   conviction-by-crn-url-template: /secure/offenders/crn/%s/convictions/%s
   attendances-by-crn-and-conviction-url-template: /secure/offenders/crn/%s/convictions/%s/attendances
@@ -102,3 +103,8 @@ web:
     connect-timeout-ms: 20000
     read-timeout-ms: 5000
     write-timeout-ms: 5000
+
+hibernate:
+  types:
+    print:
+      banner: false

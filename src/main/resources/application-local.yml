@@ -12,7 +12,7 @@ offender-assessments-api:
   client-secret: clientsecret
 
 nomis-oauth:
-  base-url: https://gateway.t3.nomis-api.hmpps.dsd.io
+  base-url: https://sign-in-dev.hmpps.service.justice.gov.uk
 
 spring:
   flyway:

@@ -2,7 +2,7 @@ community-api:
   base-url: https://community-api-secure.test.delius.probation.hmpps.dsd.io
 
 nomis-oauth:
-  base-url: https://gateway.t3.nomis-api.hmpps.dsd.io
+  base-url: https://sign-in-dev.hmpps.service.justice.gov.uk
 
 offender-assessments-api:
   base-url: https://dev.devtest.assessment-api.hmpps.dsd.io

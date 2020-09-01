@@ -25,7 +25,7 @@ env:
   nomis_oauth:
     base_url: https://sign-in.hmpps.service.justice.gov.uk
   offender_assessments_api:
-    base_url: https://offender-prod.aks-live-1.studio-hosting.service.hmpps.dsd.io
+    base_url: https://offender-prod.aks-live-1.studio-hosting.service.justice.gov.uk
 
 spring:
   profile: instrumented,prod

@@ -37,6 +37,7 @@ Depending if you use Bash or Zsh, run the right command for you :
 `$ echo 'eval "$(jenv init -)"' >> ~/.zshrc`
 
 #### 4. Close your terminal to finalise jEnv set up.
+
 #### 5. Reopen a new window and run :	
 ~5.1.~ `$ /usr/libexec/java_home -V` 
 ~5.2.~ `$ jenv add <choose one/all the versions you have found when you ran the previous command>`

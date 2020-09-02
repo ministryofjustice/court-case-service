@@ -12,7 +12,6 @@ If you have HomeBrew and Java set up already, go to the Dependencies section.
 :::
 
 
-
 #### 1. If after running the brew version nothing appears do the following :
 ~1.1.~ `$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
 ~1.2.~ `$ brew install`
@@ -44,7 +43,6 @@ Depending if you use Bash or Zsh, run the right command for you :
 *E.g.: `jenv add /Library/Java/JavaVirtualMachines/openjdk-11.0.2.jdk/Contents/Home`*
 
 
-
 ## Dependencies
 
 The service has an attached Postgres database as well as several back-ends. The details of which can be found in the `docker-compose.yml` file.
@@ -74,7 +72,6 @@ There are also Wiremock stubs for each of the back-end calls which the test Sp
 `$ bash runMocks.sh`
 
 
-
 ## Building and running
 
 As we said before, this service is built using Gradle. In order to run the service locally, a Postgres database and some other backend services are required. The easiest way to run locally is using the `docker-compose.yml` file which will pull down the latest version. 
@@ -98,12 +95,10 @@ As we said before, this service is built using Gradle. In order to run the servi
 	`$ SPRING_PROFILES_ACTIVE=local ./gradlew bootRun`
 
 
-
 ## Deployment
 
 Builds and deployments are setup in `Circle CI` and configured in the config file.
 Helm is used to deploy the service to a Kubernetes Cluster using templates in the `helm_deploy` folder.
-
 
 
 ## Resources

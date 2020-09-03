@@ -34,13 +34,13 @@ Depending if you use Bash or Zsh, run the right command for you :
 `$ echo 'export PATH="$HOME/.jenv/bin:$PATH"' >> ~/.bash_profile`
 `$ echo 'eval "$(jenv init -)"' >> ~/.bash_profile`
 
-> Zsh
+> Zsh (The default interactive shell for docker)
 `$ echo 'export PATH="$HOME/.jenv/bin:$PATH"' >> ~/.zshrc`
 `$ echo 'eval "$(jenv init -)"' >> ~/.zshrc`
 
 #### 4. Close your terminal to finalise jEnv set up.
 
-#### 5. Reopen a new window and run :	
+#### 5. Reopen a new window and run :   
 ~5.1.~ `$ /usr/libexec/java_home -V` 
 ~5.2.~ `$ jenv add <choose one/all the versions you have found when you ran the previous command>`
 *E.g.: `jenv add /Library/Java/JavaVirtualMachines/openjdk-11.0.2.jdk/Contents/Home`*
@@ -92,10 +92,10 @@ As we said before, this service is built using Gradle. In order to run the servi
 **5.** The service uses Lombok and so annotation processors must be turned on within the IDE.
 
 **6.** In order to build the project from the command line, run the command :
-	`$ ./gradlew build`
+    `$ ./gradlew build`
 
 **7.** To run the service, ensure there is an instance of Postgres running and then run :
-	`$ SPRING_PROFILES_ACTIVE=local ./gradlew bootRun`
+    `$ SPRING_PROFILES_ACTIVE=local ./gradlew bootRun`
 
 
 ## Deployment

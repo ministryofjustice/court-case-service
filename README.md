@@ -26,7 +26,7 @@ If you have HomeBrew and Java set up already, go to the Dependencies section.
 If nothing appears, run :
 ~2.2.~ `$ brew cask install java11`
 
-#### 3. If you have others/multiple versions of Java and you need to switch in between/manage them, then you have to install another tool called jEnv : 
+#### 3. If you have others/multiple versions of Java and you need to switch in between/manage them, then you have to install another tool called jEnv (or SDKMAN - see links in Resources section) : 
 ~3.1.~ `$ brew install jenv`
 
 Depending if you use Bash or Zsh, run the right command for you :
@@ -111,6 +111,9 @@ Helm is used to deploy the service to a Kubernetes Cluster using templates in th
 
 [jEnv installation blog post](https://medium.com/@brunofrascino/working-with-multiple-java-versions-in-macos-9a9c4f15615a)
 [jEnv manual](https://www.jenv.be/)
+
+[SDKMAN installation blog post](https://hackernoon.com/using-sdkman-to-manage-java-versions-7fde0d38c501)
+[SDKMAN manual](https://sdkman.io/)
 
 [gradle](https://gradle.org/install/)
 [Lombok for VSCode](https://marketplace.visualstudio.com/items?itemName=GabrielBB.vscode-lombok)

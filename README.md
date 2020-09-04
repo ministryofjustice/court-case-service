@@ -68,7 +68,8 @@ The project builds swagger specifications which can be examined and tested via t
 #### *Flyway commands*
 **Migrate database** : `$ gradle flywayMigrate -i`
 **View details and status information about all migrations** : `$ gradle flywayInfo`
-**Baseline an existing database, excluding all migrations up to and including baselineVersion** :  `$ gradle flywayBaseline`
+**Baseline an existing database, excluding all migrations up to and including baselineVersion** :  `$ ./gradlew flywayBaseline`
+**Clean schema** : `$ ./gradlew flywayClean`
 
 
 There are also Wiremock stubs for each of the back-end calls which the test Spring profile runs against, so in order to run these, use the following command along with `docker-compose up` : 

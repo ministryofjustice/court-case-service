@@ -67,7 +67,7 @@ The project builds swagger specifications which can be examined and tested via t
 
 #### *Flyway commands*
 **Migrate database** : `$ gradle flywayMigrate -i`
-**View details and status information about all migrations** : `$ gradle flywayInfo`
+**View details and status information about all migrations** : `$ ./gradlew flywayInfo`
 **Baseline an existing database, excluding all migrations up to and including baselineVersion** :  `$ ./gradlew flywayBaseline`
 **Clean schema** : `$ ./gradlew flywayClean`
 

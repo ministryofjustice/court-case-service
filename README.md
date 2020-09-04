@@ -7,12 +7,14 @@
 
 ## Setup your machine
 
-In the root folder of your machine start by checking if HomeBrew is installed on your computer with the command : `brew -version` 
-If you have HomeBrew and Java set up already, go to the Dependencies section. 
 :::info 
 ⚠️ This project run with ==JAVA 11== and NOT the last version!
 :::
+If you have HomeBrew or an equivalent and Java set up already, go to the ==Dependencies section==.
 
+
+### For Mac users
+In the root folder of your machine start by checking if HomeBrew is installed on your computer with the command : `brew -version` 
 
 #### 1. If after running the brew version nothing appears do the following :
 ~1.1.~ `$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
@@ -26,10 +28,12 @@ If you have HomeBrew and Java set up already, go to the Dependencies section.
 If nothing appears, run :
 ~2.2.~ `$ brew cask install java11`
 
-#### 3. If you have others/multiple versions of Java and you need to switch in between/manage them, then you have to install another tool called jEnv (or SDKMAN - see links in Resources section) : 
+#### 3. If you have others/multiple versions of Java and you need to switch in between/manage them, then you have to install another tool called ==jEnv== or ==SDKMAN== (see links in Resources section) : 
+
+**For jEnv users**
 ~3.1.~ `$ brew install jenv`
 
-Depending if you use Bash or Zsh, run the right command for you :
+Depending on if you use Bash or Zsh, run the right command for you :
 > Bash
 `$ echo 'export PATH="$HOME/.jenv/bin:$PATH"' >> ~/.bash_profile`
 `$ echo 'eval "$(jenv init -)"' >> ~/.bash_profile`
@@ -46,6 +50,8 @@ Depending if you use Bash or Zsh, run the right command for you :
 *E.g.: `jenv add /Library/Java/JavaVirtualMachines/openjdk-11.0.2.jdk/Contents/Home`*
 
 
+---
+
 ## Dependencies
 
 The service has an attached Postgres database as well as several back-ends. The details of which can be found in the `docker-compose.yml` file.
@@ -54,7 +60,7 @@ The service has an attached Postgres database as well as several back-ends. The 
 :::
 
 **Default port**
-Starts the application on port '8080'. To override, set server.port (eg SERVER_PORT=8099 java -jar etc etc)
+Starts the application on port '8080'. To override, set server.port (e.g. SERVER_PORT=8099 java -jar etc etc)
 
 **Swagger UI**
 The project builds swagger specifications which can be examined and tested via the Swagger UI. http://localhost:8080/swagger-ui.html
@@ -66,23 +72,25 @@ The project builds swagger specifications which can be examined and tested via t
 **To Check dependency versions** : `$ ./gradlew dependencyUpdates`
 
 #### *Flyway commands*
-**Migrate database** : `$ gradle flywayMigrate -i`
-**View details and status information about all migrations** : `$ ./gradlew flywayInfo`
+**Migrate database** : `$ ./gradlew flywayMigrate -i`
+**View details and status information about all migrations** : `$ gradlew flywayInfo`
 **Baseline an existing database, excluding all migrations up to and including baselineVersion** :  `$ ./gradlew flywayBaseline`
 **Clean schema** : `$ ./gradlew flywayClean`
 
 
-There are also Wiremock stubs for each of the back-end calls which the test Spring profile runs against, so in order to run these, use the following command along with `docker-compose up` : 
-`$ bash runMocks.sh`
+There are also Wiremock stubs for each of the back-end calls which the test Spring profile runs against, so in order to run these, use the following command along with `docker-compose up` : `$ bash runMocks.sh`
 
+
+
+---
 
 ## Building and running
 
 As we said before, this service is built using Gradle. In order to run the service locally, a Postgres database and some other backend services are required. The easiest way to run locally is using the `docker-compose.yml` file which will pull down the latest version. 
 
-**1.** To do it, first assure you to have the Docker extension installed on your computer. If not, click on this link and upload it https://hub.docker.com/editions/community/docker-ce-desktop-mac/.
+**1.** To do it, first assure you to have the Docker extension installed on your computer. If not, click [here](https://hub.docker.com/editions/community/docker-ce-desktop-mac/) and upload it.
 
-**2.** When installed, run the command `$ env | grep DOCKER`. Make sure that this command doesn’t output anything and you are ready to go! (If you have something, refer to the resources below Docker desktop / Docker toolbox)
+**2.** When installed, run the command `$ env | grep DOCKER`. Make sure this command doesn’t output anything and you are ready to go! *(If you have something out of it, refer to the Resources section below - Docker desktop / Docker toolbox)*
 
 **3.** Than run the command : `$ docker-compose up`
 
@@ -99,13 +107,24 @@ As we said before, this service is built using Gradle. In order to run the servi
     `$ SPRING_PROFILES_ACTIVE=local ./gradlew bootRun`
 
 
+---
+
 ## Deployment
 
 Builds and deployments are setup in `Circle CI` and configured in the config file.
 Helm is used to deploy the service to a Kubernetes Cluster using templates in the `helm_deploy` folder.
 
 
+
+---
+
 ## Resources
+
+:::info 
+==**Enhancement**==
+Please, feel free to upgrade this documentation if you are a Window/Linux user. Create a bloc inside the Set up your machine section.
+:::
+
 
 [Java 11 by Oracle](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
 [Java 11 by OpenJDK](https://developers.redhat.com/products/openjdk/download)

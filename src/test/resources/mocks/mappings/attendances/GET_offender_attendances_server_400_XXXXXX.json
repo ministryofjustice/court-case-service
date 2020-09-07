@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/secure/offenders/crn/XXXXXX/convictions/2500295343/attendances",
+    "urlPath": "/secure/offenders/crn/XXXXXX/convictions/2500295343/attendancesFilter",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"

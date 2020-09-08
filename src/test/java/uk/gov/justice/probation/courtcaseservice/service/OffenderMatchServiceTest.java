@@ -78,7 +78,6 @@ class OffenderMatchServiceTest {
     void givenValidRequest_whenUpdateGroupedMatchesCalled_thenCreateAndReturnMatch() {
 
         when(offenderMatchRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(groupedOffenderMatchesEntity));
-//        when(groupedOffenderMatchesEntity.getCourtCase()).thenReturn(courtCaseEntity);
         when(mapper.update(groupedOffenderMatchesEntity, groupedOffenderMatchesRequest)).thenReturn(groupedOffenderMatchesEntity);
         when(offenderMatchRepository.save(any(GroupedOffenderMatchesEntity.class))).thenReturn(groupedOffenderMatchesEntity);
 

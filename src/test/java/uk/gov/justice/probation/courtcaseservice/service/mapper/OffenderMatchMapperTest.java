@@ -1,14 +1,13 @@
 package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
+import java.util.Arrays;
+import java.util.Collections;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.MatchIdentifiers;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.service.model.MatchType;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -78,5 +77,20 @@ class OffenderMatchMapperTest {
 
         assertThat(matchesEntity.getOffenderMatches()).isEmpty();
         assertThat(matchesEntity.getId()).isNull();
+    }
+
+    @Test
+    public void whenIdPresent_thenPreserve() {
+        var offenderMatchMapper = new OffenderMatchMapper();
+        var courtCaseEntity = CourtCaseEntity.builder()
+            .id(CASE_ID)
+            .build();
+        var groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
+            .matches(Collections.emptyList())
+            .build();
+        var matchesEntity = offenderMatchMapper.groupedMatchesOf(groupedOffenderMatchesRequest, courtCaseEntity, 1L);
+
+        assertThat(matchesEntity.getOffenderMatches()).isEmpty();
+        assertThat(matchesEntity.getId()).isEqualTo(1);
     }
 }

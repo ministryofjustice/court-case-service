@@ -24,6 +24,8 @@ public class OAuth2SecurityConfig extends WebSecurityConfigurerAdapter {
                         .mvcMatchers(
                                 "/health",
                                 "/ping",
+                                "/court/**/",
+                                "/offender/**/",
                                 "/swagger-resources/**",
                                 "/v2/api-docs",
                                 "/swagger-ui.html",

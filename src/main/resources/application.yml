@@ -80,7 +80,7 @@ community-api:
   offender-by-crn-all-url-template: /secure/offenders/crn/%s/all
   convictions-by-crn-url-template: /secure/offenders/crn/%s/convictions
   conviction-by-crn-url-template: /secure/offenders/crn/%s/convictions/%s
-  attendances-by-crn-and-conviction-url-template: /secure/offenders/crn/%s/convictions/%s/attendances
+  attendances-by-crn-and-conviction-url-template: /secure/offenders/crn/%s/convictions/%s/attendancesFilter
   requirements-by-crn-url-template: /secure/offenders/crn/%s/convictions/%s/requirements
   grouped-documents-by-crn-url-template: /secure/offenders/crn/%s/documents/grouped
   offender-document-by-crn-url-template: /secure/offenders/crn/%s/documents/%s

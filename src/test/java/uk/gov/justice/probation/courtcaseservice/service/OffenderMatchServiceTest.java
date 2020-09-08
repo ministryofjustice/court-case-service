@@ -65,7 +65,7 @@ class OffenderMatchServiceTest {
     void givenValidRequest_whenCreateGroupedMatchesCalled_thenCreateAndReturnMatch() {
         when(offenderMatchRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.empty());
         when(courtCaseService.getCaseByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(courtCaseEntity);
-        when(mapper.groupedMatchesOf(groupedOffenderMatchesRequest, courtCaseEntity)).thenReturn(groupedOffenderMatchesEntity);
+        when(mapper.newGroupedMatchesOf(groupedOffenderMatchesRequest, courtCaseEntity)).thenReturn(groupedOffenderMatchesEntity);
         when(offenderMatchRepository.save(groupedOffenderMatchesEntity)).thenReturn(groupedOffenderMatchesEntity);
 
         Optional<GroupedOffenderMatchesEntity> match = service.createOrUpdateGroupedMatches(COURT_CODE, CASE_NO, groupedOffenderMatchesRequest).blockOptional();
@@ -78,9 +78,8 @@ class OffenderMatchServiceTest {
     void givenValidRequest_whenUpdateGroupedMatchesCalled_thenCreateAndReturnMatch() {
 
         when(offenderMatchRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(groupedOffenderMatchesEntity));
-        when(groupedOffenderMatchesEntity.getId()).thenReturn(99L);
-        when(groupedOffenderMatchesEntity.getCourtCase()).thenReturn(courtCaseEntity);
-        when(mapper.groupedMatchesOf(groupedOffenderMatchesRequest, courtCaseEntity, 99L)).thenReturn(groupedOffenderMatchesEntity);
+//        when(groupedOffenderMatchesEntity.getCourtCase()).thenReturn(courtCaseEntity);
+        when(mapper.update(groupedOffenderMatchesEntity, groupedOffenderMatchesRequest)).thenReturn(groupedOffenderMatchesEntity);
         when(offenderMatchRepository.save(any(GroupedOffenderMatchesEntity.class))).thenReturn(groupedOffenderMatchesEntity);
 
         Optional<GroupedOffenderMatchesEntity> match = service.createOrUpdateGroupedMatches(COURT_CODE, CASE_NO, groupedOffenderMatchesRequest).blockOptional();

@@ -9,10 +9,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
 @Component
 public class OffenderMatchMapper {
-    public GroupedOffenderMatchesEntity groupedMatchesOf(GroupedOffenderMatchesRequest offenderMatches, CourtCaseEntity courtCase, Long id) {
+    public GroupedOffenderMatchesEntity newGroupedMatchesOf(GroupedOffenderMatchesRequest offenderMatches, CourtCaseEntity courtCase) {
         var group = GroupedOffenderMatchesEntity.builder()
                 .courtCase(courtCase)
-                .id(id)
                 .build();
 
         group.setOffenderMatches(offenderMatches.getMatches().stream()
@@ -31,7 +30,24 @@ public class OffenderMatchMapper {
         return group;
     }
 
-    public GroupedOffenderMatchesEntity groupedMatchesOf(GroupedOffenderMatchesRequest offenderMatches, CourtCaseEntity courtCase) {
-        return groupedMatchesOf(offenderMatches, courtCase, null);
+    public GroupedOffenderMatchesEntity update(GroupedOffenderMatchesEntity group, GroupedOffenderMatchesRequest request) {
+
+        group.clearOffenderMatches();
+
+        request.getMatches().stream()
+            .map(
+                offenderMatchRequest ->
+                    OffenderMatchEntity.builder()
+                        .group(group)
+                        .confirmed(offenderMatchRequest.getConfirmed())
+                        .rejected(offenderMatchRequest.getRejected())
+                        .matchType(offenderMatchRequest.getMatchType())
+                        .crn(offenderMatchRequest.getMatchIdentifiers().getCrn())
+                        .pnc(offenderMatchRequest.getMatchIdentifiers().getPnc())
+                        .cro(offenderMatchRequest.getMatchIdentifiers().getCro())
+                        .build()
+            )
+            .forEach(newMatch -> {group.getOffenderMatches().add(newMatch);});
+        return group;
     }
 }

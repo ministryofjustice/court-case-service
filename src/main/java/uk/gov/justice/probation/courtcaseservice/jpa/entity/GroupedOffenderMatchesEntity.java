@@ -50,4 +50,13 @@ public class GroupedOffenderMatchesEntity extends BaseEntity implements Serializ
     })
     private CourtCaseEntity courtCase;
 
+    public void clearOffenderMatches() {
+        if (this.offenderMatches != null) {
+            for (OffenderMatchEntity offenderMatchEntity : this.offenderMatches) {
+                offenderMatchEntity.setGroup(null);
+            }
+            this.offenderMatches.clear();
+        }
+    }
+
 }

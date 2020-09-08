@@ -47,14 +47,14 @@ public class OffenderMatchService {
 
     public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatches(String courtCode, String caseNo, GroupedOffenderMatchesRequest offenderMatches) {
         return Mono.just(offenderMatchRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
-            .map(existingGroup -> mapper.groupedMatchesOf(offenderMatches, existingGroup.getCourtCase(), existingGroup.getId()))
+            .map(existingGroup -> mapper.update(existingGroup, offenderMatches))
             .orElseGet(() -> create(courtCode, caseNo, offenderMatches)))
             .map(groupedOffenderMatchesEntity -> offenderMatchRepository.save(groupedOffenderMatchesEntity));
     }
 
     private GroupedOffenderMatchesEntity create(String courtCode, String caseNo, GroupedOffenderMatchesRequest offenderMatches) {
         CourtCaseEntity courtCaseEntity = courtCaseService.getCaseByCaseNumber(courtCode, caseNo);
-        return mapper.groupedMatchesOf(offenderMatches, courtCaseEntity);
+        return mapper.newGroupedMatchesOf(offenderMatches, courtCaseEntity);
     }
 
     public Mono<GroupedOffenderMatchesEntity> getGroupedMatches(String courtCode, String caseNo, Long groupId) {

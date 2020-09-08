@@ -56,16 +56,17 @@ public class OffenderMatchEntity extends BaseEntity {
 
     @Setter
     @Column(name = "CONFIRMED", nullable = false)
-    @EqualsAndHashCode.Include
+    @EqualsAndHashCode.Exclude
     private Boolean confirmed;
 
     @Setter
     @Column(name = "REJECTED", nullable = false)
-    @EqualsAndHashCode.Include
+    @EqualsAndHashCode.Exclude
     private Boolean rejected;
 
-    @JoinColumn(name = "GROUP_ID", nullable = false)
+    @JoinColumn(name = "GROUP_ID", referencedColumnName = "ID", nullable = false)
     @ManyToOne(optional = false)
+    @Setter
     @EqualsAndHashCode.Include
     @JsonIgnore
     private GroupedOffenderMatchesEntity group;

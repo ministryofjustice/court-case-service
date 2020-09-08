@@ -11,8 +11,8 @@ Content-Type: application/json
         "cro": "cro456"
       },
       "matchType": "NAME_DOB",
-      "confirmed": "false",
-      "rejected": "false"
+      "confirmed": "true",
+      "rejected": "true"
     },
     {
       "matchIdentifiers": {
@@ -21,8 +21,8 @@ Content-Type: application/json
         "cro": "cro123"
       },
       "matchType": "NAME_DOB",
-      "confirmed": "false",
-      "rejected": "false"
+      "confirmed": "true",
+      "rejected": "true"
     }
   ]
 }

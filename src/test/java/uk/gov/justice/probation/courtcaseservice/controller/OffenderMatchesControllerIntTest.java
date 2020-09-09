@@ -72,6 +72,7 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
                 .statusCode(200)
                 .body("courtCase.courtCode", equalTo("SHF"))
                 .body("courtCase.caseNo", equalTo("1600028913"))
+                .body("offenderMatches", hasSize(1))
                 .body("offenderMatches[0].crn", equalTo("X346204"))
                 .body("offenderMatches[0].pnc", equalTo("pnc123"))
                 .body("offenderMatches[0].cro", equalTo("cro456"))

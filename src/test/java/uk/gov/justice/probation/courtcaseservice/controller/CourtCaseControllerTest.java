@@ -1,6 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -62,6 +64,33 @@ public class CourtCaseControllerTest {
         assertThat(caseList.getCases().get(0)).isEqualTo(courtCaseResponse);
     }
 
+
+    @Test
+    public void getCaseList_sorted() {
+        CourtCaseController controller = new CourtCaseController(courtCaseService, new CourtCaseResponseMapper());
+
+        LocalDateTime mornSession = LocalDateTime.of(DATE, LocalTime.of(9, 30));
+        LocalDateTime aftSession = LocalDateTime.of(DATE, LocalTime.of(14, 0));
+        CourtCaseEntity entity1 = CourtCaseEntity.builder().courtRoom("1").sessionStartTime(mornSession).defendantName("Mr Nicholas CAGE").build();
+        CourtCaseEntity entity2 = CourtCaseEntity.builder().courtRoom("1").sessionStartTime(mornSession).defendantName("Mr Christopher PLUMMER").build();
+        CourtCaseEntity entity3 = CourtCaseEntity.builder().courtRoom("1").sessionStartTime(aftSession).defendantName("Mr Darren ARONOFSKY").build();
+        CourtCaseEntity entity4 = CourtCaseEntity.builder().courtRoom("3").sessionStartTime(mornSession).defendantName("Mrs Minnie DRIVER").build();
+        CourtCaseEntity entity5 = CourtCaseEntity.builder().courtRoom("3").sessionStartTime(aftSession).defendantName("Mrs Juliette BINOCHE").build();
+
+        // Add in reverse order
+        when(courtCaseService.filterCasesByCourtAndDate(COURT_CODE, DATE)).thenReturn(List.of(entity5, entity4, entity3, entity2, entity1));
+        CaseListResponse caseList = controller.getCaseList(COURT_CODE, DATE);
+
+        List<CourtCaseResponse> cases = caseList.getCases();
+        assertThat(cases).hasSize(5);
+
+        assertPosition(0, cases, "1", "Mr Nicholas CAGE", mornSession);
+        assertPosition(1, cases, "1", "Mr Christopher PLUMMER", mornSession);
+        assertPosition(2, cases, "1", "Mr Darren ARONOFSKY", aftSession);
+        assertPosition(3, cases, "3", "Mrs Minnie DRIVER", mornSession);
+        assertPosition(4, cases, "3", "Mrs Juliette BINOCHE", aftSession);
+    }
+
     @Test
     public void whenDeleteMissingCases_ThenCallService() {
 
@@ -70,5 +99,11 @@ public class CourtCaseControllerTest {
         courtCaseController.purgeAbsentCases(COURT_CODE, existingCases);
 
         verify(courtCaseService).deleteAbsentCases(COURT_CODE, existingCases);
+    }
+
+    private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, String defendantName, LocalDateTime sessionTime) {
+        assertThat(cases.get(position).getCourtRoom()).isEqualTo(courtRoom);
+        assertThat(cases.get(position).getDefendantName()).isEqualTo(defendantName);
+        assertThat(cases.get(position).getSessionStartTime()).isEqualTo(sessionTime);
     }
 }

@@ -48,7 +48,7 @@ public class OffenderMatchesControllerTest {
 
     @Test
     public void givenSuccessfulCreate_thenReturnLocationHeader() {
-        when(offenderMatchService.createGroupedMatches(eq(COURT_CODE), eq(CASE_NO), any())).thenReturn(Mono.just(entity));
+        when(offenderMatchService.createOrUpdateGroupedMatches(eq(COURT_CODE), eq(CASE_NO), any())).thenReturn(Mono.just(entity));
         Long expectedGroupId = 1111L;
         when(entity.getId()).thenReturn(expectedGroupId);
         webTestClient.post()

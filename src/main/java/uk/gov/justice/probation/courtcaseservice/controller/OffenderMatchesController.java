@@ -1,10 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import java.net.URI;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.net.URI;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -45,7 +45,7 @@ public class OffenderMatchesController {
     Mono<ResponseEntity<Object>> createGroupedOffenderMatches(@PathVariable(value = "courtCode") String courtCode,
                                        @PathVariable(value = "caseNo") String caseNo,
                                        @Valid @RequestBody GroupedOffenderMatchesRequest request) {
-        return offenderMatchService.createGroupedMatches(courtCode, caseNo, request)
+        return offenderMatchService.createOrUpdateGroupedMatches(courtCode, caseNo, request)
             .map(match -> ResponseEntity.created(URI.create(String.format("/court/%s/case/%s/grouped-offender-matches/%s", courtCode, caseNo, match.getId())))
                     .build());
     }

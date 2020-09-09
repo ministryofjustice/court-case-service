@@ -1,13 +1,14 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -72,7 +73,8 @@ public class CourtCaseController {
         return courtCaseResponseMapper.mapFrom(courtCaseService.createOrUpdateCase(courtCode, caseNo, courtCaseDetails));
     }
 
-    @ApiOperation(value = "Gets case data for a court on a date.")
+    @ApiOperation(value = "Gets case data for a court on a date. ",
+        notes = "Response is sorted by court room, session start time and by defendant surname")
     @ApiResponses(
         value = {
             @ApiResponse(code = 200, message = "OK", response = CaseListResponse.class),
@@ -89,8 +91,12 @@ public class CourtCaseController {
                                  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         List<CourtCaseEntity> courtCases = courtCaseService.filterCasesByCourtAndDate(courtCode, date);
         List<CourtCaseResponse> courtCaseResponses = courtCases.stream()
+                .sorted(Comparator.comparing(CourtCaseEntity::getCourtRoom)
+                                .thenComparing(CourtCaseEntity::getSessionStartTime)
+                                .thenComparing(CourtCaseEntity::getDefendantSurname))
                 .map(courtCaseResponseMapper::mapFrom)
                 .collect(Collectors.toList());
+
         return CaseListResponse.builder().cases(courtCaseResponses).build();
     }
 

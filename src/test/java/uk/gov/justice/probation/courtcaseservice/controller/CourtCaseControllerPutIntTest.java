@@ -1,7 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.restassured.http.ContentType;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.restassured.http.ContentType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -214,12 +214,10 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .get("/court/"+ COURT_CODE +"/case/1600028913/grouped-offender-matches/9999991")
             .then()
                 .statusCode(200)
+                .body("offenderMatches", hasSize(3))
                 .body("offenderMatches[0].crn", equalTo("X320741"))
                 .body("offenderMatches[0].confirmed",  equalTo(false))
                 .body("offenderMatches[0].rejected",  equalTo(true))
-                .body("offenderMatches[1].crn", equalTo("2234"))
-                .body("offenderMatches[1].confirmed",  equalTo(true))
-                .body("offenderMatches[1].rejected",  equalTo(false))
                 ;
 
         given()
@@ -228,7 +226,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .accept(APPLICATION_JSON_VALUE)
                 .contentType(APPLICATION_JSON_VALUE)
             .when()
-                .get("/court/SHF/case/1600028913/grouped-offender-matches/9999992")
+                .get("/court/SHF/case/1600028914/grouped-offender-matches/9999992")
             .then()
                 .statusCode(200)
                 .body("offenderMatches[0].crn", equalTo("3234"))

@@ -146,11 +146,11 @@ dependencies {
 
     runtime 'org.postgresql:postgresql:42.2.16'
 
-    implementation platform('software.amazon.awssdk:bom:2.14.5')
+    implementation platform('software.amazon.awssdk:bom:2.14.11')
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.18.1'
-    testImplementation ('io.rest-assured:rest-assured:3.0.3'){
+    testImplementation ('io.rest-assured:rest-assured:4.3.1'){
         exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
     }
 

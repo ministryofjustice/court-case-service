@@ -1,19 +1,14 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import io.swagger.annotations.ApiModel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,11 +18,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 @ApiModel(description = "Court Case")
 @Entity
@@ -118,6 +117,10 @@ public class CourtCaseEntity extends BaseEntity implements Serializable {
         return CourtSession.from(sessionStartTime);
     }
 
+    public String getDefendantSurname() {
+        return defendantName == null ? "" : defendantName.substring(defendantName.lastIndexOf(" ")+1);
+    }
+
     public void clearOffences() {
         for (OffenceEntity offenceEntity : this.offences) {
             offenceEntity.setCourtCase(null);
@@ -157,5 +160,6 @@ public class CourtCaseEntity extends BaseEntity implements Serializable {
         result = 31 * result + (getCourtCode() != null ? getCourtCode().hashCode() : 0);
         return result;
     }
+
 
 }

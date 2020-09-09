@@ -1,12 +1,12 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class CourtCaseEntityTest {
 
@@ -21,4 +21,23 @@ class CourtCaseEntityTest {
         assertThat(caseEntity.getSession()).isSameAs(CourtSession.MORNING);
     }
 
+    @Test
+    void givenNormalDefendantName_whenGetSurname() {
+        CourtCaseEntity caseEntity = CourtCaseEntity.builder()
+            .defendantName("Mr Nicholas  CAGE")
+            .build();
+        assertThat(caseEntity.getDefendantSurname()).isEqualTo("CAGE");
+    }
+
+    @Test
+    void givenNull_whenGetSurname_ThenReturnEmptyString() {
+        CourtCaseEntity caseEntity = CourtCaseEntity.builder().build();
+        assertThat(caseEntity.getDefendantSurname()).isEqualTo("");
+    }
+
+    @Test
+    void givenSingleName_whenGetSurname_ThenReturnIt() {
+        CourtCaseEntity caseEntity = CourtCaseEntity.builder().defendantName("CAGE").build();
+        assertThat(caseEntity.getDefendantSurname()).isEqualTo("CAGE");
+    }
 }

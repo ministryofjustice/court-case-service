@@ -1,5 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,11 +12,6 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.format.DateTimeFormatter;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +39,7 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
     private static final String CASE_NO = "1600028913";
     private static final String PROBATION_STATUS = "Previously known";
     private static final String NOT_FOUND_COURT_CODE = "LPL";
-    private static final String DEFENDANT_NAME = "JTEST";
+    private static final String DEFENDANT_NAME = "Mr Johnny BALL";
     private final LocalDateTime now = LocalDateTime.now();
 
     @Test
@@ -54,16 +53,17 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
                 .then()
                 .assertThat()
                 .statusCode(200)
+                .body("cases", hasSize(3))
                 .body("cases[0].courtCode", equalTo(COURT_CODE))
-                .body("cases[0].caseNo", equalTo("1600028913"))
-                .body("cases[0].caseId", equalTo("5555555"))
-                .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 9, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("cases[0].offences", hasSize(2))
-                .body("cases[0].offences[0].sequenceNumber", equalTo(1))
-                .body("cases[0].offences[1].sequenceNumber", equalTo(2))
-                .body("cases[0].numberOfPossibleMatches", equalTo(3))
-                .body("cases[1].lastUpdated", containsString(now.format(DateTimeFormatter.ISO_DATE)))
-                .body("cases[1].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 0, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("cases[0].caseNo", equalTo("1600028914"))
+                .body("cases[0].caseId", equalTo("5555556"))
+                .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 0, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("cases[1].offences", hasSize(2))
+                .body("cases[1].offences[0].sequenceNumber", equalTo(1))
+                .body("cases[1].offences[1].sequenceNumber", equalTo(2))
+                .body("cases[1].numberOfPossibleMatches", equalTo(3))
+                .body("cases[0].lastUpdated", containsString(now.format(DateTimeFormatter.ISO_DATE)))
+                .body("cases[1].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 9, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[2].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)));
     }
 

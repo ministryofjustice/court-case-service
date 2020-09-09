@@ -81,7 +81,7 @@ VALUES (1000002, 1000002, 'SHF', 'Title', 'Summary.', 'ACT.', 2);
 INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE)
 VALUES (9999991, '1600028913','SHF');
 INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE)
-VALUES (9999992, '1600028913','SHF');
+VALUES (9999992, '1600028914','SHF');
 
 
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
@@ -89,7 +89,10 @@ VALUES (false, false, 'X320741', '12345', 'NAME_DOB', '123456', 9999991);
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (false, false, '2234', '22345', 'NAME_DOB', '223456', 9999991);
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
-VALUES (false, false, '3234', '32345', 'NAME_DOB', '323456', 9999992);
+VALUES (true, false, 'X6666', '78654', 'NAME_DOB', '323456', 9999991);
+
+INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
+VALUES (false, true, '3234', '32345', 'NAME_DOB', '323456', 9999992);
 
 INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE)
 VALUES (9999993, '1000002','SHF');

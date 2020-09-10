@@ -1,0 +1,9 @@
+{
+  "role": {
+    "name": "court-case-service",
+    "instance": "court-case-service"
+  },
+  "heartbeat": {
+    "intervalSeconds": 15
+  }
+}

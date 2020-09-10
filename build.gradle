@@ -37,7 +37,6 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
-    agentDeps
     agentDeps.transitive = false
 }
 
@@ -189,8 +188,7 @@ dependencies {
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.2'
     implementation 'net.logstash.logback:logstash-logback-encoder:6.4'
 
-    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.0.0-PREVIEW.5'
-    compile configurations.agentDeps
+    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.0.0'
 }
 
 jacoco {
@@ -228,10 +226,15 @@ jacocoTestCoverageVerification {
     }
 }
 
-
 task copyAgent(type: Copy) {
     from configurations.agentDeps
     into "$buildDir/libs"
 }
 
+task copyAgentConfig(type: Copy) {
+    from "applicationinsights.json"
+    into "$buildDir/libs"
+}
+
 assemble.dependsOn copyAgent
+assemble.dependsOn copyAgentConfig

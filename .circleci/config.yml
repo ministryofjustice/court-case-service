@@ -93,7 +93,7 @@ orbs:
   kubernetes: circleci/kubernetes@0.3.0
   helm: circleci/helm@0.1.2
   mem: circleci/rememborb@0.0.1
-  snyk: snyk/snyk@0.0.10
+  snyk: snyk/snyk@0.0.12
 
 _snyk_options: &snyk_options
   organization: "digital-probation-services"

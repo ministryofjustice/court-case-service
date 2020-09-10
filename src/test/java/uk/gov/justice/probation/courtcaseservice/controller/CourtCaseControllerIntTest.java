@@ -1,9 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.format.DateTimeFormatter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +8,11 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,7 +92,7 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
                 .then()
                 .assertThat()
                 .statusCode(400)
-                .body("message", equalTo("Required LocalDate parameter 'date' is not present"));
+                .body("developerMessage", equalTo("Required LocalDate parameter 'date' is not present"));
     }
 
     @Test

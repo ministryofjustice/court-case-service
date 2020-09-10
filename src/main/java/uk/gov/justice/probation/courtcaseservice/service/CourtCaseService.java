@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
@@ -99,7 +100,7 @@ public class CourtCaseService {
 
     private void checkEntityCaseNoAndCourtAgree(String courtCode, String caseNo, CourtCaseEntity updatedCase) {
         if (!caseNo.equals(updatedCase.getCaseNo()) || !courtCode.equals(updatedCase.getCourtCode())) {
-            throw new InputMismatchException(String.format("Case No %s and Court Code %s do not match with values from body %s and %s",
+            throw new ConflictingInputException(String.format("Case No %s and Court Code %s do not match with values from body %s and %s",
                     caseNo, courtCode, updatedCase.getCaseNo(), updatedCase.getCourtCode()));
         }
     }

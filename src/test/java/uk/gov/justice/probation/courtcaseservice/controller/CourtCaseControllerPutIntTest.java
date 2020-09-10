@@ -1,15 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import java.nio.file.Files;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
 import org.junit.Before;
@@ -28,6 +18,17 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.BaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
+
+import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
 import static java.time.Month.JANUARY;
@@ -260,7 +261,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenCreateCourtCaseByCourtAndCaseWithMismatchCourt_ThenRaise500() {
+    public void whenCreateCourtCaseByCourtAndCaseWithMismatchCourt_ThenRaise400() {
 
         CourtCaseEntity courtCaseEntity = createCaseDetails(COURT_CODE, JSON_CASE_NO, JSON_CASE_ID);
 
@@ -273,8 +274,8 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
             .when()
             .put(String.format("/court/%s/case/%s", "NWS", "99999"))
             .then()
-            .statusCode(500)
-            .body("message", equalTo("Case No 99999 and Court Code NWS do not match with values from body 1700028914 and SHF"))
+            .statusCode(400)
+            .body("developerMessage", equalTo("Case No 99999 and Court Code NWS do not match with values from body 1700028914 and SHF"))
         ;
 
     }

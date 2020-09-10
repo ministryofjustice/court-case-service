@@ -7,6 +7,7 @@ import org.junit.platform.commons.util.StringUtils;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
@@ -23,7 +24,6 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -148,7 +148,7 @@ class CourtCaseServiceTest {
     void givenMismatchInputCourtCode_whenUpdateByCourtAndCase_ThenThrowInputMismatch() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
         String misMatchCourt = "NWS";
-        assertThatExceptionOfType(InputMismatchException.class).isThrownBy( () ->
+        assertThatExceptionOfType(ConflictingInputException.class).isThrownBy( () ->
             service.createOrUpdateCase(misMatchCourt, CASE_NO, courtCase)
         ).withMessage("Case No " + CASE_NO + " and Court Code " + misMatchCourt + " do not match with values from body " + CASE_NO + " and " + COURT_CODE);
     }
@@ -157,7 +157,7 @@ class CourtCaseServiceTest {
     void givenMismatchInputCaseNo_whenUpdateByCourtAndCase_ThenThrowInputMismatch() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
         String misMatchCaseNo = "999";
-        assertThatExceptionOfType(InputMismatchException.class).isThrownBy( () ->
+        assertThatExceptionOfType(ConflictingInputException.class).isThrownBy( () ->
             service.createOrUpdateCase(COURT_CODE, misMatchCaseNo, courtCase)
         ).withMessage("Case No " + misMatchCaseNo + " and Court Code " + COURT_CODE + " do not match with values from body " + CASE_NO + " and " + COURT_CODE);
     }

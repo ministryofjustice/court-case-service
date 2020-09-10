@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.application;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -17,6 +18,14 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @ControllerAdvice
 @Slf4j
 public class ApplicationExceptionHandler {
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handle(MissingServletRequestParameterException e) {
+        return new ResponseEntity<>(ErrorResponse.builder().status(400)
+                .developerMessage(e.getMessage())
+                .userMessage(e.getMessage()).build(), BAD_REQUEST);
+    }
+
 
     @ExceptionHandler(RestResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handle(RestResourceNotFoundException e) {

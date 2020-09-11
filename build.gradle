@@ -146,8 +146,6 @@ dependencies {
     runtimeOnly "org.springframework.boot:spring-boot-devtools"
     runtime 'org.postgresql:postgresql:42.2.16'
 
-    implementation platform('software.amazon.awssdk:bom:2.14.15')
-
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.19.0'
     testImplementation ('io.rest-assured:rest-assured:3.3.0'){

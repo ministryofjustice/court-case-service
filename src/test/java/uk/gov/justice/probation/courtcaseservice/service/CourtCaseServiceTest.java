@@ -272,7 +272,7 @@ class CourtCaseServiceTest {
     }
 
     @Test
-    public void givenOffenderMatchesExistForCase_whenCrnRemoved_thenUpdateMatches() {
+    public void givenOffenderMatchesExistForCase_whenCrnRemoved_thenRejectAllMatches() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
         CourtCaseEntity caseToUpdate = buildCourtCase(null);
         CourtCaseEntity existingCase = buildCourtCase(CRN);
@@ -315,25 +315,25 @@ class CourtCaseServiceTest {
         assertThat(updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches()).hasSize(2);
         assertThat(updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches()).hasSize(2);
 
-        OffenderMatchEntity correctMatch = updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches().get(0);
-        assertThat(correctMatch.getCrn()).isEqualTo(CRN);
-        assertThat(correctMatch.getConfirmed()).isEqualTo(false);
-        assertThat(correctMatch.getRejected()).isEqualTo(true);
-
-        OffenderMatchEntity rejectedMatch1 = updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches().get(1);
-        assertThat(rejectedMatch1.getCrn()).isEqualTo("Rejected CRN 1");
+        OffenderMatchEntity rejectedMatch1 = updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches().get(0);
+        assertThat(rejectedMatch1.getCrn()).isEqualTo(CRN);
         assertThat(rejectedMatch1.getConfirmed()).isEqualTo(false);
         assertThat(rejectedMatch1.getRejected()).isEqualTo(true);
 
-        OffenderMatchEntity rejectedMatch2 = updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches().get(0);
-        assertThat(rejectedMatch2.getCrn()).isEqualTo("Rejected CRN 2");
+        OffenderMatchEntity rejectedMatch2 = updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches().get(1);
+        assertThat(rejectedMatch2.getCrn()).isEqualTo("Rejected CRN 1");
         assertThat(rejectedMatch2.getConfirmed()).isEqualTo(false);
         assertThat(rejectedMatch2.getRejected()).isEqualTo(true);
 
-        OffenderMatchEntity rejectedMatch3 = updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches().get(1);
-        assertThat(rejectedMatch3.getCrn()).isEqualTo("Rejected CRN 3");
+        OffenderMatchEntity rejectedMatch3 = updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches().get(0);
+        assertThat(rejectedMatch3.getCrn()).isEqualTo("Rejected CRN 2");
         assertThat(rejectedMatch3.getConfirmed()).isEqualTo(false);
         assertThat(rejectedMatch3.getRejected()).isEqualTo(true);
+
+        OffenderMatchEntity rejectedMatch4 = updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches().get(1);
+        assertThat(rejectedMatch4.getCrn()).isEqualTo("Rejected CRN 3");
+        assertThat(rejectedMatch4.getConfirmed()).isEqualTo(false);
+        assertThat(rejectedMatch4.getRejected()).isEqualTo(true);
 
     }
 

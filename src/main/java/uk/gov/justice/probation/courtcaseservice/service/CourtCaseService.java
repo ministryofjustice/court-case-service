@@ -150,7 +150,7 @@ public class CourtCaseService {
         existingCase.getGroupedOffenderMatches()
                 .stream().flatMap(group -> group.getOffenderMatches() != null ? group.getOffenderMatches().stream() : Stream.empty())
                 .forEach(match -> {
-                    boolean crnMatches = updatedCase.getCrn().equals(match.getCrn());
+                    boolean crnMatches = match.getCrn().equals(updatedCase.getCrn());
                     match.setConfirmed(crnMatches);
                     match.setRejected(!crnMatches);
 

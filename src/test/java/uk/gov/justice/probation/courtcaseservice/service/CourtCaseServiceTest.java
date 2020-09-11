@@ -55,7 +55,7 @@ class CourtCaseServiceTest {
     private static final boolean BREACH = true;
     private static final String DEFENDANT_NAME = "JTEST";
     private static final AddressPropertiesEntity DEFENDANT_ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "AB21 3ES", "Bangor", null, null);
-    private static final String CRN = "CRN";
+    static final String CRN = "CRN";
     private static final String PNC = "PNC";
     private static final String LIST_NO = "LIST_NO";
     private static final LocalDate DEFENDANT_DOB = LocalDate.of(1958, 12, 14);
@@ -84,7 +84,7 @@ class CourtCaseServiceTest {
 
     @BeforeEach
     void setup() {
-        courtCase = buildCourtCase();
+        courtCase = buildCourtCase(CRN);
     }
 
     @Test
@@ -208,8 +208,8 @@ class CourtCaseServiceTest {
     @Test
     public void givenOffenderMatchesExistForCase_whenCrnUpdated_thenUpdateMatches() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        CourtCaseEntity caseToUpdate = buildCourtCase();
-        CourtCaseEntity existingCase = buildCourtCase();
+        CourtCaseEntity caseToUpdate = buildCourtCase(CRN);
+        CourtCaseEntity existingCase = buildCourtCase(CRN);
 
         var offenderMatchesEntities = Arrays.asList(
                 GroupedOffenderMatchesEntity.builder()
@@ -272,9 +272,75 @@ class CourtCaseServiceTest {
     }
 
     @Test
+    public void givenOffenderMatchesExistForCase_whenCrnRemoved_thenUpdateMatches() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        CourtCaseEntity caseToUpdate = buildCourtCase(null);
+        CourtCaseEntity existingCase = buildCourtCase(CRN);
+
+        var offenderMatchesEntities = Arrays.asList(
+                GroupedOffenderMatchesEntity.builder()
+                        .courtCase(existingCase)
+                        .offenderMatches(Arrays.asList(OffenderMatchEntity.builder()
+                                        .crn(CRN)
+                                        .confirmed(false)
+                                        .rejected(false)
+                                        .build(),
+                                OffenderMatchEntity.builder()
+                                        .crn("Rejected CRN 1")
+                                        .confirmed(false)
+                                        .rejected(false)
+                                        .build()))
+                        .build(),
+                GroupedOffenderMatchesEntity.builder()
+                        .offenderMatches(Arrays.asList(OffenderMatchEntity.builder()
+                                        .crn("Rejected CRN 2")
+                                        .confirmed(false)
+                                        .rejected(false)
+                                        .build(),
+                                OffenderMatchEntity.builder()
+                                        .crn("Rejected CRN 3")
+                                        .confirmed(false)
+                                        .rejected(false)
+                                        .build()))
+                        .build()
+
+        );
+        existingCase.setGroupedOffenderMatches(offenderMatchesEntities);
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(existingCase));
+        when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
+
+        CourtCaseEntity updatedCase = service.createOrUpdateCase(COURT_CODE, CASE_NO, caseToUpdate);
+
+        assertThat(updatedCase.getGroupedOffenderMatches()).hasSize(2);
+        assertThat(updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches()).hasSize(2);
+        assertThat(updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches()).hasSize(2);
+
+        OffenderMatchEntity correctMatch = updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches().get(0);
+        assertThat(correctMatch.getCrn()).isEqualTo(CRN);
+        assertThat(correctMatch.getConfirmed()).isEqualTo(false);
+        assertThat(correctMatch.getRejected()).isEqualTo(true);
+
+        OffenderMatchEntity rejectedMatch1 = updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches().get(1);
+        assertThat(rejectedMatch1.getCrn()).isEqualTo("Rejected CRN 1");
+        assertThat(rejectedMatch1.getConfirmed()).isEqualTo(false);
+        assertThat(rejectedMatch1.getRejected()).isEqualTo(true);
+
+        OffenderMatchEntity rejectedMatch2 = updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches().get(0);
+        assertThat(rejectedMatch2.getCrn()).isEqualTo("Rejected CRN 2");
+        assertThat(rejectedMatch2.getConfirmed()).isEqualTo(false);
+        assertThat(rejectedMatch2.getRejected()).isEqualTo(true);
+
+        OffenderMatchEntity rejectedMatch3 = updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches().get(1);
+        assertThat(rejectedMatch3.getCrn()).isEqualTo("Rejected CRN 3");
+        assertThat(rejectedMatch3.getConfirmed()).isEqualTo(false);
+        assertThat(rejectedMatch3.getRejected()).isEqualTo(true);
+
+    }
+
+    @Test
     public void givenMatchesDontExistForCase_whenCrnUpdated_thenDontThrowException() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        CourtCaseEntity caseToUpdate = buildCourtCase();
+        CourtCaseEntity caseToUpdate = buildCourtCase(CRN);
         caseToUpdate.setGroupedOffenderMatches(List.of(GroupedOffenderMatchesEntity.builder().offenderMatches(emptyList()).build()));
         when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(caseToUpdate));
         when(courtCaseRepository.save(caseToUpdate)).thenReturn(caseToUpdate);
@@ -285,7 +351,7 @@ class CourtCaseServiceTest {
     @Test
     public void givenMatchesAreNullForCase_whenCrnUpdated_thenDontThrowException() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        CourtCaseEntity caseToUpdate = buildCourtCase();
+        CourtCaseEntity caseToUpdate = buildCourtCase(CRN);
         caseToUpdate.setGroupedOffenderMatches(null);
         when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(caseToUpdate));
         when(courtCaseRepository.save(caseToUpdate)).thenReturn(caseToUpdate);
@@ -293,7 +359,7 @@ class CourtCaseServiceTest {
         service.createOrUpdateCase(COURT_CODE, CASE_NO, caseToUpdate);
     }
 
-    static CourtCaseEntity buildCourtCase() {
+    static CourtCaseEntity buildCourtCase(String crn) {
         CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().caseId(CASE_ID)
             .lastUpdated(LAST_UPDATED)
             .breach(BREACH)
@@ -304,7 +370,7 @@ class CourtCaseServiceTest {
             .defendantName(DEFENDANT_NAME)
             .defendantDob(DEFENDANT_DOB)
             .defendantSex(DEFENDANT_SEX)
-            .crn(CRN)
+            .crn(crn)
             .listNo(LIST_NO)
             .nationality1(NATIONALITY_1)
             .nationality2(NATIONALITY_2)

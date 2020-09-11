@@ -1,11 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +8,13 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
@@ -34,7 +35,7 @@ public class CourtCaseServiceIntTest extends BaseIntTest {
     public void whenUpdateCase_ThenUpdateAuditField() {
 
         LocalDateTime start = LocalDateTime.now();
-        CourtCaseEntity courtCaseEntity = CourtCaseServiceTest.buildCourtCase();
+        CourtCaseEntity courtCaseEntity = CourtCaseServiceTest.buildCourtCase(CourtCaseServiceTest.CRN);
         String courtCode = courtCaseEntity.getCourtCode();
         String caseNo = courtCaseEntity.getCaseNo();
 

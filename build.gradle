@@ -171,7 +171,7 @@ dependencies {
         because 'Transitive dependency. Previous versions have a known vulnerability'
     }
 
-    implementation ('org.yaml:snakeyaml:1.26') {
+    implementation ('org.yaml:snakeyaml:1.27') {
         because 'Transitive dependency. Previous versions have a known vulnerability'
     }
 

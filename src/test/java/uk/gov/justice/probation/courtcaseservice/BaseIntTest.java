@@ -1,5 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -32,6 +34,10 @@ public class BaseIntTest {
     @Before
     public void setup() throws Exception {
         TestConfig.configureRestAssuredForIntTest(port);
+    }
+
+    protected String standardDateOf(int year, int month, int dayOfMonth) {
+        return LocalDate.of(year, month, dayOfMonth).format(DateTimeFormatter.ISO_DATE);
     }
 }
 

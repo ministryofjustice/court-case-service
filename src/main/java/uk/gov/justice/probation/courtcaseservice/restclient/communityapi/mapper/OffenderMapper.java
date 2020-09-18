@@ -20,8 +20,6 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderManager;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentence;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiUnpaidWork;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
@@ -29,7 +27,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Offence;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderManager;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
-import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
@@ -159,32 +156,6 @@ public class OffenderMapper {
                 .pssEndDate(custodialStatusResponse.getPssEndDate())
                 .length(custodialStatusResponse.getLength())
                 .lengthUnits(custodialStatusResponse.getLengthUnits())
-                .build();
-    }
-
-
-    public List<Requirement> requirementsFrom(CommunityApiRequirementsResponse requirementsResponse) {
-        return requirementsResponse.getRequirements().stream()
-                .map(this::buildRequirement)
-                .collect(Collectors.toList());
-    }
-
-    private Requirement buildRequirement(CommunityApiRequirementResponse requirement) {
-        return Requirement.builder()
-                .requirementId(requirement.getRequirementId())
-                .commencementDate(requirement.getCommencementDate())
-                .startDate(requirement.getStartDate())
-                .terminationDate(requirement.getTerminationDate())
-                .expectedStartDate(requirement.getExpectedStartDate())
-                .expectedEndDate(requirement.getExpectedEndDate())
-                .active(requirement.getActive() != null && requirement.getActive())
-                .length(requirement.getLength())
-                .lengthUnit(requirement.getLengthUnit())
-                .adRequirementTypeMainCategory(requirement.getAdRequirementTypeMainCategory())
-                .adRequirementTypeSubCategory(requirement.getAdRequirementTypeSubCategory())
-                .requirementTypeMainCategory(requirement.getRequirementTypeMainCategory())
-                .requirementTypeSubCategory(requirement.getRequirementTypeSubCategory())
-                .terminationReason(requirement.getTerminationReason())
                 .build();
     }
 

@@ -1,0 +1,41 @@
+{
+  "pssRequirements": [
+    {
+      "pssRequirementId": 634,
+      "type": {
+        "code": "S04",
+        "description": "Specified Activity"
+      },
+      "subType": {
+        "code": "101",
+        "description": "Adjourned - Pre-Sentence Report"
+      },
+      "active": true
+    },
+    {
+      "pssRequirementId": 635,
+      "type": {
+        "code": "S05",
+        "description": "Travel Restriction"
+      },
+      "subType": {
+        "code": "102",
+        "description": "Sub type desc"
+      },
+      "active": true
+    },
+    {
+      "pssRequirementId": 636,
+      "type": {
+        "code": "S06",
+        "description": "Inactive description"
+      },
+      "subType": {
+        "code": "101",
+        "description": "Adjourned - Pre-Sentence Report"
+      },
+      "active": false
+    }
+
+  ]
+}

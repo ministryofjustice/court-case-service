@@ -1,5 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
+import java.util.Collections;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,18 +15,19 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.RequirementMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.interventions.BreachMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsiResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiPssRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
+import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
-
-import java.util.List;
 
 @Component
 @AllArgsConstructor
@@ -39,6 +42,8 @@ public class OffenderRestClient {
     private String convictionsUrlTemplate;
     @Value("${community-api.requirements-by-crn-url-template}")
     private String requirementsUrlTemplate;
+    @Value("${community-api.pss-requirements-by-crn-and-conviction-url-template}")
+    private String pssRequirementsUrlTemplate;
     @Value("${community-api.nsis-url-template}")
     private String nsisTemplate;
     @Value("${community-api.nsis-filter.codes.queryParameter}")
@@ -108,7 +113,17 @@ public class OffenderRestClient {
                 .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
                 .bodyToMono(CommunityApiRequirementsResponse.class)
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving requirements data for CONVICTIONID '%s'", convictionId), e))
-                .map( requirementsResponse -> mapper.requirementsFrom(requirementsResponse));
+                .map(RequirementMapper::requirementsFrom)
+                .onErrorReturn(Collections.emptyList());
     }
 
+    public Mono<List<PssRequirement>> getPssConvictionRequirements(String crn, String convictionId) {
+        return clientHelper.get(String.format(pssRequirementsUrlTemplate, crn, convictionId))
+            .retrieve()
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
+            .bodyToMono(CommunityApiPssRequirementsResponse.class)
+            .doOnError(e -> log.error(String.format("Unexpected exception when retrieving PSS requirements data for CONVICTIONID '%s'", convictionId), e))
+            .map(RequirementMapper::pssRequirementsFrom)
+            .onErrorReturn(Collections.emptyList());
+    }
 }

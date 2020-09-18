@@ -12,10 +12,11 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapperTest.EXPECTED_RQMNT_1;
+import static uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.RequirementMapperTest.EXPECTED_RQMNT_1;
 
 @RunWith(SpringRunner.class)
 public class OffenderRestClientIntTest extends BaseIntTest {
@@ -95,6 +96,14 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     }
 
     @Test
+    public void givenServiceThrowsError_whenGetConvictionRequirementsCalled_thenReturnEmptyList() {
+        // This endpoint is used as a composite so we will return an empty list for a 500 error
+        var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, "99999").block();
+
+        assertThat(optionalRequirements).isEmpty();
+    }
+
+    @Test
     public void whenGetBreaches_thenMakeRestCallToCommunityApi() {
         var optionalBreaches = offenderRestClient.getBreaches(CRN, CONVICTION_ID).blockOptional();
         assertThat(optionalBreaches).isNotEmpty();
@@ -165,5 +174,24 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     @Test(expected = WebClientResponseException.class)
     public void givenServiceThrowsError_whenGetOffenderDetailByCrnCalled_thenFailFastAndThrowException() {
         offenderRestClient.getOffenderDetailByCrn(SERVER_ERROR_CRN).block();
+    }
+
+    @Test
+    public void whenGetPssConvictionRequirementsCalled_thenReturn() {
+        var optionalRequirements = offenderRestClient.getPssConvictionRequirements(CRN, CONVICTION_ID).blockOptional();
+        assertThat(optionalRequirements).isNotEmpty();
+
+        final List<PssRequirement> pssRqmnts = optionalRequirements.get();
+        assertThat(pssRqmnts).hasSize(3);
+        assertThat(pssRqmnts).extracting("description")
+            .contains("Specified Activity", "Travel Restriction", "Inactive description");
+    }
+
+    @Test
+    public void givenServiceThrowsError_whenGetPssConvictionRequirementsCalled_thenReturnEmptyList() {
+        // This endpoint is used as a composite so we will return an empty list for a 500 error
+        var optionalRequirements = offenderRestClient.getPssConvictionRequirements(CRN, "99999").block();
+
+        assertThat(optionalRequirements).isEmpty();
     }
 }

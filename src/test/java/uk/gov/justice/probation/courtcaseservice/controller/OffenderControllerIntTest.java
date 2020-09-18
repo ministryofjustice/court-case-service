@@ -1,8 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -119,6 +117,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
             .then()
                 .statusCode(200)
                 .body("crn",  equalTo("X320741"))
+                .body("convictions.size()", is(3))
                 .body("convictions[0].convictionId", equalTo("2500295343"))
                 .body("convictions[0].documents", hasSize(7))
 
@@ -128,42 +127,6 @@ public class OffenderControllerIntTest extends BaseIntTest {
                 .body("convictions[2].convictionId", equalTo("2500297061"))
                 .body("convictions[2].documents", hasSize(0))
         ;
-    }
-
-    @Test
-    public void whenCallMadeToGetRequirementData_thenReturnCorrectData() {
-        given()
-            .auth()
-            .oauth2(getToken())
-                    .accept(MediaType.APPLICATION_JSON_VALUE)
-       .when()
-           .get("/offender/X320741/convictions/2500297061/requirements")
-       .then()
-                    .statusCode(200)
-                    .body("requirements[0].requirementId", equalTo(2500083652L))
-                    .body("requirements[0].startDate", equalTo(standardDateOf(2017, 6,1)))
-                    .body("requirements[0].terminationDate", equalTo(standardDateOf(2017, 12, 1)))
-                    .body("requirements[0].expectedStartDate", equalTo(standardDateOf(2017, 6,1)))
-                    .body("requirements[0].expectedEndDate", equalTo(standardDateOf(2017, 12, 1)))
-                    .body("requirements[0].active", is(false))
-                    .body("requirements[0].requirementTypeSubCategory.code",  equalTo("W01"))
-                    .body("requirements[0].requirementTypeSubCategory.description", equalTo("Regular"))
-                    .body("requirements[0].requirementTypeMainCategory.code",  equalTo("W"))
-                    .body("requirements[0].requirementTypeMainCategory.description", equalTo("Unpaid Work"))
-                    .body("requirements[0].terminationReason.code",  equalTo("74"))
-                    .body("requirements[0].terminationReason.description", equalTo("Hours Completed Outside 12 months (UPW only)"))
-                    .body("requirements[0].length", equalTo(60))
-                    .body("requirements[0].lengthUnit", equalTo("Hours"))
-                    .body("requirements[1].requirementId",  equalTo(2500007925L))
-                    .body("requirements[1].startDate", equalTo(standardDateOf(2015, 7,1)))
-                    .body("requirements[1].commencementDate", equalTo(standardDateOf(2015, 6,29)))
-                    .body("requirements[1].active", is(true))
-                    .body("requirements[1].adRequirementTypeMainCategory.code",  equalTo("7"))
-                    .body("requirements[1].adRequirementTypeMainCategory.description", equalTo("Court - Accredited Programme"))
-                    .body("requirements[1].adRequirementTypeSubCategory.code",  equalTo("P12"))
-                    .body("requirements[1].adRequirementTypeSubCategory.description", equalTo("ASRO"))
-        ;
-
     }
 
     @Test
@@ -292,11 +255,6 @@ public class OffenderControllerIntTest extends BaseIntTest {
             .statusCode(404)
             .body("userMessage", equalTo("Offender with CRN 'CRNXXX' not found"))
             .body("developerMessage" , equalTo("Offender with CRN 'CRNXXX' not found"));
-    }
-
-
-    private String standardDateOf(int year, int month, int dayOfMonth) {
-        return LocalDate.of(year, month, dayOfMonth).format(DateTimeFormatter.ISO_DATE);
     }
 
 }

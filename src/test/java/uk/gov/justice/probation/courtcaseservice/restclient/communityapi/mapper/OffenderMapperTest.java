@@ -21,11 +21,9 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
-import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 
 import static java.util.Collections.singletonList;
@@ -37,28 +35,6 @@ public class OffenderMapperTest {
 
     private static final String BASE_MOCK_PATH = "src/test/resources/mocks/__files/";
 
-    public static final Requirement EXPECTED_RQMNT_1 = Requirement.builder()
-        .requirementId(2500083652L)
-        .length(60L)
-        .lengthUnit("Hours")
-        .startDate(LocalDate.of(2017,6,1))
-        .terminationDate(LocalDate.of(2017,12,1))
-        .expectedStartDate(LocalDate.of(2017,6,1))
-        .expectedEndDate(LocalDate.of(2017,12,1))
-        .active(false)
-        .requirementTypeSubCategory(new KeyValue("W01", "Regular"))
-        .requirementTypeMainCategory(new KeyValue("W", "Unpaid Work"))
-        .terminationReason(new KeyValue("74", "Hours Completed Outside 12 months (UPW only)"))
-        .build();
-
-    public static final Requirement EXPECTED_RQMNT_2 = Requirement.builder()
-        .requirementId(2500007925L)
-        .startDate(LocalDate.of(2015,7,1))
-        .commencementDate(LocalDate.of(2015,6,29))
-        .active(true)
-        .adRequirementTypeMainCategory(new KeyValue("7", "Court - Accredited Programme"))
-        .adRequirementTypeSubCategory(new KeyValue("P12", "ASRO"))
-        .build();
     private static CommunityApiOffenderResponse offenderResponse;
 
     private OffenderMapper mapper;
@@ -259,36 +235,6 @@ public class OffenderMapperTest {
     void endDateCalculatorNormal() {
         final CommunityApiSentence sentence = CommunityApiSentence.builder().lengthInDays(1).build();
         assertThat(mapper.endDateCalculator.apply(LocalDate.of(2019, 10, 1), sentence)).isEqualTo(LocalDate.of(2019, 10, 2));
-    }
-
-    @DisplayName("Tests mapping of Community API requirements to Court Case Service equivalent")
-    @Test
-    void shouldMapRequirementDetailsToRequirement() throws IOException {
-
-        CommunityApiRequirementsResponse requirementsResponse
-            = OBJECT_MAPPER.readValue(new File(BASE_MOCK_PATH + "offender-requirements/GET_requirements_X320741.json"),
-            CommunityApiRequirementsResponse.class);
-        List<Requirement> requirements = mapper.requirementsFrom(requirementsResponse);
-
-        assertThat(requirements).hasSize(2);
-
-        final Requirement rqmt1 = requirements.stream()
-            .filter(requirement -> requirement.getRequirementId().equals(2500083652L))
-            .findFirst().orElse(null);
-        final Requirement rqmt2 = requirements.stream()
-            .filter(requirement -> requirement.getRequirementId().equals(2500007925L))
-            .findFirst().orElse(null);
-        assertThat(EXPECTED_RQMNT_1).isEqualToComparingFieldByField(rqmt1);
-        assertThat(EXPECTED_RQMNT_2).isEqualToComparingFieldByField(rqmt2);
-    }
-
-    @DisplayName("Tests empty requirements list.")
-    @Test
-    void shouldMapEmpty() throws IOException {
-        CommunityApiRequirementsResponse emptyResponse = OBJECT_MAPPER
-            .readValue(new File(BASE_MOCK_PATH + "offender-requirements/GET_requirements_X320741_empty.json"), CommunityApiRequirementsResponse.class);
-
-        assertThat(emptyResponse.getRequirements()).isEmpty();
     }
 
     @DisplayName("Test custodial status mapping of values")

@@ -39,16 +39,16 @@ INSERT INTO OFFENCE (
 	);
 
 INSERT INTO offender_match_group
-(id, case_no, court_code, created, last_updated, created_by, last_updated_by, deleted, "version")
-VALUES(1, '1600029021', 'SHF', now(), now(), 'R_seed_data', '', false, 0);
+( case_no, court_code, created, last_updated, created_by, last_updated_by, deleted, "version")
+VALUES( '1600029021', 'SHF', now(), now(), 'R_seed_data', '', false, 0);
 
 INSERT INTO offender_match
-(id, confirmed, crn, cro, match_type, pnc, group_id, created, last_updated, created_by, last_updated_by, deleted, "version", rejected)
-VALUES(1, false, 'X320741', null, 'NAME_DOB', '', 1, now(), now(), 'R_seed_data', '', false, 0, false);
+(confirmed, crn, cro, match_type, pnc, group_id, created, last_updated, created_by, last_updated_by, deleted, "version", rejected)
+VALUES( false, 'X320741', null, 'NAME_DOB', '', 1, now(), now(), 'R_seed_data', '', false, 0, false);
 
 INSERT INTO offender_match
-(id, confirmed, crn, cro, match_type, pnc, group_id, created, last_updated, created_by, last_updated_by, deleted, "version", rejected)
-VALUES(2, false, 'X320811', null, 'NAME_DOB', '', 1, now(), now(), 'R_seed_data', '', false, 0, false);
+(confirmed, crn, cro, match_type, pnc, group_id, created, last_updated, created_by, last_updated_by, deleted, "version", rejected)
+VALUES( false, 'X320811', null, 'NAME_DOB', '', 1, now(), now(), 'R_seed_data', '', false, 0, false);
 
 
 

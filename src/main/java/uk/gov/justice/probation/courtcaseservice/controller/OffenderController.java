@@ -38,7 +38,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class OffenderController {
 
     @Autowired
-    private OffenderService offenderService;
+    private final OffenderService offenderService;
 
     @Autowired
     private final ConvictionService convictionService;
@@ -50,7 +50,7 @@ public class OffenderController {
     private final FeatureFlags featureFlags;
 
     @Autowired
-    private DocumentService documentService;
+    private final DocumentService documentService;
 
     @ApiOperation(value = "Gets the offender probation record by CRN")
     @ApiResponses(
@@ -85,11 +85,9 @@ public class OffenderController {
         return offenderService.getOffenderDetail(crn);
     }
 
-
     @ApiOperation(value = "Gets the requirement data by CRN and conviction ID.")
     @ApiResponses(
         value = {
-            @ApiResponse(code = 200, message = "OK", response = RequirementsResponse.class),
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
@@ -98,8 +96,8 @@ public class OffenderController {
         })
     @GetMapping(path="offender/{crn}/convictions/{convictionId}/requirements", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
-    RequirementsResponse getRequirements(@PathVariable String crn, @PathVariable String convictionId) {
-        return new RequirementsResponse(offenderService.getConvictionRequirements(crn, convictionId));
+    Mono<RequirementsResponse> getRequirements(@PathVariable String crn, @PathVariable String convictionId) {
+        return offenderService.getConvictionRequirements(crn, convictionId);
     }
 
     @GetMapping(value = "/offender/{crn}/convictions/{convictionId}/sentences/{sentenceId}", produces = APPLICATION_JSON_VALUE)

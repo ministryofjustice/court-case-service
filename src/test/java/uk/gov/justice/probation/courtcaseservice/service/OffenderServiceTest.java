@@ -1,13 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType.COURT_REPORT_DOCUMENT;
-
 import java.net.ConnectException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
@@ -29,18 +22,29 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
+import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
+import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.ConvictionDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
 
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType.COURT_REPORT_DOCUMENT;
+
 @ExtendWith(MockitoExtension.class)
 class OffenderServiceTest {
 
     public static final String CRN = "CRN";
     public static final String CONVICTION_ID = "123";
+    private static final String PSS_DESC_TO_KEEP = "specified activity";
 
     @Mock
     private AssessmentsRestClient assessmentsRestClient;
@@ -88,6 +92,7 @@ class OffenderServiceTest {
         this.conviction = Conviction.builder().convictionId(CONVICTION_ID).build();
         this.assessment = Assessment.builder().type("LAYER_3").completed(LocalDateTime.of(2020,4,23,10,5,20)).build();
         this.service = new OffenderService(offenderRestClient, assessmentsRestClient, documentRestClient, documentTypeFilter);
+        this.service.setPssRqmntDescriptionsKeepSubType(List.of(PSS_DESC_TO_KEEP));
     }
 
     @DisplayName("Getting offender also includes calls to get convictions and conviction documents and merges the results")
@@ -166,15 +171,37 @@ class OffenderServiceTest {
                 .withMessageContaining(CRN);
     }
 
-    @DisplayName("Getting offender convictions requirements")
+    @DisplayName("Getting offender convictions requirements, filter out inactive and remove subtype descriptions")
     @Test
-    public void whenGetConvictionRequirements_returnRequirements() {
+    public void givenInactivePssRequirements_whenGetConvictionRequirements_returnRequirementsWithInactiveNotPresent() {
+
+        PssRequirement pssRqmnt1 = PssRequirement.builder()
+            .active(true)
+            .description(PSS_DESC_TO_KEEP)
+            .subTypeDescription("subType desc 1")
+            .build();
+        PssRequirement pssRqmnt2 = PssRequirement.builder()
+            .active(false)
+            .description("Desc rqmnt 2")
+            .subTypeDescription("subType desc 2")
+            .build();
+        PssRequirement pssRqmnt3 = PssRequirement.builder()
+            .active(true)
+            .description("Desc rqmnt 3")
+            .subTypeDescription("subType desc 3")
+            .build();
 
         when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(expectedRequirements));
+        when(offenderRestClient.getPssConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(pssRqmnt1, pssRqmnt2, pssRqmnt3)));
 
-        List<Requirement> requirements = service.getConvictionRequirements(CRN, CONVICTION_ID);
-        assertThat(requirements).isSameAs(expectedRequirements);
-        verify(offenderRestClient).getConvictionRequirements(CRN, CONVICTION_ID);
+        RequirementsResponse requirements = service.getConvictionRequirements(CRN, CONVICTION_ID).block();
+
+        assertThat(requirements.getRequirements()).isSameAs(expectedRequirements);
+        assertThat(requirements.getPssRequirements()).hasSize(2);
+        assertThat(requirements.getPssRequirements()).extracting("description").contains(PSS_DESC_TO_KEEP, "Desc rqmnt 3")
+            .doesNotContain("Desc rqmnt 2");
+        assertThat(requirements.getPssRequirements()).extracting("subTypeDescription").contains("subType desc 1")
+            .doesNotContain("subType desc 2", "subType desc 3");
     }
 
     @DisplayName("Getting probation record does not throw exception when oasys assessment data is missing")
@@ -254,5 +281,16 @@ class OffenderServiceTest {
         // but i can't figure out how to test for that
         assertThatExceptionOfType(RuntimeException.class)
             .isThrownBy(() -> service.getProbationRecord(CRN, true));
+    }
+
+    @DisplayName("Simple get of offender detail")
+    @Test
+    public void whenGetOffenderDetail_thenReturnSame() {
+        OffenderDetail offenderDetail = OffenderDetail.builder().build();
+        when(offenderRestClient.getOffenderDetailByCrn(CRN)).thenReturn(Mono.just(offenderDetail));
+
+        OffenderDetail detail = service.getOffenderDetail(CRN).block();
+
+        assertThat(detail).isSameAs(offenderDetail);
     }
 }

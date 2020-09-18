@@ -5,11 +5,14 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
+import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
@@ -18,6 +21,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
+import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.ConvictionDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
@@ -32,6 +36,10 @@ public class OffenderService {
     private final DocumentRestClient documentRestClient;
 
     private final Predicate<OffenderDocumentDetail> documentTypeFilter;
+
+    @Setter
+    @Value("#{'${offender-service.pss-rqmnt.descriptions-to-keep-subtype}'.split(',')}")
+    private List<String> pssRqmntDescriptionsKeepSubType;
 
     public OffenderService(final OffenderRestClient defaultClient,
                            final AssessmentsRestClient assessmentsClient,
@@ -115,8 +123,33 @@ public class OffenderService {
         return probationRecord;
     }
 
-    public List<Requirement> getConvictionRequirements(String crn, String convictionId) {
-        return defaultClient.getConvictionRequirements(crn, convictionId).block();
+    public Mono<RequirementsResponse> getConvictionRequirements(String crn, String convictionId) {
+        return Mono.zip(
+            defaultClient.getConvictionRequirements(crn, convictionId),
+            defaultClient.getPssConvictionRequirements(crn, convictionId),
+            this::combineAndFilterRequirements
+        );
+    }
+
+    RequirementsResponse combineAndFilterRequirements(List<Requirement> requirements, List<PssRequirement>pssRequirements) {
+        return RequirementsResponse.builder()
+            .requirements(requirements)
+            .pssRequirements(pssRequirements
+                                .stream()
+                                .filter(PssRequirement::isActive)
+                                .map(this::transform)
+                                .collect(Collectors.toList()))
+            .build();
+    }
+
+    private PssRequirement transform(PssRequirement pssRequirement) {
+        if (pssRqmntDescriptionsKeepSubType.contains(pssRequirement.getDescription().toLowerCase())) {
+            return pssRequirement;
+        }
+        return PssRequirement.builder()
+            .description(pssRequirement.getDescription())
+            .active(pssRequirement.isActive())
+            .build();
     }
 
     public Mono<OffenderDetail> getOffenderDetail(String crn) {

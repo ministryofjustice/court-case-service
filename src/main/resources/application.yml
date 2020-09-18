@@ -79,6 +79,7 @@ community-api:
   conviction-by-crn-url-template: /secure/offenders/crn/%s/convictions/%s
   attendances-by-crn-and-conviction-url-template: /secure/offenders/crn/%s/convictions/%s/attendancesFilter
   requirements-by-crn-url-template: /secure/offenders/crn/%s/convictions/%s/requirements
+  pss-requirements-by-crn-and-conviction-url-template: /secure/offenders/crn/%s/convictions/%s/pssRequirements
   grouped-documents-by-crn-url-template: /secure/offenders/crn/%s/documents/grouped
   offender-document-by-crn-url-template: /secure/offenders/crn/%s/documents/%s
   nsis-url-template: /secure/offenders/crn/%s/convictions/%s/nsis
@@ -108,3 +109,8 @@ hibernate:
   types:
     print:
       banner: false
+
+offender-service:
+  pss-rqmnt:
+    # Comma-separated, all lower case
+    descriptions-to-keep-subtype: "specified activity"

@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
 import uk.gov.justice.probation.courtcaseservice.service.BreachService;
@@ -21,7 +20,6 @@ import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
-import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +32,6 @@ import static org.mockito.Mockito.when;
 class OffenderControllerTest {
     private static final String CRN = "CRN";
     private static final String CONVICTION_ID = "CONVICTION_ID";
-    private static final Long SENTENCE_ID = 5467L;
     static final Long SOME_EVENT_ID = 1234L;
     static final Long SOME_SENTENCE_ID = 1234L;
 
@@ -45,11 +42,9 @@ class OffenderControllerTest {
     @Mock
     private ProbationRecord expectedProbationRecord;
     @Mock
-    private Requirement expectedRequirement;
+    private RequirementsResponse expectedRequirements;
     @Mock
     private BreachResponse expectedBreach;
-    @Mock
-    private CurrentOrderHeaderResponse expectedCurrentOrderHeaderResponse;
     @Mock
     private ConvictionService convictionService;
     @Mock
@@ -67,7 +62,7 @@ class OffenderControllerTest {
         controller = new OffenderController(offenderService, convictionService, breachService, featureFlags, documentService);
     }
 
-    @DisplayName("Normal service call returns response")
+    @DisplayName("Normal sentence service call returns response")
     @Test
     void callReturnsResponse() {
         final SentenceResponse attendancesResponse = SentenceResponse.builder().attendances(Collections.emptyList()).build();
@@ -112,14 +107,11 @@ class OffenderControllerTest {
     @DisplayName("Ensures that the controller calls the service and returns the same list of requirements")
     @Test
     public void whenGetRequirements_thenReturnIt() {
+        when(offenderService.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(expectedRequirements));
 
-        when(offenderService.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Collections.singletonList(expectedRequirement));
+        RequirementsResponse requirementResponse = controller.getRequirements(CRN, CONVICTION_ID).block();
 
-        RequirementsResponse requirementResponse = controller.getRequirements(CRN, CONVICTION_ID);
-
-        assertThat(requirementResponse).isNotNull();
-        assertThat(requirementResponse.getRequirements()).hasSize(1);
-        assertThat(requirementResponse.getRequirements().get(0)).isEqualTo(expectedRequirement);
+        assertThat(requirementResponse).isSameAs(expectedRequirements);
         verify(offenderService).getConvictionRequirements(CRN, CONVICTION_ID);
     }
 

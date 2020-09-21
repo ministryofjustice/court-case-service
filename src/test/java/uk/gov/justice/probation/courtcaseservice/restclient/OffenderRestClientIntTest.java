@@ -12,6 +12,7 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
@@ -177,8 +178,8 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenGetPssConvictionRequirementsCalled_thenReturn() {
-        var optionalRequirements = offenderRestClient.getPssConvictionRequirements(CRN, CONVICTION_ID).blockOptional();
+    public void whenGetConvictionPssRequirementsCalled_thenReturn() {
+        var optionalRequirements = offenderRestClient.getConvictionPssRequirements(CRN, CONVICTION_ID).blockOptional();
         assertThat(optionalRequirements).isNotEmpty();
 
         final List<PssRequirement> pssRqmnts = optionalRequirements.get();
@@ -188,10 +189,29 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenServiceThrowsError_whenGetPssConvictionRequirementsCalled_thenReturnEmptyList() {
+    public void givenServiceThrowsError_whenGetConvictionPssRequirementsCalled_thenReturnEmptyList() {
         // This endpoint is used as a composite so we will return an empty list for a 500 error
-        var optionalRequirements = offenderRestClient.getPssConvictionRequirements(CRN, "99999").block();
+        var optionalRequirements = offenderRestClient.getConvictionPssRequirements(CRN, "99999").block();
 
         assertThat(optionalRequirements).isEmpty();
+    }
+
+    @Test
+    public void whenGetLicenceConditionsCalled_thenReturn() {
+        var optionalRequirements = offenderRestClient.getConvictionLicenceConditions(CRN, CONVICTION_ID).blockOptional();
+        assertThat(optionalRequirements).isNotEmpty();
+
+        final List<LicenceCondition> licenceConditions = optionalRequirements.get();
+        assertThat(licenceConditions).hasSize(3);
+        assertThat(licenceConditions).extracting("description")
+            .contains("Alcohol", "Curfew Arrangement", "Participate or co-op with Programme or Activities");
+    }
+
+    @Test
+    public void givenServiceThrowsError_whenGetLicenceConditionsCalled_thenReturnEmptyList() {
+        var optionalRequirements = offenderRestClient.getConvictionLicenceConditions(CRN, "99999").blockOptional();
+
+        assertThat(optionalRequirements).isNotEmpty();
+        assertThat(optionalRequirements.get()).isEmpty();
     }
 }

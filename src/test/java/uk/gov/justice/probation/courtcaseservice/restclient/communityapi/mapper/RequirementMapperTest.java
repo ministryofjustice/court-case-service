@@ -10,10 +10,14 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiLicenceCondition;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiLicenceCondition.MainCatTypeDetail;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiLicenceConditionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiPssRequirementResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiPssRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
+import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
@@ -115,6 +119,43 @@ public class RequirementMapperTest {
         List<PssRequirement> pssRequirements = RequirementMapper.pssRequirementsFrom(CommunityApiPssRequirementsResponse.builder().build());
 
         assertThat(pssRequirements).isEmpty();
+    }
+
+    @DisplayName("Tests licence conditions list and ensures that mapper is just mapping and not filtering.")
+    @Test
+    void shouldMapLicenceConditions() {
+        CommunityApiLicenceCondition licCondition1 = CommunityApiLicenceCondition.builder()
+            .active(Boolean.FALSE)
+            .licenceConditionTypeMainCat(MainCatTypeDetail.builder().code("CODE1").description("desc1").build())
+            .build();
+        CommunityApiLicenceCondition licCondition2 = CommunityApiLicenceCondition.builder()
+            .active(Boolean.TRUE)
+            .licenceConditionTypeMainCat(MainCatTypeDetail.builder().code("CODE2").description("desc2").build())
+            .build();
+
+        CommunityApiLicenceConditionsResponse licenceConditionsResponse = CommunityApiLicenceConditionsResponse.builder()
+            .licenceConditions(List.of(licCondition1, licCondition2))
+            .build();
+
+        List<LicenceCondition> licenceConditions = RequirementMapper.licenceConditionsFrom(licenceConditionsResponse);
+
+        assertThat(licenceConditions).hasSize(2);
+
+        LicenceCondition pssRequirement = LicenceCondition.builder()
+            .description("desc1")
+            .active(false)
+            .build();
+        assertThat(licenceConditions).contains(pssRequirement);
+    }
+
+    @DisplayName("Tests null licence conditions list and ensures that empty list is returned.")
+    @Test
+    void givenNullInput_whenMapLicenceConditions_thenReturnEmptyList() {
+
+        List<LicenceCondition> licenceConditions = RequirementMapper.licenceConditionsFrom(
+            CommunityApiLicenceConditionsResponse.builder().build());
+
+        assertThat(licenceConditions).isEmpty();
     }
 
     public static CommunityApiPssRequirementResponse buildCommunityApiPssRequirementResponse(Boolean active, String description, String subTypeDescription) {

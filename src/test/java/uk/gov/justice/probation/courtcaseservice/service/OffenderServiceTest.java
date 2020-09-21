@@ -22,6 +22,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
+import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
@@ -191,8 +192,12 @@ class OffenderServiceTest {
             .subTypeDescription("subType desc 3")
             .build();
 
+        LicenceCondition licenceCondition1 = LicenceCondition.builder().description("Desc 1").active(false).build();
+        LicenceCondition licenceCondition2 = LicenceCondition.builder().description("Desc 2").active(true).build();
+
         when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(expectedRequirements));
-        when(offenderRestClient.getPssConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(pssRqmnt1, pssRqmnt2, pssRqmnt3)));
+        when(offenderRestClient.getConvictionPssRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(pssRqmnt1, pssRqmnt2, pssRqmnt3)));
+        when(offenderRestClient.getConvictionLicenceConditions(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(licenceCondition1, licenceCondition2)));
 
         RequirementsResponse requirements = service.getConvictionRequirements(CRN, CONVICTION_ID).block();
 
@@ -202,6 +207,8 @@ class OffenderServiceTest {
             .doesNotContain("Desc rqmnt 2");
         assertThat(requirements.getPssRequirements()).extracting("subTypeDescription").contains("subType desc 1")
             .doesNotContain("subType desc 2", "subType desc 3");
+        assertThat(requirements.getLicenceConditions()).hasSize(1);
+        assertThat(requirements.getLicenceConditions().get(0).getDescription()).isEqualTo("Desc 2");
     }
 
     @DisplayName("Getting probation record does not throw exception when oasys assessment data is missing")

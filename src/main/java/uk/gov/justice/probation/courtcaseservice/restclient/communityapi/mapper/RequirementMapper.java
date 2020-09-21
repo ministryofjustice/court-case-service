@@ -51,7 +51,9 @@ public class RequirementMapper {
     private static PssRequirement buildRequirement(CommunityApiPssRequirementResponse pssRequirementResponse) {
         return PssRequirement.builder()
             .description(pssRequirementResponse.getType().getDescription())
-            .subTypeDescription(pssRequirementResponse.getSubType().getDescription())
+            .subTypeDescription(Optional.ofNullable(pssRequirementResponse.getSubType())
+                .map(pss -> pssRequirementResponse.getSubType().getDescription())
+                .orElse(null))
             .active(Optional.ofNullable(pssRequirementResponse.getActive()).orElse(false))
             .build();
     }

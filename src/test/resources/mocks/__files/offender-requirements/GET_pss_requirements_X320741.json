@@ -25,6 +25,14 @@
       "active": true
     },
     {
+      "pssRequirementId": 635,
+      "type": {
+        "code": "S08",
+        "description": "UK Travel Restriction"
+      },
+      "active": true
+    },
+    {
       "pssRequirementId": 636,
       "type": {
         "code": "S06",

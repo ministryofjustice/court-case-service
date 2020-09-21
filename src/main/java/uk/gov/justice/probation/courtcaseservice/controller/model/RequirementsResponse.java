@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
@@ -21,4 +22,5 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 public class RequirementsResponse {
     private final List<Requirement> requirements;
     private final List<PssRequirement> pssRequirements;
+    private final List<LicenceCondition> licenceConditions;
 }

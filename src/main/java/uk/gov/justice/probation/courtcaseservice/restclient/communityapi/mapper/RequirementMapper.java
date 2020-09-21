@@ -4,10 +4,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiLicenceConditionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiPssRequirementResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiPssRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
+import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
@@ -52,5 +54,15 @@ public class RequirementMapper {
             .subTypeDescription(pssRequirementResponse.getSubType().getDescription())
             .active(Optional.ofNullable(pssRequirementResponse.getActive()).orElse(false))
             .build();
+    }
+
+    public static List<LicenceCondition> licenceConditionsFrom(CommunityApiLicenceConditionsResponse licenceConditionsResponse) {
+        return Optional.ofNullable(licenceConditionsResponse.getLicenceConditions()).orElse(Collections.emptyList())
+            .stream()
+            .map(lic ->  LicenceCondition.builder()
+                .description(lic.getLicenceConditionTypeMainCat().getDescription())
+                .active(Optional.ofNullable(lic.getActive()).orElse(false))
+                .build())
+            .collect(Collectors.toList());
     }
 }

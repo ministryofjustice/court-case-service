@@ -19,6 +19,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
@@ -124,20 +125,25 @@ public class OffenderService {
     }
 
     public Mono<RequirementsResponse> getConvictionRequirements(String crn, String convictionId) {
-        return Mono.zip(
-            defaultClient.getConvictionRequirements(crn, convictionId),
-            defaultClient.getPssConvictionRequirements(crn, convictionId),
-            this::combineAndFilterRequirements
-        );
+
+        return Mono.zip(defaultClient.getConvictionRequirements(crn, convictionId),
+                        defaultClient.getConvictionPssRequirements(crn, convictionId),
+                        defaultClient.getConvictionLicenceConditions(crn, convictionId))
+                .map(this::combineAndFilterRequirements);
     }
 
-    RequirementsResponse combineAndFilterRequirements(List<Requirement> requirements, List<PssRequirement>pssRequirements) {
+    RequirementsResponse combineAndFilterRequirements(Tuple3<List<Requirement>, List<PssRequirement>,  List<LicenceCondition>> tuple3) {
+
         return RequirementsResponse.builder()
-            .requirements(requirements)
-            .pssRequirements(pssRequirements
+            .requirements(tuple3.getT1())
+            .pssRequirements(tuple3.getT2()
                                 .stream()
                                 .filter(PssRequirement::isActive)
                                 .map(this::transform)
+                                .collect(Collectors.toList()))
+            .licenceConditions(tuple3.getT3()
+                                .stream()
+                                .filter(LicenceCondition::isActive)
                                 .collect(Collectors.toList()))
             .build();
     }

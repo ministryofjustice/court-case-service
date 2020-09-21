@@ -19,7 +19,6 @@ public class OffenderController_RqmntIntTest extends BaseIntTest {
 
     private static final String KNOWN_CRN = "X320741";
     private static final String KNOWN_CONVICTION_ID = "2500297061";
-    private static final String UNKNOWN_CONVICTION_ID = "2500297999";
 
     @Test
     public void whenCallMadeToGetRequirementData_thenReturnCorrectData() {
@@ -58,6 +57,9 @@ public class OffenderController_RqmntIntTest extends BaseIntTest {
                     .body("pssRequirements[0].description", equalTo("Specified Activity"))
                     .body("pssRequirements[0].subTypeDescription", equalTo("Adjourned - Pre-Sentence Report"))
                     .body("pssRequirements[1].description", equalTo("Travel Restriction"))
+                    .body("licenceConditions.size()", is(2))
+                    .body("licenceConditions[0].description", equalTo("Curfew Arrangement"))
+                    .body("licenceConditions[1].description", equalTo("Participate or co-op with Programme or Activities"))
         ;
 
     }
@@ -74,6 +76,7 @@ public class OffenderController_RqmntIntTest extends BaseIntTest {
             .statusCode(200)
             .body("requirements.size()", is(0))
             .body("pssRequirements.size()", is(0))
+            .body("licenceConditions.size()", is(0))
             ;
     }
 

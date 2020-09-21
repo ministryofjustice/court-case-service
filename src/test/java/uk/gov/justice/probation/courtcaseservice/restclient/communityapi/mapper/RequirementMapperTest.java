@@ -14,6 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiLicenceCondition.MainCatTypeDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiLicenceConditionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiPssRequirementResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiPssRequirementResponse.CommunityApiPssRequirementResponseBuilder;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiPssRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
@@ -95,14 +96,15 @@ public class RequirementMapperTest {
     void shouldMapPssRequirements() {
         CommunityApiPssRequirementResponse pssRequirement1 = buildCommunityApiPssRequirementResponse(Boolean.FALSE, DESC, SUB_TYPE_DESC);
         CommunityApiPssRequirementResponse pssRequirement2 = buildCommunityApiPssRequirementResponse(Boolean.TRUE, DESC, SUB_TYPE_DESC);
+        CommunityApiPssRequirementResponse pssRequirement3 = buildCommunityApiPssRequirementResponse(Boolean.TRUE, DESC, null);
 
         CommunityApiPssRequirementsResponse pssRequirementsResponse = CommunityApiPssRequirementsResponse.builder()
-            .pssRequirements(List.of(pssRequirement1, pssRequirement2))
+            .pssRequirements(List.of(pssRequirement1, pssRequirement2, pssRequirement3))
             .build();
 
         List<PssRequirement> pssRequirements = RequirementMapper.pssRequirementsFrom(pssRequirementsResponse);
 
-        assertThat(pssRequirements).hasSize(2);
+        assertThat(pssRequirements).hasSize(3);
 
         PssRequirement pssRequirement = PssRequirement.builder()
             .description("Supervisor visits")
@@ -159,10 +161,12 @@ public class RequirementMapperTest {
     }
 
     public static CommunityApiPssRequirementResponse buildCommunityApiPssRequirementResponse(Boolean active, String description, String subTypeDescription) {
-        return CommunityApiPssRequirementResponse.builder()
+        CommunityApiPssRequirementResponseBuilder builder = CommunityApiPssRequirementResponse.builder()
             .active(active)
-            .type(new KeyValue("CODE", description))
-            .subType(new KeyValue("CODE", subTypeDescription))
-            .build();
+            .type(new KeyValue("CODE", description));
+        if (subTypeDescription != null) {
+            builder.subType(new KeyValue("CODE", subTypeDescription));
+        }
+        return builder.build();
     }
 }

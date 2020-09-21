@@ -183,9 +183,9 @@ public class OffenderRestClientIntTest extends BaseIntTest {
         assertThat(optionalRequirements).isNotEmpty();
 
         final List<PssRequirement> pssRqmnts = optionalRequirements.get();
-        assertThat(pssRqmnts).hasSize(3);
+        assertThat(pssRqmnts).hasSize(4);
         assertThat(pssRqmnts).extracting("description")
-            .contains("Specified Activity", "Travel Restriction", "Inactive description");
+            .contains("Specified Activity", "Travel Restriction", "Inactive description", "UK Travel Restriction");
     }
 
     @Test

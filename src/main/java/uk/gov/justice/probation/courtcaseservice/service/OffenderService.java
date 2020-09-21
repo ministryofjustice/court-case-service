@@ -1,7 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -73,7 +75,11 @@ public class OffenderService {
                         return conviction;
                     });
             })
-            .collectSortedList();
+            .collectSortedList(Comparator.comparing(conviction ->
+                    Optional.ofNullable(conviction.getSentence())
+                        .map(c -> conviction.getSentence().getTerminationDate())
+                        .orElse(null),
+                Comparator.nullsFirst(Comparator.reverseOrder())));
 
         // This Mono resolves to a 3 tuple containing the record itself, the above-mentioned convictions, and the documents
         Mono<Tuple3<ProbationRecord, List<Conviction>, GroupedDocuments>> probationMono = Mono.zip(

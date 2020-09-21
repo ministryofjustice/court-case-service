@@ -1,12 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.probation.courtcaseservice.controller.model.Address;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
@@ -29,6 +22,13 @@ import uk.gov.justice.probation.courtcaseservice.service.model.OffenderManager;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -140,7 +140,7 @@ public class OffenderMapper {
                     .collect(Collectors.toList())
                 )
                 .sentence(Optional.ofNullable(conviction.getSentence()).map(this::buildSentence).orElse(null))
-                .endDate(endDateCalculator.apply(conviction.getConvictionDate(), conviction.getSentence()))
+                .endDate(endDateCalculator(conviction.getSentence()))
                 .build();
     }
 
@@ -170,6 +170,7 @@ public class OffenderMapper {
             .terminationDate(communityApiSentence.getTerminationDate())
             .terminationReason(communityApiSentence.getTerminationReason())
             .unpaidWork(Optional.ofNullable(communityApiSentence.getUnpaidWork()).map(this::buildUnpaidWork).orElse(null))
+            .endDate(endDateCalculator(communityApiSentence))
             .build();
     }
 
@@ -185,15 +186,12 @@ public class OffenderMapper {
                 .build();
     }
 
-    final BiFunction<LocalDate, CommunityApiSentence, LocalDate> endDateCalculator = (convictionDate, sentence) -> {
+    LocalDate endDateCalculator(CommunityApiSentence sentence) {
 
-        if (convictionDate == null || sentence == null || sentence.getLengthInDays() == null) {
+        if (sentence == null || sentence.getStartDate() == null ||  sentence.getLengthInDays() == null) {
             return null;
         }
 
-        return convictionDate.plus(sentence.getLengthInDays(), ChronoUnit.DAYS);
-    };
-
-
-
+        return sentence.getStartDate().plus(sentence.getLengthInDays(), ChronoUnit.DAYS);
+    }
 }

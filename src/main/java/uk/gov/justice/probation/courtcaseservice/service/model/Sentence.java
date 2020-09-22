@@ -3,12 +3,13 @@ package uk.gov.justice.probation.courtcaseservice.service.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
-import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @ApiModel("Sentence")
 @Data
@@ -24,6 +25,7 @@ public class Sentence {
     private final Integer lengthInDays;
     private final LocalDate terminationDate;
     private final LocalDate startDate;
+    private final LocalDate endDate;
     private final String terminationReason;
 
     @JsonIgnore

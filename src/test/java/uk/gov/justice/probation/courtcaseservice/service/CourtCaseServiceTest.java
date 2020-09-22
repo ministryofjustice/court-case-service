@@ -1,12 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import com.microsoft.applicationinsights.TelemetryClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.commons.util.StringUtils;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -41,7 +38,6 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.probation.courtcaseservice.testUtil.DateHelper.standardDateOf;
 
 @ExtendWith(MockitoExtension.class)
 class CourtCaseServiceTest {
@@ -82,11 +78,7 @@ class CourtCaseServiceTest {
     private List<CourtCaseEntity> caseList;
 
     @Mock
-    private TelemetryClient telemetryClient;
-    @Captor
-    private ArgumentCaptor<Map<String, String>> properties;
-    @Captor
-    private ArgumentCaptor<Map<String, Double>> metricsCaptor;
+    private TelemetryService telemetryService;
 
     private CourtCaseEntity courtCase;
 
@@ -103,23 +95,9 @@ class CourtCaseServiceTest {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
         when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.empty());
 
-        CourtCaseEntity newCase = CourtCaseEntity.builder()
-                .courtCode(COURT_CODE)
-                .caseNo(CASE_NO)
-                .offences(emptyList())
-                .sessionStartTime(LocalDateTime.of(2020, 9, 22, 9, 30))
-                .build();
+        service.createOrUpdateCase(COURT_CODE, CASE_NO, courtCase);
 
-        service.createOrUpdateCase(COURT_CODE, CASE_NO, newCase);
-
-        verify(telemetryClient).trackEvent(eq("PiCCourtCaseCreated"), properties.capture(), metricsCaptor.capture());
-
-        var properties = this.properties.getValue();
-        assertThat(properties.size()).isEqualTo(2);
-        assertThat(properties.get("courtCode")).isEqualTo(COURT_CODE);
-        assertThat(properties.get("hearingDate")).isEqualTo(standardDateOf(2020, 9 , 22));
-
-        assertThat(metricsCaptor.getValue().isEmpty());
+        verify(telemetryService).trackCourtCaseEvent("PiCCourtCaseCreated", courtCase);
     }
 
     @Test

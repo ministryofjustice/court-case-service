@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,9 +15,7 @@ import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFou
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.InputMismatchException;
@@ -38,7 +35,7 @@ public class CourtCaseService {
 
     private final CourtRepository courtRepository;
     private final CourtCaseRepository courtCaseRepository;
-    private final TelemetryClient telemetryClient;
+    private final TelemetryService telemetryService;
 
     public CourtCaseEntity getCaseByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException {
         checkCourtExists(courtCode);
@@ -113,11 +110,7 @@ public class CourtCaseService {
     private CourtCaseEntity createCase(CourtCaseEntity courtCaseEntity) {
         applyOffenceSequencing(courtCaseEntity.getOffences());
         log.info("Court case being created for case number {}", courtCaseEntity.getCaseNo());
-        telemetryClient.trackEvent("PiCCourtCaseCreated", Map.of(
-                "courtCode", courtCaseEntity.getCourtCode(),
-                "hearingDate", courtCaseEntity.getSessionStartTime().format(DateTimeFormatter.ISO_DATE)),
-                Collections.emptyMap()
-        );
+        telemetryService.trackCourtCaseEvent("PiCCourtCaseCreated", courtCaseEntity);
         return courtCaseRepository.save(courtCaseEntity);
     }
 

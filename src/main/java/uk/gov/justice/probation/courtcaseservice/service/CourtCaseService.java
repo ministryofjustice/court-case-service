@@ -62,7 +62,9 @@ public class CourtCaseService {
     }
 
     public void delete(String courtCode, String caseNo) {
-        courtCaseRepository.deleteById(getCaseByCaseNumber(courtCode, caseNo).getId());
+        CourtCaseEntity caseEntity = getCaseByCaseNumber(courtCode, caseNo);
+        telemetryService.trackCourtCaseEvent(TelemetryEvent.COURT_CASE_DELETED, caseEntity);
+        courtCaseRepository.deleteById(caseEntity.getId());
     }
 
     @Transactional
@@ -82,10 +84,11 @@ public class CourtCaseService {
             }
         });
 
-        if (log.isDebugEnabled()) {
-            casesToDelete.forEach(aCase -> log.debug("Soft delete case no {} for court {}, session time {} ",
-                aCase.getCaseNo(), aCase.getCourtCode(), aCase.getSessionStartTime()));
-        }
+        casesToDelete.forEach(aCase -> {
+            log.debug("Soft delete case no {} for court {}, session time {} ",
+                    aCase.getCaseNo(), aCase.getCourtCode(), aCase.getSessionStartTime());
+            telemetryService.trackCourtCaseEvent(TelemetryEvent.COURT_CASE_DELETED, aCase);
+        });
 
         courtCaseRepository.deleteAll(casesToDelete);
     }

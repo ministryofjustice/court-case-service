@@ -34,6 +34,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -108,6 +109,27 @@ class CourtCaseServiceTest {
         service.createOrUpdateCase(COURT_CODE, CASE_NO, courtCase);
 
         verify(telemetryService).trackCourtCaseEvent("PiCCourtCaseUpdated", courtCase);
+    }
+
+    @Test
+    public void whenDeleteCase_thenLogDeletedEvent() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.of(courtCase));
+
+        service.delete(COURT_CODE, CASE_NO);
+
+        verify(telemetryService).trackCourtCaseEvent("PiCCourtCaseDeleted", courtCase);
+    }
+
+    @Test
+    public void whenDeleteAbsentCases_thenLogDeletedEvent() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        when(courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(any(), any(), any())).thenReturn(singletonList(courtCase));
+
+        final Map<LocalDate, List<String>> existing = Map.of(LocalDate.of(2020, Month.JANUARY, 2), Collections.emptyList());
+        service.deleteAbsentCases(COURT_CODE, existing);
+
+        verify(telemetryService).trackCourtCaseEvent("PiCCourtCaseDeleted", courtCase);
     }
 
     @Test

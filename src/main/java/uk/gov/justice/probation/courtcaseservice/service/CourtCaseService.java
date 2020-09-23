@@ -110,7 +110,7 @@ public class CourtCaseService {
     private CourtCaseEntity createCase(CourtCaseEntity courtCaseEntity) {
         applyOffenceSequencing(courtCaseEntity.getOffences());
         log.info("Court case being created for case number {}", courtCaseEntity.getCaseNo());
-        telemetryService.trackCourtCaseEvent("PiCCourtCaseCreated", courtCaseEntity);
+        telemetryService.trackCourtCaseEvent(TelemetryEvent.COURT_CASE_CREATED, courtCaseEntity);
         return courtCaseRepository.save(courtCaseEntity);
     }
 
@@ -139,7 +139,7 @@ public class CourtCaseService {
         updateOffenderMatches(existingCase, updatedCase);
 
         log.info("Court case updated for case no {}", updatedCase.getCaseNo());
-        // TODO: Add event PiCCourtCaseUpdated
+        telemetryService.trackCourtCaseEvent(TelemetryEvent.COURT_CASE_UPDATED, updatedCase);
         return courtCaseRepository.save(existingCase);
     }
 

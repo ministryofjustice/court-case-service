@@ -101,6 +101,16 @@ class CourtCaseServiceTest {
     }
 
     @Test
+    public void givenExistingCase_whenCreateOrUpdateCaseCalled_thenLogUpdatedEvent() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.of(courtCase));
+
+        service.createOrUpdateCase(COURT_CODE, CASE_NO, courtCase);
+
+        verify(telemetryService).trackCourtCaseEvent("PiCCourtCaseUpdated", courtCase);
+    }
+
+    @Test
     void filterByDateShouldRetrieveCourtCasesFromRepository() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
         when(courtEntity.getCourtCode()).thenReturn(COURT_CODE);

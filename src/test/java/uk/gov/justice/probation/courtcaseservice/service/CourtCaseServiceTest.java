@@ -102,6 +102,16 @@ class CourtCaseServiceTest {
     }
 
     @Test
+    public void givenNoExistingCase_whenCreateOrUpdateCaseCalledWithCrn_thenLogLinkedEvent() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.empty());
+
+        service.createOrUpdateCase(COURT_CODE, CASE_NO, courtCase);
+
+        verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, courtCase);
+    }
+
+    @Test
     public void givenExistingCase_whenCreateOrUpdateCaseCalled_thenLogUpdatedEvent() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
         when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.of(courtCase));
@@ -109,6 +119,30 @@ class CourtCaseServiceTest {
         service.createOrUpdateCase(COURT_CODE, CASE_NO, courtCase);
 
         verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.COURT_CASE_UPDATED, courtCase);
+    }
+
+    @Test
+    public void givenExistingCaseWithNullCrn_whenCreateOrUpdateCaseCalledWithCrn_thenLogLinkedEvent() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        CourtCaseEntity existingCase = buildCourtCase(null);
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.of(existingCase));
+        when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
+
+        service.createOrUpdateCase(COURT_CODE, CASE_NO, buildCourtCase(CRN));
+
+        verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, this.courtCase);
+    }
+
+    @Test
+    public void givenExistingCaseWithCrn_whenCreateOrUpdateCaseCalledWithNullCrn_thenLogUnLinkedEvent() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        CourtCaseEntity existingCase = buildCourtCase(CRN);
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.of(existingCase));
+        when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
+
+        service.createOrUpdateCase(COURT_CODE, CASE_NO, buildCourtCase(null));
+
+        verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.DEFENDANT_UNLINKED, courtCase);
     }
 
     @Test

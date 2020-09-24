@@ -114,12 +114,17 @@ public class CourtCaseService {
         applyOffenceSequencing(courtCaseEntity.getOffences());
         log.info("Court case being created for case number {}", courtCaseEntity.getCaseNo());
         telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCaseEntity);
-        telemetryService.trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, courtCaseEntity);
+        if(courtCaseEntity.getCrn() != null){
+            telemetryService.trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, courtCaseEntity);
+        }
         return courtCaseRepository.save(courtCaseEntity);
     }
 
     private CourtCaseEntity updateAndSaveCase(CourtCaseEntity existingCase, CourtCaseEntity updatedCase) {
         var originalCrn = existingCase.getCrn();
+        if(existingCase.getCrn() != null && updatedCase.getCrn() == null){
+            telemetryService.trackCourtCaseEvent(TelemetryEventType.DEFENDANT_UNLINKED, existingCase);
+        }
 
         existingCase.setCaseId(updatedCase.getCaseId());
         existingCase.setCourtRoom(updatedCase.getCourtRoom());
@@ -146,9 +151,6 @@ public class CourtCaseService {
         telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_UPDATED, updatedCase);
         if(originalCrn == null && updatedCase.getCrn() != null){
             telemetryService.trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, updatedCase);
-        }
-        if(originalCrn != null && updatedCase.getCrn() == null){
-            telemetryService.trackCourtCaseEvent(TelemetryEventType.DEFENDANT_UNLINKED, updatedCase);
         }
         return courtCaseRepository.save(existingCase);
     }

@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.commons.util.StringUtils;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,6 +39,7 @@ import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -68,18 +71,16 @@ class CourtCaseServiceTest {
 
     @Mock
     private CourtRepository courtRepository;
-
     @Mock
     private CourtCaseRepository courtCaseRepository;
-
     @Mock
     private CourtEntity courtEntity;
-
     @Mock
     private List<CourtCaseEntity> caseList;
-
     @Mock
     private TelemetryService telemetryService;
+    @Captor
+    private ArgumentCaptor<CourtCaseEntity> courtCaseCaptor;
 
     private CourtCaseEntity courtCase;
 
@@ -112,6 +113,16 @@ class CourtCaseServiceTest {
     }
 
     @Test
+    public void givenNoExistingCase_whenCreateOrUpdateCaseCalledWithNullCrn_thenDontLogLinkedEvent() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.empty());
+
+        service.createOrUpdateCase(COURT_CODE, CASE_NO, buildCourtCase(null));
+
+        verify(telemetryService, never()).trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, courtCase);
+    }
+
+    @Test
     public void givenExistingCase_whenCreateOrUpdateCaseCalled_thenLogUpdatedEvent() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
         when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.of(courtCase));
@@ -136,9 +147,8 @@ class CourtCaseServiceTest {
     @Test
     public void givenExistingCaseWithCrn_whenCreateOrUpdateCaseCalledWithNullCrn_thenLogUnLinkedEvent() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        CourtCaseEntity existingCase = buildCourtCase(CRN);
-        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.of(existingCase));
-        when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.of(courtCase));
+        when(courtCaseRepository.save(courtCase)).thenReturn(courtCase);
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, buildCourtCase(null));
 

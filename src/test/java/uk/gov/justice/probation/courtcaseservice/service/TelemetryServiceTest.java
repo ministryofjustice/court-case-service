@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
+import org.hibernate.LazyInitializationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -29,11 +30,15 @@ class TelemetryServiceTest {
     public static final String COURT_CODE = "SHF";
     public static final String CASE_NO = "1234567890";
     public static final String COURT_ROOM = "Number 2";
+    private static final String CRN = "CRN";
+    private static final String PNC = "PNC";
 
     @Mock
     private TelemetryClient telemetryClient;
     @Mock
     private Map<String, String> requestProperties;
+    @Mock
+    private CourtCaseEntity mockCourtCase;
 
     @Captor
     private ArgumentCaptor<Map<String, String>> properties;
@@ -55,10 +60,12 @@ class TelemetryServiceTest {
         verify(telemetryClient).trackEvent(eq("PiCCourtCaseCreated"), properties.capture(), metricsCaptor.capture());
 
         var properties = this.properties.getValue();
-        assertThat(properties.size()).isEqualTo(7);
+        assertThat(properties.size()).isEqualTo(9);
         assertThat(properties.get("courtCode")).isEqualTo(COURT_CODE);
         assertThat(properties.get("courtRoom")).isEqualTo(COURT_ROOM);
         assertThat(properties.get("caseNo")).isEqualTo(CASE_NO);
+        assertThat(properties.get("crn")).isEqualTo(CRN);
+        assertThat(properties.get("pnc")).isEqualTo(PNC);
         assertThat(properties.get("hearingDate")).isEqualTo(standardDateOf(2020, 9 , 22));
         assertThat(properties.get("matches")).isEqualTo("2");
         assertThat(properties.get("username")).isEqualTo("Arthur");
@@ -76,10 +83,12 @@ class TelemetryServiceTest {
         verify(telemetryClient).trackEvent(eq("PiCCourtCaseCreated"), properties.capture(), metricsCaptor.capture());
 
         var properties = this.properties.getValue();
-        assertThat(properties.size()).isEqualTo(5);
+        assertThat(properties.size()).isEqualTo(7);
         assertThat(properties.get("courtCode")).isEqualTo(COURT_CODE);
         assertThat(properties.get("courtRoom")).isEqualTo(COURT_ROOM);
         assertThat(properties.get("caseNo")).isEqualTo(CASE_NO);
+        assertThat(properties.get("crn")).isEqualTo(CRN);
+        assertThat(properties.get("pnc")).isEqualTo(PNC);
         assertThat(properties.get("hearingDate")).isEqualTo(standardDateOf(2020, 9 , 22));
         assertThat(properties.get("matches")).isEqualTo("2");
 
@@ -101,12 +110,28 @@ class TelemetryServiceTest {
         assertThat(metricsCaptor.getValue().isEmpty());
     }
 
+    @Test
+    public void givenLazyInitializationExceptionThrown_whenTrackCourtCaseEvent_thenDontTrackMatchCount() {
+        when(mockCourtCase.getGroupedOffenderMatches()).thenThrow(LazyInitializationException.class);
+
+        service.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, mockCourtCase);
+
+        verify(telemetryClient).trackEvent(eq("PiCCourtCaseCreated"), properties.capture(), metricsCaptor.capture());
+
+        var properties = this.properties.getValue();
+        assertThat(properties.size()).isEqualTo(0);
+
+        assertThat(metricsCaptor.getValue().isEmpty());
+    }
+
     private CourtCaseEntity buildCourtCase() {
         return CourtCaseEntity.builder()
                 .courtCode(COURT_CODE)
                 .caseNo(CASE_NO)
                 .courtRoom(COURT_ROOM)
                 .offences(emptyList())
+                .crn(CRN)
+                .pnc(PNC)
                 .groupedOffenderMatches(Arrays.asList(
                         GroupedOffenderMatchesEntity.builder()
                                 .offenderMatches(singletonList(OffenderMatchEntity.builder()

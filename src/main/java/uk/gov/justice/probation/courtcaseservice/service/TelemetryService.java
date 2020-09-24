@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.AllArgsConstructor;
+import org.hibernate.LazyInitializationException;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
@@ -32,11 +33,21 @@ public class TelemetryService {
         ofNullable(courtCaseEntity.getSessionStartTime())
                 .map(date -> date.format(DateTimeFormatter.ISO_DATE))
                 .ifPresent((date) -> properties.put("hearingDate", date));
+        ofNullable(courtCaseEntity.getCrn())
+                .ifPresent((crn) -> properties.put("crn", crn));
+        ofNullable(courtCaseEntity.getPnc())
+                .ifPresent((pnc) -> properties.put("pnc", pnc));
         ofNullable(courtCaseEntity.getCaseNo())
                 .ifPresent((caseNo) -> properties.put("caseNo", caseNo));
-        ofNullable(courtCaseEntity.getGroupedOffenderMatches())
-                .map(CourtCaseResponseMapper::calculateNumberOfPossibleMatches)
-                .ifPresent((matchCount) -> properties.put("matches", matchCount.toString()));
+        try {
+            ofNullable(courtCaseEntity.getGroupedOffenderMatches())
+                    .map(CourtCaseResponseMapper::calculateNumberOfPossibleMatches)
+                    .ifPresent((matchCount) -> properties.put("matches", matchCount.toString()));
+        } catch (LazyInitializationException e) {
+            // GroupedOffenderMatches are lazily loaded, this exception indicates that the DB session has already
+            // been closed. We only care about the number of matches if it has changed, in which case it would have been
+            // fetched before the session was closed - so we can safely ignore this.
+        }
 
         Optional.ofNullable(requestProperties.get("username"))
                 .ifPresent((caseNo) -> properties.put("username", caseNo));

@@ -48,7 +48,7 @@ public class CourtCaseResponseMapper {
                 .build();
     }
 
-    public long calculateNumberOfPossibleMatches(List<GroupedOffenderMatchesEntity> groupedOffenderMatches) {
+    public static long calculateNumberOfPossibleMatches(List<GroupedOffenderMatchesEntity> groupedOffenderMatches) {
         if (groupedOffenderMatches == null) {
             return 0;
         }

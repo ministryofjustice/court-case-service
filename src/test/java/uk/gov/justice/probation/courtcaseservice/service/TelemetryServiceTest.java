@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import org.hibernate.LazyInitializationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -49,6 +48,40 @@ class TelemetryServiceTest {
     private TelemetryService service;
 
     @Test
+    public void givenUserDetailsAvailable_whenTrackMatchEvent_thenAddAllProperties() {
+        when(requestProperties.get("username")).thenReturn("Arthur");
+        when(requestProperties.get("clientId")).thenReturn("Van der Linde");
+
+        OffenderMatchEntity match = OffenderMatchEntity.builder()
+                .group(GroupedOffenderMatchesEntity.builder()
+                        .courtCase(buildCourtCase())
+                        .offenderMatches(Arrays.asList(
+                                OffenderMatchEntity.builder().build(),
+                                OffenderMatchEntity.builder().build(),
+                                OffenderMatchEntity.builder().build()))
+                        .build())
+                .pnc(PNC)
+                .crn(CRN)
+                .build();
+
+        service.trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, match);
+
+        verify(telemetryClient).trackEvent(eq("PiCMatchConfirmed"), properties.capture(), metricsCaptor.capture());
+
+        var properties = this.properties.getValue();
+        assertThat(properties.size()).isEqualTo(7);
+        assertThat(properties.get("courtCode")).isEqualTo(COURT_CODE);
+        assertThat(properties.get("caseNo")).isEqualTo(CASE_NO);
+        assertThat(properties.get("pnc")).isEqualTo(PNC);
+        assertThat(properties.get("crn")).isEqualTo(CRN);
+        assertThat(properties.get("matches")).isEqualTo("3");
+        assertThat(properties.get("username")).isEqualTo("Arthur");
+        assertThat(properties.get("clientId")).isEqualTo("Van der Linde");
+
+        assertThat(metricsCaptor.getValue().isEmpty());
+    }
+
+    @Test
     public void givenUserDetailsAvailable_whenTrackCourtCaseEvent_thenAddAllProperties() {
         when(requestProperties.get("username")).thenReturn("Arthur");
         when(requestProperties.get("clientId")).thenReturn("Van der Linde");
@@ -60,14 +93,13 @@ class TelemetryServiceTest {
         verify(telemetryClient).trackEvent(eq("PiCCourtCaseCreated"), properties.capture(), metricsCaptor.capture());
 
         var properties = this.properties.getValue();
-        assertThat(properties.size()).isEqualTo(9);
+        assertThat(properties.size()).isEqualTo(8);
         assertThat(properties.get("courtCode")).isEqualTo(COURT_CODE);
         assertThat(properties.get("courtRoom")).isEqualTo(COURT_ROOM);
         assertThat(properties.get("caseNo")).isEqualTo(CASE_NO);
         assertThat(properties.get("crn")).isEqualTo(CRN);
         assertThat(properties.get("pnc")).isEqualTo(PNC);
         assertThat(properties.get("hearingDate")).isEqualTo(standardDateOf(2020, 9 , 22));
-        assertThat(properties.get("matches")).isEqualTo("2");
         assertThat(properties.get("username")).isEqualTo("Arthur");
         assertThat(properties.get("clientId")).isEqualTo("Van der Linde");
 
@@ -83,14 +115,13 @@ class TelemetryServiceTest {
         verify(telemetryClient).trackEvent(eq("PiCCourtCaseCreated"), properties.capture(), metricsCaptor.capture());
 
         var properties = this.properties.getValue();
-        assertThat(properties.size()).isEqualTo(7);
+        assertThat(properties.size()).isEqualTo(6);
         assertThat(properties.get("courtCode")).isEqualTo(COURT_CODE);
         assertThat(properties.get("courtRoom")).isEqualTo(COURT_ROOM);
         assertThat(properties.get("caseNo")).isEqualTo(CASE_NO);
         assertThat(properties.get("crn")).isEqualTo(CRN);
         assertThat(properties.get("pnc")).isEqualTo(PNC);
         assertThat(properties.get("hearingDate")).isEqualTo(standardDateOf(2020, 9 , 22));
-        assertThat(properties.get("matches")).isEqualTo("2");
 
         assertThat(metricsCaptor.getValue().isEmpty());
     }
@@ -101,20 +132,6 @@ class TelemetryServiceTest {
                 .build();
 
         service.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCase);
-
-        verify(telemetryClient).trackEvent(eq("PiCCourtCaseCreated"), properties.capture(), metricsCaptor.capture());
-
-        var properties = this.properties.getValue();
-        assertThat(properties.size()).isEqualTo(0);
-
-        assertThat(metricsCaptor.getValue().isEmpty());
-    }
-
-    @Test
-    public void givenLazyInitializationExceptionThrown_whenTrackCourtCaseEvent_thenDontTrackMatchCount() {
-        when(mockCourtCase.getGroupedOffenderMatches()).thenThrow(LazyInitializationException.class);
-
-        service.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, mockCourtCase);
 
         verify(telemetryClient).trackEvent(eq("PiCCourtCaseCreated"), properties.capture(), metricsCaptor.capture());
 

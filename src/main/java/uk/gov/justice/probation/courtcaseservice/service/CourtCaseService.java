@@ -155,6 +155,11 @@ public class CourtCaseService {
                     boolean crnMatches = match.getCrn().equals(updatedCase.getCrn());
                     match.setConfirmed(crnMatches);
                     match.setRejected(!crnMatches);
+                    if (crnMatches){
+                        telemetryService.trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, match);
+                    } else {
+                        telemetryService.trackMatchEvent(TelemetryEventType.MATCH_REJECTED, match);
+                    }
 
                     if (crnMatches && updatedCase.getPnc() != null && !updatedCase.getPnc().equals(match.getPnc())) {
                         log.warn(String.format("Unexpected PNC mismatch when updating offender match - matchId: '%s', crn: '%s', matchPnc: %s, updatePnc: %s",

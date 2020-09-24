@@ -2,14 +2,15 @@ package uk.gov.justice.probation.courtcaseservice.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.AllArgsConstructor;
-import org.hibernate.LazyInitializationException;
 import org.springframework.stereotype.Service;
-import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -39,22 +40,47 @@ public class TelemetryService {
                 .ifPresent((pnc) -> properties.put("pnc", pnc));
         ofNullable(courtCaseEntity.getCaseNo())
                 .ifPresent((caseNo) -> properties.put("caseNo", caseNo));
-        try {
-            ofNullable(courtCaseEntity.getGroupedOffenderMatches())
-                    .map(CourtCaseResponseMapper::calculateNumberOfPossibleMatches)
-                    .ifPresent((matchCount) -> properties.put("matches", matchCount.toString()));
-        } catch (LazyInitializationException e) {
-            // GroupedOffenderMatches are lazily loaded, this exception indicates that the DB session has already
-            // been closed. We only care about the number of matches if it has changed, in which case it would have been
-            // fetched before the session was closed - so we can safely ignore this.
-        }
 
-        Optional.ofNullable(requestProperties.get("username"))
-                .ifPresent((caseNo) -> properties.put("username", caseNo));
-        Optional.ofNullable(requestProperties.get("clientId"))
-                .ifPresent((caseNo) -> properties.put("clientId", caseNo));
+        addRequestProperties(properties);
 
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }
 
+    public void trackMatchEvent(TelemetryEventType eventType, OffenderMatchEntity matchEntity) {
+
+        Map<String, String> properties = new HashMap<>();
+
+        ofNullable(matchEntity)
+                .map(OffenderMatchEntity::getGroup)
+                .map(GroupedOffenderMatchesEntity::getCourtCase)
+                .map(CourtCaseEntity::getCourtCode)
+                .ifPresent((code) -> properties.put("courtCode", code));
+        ofNullable(matchEntity)
+                .map(OffenderMatchEntity::getGroup)
+                .map(GroupedOffenderMatchesEntity::getCourtCase)
+                .map(CourtCaseEntity::getCaseNo)
+                .ifPresent((caseNo) -> properties.put("caseNo", caseNo));
+        ofNullable(matchEntity)
+                .map(OffenderMatchEntity::getPnc)
+                .ifPresent((pnc) -> properties.put("pnc", pnc));
+        ofNullable(matchEntity)
+                .map(OffenderMatchEntity::getCrn)
+                .ifPresent((crn) -> properties.put("crn", crn));
+        ofNullable(matchEntity)
+                .map(OffenderMatchEntity::getGroup)
+                .map(GroupedOffenderMatchesEntity::getOffenderMatches)
+                .map(List::size)
+                .ifPresent((matches) -> properties.put("matches", matches.toString()));
+
+        addRequestProperties(properties);
+
+        telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
+    }
+
+    private void addRequestProperties(Map<String, String> properties) {
+        Optional.ofNullable(requestProperties.get("username"))
+                .ifPresent((caseNo) -> properties.put("username", caseNo));
+        Optional.ofNullable(requestProperties.get("clientId"))
+                .ifPresent((caseNo) -> properties.put("clientId", caseNo));
+    }
 }

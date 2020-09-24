@@ -9,11 +9,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Map;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -44,24 +48,19 @@ class TelemetryServiceTest {
         when(requestProperties.get("username")).thenReturn("Arthur");
         when(requestProperties.get("clientId")).thenReturn("Van der Linde");
 
-        CourtCaseEntity courtCase = CourtCaseEntity.builder()
-                .courtCode(COURT_CODE)
-                .courtRoom(COURT_ROOM)
-                .caseNo(CASE_NO)
-                .offences(emptyList())
-                .sessionStartTime(LocalDateTime.of(2020, 9, 22, 9, 30))
-                .build();
+        CourtCaseEntity courtCase = buildCourtCase();
 
         service.trackCourtCaseEvent("PiCCourtCaseCreated", courtCase);
 
         verify(telemetryClient).trackEvent(eq("PiCCourtCaseCreated"), properties.capture(), metricsCaptor.capture());
 
         var properties = this.properties.getValue();
-        assertThat(properties.size()).isEqualTo(6);
+        assertThat(properties.size()).isEqualTo(7);
         assertThat(properties.get("courtCode")).isEqualTo(COURT_CODE);
         assertThat(properties.get("courtRoom")).isEqualTo(COURT_ROOM);
         assertThat(properties.get("caseNo")).isEqualTo(CASE_NO);
         assertThat(properties.get("hearingDate")).isEqualTo(standardDateOf(2020, 9 , 22));
+        assertThat(properties.get("matches")).isEqualTo("2");
         assertThat(properties.get("username")).isEqualTo("Arthur");
         assertThat(properties.get("clientId")).isEqualTo("Van der Linde");
 
@@ -70,24 +69,19 @@ class TelemetryServiceTest {
 
     @Test
     public void givenNullProperties_whenTrackCourtCaseEvent_thenExcludeUserProperties() {
-        CourtCaseEntity courtCase = CourtCaseEntity.builder()
-                .courtCode(COURT_CODE)
-                .caseNo(CASE_NO)
-                .courtRoom(COURT_ROOM)
-                .offences(emptyList())
-                .sessionStartTime(LocalDateTime.of(2020, 9, 22, 9, 30))
-                .build();
+        CourtCaseEntity courtCase = buildCourtCase();
 
         service.trackCourtCaseEvent("PiCCourtCaseCreated", courtCase);
 
         verify(telemetryClient).trackEvent(eq("PiCCourtCaseCreated"), properties.capture(), metricsCaptor.capture());
 
         var properties = this.properties.getValue();
-        assertThat(properties.size()).isEqualTo(4);
+        assertThat(properties.size()).isEqualTo(5);
         assertThat(properties.get("courtCode")).isEqualTo(COURT_CODE);
         assertThat(properties.get("courtRoom")).isEqualTo(COURT_ROOM);
         assertThat(properties.get("caseNo")).isEqualTo(CASE_NO);
         assertThat(properties.get("hearingDate")).isEqualTo(standardDateOf(2020, 9 , 22));
+        assertThat(properties.get("matches")).isEqualTo("2");
 
         assertThat(metricsCaptor.getValue().isEmpty());
     }
@@ -105,5 +99,27 @@ class TelemetryServiceTest {
         assertThat(properties.size()).isEqualTo(0);
 
         assertThat(metricsCaptor.getValue().isEmpty());
+    }
+
+    private CourtCaseEntity buildCourtCase() {
+        return CourtCaseEntity.builder()
+                .courtCode(COURT_CODE)
+                .caseNo(CASE_NO)
+                .courtRoom(COURT_ROOM)
+                .offences(emptyList())
+                .groupedOffenderMatches(Arrays.asList(
+                        GroupedOffenderMatchesEntity.builder()
+                                .offenderMatches(singletonList(OffenderMatchEntity.builder()
+                                        .crn("1")
+                                        .build()))
+                                .build(),
+                        GroupedOffenderMatchesEntity.builder()
+                                .offenderMatches(singletonList(OffenderMatchEntity.builder()
+                                        .crn("2")
+                                        .build()))
+                                .build()
+                ))
+                .sessionStartTime(LocalDateTime.of(2020, 9, 22, 9, 30))
+                .build();
     }
 }

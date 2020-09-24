@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.service;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 
 import java.time.format.DateTimeFormatter;
@@ -33,10 +34,12 @@ public class TelemetryService {
                 .ifPresent((date) -> properties.put("hearingDate", date));
         ofNullable(courtCaseEntity.getCaseNo())
                 .ifPresent((caseNo) -> properties.put("caseNo", caseNo));
+        ofNullable(courtCaseEntity.getGroupedOffenderMatches())
+                .map(CourtCaseResponseMapper::calculateNumberOfPossibleMatches)
+                .ifPresent((matchCount) -> properties.put("matches", matchCount.toString()));
 
         Optional.ofNullable(requestProperties.get("username"))
                 .ifPresent((caseNo) -> properties.put("username", caseNo));
-
         Optional.ofNullable(requestProperties.get("clientId"))
                 .ifPresent((caseNo) -> properties.put("clientId", caseNo));
 

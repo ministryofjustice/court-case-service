@@ -6,7 +6,7 @@ plugins {
     id 'org.springframework.boot' version '2.3.4.RELEASE'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
     id 'com.github.ben-manes.versions' version '0.33.0'
-    id "org.flywaydb.flyway" version "6.5.6"
+    id "org.flywaydb.flyway" version "6.5.7"
     id 'jacoco'
 }
 
@@ -179,7 +179,7 @@ dependencies {
     implementation 'org.springframework.security:spring-security-oauth2-resource-server'
     implementation 'org.springframework.security:spring-security-oauth2-jose'
     implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.1'
-    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.1'
+    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.2'
     implementation 'net.logstash.logback:logstash-logback-encoder:6.4'
 
     testImplementation 'com.auth0:jwks-rsa:0.13.0'

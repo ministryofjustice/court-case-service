@@ -1,12 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
-import java.io.File;
-import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.Collections;
-import java.util.List;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -25,6 +18,13 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.Collections;
+import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -131,8 +131,9 @@ public class OffenderMapperTest {
         assertThat(conviction1.getSentence().getUnpaidWork().getAcceptableAbsences()).isEqualTo(2);
         assertThat(conviction1.getSentence().getUnpaidWork().getUnacceptableAbsences()).isEqualTo(1);
 
-        // conviction date + sentence.lengthInDays
-        assertThat(conviction1.getEndDate()).isEqualTo(LocalDate.of(2019,9,16).plus(Duration.ofDays(0)));
+        // conviction date + sentence.lengthInDays (startDate not present so null)
+        assertThat(conviction1.getSentence().getEndDate()).isNull();
+        assertThat(conviction1.getEndDate()).isNull();
 
         Conviction conviction2 = convictions.get(1);
         assertThat(conviction2.getConvictionId()).isEqualTo("2500295345");
@@ -143,8 +144,11 @@ public class OffenderMapperTest {
         assertThat(conviction2.getSentence().getTerminationReason()).isEqualTo("ICMS Miscellaneous Event");
         assertThat(conviction2.getSentence().getLengthInDays()).isEqualTo(1826);
         assertThat(conviction2.getSentence().getUnpaidWork()).isNull();
+        assertThat(conviction2.getSentence().getStartDate()).isEqualTo(LocalDate.of(2014,1,1));
+
         // conviction date + sentence.lengthInDays
-        assertThat(conviction2.getEndDate()).isEqualTo(LocalDate.of(2019,9,3).plusDays(1826));
+        assertThat(conviction2.getSentence().getEndDate()).isEqualTo(LocalDate.of(2014,1,1).plusDays(1826));
+        assertThat(conviction2.getEndDate()).isEqualTo(LocalDate.of(2014,1,1).plusDays(1826));
 
         Conviction conviction3 = convictions.get(2);
         assertThat(conviction3.getConvictionId()).isEqualTo("2500295343");
@@ -204,37 +208,35 @@ public class OffenderMapperTest {
         assertThat(convictions.get(0)).isEqualToComparingFieldByField(expectedConviction);
     }
 
-    @DisplayName("No end date if convictionDate and sentence are null")
-    @Test
-    void endDateCalculatorNulls() {
-        assertThat(mapper.endDateCalculator.apply(null, null)).isNull();
-    }
-
     @DisplayName("No end date if sentence is null")
     @Test
     void endDateCalculatorNullSentence() {
-        assertThat(mapper.endDateCalculator.apply(LocalDate.of(2019, 10, 1), null)).isNull();
+        assertThat(mapper.endDateCalculator(null)).isNull();
     }
 
     @DisplayName("No end date if length of sentence is null")
     @Test
     void endDateCalculatorNullSentenceLength() {
-        final CommunityApiSentence sentence = CommunityApiSentence.builder().build();
-        assertThat(mapper.endDateCalculator.apply(LocalDate.of(2019, 10, 1), sentence)).isNull();
+        final CommunityApiSentence sentence = CommunityApiSentence.builder()
+                .startDate(LocalDate.of(2019, 10, 1))
+                .build();
+        assertThat(mapper.endDateCalculator(sentence)).isNull();
     }
 
     @DisplayName("No end date if convictionDate is null")
     @Test
     void endDateCalculatorNullDate() {
         final CommunityApiSentence sentence = CommunityApiSentence.builder().lengthInDays(1).build();
-        assertThat(mapper.endDateCalculator.apply(null, sentence)).isNull();
+        assertThat(mapper.endDateCalculator(sentence)).isNull();
     }
 
     @DisplayName("No end date if convictionDate is null")
     @Test
     void endDateCalculatorNormal() {
-        final CommunityApiSentence sentence = CommunityApiSentence.builder().lengthInDays(1).build();
-        assertThat(mapper.endDateCalculator.apply(LocalDate.of(2019, 10, 1), sentence)).isEqualTo(LocalDate.of(2019, 10, 2));
+        final CommunityApiSentence sentence = CommunityApiSentence.builder().lengthInDays(1)
+                .startDate(LocalDate.of(2019, 10, 1))
+                .build();
+        assertThat(mapper.endDateCalculator(sentence)).isEqualTo(LocalDate.of(2019, 10, 2));
     }
 
     @DisplayName("Test custodial status mapping of values")

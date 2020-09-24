@@ -50,7 +50,7 @@ class TelemetryServiceTest {
 
         CourtCaseEntity courtCase = buildCourtCase();
 
-        service.trackCourtCaseEvent("PiCCourtCaseCreated", courtCase);
+        service.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCase);
 
         verify(telemetryClient).trackEvent(eq("PiCCourtCaseCreated"), properties.capture(), metricsCaptor.capture());
 
@@ -71,7 +71,7 @@ class TelemetryServiceTest {
     public void givenNullProperties_whenTrackCourtCaseEvent_thenExcludeUserProperties() {
         CourtCaseEntity courtCase = buildCourtCase();
 
-        service.trackCourtCaseEvent("PiCCourtCaseCreated", courtCase);
+        service.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCase);
 
         verify(telemetryClient).trackEvent(eq("PiCCourtCaseCreated"), properties.capture(), metricsCaptor.capture());
 
@@ -91,7 +91,7 @@ class TelemetryServiceTest {
         CourtCaseEntity courtCase = CourtCaseEntity.builder()
                 .build();
 
-        service.trackCourtCaseEvent("PiCCourtCaseCreated", courtCase);
+        service.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCase);
 
         verify(telemetryClient).trackEvent(eq("PiCCourtCaseCreated"), properties.capture(), metricsCaptor.capture());
 

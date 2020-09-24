@@ -21,7 +21,7 @@ public class TelemetryService {
 
     private final Map<String, String> requestProperties;
 
-    void trackCourtCaseEvent(String eventName, CourtCaseEntity courtCaseEntity) {
+    void trackCourtCaseEvent(TelemetryEventType eventType, CourtCaseEntity courtCaseEntity) {
 
         Map<String, String> properties = new HashMap<>();
 
@@ -43,7 +43,7 @@ public class TelemetryService {
         Optional.ofNullable(requestProperties.get("clientId"))
                 .ifPresent((caseNo) -> properties.put("clientId", caseNo));
 
-        telemetryClient.trackEvent(eventName, properties, Collections.emptyMap());
+        telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }
 
 }

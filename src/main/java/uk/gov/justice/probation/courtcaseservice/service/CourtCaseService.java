@@ -63,7 +63,7 @@ public class CourtCaseService {
 
     public void delete(String courtCode, String caseNo) {
         CourtCaseEntity caseEntity = getCaseByCaseNumber(courtCode, caseNo);
-        telemetryService.trackCourtCaseEvent(TelemetryEvent.COURT_CASE_DELETED, caseEntity);
+        telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_DELETED, caseEntity);
         courtCaseRepository.deleteById(caseEntity.getId());
     }
 
@@ -87,7 +87,7 @@ public class CourtCaseService {
         casesToDelete.forEach(aCase -> {
             log.debug("Soft delete case no {} for court {}, session time {} ",
                     aCase.getCaseNo(), aCase.getCourtCode(), aCase.getSessionStartTime());
-            telemetryService.trackCourtCaseEvent(TelemetryEvent.COURT_CASE_DELETED, aCase);
+            telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_DELETED, aCase);
         });
 
         courtCaseRepository.deleteAll(casesToDelete);
@@ -113,7 +113,7 @@ public class CourtCaseService {
     private CourtCaseEntity createCase(CourtCaseEntity courtCaseEntity) {
         applyOffenceSequencing(courtCaseEntity.getOffences());
         log.info("Court case being created for case number {}", courtCaseEntity.getCaseNo());
-        telemetryService.trackCourtCaseEvent(TelemetryEvent.COURT_CASE_CREATED, courtCaseEntity);
+        telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCaseEntity);
         return courtCaseRepository.save(courtCaseEntity);
     }
 
@@ -142,7 +142,7 @@ public class CourtCaseService {
         updateOffenderMatches(existingCase, updatedCase);
 
         log.info("Court case updated for case no {}", updatedCase.getCaseNo());
-        telemetryService.trackCourtCaseEvent(TelemetryEvent.COURT_CASE_UPDATED, updatedCase);
+        telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_UPDATED, updatedCase);
         return courtCaseRepository.save(existingCase);
     }
 

@@ -98,7 +98,7 @@ class CourtCaseServiceTest {
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, courtCase);
 
-        verify(telemetryService).trackCourtCaseEvent("PiCCourtCaseCreated", courtCase);
+        verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCase);
     }
 
     @Test
@@ -108,7 +108,7 @@ class CourtCaseServiceTest {
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, courtCase);
 
-        verify(telemetryService).trackCourtCaseEvent("PiCCourtCaseUpdated", courtCase);
+        verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.COURT_CASE_UPDATED, courtCase);
     }
 
     @Test
@@ -118,7 +118,7 @@ class CourtCaseServiceTest {
 
         service.delete(COURT_CODE, CASE_NO);
 
-        verify(telemetryService).trackCourtCaseEvent("PiCCourtCaseDeleted", courtCase);
+        verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.COURT_CASE_DELETED, courtCase);
     }
 
     @Test
@@ -129,7 +129,7 @@ class CourtCaseServiceTest {
         final Map<LocalDate, List<String>> existing = Map.of(LocalDate.of(2020, Month.JANUARY, 2), Collections.emptyList());
         service.deleteAbsentCases(COURT_CODE, existing);
 
-        verify(telemetryService).trackCourtCaseEvent("PiCCourtCaseDeleted", courtCase);
+        verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.COURT_CASE_DELETED, courtCase);
     }
 
     @Test

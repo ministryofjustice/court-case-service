@@ -1,9 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -21,6 +19,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.ConvictionBySentenceComparator;
 import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
@@ -75,11 +74,8 @@ public class OffenderService {
                         return conviction;
                     });
             })
-            .collectSortedList(Comparator.comparing(conviction ->
-                    Optional.ofNullable(conviction.getSentence())
-                        .map(c -> conviction.getSentence().getTerminationDate())
-                        .orElse(null),
-                Comparator.nullsFirst(Comparator.reverseOrder())));
+            .collectSortedList(new ConvictionBySentenceComparator()
+                                .thenComparing(Conviction::getConvictionId));
 
         // This Mono resolves to a 3 tuple containing the record itself, the above-mentioned convictions, and the documents
         Mono<Tuple3<ProbationRecord, List<Conviction>, GroupedDocuments>> probationMono = Mono.zip(

@@ -1,9 +1,11 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,5 +36,15 @@ public class Conviction implements Comparable<Conviction>{
     @Override
     public int compareTo(Conviction other) {
         return ((Long)Long.parseLong(convictionId)).compareTo(Long.parseLong(other.getConvictionId()));
+    }
+
+    @JsonIgnore
+    public Optional<LocalDate> getSentenceStartDate() {
+        return Optional.ofNullable(sentence).map(Sentence::getStartDate);
+    }
+
+    @JsonIgnore
+    public Optional<LocalDate> getSentenceTerminationDate() {
+        return Optional.ofNullable(sentence).map(Sentence::getTerminationDate);
     }
 }

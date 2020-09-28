@@ -27,6 +27,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
+import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.ConvictionDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
@@ -90,7 +91,8 @@ class OffenderServiceTest {
             .status("Breach Initiated")
             .started(LocalDate.of(2020,4,23))
             .build();
-        this.conviction = Conviction.builder().convictionId(CONVICTION_ID).build();
+        Sentence sentence = Sentence.builder().startDate(LocalDate.now()).build();
+        this.conviction = Conviction.builder().convictionId(CONVICTION_ID).sentence(sentence).active(Boolean.TRUE).build();
         this.assessment = Assessment.builder().type("LAYER_3").completed(LocalDateTime.of(2020,4,23,10,5,20)).build();
         this.service = new OffenderService(offenderRestClient, assessmentsRestClient, documentRestClient, documentTypeFilter);
         this.service.setPssRqmntDescriptionsKeepSubType(List.of(PSS_DESC_TO_KEEP));
@@ -146,9 +148,35 @@ class OffenderServiceTest {
         verifyNoMoreInteractions(offenderRestClient);
     }
 
+    @DisplayName("Convictions being sorted in the response. Active then inactive.")
+    @Test
+    void whenGetOffender_returnOffenderWithConvictionsSorted() {
+
+        Sentence sentence2 = Sentence.builder().startDate(LocalDate.now().minusYears(3)).terminationDate(LocalDate.now().minusYears(1)).build();
+        Conviction conviction2 = Conviction.builder().convictionId("123").active(Boolean.TRUE).sentence(sentence2).build();
+
+        Sentence sentence3 = Sentence.builder().startDate(LocalDate.now().minusYears(1)).terminationDate(LocalDate.now().plusYears(1)).build();
+        Conviction conviction3 = Conviction.builder().convictionId("123").active(Boolean.FALSE).sentence(sentence3).build();
+
+        when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
+        when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(List.of(conviction2, conviction3, conviction)));
+        when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
+        when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
+
+        ProbationRecord probationRecord = service.getProbationRecord(CRN, true);
+
+        assertThat(probationRecord.getConvictions()).hasSize(3);
+        assertThat(probationRecord.getConvictions()).containsExactly(conviction, conviction2, conviction3);
+        verify(offenderRestClient).getProbationRecordByCrn(CRN);
+        verify(offenderRestClient).getConvictionsByCrn(CRN);
+        verify(documentRestClient).getDocumentsByCrn(CRN);
+        verifyNoMoreInteractions(offenderRestClient);
+    }
+
     @DisplayName("Getting offender throws exception when CRN not found, even if other calls succeed")
     @Test
-    public void givenOffenderNotFound_whenGetOffender_thenThrowException() {
+    void givenOffenderNotFound_whenGetOffender_thenThrowException() {
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
         when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
@@ -161,7 +189,7 @@ class OffenderServiceTest {
 
     @DisplayName("Getting offender convictions throws exception when CRN not found, even if other calls succeed")
     @Test
-    public void givenConvictionsNotFound_whenGetOffender_thenThrowException() {
+    void givenConvictionsNotFound_whenGetOffender_thenThrowException() {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
@@ -174,7 +202,7 @@ class OffenderServiceTest {
 
     @DisplayName("Getting offender convictions requirements, filter out inactive and remove subtype descriptions")
     @Test
-    public void givenInactivePssRequirements_whenGetConvictionRequirements_returnRequirementsWithInactiveNotPresent() {
+    void givenInactivePssRequirements_whenGetConvictionRequirements_returnRequirementsWithInactiveNotPresent() {
 
         PssRequirement pssRqmnt1 = PssRequirement.builder()
             .active(true)
@@ -213,7 +241,7 @@ class OffenderServiceTest {
 
     @DisplayName("Getting probation record does not throw exception when oasys assessment data is missing")
     @Test
-    public void givenAssessmentNotFound_whenGetOffender_thenDoNotThrowException() {
+    void givenAssessmentNotFound_whenGetOffender_thenDoNotThrowException() {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
         when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
@@ -235,7 +263,7 @@ class OffenderServiceTest {
 
     @DisplayName("Getting probation record does not throw exception when assessment api fails for any reason")
     @Test
-    public void givenAssessmentRequestFails_whenGetOffender_thenDoNotThrowException() {
+    void givenAssessmentRequestFails_whenGetOffender_thenDoNotThrowException() {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));        when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
         when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
@@ -257,7 +285,7 @@ class OffenderServiceTest {
 
     @DisplayName("getting probation record throws exception if breach data is missing for a conviction")
     @Test
-    public void givenBreachRequestFailsWith404_whenGetOffender_thenThrowException() {
+    void givenBreachRequestFailsWith404_whenGetOffender_thenThrowException() {
         // all these are normal return values
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
@@ -274,7 +302,7 @@ class OffenderServiceTest {
 
     @DisplayName("get probation record propagates connection errors from getBreaches()")
     @Test
-    public void givenBreachRequestFailsWithConnectionIssue_whenGetOffender_thenThrowException() {
+    void givenBreachRequestFailsWithConnectionIssue_whenGetOffender_thenThrowException() {
         // all these are normal return values
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
@@ -292,7 +320,7 @@ class OffenderServiceTest {
 
     @DisplayName("Simple get of offender detail")
     @Test
-    public void whenGetOffenderDetail_thenReturnSame() {
+    void whenGetOffenderDetail_thenReturnSame() {
         OffenderDetail offenderDetail = OffenderDetail.builder().build();
         when(offenderRestClient.getOffenderDetailByCrn(CRN)).thenReturn(Mono.just(offenderDetail));
 

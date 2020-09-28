@@ -61,14 +61,24 @@ public class OffenderControllerIntTest extends BaseIntTest {
                 .body("offenderManagers[0].surname", equalTo("Brennan"))
                 .body("offenderManagers[0].allocatedDate", equalTo(standardDateOf(2019, 9, 30)))
 
-                .body("convictions[0].convictionId", equalTo("2500295343"))
-                .body("convictions[0].active", equalTo(null))
-                .body("convictions[0].inBreach", equalTo(true))
+                .body("convictions[0].convictionId", equalTo("2500295345"))
+                .body("convictions[0].active", equalTo(true))
+                .body("convictions[0].inBreach", equalTo(false))
                 .body("convictions[0].offences[0].description", equalTo("Arson - 05600"))
-                .body("convictions[0].convictionDate", equalTo(null))
-                .body("convictions[0].documents", hasSize(0))
-                .body("convictions[0].breaches", hasSize(1))
-                .body("convictions[0].breaches[0].breachId", equalTo(11131321))
+                .body("convictions[0].offences[1].description", equalTo("Burglary (dwelling) with intent to commit, or the commission of an offence triable only on indictment - 02801"))
+                .body("convictions[0].sentence.sentenceId", equalTo("123457"))
+                .body("convictions[0].sentence.description", equalTo("CJA - Indeterminate Public Prot."))
+                .body("convictions[0].sentence.length", equalTo(5))
+                .body("convictions[0].sentence.lengthUnits", equalTo("Years"))
+                .body("convictions[0].sentence.lengthInDays", equalTo(1826))
+                .body("convictions[0].sentence.terminationDate", equalTo(standardDateOf(2019, 1, 1)))
+                .body("convictions[0].sentence.terminationReason", equalTo("ICMS Miscellaneous Event"))
+                .body("convictions[0].convictionDate", equalTo(standardDateOf(2019, 9,3)))
+                .body("convictions[0].documents", hasSize(1))
+                .body("convictions[0].documents[0].documentId", equalTo("1d842fce-ec2d-45dc-ac9a-748d3076ca6b"))
+                .body("convictions[0].breaches", hasSize(0))
+                .body("convictions[0].endDate", equalTo(standardDateOf(2019, 1,1)))
+                .body("convictions[0].sentence.endDate", equalTo(standardDateOf(2019, 1,1)))
 
                 .body("convictions[1].convictionId", equalTo("2500297061"))
                 .body("convictions[1].active", equalTo(false))
@@ -87,27 +97,14 @@ public class OffenderControllerIntTest extends BaseIntTest {
                 .body("convictions[1].breaches", hasSize(1))
                 .body("convictions[1].breaches[0].breachId", equalTo(11131321))
 
-                .body("convictions[2].convictionId", equalTo("2500295345"))
-                .body("convictions[2].active", equalTo(true))
-                .body("convictions[2].inBreach", equalTo(false))
+                .body("convictions[2].convictionId", equalTo("2500295343"))
+                .body("convictions[2].active", equalTo(false))
+                .body("convictions[2].inBreach", equalTo(true))
                 .body("convictions[2].offences[0].description", equalTo("Arson - 05600"))
-                .body("convictions[2].offences[1].description", equalTo("Burglary (dwelling) with intent to commit, or the commission of an offence triable only on indictment - 02801"))
-                .body("convictions[2].sentence.sentenceId", equalTo("123457"))
-                .body("convictions[2].sentence.description", equalTo("CJA - Indeterminate Public Prot."))
-                .body("convictions[2].sentence.length", equalTo(5))
-                .body("convictions[2].sentence.lengthUnits", equalTo("Years"))
-                .body("convictions[2].sentence.lengthInDays", equalTo(1826))
-                .body("convictions[2].sentence.terminationDate", equalTo(standardDateOf(2019, 1, 1)))
-                .body("convictions[2].sentence.terminationReason", equalTo("ICMS Miscellaneous Event"))
-                .body("convictions[2].convictionDate", equalTo(standardDateOf(2019, 9,3)))
-                .body("convictions[2].documents", hasSize(1))
-                .body("convictions[2].documents[0].documentId", equalTo("1d842fce-ec2d-45dc-ac9a-748d3076ca6b"))
-                .body("convictions[2].breaches", hasSize(0))
-                .body("convictions[2].endDate", equalTo(standardDateOf(2019, 1,1)))
-                .body("convictions[2].sentence.endDate", equalTo(standardDateOf(2019, 1,1)))
-
-
-
+                .body("convictions[2].convictionDate", equalTo(null))
+                .body("convictions[2].documents", hasSize(0))
+                .body("convictions[2].breaches", hasSize(1))
+                .body("convictions[2].breaches[0].breachId", equalTo(11131321))
         ;
     }
 
@@ -123,14 +120,15 @@ public class OffenderControllerIntTest extends BaseIntTest {
                 .statusCode(200)
                 .body("crn",  equalTo("X320741"))
                 .body("convictions.size()", is(3))
-                .body("convictions[0].convictionId", equalTo("2500295343"))
-                .body("convictions[0].documents", hasSize(7))
+
+                .body("convictions[0].convictionId", equalTo("2500295345"))
+                .body("convictions[0].documents", hasSize(8))
 
                 .body("convictions[1].convictionId", equalTo("2500297061"))
                 .body("convictions[1].documents", hasSize(0))
 
-                .body("convictions[2].convictionId", equalTo("2500295345"))
-                .body("convictions[2].documents", hasSize(8))
+                .body("convictions[2].convictionId", equalTo("2500295343"))
+                .body("convictions[2].documents", hasSize(7))
         ;
     }
 

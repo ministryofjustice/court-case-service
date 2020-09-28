@@ -105,7 +105,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
         when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
         when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
-        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
+        when(assessmentsRestClient.getLatestAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         ProbationRecord probationRecord = service.getProbationRecord(CRN, false);
 
@@ -123,7 +123,7 @@ class OffenderServiceTest {
         verify(offenderRestClient).getProbationRecordByCrn(CRN);
         verify(offenderRestClient).getConvictionsByCrn(CRN);
         verify(documentRestClient).getDocumentsByCrn(CRN);
-        verify(assessmentsRestClient).getAssessmentByCrn(CRN);
+        verify(assessmentsRestClient).getLatestAssessmentByCrn(CRN);
         verifyNoMoreInteractions(offenderRestClient);
     }
 
@@ -134,7 +134,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
         when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
         when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
-        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
+        when(assessmentsRestClient.getLatestAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         ProbationRecord probationRecord = service.getProbationRecord(CRN, true);
 
@@ -162,7 +162,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(List.of(conviction2, conviction3, conviction)));
         when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
         when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
-        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
+        when(assessmentsRestClient.getLatestAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         ProbationRecord probationRecord = service.getProbationRecord(CRN, true);
 
@@ -180,7 +180,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
         when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
-        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
+        when(assessmentsRestClient.getLatestAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         assertThatExceptionOfType(OffenderNotFoundException.class)
                 .isThrownBy(() -> service.getProbationRecord(CRN, true))
@@ -193,7 +193,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
-        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
+        when(assessmentsRestClient.getLatestAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         assertThatExceptionOfType(OffenderNotFoundException.class)
                 .isThrownBy(() -> service.getProbationRecord(CRN, true))
@@ -247,7 +247,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
         when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
         // throw OffenderNotFoundException to simulate a 404 returned by assessments api
-        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
+        when(assessmentsRestClient.getLatestAssessmentByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
 
         ProbationRecord probationRecord = service.getProbationRecord(CRN, false);
         assertThat(probationRecord).isNotNull();
@@ -269,7 +269,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
         when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
         // throw ConnectException to simulate server side connection issues
-        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.error(new ConnectException("Connection refused")));
+        when(assessmentsRestClient.getLatestAssessmentByCrn(CRN)).thenReturn(Mono.error(new ConnectException("Connection refused")));
 
         ProbationRecord probationRecord = service.getProbationRecord(CRN, false);
         assertThat(probationRecord).isNotNull();
@@ -290,7 +290,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
         when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
-        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
+        when(assessmentsRestClient.getLatestAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         // OffenderNotFound returned on 404 from community api
         when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
@@ -307,7 +307,7 @@ class OffenderServiceTest {
         when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
         when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
         when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
-        when(assessmentsRestClient.getAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
+        when(assessmentsRestClient.getLatestAssessmentByCrn(CRN)).thenReturn(Mono.just(assessment));
 
         // throw ConnectException to simulate server side connection issues
         when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.error(new ConnectException("Connection refused")));

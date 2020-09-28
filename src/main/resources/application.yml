@@ -94,7 +94,8 @@ community-api:
   offender-address-code: M
 
 offender-assessments-api:
-  latest-assessment-crn-url-template: /offenders/crn/%s/assessments/latest
+  # assessment-crn-url-template: /offenders/crn/%s/assessments/latest
+  assessment-crn-url-template: /offenders/crn/%s/assessments/summary
 
 health:
   default-ping-path: /ping

@@ -141,6 +141,7 @@
     "convictionId": 2500295343,
     "index": "1",
     "inBreach": true,
+    "active": false,
     "referralDate": "2017-06-01",
     "offences": [
       {

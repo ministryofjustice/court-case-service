@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.commons.util.StringUtils;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -34,8 +36,10 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -67,15 +71,16 @@ class CourtCaseServiceTest {
 
     @Mock
     private CourtRepository courtRepository;
-
     @Mock
     private CourtCaseRepository courtCaseRepository;
-
     @Mock
     private CourtEntity courtEntity;
-
     @Mock
     private List<CourtCaseEntity> caseList;
+    @Mock
+    private TelemetryService telemetryService;
+    @Captor
+    private ArgumentCaptor<CourtCaseEntity> courtCaseCaptor;
 
     private CourtCaseEntity courtCase;
 
@@ -85,6 +90,116 @@ class CourtCaseServiceTest {
     @BeforeEach
     void setup() {
         courtCase = buildCourtCase(CRN);
+    }
+
+    @Test
+    public void givenNoExistingCase_whenCreateOrUpdateCaseCalled_thenLogCreatedEvent() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.empty());
+
+        service.createOrUpdateCase(COURT_CODE, CASE_NO, courtCase);
+
+        verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCase);
+    }
+
+    @Test
+    public void givenNoExistingCase_whenCreateOrUpdateCaseCalledWithCrn_thenLogLinkedEvent() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.empty());
+
+        service.createOrUpdateCase(COURT_CODE, CASE_NO, courtCase);
+
+        verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, courtCase);
+    }
+
+    @Test
+    public void givenNoExistingCase_whenCreateOrUpdateCaseCalledWithNullCrn_thenDontLogLinkedEvent() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.empty());
+
+        service.createOrUpdateCase(COURT_CODE, CASE_NO, buildCourtCase(null));
+
+        verify(telemetryService, never()).trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, courtCase);
+    }
+
+    @Test
+    public void givenExistingCase_whenCreateOrUpdateCaseCalled_thenLogUpdatedEvent() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.of(courtCase));
+
+        service.createOrUpdateCase(COURT_CODE, CASE_NO, courtCase);
+
+        verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.COURT_CASE_UPDATED, courtCase);
+    }
+
+    @Test
+    public void givenExistingCaseWithNullCrn_whenCreateOrUpdateCaseCalledWithCrn_thenLogLinkedEvent() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        CourtCaseEntity existingCase = buildCourtCase(null);
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.of(existingCase));
+        when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
+
+        service.createOrUpdateCase(COURT_CODE, CASE_NO, buildCourtCase(CRN));
+
+        verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, this.courtCase);
+    }
+
+    @Test
+    public void givenExistingCaseWithCrn_whenCreateOrUpdateCaseCalledWithNullCrn_thenLogUnLinkedEvent() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.of(courtCase));
+        when(courtCaseRepository.save(courtCase)).thenReturn(courtCase);
+
+        service.createOrUpdateCase(COURT_CODE, CASE_NO, buildCourtCase(null));
+
+        verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.DEFENDANT_UNLINKED, courtCase);
+    }
+
+    @Test
+    public void whenDeleteCase_thenLogDeletedEvent() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE,CASE_NO)).thenReturn(Optional.of(courtCase));
+
+        service.delete(COURT_CODE, CASE_NO);
+
+        verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.COURT_CASE_DELETED, courtCase);
+    }
+
+    @Test
+    public void whenDeleteAbsentCases_thenLogDeletedEvent() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        when(courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(any(), any(), any())).thenReturn(singletonList(courtCase));
+
+        final Map<LocalDate, List<String>> existing = Map.of(LocalDate.of(2020, Month.JANUARY, 2), Collections.emptyList());
+        service.deleteAbsentCases(COURT_CODE, existing);
+
+        verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.COURT_CASE_DELETED, courtCase);
+    }
+
+    @Test
+    public void whenUpdateMatches_thenLogRejectedAndConfirmedEvents() {
+        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        var caseToUpdate = buildCourtCase(CRN);
+        var existingCase = buildCourtCase(null);
+
+        var groupedOffenderMatches = buildOffenderMatchesEntities(existingCase);
+        existingCase.setGroupedOffenderMatches(groupedOffenderMatches);
+        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(existingCase));
+        when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
+
+        service.createOrUpdateCase(COURT_CODE, CASE_NO, caseToUpdate);
+
+        var confirmedMatch = groupedOffenderMatches.get(0).getOffenderMatches().get(0);
+        verify(telemetryService).trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, confirmedMatch);
+
+        var rejectedMatch1 = groupedOffenderMatches.get(0).getOffenderMatches().get(1);
+        verify(telemetryService).trackMatchEvent(TelemetryEventType.MATCH_REJECTED, rejectedMatch1);
+
+        var rejectedMatch2 = groupedOffenderMatches.get(1).getOffenderMatches().get(0);
+        verify(telemetryService).trackMatchEvent(TelemetryEventType.MATCH_REJECTED, rejectedMatch2);
+
+        var rejectedMatch3 = groupedOffenderMatches.get(1).getOffenderMatches().get(1);
+        verify(telemetryService).trackMatchEvent(TelemetryEventType.MATCH_REJECTED, rejectedMatch3);
     }
 
     @Test
@@ -211,34 +326,7 @@ class CourtCaseServiceTest {
         CourtCaseEntity caseToUpdate = buildCourtCase(CRN);
         CourtCaseEntity existingCase = buildCourtCase(CRN);
 
-        var offenderMatchesEntities = Arrays.asList(
-                GroupedOffenderMatchesEntity.builder()
-                        .courtCase(existingCase)
-                        .offenderMatches(Arrays.asList(OffenderMatchEntity.builder()
-                                        .crn(CRN)
-                                        .confirmed(false)
-                                        .rejected(false)
-                                        .build(),
-                                OffenderMatchEntity.builder()
-                                        .crn("Rejected CRN 1")
-                                        .confirmed(false)
-                                        .rejected(false)
-                                        .build()))
-                        .build(),
-                GroupedOffenderMatchesEntity.builder()
-                        .offenderMatches(Arrays.asList(OffenderMatchEntity.builder()
-                                        .crn("Rejected CRN 2")
-                                        .confirmed(false)
-                                        .rejected(false)
-                                        .build(),
-                                OffenderMatchEntity.builder()
-                                        .crn("Rejected CRN 3")
-                                        .confirmed(false)
-                                        .rejected(false)
-                                        .build()))
-                        .build()
-
-        );
+        var offenderMatchesEntities = buildOffenderMatchesEntities(existingCase);
         existingCase.setGroupedOffenderMatches(offenderMatchesEntities);
         when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(existingCase));
         when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
@@ -277,35 +365,7 @@ class CourtCaseServiceTest {
         CourtCaseEntity caseToUpdate = buildCourtCase(null);
         CourtCaseEntity existingCase = buildCourtCase(CRN);
 
-        var offenderMatchesEntities = Arrays.asList(
-                GroupedOffenderMatchesEntity.builder()
-                        .courtCase(existingCase)
-                        .offenderMatches(Arrays.asList(OffenderMatchEntity.builder()
-                                        .crn(CRN)
-                                        .confirmed(false)
-                                        .rejected(false)
-                                        .build(),
-                                OffenderMatchEntity.builder()
-                                        .crn("Rejected CRN 1")
-                                        .confirmed(false)
-                                        .rejected(false)
-                                        .build()))
-                        .build(),
-                GroupedOffenderMatchesEntity.builder()
-                        .offenderMatches(Arrays.asList(OffenderMatchEntity.builder()
-                                        .crn("Rejected CRN 2")
-                                        .confirmed(false)
-                                        .rejected(false)
-                                        .build(),
-                                OffenderMatchEntity.builder()
-                                        .crn("Rejected CRN 3")
-                                        .confirmed(false)
-                                        .rejected(false)
-                                        .build()))
-                        .build()
-
-        );
-        existingCase.setGroupedOffenderMatches(offenderMatchesEntities);
+        existingCase.setGroupedOffenderMatches(buildOffenderMatchesEntities(existingCase));
         when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(existingCase));
         when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
 
@@ -357,6 +417,37 @@ class CourtCaseServiceTest {
         when(courtCaseRepository.save(caseToUpdate)).thenReturn(caseToUpdate);
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, caseToUpdate);
+    }
+
+    private List<GroupedOffenderMatchesEntity> buildOffenderMatchesEntities(CourtCaseEntity existingCase) {
+        return Arrays.asList(
+                GroupedOffenderMatchesEntity.builder()
+                        .courtCase(existingCase)
+                        .offenderMatches(Arrays.asList(OffenderMatchEntity.builder()
+                                        .crn(CRN)
+                                        .confirmed(false)
+                                        .rejected(false)
+                                        .build(),
+                                OffenderMatchEntity.builder()
+                                        .crn("Rejected CRN 1")
+                                        .confirmed(false)
+                                        .rejected(false)
+                                        .build()))
+                        .build(),
+                GroupedOffenderMatchesEntity.builder()
+                        .offenderMatches(Arrays.asList(OffenderMatchEntity.builder()
+                                        .crn("Rejected CRN 2")
+                                        .confirmed(false)
+                                        .rejected(false)
+                                        .build(),
+                                OffenderMatchEntity.builder()
+                                        .crn("Rejected CRN 3")
+                                        .confirmed(false)
+                                        .rejected(false)
+                                        .build()))
+                        .build()
+
+        );
     }
 
     static CourtCaseEntity buildCourtCase(String crn) {

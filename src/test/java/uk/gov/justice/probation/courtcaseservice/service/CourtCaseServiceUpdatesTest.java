@@ -53,6 +53,9 @@ public class CourtCaseServiceUpdatesTest {
     private CourtCaseRepository courtCaseRepository;
 
     @Mock
+    private TelemetryService telemetryService;
+
+    @Mock
     private CourtEntity courtEntity;
 
     @Captor

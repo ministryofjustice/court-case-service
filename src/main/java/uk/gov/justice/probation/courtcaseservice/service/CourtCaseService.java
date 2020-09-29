@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,16 +30,12 @@ import static java.util.stream.Collectors.toMap;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class CourtCaseService {
 
     private final CourtRepository courtRepository;
     private final CourtCaseRepository courtCaseRepository;
-
-    public CourtCaseService(CourtRepository courtRepository, CourtCaseRepository courtCaseRepository) {
-        super();
-        this.courtRepository = courtRepository;
-        this.courtCaseRepository = courtCaseRepository;
-    }
+    private final TelemetryService telemetryService;
 
     public CourtCaseEntity getCaseByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException {
         checkCourtExists(courtCode);
@@ -65,7 +62,9 @@ public class CourtCaseService {
     }
 
     public void delete(String courtCode, String caseNo) {
-        courtCaseRepository.deleteById(getCaseByCaseNumber(courtCode, caseNo).getId());
+        CourtCaseEntity caseEntity = getCaseByCaseNumber(courtCode, caseNo);
+        telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_DELETED, caseEntity);
+        courtCaseRepository.deleteById(caseEntity.getId());
     }
 
     @Transactional
@@ -85,10 +84,11 @@ public class CourtCaseService {
             }
         });
 
-        if (log.isDebugEnabled()) {
-            casesToDelete.forEach(aCase -> log.debug("Soft delete case no {} for court {}, session time {} ",
-                aCase.getCaseNo(), aCase.getCourtCode(), aCase.getSessionStartTime()));
-        }
+        casesToDelete.forEach(aCase -> {
+            log.debug("Soft delete case no {} for court {}, session time {} ",
+                    aCase.getCaseNo(), aCase.getCourtCode(), aCase.getSessionStartTime());
+            telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_DELETED, aCase);
+        });
 
         courtCaseRepository.deleteAll(casesToDelete);
     }
@@ -113,11 +113,18 @@ public class CourtCaseService {
     private CourtCaseEntity createCase(CourtCaseEntity courtCaseEntity) {
         applyOffenceSequencing(courtCaseEntity.getOffences());
         log.info("Court case being created for case number {}", courtCaseEntity.getCaseNo());
+        telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCaseEntity);
+        if(courtCaseEntity.getCrn() != null){
+            telemetryService.trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, courtCaseEntity);
+        }
         return courtCaseRepository.save(courtCaseEntity);
     }
 
     private CourtCaseEntity updateAndSaveCase(CourtCaseEntity existingCase, CourtCaseEntity updatedCase) {
-        // We have checked and matched court code and case no. They are immutable fields. No need to update.
+        var originalCrn = existingCase.getCrn();
+        if(existingCase.getCrn() != null && updatedCase.getCrn() == null){
+            telemetryService.trackCourtCaseEvent(TelemetryEventType.DEFENDANT_UNLINKED, existingCase);
+        }
 
         existingCase.setCaseId(updatedCase.getCaseId());
         existingCase.setCourtRoom(updatedCase.getCourtRoom());
@@ -141,6 +148,10 @@ public class CourtCaseService {
         updateOffenderMatches(existingCase, updatedCase);
 
         log.info("Court case updated for case no {}", updatedCase.getCaseNo());
+        telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_UPDATED, updatedCase);
+        if(originalCrn == null && updatedCase.getCrn() != null){
+            telemetryService.trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, updatedCase);
+        }
         return courtCaseRepository.save(existingCase);
     }
 
@@ -153,6 +164,11 @@ public class CourtCaseService {
                     boolean crnMatches = match.getCrn().equals(updatedCase.getCrn());
                     match.setConfirmed(crnMatches);
                     match.setRejected(!crnMatches);
+                    if (crnMatches){
+                        telemetryService.trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, match);
+                    } else {
+                        telemetryService.trackMatchEvent(TelemetryEventType.MATCH_REJECTED, match);
+                    }
 
                     if (crnMatches && updatedCase.getPnc() != null && !updatedCase.getPnc().equals(match.getPnc())) {
                         log.warn(String.format("Unexpected PNC mismatch when updating offender match - matchId: '%s', crn: '%s', matchPnc: %s, updatePnc: %s",

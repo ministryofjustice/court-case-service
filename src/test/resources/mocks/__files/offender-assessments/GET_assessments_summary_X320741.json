@@ -1,0 +1,41 @@
+[
+  {
+    "assessmentId": 2264566,
+    "refAssessmentVersionCode": "LAYER3",
+    "refAssessmentVersionNumber": "1",
+    "refAssessmentId": 4,
+    "assessmentType": "LAYER_3",
+    "assessmentStatus": "LOCKED_INCOMPLETE",
+    "historicStatus": "PENDING",
+    "refAssessmentOasysScoringAlgorithmVersion": 3,
+    "assessorName": "Dillon Print-04",
+    "created": "2012-10-16T10:16:38",
+    "completed": "2015-06-20T23:00:09"
+  },
+  {
+    "assessmentId": 2264563,
+    "refAssessmentVersionCode": "LAYER1",
+    "refAssessmentVersionNumber": "1",
+    "refAssessmentId": 4,
+    "assessmentType": "LAYER_1",
+    "assessmentStatus": "LOCKED_INCOMPLETE",
+    "historicStatus": "PENDING",
+    "refAssessmentOasysScoringAlgorithmVersion": 3,
+    "assessorName": "Dillon Print-05",
+    "created": "2012-10-16T10:16:38",
+    "completed": "2012-06-20T23:00:09"
+  },
+  {
+    "assessmentId": 2264567,
+    "refAssessmentVersionCode": "LAYER1",
+    "refAssessmentVersionNumber": "1",
+    "refAssessmentId": 4,
+    "assessmentType": "LAYER_1",
+    "assessmentStatus": "LOCKED_INCOMPLETE",
+    "historicStatus": "PENDING",
+    "refAssessmentOasysScoringAlgorithmVersion": 3,
+    "assessorName": "Dillon Print-05",
+    "created": "2012-10-16T10:16:38",
+    "completed": "2018-06-20T23:00:09"
+  }
+]

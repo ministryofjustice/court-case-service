@@ -83,7 +83,7 @@ public class OffenderService {
             convictions,
             documentRestClient.getDocumentsByCrn(crn)
         );
-        Mono<Assessment> assessmentMono = assessmentsClient.getAssessmentByCrn(crn);
+        Mono<Assessment> assessmentMono = assessmentsClient.getLatestAssessmentByCrn(crn);
 
         var tuple3 = probationMono.blockOptional().orElseThrow(() -> new OffenderNotFoundException(crn));
         ProbationRecord probationRecord = addConvictionsToProbationRecord(tuple3.getT1(), tuple3.getT2());

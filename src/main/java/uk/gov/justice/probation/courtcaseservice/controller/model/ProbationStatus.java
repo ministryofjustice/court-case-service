@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum ProbationStatus {
     CURRENT("Current"),
-    PREVIOUSLY_KNOWN("Previously Known");
+    PREVIOUSLY_KNOWN("Previously known");
 
     private final String name;
 

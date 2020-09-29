@@ -157,7 +157,7 @@ public class OffenderMatchesControllerTest {
             .jsonPath("offenderMatchDetails[0].dateOfBirth").isEqualTo("1969-08-26")
             .jsonPath("offenderMatchDetails[0].matchIdentifiers.crn").isEqualTo("C178657")
             .jsonPath("offenderMatchDetails[0].matchIdentifiers.cro").isEqualTo("CRO1232")
-            .jsonPath("offenderMatchDetails[0].probationStatus").isEqualTo("Previously Known")
+            .jsonPath("offenderMatchDetails[0].probationStatus").isEqualTo("Previously known")
             .jsonPath("offenderMatchDetails[0].address.buildingName").isEqualTo("Dunroamin")
             .jsonPath("offenderMatchDetails[0].address.county").isEqualTo("Leicestershire")
             .jsonPath("offenderMatchDetails[0].address.postcode").isEqualTo("LE2 1TG")

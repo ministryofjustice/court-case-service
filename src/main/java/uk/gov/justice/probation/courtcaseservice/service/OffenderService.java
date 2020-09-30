@@ -100,9 +100,7 @@ public class OffenderService {
         // populate the response based on the type of error we encounter - see PIC-432 for more details.
         try {
             assessmentsMono.blockOptional().ifPresent(assessments -> {
-                Optional<Assessment> assessment = findMostRecentByStatus(assessments);
-                System.out.println("GOT ass" + assessment.isPresent() + "," + assessments.toString());
-                probationRecord.setAssessment(assessment.orElse(null));
+                probationRecord.setAssessment(findMostRecentByStatus(assessments).orElse(null));
             });
         } catch (OffenderNotFoundException e) {
             log.info("assessment data missing from probation record (CRN '{}' not found in oasys)", crn);

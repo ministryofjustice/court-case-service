@@ -1,4 +1,6 @@
 # Court Case Service
+[![CircleCI](https://circleci.com/gh/ministryofjustice/court-case-service.svg?style=svg)](https://circleci.com/gh/ministryofjustice/court-case-service)
+
 ### Service to access court cases imported from HMCTS Libra court lists
 
 

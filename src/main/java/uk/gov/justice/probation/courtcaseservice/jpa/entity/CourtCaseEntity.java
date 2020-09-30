@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @ApiModel(description = "Court Case")
 @Entity
@@ -78,6 +79,10 @@ public class CourtCaseEntity extends BaseEntity implements Serializable {
     @JsonManagedReference
     @OneToMany(mappedBy = "courtCase", fetch = FetchType.EAGER, cascade = { CascadeType.ALL }, orphanRemoval=true)
     private List<OffenceEntity> offences;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "courtCase", fetch = FetchType.EAGER, cascade = { CascadeType.ALL }, orphanRemoval=true)
+    private Set<ImmutableOffenceEntity> immutableOffences;
 
     @Column(name = "DEFENDANT_NAME")
     private String defendantName;

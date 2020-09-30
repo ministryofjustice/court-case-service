@@ -1,12 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,7 +9,15 @@ import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResp
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
+import uk.gov.justice.probation.courtcaseservice.service.MutableCourtCaseService;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -30,7 +31,7 @@ public class CourtCaseControllerTest {
     private static final LocalDate DATE = LocalDate.of(2020, 2, 24);
 
     @Mock
-    private CourtCaseService courtCaseService;
+    private MutableCourtCaseService courtCaseService;
     @Mock
     private CourtCaseResponseMapper courtCaseResponseMapper;
     @Mock

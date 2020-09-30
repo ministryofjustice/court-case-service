@@ -62,7 +62,7 @@ public class CourtCaseServiceUpdatesTest {
     private ArgumentCaptor<CourtCaseEntity> caseEntityCaptor;
 
     @InjectMocks
-    private CourtCaseService service;
+    private MutableCourtCaseService service;
 
     @BeforeAll
     static void beforeAll() throws IOException {

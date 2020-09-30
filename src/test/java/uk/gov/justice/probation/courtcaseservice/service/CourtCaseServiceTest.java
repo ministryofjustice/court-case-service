@@ -85,10 +85,13 @@ class CourtCaseServiceTest {
     private CourtCaseEntity courtCase;
 
     @InjectMocks
-    private CourtCaseService service;
+    private MutableCourtCaseService mutableCourtCaseService;
+
+    private ImmutableCourtCaseService service;
 
     @BeforeEach
     void setup() {
+        service = new ImmutableCourtCaseService(mutableCourtCaseService, courtCaseRepository, telemetryService);
         courtCase = buildCourtCase(CRN);
     }
 

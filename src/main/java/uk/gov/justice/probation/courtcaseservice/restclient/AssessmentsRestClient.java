@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import java.util.Comparator;
 import java.util.List;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +18,8 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 @NoArgsConstructor
 @Slf4j
 public class AssessmentsRestClient {
+
+
     @Value("${offender-assessments-api.assessment-crn-url-template}")
     private String assessmentsUrlTemplate;
 
@@ -26,20 +27,15 @@ public class AssessmentsRestClient {
     @Qualifier("assessmentsApiClient")
     private RestClientHelper clientHelper;
 
-    public Mono<Assessment> getLatestAssessmentByCrn(String crn) {
+    public Mono<List<Assessment>> getAssessmentsByCrn(String crn) {
         return clientHelper.get(String.format(assessmentsUrlTemplate, crn))
             .retrieve()
             .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
             .bodyToMono(AssessmentsApiAssessmentsResponse.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender assessment data for CRN '%s'", crn), e))
             .map(AssessmentMapper::assessmentsFrom)
-            .map(this::findMostRecent)
             ;
     }
 
-    private Assessment findMostRecent(List<Assessment> assessments) {
-        return assessments.stream()
-            .max(Comparator.comparing(Assessment::getCompleted))
-            .orElse(null);
-    }
+
 }

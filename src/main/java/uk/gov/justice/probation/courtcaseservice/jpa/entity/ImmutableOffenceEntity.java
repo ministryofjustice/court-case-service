@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.With;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.CascadeType;
@@ -28,6 +29,7 @@ import java.io.Serializable;
 @SuperBuilder
 @NoArgsConstructor
 @Getter
+@With
 @ToString(exclude = "courtCase")
 public class ImmutableOffenceEntity extends BaseImmutableEntity implements Serializable  {
 

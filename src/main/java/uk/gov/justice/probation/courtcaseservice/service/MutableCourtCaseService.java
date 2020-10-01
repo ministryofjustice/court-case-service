@@ -2,7 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
@@ -28,7 +27,6 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
 
-@Service
 @Slf4j
 @AllArgsConstructor
 public class MutableCourtCaseService implements CourtCaseService {
@@ -160,7 +158,7 @@ public class MutableCourtCaseService implements CourtCaseService {
         return courtCaseRepository.save(existingCase);
     }
 
-    private void updateOffenderMatches(CourtCaseEntity existingCase, CourtCaseEntity updatedCase) {
+    protected void updateOffenderMatches(CourtCaseEntity existingCase, CourtCaseEntity updatedCase) {
         if (existingCase.getGroupedOffenderMatches() == null) return;
 
         existingCase.getGroupedOffenderMatches()
@@ -186,7 +184,7 @@ public class MutableCourtCaseService implements CourtCaseService {
                 });
     }
 
-    private void updateOffences(CourtCaseEntity existingCase, CourtCaseEntity incomingCase) {
+    protected void updateOffences(CourtCaseEntity existingCase, CourtCaseEntity incomingCase) {
 
         if (incomingCase.getOffences().isEmpty()) {
             existingCase.clearOffences();
@@ -228,6 +226,4 @@ public class MutableCourtCaseService implements CourtCaseService {
         IntStream.range(0, sortedOffences.size()).forEach(index -> sortedOffences.get(index).setSequenceNumber(index + 1));
         return sortedOffences;
     }
-
-
 }

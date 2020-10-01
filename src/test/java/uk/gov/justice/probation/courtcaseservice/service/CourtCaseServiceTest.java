@@ -91,7 +91,7 @@ class CourtCaseServiceTest {
 
     @BeforeEach
     void setup() {
-        service = new ImmutableCourtCaseService(mutableCourtCaseService, courtCaseRepository, telemetryService);
+        service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService);
         courtCase = buildCourtCase(CRN);
     }
 

@@ -18,14 +18,30 @@ class AssessmentMapperTest {
     void givenMultipleAssessments_thenReturn() {
         LocalDateTime dateTime1 = LocalDateTime.now();
         LocalDateTime dateTime2 = LocalDateTime.now().minusHours(1);
-        AssessmentsApiAssessmentResponse assessment1 = new AssessmentsApiAssessmentResponse("type1", dateTime1);
-        AssessmentsApiAssessmentResponse assessment2 = new AssessmentsApiAssessmentResponse("type2", dateTime2);
+        AssessmentsApiAssessmentResponse assessment1 = AssessmentsApiAssessmentResponse.builder()
+            .assessmentStatus("COMPLETE")
+            .assessmentType("type1")
+            .completed(dateTime1)
+            .build();
+        AssessmentsApiAssessmentResponse assessment2 = AssessmentsApiAssessmentResponse.builder()
+            .assessmentStatus("LOCKED_INCOMPLETE")
+            .assessmentType("type2")
+            .completed(dateTime2)
+            .build();
 
         List<Assessment> assessments = AssessmentMapper.assessmentsFrom(new AssessmentsApiAssessmentsResponse(List.of(assessment2, assessment1)));
 
         assertThat(assessments).hasSize(2);
-        assertThat(assessments).contains(Assessment.builder().completed(dateTime1).type("type1").build(),
-                                        Assessment.builder().completed(dateTime2).type("type2").build());
+        assertThat(assessments).contains(Assessment.builder()
+                                                .completed(dateTime1)
+                                                .type("type1")
+                                                .status("COMPLETE")
+                                                .build(),
+                                        Assessment.builder()
+                                                .completed(dateTime2)
+                                                .type("type2")
+                                                .status("LOCKED_INCOMPLETE")
+                                                .build());
     }
 
     @DisplayName("Null input list gives empty list")

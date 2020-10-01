@@ -22,6 +22,7 @@ public class AssessmentMapper {
         return Assessment.builder()
             .type(assessmentResponse.getAssessmentType())
             .completed(assessmentResponse.getCompleted())
+            .status(assessmentResponse.getAssessmentStatus())
             .build();
     }
 }

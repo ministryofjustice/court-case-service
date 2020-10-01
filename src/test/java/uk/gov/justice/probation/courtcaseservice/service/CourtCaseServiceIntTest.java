@@ -1,6 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
+import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
@@ -32,6 +34,8 @@ public class CourtCaseServiceIntTest extends BaseIntTest {
     private CourtCaseService courtCaseService;
 
     @Test
+    @Ignore
+    @Disabled("To be deleted")
     public void whenUpdateCase_ThenUpdateAuditField() {
 
         LocalDateTime start = LocalDateTime.now();
@@ -48,6 +52,8 @@ public class CourtCaseServiceIntTest extends BaseIntTest {
     }
 
     @Test
+    @Ignore
+    @Disabled("To be deleted")
     public void whenDeleteExistingCase_ThenSoftDeleteAppliedIncludingChildOffences() {
 
         courtCaseService.delete(COURT_CODE, PRE_EXISTING_CASE_NO);

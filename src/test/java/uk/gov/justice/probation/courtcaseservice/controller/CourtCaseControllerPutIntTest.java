@@ -3,7 +3,9 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +18,6 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.BaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 
 import java.nio.file.Files;
@@ -281,6 +282,8 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     }
 
     @Test
+    @Ignore
+    @Disabled("To be deleted")
     public void whenPurgeCases_ThenReturn204NoContent() {
 
         LocalDate date1Jan = LocalDate.of(2020, JANUARY, 1);
@@ -314,7 +317,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
             .map(CourtCaseEntity::getCaseNo)
             .collect(Collectors.toList());
         assertThat(date2Deleted).containsAll(Arrays.asList("1000002", "1000005", "1000005", "1000006"));
-        List<OffenceEntity> deletedCaseWithOffences = courtCases2.stream()
+        var deletedCaseWithOffences = courtCases2.stream()
             .filter(e -> e.isDeleted() && !e.getOffences().isEmpty())
             .findFirst()
             .map(CourtCaseEntity::getOffences)

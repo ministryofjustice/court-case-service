@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -31,6 +32,7 @@ import java.io.Serializable;
 @Getter
 @With
 @ToString(exclude = "courtCase")
+@EqualsAndHashCode(callSuper = true)
 public class ImmutableOffenceEntity extends BaseImmutableEntity implements Serializable  {
 
     @Id

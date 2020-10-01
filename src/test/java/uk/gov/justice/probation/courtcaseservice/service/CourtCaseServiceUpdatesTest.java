@@ -4,11 +4,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -17,24 +16,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.ImmutableOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.probation.courtcaseservice.service.CourtCaseServiceTest.buildOffenceEntity;
 
 @ExtendWith(MockitoExtension.class)
+@Disabled("Immutability means all updates are now creates")
 public class CourtCaseServiceUpdatesTest {
 
     private static ObjectMapper mapper;
@@ -62,7 +58,7 @@ public class CourtCaseServiceUpdatesTest {
     private ArgumentCaptor<CourtCaseEntity> caseEntityCaptor;
 
     @InjectMocks
-    private MutableCourtCaseService service;
+    private ImmutableCourtCaseService service;
 
     @BeforeAll
     static void beforeAll() throws IOException {
@@ -82,7 +78,7 @@ public class CourtCaseServiceUpdatesTest {
         mockForCaseForUpdate(null);
 
         CourtCaseEntity courtCase = CourtCaseEntity.builder().caseNo(CASE_NO).courtCode(COURT_CODE)
-            .offences(List.of(OffenceEntity.builder().act("ACT-1").build(), OffenceEntity.builder().act("ACT-2").build()))
+            .offences(List.of(ImmutableOffenceEntity.builder().act("ACT-1").build(), ImmutableOffenceEntity.builder().act("ACT-2").build()))
             .build();
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, courtCase);
@@ -100,7 +96,7 @@ public class CourtCaseServiceUpdatesTest {
         mockForCaseForUpdate(null);
 
         CourtCaseEntity courtCase = CourtCaseEntity.builder().caseNo(CASE_NO).courtCode(COURT_CODE)
-            .offences(List.of(OffenceEntity.builder().sequenceNumber(2).build(), OffenceEntity.builder().sequenceNumber(2).build()))
+            .offences(List.of(ImmutableOffenceEntity.builder().sequenceNumber(2).build(), ImmutableOffenceEntity.builder().sequenceNumber(2).build()))
             .build();
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, courtCase);
@@ -126,7 +122,7 @@ public class CourtCaseServiceUpdatesTest {
         verify(courtCaseRepository).save(caseEntityCaptor.capture());
         CourtCaseEntity capturedCase = caseEntityCaptor.getAllValues().get(0);
 
-        assertThat(incoming).isEqualToIgnoringGivenFields(capturedCase, "offences");
+        assertThat(incoming).isEqualToIgnoringGivenFields(capturedCase, "offences", "lastUpdated", "updatedBy");
         // From 0 offences to 2
         assertThat(capturedCase.getOffences()).hasSize(2);
         capturedCase.getOffences().forEach(offence ->
@@ -148,7 +144,7 @@ public class CourtCaseServiceUpdatesTest {
         verify(courtCaseRepository).save(caseEntityCaptor.capture());
         CourtCaseEntity capturedCase = caseEntityCaptor.getAllValues().get(0);
 
-        assertThat(incoming).isEqualToIgnoringGivenFields(capturedCase, "offences");
+        assertThat(incoming).isEqualToIgnoringGivenFields(capturedCase, "offences", "lastUpdated", "updatedBy");
         // From 2 offences to 3
         assertThat(capturedCase.getOffences()).hasSize(3);
         capturedCase.getOffences().forEach(offence ->
@@ -170,7 +166,7 @@ public class CourtCaseServiceUpdatesTest {
         verify(courtCaseRepository).save(caseEntityCaptor.capture());
         CourtCaseEntity capturedCase = caseEntityCaptor.getAllValues().get(0);
 
-        assertThat(incoming).isEqualToIgnoringGivenFields(capturedCase, "offences");
+        assertThat(incoming).isEqualToIgnoringGivenFields(capturedCase, "offences", "lastUpdated", "updatedBy");
         assertThat(capturedCase.getOffences()).hasSize(2);
     }
 
@@ -188,37 +184,37 @@ public class CourtCaseServiceUpdatesTest {
         verify(courtCaseRepository).save(caseEntityCaptor.capture());
         CourtCaseEntity capturedCase = caseEntityCaptor.getAllValues().get(0);
 
-        assertThat(incoming).isEqualToIgnoringGivenFields(capturedCase, "offences");
+        assertThat(incoming).isEqualToIgnoringGivenFields(capturedCase, "offences", "lastUpdated", "updatedBy");
         // From 0 offences to 2
         assertThat(capturedCase.getOffences()).hasSize(0);
     }
 
-    private OffenceEntity getOffenceBySeqNum(List<OffenceEntity> offences, Integer sequenceNumber) {
+    private ImmutableOffenceEntity getOffenceBySeqNum(List<ImmutableOffenceEntity> offences, Integer sequenceNumber) {
         return offences.stream().filter(off -> sequenceNumber.equals(off.getSequenceNumber())).findFirst().orElseThrow();
     }
 
-    @DisplayName("Tests sequencing of offences with nulls and unsorted input")
-    @ParameterizedTest(name = "Input \"{0}\". Spaces are null.")
-    @ValueSource(strings = {"4, 2, 2, 1", "1, 2, 3", "100,,3,,100, 2", ""})
-    void processSequenceNumbersWithNulls(String sequenceNumberArg) {
-        String[] arrayParam = sequenceNumberArg.split("\\s*,\\s*");
-        List<OffenceEntity> offences = Arrays.stream(arrayParam)
-            .map((String sequenceNumber) -> buildOffenceEntity(sequenceNumber, null))
-            .collect(Collectors.toList());
-
-        List<OffenceEntity> offenceEntities = service.applyOffenceSequencing(offences);
-
-        assertThat(offenceEntities).hasSize(arrayParam.length);
-
-        List<Integer> expected = IntStream.range(1, arrayParam.length+1).boxed().collect(Collectors.toList());
-        List<Integer> actual = offenceEntities.stream()
-            .map(OffenceEntity::getSequenceNumber)
-            .collect(Collectors.toList());
-        assertThat(expected).isEqualTo(actual);
-    }
+//    @DisplayName("Tests sequencing of offences with nulls and unsorted input")
+//    @ParameterizedTest(name = "Input \"{0}\". Spaces are null.")
+//    @ValueSource(strings = {"4, 2, 2, 1", "1, 2, 3", "100,,3,,100, 2", ""})
+//    void processSequenceNumbersWithNulls(String sequenceNumberArg) {
+//        String[] arrayParam = sequenceNumberArg.split("\\s*,\\s*");
+//        var offences = Arrays.stream(arrayParam)
+//            .map((String sequenceNumber) -> buildOffenceEntity(sequenceNumber, null))
+//            .collect(Collectors.toList());
+//
+//        List<ImmutableOffenceEntity> offenceEntities = service.applyOffenceSequencing(offences);
+//
+//        assertThat(offenceEntities).hasSize(arrayParam.length);
+//
+//        List<Integer> expected = IntStream.range(1, arrayParam.length+1).boxed().collect(Collectors.toList());
+//        List<Integer> actual = offenceEntities.stream()
+//            .map(ImmutableOffenceEntity::getSequenceNumber)
+//            .collect(Collectors.toList());
+//        assertThat(expected).isEqualTo(actual);
+//    }
 
     private void mockForCaseForUpdate(CourtCaseEntity courtCaseEntity) {
-        when(courtCaseRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.ofNullable(courtCaseEntity));
+        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE, CASE_NO)).thenReturn(Optional.ofNullable(courtCaseEntity));
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
     }
 }

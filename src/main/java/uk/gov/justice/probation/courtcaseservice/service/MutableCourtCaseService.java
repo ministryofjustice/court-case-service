@@ -25,8 +25,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toMap;
-
 @Slf4j
 @AllArgsConstructor
 public class MutableCourtCaseService implements CourtCaseService {
@@ -39,7 +37,7 @@ public class MutableCourtCaseService implements CourtCaseService {
     public CourtCaseEntity getCaseByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException {
         checkCourtExists(courtCode);
         log.info("Court case requested for court {} for case {}", courtCode, caseNo);
-        return courtCaseRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
+        return courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(courtCode, caseNo)
             .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found for court %s", caseNo, courtCode)));
     }
 
@@ -48,7 +46,7 @@ public class MutableCourtCaseService implements CourtCaseService {
         throws EntityNotFoundException, InputMismatchException {
         validateEntity(courtCode, caseNo, updatedCase);
 
-        return courtCaseRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
+        return courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(courtCode, caseNo)
                 .map(existingCase -> updateAndSaveCase(existingCase, updatedCase))
                 .orElseGet(() -> createCase(updatedCase));
     }
@@ -114,7 +112,7 @@ public class MutableCourtCaseService implements CourtCaseService {
     }
 
     private CourtCaseEntity createCase(CourtCaseEntity courtCaseEntity) {
-        applyOffenceSequencing(courtCaseEntity.getOffences());
+//        applyOffenceSequencing(courtCaseEntity.getOffences());
         log.info("Court case being created for case number {}", courtCaseEntity.getCaseNo());
         telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCaseEntity);
         if(courtCaseEntity.getCrn() != null){
@@ -147,7 +145,7 @@ public class MutableCourtCaseService implements CourtCaseService {
         existingCase.setNationality1(updatedCase.getNationality1());
         existingCase.setNationality2(updatedCase.getNationality2());
 
-        updateOffences(existingCase, updatedCase);
+//        updateOffences(existingCase, updatedCase);
         updateOffenderMatches(existingCase, updatedCase);
 
         log.info("Court case updated for case no {}", updatedCase.getCaseNo());
@@ -184,39 +182,39 @@ public class MutableCourtCaseService implements CourtCaseService {
                 });
     }
 
-    protected void updateOffences(CourtCaseEntity existingCase, CourtCaseEntity incomingCase) {
-
-        if (incomingCase.getOffences().isEmpty()) {
-            existingCase.clearOffences();
-            return;
-        }
-
-        Map<Integer, OffenceEntity> offencesToSave = applyOffenceSequencing(incomingCase.getOffences()).stream()
-            .collect(toMap(OffenceEntity::getSequenceNumber, offence -> offence));
-        Map<Integer, OffenceEntity> existingOffences = applyOffenceSequencing(existingCase.getOffences()).stream()
-            .collect(toMap(OffenceEntity::getSequenceNumber, offence -> offence));
-
-        // Update all existing offences where there is a match to sequence number
-        offencesToSave.forEach((key, value) -> {
-            log.debug("Processing offences : " + key + ", " + value.getOffenceTitle());
-            OffenceEntity offenceEntity = existingOffences.getOrDefault(key,
-                OffenceEntity.builder()
-                    .sequenceNumber(value.getSequenceNumber()).build());
-            offenceEntity.setOffenceSummary(value.getOffenceSummary());
-            offenceEntity.setOffenceTitle(value.getOffenceTitle());
-            offenceEntity.setAct(value.getAct());
-            if (offenceEntity.getCourtCase() == null) {
-                existingCase.addOffence(offenceEntity);
-            }
-        });
-
-        if (offencesToSave.size() < existingOffences.size()) {
-            List<OffenceEntity> deletions = existingOffences.values().stream()
-                .filter(value -> !offencesToSave.containsKey(value.getSequenceNumber()))
-                .collect(Collectors.toList());
-            existingCase.removeOffences(deletions);
-        }
-    }
+//    protected void updateOffences(CourtCaseEntity existingCase, CourtCaseEntity incomingCase) {
+//
+//        if (incomingCase.getOffences().isEmpty()) {
+//            existingCase.clearOffences();
+//            return;
+//        }
+//
+//        Map<Integer, OffenceEntity> offencesToSave = applyOffenceSequencing(incomingCase.getOffences()).stream()
+//            .collect(toMap(OffenceEntity::getSequenceNumber, offence -> offence));
+//        Map<Integer, OffenceEntity> existingOffences = applyOffenceSequencing(existingCase.getOffences()).stream()
+//            .collect(toMap(OffenceEntity::getSequenceNumber, offence -> offence));
+//
+//        // Update all existing offences where there is a match to sequence number
+//        offencesToSave.forEach((key, value) -> {
+//            log.debug("Processing offences : " + key + ", " + value.getOffenceTitle());
+//            OffenceEntity offenceEntity = existingOffences.getOrDefault(key,
+//                OffenceEntity.builder()
+//                    .sequenceNumber(value.getSequenceNumber()).build());
+//            offenceEntity.setOffenceSummary(value.getOffenceSummary());
+//            offenceEntity.setOffenceTitle(value.getOffenceTitle());
+//            offenceEntity.setAct(value.getAct());
+//            if (offenceEntity.getCourtCase() == null) {
+//                existingCase.addOffence(offenceEntity);
+//            }
+//        });
+//
+//        if (offencesToSave.size() < existingOffences.size()) {
+//            List<OffenceEntity> deletions = existingOffences.values().stream()
+//                .filter(value -> !offencesToSave.containsKey(value.getSequenceNumber()))
+//                .collect(Collectors.toList());
+//            existingCase.removeOffences(deletions);
+//        }
+//    }
 
     List<OffenceEntity> applyOffenceSequencing(Collection<OffenceEntity> offences) {
         final List<OffenceEntity> sortedOffences = offences.stream()

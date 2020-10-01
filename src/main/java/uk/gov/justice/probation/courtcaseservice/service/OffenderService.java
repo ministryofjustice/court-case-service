@@ -1,7 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -38,6 +40,10 @@ public class OffenderService {
     private final DocumentRestClient documentRestClient;
 
     private final Predicate<OffenderDocumentDetail> documentTypeFilter;
+
+    @Setter
+    @Value("#{'${offender-service.assessment.included-statuses}'.split(',')}")
+    private List<String> assessmentStatuses;
 
     @Setter
     @Value("#{'${offender-service.pss-rqmnt.descriptions-to-keep-subtype}'.split(',')}")
@@ -83,7 +89,7 @@ public class OffenderService {
             convictions,
             documentRestClient.getDocumentsByCrn(crn)
         );
-        Mono<Assessment> assessmentMono = assessmentsClient.getLatestAssessmentByCrn(crn);
+        Mono<List<Assessment>> assessmentsMono = assessmentsClient.getAssessmentsByCrn(crn);
 
         var tuple3 = probationMono.blockOptional().orElseThrow(() -> new OffenderNotFoundException(crn));
         ProbationRecord probationRecord = addConvictionsToProbationRecord(tuple3.getT1(), tuple3.getT2());
@@ -93,7 +99,9 @@ public class OffenderService {
         // Currently the error is ignored in both cases. However there is an ongoing discussion about how we should
         // populate the response based on the type of error we encounter - see PIC-432 for more details.
         try {
-            assessmentMono.blockOptional().ifPresent(assessment -> probationRecord.setAssessment(assessment));
+            assessmentsMono.blockOptional().ifPresent(assessments -> {
+                probationRecord.setAssessment(findMostRecentByStatus(assessments).orElse(null));
+            });
         } catch (OffenderNotFoundException e) {
             log.info("assessment data missing from probation record (CRN '{}' not found in oasys)", crn);
         } catch (Exception e) {
@@ -162,5 +170,11 @@ public class OffenderService {
 
     public Mono<OffenderDetail> getOffenderDetail(String crn) {
         return defaultClient.getOffenderDetailByCrn(crn);
+    }
+
+    private Optional<Assessment> findMostRecentByStatus(List<Assessment> assessments) {
+        return assessments.stream()
+            .filter(assessment -> assessmentStatuses.contains(assessment.getStatus()))
+            .max(Comparator.comparing(Assessment::getCompleted));
     }
 }

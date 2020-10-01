@@ -10,20 +10,7 @@
     "refAssessmentOasysScoringAlgorithmVersion": 3,
     "assessorName": "Dillon Print-04",
     "created": "2012-10-16T10:16:38",
-    "completed": "2015-06-20T23:00:09"
-  },
-  {
-    "assessmentId": 2264563,
-    "refAssessmentVersionCode": "LAYER1",
-    "refAssessmentVersionNumber": "1",
-    "refAssessmentId": 4,
-    "assessmentType": "LAYER_1",
-    "assessmentStatus": "LOCKED_INCOMPLETE",
-    "historicStatus": "PENDING",
-    "refAssessmentOasysScoringAlgorithmVersion": 3,
-    "assessorName": "Dillon Print-05",
-    "created": "2012-10-16T10:16:38",
-    "completed": "2012-06-20T23:00:09"
+    "completed": "2020-06-20T23:00:09"
   },
   {
     "assessmentId": 2264567,
@@ -36,6 +23,45 @@
     "refAssessmentOasysScoringAlgorithmVersion": 3,
     "assessorName": "Dillon Print-05",
     "created": "2012-10-16T10:16:38",
-    "completed": "2018-06-20T23:00:09"
+    "completed": "2020-06-20T23:00:09"
+  },
+  {
+    "assessmentId": 2264568,
+    "refAssessmentVersionCode": "LAYER1",
+    "refAssessmentVersionNumber": "1",
+    "refAssessmentId": 4,
+    "assessmentType": "LAYER_1",
+    "assessmentStatus": "COMPLETE",
+    "historicStatus": "PENDING",
+    "refAssessmentOasysScoringAlgorithmVersion": 3,
+    "assessorName": "Dillon Print-05",
+    "created": "2012-10-16T10:16:38",
+    "completed": "2018-06-20T23:11:09"
+  },
+  {
+    "assessmentId": 2264569,
+    "refAssessmentVersionCode": "LAYER1",
+    "refAssessmentVersionNumber": "1",
+    "refAssessmentId": 4,
+    "assessmentType": "LAYER_1",
+    "assessmentStatus": "COMPLETE",
+    "historicStatus": "PENDING",
+    "refAssessmentOasysScoringAlgorithmVersion": 3,
+    "assessorName": "Dillon Print-05",
+    "created": "2012-10-16T10:16:38",
+    "completed": "2016-06-21T23:00:09"
+  },
+  {
+    "assessmentId": 2264570,
+    "refAssessmentVersionCode": "LAYER1",
+    "refAssessmentVersionNumber": "1",
+    "refAssessmentId": 4,
+    "assessmentType": "LAYER_1",
+    "assessmentStatus": "OPEN",
+    "historicStatus": "PENDING",
+    "refAssessmentOasysScoringAlgorithmVersion": 3,
+    "assessorName": "Dillon Print-05",
+    "created": "2012-10-16T10:16:38",
+    "completed": "2018-06-21T23:00:09"
   }
 ]

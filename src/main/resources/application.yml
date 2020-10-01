@@ -116,3 +116,7 @@ offender-service:
   pss-rqmnt:
     # Comma-separated, all lower case
     descriptions-to-keep-subtype: "specified activity"
+  assessment:
+    # Comma-separated, all upper case
+    included-statuses: "COMPLETE"
+

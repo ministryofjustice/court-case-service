@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import java.util.List;
 import java.util.Optional;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,6 +29,7 @@ import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
+import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -55,7 +57,6 @@ public class OffenderController {
     @ApiOperation(value = "Gets the offender probation record by CRN")
     @ApiResponses(
         value = {
-            @ApiResponse(code = 200, message = "OK", response = ProbationRecord.class),
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
@@ -104,7 +105,6 @@ public class OffenderController {
     @ApiOperation(value = "Return the Sentence detail with attendances, Unpaid Work and current order details for a CRN, conviction id and sentence id  where enforcement is flagged")
     @ApiResponses(
         value = {
-            @ApiResponse(code = 200, message = "OK", response = SentenceResponse.class),
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
@@ -121,7 +121,6 @@ public class OffenderController {
     @ApiOperation(value = "Gets Breach data by CRN, conviction ID and breach id.")
     @ApiResponses(
             value = {
-                    @ApiResponse(code = 200, message = "OK", response = BreachResponse.class),
                     @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
                     @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
                     @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
@@ -137,7 +136,6 @@ public class OffenderController {
     @ApiOperation(value = "Gets a document by ID for a CRN.")
     @ApiResponses(
         value = {
-            @ApiResponse(code = 200, message = "OK", response = HttpEntity.class),
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
@@ -151,5 +149,20 @@ public class OffenderController {
 
         return Optional.ofNullable(documentService.getDocument(crn, documentId))
             .orElse(new ResponseEntity<>(NOT_FOUND));
+    }
+
+    @ApiOperation(value = "Gets the offender registrations by CRN")
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Not Found. For example if the CRN can't be matched.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+        })
+    @GetMapping(path="offender/{crn}/registrations", produces = APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    Mono<List<Registration>> getOffenderRegistrations(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @PathVariable String crn) {
+        return offenderService.getOffenderRegistrations(crn);
     }
 }

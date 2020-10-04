@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +21,6 @@ import uk.gov.justice.probation.courtcaseservice.restclient.exception.CustodialS
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 
-import java.util.List;
-
 @Component
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,9 +39,6 @@ public class ConvictionRestClient {
     private String custodialStatusUrlTemplate;
 
     @Autowired
-    private AttendanceMapper attendanceMapper;
-
-    @Autowired
     private OffenderMapper offenderMapper;
 
     @Autowired
@@ -57,7 +53,7 @@ public class ConvictionRestClient {
             .bodyToMono(CommunityApiAttendances.class)
             // TODO: doOnError will swallow the exception and fail later - use onErrorMap
             .doOnError(e -> log.error(String.format(ERROR_MSG_FORMAT, "sentence attendance", crn, convictionId), e))
-            .map(attendances -> attendanceMapper.attendancesFrom(attendances, crn, convictionId));
+            .map(attendances -> AttendanceMapper.attendancesFrom(attendances));
     }
 
 

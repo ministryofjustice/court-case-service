@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
+import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -152,6 +154,18 @@ class OffenderControllerTest {
 
         assertThat(offenderDetailResponse).isSameAs(offenderDetail);
         verify(offenderService).getOffenderDetail(CRN);
+        verifyNoMoreInteractions(offenderService);
+    }
+
+    @DisplayName("Ensures that the controller calls the service and returns the same registrations")
+    @Test
+    public void whenGetOffenderRegistrations_thenReturnIt() {
+        Registration registration = Registration.builder().build();
+        when(offenderService.getOffenderRegistrations(CRN)).thenReturn(Mono.just(List.of(registration)));
+
+        List<Registration> registrations = controller.getOffenderRegistrations(CRN).block();
+
+        assertThat(registrations).containsExactly(registration);
         verifyNoMoreInteractions(offenderService);
     }
 }

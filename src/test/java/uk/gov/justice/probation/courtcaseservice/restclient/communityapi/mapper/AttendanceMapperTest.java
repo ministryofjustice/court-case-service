@@ -1,11 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
@@ -14,20 +11,12 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiAttendance.CommunityApiContactTypeDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiAttendances;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 class AttendanceMapperTest {
 
-
-    private static final Long SOME_CONVICTION_ID = 1234L;
-    private static final String CRN = "X23145";
     private static final Long SOME_CONTACT_ID_1 = 875L;
     private static final Long SOME_CONTACT_ID_2 = 1231232L;
-
-    private AttendanceMapper mapper;
-
-    @BeforeEach
-    void beforeEach() {
-        mapper = new AttendanceMapper();
-    }
 
 
     @DisplayName("Maps Community API with null list to court case service object instance")
@@ -37,7 +26,7 @@ class AttendanceMapperTest {
         final CommunityApiAttendances apiAttendances = CommunityApiAttendances.builder().build();
 
         // Act
-        final List<AttendanceResponse> response = mapper.attendancesFrom(apiAttendances, CRN, SOME_CONVICTION_ID);
+        final List<AttendanceResponse> response = AttendanceMapper.attendancesFrom(apiAttendances);
 
         // Assert
         assertThat(response).isEmpty();
@@ -60,7 +49,7 @@ class AttendanceMapperTest {
             .build();
 
         // Act
-        final List<AttendanceResponse> response = mapper.attendancesFrom(apiAttendances, CRN, SOME_CONVICTION_ID);
+        final List<AttendanceResponse> response = AttendanceMapper.attendancesFrom(apiAttendances);
 
         // Assert
         assertThat(response).doesNotHaveDuplicates();

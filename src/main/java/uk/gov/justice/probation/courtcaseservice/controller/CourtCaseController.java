@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
@@ -70,8 +71,8 @@ public class CourtCaseController {
     public @ResponseBody
     CourtCaseResponse updateCourtCaseNo(@PathVariable(value = "courtCode") String courtCode,
                                         @PathVariable(value = "caseNo") String caseNo ,
-                                        @Valid @RequestBody CourtCaseEntity courtCaseDetails) {
-        return courtCaseResponseMapper.mapFrom(courtCaseService.createOrUpdateCase(courtCode, caseNo, courtCaseDetails));
+                                        @Valid @RequestBody CourtCaseRequest courtCaseRequest) {
+        return courtCaseResponseMapper.mapFrom(courtCaseService.createOrUpdateCase(courtCode, caseNo, courtCaseRequest.asEntity()));
     }
 
     @ApiOperation(value = "Gets case data for a court on a date. ",

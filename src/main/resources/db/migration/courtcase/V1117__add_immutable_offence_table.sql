@@ -10,7 +10,7 @@ create table immutable_offence
     act             varchar(255),
     offence_summary varchar(255),
     offence_title   varchar(255),
-    sequence_number int4, --      not null, TODO: Fix. This constraint is valid, not sure how it's being broken
+    sequence_number int4      not null,
     court_case_id   int8,
     primary key (id)
 );

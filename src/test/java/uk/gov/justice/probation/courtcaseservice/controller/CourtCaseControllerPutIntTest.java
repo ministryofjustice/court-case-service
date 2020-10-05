@@ -66,7 +66,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     private static final String NATIONALITY_1 = "British";
     private static final String NATIONALITY_2 = "Polish";
     private static final String COURT_CODE = "SHF";
-    private static final AddressPropertiesEntity ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "ad21 5dr", "Bangor", null, null);
+    private static final AddressPropertiesEntity ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "Bangor", null, null, "ad21 5dr");
     private static final String PROBATION_STATUS = "Previously known";
     private static final String NOT_FOUND_COURT_CODE = "LPL";
     private static final String DEFENDANT_NAME = "JTEST";
@@ -169,10 +169,10 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
             .body("defendantName", equalTo(DEFENDANT_NAME))
             .body("defendantAddress.line1", equalTo(ADDRESS.getLine1()))
             .body("defendantAddress.line2", equalTo(ADDRESS.getLine2()))
-            .body("defendantAddress.postcode", equalTo(ADDRESS.getPostcode()))
             .body("defendantAddress.line3", equalTo(ADDRESS.getLine3()))
             .body("defendantAddress.line4", equalTo(null))
             .body("defendantAddress.line5", equalTo(null))
+            .body("defendantAddress.postcode", equalTo(ADDRESS.getPostcode()))
             .body("offences", hasSize(2))
             .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
             .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))

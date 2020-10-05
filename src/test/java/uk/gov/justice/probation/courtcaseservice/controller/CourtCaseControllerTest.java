@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.service.MutableCourtCaseService;
@@ -36,10 +37,11 @@ public class CourtCaseControllerTest {
     private CourtCaseResponseMapper courtCaseResponseMapper;
     @Mock
     private CourtCaseResponse courtCaseResponse;
+    @Mock
+    private CourtCaseRequest courtCaseUpdate;
     @InjectMocks
     private CourtCaseController courtCaseController;
     private final CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().caseNo(CASE_NO).courtCode(COURT_CODE).build();
-    private final CourtCaseEntity courtCaseUpdate = CourtCaseEntity.builder().caseNo(CASE_NO).courtCode(COURT_CODE).build();
 
     @Test
     public void getCourtCase_shouldReturnCourtCaseResponse() {
@@ -52,7 +54,8 @@ public class CourtCaseControllerTest {
     @Test
     public void updateCaseByCourtAndCaseNo_shouldReturnCourtCaseResponse() {
         when(courtCaseResponseMapper.mapFrom(courtCaseEntity)).thenReturn(courtCaseResponse);
-        when(courtCaseService.createOrUpdateCase(COURT_CODE, CASE_NO, courtCaseUpdate)).thenReturn(courtCaseEntity);
+        when(courtCaseUpdate.asEntity()).thenReturn(courtCaseEntity);
+        when(courtCaseService.createOrUpdateCase(COURT_CODE, CASE_NO, courtCaseEntity)).thenReturn(courtCaseEntity);
         CourtCaseResponse courtCase = courtCaseController.updateCourtCaseNo(COURT_CODE, CASE_NO, courtCaseUpdate);
         assertThat(courtCase).isSameAs(courtCaseResponse);
     }

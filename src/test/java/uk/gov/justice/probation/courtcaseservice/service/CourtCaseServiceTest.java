@@ -23,22 +23,15 @@ import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFou
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.Month;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -159,27 +152,6 @@ class CourtCaseServiceTest {
     }
 
     @Test
-    public void whenDeleteCase_thenLogDeletedEvent() {
-        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE,CASE_NO)).thenReturn(Optional.of(courtCase));
-
-        service.delete(COURT_CODE, CASE_NO);
-
-        verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.COURT_CASE_DELETED, courtCase);
-    }
-
-    @Test
-    public void whenDeleteAbsentCases_thenLogDeletedEvent() {
-        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        when(courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(any(), any(), any())).thenReturn(singletonList(courtCase));
-
-        final Map<LocalDate, List<String>> existing = Map.of(LocalDate.of(2020, Month.JANUARY, 2), Collections.emptyList());
-        service.deleteAbsentCases(COURT_CODE, existing);
-
-        verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.COURT_CASE_DELETED, courtCase);
-    }
-
-    @Test
     public void whenUpdateMatches_thenLogRejectedAndConfirmedEvents() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
         var caseToUpdate = buildCourtCase(CRN);
@@ -278,49 +250,6 @@ class CourtCaseServiceTest {
         assertThatExceptionOfType(ConflictingInputException.class).isThrownBy( () ->
             service.createOrUpdateCase(COURT_CODE, misMatchCaseNo, courtCase)
         ).withMessage("Case No " + misMatchCaseNo + " and Court Code " + COURT_CODE + " do not match with values from body " + CASE_NO + " and " + COURT_CODE);
-    }
-
-    @Test
-    void whenDeleteMissingCases_ThenCallRepo() {
-
-        LocalDateTime start = LocalDateTime.of(2020, Month.JANUARY, 1, 0, 0);
-        LocalDateTime end = LocalDateTime.of(2020, Month.JANUARY, 2, 0, 0);
-        List<String> caseNos = Arrays.asList("100", "101");
-        final Map<LocalDate, List<String>> existingCases = Map.of(start.toLocalDate(), Arrays.asList("100", "101"));
-        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        CourtCaseEntity caseToDelete = mock(CourtCaseEntity.class);
-        when(courtCaseRepository.findCourtCasesNotIn(COURT_CODE, start, end, caseNos)).thenReturn(singletonList(caseToDelete));
-
-        service.deleteAbsentCases(COURT_CODE, existingCases);
-
-        verify(courtCaseRepository).deleteAll(Set.of(caseToDelete));
-    }
-
-    @Test
-    void whenDeleteMissingCasesForWholeDay_ThenCallRepo() {
-
-        LocalDateTime start = LocalDateTime.of(2020, Month.JANUARY, 1, 0, 0);
-        LocalDateTime end = LocalDateTime.of(2020, Month.JANUARY, 2, 0, 0);
-        final Map<LocalDate, List<String>> existingCases = Map.of(start.toLocalDate(), Collections.emptyList());
-        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        CourtCaseEntity caseToDelete = mock(CourtCaseEntity.class);
-        when(courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(COURT_CODE, start, end)).thenReturn(singletonList(caseToDelete));
-
-        service.deleteAbsentCases(COURT_CODE, existingCases);
-
-        verify(courtCaseRepository).deleteAll(Set.of(caseToDelete));
-    }
-
-    @Test
-    void givenUnknownCourt_whenDeleteMissingCases_ThenThrow() {
-        when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.empty());
-        LocalDateTime start = LocalDateTime.of(2020, Month.JANUARY, 1, 0, 0);
-        final Map<LocalDate, List<String>> existingCases = Map.of(start.toLocalDate(), Arrays.asList("100", "101"));
-
-        var exception = catchThrowable(() ->
-            service.deleteAbsentCases(COURT_CODE, existingCases));
-        assertThat(exception).isInstanceOf(EntityNotFoundException.class)
-            .hasMessageContaining("Court " + COURT_CODE + " not found");
     }
 
     @Test

@@ -2,11 +2,9 @@ package uk.gov.justice.probation.courtcaseservice.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
@@ -14,15 +12,8 @@ import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFou
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -59,41 +50,6 @@ public class MutableCourtCaseService implements CourtCaseService {
         LocalDateTime start = LocalDateTime.of(date, LocalTime.MIDNIGHT);
         return courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(court.getCourtCode(), start, start.plusDays(1));
     }
-
-    @Override
-    public void delete(String courtCode, String caseNo) {
-        CourtCaseEntity caseEntity = getCaseByCaseNumber(courtCode, caseNo);
-        telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_DELETED, caseEntity);
-        courtCaseRepository.deleteById(caseEntity.getId());
-    }
-
-    @Override
-    @Transactional
-    public void deleteAbsentCases(String courtCode, Map<LocalDate, List<String>> existingCasesByDate) {
-        courtRepository.findByCourtCode(courtCode).orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
-
-        final Set<CourtCaseEntity> casesToDelete = new HashSet<>();
-        existingCasesByDate.forEach((dateOfHearing, existingCaseNos) -> {
-            log.debug("Delete cases for court {} on date {}, not in list {}", courtCode, dateOfHearing, existingCaseNos);
-            LocalDateTime start = LocalDateTime.of(dateOfHearing, LocalTime.MIDNIGHT);
-            LocalDateTime end = start.plusDays(1);
-            if (existingCaseNos.isEmpty()) {
-                casesToDelete.addAll(courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(courtCode, start, end));
-            }
-            else {
-                casesToDelete.addAll(courtCaseRepository.findCourtCasesNotIn(courtCode, start, end, existingCaseNos));
-            }
-        });
-
-        casesToDelete.forEach(aCase -> {
-            log.debug("Soft delete case no {} for court {}, session time {} ",
-                    aCase.getCaseNo(), aCase.getCourtCode(), aCase.getSessionStartTime());
-            telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_DELETED, aCase);
-        });
-
-        courtCaseRepository.deleteAll(casesToDelete);
-    }
-
     void validateEntity(String courtCode, String caseNo, CourtCaseEntity updatedCase) {
         checkCourtExists(updatedCase.getCourtCode());
         checkEntityCaseNoAndCourtAgree(courtCode, caseNo, updatedCase);
@@ -112,7 +68,6 @@ public class MutableCourtCaseService implements CourtCaseService {
     }
 
     private CourtCaseEntity createCase(CourtCaseEntity courtCaseEntity) {
-//        applyOffenceSequencing(courtCaseEntity.getOffences());
         log.info("Court case being created for case number {}", courtCaseEntity.getCaseNo());
         telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCaseEntity);
         if(courtCaseEntity.getCrn() != null){
@@ -145,7 +100,6 @@ public class MutableCourtCaseService implements CourtCaseService {
         existingCase.setNationality1(updatedCase.getNationality1());
         existingCase.setNationality2(updatedCase.getNationality2());
 
-//        updateOffences(existingCase, updatedCase);
         updateOffenderMatches(existingCase, updatedCase);
 
         log.info("Court case updated for case no {}", updatedCase.getCaseNo());
@@ -180,48 +134,5 @@ public class MutableCourtCaseService implements CourtCaseService {
                                 match.getId(), existingCase.getCrn(), match.getCro(), existingCase.getCro()));
                     }
                 });
-    }
-
-//    protected void updateOffences(CourtCaseEntity existingCase, CourtCaseEntity incomingCase) {
-//
-//        if (incomingCase.getOffences().isEmpty()) {
-//            existingCase.clearOffences();
-//            return;
-//        }
-//
-//        Map<Integer, OffenceEntity> offencesToSave = applyOffenceSequencing(incomingCase.getOffences()).stream()
-//            .collect(toMap(OffenceEntity::getSequenceNumber, offence -> offence));
-//        Map<Integer, OffenceEntity> existingOffences = applyOffenceSequencing(existingCase.getOffences()).stream()
-//            .collect(toMap(OffenceEntity::getSequenceNumber, offence -> offence));
-//
-//        // Update all existing offences where there is a match to sequence number
-//        offencesToSave.forEach((key, value) -> {
-//            log.debug("Processing offences : " + key + ", " + value.getOffenceTitle());
-//            OffenceEntity offenceEntity = existingOffences.getOrDefault(key,
-//                OffenceEntity.builder()
-//                    .sequenceNumber(value.getSequenceNumber()).build());
-//            offenceEntity.setOffenceSummary(value.getOffenceSummary());
-//            offenceEntity.setOffenceTitle(value.getOffenceTitle());
-//            offenceEntity.setAct(value.getAct());
-//            if (offenceEntity.getCourtCase() == null) {
-//                existingCase.addOffence(offenceEntity);
-//            }
-//        });
-//
-//        if (offencesToSave.size() < existingOffences.size()) {
-//            List<OffenceEntity> deletions = existingOffences.values().stream()
-//                .filter(value -> !offencesToSave.containsKey(value.getSequenceNumber()))
-//                .collect(Collectors.toList());
-//            existingCase.removeOffences(deletions);
-//        }
-//    }
-
-    List<OffenceEntity> applyOffenceSequencing(Collection<OffenceEntity> offences) {
-        final List<OffenceEntity> sortedOffences = offences.stream()
-            .sorted(Comparator.comparingInt(value -> value.getSequenceNumber() == null ? Integer.MAX_VALUE : value.getSequenceNumber()))
-            .collect(Collectors.toList());
-
-        IntStream.range(0, sortedOffences.size()).forEach(index -> sortedOffences.get(index).setSequenceNumber(index + 1));
-        return sortedOffences;
     }
 }

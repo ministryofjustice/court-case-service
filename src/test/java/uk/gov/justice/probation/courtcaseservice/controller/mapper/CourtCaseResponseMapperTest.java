@@ -68,7 +68,6 @@ public class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getCaseNo()).isEqualTo(CASE_NO);
         assertThat(courtCaseResponse.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCaseResponse.getCourtRoom()).isEqualTo(COURT_ROOM);
-        // TODO: Delete this field
         assertThat(courtCaseResponse.getLastUpdated()).isEqualTo(LAST_UPDATED);
         assertThat(courtCaseResponse.getPreviouslyKnownTerminationDate()).isEqualTo(PREVIOUSLY_KNOWN_TERMINATION_DATE);
         assertThat(courtCaseResponse.getProbationStatus()).isEqualTo(PROBATION_STATUS);

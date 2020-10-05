@@ -15,13 +15,10 @@ import uk.gov.justice.probation.courtcaseservice.service.MutableCourtCaseService
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -93,16 +90,6 @@ public class CourtCaseControllerTest {
         assertPosition(2, cases, "1", "Mr Darren ARONOFSKY", aftSession);
         assertPosition(3, cases, "3", "Mrs Minnie DRIVER", mornSession);
         assertPosition(4, cases, "3", "Mrs Juliette BINOCHE", aftSession);
-    }
-
-    @Test
-    public void whenDeleteMissingCases_ThenCallService() {
-
-        Map<LocalDate, List<String>> existingCases = Map.of(LocalDate.now(), Arrays.asList("1000003", "1000007"));
-
-        courtCaseController.purgeAbsentCases(COURT_CODE, existingCases);
-
-        verify(courtCaseService).deleteAbsentCases(COURT_CODE, existingCases);
     }
 
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, String defendantName, LocalDateTime sessionTime) {

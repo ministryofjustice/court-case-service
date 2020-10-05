@@ -26,6 +26,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
+import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.ConvictionDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
@@ -170,6 +171,10 @@ public class OffenderService {
 
     public Mono<OffenderDetail> getOffenderDetail(String crn) {
         return defaultClient.getOffenderDetailByCrn(crn);
+    }
+
+    public Mono<List<Registration>> getOffenderRegistrations(String crn) {
+        return defaultClient.getOffenderRegistrations(crn);
     }
 
     private Optional<Assessment> findMostRecentByStatus(List<Assessment> assessments) {

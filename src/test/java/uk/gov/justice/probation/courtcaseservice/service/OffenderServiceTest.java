@@ -26,6 +26,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
+import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.ConvictionDocuments;
@@ -369,6 +370,17 @@ class OffenderServiceTest {
         OffenderDetail detail = service.getOffenderDetail(CRN).block();
 
         assertThat(detail).isSameAs(offenderDetail);
+    }
+
+    @DisplayName("Simple get of offender registrations")
+    @Test
+    void whenGetOffenderRegistrations_thenReturnSame() {
+        Registration registration = Registration.builder().build();
+        when(offenderRestClient.getOffenderRegistrations(CRN)).thenReturn(Mono.just(List.of(registration)));
+
+        List<Registration> registrations = service.getOffenderRegistrations(CRN).block();
+
+        assertThat(registrations).containsExactly(registration);
     }
 
     private void mockForStandardClientCalls(List<Conviction> convictions, List<Assessment> assessments) {

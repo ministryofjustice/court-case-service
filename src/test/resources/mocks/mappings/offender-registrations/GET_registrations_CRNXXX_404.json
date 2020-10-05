@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/secure/offenders/crn/CRNXXX/registrations",
+    "headers" : {
+      "Content-Type": {
+        "equalTo": "application/json"
+      }
+    }
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\n    \"status\": 404,\n    \"developerMessage\": \"Offender with crn CRNXXX not found\"\n}"
+  }
+}

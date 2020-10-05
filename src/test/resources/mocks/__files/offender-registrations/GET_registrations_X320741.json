@@ -1,0 +1,125 @@
+{
+  "registrations": [
+    {
+      "registrationId": 2500120717,
+      "offenderId": 2500364629,
+      "register": {
+        "code": "3",
+        "description": "Safeguarding"
+      },
+      "type": {
+        "code": "ALSH",
+        "description": "Suicide/Self Harm"
+      },
+      "riskColour": "Red",
+      "notes": "Note 1\nNotes added second",
+      "startDate": "2020-09-30",
+      "nextReviewDate": "2021-03-30",
+      "reviewPeriodMonths": 6,
+      "registeringTeam": {
+        "code": "N07UAT",
+        "description": "Unallocated Team(N07)"
+      },
+      "registeringOfficer": {
+        "forenames": "Unallocated Staff(N07)",
+        "surname": "Staff"
+      },
+      "registeringProbationArea": {
+        "code": "N07",
+        "description": "NPS London"
+      },
+      "warnUser": false,
+      "active": true
+    },
+    {
+      "registrationId": 2500095234,
+      "offenderId": 2500364629,
+      "register": {
+        "code": "5",
+        "description": "Public Protection"
+      },
+      "type": {
+        "code": "ADVP",
+        "description": "Domestic Abuse Perpetrator"
+      },
+      "riskColour": "Red",
+      "startDate": "2020-04-14",
+      "nextReviewDate": "2020-07-14",
+      "reviewPeriodMonths": 3,
+      "registeringTeam": {
+        "code": "N07UAT",
+        "description": "Unallocated Team(N07)"
+      },
+      "registeringOfficer": {
+        "forenames": "Unallocate",
+        "surname": "Unallocate"
+      },
+      "registeringProbationArea": {
+        "code": "N07",
+        "description": "NPS London"
+      },
+      "warnUser": false,
+      "active": true
+    },
+    {
+      "registrationId": 2500095233,
+      "offenderId": 2500364629,
+      "register": {
+        "code": "1",
+        "description": "RoSH"
+      },
+      "type": {
+        "code": "RMRH",
+        "description": "Medium RoSH"
+      },
+      "riskColour": "Amber",
+      "startDate": "2020-04-14",
+      "nextReviewDate": "2020-10-14",
+      "reviewPeriodMonths": 6,
+      "registeringTeam": {
+        "code": "N07UAT",
+        "description": "Unallocated Team(N07)"
+      },
+      "registeringOfficer": {
+        "forenames": "Unallocate",
+        "surname": "Unallocate"
+      },
+      "registeringProbationArea": {
+        "code": "N07",
+        "description": "NPS London"
+      },
+      "warnUser": false,
+      "active": true
+    },
+    {
+      "registrationId": 2500095235,
+      "offenderId": 2500364629,
+      "register": {
+        "code": "5",
+        "description": "Public Protection"
+      },
+      "type": {
+        "code": "AV2S",
+        "description": "Risk to Staff"
+      },
+      "riskColour": "Red",
+      "startDate": "2019-04-14",
+      "endDate": "2019-10-14",
+      "reviewPeriodMonths": 6,
+      "registeringTeam": {
+        "code": "N07UAT",
+        "description": "Unallocated Team(N07)"
+      },
+      "registeringOfficer": {
+        "forenames": "Unallocate",
+        "surname": "Unallocate"
+      },
+      "registeringProbationArea": {
+        "code": "N07",
+        "description": "NPS London"
+      },
+      "warnUser": true,
+      "active": false
+    }
+  ]
+}

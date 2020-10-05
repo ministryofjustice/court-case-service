@@ -79,6 +79,7 @@ community-api:
   conviction-by-crn-url-template: /secure/offenders/crn/%s/convictions/%s
   attendances-by-crn-and-conviction-url-template: /secure/offenders/crn/%s/convictions/%s/attendancesFilter
   requirements-by-crn-url-template: /secure/offenders/crn/%s/convictions/%s/requirements
+  registrations-by-crn-url-template: /secure/offenders/crn/%s/registrations
   pss-requirements-by-crn-and-conviction-url-template: /secure/offenders/crn/%s/convictions/%s/pssRequirements
   licence-conditions-by-crn-and-conviction-url-template: /secure/offenders/crn/%s/convictions/%s/licenceConditions
   grouped-documents-by-crn-url-template: /secure/offenders/crn/%s/documents/grouped

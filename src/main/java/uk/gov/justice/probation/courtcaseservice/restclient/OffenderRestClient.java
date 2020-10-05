@@ -15,6 +15,7 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.RegistrationMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.RequirementMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.interventions.BreachMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
@@ -22,6 +23,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsiResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiPssRequirementsResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRegistrationsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
@@ -29,6 +31,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
+import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
 @Component
@@ -48,6 +51,8 @@ public class OffenderRestClient {
     private String pssRequirementsUrlTemplate;
     @Value("${community-api.licence-conditions-by-crn-and-conviction-url-template}")
     private String licenceConditionsUrlTemplate;
+    @Value("${community-api.registrations-by-crn-url-template}")
+    private String registrationsUrlTemplate;
     @Value("${community-api.nsis-url-template}")
     private String nsisTemplate;
     @Value("${community-api.nsis-filter.codes.queryParameter}")
@@ -136,8 +141,17 @@ public class OffenderRestClient {
             .retrieve()
             .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
             .bodyToMono(CommunityApiLicenceConditionsResponse.class)
-            .doOnError(e -> log.error(String.format("Unexpected exception when retrieving licence confitions data for CONVICTIONID '%s'", convictionId), e))
+            .doOnError(e -> log.error(String.format("Unexpected exception when retrieving licence conditions data for CONVICTIONID '%s'", convictionId), e))
             .map(RequirementMapper::licenceConditionsFrom)
             .onErrorReturn(Collections.emptyList());
+    }
+
+    public Mono<List<Registration>> getOffenderRegistrations(String crn) {
+        return clientHelper.get(String.format(registrationsUrlTemplate, crn))
+            .retrieve()
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
+            .bodyToMono(CommunityApiRegistrationsResponse.class)
+            .doOnError(e -> log.error(String.format("Unexpected exception when registration data for CRN '%s'", crn), e))
+            .map(RegistrationMapper::registrationsFrom);
     }
 }

@@ -12,7 +12,6 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
-import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
@@ -23,6 +22,7 @@ import static uk.gov.justice.probation.courtcaseservice.restclient.communityapi.
 public class OffenderRestClientIntTest extends BaseIntTest {
 
     private static final String CRN = "X320741";
+    private static final String UNKNOWN_CRN = "CRNXXX";
     private static final String CONVICTION_ID = "2500297061";
     public static final String SERVER_ERROR_CRN = "X320742";
 
@@ -63,7 +63,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
 
     @Test(expected = OffenderNotFoundException.class)
     public void givenOffenderDoesNotExist_whenGetConvictionsByCrnCalled_ReturnEmpty() {
-        offenderRestClient.getConvictionsByCrn("CRNXXX").block();
+        offenderRestClient.getConvictionsByCrn(UNKNOWN_CRN).block();
     }
 
     @Test(expected = WebClientResponseException.class)
@@ -143,7 +143,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
 
     @Test
     public void givenOffenderDoesNotExist_whenGetOffenderMatchDetail_thenReturnNull() {
-        var optionalOffenderMatchDetail = offenderRestClient.getOffenderMatchDetailByCrn("CRNXXX").blockOptional();
+        var optionalOffenderMatchDetail = offenderRestClient.getOffenderMatchDetailByCrn(UNKNOWN_CRN).blockOptional();
         assertThat(optionalOffenderMatchDetail.get().getForename()).isNull();
     }
 
@@ -169,7 +169,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
 
     @Test(expected = OffenderNotFoundException.class)
     public void givenOffenderDetailDoesNotExist_whenGetOffenderByCrnCalled_thenExpectException() {
-        offenderRestClient.getOffenderDetailByCrn("CRNXXX").blockOptional();
+        offenderRestClient.getOffenderDetailByCrn(UNKNOWN_CRN).blockOptional();
     }
 
     @Test(expected = WebClientResponseException.class)
@@ -201,7 +201,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
         var optionalRequirements = offenderRestClient.getConvictionLicenceConditions(CRN, CONVICTION_ID).blockOptional();
         assertThat(optionalRequirements).isNotEmpty();
 
-        final List<LicenceCondition> licenceConditions = optionalRequirements.get();
+        var licenceConditions = optionalRequirements.get();
         assertThat(licenceConditions).hasSize(3);
         assertThat(licenceConditions).extracting("description")
             .contains("Alcohol", "Curfew Arrangement", "Participate or co-op with Programme or Activities");
@@ -213,5 +213,21 @@ public class OffenderRestClientIntTest extends BaseIntTest {
 
         assertThat(optionalRequirements).isNotEmpty();
         assertThat(optionalRequirements.get()).isEmpty();
+    }
+
+    @Test
+    public void whenGetRegistrationsCalled_thenReturn() {
+        var optionalRegistrations = offenderRestClient.getOffenderRegistrations(CRN).blockOptional();
+        assertThat(optionalRegistrations).isNotEmpty();
+
+        var registrations = optionalRegistrations.get();
+        assertThat(registrations).hasSize(4);
+        assertThat(registrations).extracting("type")
+            .contains("Suicide/Self Harm", "Domestic Abuse Perpetrator", "Medium RoSH", "Risk to Staff");
+    }
+
+    @Test(expected = OffenderNotFoundException.class)
+    public void  givenOffenderDoesNotExist_whenGetRegistrationsCalled_thenExpectException() {
+        offenderRestClient.getOffenderRegistrations(UNKNOWN_CRN).blockOptional();
     }
 }

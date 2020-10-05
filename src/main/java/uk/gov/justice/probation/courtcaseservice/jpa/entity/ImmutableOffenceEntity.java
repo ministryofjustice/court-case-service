@@ -26,7 +26,7 @@ import javax.persistence.Table;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "IMMUTABLE_OFFENCE")
+@Table(name = "OFFENCE")
 @AllArgsConstructor
 @SuperBuilder
 @NoArgsConstructor

@@ -39,9 +39,6 @@ public class ConvictionRestClient {
     private String custodialStatusUrlTemplate;
 
     @Autowired
-    private OffenderMapper offenderMapper;
-
-    @Autowired
     @Qualifier("communityApiClient")
     private RestClientHelper clientHelper;
 
@@ -65,7 +62,7 @@ public class ConvictionRestClient {
             .bodyToMono(CommunityApiConvictionResponse.class)
             // TODO: doOnError will swallow the exception and fail later - use onErrorMap
             .doOnError(e -> log.error(String.format(ERROR_MSG_FORMAT, "conviction", crn, convictionId), e))
-            .map(convictionResponse -> offenderMapper.convictionFrom(convictionResponse));
+            .map(OffenderMapper::convictionFrom);
     }
 
 
@@ -84,7 +81,7 @@ public class ConvictionRestClient {
                     log.error(String.format(ERROR_MSG_FORMAT, "sentence current order header detail ", crn, convictionId), e1);
                     return e1;
                 })
-                .map(custodialStatusResponse -> offenderMapper.buildCurrentOrderHeaderDetail(custodialStatusResponse));
+                .map(OffenderMapper::buildCurrentOrderHeaderDetail);
     }
 
     public CommunityApiCustodialStatusResponse buildNotInCustodyResponse(Long sentenceId) {

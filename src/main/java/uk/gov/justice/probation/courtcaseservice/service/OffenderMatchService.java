@@ -42,9 +42,6 @@ public class OffenderMatchService {
     @Autowired
     private OffenderRestClient offenderRestClient;
 
-    @Autowired
-    private OffenderMapper offenderMapper;
-
     public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatches(String courtCode, String caseNo, GroupedOffenderMatchesRequest offenderMatches) {
         return Mono.just(offenderMatchRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
             .map(existingGroup -> mapper.update(existingGroup, offenderMatches))
@@ -101,7 +98,7 @@ public class OffenderMatchService {
             .map(Conviction::getSentence)
             .orElse(getSentenceForMostRecentConviction(convictions));
 
-        return offenderMapper.offenderMatchDetailFrom(offenderMatchDetail, sentence);
+        return OffenderMapper.offenderMatchDetailFrom(offenderMatchDetail, sentence);
     }
 
     Sentence getSentenceForMostRecentConviction(List<Conviction> convictions) {

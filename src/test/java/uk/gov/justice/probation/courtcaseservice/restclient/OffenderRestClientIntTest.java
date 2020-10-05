@@ -37,8 +37,18 @@ public class OffenderRestClientIntTest extends BaseIntTest {
         var offender = optionalOffender.get();
         assertThat(offender.getCrn()).isEqualTo(CRN);
 
-        assertThat(offender.getOffenderManagers().get(0).getForenames()).isEqualTo("Temperance");
-        assertThat(offender.getOffenderManagers().get(0).getSurname()).isEqualTo("Brennan");
+        assertThat(offender.getOffenderManagers()).hasSize(1);
+        var offenderManager = offender.getOffenderManagers().get(0);
+        assertThat(offenderManager.getStaff().getForenames()).isEqualTo("Temperance");
+        assertThat(offenderManager.getStaff().getSurname()).isEqualTo("Brennan");
+        assertThat(offenderManager.getTrustOfficer().getForenames()).isEqualTo("Unallocated");
+        assertThat(offenderManager.getTrustOfficer().getSurname()).isEqualTo("Staff");
+        assertThat(offenderManager.getTrustOfficer().getSurname()).isEqualTo("Staff");
+        assertThat(offenderManager.getProvider()).isEqualTo("NPS North East");
+        assertThat(offenderManager.getTeam().getDescription()).isEqualTo("OMIC OMU A");
+        assertThat(offenderManager.getTeam().getTelephone()).isEqualTo("0151 222 3333");
+        assertThat(offenderManager.getTeam().getLocalDeliveryUnit()).isEqualTo("LDU Description");
+        assertThat(offenderManager.getTeam().getDistrict()).isEqualTo("OMiC POM Responsibility");
         assertThat(offender.getOffenderManagers().get(0).getAllocatedDate()).isEqualTo(LocalDate.of(2019,9,30));
     }
 

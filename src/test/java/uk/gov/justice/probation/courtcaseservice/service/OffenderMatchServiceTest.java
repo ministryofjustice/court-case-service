@@ -21,7 +21,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.OffenderMatchMapper;
@@ -31,8 +30,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -55,8 +52,6 @@ class OffenderMatchServiceTest {
     private GroupedOffenderMatchesRequest groupedOffenderMatchesRequest;
     @Mock
     private OffenderMatchMapper mapper;
-    @Mock
-    private OffenderMapper offenderMapper;
 
     @InjectMocks
     private OffenderMatchService service;
@@ -152,15 +147,12 @@ class OffenderMatchServiceTest {
         OffenderMatchDetail matchDetail = OffenderMatchDetail.builder().forename("Chris").build();
         String crn = "X320741";
         mockOffenderDetailMatch(crn, matchDetail, List.of(conviction));
-        OffenderMatchDetail resultMatchDetail = mock(OffenderMatchDetail.class);
-        when(offenderMapper.offenderMatchDetailFrom(matchDetail, conviction.getSentence())).thenReturn(resultMatchDetail);
 
         OffenderMatchDetail offenderMatchDetail = service.getOffenderMatchDetail(crn);
 
-        assertThat(offenderMatchDetail).isSameAs(resultMatchDetail);
         verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);
         verify(offenderRestClient).getConvictionsByCrn(crn);
-        verify(offenderMapper).offenderMatchDetailFrom(matchDetail, conviction.getSentence());
+        assertThat(offenderMatchDetail.getForename()).isEqualTo("Chris");
     }
 
     @Test
@@ -169,15 +161,12 @@ class OffenderMatchServiceTest {
         OffenderMatchDetail matchDetail = OffenderMatchDetail.builder().forename("Chris").build();
         String crn = "X320741";
         mockOffenderDetailMatch(crn, matchDetail, Collections.emptyList());
-        OffenderMatchDetail resultMatchDetail = mock(OffenderMatchDetail.class);
-        when(offenderMapper.offenderMatchDetailFrom(matchDetail, null)).thenReturn(resultMatchDetail);
 
         OffenderMatchDetail offenderMatchDetail = service.getOffenderMatchDetail("X320741");
 
-        assertThat(offenderMatchDetail).isSameAs(resultMatchDetail);
+        assertThat(offenderMatchDetail.getForename()).isEqualTo("Chris");
         verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);
         verify(offenderRestClient).getConvictionsByCrn(crn);
-        verify(offenderMapper).offenderMatchDetailFrom(matchDetail, null);
     }
 
     @Test
@@ -187,12 +176,10 @@ class OffenderMatchServiceTest {
         String crn = "X320741";
         when(offenderRestClient.getOffenderMatchDetailByCrn(crn)).thenReturn(Mono.justOrEmpty(matchDetail));
         when(offenderRestClient.getConvictionsByCrn(crn)).thenReturn(Mono.error( new OffenderNotFoundException(crn)));
-        OffenderMatchDetail resultMatchDetail = mock(OffenderMatchDetail.class);
-        when(offenderMapper.offenderMatchDetailFrom(matchDetail, null)).thenReturn(resultMatchDetail);
 
         OffenderMatchDetail offenderMatchDetail = service.getOffenderMatchDetail("X320741");
 
-        assertThat(offenderMatchDetail).isSameAs(resultMatchDetail);
+        assertThat(offenderMatchDetail.getForename()).isEqualTo("Chris");
     }
 
     @Test
@@ -207,7 +194,6 @@ class OffenderMatchServiceTest {
         assertThat(offenderMatchDetail).isNull();
         verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);
         verify(offenderRestClient).getConvictionsByCrn(crn);
-        verify(offenderMapper, never()).offenderMatchDetailFrom(any(OffenderMatchDetail.class), any(Sentence.class));
     }
 
     @Test
@@ -227,14 +213,10 @@ class OffenderMatchServiceTest {
         mockOffenderDetailMatch(crn1, matchDetail1, Collections.emptyList());
         mockOffenderDetailMatch(crn2, matchDetail2, List.of(conviction2, conviction1));
 
-        OffenderMatchDetail resultMatchDetail1 = mock(OffenderMatchDetail.class);
-        OffenderMatchDetail resultMatchDetail2 = mock(OffenderMatchDetail.class);
-        when(offenderMapper.offenderMatchDetailFrom(matchDetail1, null)).thenReturn(resultMatchDetail1);
-        when(offenderMapper.offenderMatchDetailFrom(matchDetail2, conviction1.getSentence())).thenReturn(resultMatchDetail2);
-
         OffenderMatchDetailResponse response = service.getOffenderMatchDetails(COURT_CODE, CASE_NO);
 
-        assertThat(response.getOffenderMatchDetails()).containsExactlyInAnyOrder(resultMatchDetail1, resultMatchDetail2);
+        assertThat(response.getOffenderMatchDetails()).hasSize(2);
+        assertThat(response.getOffenderMatchDetails()).extracting("forename").containsExactlyInAnyOrder("Chris", "Dave");
     }
 
     private void mockOffenderDetailMatch(String crn, OffenderMatchDetail matchDetail, List<Conviction> convictions) {

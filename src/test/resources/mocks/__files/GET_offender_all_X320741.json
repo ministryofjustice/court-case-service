@@ -69,7 +69,12 @@
       "partitionArea": "National Data",
       "softDeleted": false,
       "team": {
-        "description": "OMIC OMU A ",
+        "description": "OMIC OMU A",
+        "telephone": "0151 222 3333",
+        "localDeliveryUnit": {
+          "code": "LDU_CODE",
+          "description": "LDU Description"
+        },
         "district": {
           "code": "N02OMIC",
           "description": "OMiC POM Responsibility"
@@ -86,6 +91,40 @@
       },
       "fromDate": "2019-09-30",
       "active": true,
+      "allocationReason": {
+        "code": "TIN",
+        "description": "Transfer In"
+      }
+    },
+    {
+      "trustOfficer": {
+        "forenames": "Unallocated",
+        "surname": "Staff"
+      },
+      "staff": {
+        "forenames": "Temperance",
+        "surname": "Brennan"
+      },
+      "partitionArea": "National Data",
+      "softDeleted": false,
+      "team": {
+        "description": "OMIC OMU A ",
+        "district": {
+          "code": "N02OMIC",
+          "description": "OMiC POM Responsibility"
+        },
+        "borough": {
+          "code": "N02ALL",
+          "description": "All NPS North East"
+        }
+      },
+      "probationArea": {
+        "code": "N02",
+        "description": "NPS North East",
+        "nps": true
+      },
+      "fromDate": "2019-09-30",
+      "active": false,
       "allocationReason": {
         "code": "TIN",
         "description": "Transfer In"

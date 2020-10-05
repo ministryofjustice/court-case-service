@@ -214,7 +214,7 @@ public class CourtCaseServiceUpdatesTest {
 //    }
 
     private void mockForCaseForUpdate(CourtCaseEntity courtCaseEntity) {
-        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE, CASE_NO)).thenReturn(Optional.ofNullable(courtCaseEntity));
+        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE, CASE_NO)).thenReturn(Optional.ofNullable(courtCaseEntity));
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
     }
 }

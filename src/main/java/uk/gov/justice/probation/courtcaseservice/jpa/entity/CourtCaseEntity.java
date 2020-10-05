@@ -110,6 +110,9 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "NATIONALITY_2")
     private String nationality2;
 
+    @Column(name = "deleted", nullable = false, updatable = false)
+    private boolean deleted;
+
     @JsonIgnore
     @OneToMany(mappedBy = "courtCase", cascade = { CascadeType.ALL }, orphanRemoval=true)
     private List<GroupedOffenderMatchesEntity> groupedOffenderMatches;

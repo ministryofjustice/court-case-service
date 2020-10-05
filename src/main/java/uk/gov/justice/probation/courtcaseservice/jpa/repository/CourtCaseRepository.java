@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Long> {
-    Optional<CourtCaseEntity> findTopByCourtCodeAndCaseNoOrderByVersion(String courtCode, String caseNo);
+    Optional<CourtCaseEntity> findTopByCourtCodeAndCaseNoOrderByCreatedDesc(String courtCode, String caseNo);
 
     List<CourtCaseEntity> findByCourtCodeAndSessionStartTimeBetween(String courtCode, LocalDateTime start, LocalDateTime end);
 

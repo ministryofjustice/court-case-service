@@ -17,7 +17,7 @@ class CourtCaseRequestTest {
     private static final boolean BREACH = false;
 
     @Test
-    void asEntity() {
+    void givenAllFieldsPresent_whenCallAsEntity_returnCourtCaseEntity() {
         final var request = CourtCaseRequest.builder()
         .caseId("CASE_ID")
         .caseNo("CASE_NO")
@@ -79,5 +79,27 @@ class CourtCaseRequestTest {
         assertThat(entity.getOffences().get(1).getOffenceTitle()).isEqualTo("OFFENCE_TITLE2");
         assertThat(entity.getOffences().get(1).getOffenceSummary()).isEqualTo("OFFENCE_SUMMARY2");
         assertThat(entity.getOffences().get(1).getAct()).isEqualTo("ACT2");
+    }
+    @Test
+    void givenOptionalFieldsNotPresent_whenCallAsEntity_returnCourtCaseEntity() {
+        final var request = CourtCaseRequest.builder()
+        .caseId("CASE_ID")
+        .caseNo("CASE_NO")
+        .courtCode("COURT_CODE")
+        .courtRoom("COURT_ROOM")
+        .sessionStartTime(SESSION_START_TIME)
+        .probationStatus("PROBATION_STATUS")
+        .defendantName("DEFENDANT_NAME")
+        .defendantDob(DOB)
+        .build();
+
+        final var entity = request.asEntity();
+
+        assertThat(entity.getCaseId()).isEqualTo("CASE_ID");
+        assertThat(entity.getCaseNo()).isEqualTo("CASE_NO");
+        assertThat(entity.getCourtCode()).isEqualTo("COURT_CODE");
+        assertThat(entity.getCourtRoom()).isEqualTo("COURT_ROOM");
+        assertThat(entity.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
+        assertThat(entity.getProbationStatus()).isEqualTo("PROBATION_STATUS");
     }
 }

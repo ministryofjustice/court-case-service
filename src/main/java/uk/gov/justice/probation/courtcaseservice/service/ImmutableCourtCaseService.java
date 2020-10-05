@@ -25,7 +25,7 @@ public class ImmutableCourtCaseService extends MutableCourtCaseService {
     @Override
     public CourtCaseEntity createOrUpdateCase(String courtCode, String caseNo, CourtCaseEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
         validateEntity(courtCode, caseNo, updatedCase);
-        courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(courtCode, caseNo)
+        courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(courtCode, caseNo)
                 .ifPresentOrElse(
                         (existingCase) -> {
                             updateOffenderMatches(existingCase, updatedCase);

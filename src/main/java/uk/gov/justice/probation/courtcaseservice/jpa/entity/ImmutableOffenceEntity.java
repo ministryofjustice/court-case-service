@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
@@ -45,6 +46,7 @@ public class ImmutableOffenceEntity extends BaseImmutableEntity implements Seria
     @JoinColumn(name = "COURT_CASE_ID", referencedColumnName = "id")
     @JsonProperty(access = Access.WRITE_ONLY)
     @JsonBackReference
+    @Setter
     private CourtCaseEntity courtCase;
 
     @Column(name = "OFFENCE_TITLE")

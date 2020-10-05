@@ -65,6 +65,8 @@ public class CourtCaseServiceIntTest extends BaseIntTest {
     }
 
     @Test
+    @Ignore
+    @Disabled("To be deleted")
     public void whenDeleteMissingCases_ThenSoftDeleteAppliedIncludingChildOffences() {
 
         // 2nd Jan has 1000002 through 1000007 to start with so here 1000003 and 1000007 should remain, others soft deleted

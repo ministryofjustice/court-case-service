@@ -98,7 +98,7 @@ class CourtCaseServiceTest {
     @Test
     public void givenNoExistingCase_whenCreateOrUpdateCaseCalled_thenLogCreatedEvent() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE,CASE_NO)).thenReturn(Optional.empty());
+        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE,CASE_NO)).thenReturn(Optional.empty());
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, courtCase);
 
@@ -108,7 +108,7 @@ class CourtCaseServiceTest {
     @Test
     public void givenNoExistingCase_whenCreateOrUpdateCaseCalledWithCrn_thenLogLinkedEvent() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE,CASE_NO)).thenReturn(Optional.empty());
+        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE,CASE_NO)).thenReturn(Optional.empty());
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, courtCase);
 
@@ -118,7 +118,7 @@ class CourtCaseServiceTest {
     @Test
     public void givenNoExistingCase_whenCreateOrUpdateCaseCalledWithNullCrn_thenDontLogLinkedEvent() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE,CASE_NO)).thenReturn(Optional.empty());
+        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE,CASE_NO)).thenReturn(Optional.empty());
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, buildCourtCase(null));
 
@@ -128,7 +128,7 @@ class CourtCaseServiceTest {
     @Test
     public void givenExistingCase_whenCreateOrUpdateCaseCalled_thenLogUpdatedEvent() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE,CASE_NO)).thenReturn(Optional.of(courtCase));
+        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE,CASE_NO)).thenReturn(Optional.of(courtCase));
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, courtCase);
 
@@ -139,7 +139,7 @@ class CourtCaseServiceTest {
     public void givenExistingCaseWithNullCrn_whenCreateOrUpdateCaseCalledWithCrn_thenLogLinkedEvent() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
         CourtCaseEntity existingCase = buildCourtCase(null);
-        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE,CASE_NO)).thenReturn(Optional.of(existingCase));
+        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE,CASE_NO)).thenReturn(Optional.of(existingCase));
         when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, buildCourtCase(CRN));
@@ -150,7 +150,7 @@ class CourtCaseServiceTest {
     @Test
     public void givenExistingCaseWithCrn_whenCreateOrUpdateCaseCalledWithNullCrn_thenLogUnLinkedEvent() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE,CASE_NO)).thenReturn(Optional.of(courtCase));
+        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE,CASE_NO)).thenReturn(Optional.of(courtCase));
         when(courtCaseRepository.save(courtCase)).thenReturn(courtCase);
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, buildCourtCase(null));
@@ -161,7 +161,7 @@ class CourtCaseServiceTest {
     @Test
     public void whenDeleteCase_thenLogDeletedEvent() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE,CASE_NO)).thenReturn(Optional.of(courtCase));
+        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE,CASE_NO)).thenReturn(Optional.of(courtCase));
 
         service.delete(COURT_CODE, CASE_NO);
 
@@ -187,7 +187,7 @@ class CourtCaseServiceTest {
 
         var groupedOffenderMatches = buildOffenderMatchesEntities(existingCase);
         existingCase.setGroupedOffenderMatches(groupedOffenderMatches);
-        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE, CASE_NO)).thenReturn(Optional.of(existingCase));
+        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE, CASE_NO)).thenReturn(Optional.of(existingCase));
         when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, caseToUpdate);
@@ -232,16 +232,16 @@ class CourtCaseServiceTest {
     @Test
     void getCourtCaseShouldRetrieveCaseFromRepository() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE, CASE_NO)).thenReturn(Optional.of(courtCase));
+        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE, CASE_NO)).thenReturn(Optional.of(courtCase));
 
         service.getCaseByCaseNumber(COURT_CODE, CASE_NO);
-        verify(courtCaseRepository).findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE, CASE_NO);
+        verify(courtCaseRepository).findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE, CASE_NO);
     }
 
     @Test
     void getCourtCaseShouldThrowNotFoundException() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE, CASE_NO)).thenReturn(Optional.empty());
+        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE, CASE_NO)).thenReturn(Optional.empty());
 
         var exception = catchThrowable(() ->
                 service.getCaseByCaseNumber(COURT_CODE, CASE_NO)
@@ -331,7 +331,7 @@ class CourtCaseServiceTest {
 
         var offenderMatchesEntities = buildOffenderMatchesEntities(existingCase);
         existingCase.setGroupedOffenderMatches(offenderMatchesEntities);
-        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE, CASE_NO)).thenReturn(Optional.of(existingCase));
+        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE, CASE_NO)).thenReturn(Optional.of(existingCase));
         when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
 
         CourtCaseEntity updatedCase = service.createOrUpdateCase(COURT_CODE, CASE_NO, caseToUpdate);
@@ -369,7 +369,7 @@ class CourtCaseServiceTest {
         CourtCaseEntity existingCase = buildCourtCase(CRN);
 
         existingCase.setGroupedOffenderMatches(buildOffenderMatchesEntities(existingCase));
-        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE, CASE_NO)).thenReturn(Optional.of(existingCase));
+        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE, CASE_NO)).thenReturn(Optional.of(existingCase));
         when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
 
         CourtCaseEntity updatedCase = service.createOrUpdateCase(COURT_CODE, CASE_NO, caseToUpdate);
@@ -405,7 +405,7 @@ class CourtCaseServiceTest {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
         CourtCaseEntity caseToUpdate = buildCourtCase(CRN);
         caseToUpdate.setGroupedOffenderMatches(List.of(GroupedOffenderMatchesEntity.builder().offenderMatches(emptyList()).build()));
-        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE, CASE_NO)).thenReturn(Optional.of(caseToUpdate));
+        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE, CASE_NO)).thenReturn(Optional.of(caseToUpdate));
         when(courtCaseRepository.save(caseToUpdate)).thenReturn(caseToUpdate);
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, caseToUpdate);
@@ -416,7 +416,7 @@ class CourtCaseServiceTest {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
         CourtCaseEntity caseToUpdate = buildCourtCase(CRN);
         caseToUpdate.setGroupedOffenderMatches(null);
-        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(COURT_CODE, CASE_NO)).thenReturn(Optional.of(caseToUpdate));
+        when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE, CASE_NO)).thenReturn(Optional.of(caseToUpdate));
         when(courtCaseRepository.save(caseToUpdate)).thenReturn(caseToUpdate);
 
         service.createOrUpdateCase(COURT_CODE, CASE_NO, caseToUpdate);

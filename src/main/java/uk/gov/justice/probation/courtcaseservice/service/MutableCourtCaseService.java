@@ -37,7 +37,7 @@ public class MutableCourtCaseService implements CourtCaseService {
     public CourtCaseEntity getCaseByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException {
         checkCourtExists(courtCode);
         log.info("Court case requested for court {} for case {}", courtCode, caseNo);
-        return courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(courtCode, caseNo)
+        return courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(courtCode, caseNo)
             .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found for court %s", caseNo, courtCode)));
     }
 
@@ -46,7 +46,7 @@ public class MutableCourtCaseService implements CourtCaseService {
         throws EntityNotFoundException, InputMismatchException {
         validateEntity(courtCode, caseNo, updatedCase);
 
-        return courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(courtCode, caseNo)
+        return courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(courtCode, caseNo)
                 .map(existingCase -> updateAndSaveCase(existingCase, updatedCase))
                 .orElseGet(() -> createCase(updatedCase));
     }

@@ -12,7 +12,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Version;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
@@ -31,11 +30,5 @@ public class BaseImmutableEntity {
     @Column(name = "created_by", nullable = true, updatable = false)
     @CreatedBy
     private String createdBy;
-
-    @Version
-    private int version;
-
-    @Column(name = "deleted", nullable = false, updatable = false)
-    private boolean deleted;
 
 }

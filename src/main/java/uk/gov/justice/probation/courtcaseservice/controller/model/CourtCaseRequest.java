@@ -52,7 +52,7 @@ public class CourtCaseRequest {
                             .build();
                 })
                 .collect(Collectors.toList());
-        return CourtCaseEntity.builder()
+        final CourtCaseEntity entity = CourtCaseEntity.builder()
                 .caseId(caseId)
                 .caseNo(caseNo)
                 .courtCode(courtCode)
@@ -72,14 +72,18 @@ public class CourtCaseRequest {
                 .nationality1(nationality1)
                 .nationality2(nationality2)
                 .offences(offences)
-                .defendantAddress(new AddressPropertiesEntity(
-                        defendantAddress.getLine1(),
-                        defendantAddress.getLine2(),
-                        defendantAddress.getLine3(),
-                        defendantAddress.getLine4(),
-                        defendantAddress.getLine5(),
-                        defendantAddress.getPostcode()
-                        ))
+                .defendantAddress(Optional.ofNullable(defendantAddress)
+                        .map(addressRequest -> new AddressPropertiesEntity(
+                                defendantAddress.getLine1(),
+                                defendantAddress.getLine2(),
+                                defendantAddress.getLine3(),
+                                defendantAddress.getLine4(),
+                                defendantAddress.getLine5(),
+                                defendantAddress.getPostcode()
+                        )).orElse(null))
                 .build();
+
+        offences.forEach(offence -> offence.setCourtCase(entity));
+        return entity;
     }
 }

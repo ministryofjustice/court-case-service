@@ -16,7 +16,6 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.BaseImmutableEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 
@@ -313,7 +312,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
         List<CourtCaseEntity> courtCases2 = courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(COURT_CODE, start, start.plusDays(1));
         assertThat(courtCases2).hasSize(6);
         List<String> date2Deleted = courtCases2.stream()
-            .filter(BaseImmutableEntity::isDeleted)
+            .filter(CourtCaseEntity::isDeleted)
             .map(CourtCaseEntity::getCaseNo)
             .collect(Collectors.toList());
         assertThat(date2Deleted).containsAll(Arrays.asList("1000002", "1000005", "1000005", "1000006"));

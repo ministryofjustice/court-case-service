@@ -101,9 +101,9 @@ INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, M
 VALUES (false, false, 'X980123', 'CRO1', 'NAME_DOB', '323456', 9999993);
 
 
-INSERT INTO immutable_offence (created, created_by, deleted, version, act, offence_summary, offence_title,
+INSERT INTO immutable_offence (created, created_by,  act, offence_summary, offence_title,
                                sequence_number, court_case_id)
-SELECT o.created,o.created_by,o.deleted,1,o.act,o.offence_summary,o.offence_title,o.sequence_number,c.id
+SELECT o.created,o.created_by,o.act,o.offence_summary,o.offence_title,o.sequence_number,c.id
 FROM offence o
          JOIN court_case c
               ON o.court_code = c.court_code AND o.case_no = c.case_no;

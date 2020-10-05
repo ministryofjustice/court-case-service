@@ -151,7 +151,7 @@ public class OffenderController {
             .orElse(new ResponseEntity<>(NOT_FOUND));
     }
 
-    @ApiOperation(value = "Gets the offender registrations by CRN")
+    @ApiOperation(value = "Gets the offender risk registrations by CRN")
     @ApiResponses(
         value = {
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),

@@ -36,8 +36,11 @@ public class ImmutableCourtCaseService extends MutableCourtCaseService {
         validateEntity(courtCode, caseNo, updatedCase);
         courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByVersion(courtCode, caseNo)
                 .ifPresentOrElse(
-                        (existingCase) -> updateCase(updatedCase, existingCase),
-                        () -> createCase(updatedCase));
+                        (existingCase) -> {
+                            updateOffenderMatches(existingCase, updatedCase);
+                            trackUpdateEvents(updatedCase, existingCase);
+                        },
+                        () -> trackCreateEvents(updatedCase));
         List<ImmutableOffenceEntity> updatedOffences = applyImmutableOffenceSequencing(updatedCase.getOffences());
 
         final var caseWithSequencedOffences = updatedCase.withOffences(updatedOffences);
@@ -61,15 +64,6 @@ public class ImmutableCourtCaseService extends MutableCourtCaseService {
         return IntStream.range(0, sortedOffences.size())
                 .mapToObj(index -> sortedOffences.get(index).withSequenceNumber(index + 1))
                 .collect(Collectors.toList());
-    }
-
-    private void createCase(CourtCaseEntity updatedCase) {
-        trackCreateEvents(updatedCase);
-    }
-
-    private void updateCase(CourtCaseEntity updatedCase, CourtCaseEntity existingCase) {
-        updateOffenderMatches(existingCase, updatedCase);
-        trackUpdateEvents(updatedCase, existingCase);
     }
 
     private void trackCreateEvents(CourtCaseEntity updatedCase) {

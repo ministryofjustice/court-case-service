@@ -16,7 +16,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.BaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.BaseImmutableEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 
@@ -313,7 +313,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
         List<CourtCaseEntity> courtCases2 = courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(COURT_CODE, start, start.plusDays(1));
         assertThat(courtCases2).hasSize(6);
         List<String> date2Deleted = courtCases2.stream()
-            .filter(BaseEntity::isDeleted)
+            .filter(BaseImmutableEntity::isDeleted)
             .map(CourtCaseEntity::getCaseNo)
             .collect(Collectors.toList());
         assertThat(date2Deleted).containsAll(Arrays.asList("1000002", "1000005", "1000005", "1000006"));
@@ -359,7 +359,6 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
         caseDetails.setCourtRoom("1");
         caseDetails.setSessionStartTime(LocalDateTime.now());
         caseDetails.setProbationStatus(PROBATION_STATUS);
-        caseDetails.setLastUpdated(LocalDateTime.now());
         caseDetails.setPreviouslyKnownTerminationDate(LocalDate.of(2010, 1, 1));
         caseDetails.setSuspendedSentenceOrder(true);
         caseDetails.setBreach(true);

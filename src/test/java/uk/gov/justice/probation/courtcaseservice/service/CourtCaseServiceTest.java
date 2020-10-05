@@ -455,7 +455,6 @@ class CourtCaseServiceTest {
 
     static CourtCaseEntity buildCourtCase(String crn) {
         CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().caseId(CASE_ID)
-            .lastUpdated(LAST_UPDATED)
             .breach(BREACH)
             .caseNo(CASE_NO)
             .courtCode(COURT_CODE)

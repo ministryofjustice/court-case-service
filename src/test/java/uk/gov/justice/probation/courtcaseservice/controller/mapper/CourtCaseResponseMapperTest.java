@@ -11,7 +11,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,7 +30,7 @@ public class CourtCaseResponseMapperTest {
     private static final String PROBATION_STATUS = "PROBATION_STATUS";
     private static final boolean SUSPENDED_SENTENCE_ORDER = true;
     private static final boolean BREACH = true;
-    private static final LocalDateTime LAST_UPDATED = LocalDateTime.of(2020, 2, 24, 1, 0);
+    private static final LocalDateTime LAST_UPDATED = LocalDateTime.now();
     private static final LocalDateTime SESSION_START_TIME = LocalDateTime.of(2020, 2, 25, 1, 0);
     private static final LocalDate PREVIOUSLY_KNOWN_TERMINATION_DATE = LocalDate.of(2020, 2, 26);
     private static final String OFFENCE_TITLE = "OFFENCE_TITLE";
@@ -70,7 +69,7 @@ public class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCaseResponse.getCourtRoom()).isEqualTo(COURT_ROOM);
         // TODO: Delete this field
-//        assertThat(courtCaseResponse.getLastUpdated()).isEqualTo(LAST_UPDATED);
+        assertThat(courtCaseResponse.getLastUpdated()).isEqualTo(LAST_UPDATED);
         assertThat(courtCaseResponse.getPreviouslyKnownTerminationDate()).isEqualTo(PREVIOUSLY_KNOWN_TERMINATION_DATE);
         assertThat(courtCaseResponse.getProbationStatus()).isEqualTo(PROBATION_STATUS);
         assertThat(courtCaseResponse.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE_ORDER);
@@ -174,7 +173,7 @@ public class CourtCaseResponseMapperTest {
     }
 
     private CourtCaseEntity buildCourtCaseEntity(List<ImmutableOffenceEntity> offences, List<GroupedOffenderMatchesEntity> matchGroups) {
-        CourtCaseEntity courtCase = CourtCaseEntity.builder()
+        return CourtCaseEntity.builder()
             .id(ID)
             .pnc(PNC)
             .cro(CRO)
@@ -195,16 +194,10 @@ public class CourtCaseResponseMapperTest {
             .caseNo(CASE_NO)
             .breach(BREACH)
             .caseId(CASE_ID)
-            .created(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS))
             .deleted(false)
-            .lastUpdated(LAST_UPDATED)
+            .created(LAST_UPDATED)
             .offences(offences)
             .groupedOffenderMatches(matchGroups)
             .build();
-        courtCase.setLastUpdated(LAST_UPDATED);
-        List<ImmutableOffenceEntity> updatedOffences = offences.stream()
-                .map(offenceEntity -> offenceEntity.withCourtCase(courtCase))
-                .collect(Collectors.toList());
-        return courtCase.withOffences(updatedOffences);
     }
 }

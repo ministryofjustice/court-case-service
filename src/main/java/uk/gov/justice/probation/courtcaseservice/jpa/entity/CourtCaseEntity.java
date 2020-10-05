@@ -42,7 +42,7 @@ import java.util.Objects;
 @With
 @Table(name = "COURT_CASE")
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
-public class CourtCaseEntity extends BaseEntity implements Serializable {
+public class CourtCaseEntity extends BaseImmutableEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)

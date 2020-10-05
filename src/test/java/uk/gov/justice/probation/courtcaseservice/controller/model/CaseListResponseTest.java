@@ -31,7 +31,7 @@ public class CaseListResponseTest {
 
     private CourtCaseResponse buildCourtCaseEntity(LocalDateTime mostRecent, LocalDateTime sessionStartTime) {
         return new CourtCaseResponseMapper().mapFrom(CourtCaseEntity.builder()
-            .lastUpdated(mostRecent)
+            .created(mostRecent)
             .sessionStartTime(sessionStartTime)
             .offences(Collections.emptyList()).build());
     }

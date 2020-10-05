@@ -28,7 +28,7 @@ public class CourtCaseResponseMapper {
                 .listNo(courtCaseEntity.getListNo())
                 .courtRoom(courtCaseEntity.getCourtRoom())
                 .courtCode(courtCaseEntity.getCourtCode())
-                .lastUpdated(courtCaseEntity.getLastUpdated())
+                .lastUpdated(courtCaseEntity.getCreated())
                 .offences(mapOffencesFrom(courtCaseEntity))
                 .previouslyKnownTerminationDate(courtCaseEntity.getPreviouslyKnownTerminationDate())
                 .probationStatus(courtCaseEntity.getProbationStatus())
@@ -74,7 +74,7 @@ public class CourtCaseResponseMapper {
                 .offenceTitle(offenceEntity.getOffenceTitle())
                 .offenceSummary(offenceEntity.getOffenceSummary())
                 .act(offenceEntity.getAct())
-                 .sequenceNumber(offenceEntity.getSequenceNumber())
+                .sequenceNumber(offenceEntity.getSequenceNumber())
                 .build();
     }
 }

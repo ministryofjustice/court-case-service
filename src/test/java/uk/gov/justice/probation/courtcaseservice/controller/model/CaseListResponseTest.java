@@ -33,6 +33,6 @@ public class CaseListResponseTest {
         return new CourtCaseResponseMapper().mapFrom(CourtCaseEntity.builder()
             .created(mostRecent)
             .sessionStartTime(sessionStartTime)
-            .offences(Collections.emptyList()).build());
+            .offences(Collections.emptyList()).build(), null);
     }
 }

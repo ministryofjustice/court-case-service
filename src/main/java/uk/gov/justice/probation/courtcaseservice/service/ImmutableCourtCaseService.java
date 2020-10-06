@@ -1,12 +1,16 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
 import java.time.LocalDate;
@@ -14,21 +18,16 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.InputMismatchException;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class ImmutableCourtCaseService implements CourtCaseService {
 
     private final CourtRepository courtRepository;
     private final CourtCaseRepository courtCaseRepository;
     private final TelemetryService telemetryService;
-
-    public ImmutableCourtCaseService(CourtRepository courtRepository, CourtCaseRepository courtCaseRepository, TelemetryService telemetryService) {
-        this.courtRepository = courtRepository;
-        this.courtCaseRepository = courtCaseRepository;
-        this.telemetryService = telemetryService;
-    }
+    private final GroupedOffenderMatchRepository matchRepository;
 
     @Override
     public CourtCaseEntity createCase(String courtCode, String caseNo, CourtCaseEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
@@ -93,28 +92,31 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     private void updateOffenderMatches(CourtCaseEntity existingCase, CourtCaseEntity updatedCase) {
-        if (existingCase.getGroupedOffenderMatches() == null) return;
+        final var groupedMatches = matchRepository.findByCourtCodeAndCaseNo(updatedCase.getCourtCode(), updatedCase.getCaseNo());
+        groupedMatches
+                .map(GroupedOffenderMatchesEntity::getOffenderMatches)
+                .ifPresent(matches -> matches
+                        .forEach(match -> confirmAndRejectMatches(existingCase, updatedCase, match)));
+        groupedMatches.ifPresent(matchRepository::save);
+    }
 
-        existingCase.getGroupedOffenderMatches()
-                .stream().flatMap(group -> group.getOffenderMatches() != null ? group.getOffenderMatches().stream() : Stream.empty())
-                .forEach(match -> {
-                    boolean crnMatches = match.getCrn().equals(updatedCase.getCrn());
-                    match.setConfirmed(crnMatches);
-                    match.setRejected(!crnMatches);
-                    if (crnMatches){
-                        telemetryService.trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, match);
-                    } else {
-                        telemetryService.trackMatchEvent(TelemetryEventType.MATCH_REJECTED, match);
-                    }
+    private void confirmAndRejectMatches(CourtCaseEntity existingCase, CourtCaseEntity updatedCase, OffenderMatchEntity match) {
+        boolean crnMatches = match.getCrn().equals(updatedCase.getCrn());
+        match.setConfirmed(crnMatches);
+        match.setRejected(!crnMatches);
+        if (crnMatches){
+            telemetryService.trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, match, updatedCase);
+        } else {
+            telemetryService.trackMatchEvent(TelemetryEventType.MATCH_REJECTED, match, updatedCase);
+        }
 
-                    if (crnMatches && updatedCase.getPnc() != null && !updatedCase.getPnc().equals(match.getPnc())) {
-                        log.warn(String.format("Unexpected PNC mismatch when updating offender match - matchId: '%s', crn: '%s', matchPnc: %s, updatePnc: %s",
-                                match.getId(), existingCase.getCrn(), match.getPnc(), existingCase.getPnc()));
-                    }
-                    if (crnMatches && updatedCase.getCro() != null && !updatedCase.getCro().equals(match.getCro())) {
-                        log.warn(String.format("Unexpected CRO mismatch when updating offender match - matchId: '%s', crn: '%s', matchCro: %s, updateCro: %s",
-                                match.getId(), existingCase.getCrn(), match.getCro(), existingCase.getCro()));
-                    }
-                });
+        if (crnMatches && updatedCase.getPnc() != null && !updatedCase.getPnc().equals(match.getPnc())) {
+            log.warn(String.format("Unexpected PNC mismatch when updating offender match - matchId: '%s', crn: '%s', matchPnc: %s, updatePnc: %s",
+                    match.getId(), existingCase.getCrn(), match.getPnc(), existingCase.getPnc()));
+        }
+        if (crnMatches && updatedCase.getCro() != null && !updatedCase.getCro().equals(match.getCro())) {
+            log.warn(String.format("Unexpected CRO mismatch when updating offender match - matchId: '%s', crn: '%s', matchCro: %s, updateCro: %s",
+                    match.getId(), existingCase.getCrn(), match.getCro(), existingCase.getCro()));
+        }
     }
 }

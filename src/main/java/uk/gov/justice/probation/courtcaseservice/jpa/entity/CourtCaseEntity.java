@@ -113,10 +113,6 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "deleted", nullable = false, updatable = false)
     private boolean deleted;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "courtCase", cascade = { CascadeType.ALL }, orphanRemoval=true)
-    private List<GroupedOffenderMatchesEntity> groupedOffenderMatches;
-
     public CourtSession getSession() {
         return CourtSession.from(sessionStartTime);
     }
@@ -124,25 +120,6 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     public String getDefendantSurname() {
         return defendantName == null ? "" : defendantName.substring(defendantName.lastIndexOf(" ")+1);
     }
-//
-//    public void clearOffences() {
-//        for (ImmutableOffenceEntity offenceEntity : this.offences) {
-//            offenceEntity.setCourtCase(null);
-//        }
-//        this.offences.clear();
-//    }
-//
-//    public void removeOffences(List<OffenceEntity> offences) {
-//        this.offences.removeAll(offences);
-//        for (OffenceEntity offenceEntity : offences) {
-//            offenceEntity.setCourtCase(null);
-//        }
-//    }
-//
-//    public void addOffence(OffenceEntity offenceEntity) {
-//        offenceEntity.setCourtCase(this);
-//        this.offences.add(offenceEntity);
-//    }
 
     @Override
     public boolean equals(Object other) {

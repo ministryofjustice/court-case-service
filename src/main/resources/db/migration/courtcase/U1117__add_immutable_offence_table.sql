@@ -9,4 +9,6 @@ DROP TABLE court_case;
 ALTER TABLE offence_bk RENAME TO offence;
 ALTER TABLE court_case_bk RENAME TO court_case;
 
+alter table if exists offender_match_group add constraint fk_offender_match_group_court_case foreign key (case_no, court_code) references court_case (case_no, court_code);
+
 COMMIT;

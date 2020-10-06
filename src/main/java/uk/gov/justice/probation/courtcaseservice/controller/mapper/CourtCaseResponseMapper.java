@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class CourtCaseResponseMapper {
-    public CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity) {
+    public CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, GroupedOffenderMatchesEntity groupedOffenderMatches) {
         return CourtCaseResponse.builder()
                 .caseId(courtCaseEntity.getCaseId())
                 .caseNo(courtCaseEntity.getCaseNo())
@@ -44,16 +44,16 @@ public class CourtCaseResponseMapper {
                 .nationality2(courtCaseEntity.getNationality2())
                 .createdToday(LocalDate.now().isEqual(Optional.ofNullable(courtCaseEntity.getCreated()).orElse(LocalDateTime.now()).toLocalDate()))
                 .removed(courtCaseEntity.isDeleted())
-                .numberOfPossibleMatches(calculateNumberOfPossibleMatches(courtCaseEntity.getGroupedOffenderMatches()))
+                .numberOfPossibleMatches(calculateNumberOfPossibleMatches(groupedOffenderMatches))
                 .build();
     }
 
-    public static long calculateNumberOfPossibleMatches(List<GroupedOffenderMatchesEntity> groupedOffenderMatches) {
+    public static long calculateNumberOfPossibleMatches(GroupedOffenderMatchesEntity groupedOffenderMatches) {
         if (groupedOffenderMatches == null) {
             return 0;
         }
-        return groupedOffenderMatches.stream()
-                .flatMap(group -> group.getOffenderMatches().stream())
+        return groupedOffenderMatches.getOffenderMatches()
+                .stream()
                 .map(OffenderMatchEntity::getCrn)
                 .distinct()
                 .count();

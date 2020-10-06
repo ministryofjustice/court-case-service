@@ -1,11 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +19,13 @@ import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFou
 import uk.gov.justice.probation.courtcaseservice.service.mapper.OffenderMatchMapper;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -56,25 +57,31 @@ public class OffenderMatchService {
 
     public Mono<GroupedOffenderMatchesEntity> getGroupedMatches(String courtCode, String caseNo, Long groupId) {
         return Mono.justOrEmpty(offenderMatchRepository.findById(groupId))
-                .map(e -> {
-                    if (!caseNo.equals(e.getCourtCase().getCaseNo()) || !courtCode.equals(e.getCourtCase().getCourtCode())) {
+                .map(groupedOffenderMatchesEntity -> {
+                    if (!caseNo.equals(groupedOffenderMatchesEntity.getCaseNo()) || !courtCode.equals(groupedOffenderMatchesEntity.getCourtCode())) {
                         throw new EntityNotFoundException(String.format("Grouped Matches %s not found for court %s and caseNo %s", groupId, courtCode, caseNo));
                     }
-                    return e;
+                    return groupedOffenderMatchesEntity;
                 });
     }
 
     public OffenderMatchDetailResponse getOffenderMatchDetails(String courtCode, String caseNo) {
-
-        CourtCaseEntity courtCaseEntity = courtCaseService.getCaseByCaseNumber(courtCode, caseNo);
-        List<OffenderMatchDetail> offenderMatchDetails = offenderMatchRepository.findByCourtCase(courtCaseEntity)
-            .getOffenderMatches().stream()
-            .map(OffenderMatchEntity::getCrn)
-            .map(this::getOffenderMatchDetail)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+        courtCaseService.getCaseByCaseNumber(courtCode, caseNo);    // Throw EntityNotFound if case does not exist
+        List<OffenderMatchDetail> offenderMatchDetails = getOffenderMatches(courtCode, caseNo)
+            .map(GroupedOffenderMatchesEntity::getOffenderMatches)
+            .map(offenderMatchEntities -> offenderMatchEntities
+                    .stream()
+                    .map(OffenderMatchEntity::getCrn)
+                    .map(this::getOffenderMatchDetail)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList())
+            ).orElse(Collections.emptyList());
 
         return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchDetails).build();
+    }
+
+    public Optional<GroupedOffenderMatchesEntity> getOffenderMatches(String courtCode, String caseNo) {
+        return offenderMatchRepository.findByCourtCodeAndCaseNo(courtCode, caseNo);
     }
 
     OffenderMatchDetail getOffenderMatchDetail(String crn) {

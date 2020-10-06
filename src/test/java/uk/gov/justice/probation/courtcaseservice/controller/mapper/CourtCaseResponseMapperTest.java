@@ -50,6 +50,7 @@ public class CourtCaseResponseMapperTest {
     private List<ImmutableOffenceEntity> offences;
     private final CourtCaseResponseMapper courtCaseResponseMapper = new CourtCaseResponseMapper();
     private final AddressPropertiesEntity addressPropertiesEntity = new AddressPropertiesEntity("27", "Elm Place", "ad21 5dr", "Bangor", null, null);
+    private GroupedOffenderMatchesEntity matchGroups;
 
     @Before
     public void setUp() {
@@ -57,12 +58,13 @@ public class CourtCaseResponseMapperTest {
             ImmutableOffenceEntity.builder().offenceTitle(OFFENCE_TITLE).offenceSummary(OFFENCE_SUMMARY).act(ACT).sequenceNumber(1).build(),
             ImmutableOffenceEntity.builder().offenceTitle(OFFENCE_TITLE + "2").offenceSummary(OFFENCE_SUMMARY + "2").act(ACT + "2").sequenceNumber(2).build()
         );
-        courtCaseEntity = buildCourtCaseEntity(offences, buildMatchGroups());
+        matchGroups = buildMatchGroups();
+        courtCaseEntity = buildCourtCaseEntity(offences);
     }
 
     @Test
     public void shouldMapEntityToResponse() {
-        var courtCaseResponse = courtCaseResponseMapper.mapFrom(courtCaseEntity);
+        var courtCaseResponse = courtCaseResponseMapper.mapFrom(courtCaseEntity, matchGroups);
 
         assertThat(courtCaseResponse.getCaseId()).isEqualTo(CASE_ID);
         assertThat(courtCaseResponse.getCaseNo()).isEqualTo(CASE_NO);
@@ -87,13 +89,12 @@ public class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getNationality2()).isEqualTo(NATIONALITY_2);
         assertThat(courtCaseResponse.isRemoved()).isFalse();
         assertThat(courtCaseResponse.isCreatedToday()).isTrue();
-        assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(3);
+        assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(2);
     }
 
     @Test
     public void shouldReturn0IfNoPossibleMatches() {
-        var courtCaseResponse = courtCaseResponseMapper.mapFrom(
-                courtCaseEntity = buildCourtCaseEntity(offences, Collections.emptyList()));
+        var courtCaseResponse = courtCaseResponseMapper.mapFrom(buildCourtCaseEntity(offences), null);
 
         assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(0);
     }
@@ -101,15 +102,14 @@ public class CourtCaseResponseMapperTest {
 
     @Test
     public void shouldReturn0IfNullPossibleMatches() {
-        var courtCaseResponse = courtCaseResponseMapper.mapFrom(
-                courtCaseEntity = buildCourtCaseEntity(offences, null));
+        var courtCaseResponse = courtCaseResponseMapper.mapFrom(courtCaseEntity, null);
 
         assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(0);
     }
 
     @Test
     public void shouldMapOffencesToResponse() {
-        var courtCaseResponse = courtCaseResponseMapper.mapFrom(courtCaseEntity);
+        var courtCaseResponse = courtCaseResponseMapper.mapFrom(courtCaseEntity, matchGroups);
 
         assertThat(courtCaseResponse.getOffences().size()).isEqualTo(2);
 
@@ -134,9 +134,9 @@ public class CourtCaseResponseMapperTest {
             .collect(Collectors.toList());
         Collections.reverse(reorderedOffences);
 
-        var reorderedCourtCaseEntity = buildCourtCaseEntity(reorderedOffences, buildMatchGroups());
+        var reorderedCourtCaseEntity = buildCourtCaseEntity(reorderedOffences);
 
-        var courtCaseResponse = courtCaseResponseMapper.mapFrom(reorderedCourtCaseEntity);
+        var courtCaseResponse = courtCaseResponseMapper.mapFrom(reorderedCourtCaseEntity, matchGroups);
 
         var firstOffence = courtCaseResponse.getOffences().get(0);
         assertThat(firstOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE);
@@ -146,9 +146,8 @@ public class CourtCaseResponseMapperTest {
 
     }
 
-    public List<GroupedOffenderMatchesEntity> buildMatchGroups() {
-        return Arrays.asList(
-                GroupedOffenderMatchesEntity.builder()
+    public GroupedOffenderMatchesEntity buildMatchGroups() {
+        return GroupedOffenderMatchesEntity.builder()
                         .offenderMatches(Arrays.asList(
                                 OffenderMatchEntity.builder()
                                         .crn("1234")
@@ -157,21 +156,10 @@ public class CourtCaseResponseMapperTest {
                                         .crn("2345")
                                         .build()
                         ))
-                        .build(),
-                GroupedOffenderMatchesEntity.builder()
-                        .offenderMatches(Arrays.asList(
-                                OffenderMatchEntity.builder()
-                                        .crn("1234")
-                                        .build(),
-                                OffenderMatchEntity.builder()
-                                        .crn("3456")
-                                        .build()
-                        ))
-                        .build()
-        );
+                        .build();
     }
 
-    private CourtCaseEntity buildCourtCaseEntity(List<ImmutableOffenceEntity> offences, List<GroupedOffenderMatchesEntity> matchGroups) {
+    private CourtCaseEntity buildCourtCaseEntity(List<ImmutableOffenceEntity> offences) {
         return CourtCaseEntity.builder()
             .id(ID)
             .pnc(PNC)
@@ -196,7 +184,6 @@ public class CourtCaseResponseMapperTest {
             .deleted(false)
             .created(LAST_UPDATED)
             .offences(offences)
-            .groupedOffenderMatches(matchGroups)
             .build();
     }
 }

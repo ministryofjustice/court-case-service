@@ -4,8 +4,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.commons.util.StringUtils;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.lang.NonNull;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
@@ -15,6 +19,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.ImmutableOffenceEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
 import java.time.LocalDate;
@@ -24,7 +29,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
@@ -63,19 +67,23 @@ class CourtCaseServiceTest {
     @Mock
     private CourtCaseRepository courtCaseRepository;
     @Mock
+    private GroupedOffenderMatchRepository groupedOffenderMatchRepository;
+    @Mock
     private CourtEntity courtEntity;
     @Mock
     private List<CourtCaseEntity> caseList;
     @Mock
     private TelemetryService telemetryService;
+    @Captor
+    ArgumentCaptor<GroupedOffenderMatchesEntity> matchesCaptor;
 
     private CourtCaseEntity courtCase;
 
+    @InjectMocks
     private ImmutableCourtCaseService service;
 
     @BeforeEach
     void setup() {
-        service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService);
         courtCase = buildCourtCase(CRN);
     }
 
@@ -148,24 +156,21 @@ class CourtCaseServiceTest {
         var caseToUpdate = buildCourtCase(CRN);
         var existingCase = buildCourtCase(null);
 
-        var groupedOffenderMatches = buildOffenderMatchesEntities(existingCase);
-        existingCase.setGroupedOffenderMatches(groupedOffenderMatches);
+        when(groupedOffenderMatchRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(buildOffenderMatches());
         when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE, CASE_NO)).thenReturn(Optional.of(existingCase));
         when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
 
         service.createCase(COURT_CODE, CASE_NO, caseToUpdate);
 
-        var confirmedMatch = groupedOffenderMatches.get(0).getOffenderMatches().get(0);
-        verify(telemetryService).trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, confirmedMatch);
+        verify(groupedOffenderMatchRepository).save(matchesCaptor.capture());
 
-        var rejectedMatch1 = groupedOffenderMatches.get(0).getOffenderMatches().get(1);
-        verify(telemetryService).trackMatchEvent(TelemetryEventType.MATCH_REJECTED, rejectedMatch1);
+        var matches = matchesCaptor.getValue();
 
-        var rejectedMatch2 = groupedOffenderMatches.get(1).getOffenderMatches().get(0);
-        verify(telemetryService).trackMatchEvent(TelemetryEventType.MATCH_REJECTED, rejectedMatch2);
+        var confirmedMatch = matches.getOffenderMatches().get(0);
+        verify(telemetryService).trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, confirmedMatch, caseToUpdate);
 
-        var rejectedMatch3 = groupedOffenderMatches.get(1).getOffenderMatches().get(1);
-        verify(telemetryService).trackMatchEvent(TelemetryEventType.MATCH_REJECTED, rejectedMatch3);
+        var rejectedMatch1 = matches.getOffenderMatches().get(1);
+        verify(telemetryService).trackMatchEvent(TelemetryEventType.MATCH_REJECTED, rejectedMatch1, caseToUpdate);
     }
 
     @Test
@@ -246,77 +251,56 @@ class CourtCaseServiceTest {
     @Test
     public void givenOffenderMatchesExistForCase_whenCrnUpdated_thenUpdateMatches() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-        CourtCaseEntity caseToUpdate = buildCourtCase(CRN);
         CourtCaseEntity existingCase = buildCourtCase(CRN);
+        when(groupedOffenderMatchRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(buildOffenderMatches());
+        CourtCaseEntity caseToUpdate = buildCourtCase(CRN);
 
-        var offenderMatchesEntities = buildOffenderMatchesEntities(existingCase);
-        existingCase.setGroupedOffenderMatches(offenderMatchesEntities);
         when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE, CASE_NO)).thenReturn(Optional.of(existingCase));
         when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
 
-        CourtCaseEntity updatedCase = service.createCase(COURT_CODE, CASE_NO, caseToUpdate);
+        service.createCase(COURT_CODE, CASE_NO, caseToUpdate);
 
-        assertThat(updatedCase.getGroupedOffenderMatches()).hasSize(2);
-        assertThat(updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches()).hasSize(2);
-        assertThat(updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches()).hasSize(2);
+        verify(groupedOffenderMatchRepository).save(matchesCaptor.capture());
 
-        OffenderMatchEntity correctMatch = updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches().get(0);
+        final var groupedOffenderMatches = matchesCaptor.getValue();
+
+        OffenderMatchEntity correctMatch = groupedOffenderMatches.getOffenderMatches().get(0);
         assertThat(correctMatch.getCrn()).isEqualTo(CRN);
         assertThat(correctMatch.getConfirmed()).isEqualTo(true);
         assertThat(correctMatch.getRejected()).isEqualTo(false);
 
-        OffenderMatchEntity rejectedMatch1 = updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches().get(1);
+        OffenderMatchEntity rejectedMatch1 = groupedOffenderMatches.getOffenderMatches().get(1);
         assertThat(rejectedMatch1.getCrn()).isEqualTo("Rejected CRN 1");
         assertThat(rejectedMatch1.getConfirmed()).isEqualTo(false);
         assertThat(rejectedMatch1.getRejected()).isEqualTo(true);
-
-        OffenderMatchEntity rejectedMatch2 = updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches().get(0);
-        assertThat(rejectedMatch2.getCrn()).isEqualTo("Rejected CRN 2");
-        assertThat(rejectedMatch2.getConfirmed()).isEqualTo(false);
-        assertThat(rejectedMatch2.getRejected()).isEqualTo(true);
-
-        OffenderMatchEntity rejectedMatch3 = updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches().get(1);
-        assertThat(rejectedMatch3.getCrn()).isEqualTo("Rejected CRN 3");
-        assertThat(rejectedMatch3.getConfirmed()).isEqualTo(false);
-        assertThat(rejectedMatch3.getRejected()).isEqualTo(true);
 
     }
 
     @Test
     public void givenOffenderMatchesExistForCase_whenCrnRemoved_thenRejectAllMatches() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        when(groupedOffenderMatchRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(buildOffenderMatches());
         CourtCaseEntity caseToUpdate = buildCourtCase(null);
         CourtCaseEntity existingCase = buildCourtCase(CRN);
 
-        existingCase.setGroupedOffenderMatches(buildOffenderMatchesEntities(existingCase));
         when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE, CASE_NO)).thenReturn(Optional.of(existingCase));
         when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
 
-        CourtCaseEntity updatedCase = service.createCase(COURT_CODE, CASE_NO, caseToUpdate);
+        service.createCase(COURT_CODE, CASE_NO, caseToUpdate);
 
-        assertThat(updatedCase.getGroupedOffenderMatches()).hasSize(2);
-        assertThat(updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches()).hasSize(2);
-        assertThat(updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches()).hasSize(2);
+        verify(groupedOffenderMatchRepository).save(matchesCaptor.capture());
 
-        OffenderMatchEntity rejectedMatch1 = updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches().get(0);
+        final var groupedOffenderMatches = matchesCaptor.getValue();
+
+        OffenderMatchEntity rejectedMatch1 = groupedOffenderMatches.getOffenderMatches().get(0);
         assertThat(rejectedMatch1.getCrn()).isEqualTo(CRN);
         assertThat(rejectedMatch1.getConfirmed()).isEqualTo(false);
         assertThat(rejectedMatch1.getRejected()).isEqualTo(true);
 
-        OffenderMatchEntity rejectedMatch2 = updatedCase.getGroupedOffenderMatches().get(0).getOffenderMatches().get(1);
+        OffenderMatchEntity rejectedMatch2 = groupedOffenderMatches.getOffenderMatches().get(1);
         assertThat(rejectedMatch2.getCrn()).isEqualTo("Rejected CRN 1");
         assertThat(rejectedMatch2.getConfirmed()).isEqualTo(false);
         assertThat(rejectedMatch2.getRejected()).isEqualTo(true);
-
-        OffenderMatchEntity rejectedMatch3 = updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches().get(0);
-        assertThat(rejectedMatch3.getCrn()).isEqualTo("Rejected CRN 2");
-        assertThat(rejectedMatch3.getConfirmed()).isEqualTo(false);
-        assertThat(rejectedMatch3.getRejected()).isEqualTo(true);
-
-        OffenderMatchEntity rejectedMatch4 = updatedCase.getGroupedOffenderMatches().get(1).getOffenderMatches().get(1);
-        assertThat(rejectedMatch4.getCrn()).isEqualTo("Rejected CRN 3");
-        assertThat(rejectedMatch4.getConfirmed()).isEqualTo(false);
-        assertThat(rejectedMatch4.getRejected()).isEqualTo(true);
 
     }
 
@@ -324,7 +308,6 @@ class CourtCaseServiceTest {
     public void givenMatchesDontExistForCase_whenCrnUpdated_thenDontThrowException() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
         CourtCaseEntity caseToUpdate = buildCourtCase(CRN);
-        caseToUpdate.setGroupedOffenderMatches(List.of(GroupedOffenderMatchesEntity.builder().offenderMatches(emptyList()).build()));
         when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE, CASE_NO)).thenReturn(Optional.of(caseToUpdate));
         when(courtCaseRepository.save(caseToUpdate)).thenReturn(caseToUpdate);
 
@@ -334,43 +317,30 @@ class CourtCaseServiceTest {
     @Test
     public void givenMatchesAreNullForCase_whenCrnUpdated_thenDontThrowException() {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+        when(groupedOffenderMatchRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.empty());
         CourtCaseEntity caseToUpdate = buildCourtCase(CRN);
-        caseToUpdate.setGroupedOffenderMatches(null);
         when(courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(COURT_CODE, CASE_NO)).thenReturn(Optional.of(caseToUpdate));
         when(courtCaseRepository.save(caseToUpdate)).thenReturn(caseToUpdate);
 
         service.createCase(COURT_CODE, CASE_NO, caseToUpdate);
     }
 
-    private List<GroupedOffenderMatchesEntity> buildOffenderMatchesEntities(CourtCaseEntity existingCase) {
-        return Arrays.asList(
-                GroupedOffenderMatchesEntity.builder()
-                        .courtCase(existingCase)
-                        .offenderMatches(Arrays.asList(OffenderMatchEntity.builder()
-                                        .crn(CRN)
-                                        .confirmed(false)
-                                        .rejected(false)
-                                        .build(),
-                                OffenderMatchEntity.builder()
-                                        .crn("Rejected CRN 1")
-                                        .confirmed(false)
-                                        .rejected(false)
-                                        .build()))
-                        .build(),
-                GroupedOffenderMatchesEntity.builder()
-                        .offenderMatches(Arrays.asList(OffenderMatchEntity.builder()
-                                        .crn("Rejected CRN 2")
-                                        .confirmed(false)
-                                        .rejected(false)
-                                        .build(),
-                                OffenderMatchEntity.builder()
-                                        .crn("Rejected CRN 3")
-                                        .confirmed(false)
-                                        .rejected(false)
-                                        .build()))
-                        .build()
-
-        );
+    @NonNull
+    public Optional<GroupedOffenderMatchesEntity> buildOffenderMatches() {
+        return Optional.ofNullable(GroupedOffenderMatchesEntity.builder()
+                .courtCode(COURT_CODE)
+                .caseNo(CASE_NO)
+                .offenderMatches(Arrays.asList(OffenderMatchEntity.builder()
+                                .crn(CRN)
+                                .confirmed(false)
+                                .rejected(false)
+                                .build(),
+                        OffenderMatchEntity.builder()
+                                .crn("Rejected CRN 1")
+                                .confirmed(false)
+                                .rejected(false)
+                                .build()))
+                .build());
     }
 
     static CourtCaseEntity buildCourtCase(String crn) {

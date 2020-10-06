@@ -10,7 +10,9 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListRespon
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
+import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,13 +38,17 @@ public class CourtCaseControllerTest {
     private CourtCaseResponse courtCaseResponse;
     @Mock
     private CourtCaseRequest courtCaseUpdate;
+    @Mock
+    private OffenderMatchService offenderMatchService;
+    @Mock
+    private GroupedOffenderMatchesEntity groupedOffenderMatchesEntity;
     @InjectMocks
     private CourtCaseController courtCaseController;
     private final CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().caseNo(CASE_NO).courtCode(COURT_CODE).build();
 
     @Test
     public void getCourtCase_shouldReturnCourtCaseResponse() {
-        when(courtCaseResponseMapper.mapFrom(courtCaseEntity)).thenReturn(courtCaseResponse);
+        when(courtCaseResponseMapper.mapFrom(courtCaseEntity, null)).thenReturn(courtCaseResponse);
         when(courtCaseService.getCaseByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(courtCaseEntity);
         CourtCaseResponse courtCase = courtCaseController.getCourtCase(COURT_CODE, CASE_NO);
         assertThat(courtCase).isEqualTo(courtCaseResponse);
@@ -50,7 +56,7 @@ public class CourtCaseControllerTest {
 
     @Test
     public void updateCaseByCourtAndCaseNo_shouldReturnCourtCaseResponse() {
-        when(courtCaseResponseMapper.mapFrom(courtCaseEntity)).thenReturn(courtCaseResponse);
+        when(courtCaseResponseMapper.mapFrom(courtCaseEntity, null)).thenReturn(courtCaseResponse);
         when(courtCaseUpdate.asEntity()).thenReturn(courtCaseEntity);
         when(courtCaseService.createCase(COURT_CODE, CASE_NO, courtCaseEntity)).thenReturn(courtCaseEntity);
         CourtCaseResponse courtCase = courtCaseController.updateCourtCaseNo(COURT_CODE, CASE_NO, courtCaseUpdate);
@@ -59,7 +65,7 @@ public class CourtCaseControllerTest {
 
     @Test
     public void getCaseList_shouldReturnCourtCaseResponse() {
-        when(courtCaseResponseMapper.mapFrom(courtCaseEntity)).thenReturn(courtCaseResponse);
+        when(courtCaseResponseMapper.mapFrom(courtCaseEntity, null)).thenReturn(courtCaseResponse);
         when(courtCaseService.filterCasesByCourtAndDate(COURT_CODE, DATE)).thenReturn(Collections.singletonList(courtCaseEntity));
         CaseListResponse caseList = courtCaseController.getCaseList(COURT_CODE, DATE);
         assertThat(caseList.getCases().get(0)).isEqualTo(courtCaseResponse);
@@ -68,7 +74,7 @@ public class CourtCaseControllerTest {
 
     @Test
     public void getCaseList_sorted() {
-        CourtCaseController controller = new CourtCaseController(courtCaseService, new CourtCaseResponseMapper());
+        CourtCaseController controller = new CourtCaseController(courtCaseService, new CourtCaseResponseMapper(), offenderMatchService);
 
         LocalDateTime mornSession = LocalDateTime.of(DATE, LocalTime.of(9, 30));
         LocalDateTime aftSession = LocalDateTime.of(DATE, LocalTime.of(14, 0));

@@ -22,6 +22,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseReque
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
+import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -38,6 +39,7 @@ public class CourtCaseController {
 
     private final CourtCaseService courtCaseService;
     private final CourtCaseResponseMapper courtCaseResponseMapper;
+    private final OffenderMatchService offenderMatchService;
 
     @ApiOperation(value = "Gets the court case data by case number.")
     @ApiResponses(
@@ -52,7 +54,7 @@ public class CourtCaseController {
     @GetMapping(value = "/court/{courtCode}/case/{caseNo}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCase(@PathVariable String courtCode, @PathVariable String caseNo) {
-        return courtCaseResponseMapper.mapFrom(courtCaseService.getCaseByCaseNumber(courtCode, caseNo));
+        return buildCourtCaseResponse(courtCaseService.getCaseByCaseNumber(courtCode, caseNo));
     }
 
     @ApiOperation(value = "Saves and returns the court case entity data, by court and case number. ")
@@ -71,7 +73,7 @@ public class CourtCaseController {
     CourtCaseResponse updateCourtCaseNo(@PathVariable(value = "courtCode") String courtCode,
                                         @PathVariable(value = "caseNo") String caseNo ,
                                         @Valid @RequestBody CourtCaseRequest courtCaseRequest) {
-        return courtCaseResponseMapper.mapFrom(courtCaseService.createCase(courtCode, caseNo, courtCaseRequest.asEntity()));
+        return buildCourtCaseResponse(courtCaseService.createCase(courtCode, caseNo, courtCaseRequest.asEntity()));
     }
 
     @ApiOperation(value = "Gets case data for a court on a date. ",
@@ -95,9 +97,16 @@ public class CourtCaseController {
                 .sorted(Comparator.comparing(CourtCaseEntity::getCourtRoom)
                                 .thenComparing(CourtCaseEntity::getSessionStartTime)
                                 .thenComparing(CourtCaseEntity::getDefendantSurname))
-                .map(courtCaseResponseMapper::mapFrom)
+                .map(this::buildCourtCaseResponse)
                 .collect(Collectors.toList());
 
         return CaseListResponse.builder().cases(courtCaseResponses).build();
+    }
+
+    private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity) {
+        final var offenderMatchesEntity = offenderMatchService.getOffenderMatches(courtCaseEntity.getCourtCode(), courtCaseEntity.getCaseNo())
+                .orElse(null);
+
+        return courtCaseResponseMapper.mapFrom(courtCaseEntity, offenderMatchesEntity);
     }
 }

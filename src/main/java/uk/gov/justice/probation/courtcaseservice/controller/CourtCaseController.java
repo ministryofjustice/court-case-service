@@ -71,7 +71,7 @@ public class CourtCaseController {
     CourtCaseResponse updateCourtCaseNo(@PathVariable(value = "courtCode") String courtCode,
                                         @PathVariable(value = "caseNo") String caseNo ,
                                         @Valid @RequestBody CourtCaseRequest courtCaseRequest) {
-        return courtCaseResponseMapper.mapFrom(courtCaseService.createOrUpdateCase(courtCode, caseNo, courtCaseRequest.asEntity()));
+        return courtCaseResponseMapper.mapFrom(courtCaseService.createCase(courtCode, caseNo, courtCaseRequest.asEntity()));
     }
 
     @ApiOperation(value = "Gets case data for a court on a date. ",

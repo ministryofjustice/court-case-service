@@ -10,7 +10,7 @@ import java.util.List;
 public interface CourtCaseService {
     CourtCaseEntity getCaseByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException;
 
-    CourtCaseEntity createOrUpdateCase(String courtCode, String caseNo, CourtCaseEntity updatedCase)
+    CourtCaseEntity createCase(String courtCode, String caseNo, CourtCaseEntity updatedCase)
         throws EntityNotFoundException, InputMismatchException;
 
     List<CourtCaseEntity> filterCasesByCourtAndDate(String courtCode, LocalDate date);

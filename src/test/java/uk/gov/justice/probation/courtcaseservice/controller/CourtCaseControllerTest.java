@@ -10,7 +10,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListRespon
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.service.MutableCourtCaseService;
+import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,7 +29,7 @@ public class CourtCaseControllerTest {
     private static final LocalDate DATE = LocalDate.of(2020, 2, 24);
 
     @Mock
-    private MutableCourtCaseService courtCaseService;
+    private CourtCaseService courtCaseService;
     @Mock
     private CourtCaseResponseMapper courtCaseResponseMapper;
     @Mock
@@ -52,7 +52,7 @@ public class CourtCaseControllerTest {
     public void updateCaseByCourtAndCaseNo_shouldReturnCourtCaseResponse() {
         when(courtCaseResponseMapper.mapFrom(courtCaseEntity)).thenReturn(courtCaseResponse);
         when(courtCaseUpdate.asEntity()).thenReturn(courtCaseEntity);
-        when(courtCaseService.createOrUpdateCase(COURT_CODE, CASE_NO, courtCaseEntity)).thenReturn(courtCaseEntity);
+        when(courtCaseService.createCase(COURT_CODE, CASE_NO, courtCaseEntity)).thenReturn(courtCaseEntity);
         CourtCaseResponse courtCase = courtCaseController.updateCourtCaseNo(COURT_CODE, CASE_NO, courtCaseUpdate);
         assertThat(courtCase).isSameAs(courtCaseResponse);
     }

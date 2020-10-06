@@ -1,10 +1,17 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model;
 
-import lombok.Getter;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class OtherIds {
-    private String crn;
-    private String pncNumber;
-    private String croNumber;
+    private final String crn;
+    private final String pncNumber;
+    private final String croNumber;
 }

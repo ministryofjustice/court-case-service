@@ -1,10 +1,15 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.Collections;
+import java.util.List;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
@@ -13,18 +18,14 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatu
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderManager;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentence;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.OtherIds;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
-
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.Collections;
-import java.util.List;
+import uk.gov.justice.probation.courtcaseservice.service.model.Staff;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,8 +38,6 @@ public class OffenderMapperTest {
 
     private static CommunityApiOffenderResponse offenderResponse;
 
-    private OffenderMapper mapper;
-
     @BeforeAll
     public static void setUpBeforeClass() throws IOException {
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -48,33 +47,53 @@ public class OffenderMapperTest {
             = OBJECT_MAPPER.readValue(new File(BASE_MOCK_PATH + "GET_offender_all_X320741.json"), CommunityApiOffenderResponse.class);
     }
 
-    @BeforeEach
-    void setUp() {
-        mapper = new OffenderMapper();
-    }
-
-    @DisplayName("Maps community API offender to ProbationRecord with manager")
+    @DisplayName("Maps community API offender to ProbationRecord with an offender manager")
     @Test
     void shouldMapOffenderProbationRecordDetailsToOffender() {
 
-        var offender = mapper.probationRecordFrom(offenderResponse);
+        var offender = OffenderMapper.probationRecordFrom(offenderResponse);
 
         assertThat(offender.getCrn())
                 .isNotNull()
                 .isEqualTo("X320741");
 
         assertThat(offender.getConvictions()).isNull();
-        assertThat(offender.getOffenderManagers().size()).isEqualTo(1);
-        var actualManager = offender.getOffenderManagers().get(0);
-        assertThat(actualManager.getForenames())
-                .isNotNull()
-                .isEqualTo("Temperance");
-        assertThat(actualManager.getSurname())
-                .isNotNull()
-                .isEqualTo("Brennan");
-        assertThat(actualManager.getAllocatedDate())
-                .isNotNull()
-                .isEqualTo(LocalDate.of(2019, 9, 30));
+        assertThat(offender.getOffenderManagers()).hasSize(1);
+        var offenderManager= offender.getOffenderManagers().get(0);
+        assertThat(offenderManager.getStaff()).isEqualTo(Staff.builder().forenames("Temperance").surname("Brennan").build());
+        assertThat(offenderManager.getTeam().getTelephone()).isEqualTo("0151 222 3333");
+        assertThat(offenderManager.getTeam().getDescription()).isEqualTo("OMIC OMU A");
+        assertThat(offenderManager.getTeam().getDistrict()).isEqualTo("OMiC POM Responsibility");
+        assertThat(offenderManager.getTeam().getLocalDeliveryUnit()).isEqualTo("LDU Description");
+        assertThat(offenderManager.getAllocatedDate()).isEqualTo(LocalDate.of(2019, 9, 30));
+        assertThat(offenderManager.getProvider()).isEqualTo("NPS North East");
+    }
+
+    @DisplayName("Maps community API offender managers but filters out soft deleted and inactive")
+    @Test
+    void givenInactiveOrDeleted_whenMapOffenderManagers_thenFilterThemOut() {
+
+        CommunityApiOffenderManager offenderManager1 = CommunityApiOffenderManager.builder().active(true).softDeleted(true).build();
+        CommunityApiOffenderManager offenderManager2 = CommunityApiOffenderManager.builder().active(false).softDeleted(false).build();
+        CommunityApiOffenderManager offenderManager3 = CommunityApiOffenderManager.builder().active(false).softDeleted(true).build();
+        CommunityApiOffenderResponse apiOffenderResponse = CommunityApiOffenderResponse.builder()
+                                                                        .otherIds(OtherIds.builder().crn("CRN").build())
+                                                                        .offenderManagers(List.of(offenderManager1, offenderManager2, offenderManager3))
+                                                                        .build();
+        var offender = OffenderMapper.probationRecordFrom(apiOffenderResponse);
+
+        assertThat(offender.getOffenderManagers()).isEmpty();
+    }
+
+    @DisplayName("Maps community API offender manager to offender manager handling nulls")
+    @Test
+    void givenNulls_whenMapOffenderManager_thenReturn() {
+
+        var offenderManager = OffenderMapper.buildOffenderManager(CommunityApiOffenderManager.builder().build());
+
+        assertThat(offenderManager.isActive()).isFalse();
+        assertThat(offenderManager.isSoftDeleted()).isFalse();
+        assertThat(offenderManager.getTeam()).isNull();
     }
 
     @DisplayName("Maps community API offender to OffenderDetail")
@@ -82,7 +101,7 @@ public class OffenderMapperTest {
     void shouldMapOffenderDetailsToOffenderDetail() {
         offenderResponse.setDateOfBirth(null);
 
-        var offenderDetail = mapper.offenderDetailFrom(offenderResponse);
+        var offenderDetail = OffenderMapper.offenderDetailFrom(offenderResponse);
 
         assertThat(offenderDetail.getOtherIds().getCrn())
             .isNotNull()
@@ -104,7 +123,7 @@ public class OffenderMapperTest {
             = OBJECT_MAPPER
             .readValue(new File(BASE_MOCK_PATH + "offender-convictions/GET_offender_convictions_X320741.json"), CommunityApiConvictionsResponse.class);
 
-        List<Conviction> convictions = mapper.convictionsFrom(convictionsResponse);
+        List<Conviction> convictions = OffenderMapper.convictionsFrom(convictionsResponse);
 
         assertThat(convictions).hasSize(3);
         Conviction conviction1 = convictions.get(0);
@@ -167,7 +186,7 @@ public class OffenderMapperTest {
                 .build();
         final CommunityApiConvictionsResponse convictionsResponse = new CommunityApiConvictionsResponse(singletonList(convictionResponse));
 
-        final List<Conviction> convictions = mapper.convictionsFrom(convictionsResponse);
+        final List<Conviction> convictions = OffenderMapper.convictionsFrom(convictionsResponse);
 
         final Conviction expectedConviction = Conviction.builder()
             .active(null)
@@ -193,7 +212,7 @@ public class OffenderMapperTest {
             .build();
         final CommunityApiConvictionsResponse convictionsResponse = new CommunityApiConvictionsResponse(singletonList(convictionResponse));
 
-        final List<Conviction> convictions = mapper.convictionsFrom(convictionsResponse);
+        final List<Conviction> convictions = OffenderMapper.convictionsFrom(convictionsResponse);
 
         final Conviction expectedConviction = Conviction.builder()
             .active(null)
@@ -211,7 +230,7 @@ public class OffenderMapperTest {
     @DisplayName("No end date if sentence is null")
     @Test
     void endDateCalculatorNullSentence() {
-        assertThat(mapper.endDateCalculator(null)).isNull();
+        assertThat(OffenderMapper.endDateCalculator(null)).isNull();
     }
 
     @DisplayName("No end date if length of sentence is null")
@@ -220,14 +239,14 @@ public class OffenderMapperTest {
         final CommunityApiSentence sentence = CommunityApiSentence.builder()
                 .startDate(LocalDate.of(2019, 10, 1))
                 .build();
-        assertThat(mapper.endDateCalculator(sentence)).isNull();
+        assertThat(OffenderMapper.endDateCalculator(sentence)).isNull();
     }
 
     @DisplayName("No end date if convictionDate is null")
     @Test
     void endDateCalculatorNullDate() {
         final CommunityApiSentence sentence = CommunityApiSentence.builder().lengthInDays(1).build();
-        assertThat(mapper.endDateCalculator(sentence)).isNull();
+        assertThat(OffenderMapper.endDateCalculator(sentence)).isNull();
     }
 
     @DisplayName("No end date if convictionDate is null")
@@ -236,7 +255,7 @@ public class OffenderMapperTest {
         final CommunityApiSentence sentence = CommunityApiSentence.builder().lengthInDays(1)
                 .startDate(LocalDate.of(2019, 10, 1))
                 .build();
-        assertThat(mapper.endDateCalculator(sentence)).isEqualTo(LocalDate.of(2019, 10, 2));
+        assertThat(OffenderMapper.endDateCalculator(sentence)).isEqualTo(LocalDate.of(2019, 10, 2));
     }
 
     @DisplayName("Test custodial status mapping of values")
@@ -259,7 +278,7 @@ public class OffenderMapperTest {
                 .sentence(KeyValue.builder().description("Sentence Description").build())
                 .build();
 
-        CurrentOrderHeaderResponse orderHeaderResponse = mapper.buildCurrentOrderHeaderDetail(response);
+        CurrentOrderHeaderResponse orderHeaderResponse = OffenderMapper.buildCurrentOrderHeaderDetail(response);
 
         assertThat(orderHeaderResponse).isNotNull();
         assertThat(orderHeaderResponse.getSentenceId()).isEqualTo(1234);
@@ -279,14 +298,14 @@ public class OffenderMapperTest {
     @Test
     void shouldMapEmptyCustodialStatus() {
         CommunityApiCustodialStatusResponse response = CommunityApiCustodialStatusResponse.builder().build();
-        CurrentOrderHeaderResponse orderHeaderResponse = mapper.buildCurrentOrderHeaderDetail(response);
+        CurrentOrderHeaderResponse orderHeaderResponse = OffenderMapper.buildCurrentOrderHeaderDetail(response);
         assertThat(orderHeaderResponse).isNotNull();
     }
 
     @DisplayName("Test mapping of an community API offender to offender match detail")
     @Test
     void shouldMapOffenderToMatchDetail() {
-        OffenderMatchDetail offenderMatchDetail = mapper.offenderMatchDetailFrom(offenderResponse, "M");
+        OffenderMatchDetail offenderMatchDetail = OffenderMapper.offenderMatchDetailFrom(offenderResponse, "M");
         assertOffenderMatchFields(offenderMatchDetail);
     }
 
@@ -295,7 +314,7 @@ public class OffenderMapperTest {
     void shouldMapOffenderToMatchDetailWithNulls() {
         CommunityApiOffenderResponse offenderResponse = CommunityApiOffenderResponse.builder().title("Mr.").build();
 
-        OffenderMatchDetail offenderMatchDetail = mapper.offenderMatchDetailFrom(offenderResponse, "M");
+        OffenderMatchDetail offenderMatchDetail = OffenderMapper.offenderMatchDetailFrom(offenderResponse, "M");
 
         assertThat(offenderMatchDetail.getTitle()).isEqualTo("Mr.");
         assertThat(offenderMatchDetail.getProbationStatus()).isSameAs(ProbationStatus.PREVIOUSLY_KNOWN);
@@ -309,7 +328,7 @@ public class OffenderMapperTest {
     void shouldMapOffenderToMatchDetail_WithSentenceEvent() {
 
         LocalDate eventDate = LocalDate.of(2020, Month.JULY, 29);
-        OffenderMatchDetail offenderMatch = mapper.offenderMatchDetailFrom(offenderResponse, "M");
+        OffenderMatchDetail offenderMatch = OffenderMapper.offenderMatchDetailFrom(offenderResponse, "M");
         Sentence sentence = Sentence.builder()
             .description("Sentence description")
             .length(6)
@@ -317,7 +336,7 @@ public class OffenderMapperTest {
             .startDate(eventDate)
             .build();
 
-        OffenderMatchDetail offenderMatchDetail = mapper.offenderMatchDetailFrom(offenderMatch, sentence);
+        OffenderMatchDetail offenderMatchDetail = OffenderMapper.offenderMatchDetailFrom(offenderMatch, sentence);
 
         assertOffenderMatchFields(offenderMatchDetail);
         assertThat(offenderMatchDetail.getEvent().getLength()).isEqualTo(6);

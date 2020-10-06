@@ -62,8 +62,6 @@ public class OffenderRestClient {
     @Value("${community-api.offender-address-code}")
     private String addressCode;
     @Autowired
-    private OffenderMapper mapper;
-    @Autowired
     private BreachMapper breachMapper;
     @Autowired
     @Qualifier("communityApiClient")
@@ -75,7 +73,7 @@ public class OffenderRestClient {
                 .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
                 .bodyToMono(CommunityApiOffenderResponse.class)
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender probation record data for CRN '%s'", crn), e))
-                .map(offender -> mapper.probationRecordFrom(offender));
+                .map(OffenderMapper::probationRecordFrom);
     }
 
     public Mono<OffenderDetail> getOffenderDetailByCrn(String crn) {
@@ -84,7 +82,7 @@ public class OffenderRestClient {
             .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
             .bodyToMono(CommunityApiOffenderResponse.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender detail data for CRN '%s'", crn), e))
-            .map(offender -> mapper.offenderDetailFrom(offender));
+            .map(OffenderMapper::offenderDetailFrom);
     }
 
     public Mono<OffenderMatchDetail> getOffenderMatchDetailByCrn(String crn) {
@@ -93,7 +91,7 @@ public class OffenderRestClient {
             .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> Mono.justOrEmpty(null))
             .bodyToMono(CommunityApiOffenderResponse.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender match detail data for CRN '%s'", crn), e))
-            .map(offender -> mapper.offenderMatchDetailFrom(offender, addressCode));
+            .map(offender -> OffenderMapper.offenderMatchDetailFrom(offender, addressCode));
     }
 
     public Mono<List<Conviction>> getConvictionsByCrn(String crn) {
@@ -102,7 +100,7 @@ public class OffenderRestClient {
                 .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
                 .bodyToMono(CommunityApiConvictionsResponse.class)
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving convictions data for CRN '%s'", crn), e))
-                .map(convictionsResponse -> mapper.convictionsFrom(convictionsResponse));
+                .map(OffenderMapper::convictionsFrom);
     }
 
     public Mono<List<Breach>> getBreaches(String crn, String convictionId) {

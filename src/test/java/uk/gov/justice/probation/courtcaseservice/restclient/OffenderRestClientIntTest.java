@@ -41,9 +41,6 @@ public class OffenderRestClientIntTest extends BaseIntTest {
         var offenderManager = offender.getOffenderManagers().get(0);
         assertThat(offenderManager.getStaff().getForenames()).isEqualTo("Temperance");
         assertThat(offenderManager.getStaff().getSurname()).isEqualTo("Brennan");
-        assertThat(offenderManager.getTrustOfficer().getForenames()).isEqualTo("Unallocated");
-        assertThat(offenderManager.getTrustOfficer().getSurname()).isEqualTo("Staff");
-        assertThat(offenderManager.getTrustOfficer().getSurname()).isEqualTo("Staff");
         assertThat(offenderManager.getProvider()).isEqualTo("NPS North East");
         assertThat(offenderManager.getTeam().getDescription()).isEqualTo("OMIC OMU A");
         assertThat(offenderManager.getTeam().getTelephone()).isEqualTo("0151 222 3333");

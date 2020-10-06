@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class OffenderManager {
     private final Staff staff;
-    private final Staff trustOfficer;
     private final LocalDate allocatedDate;
     private final Team team;
     private final String provider;

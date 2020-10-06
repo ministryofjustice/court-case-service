@@ -59,8 +59,6 @@ public class OffenderControllerIntTest extends BaseIntTest {
                 .body("crn",  equalTo("X320741"))
                 .body("offenderManagers[0].staff.forenames", equalTo("Temperance"))
                 .body("offenderManagers[0].staff.surname", equalTo("Brennan"))
-                .body("offenderManagers[0].trustOfficer.forenames", equalTo("Unallocated"))
-                .body("offenderManagers[0].trustOfficer.surname", equalTo("Staff"))
                 .body("offenderManagers[0].team.description", equalTo("OMIC OMU A"))
                 .body("offenderManagers[0].team.telephone", equalTo("0151 222 3333"))
                 .body("offenderManagers[0].team.localDeliveryUnit", equalTo("LDU Description"))

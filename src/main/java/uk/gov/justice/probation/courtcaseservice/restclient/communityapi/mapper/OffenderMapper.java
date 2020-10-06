@@ -120,7 +120,6 @@ public class OffenderMapper {
     static OffenderManager buildOffenderManager(CommunityApiOffenderManager offenderManager) {
         return OffenderManager.builder()
             .staff(OffenderMapper.staffOf(offenderManager.getStaff()))
-            .trustOfficer(OffenderMapper.staffOf(offenderManager.getTrustOfficer()))
             .provider(Optional.ofNullable(offenderManager.getProbationArea()).map(KeyValue::getDescription).orElse(null))
             .team(OffenderMapper.teamOf(offenderManager.getTeam()))
             .allocatedDate(offenderManager.getFromDate())

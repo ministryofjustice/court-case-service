@@ -61,7 +61,6 @@ public class OffenderMapperTest {
         assertThat(offender.getOffenderManagers()).hasSize(1);
         var offenderManager= offender.getOffenderManagers().get(0);
         assertThat(offenderManager.getStaff()).isEqualTo(Staff.builder().forenames("Temperance").surname("Brennan").build());
-        assertThat(offenderManager.getTrustOfficer()).isEqualTo(Staff.builder().forenames("Unallocated").surname("Staff").build());
         assertThat(offenderManager.getTeam().getTelephone()).isEqualTo("0151 222 3333");
         assertThat(offenderManager.getTeam().getDescription()).isEqualTo("OMIC OMU A");
         assertThat(offenderManager.getTeam().getDistrict()).isEqualTo("OMiC POM Responsibility");

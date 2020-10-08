@@ -6,7 +6,7 @@ plugins {
     id 'org.springframework.boot' version '2.3.4.RELEASE'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
     id 'com.github.ben-manes.versions' version '0.33.0'
-    id "org.flywaydb.flyway" version "7.0.0"
+    id "org.flywaydb.flyway" version "7.0.1"
     id 'jacoco'
 }
 
@@ -141,7 +141,7 @@ dependencies {
     implementation "io.springfox:springfox-swagger2:$swaggerVersion"
     implementation "io.springfox:springfox-swagger-ui:$swaggerVersion"
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
-    implementation 'com.vladmihalcea:hibernate-types-52:2.9.13'
+    implementation 'com.vladmihalcea:hibernate-types-52:2.10.0'
 
     runtimeOnly "org.springframework.boot:spring-boot-devtools"
     runtime 'org.postgresql:postgresql:42.2.16'

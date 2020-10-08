@@ -61,7 +61,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     private static final AddressPropertiesEntity ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "Bangor", null, null, "ad21 5dr");
     private static final String PROBATION_STATUS = "Previously known";
     private static final String NOT_FOUND_COURT_CODE = "LPL";
-    private static final String DEFENDANT_NAME = "JTEST";
+    private static final String DEFENDANT_NAME = "Mr Dylan Adam ARMSTRONG";
     private static final LocalDate DEFENDANT_DOB = LocalDate.of(1958, 12, 14);
     private static final LocalDateTime sessionStartTime = LocalDateTime.of(2019, 12, 14, 9, 0);
 

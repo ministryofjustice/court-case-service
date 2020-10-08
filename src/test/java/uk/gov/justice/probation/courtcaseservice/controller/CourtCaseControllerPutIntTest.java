@@ -295,25 +295,25 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
 
     private CourtCaseEntity createCaseDetails(String courtCode, String caseNo, String caseId) {
 
-        CourtCaseEntity caseDetails = new CourtCaseEntity();
-        caseDetails.setCourtCode(courtCode);
-        caseDetails.setCaseNo(caseNo);
-        caseDetails.setCaseId(caseId);
-        caseDetails.setCourtRoom("1");
-        caseDetails.setSessionStartTime(LocalDateTime.now());
-        caseDetails.setProbationStatus(PROBATION_STATUS);
-        caseDetails.setPreviouslyKnownTerminationDate(LocalDate.of(2010, 1, 1));
-        caseDetails.setSuspendedSentenceOrder(true);
-        caseDetails.setBreach(true);
-        caseDetails.setDefendantName(DEFENDANT_NAME);
-        caseDetails.setDefendantAddress(ADDRESS);
-        caseDetails.setPnc(PNC);
-        caseDetails.setListNo(LIST_NO);
-        caseDetails.setDefendantDob(DEFENDANT_DOB);
-        caseDetails.setDefendantSex(DEFENDANT_SEX);
-        caseDetails.setNationality1(NATIONALITY_1);
-        caseDetails.setNationality2(NATIONALITY_2);
-        return caseDetails;
+        return CourtCaseEntity.builder()
+                .courtCode(courtCode)
+                .caseNo(caseNo)
+                .caseId(caseId)
+                .courtRoom("1")
+                .sessionStartTime(LocalDateTime.now())
+                .probationStatus(PROBATION_STATUS)
+                .previouslyKnownTerminationDate(LocalDate.of(2010, 1, 1))
+                .suspendedSentenceOrder(true)
+                .breach(true)
+                .defendantName(DEFENDANT_NAME)
+                .defendantAddress(ADDRESS)
+                .pnc(PNC)
+                .listNo(LIST_NO)
+                .defendantDob(DEFENDANT_DOB)
+                .defendantSex(DEFENDANT_SEX)
+                .nationality1(NATIONALITY_1)
+                .nationality2(NATIONALITY_2)
+                .build();
     }
 
     private void createCase() {

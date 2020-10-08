@@ -6,7 +6,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEnt
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.ImmutableOffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
 import java.time.LocalDate;
@@ -47,7 +47,7 @@ public class CourtCaseResponseMapperTest {
     private static final String NATIONALITY_2 = "NATIONALITY_2";
     private static final CourtSession SESSION = CourtSession.MORNING;
     private CourtCaseEntity courtCaseEntity;
-    private List<ImmutableOffenceEntity> offences;
+    private List<OffenceEntity> offences;
     private final CourtCaseResponseMapper courtCaseResponseMapper = new CourtCaseResponseMapper();
     private final AddressPropertiesEntity addressPropertiesEntity = new AddressPropertiesEntity("27", "Elm Place", "ad21 5dr", "Bangor", null, null);
     private GroupedOffenderMatchesEntity matchGroups;
@@ -55,8 +55,8 @@ public class CourtCaseResponseMapperTest {
     @Before
     public void setUp() {
         offences = Arrays.asList(
-            ImmutableOffenceEntity.builder().offenceTitle(OFFENCE_TITLE).offenceSummary(OFFENCE_SUMMARY).act(ACT).sequenceNumber(1).build(),
-            ImmutableOffenceEntity.builder().offenceTitle(OFFENCE_TITLE + "2").offenceSummary(OFFENCE_SUMMARY + "2").act(ACT + "2").sequenceNumber(2).build()
+            OffenceEntity.builder().offenceTitle(OFFENCE_TITLE).offenceSummary(OFFENCE_SUMMARY).act(ACT).sequenceNumber(1).build(),
+            OffenceEntity.builder().offenceTitle(OFFENCE_TITLE + "2").offenceSummary(OFFENCE_SUMMARY + "2").act(ACT + "2").sequenceNumber(2).build()
         );
         matchGroups = buildMatchGroups();
         courtCaseEntity = buildCourtCaseEntity(offences);
@@ -130,7 +130,7 @@ public class CourtCaseResponseMapperTest {
     @Test
     public void shouldReflectOffenceSequenceNumberInResponseOrdering() {
         var reorderedOffences = offences.stream()
-            .sorted(Comparator.comparing(ImmutableOffenceEntity::getSequenceNumber))
+            .sorted(Comparator.comparing(OffenceEntity::getSequenceNumber))
             .collect(Collectors.toList());
         Collections.reverse(reorderedOffences);
 
@@ -159,7 +159,7 @@ public class CourtCaseResponseMapperTest {
                         .build();
     }
 
-    private CourtCaseEntity buildCourtCaseEntity(List<ImmutableOffenceEntity> offences) {
+    private CourtCaseEntity buildCourtCaseEntity(List<OffenceEntity> offences) {
         return CourtCaseEntity.builder()
             .id(ID)
             .pnc(PNC)

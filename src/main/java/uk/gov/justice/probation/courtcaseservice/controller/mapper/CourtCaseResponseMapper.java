@@ -5,7 +5,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRespo
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.ImmutableOffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
 import java.time.LocalDate;
@@ -69,7 +69,7 @@ public class CourtCaseResponseMapper {
                 .collect(Collectors.toList());
     }
 
-    private OffenceResponse mapFrom(ImmutableOffenceEntity offenceEntity) {
+    private OffenceResponse mapFrom(OffenceEntity offenceEntity) {
         return OffenceResponse.builder()
                 .offenceTitle(offenceEntity.getOffenceTitle())
                 .offenceSummary(offenceEntity.getOffenceSummary())

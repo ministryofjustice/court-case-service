@@ -12,8 +12,9 @@ create table immutable_offence
     offence_summary varchar(255),
     offence_title   varchar(255),
     sequence_number int4      not null,
-    court_case_id   int8,
-    primary key (id)
+    court_case_id   int8 not null,
+    primary key (id),
+    CONSTRAINT fk_immutable_offence_court_case FOREIGN KEY (court_case_id) REFERENCES COURT_CASE (ID)
 );
 
 alter table if exists immutable_offence add constraint fk_offence_court_case_id

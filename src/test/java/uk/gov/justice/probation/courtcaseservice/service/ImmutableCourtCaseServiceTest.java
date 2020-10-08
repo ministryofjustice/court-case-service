@@ -3,7 +3,6 @@ package uk.gov.justice.probation.courtcaseservice.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.platform.commons.util.StringUtils;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -15,7 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEnt
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.ImmutableOffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
@@ -344,7 +343,7 @@ class ImmutableCourtCaseServiceTest {
     }
 
     static CourtCaseEntity buildCourtCase(String crn) {
-        CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().caseId(CASE_ID)
+        return CourtCaseEntity.builder().caseId(CASE_ID)
             .breach(BREACH)
             .caseNo(CASE_NO)
             .courtCode(COURT_CODE)
@@ -362,22 +361,16 @@ class ImmutableCourtCaseServiceTest {
             .suspendedSentenceOrder(SUSPENDED_SENTENCE)
             .previouslyKnownTerminationDate(TERMINATION_DATE)
             .pnc(PNC)
+            .offences(List.of(buildOffenceEntity()))
             .build();
-        courtCaseEntity.setOffences(List.of(buildOffenceEntity("1", courtCaseEntity)));
-        return courtCaseEntity;
     }
 
-    static ImmutableOffenceEntity buildOffenceEntity(String sequenceNumber, CourtCaseEntity courtCaseEntity) {
-        if (StringUtils.isBlank(sequenceNumber)) {
-            return ImmutableOffenceEntity.builder().act("ACT-NULL").build();
-        }
-
-        return ImmutableOffenceEntity.builder()
-            .sequenceNumber(Integer.valueOf(sequenceNumber))
+    static OffenceEntity buildOffenceEntity() {
+        return OffenceEntity.builder()
+            .sequenceNumber(Integer.valueOf("1"))
             .offenceTitle(OFFENCE_TITLE)
             .offenceSummary(OFFENCE_SUMMARY)
-            .act("ACT" + sequenceNumber)
-            .courtCase(courtCaseEntity)
+            .act("ACT1")
             .build();
     }
 

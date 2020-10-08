@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.ImmutableOffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -38,13 +38,13 @@ public class CourtCaseRequest {
     private final String nationality2;
 
     public CourtCaseEntity asEntity() {
-        final List<ImmutableOffenceEntity> offences = IntStream.range(0, Optional.ofNullable(getOffences())
+        final List<OffenceEntity> offences = IntStream.range(0, Optional.ofNullable(getOffences())
                 .map(List::size)
                 .orElse(0)
         )
                 .mapToObj(i -> {
                     var offence = getOffences().get(i);
-                    return ImmutableOffenceEntity.builder()
+                    return OffenceEntity.builder()
                             .sequenceNumber(i + 1)
                             .offenceTitle(offence.getOffenceTitle())
                             .offenceSummary(offence.getOffenceSummary())

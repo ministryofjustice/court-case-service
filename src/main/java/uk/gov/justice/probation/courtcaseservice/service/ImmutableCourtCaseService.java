@@ -43,10 +43,10 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         return courtCaseRepository.save(updatedCase);
     }
 
-    private void trackCreateEvents(CourtCaseEntity updatedCase) {
-        telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, updatedCase);
-        if (updatedCase.getCrn() != null)
-            telemetryService.trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, updatedCase);
+    private void trackCreateEvents(CourtCaseEntity createdCase) {
+        telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, createdCase);
+        if (createdCase.getCrn() != null)
+            telemetryService.trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, createdCase);
     }
 
     private void trackUpdateEvents(CourtCaseEntity updatedCase, CourtCaseEntity existingCase) {

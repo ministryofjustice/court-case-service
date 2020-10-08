@@ -38,7 +38,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CourtCaseServiceTest {
+class ImmutableCourtCaseServiceTest {
 
     private static final String CASE_ID = "CASE_ID";
     private static final String CASE_NO = "1600028912";

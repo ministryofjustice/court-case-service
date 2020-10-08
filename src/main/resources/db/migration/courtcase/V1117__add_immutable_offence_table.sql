@@ -22,6 +22,7 @@ alter table if exists immutable_offence add constraint fk_offence_court_case_id
 ALTER TABLE offence DROP CONSTRAINT fk_offence_court_case;
 ALTER TABLE offender_match_group DROP CONSTRAINT fk_offender_match_group_court_case;
 ALTER TABLE court_case DROP CONSTRAINT court_case_uq;
+ALTER TABLE court_case DROP COLUMN version;
 
 INSERT INTO immutable_offence (created, created_by, act, offence_summary, offence_title,
                                sequence_number, court_case_id)

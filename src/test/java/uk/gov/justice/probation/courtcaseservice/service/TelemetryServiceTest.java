@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.Map;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -36,8 +35,6 @@ class TelemetryServiceTest {
     private TelemetryClient telemetryClient;
     @Mock
     private Map<String, String> requestProperties;
-    @Mock
-    private CourtCaseEntity mockCourtCase;
 
     @Captor
     private ArgumentCaptor<Map<String, String>> properties;
@@ -54,7 +51,6 @@ class TelemetryServiceTest {
 
         OffenderMatchEntity match = OffenderMatchEntity.builder()
                 .group(GroupedOffenderMatchesEntity.builder()
-                        .courtCase(buildCourtCase())
                         .offenderMatches(Arrays.asList(
                                 OffenderMatchEntity.builder().build(),
                                 OffenderMatchEntity.builder().build(),
@@ -64,7 +60,7 @@ class TelemetryServiceTest {
                 .crn(CRN)
                 .build();
 
-        service.trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, match);
+        service.trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, match, buildCourtCase());
 
         verify(telemetryClient).trackEvent(eq("PiCMatchConfirmed"), properties.capture(), metricsCaptor.capture());
 
@@ -149,18 +145,6 @@ class TelemetryServiceTest {
                 .offences(emptyList())
                 .crn(CRN)
                 .pnc(PNC)
-                .groupedOffenderMatches(Arrays.asList(
-                        GroupedOffenderMatchesEntity.builder()
-                                .offenderMatches(singletonList(OffenderMatchEntity.builder()
-                                        .crn("1")
-                                        .build()))
-                                .build(),
-                        GroupedOffenderMatchesEntity.builder()
-                                .offenderMatches(singletonList(OffenderMatchEntity.builder()
-                                        .crn("2")
-                                        .build()))
-                                .build()
-                ))
                 .sessionStartTime(LocalDateTime.of(2020, 9, 22, 9, 30))
                 .build();
     }

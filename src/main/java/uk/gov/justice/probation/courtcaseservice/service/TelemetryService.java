@@ -46,18 +46,14 @@ public class TelemetryService {
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }
 
-    public void trackMatchEvent(TelemetryEventType eventType, OffenderMatchEntity matchEntity) {
+    public void trackMatchEvent(TelemetryEventType eventType, OffenderMatchEntity matchEntity, CourtCaseEntity courtCaseEntity) {
 
         Map<String, String> properties = new HashMap<>();
 
-        ofNullable(matchEntity)
-                .map(OffenderMatchEntity::getGroup)
-                .map(GroupedOffenderMatchesEntity::getCourtCase)
+        ofNullable(courtCaseEntity)
                 .map(CourtCaseEntity::getCourtCode)
                 .ifPresent((code) -> properties.put("courtCode", code));
-        ofNullable(matchEntity)
-                .map(OffenderMatchEntity::getGroup)
-                .map(GroupedOffenderMatchesEntity::getCourtCase)
+        ofNullable(courtCaseEntity)
                 .map(CourtCaseEntity::getCaseNo)
                 .ifPresent((caseNo) -> properties.put("caseNo", caseNo));
         ofNullable(matchEntity)

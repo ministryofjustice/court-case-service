@@ -1,15 +1,11 @@
-package uk.gov.justice.probation.courtcaseservice.jpa.entity;
+package uk.gov.justice.probation.courtcaseservice.controller.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.io.Serializable;
-
 @Data
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class AddressPropertiesEntity implements Serializable {
+public class AddressRequest {
     private final String line1;
     private final String line2;
     private final String line3;

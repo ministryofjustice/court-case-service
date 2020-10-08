@@ -1,12 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +20,13 @@ import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFou
 import uk.gov.justice.probation.courtcaseservice.service.mapper.OffenderMatchMapper;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -84,9 +85,8 @@ class OffenderMatchServiceTest {
 
     @Test
     void givenValidRequest_whenGetGroupedMatches_thenReturnValidMatch() {
-        when(groupedOffenderMatchesEntity.getCourtCase()).thenReturn(courtCaseEntity);
-        when(courtCaseEntity.getCourtCode()).thenReturn(COURT_CODE);
-        when(courtCaseEntity.getCaseNo()).thenReturn(CASE_NO);
+        when(groupedOffenderMatchesEntity.getCourtCode()).thenReturn(COURT_CODE);
+        when(groupedOffenderMatchesEntity.getCaseNo()).thenReturn(CASE_NO);
         when(offenderMatchRepository.findById(ID)).thenReturn(Optional.of(groupedOffenderMatchesEntity));
 
         Optional<GroupedOffenderMatchesEntity> entity = service.getGroupedMatches(COURT_CODE, CASE_NO, ID).blockOptional();
@@ -96,9 +96,8 @@ class OffenderMatchServiceTest {
 
     @Test
     void givenCourtCodeDoesNotMatch_whenGetGroupedMatches_thenThrowEntityNotFound() {
-        when(groupedOffenderMatchesEntity.getCourtCase()).thenReturn(courtCaseEntity);
-        when(courtCaseEntity.getCourtCode()).thenReturn(COURT_CODE);
-        when(courtCaseEntity.getCaseNo()).thenReturn(CASE_NO);
+        when(groupedOffenderMatchesEntity.getCourtCode()).thenReturn(COURT_CODE);
+        when(groupedOffenderMatchesEntity.getCaseNo()).thenReturn(CASE_NO);
         when(offenderMatchRepository.findById(ID)).thenReturn(Optional.of(groupedOffenderMatchesEntity));
 
         assertThatExceptionOfType(EntityNotFoundException.class)
@@ -107,8 +106,7 @@ class OffenderMatchServiceTest {
 
     @Test
     void givenCaseNoDoesNotMatch_whenGetGroupedMatches_thenThrowEntityNotFound() {
-        when(groupedOffenderMatchesEntity.getCourtCase()).thenReturn(courtCaseEntity);
-        when(courtCaseEntity.getCaseNo()).thenReturn(CASE_NO);
+        when(groupedOffenderMatchesEntity.getCaseNo()).thenReturn(CASE_NO);
         when(offenderMatchRepository.findById(ID)).thenReturn(Optional.of(groupedOffenderMatchesEntity));
 
         assertThatExceptionOfType(EntityNotFoundException.class)
@@ -202,8 +200,7 @@ class OffenderMatchServiceTest {
         String crn1 = "X320741";
         String crn2 = "X320742";
 
-        when(courtCaseService.getCaseByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(courtCaseEntity);
-        when(offenderMatchRepository.findByCourtCase(courtCaseEntity)).thenReturn(buildGroupedOffenderMatchesEntity(List.of(crn1, crn2)));
+        when(offenderMatchRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.ofNullable(buildGroupedOffenderMatchesEntity(List.of(crn1, crn2))));
 
         Conviction conviction1 = buildConviction(true, "sentence1");
         Conviction conviction2 = buildConviction(false, "sentence2");

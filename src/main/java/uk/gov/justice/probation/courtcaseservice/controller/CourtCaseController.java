@@ -18,15 +18,16 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
+import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -38,6 +39,7 @@ public class CourtCaseController {
 
     private final CourtCaseService courtCaseService;
     private final CourtCaseResponseMapper courtCaseResponseMapper;
+    private final OffenderMatchService offenderMatchService;
 
     @ApiOperation(value = "Gets the court case data by case number.")
     @ApiResponses(
@@ -52,7 +54,7 @@ public class CourtCaseController {
     @GetMapping(value = "/court/{courtCode}/case/{caseNo}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCase(@PathVariable String courtCode, @PathVariable String caseNo) {
-        return courtCaseResponseMapper.mapFrom(courtCaseService.getCaseByCaseNumber(courtCode, caseNo));
+        return buildCourtCaseResponse(courtCaseService.getCaseByCaseNumber(courtCode, caseNo));
     }
 
     @ApiOperation(value = "Saves and returns the court case entity data, by court and case number. ")
@@ -70,8 +72,8 @@ public class CourtCaseController {
     public @ResponseBody
     CourtCaseResponse updateCourtCaseNo(@PathVariable(value = "courtCode") String courtCode,
                                         @PathVariable(value = "caseNo") String caseNo ,
-                                        @Valid @RequestBody CourtCaseEntity courtCaseDetails) {
-        return courtCaseResponseMapper.mapFrom(courtCaseService.createOrUpdateCase(courtCode, caseNo, courtCaseDetails));
+                                        @Valid @RequestBody CourtCaseRequest courtCaseRequest) {
+        return buildCourtCaseResponse(courtCaseService.createCase(courtCode, caseNo, courtCaseRequest.asEntity()));
     }
 
     @ApiOperation(value = "Gets case data for a court on a date. ",
@@ -95,24 +97,16 @@ public class CourtCaseController {
                 .sorted(Comparator.comparing(CourtCaseEntity::getCourtRoom)
                                 .thenComparing(CourtCaseEntity::getSessionStartTime)
                                 .thenComparing(CourtCaseEntity::getDefendantSurname))
-                .map(courtCaseResponseMapper::mapFrom)
+                .map(this::buildCourtCaseResponse)
                 .collect(Collectors.toList());
 
         return CaseListResponse.builder().cases(courtCaseResponses).build();
     }
 
-    @ApiOperation(value = "For the date / cases passed, delete any cases NOT in the list.")
-    @ApiResponses(
-        value = {
-            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "If the court is not found by the code passed."),
-            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-        })
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    @PutMapping(value = "/court/{courtCode}/cases/purgeAbsent", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public void purgeAbsentCases(@PathVariable String courtCode, @Valid @RequestBody Map<LocalDate, List<String>> existingCasesByDate) {
-        courtCaseService.deleteAbsentCases(courtCode, existingCasesByDate);
+    private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity) {
+        final var offenderMatchesEntity = offenderMatchService.getOffenderMatches(courtCaseEntity.getCourtCode(), courtCaseEntity.getCaseNo())
+                .orElse(null);
+
+        return courtCaseResponseMapper.mapFrom(courtCaseEntity, offenderMatchesEntity);
     }
 }

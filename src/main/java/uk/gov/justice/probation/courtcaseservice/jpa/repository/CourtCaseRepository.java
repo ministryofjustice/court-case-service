@@ -1,18 +1,19 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Long> {
-    Optional<CourtCaseEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo);
+    Optional<CourtCaseEntity> findTopByCourtCodeAndCaseNoOrderByCreatedDesc(String courtCode, String caseNo);
 
     List<CourtCaseEntity> findByCourtCodeAndSessionStartTimeBetween(String courtCode, LocalDateTime start, LocalDateTime end);
 

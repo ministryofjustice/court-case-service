@@ -1,9 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.MatchIdentifiers;
@@ -12,6 +8,11 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.service.model.MatchType;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,7 +48,8 @@ class OffenderMatchMapperTest {
 
         assertThat(matchesEntity.getOffenderMatches()).hasSize(2);
         assertThat(matchesEntity.getId()).isNull();
-        assertThat(matchesEntity.getCourtCase()).isSameAs(courtCaseEntity);
+        assertThat(matchesEntity.getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(matchesEntity.getCaseNo()).isEqualTo(CASE_NO);
 
         var first = matchesEntity.getOffenderMatches().get(0);
         assertThat(first.getGroup()).isEqualTo(matchesEntity);
@@ -103,7 +105,8 @@ class OffenderMatchMapperTest {
         List<OffenderMatchEntity> offenderMatchEntities = new ArrayList<>();
         offenderMatchEntities.add(offenderMatchEntity);
         GroupedOffenderMatchesEntity existingEntity = GroupedOffenderMatchesEntity.builder()
-            .courtCase(courtCaseEntity)
+            .courtCode(COURT_CODE)
+            .caseNo(CASE_NO)
             .id(99L)
             .offenderMatches(offenderMatchEntities)
             .build();
@@ -120,7 +123,8 @@ class OffenderMatchMapperTest {
 
         assertThat(matchesEntity.getOffenderMatches()).hasSize(1);
         assertThat(matchesEntity).isSameAs(existingEntity);
-        assertThat(matchesEntity.getCourtCase()).isSameAs(courtCaseEntity);
+        assertThat(matchesEntity.getCourtCode()).isSameAs(COURT_CODE);
+        assertThat(matchesEntity.getCaseNo()).isSameAs(CASE_NO);
 
         var first = matchesEntity.getOffenderMatches().get(0);
         assertThat(first.getGroup()).isEqualTo(matchesEntity);

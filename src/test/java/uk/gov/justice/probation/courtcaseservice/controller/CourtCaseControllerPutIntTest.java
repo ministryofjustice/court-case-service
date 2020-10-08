@@ -14,25 +14,19 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.BaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
-import static java.time.Month.JANUARY;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
@@ -65,7 +59,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     private static final String NATIONALITY_1 = "British";
     private static final String NATIONALITY_2 = "Polish";
     private static final String COURT_CODE = "SHF";
-    private static final AddressPropertiesEntity ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "ad21 5dr", "Bangor", null, null);
+    private static final AddressPropertiesEntity ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "Bangor", null, null, "ad21 5dr");
     private static final String PROBATION_STATUS = "Previously known";
     private static final String NOT_FOUND_COURT_CODE = "LPL";
     private static final String DEFENDANT_NAME = "JTEST";
@@ -168,10 +162,10 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
             .body("defendantName", equalTo(DEFENDANT_NAME))
             .body("defendantAddress.line1", equalTo(ADDRESS.getLine1()))
             .body("defendantAddress.line2", equalTo(ADDRESS.getLine2()))
-            .body("defendantAddress.postcode", equalTo(ADDRESS.getPostcode()))
             .body("defendantAddress.line3", equalTo(ADDRESS.getLine3()))
             .body("defendantAddress.line4", equalTo(null))
             .body("defendantAddress.line5", equalTo(null))
+            .body("defendantAddress.postcode", equalTo(ADDRESS.getPostcode()))
             .body("offences", hasSize(2))
             .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
             .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
@@ -281,54 +275,6 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenPurgeCases_ThenReturn204NoContent() {
-
-        LocalDate date1Jan = LocalDate.of(2020, JANUARY, 1);
-        LocalDate date2Jan = LocalDate.of(2020, JANUARY, 2);
-        LocalDate date3Jan = LocalDate.of(2020, JANUARY, 3);
-
-        given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(Map.of(date1Jan, Arrays.asList("1000000", "1000001"), date2Jan, Arrays.asList("1000003", "1000007"), date3Jan, singletonList("1000010")))
-            .when()
-            .put(String.format("/court/%s/cases/purgeAbsent", COURT_CODE))
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
-        ;
-
-        // 1 Jan - 2 cases - neither deleted
-        LocalDateTime start = LocalDateTime.of(date1Jan, LocalTime.MIDNIGHT);
-        List<CourtCaseEntity> courtCases1 = courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(COURT_CODE, start, start.plusDays(1));
-        assertThat(courtCases1).hasSize(2);
-        assertThat(courtCases1).extracting("deleted").containsOnly(Boolean.FALSE);
-
-        // 2 Jan - 6 cases - 4 removed and deleted also on child offences
-        start = LocalDateTime.of(date2Jan, LocalTime.MIDNIGHT);
-        List<CourtCaseEntity> courtCases2 = courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(COURT_CODE, start, start.plusDays(1));
-        assertThat(courtCases2).hasSize(6);
-        List<String> date2Deleted = courtCases2.stream()
-            .filter(BaseEntity::isDeleted)
-            .map(CourtCaseEntity::getCaseNo)
-            .collect(Collectors.toList());
-        assertThat(date2Deleted).containsAll(Arrays.asList("1000002", "1000005", "1000005", "1000006"));
-        List<OffenceEntity> deletedCaseWithOffences = courtCases2.stream()
-            .filter(e -> e.isDeleted() && !e.getOffences().isEmpty())
-            .findFirst()
-            .map(CourtCaseEntity::getOffences)
-            .orElseThrow();
-        assertThat(deletedCaseWithOffences).extracting("deleted").containsOnly(Boolean.TRUE);
-
-        // 3 Jan - all 2 removed
-        start = LocalDateTime.of(date3Jan, LocalTime.MIDNIGHT);
-        List<CourtCaseEntity> courtCases3 = courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(COURT_CODE, start, start.plusDays(1));
-        assertThat(courtCases3).hasSize(2);
-        assertThat(courtCases3).extracting("deleted").containsOnly(Boolean.TRUE);
-    }
-
-    @Test
     public void givenUnknownCourtCode_whenPurgeCases_ThenReturn404() {
 
         Map<LocalDate, List<Long>> existingCases = new HashMap<>(2);
@@ -349,26 +295,25 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
 
     private CourtCaseEntity createCaseDetails(String courtCode, String caseNo, String caseId) {
 
-        CourtCaseEntity caseDetails = new CourtCaseEntity();
-        caseDetails.setCourtCode(courtCode);
-        caseDetails.setCaseNo(caseNo);
-        caseDetails.setCaseId(caseId);
-        caseDetails.setCourtRoom("1");
-        caseDetails.setSessionStartTime(LocalDateTime.now());
-        caseDetails.setProbationStatus(PROBATION_STATUS);
-        caseDetails.setLastUpdated(LocalDateTime.now());
-        caseDetails.setPreviouslyKnownTerminationDate(LocalDate.of(2010, 1, 1));
-        caseDetails.setSuspendedSentenceOrder(true);
-        caseDetails.setBreach(true);
-        caseDetails.setDefendantName(DEFENDANT_NAME);
-        caseDetails.setDefendantAddress(ADDRESS);
-        caseDetails.setPnc(PNC);
-        caseDetails.setListNo(LIST_NO);
-        caseDetails.setDefendantDob(DEFENDANT_DOB);
-        caseDetails.setDefendantSex(DEFENDANT_SEX);
-        caseDetails.setNationality1(NATIONALITY_1);
-        caseDetails.setNationality2(NATIONALITY_2);
-        return caseDetails;
+        return CourtCaseEntity.builder()
+                .courtCode(courtCode)
+                .caseNo(caseNo)
+                .caseId(caseId)
+                .courtRoom("1")
+                .sessionStartTime(LocalDateTime.now())
+                .probationStatus(PROBATION_STATUS)
+                .previouslyKnownTerminationDate(LocalDate.of(2010, 1, 1))
+                .suspendedSentenceOrder(true)
+                .breach(true)
+                .defendantName(DEFENDANT_NAME)
+                .defendantAddress(ADDRESS)
+                .pnc(PNC)
+                .listNo(LIST_NO)
+                .defendantDob(DEFENDANT_DOB)
+                .defendantSex(DEFENDANT_SEX)
+                .nationality1(NATIONALITY_1)
+                .nationality2(NATIONALITY_2)
+                .build();
     }
 
     private void createCase() {

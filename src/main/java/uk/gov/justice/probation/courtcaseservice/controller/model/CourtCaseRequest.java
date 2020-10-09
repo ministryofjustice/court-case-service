@@ -1,17 +1,18 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
-import lombok.Builder;
-import lombok.Data;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import lombok.Builder;
+import lombok.Data;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 
 @Data
 @Builder
@@ -26,10 +27,12 @@ public class CourtCaseRequest {
     private final Boolean suspendedSentenceOrder;
     private final Boolean breach;
     private final List<OffenceRequest> offences;
+    private final NamePropertiesEntity name;
     private final String defendantName;
     private final AddressRequest defendantAddress;
     private final LocalDate defendantDob;
     private final String defendantSex;
+    private final DefendantType defendantType;
     private final String crn;
     private final String pnc;
     private final String cro;
@@ -65,6 +68,16 @@ public class CourtCaseRequest {
                 .defendantName(defendantName)
                 .defendantDob(defendantDob)
                 .defendantSex(defendantSex)
+                .defendantType(defendantType)
+                .name(Optional.ofNullable(name)
+                        .map(nameRequest -> NamePropertiesEntity.builder()
+                            .title(name.getTitle())
+                            .forename1(name.getForename1())
+                            .forename2(name.getForename2())
+                            .forename3(name.getForename3())
+                            .surname(name.getSurname())
+                            .build()
+                        ).orElse(null) )
                 .crn(crn)
                 .pnc(pnc)
                 .cro(cro)
@@ -73,14 +86,15 @@ public class CourtCaseRequest {
                 .nationality2(nationality2)
                 .offences(offences)
                 .defendantAddress(Optional.ofNullable(defendantAddress)
-                        .map(addressRequest -> new AddressPropertiesEntity(
-                                defendantAddress.getLine1(),
-                                defendantAddress.getLine2(),
-                                defendantAddress.getLine3(),
-                                defendantAddress.getLine4(),
-                                defendantAddress.getLine5(),
-                                defendantAddress.getPostcode()
-                        )).orElse(null))
+                        .map(addressRequest -> AddressPropertiesEntity.builder()
+                                .line1(defendantAddress.getLine1())
+                                .line2(defendantAddress.getLine2())
+                                .line3(defendantAddress.getLine3())
+                                .line4(defendantAddress.getLine4())
+                                .line5(defendantAddress.getLine5())
+                                .postcode(defendantAddress.getPostcode())
+                            .build()
+                        ).orElse(null))
                 .build();
 
         offences.forEach(offence -> offence.setCourtCase(entity));

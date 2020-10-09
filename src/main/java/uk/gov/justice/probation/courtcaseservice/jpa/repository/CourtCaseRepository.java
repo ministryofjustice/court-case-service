@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Long> {
     Optional<CourtCaseEntity> findTopByCourtCodeAndCaseNoOrderByCreatedDesc(String courtCode, String caseNo);
 
-    List<CourtCaseEntity> findByCourtCodeAndSessionStartTimeBetween(String courtCode, LocalDateTime start, LocalDateTime end);
+    List<CourtCaseEntity> findByCourtCodeAndSessionStartTimeBetweenAndCreatedAfter(String courtCode, LocalDateTime start, LocalDateTime end, LocalDateTime createdAfter);
 
     @Query(value = "Select cc FROM CourtCaseEntity cc "
         + "WHERE cc.courtCode = :courtCode "

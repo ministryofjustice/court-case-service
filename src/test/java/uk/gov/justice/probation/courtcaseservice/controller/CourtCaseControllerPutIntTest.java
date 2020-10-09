@@ -1,5 +1,13 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
 import org.junit.Before;
@@ -16,15 +24,6 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
-
-import java.nio.file.Files;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +61,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     private static final AddressPropertiesEntity ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "Bangor", null, null, "ad21 5dr");
     private static final String PROBATION_STATUS = "Previously known";
     private static final String NOT_FOUND_COURT_CODE = "LPL";
-    private static final String DEFENDANT_NAME = "JTEST";
+    private static final String DEFENDANT_NAME = "Mr Dylan Adam ARMSTRONG";
     private static final LocalDate DEFENDANT_DOB = LocalDate.of(1958, 12, 14);
     private static final LocalDateTime sessionStartTime = LocalDateTime.of(2019, 12, 14, 9, 0);
 
@@ -103,6 +102,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
             .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2018, 6, 24).format(DateTimeFormatter.ISO_LOCAL_DATE)))
             .body("suspendedSentenceOrder", equalTo(true))
             .body("breach", equalTo(true))
+            .body("defendantType", equalTo("PERSON"))
             .body("defendantName", equalTo(DEFENDANT_NAME))
             .body("defendantAddress.line1", equalTo(ADDRESS.getLine1()))
             .body("defendantAddress.line2", equalTo(ADDRESS.getLine2()))

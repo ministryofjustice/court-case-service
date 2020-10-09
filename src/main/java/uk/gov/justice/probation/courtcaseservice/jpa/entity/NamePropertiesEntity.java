@@ -13,11 +13,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AddressPropertiesEntity implements Serializable {
-    private final String line1;
-    private final String line2;
-    private final String line3;
-    private final String line4;
-    private final String line5;
-    private final String postcode;
+public class NamePropertiesEntity implements Serializable {
+
+    private String title;
+    private String forename1;
+    private String forename2;
+    private String forename3;
+    private String surname;
 }

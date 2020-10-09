@@ -17,10 +17,12 @@ import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,6 +31,7 @@ public class CourtCaseControllerTest {
     private static final String COURT_CODE = "COURT_CODE";
     private static final String CASE_NO = "CASE_NO";
     private static final LocalDate DATE = LocalDate.of(2020, 2, 24);
+    private static final LocalDateTime CREATED_AFTER = LocalDateTime.of(2020, 2, 23, 0, 0);
 
     @Mock
     private CourtCaseService courtCaseService;
@@ -66,8 +69,8 @@ public class CourtCaseControllerTest {
     @Test
     public void getCaseList_shouldReturnCourtCaseResponse() {
         when(courtCaseResponseMapper.mapFrom(courtCaseEntity, null)).thenReturn(courtCaseResponse);
-        when(courtCaseService.filterCasesByCourtAndDate(COURT_CODE, DATE)).thenReturn(Collections.singletonList(courtCaseEntity));
-        CaseListResponse caseList = courtCaseController.getCaseList(COURT_CODE, DATE);
+        when(courtCaseService.filterCasesByCourtAndDate(COURT_CODE, DATE, CREATED_AFTER)).thenReturn(Collections.singletonList(courtCaseEntity));
+        CaseListResponse caseList = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER);
         assertThat(caseList.getCases().get(0)).isEqualTo(courtCaseResponse);
     }
 
@@ -85,8 +88,9 @@ public class CourtCaseControllerTest {
         CourtCaseEntity entity5 = CourtCaseEntity.builder().courtRoom("3").sessionStartTime(aftSession).defendantName("Mrs Juliette BINOCHE").build();
 
         // Add in reverse order
-        when(courtCaseService.filterCasesByCourtAndDate(COURT_CODE, DATE)).thenReturn(List.of(entity5, entity4, entity3, entity2, entity1));
-        CaseListResponse caseList = controller.getCaseList(COURT_CODE, DATE);
+        final LocalDateTime createdAfter = LocalDateTime.now().minus(1, ChronoUnit.DAYS);
+        when(courtCaseService.filterCasesByCourtAndDate(COURT_CODE, DATE, createdAfter)).thenReturn(List.of(entity5, entity4, entity3, entity2, entity1));
+        CaseListResponse caseList = controller.getCaseList(COURT_CODE, DATE, createdAfter);
 
         List<CourtCaseResponse> cases = caseList.getCases();
         assertThat(cases).hasSize(5);
@@ -96,6 +100,16 @@ public class CourtCaseControllerTest {
         assertPosition(2, cases, "1", "Mr Darren ARONOFSKY", aftSession);
         assertPosition(3, cases, "3", "Mrs Minnie DRIVER", mornSession);
         assertPosition(4, cases, "3", "Mrs Juliette BINOCHE", aftSession);
+    }
+
+
+    @Test
+    public void whenCreatedAfterIsNull_thenDefaultToMidnightThisMorning() {
+        CourtCaseController controller = new CourtCaseController(courtCaseService, new CourtCaseResponseMapper(), offenderMatchService);
+        final LocalDateTime createdAfter = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
+        controller.getCaseList(COURT_CODE, DATE, null);
+
+        verify(courtCaseService).filterCasesByCourtAndDate(COURT_CODE, DATE, createdAfter);
     }
 
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, String defendantName, LocalDateTime sessionTime) {

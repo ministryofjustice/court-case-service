@@ -80,6 +80,7 @@ class ImmutableCourtCaseServiceTest {
 
     @InjectMocks
     private ImmutableCourtCaseService service;
+    private LocalDateTime createdAfter = LocalDateTime.of(2020, 10, 9, 12, 50);
 
     @BeforeEach
     void setup() {
@@ -178,9 +179,9 @@ class ImmutableCourtCaseServiceTest {
         when(courtEntity.getCourtCode()).thenReturn(COURT_CODE);
         LocalDateTime startTime = LocalDateTime.of(SEARCH_DATE, LocalTime.MIDNIGHT);
         LocalDateTime endTime = startTime.plusDays(1);
-        when(courtCaseRepository.findByCourtCodeAndSessionStartTimeBetween(eq(COURT_CODE), eq(startTime), eq(endTime))).thenReturn(caseList);
+        when(courtCaseRepository.findByCourtCodeAndSessionStartTimeBetweenAndCreatedAfter(eq(COURT_CODE), eq(startTime), eq(endTime), eq(createdAfter))).thenReturn(caseList);
 
-        List<CourtCaseEntity> courtCaseEntities = service.filterCasesByCourtAndDate(COURT_CODE, SEARCH_DATE);
+        List<CourtCaseEntity> courtCaseEntities = service.filterCasesByCourtAndDate(COURT_CODE, SEARCH_DATE, createdAfter);
 
         assertThat(courtCaseEntities).isEqualTo(caseList);
     }
@@ -190,7 +191,7 @@ class ImmutableCourtCaseServiceTest {
         when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.empty());
 
         var exception = catchThrowable(() ->
-                service.filterCasesByCourtAndDate(COURT_CODE, SEARCH_DATE));
+                service.filterCasesByCourtAndDate(COURT_CODE, SEARCH_DATE, createdAfter));
         assertThat(exception).isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Court " + COURT_CODE + " not found");
 

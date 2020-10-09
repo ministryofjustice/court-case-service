@@ -26,8 +26,11 @@ import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -89,10 +92,17 @@ public class CourtCaseController {
         })
     @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
-    CaseListResponse getCaseList(@PathVariable String courtCode,
-                                 @RequestParam("date")
-                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        List<CourtCaseEntity> courtCases = courtCaseService.filterCasesByCourtAndDate(courtCode, date);
+    CaseListResponse getCaseList(
+            @PathVariable String courtCode,
+            @RequestParam(value = "date")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(value = "createdAfter", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdAfter
+
+    ) {
+        final var createdAfter1 = Optional.ofNullable(createdAfter)
+                .orElse(LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT));
+        List<CourtCaseEntity> courtCases = courtCaseService.filterCasesByCourtAndDate(courtCode, date, createdAfter1);
         List<CourtCaseResponse> courtCaseResponses = courtCases.stream()
                 .sorted(Comparator.comparing(CourtCaseEntity::getCourtRoom)
                                 .thenComparing(CourtCaseEntity::getSessionStartTime)

@@ -43,7 +43,7 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
     private final LocalDateTime now = LocalDateTime.now();
 
     @Test
-    public void cases_shouldGetCaseListWhenCasesExist() {
+    public void GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnCasesForToday() {
 
         given()
                 .auth()
@@ -60,12 +60,33 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
                 .body("cases[0].defendantType", equalTo("PERSON"))
                 .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 0, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[1].offences", hasSize(2))
+                .body("cases[1].caseNo", equalTo("1600028913"))
                 .body("cases[1].offences[0].sequenceNumber", equalTo(1))
                 .body("cases[1].offences[1].sequenceNumber", equalTo(2))
                 .body("cases[1].numberOfPossibleMatches", equalTo(3))
                 .body("cases[0].lastUpdated", containsString(now.format(DateTimeFormatter.ISO_DATE)))
                 .body("cases[1].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 9, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("cases[2].caseNo", equalTo("1600028915"))
                 .body("cases[2].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)));
+    }
+
+    @Test
+    public void GET_cases_givenCreatedAfterFilterParam_whenGetCases_thenReturnCasesAfterSpecifiedTime() {
+
+        given()
+                .auth()
+                .oauth2(getToken())
+        .when()
+                .get("/court/{courtCode}/cases?date={date}&createdAfter=2020-10-01T16:59:58.999", COURT_CODE, LocalDate.of(2019, 12, 14).format(DateTimeFormatter.ISO_DATE))
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .body("cases", hasSize(4))
+                .body("cases[0].caseNo", equalTo("1600028914"))
+                .body("cases[1].caseNo", equalTo("1600028913"))
+                .body("cases[2].caseNo", equalTo("1600028917"))
+                .body("cases[3].caseNo", equalTo("1600028915"))
+        ;
     }
 
     @Test

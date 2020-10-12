@@ -66,6 +66,10 @@ commands:
               --values ~/git/helm_deploy/values-<< parameters.env >>.yaml \
               --values - \
               --set image.tag="${APP_VERSION}"
+      - jira/notify:
+          environment: << parameters.env >>
+          token_name: JIRA_CIRCLE_TOKEN
+          job_type: deployment
 executors:
   deployer:
     docker:
@@ -94,6 +98,7 @@ orbs:
   helm: circleci/helm@0.1.2
   mem: circleci/rememborb@0.0.1
   snyk: snyk/snyk@0.0.12
+  jira: circleci/jira@1.2.2
 
 _snyk_options: &snyk_options
   organization: "digital-probation-services"
@@ -125,6 +130,9 @@ jobs:
           paths:
             - build/libs
             - build.gradle
+      - jira/notify:
+          token_name: JIRA_CIRCLE_TOKEN
+          job_type: build
 
   build_docker:
     executor: deployer
@@ -168,6 +176,9 @@ jobs:
                   docker tag mojdigitalstudio/court-case-service:$APP_VERSION mojdigitalstudio/court-case-service:latest
                   docker push mojdigitalstudio/court-case-service:$APP_VERSION
                   docker push mojdigitalstudio/court-case-service:latest
+      - jira/notify:
+          token_name: JIRA_CIRCLE_TOKEN
+          job_type: build
 
   app_scan:
     executor: builder

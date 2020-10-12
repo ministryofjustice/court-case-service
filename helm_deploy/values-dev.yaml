@@ -10,7 +10,6 @@ image:
   port: 8080
 
 ingress:
-  controller: court-probation-dev
   enabled: true
   enable_whitelist: true
   hosts:

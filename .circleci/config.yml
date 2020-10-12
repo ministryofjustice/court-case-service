@@ -68,6 +68,7 @@ commands:
               --set image.tag="${APP_VERSION}"
       - jira/notify:
           environment: << parameters.env >>
+          token_name: JIRA_CIRCLE_TOKEN
           job_type: deployment
 executors:
   deployer:

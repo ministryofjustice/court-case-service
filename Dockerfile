@@ -1,4 +1,4 @@
-FROM openjdk:15-oraclelinux7
+FROM openjdk:14-oraclelinux7
 MAINTAINER HMPPS Digital Studio <info@digital.justice.gov.uk>
 
 RUN yum update -yq

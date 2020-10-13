@@ -3,7 +3,7 @@ version: '3.1'
 services:
 
   postgres:
-    image: circleci/postgres:10.10-alpine-ram
+    image: circleci/postgres:11.6-alpine-ram
     restart: always
     ports:
       - 5432:5432
@@ -15,48 +15,48 @@ services:
     tmpfs:
       - /var/lib/postgresql
 
-  oauth:
-    image: mojdigitalstudio/nomis-oauth2-server:latest
-    networks:
-      - hmpps
-    container_name: oauth
-    ports:
-      - '8095:8095'
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8095/auth/health']
-    environment:
-      - SERVER_PORT=8095
-      - SPRING_PROFILES_ACTIVE=dev
-
-  community-api:
-    image: quay.io/hmpps/community-api:latest
-    networks:
-      - hmpps
-    container_name: community-api
-    ports:
-      - "8096:8080"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-    environment:
-      - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=dev
-
-  offender-assessment-api:
-    image: mojdigitalstudio/offender-assessments-api:latest
-    restart: always
-    networks:
-      - hmpps
-    container_name: offender-assessment-api
-    depends_on:
-    - oauth
-    ports:
-      - "8097:8080"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-    environment:
-      - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=dev
-      - OAUTH_ENDPOINT_URL=http://oauth:8095/auth
+#  oauth:
+#    image: mojdigitalstudio/nomis-oauth2-server:latest
+#    networks:
+#      - hmpps
+#    container_name: oauth
+#    ports:
+#      - '8095:8095'
+#    healthcheck:
+#      test: ['CMD', 'curl', '-f', 'http://localhost:8095/auth/health']
+#    environment:
+#      - SERVER_PORT=8095
+#      - SPRING_PROFILES_ACTIVE=dev
+#
+#  community-api:
+#    image: quay.io/hmpps/community-api:latest
+#    networks:
+#      - hmpps
+#    container_name: community-api
+#    ports:
+#      - "8096:8080"
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+#    environment:
+#      - SERVER_PORT=8080
+#      - SPRING_PROFILES_ACTIVE=dev
+#
+#  offender-assessment-api:
+#    image: mojdigitalstudio/offender-assessments-api:latest
+#    restart: always
+#    networks:
+#      - hmpps
+#    container_name: offender-assessment-api
+#    depends_on:
+#    - oauth
+#    ports:
+#      - "8097:8080"
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+#    environment:
+#      - SERVER_PORT=8080
+#      - SPRING_PROFILES_ACTIVE=dev
+#      - OAUTH_ENDPOINT_URL=http://oauth:8095/auth
 
 networks:
   hmpps:

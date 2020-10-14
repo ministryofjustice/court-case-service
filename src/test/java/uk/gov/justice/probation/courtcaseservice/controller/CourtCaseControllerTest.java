@@ -104,9 +104,9 @@ public class CourtCaseControllerTest {
 
 
     @Test
-    public void whenCreatedAfterIsNull_thenDefaultToMidnightThisMorning() {
+    public void whenCreatedAfterIsNull_thenDefaultToUnixEpoch() {
         CourtCaseController controller = new CourtCaseController(courtCaseService, new CourtCaseResponseMapper(), offenderMatchService);
-        final LocalDateTime createdAfter = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
+        final LocalDateTime createdAfter = LocalDateTime.of(LocalDate.EPOCH, LocalTime.MIDNIGHT);
         controller.getCaseList(COURT_CODE, DATE, null);
 
         verify(courtCaseService).filterCasesByCourtAndDate(COURT_CODE, DATE, createdAfter);

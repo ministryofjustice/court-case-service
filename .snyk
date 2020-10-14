@@ -4,6 +4,6 @@ ignore:
   SNYK-DEBIAN10-GNUTLS28-609778:
     - '*':
         reason: Ticket to change base image raised.
-        expires: 2020-10-13T00:00:00.000Z
+        expires: 2020-10-30T00:00:00.000Z
 patch: {}
 version: v1.13.5

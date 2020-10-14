@@ -8,7 +8,7 @@
 
 ## Quick Start
 This section contains the bare minimum you need to do to get the app running against the dev environment assuming you've got all the necessary dependencies (see Prerequisites section).
-- Run `docker-compose up` to start the postgres database Docker container
+- Run `docker-compose up postgres` to start the postgres database Docker container
 - Run `./gradlew clean build` to build the application
 - To run against dev services (you will need to substitute in valid credentials, ask a maintainer for help obtaining these):
     - `env SPRING_PROFILES_ACTIVE=dev \

@@ -101,7 +101,7 @@ public class CourtCaseController {
 
     ) {
         final var createdAfter1 = Optional.ofNullable(createdAfter)
-                .orElse(LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT));
+                .orElse(LocalDateTime.of(LocalDate.EPOCH, LocalTime.MIDNIGHT));
         List<CourtCaseEntity> courtCases = courtCaseService.filterCasesByCourtAndDate(courtCode, date, createdAfter1);
         List<CourtCaseResponse> courtCaseResponses = courtCases.stream()
                 .sorted(Comparator.comparing(CourtCaseEntity::getCourtRoom)

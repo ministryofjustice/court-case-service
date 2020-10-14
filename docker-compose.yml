@@ -3,7 +3,7 @@ version: '3.1'
 services:
 
   postgres:
-    image: circleci/postgres:10.10-alpine-ram
+    image: circleci/postgres:11.6-alpine-ram
     restart: always
     ports:
       - 5432:5432

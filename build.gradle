@@ -17,8 +17,8 @@ repositories {
     }
 }
 
-project.sourceCompatibility = 11
-project.targetCompatibility = 11
+project.sourceCompatibility = JavaVersion.VERSION_14
+project.targetCompatibility = JavaVersion.VERSION_14
 
 group = 'uk.gov.justice.probation'
 

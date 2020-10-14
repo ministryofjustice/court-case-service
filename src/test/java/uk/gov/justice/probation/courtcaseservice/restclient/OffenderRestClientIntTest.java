@@ -237,4 +237,20 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     public void  givenOffenderDoesNotExist_whenGetRegistrationsCalled_thenExpectException() {
         offenderRestClient.getOffenderRegistrations(UNKNOWN_CRN).blockOptional();
     }
+
+    @Test
+    public void whenGetCourtAppearancesCalled_thenReturn() {
+        var optionalCourtAppearances = offenderRestClient.getOffenderCourtAppearances(CRN, 2500295343L).blockOptional();
+        assertThat(optionalCourtAppearances).isNotEmpty();
+
+        var appearances = optionalCourtAppearances.get();
+        assertThat(appearances).hasSize(3);
+        assertThat(appearances).extracting("courtName")
+            .contains("Aberdare Magistrates Court", "Aberdare Magistrates Court", "Bicester Magistrates Court");
+    }
+
+    @Test(expected = OffenderNotFoundException.class)
+    public void  givenOffenderDoesNotExist_whenGetCourtAppearancesCalled_thenExpectException() {
+        offenderRestClient.getOffenderCourtAppearances(UNKNOWN_CRN, Long.valueOf(CONVICTION_ID)).blockOptional();
+    }
 }

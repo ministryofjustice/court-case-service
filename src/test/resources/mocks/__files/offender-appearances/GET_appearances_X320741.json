@@ -1,0 +1,37 @@
+{
+  "courtAppearances": [
+    {
+      "courtAppearanceId": 2500299635,
+      "appearanceDate": "2019-02-08T10:00:00",
+      "courtCode": "ABDRM1",
+      "courtName": "Aberdare Magistrates Court",
+      "appearanceType": {
+        "code": "A",
+        "description": "Appeal"
+      },
+      "crn": "X320741"
+    },
+    {
+      "courtAppearanceId": 2500299634,
+      "appearanceDate": "2019-02-07T10:00:00",
+      "courtCode": "ABDRM1",
+      "courtName": "Aberdare Magistrates Court",
+      "appearanceType": {
+        "code": "A",
+        "description": "Appeal"
+      },
+      "crn": "X320741"
+    },
+    {
+      "courtAppearanceId": 2500157283,
+      "appearanceDate": "2015-05-10T00:00:00",
+      "courtCode": "BICSMC",
+      "courtName": "Bicester Magistrates Court",
+      "appearanceType": {
+        "code": "S",
+        "description": "Sentence"
+      },
+      "crn": "X320741"
+    }
+  ]
+}

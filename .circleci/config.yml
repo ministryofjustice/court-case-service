@@ -66,10 +66,6 @@ commands:
               --values ~/git/helm_deploy/values-<< parameters.env >>.yaml \
               --values - \
               --set image.tag="${APP_VERSION}"
-      - jira/notify:
-          environment: << parameters.env >>
-          token_name: JIRA_CIRCLE_TOKEN
-          job_type: deployment
 executors:
   deployer:
     docker:
@@ -211,16 +207,31 @@ jobs:
     steps:
       - deploy_to_env:
           env: "dev"
+      - jira/notify:
+          environment: dev
+          environment_type: development
+          token_name: JIRA_CIRCLE_TOKEN
+          job_type: deployment
   deploy_preprod:
     executor: deployer
     steps:
       - deploy_to_env:
           env: "preprod"
+      - jira/notify:
+          environment: preprod
+          environment_type: testing
+          token_name: JIRA_CIRCLE_TOKEN
+          job_type: deployment
   deploy_prod:
     executor: deployer
     steps:
       - deploy_to_env:
           env: "prod"
+      - jira/notify:
+          environment: prod
+          environment_type: production
+          token_name: JIRA_CIRCLE_TOKEN
+          job_type: deployment
 
 workflows:
   version: 2

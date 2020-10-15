@@ -1,0 +1,19 @@
+{
+    "request": {
+      "method": "GET",
+      "urlPath": "/offenders/crn/X320742/assessments/latest",
+      "headers" : {
+        "Content-Type": {
+          "equalTo": "application/json"
+        }
+      }
+    },
+    "response": {
+      "status": 404,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+
+      "body": "{\"status\":404,\"userMessage\":\"Offender crn: CRNXXX, not found!\",\"developerMessage\":\"Offender crn: CRNXXX, not found!\"}"
+    }
+  }

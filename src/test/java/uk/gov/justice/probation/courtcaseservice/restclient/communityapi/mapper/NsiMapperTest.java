@@ -1,11 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType.NSI_DOCUMENT;
-import static uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType.REFERRAL_DOCUMENT;
-
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +20,12 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Document
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType.NSI_DOCUMENT;
+import static uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType.REFERRAL_DOCUMENT;
+
 
 class NsiMapperTest {
 
@@ -37,13 +37,15 @@ class NsiMapperTest {
     private static final String CONVICTION_ID = "1234";
     private static final String TEAM = "Some Team";
     private static final String BREACH_STATUS = "Breach Status";
-    public static final String ORDER = "Some Order";
-
-    private final NsiMapper mapper = new NsiMapper();
+    private static final String SENTENCING_COURT_NAME = "Sheffield Crown Court";
+    private static final String ORDER = "CJA - Std Determinate Custody (12 months)";
+    private static final String SENTENCE_DESCRIPTION = "CJA - Std Determinate Custody";
+    private static final Integer LENGTH = 12;
+    private static final String LENGTH_UNITS = "months";
 
     @DisplayName("Mapping of all values in NSI")
     @Test
-    public void mapValues() {
+    void mapValues() {
         List<CommunityApiNsiManager> nsiManagers = singletonList(
                 buildNsiManager(LocalDate.of(2020, 5, 1), TEAM));
 
@@ -51,7 +53,7 @@ class NsiMapperTest {
         Conviction conviction = buildConviction();
         GroupedDocuments groupedDocuments = buildGroupedDocuments(CONVICTION_ID, NSI_ID);
 
-        BreachResponse breach = mapper.breachOf(communityApiNsi, conviction, groupedDocuments);
+        BreachResponse breach = NsiMapper.breachOf(communityApiNsi, conviction, groupedDocuments, SENTENCING_COURT_NAME);
 
         assertThat(breach.getBreachId()).isEqualTo(NSI_ID);
         assertThat(breach.getIncidentDate()).isEqualTo(INCIDENT_DATE);
@@ -60,23 +62,63 @@ class NsiMapperTest {
         assertThat(breach.getProvider()).isEqualTo(PROVIDER);
         assertThat(breach.getTeam()).isEqualTo(TEAM);
         assertThat(breach.getStatus()).isEqualTo(BREACH_STATUS);
+        assertThat(breach.getSentencingCourtName()).isEqualTo(SENTENCING_COURT_NAME);
         assertThat(breach.getOrder()).isEqualTo(ORDER);
         assertThat(breach.getDocuments()).hasSize(1);
         assertThat(breach.getDocuments().get(0).getParentPrimaryKeyId()).isEqualTo(NSI_ID);
+    }
+
+    @DisplayName("When there is no sentence description, the method is null safe")
+    @Test
+    void givenNoSentenceDescription_whenMapValues_thenNullForOrder() {
+        List<CommunityApiNsiManager> nsiManagers = singletonList(
+            buildNsiManager(LocalDate.of(2020, 5, 1), TEAM));
+
+        CommunityApiNsi communityApiNsi = buildNsi(nsiManagers);
+        Conviction conviction = Conviction.builder().convictionId(CONVICTION_ID).build();
+
+        BreachResponse breach = NsiMapper.breachOf(communityApiNsi, conviction, null, SENTENCING_COURT_NAME);
+
+        assertThat(breach.getOrder()).isNull();
+    }
+
+    @DisplayName("When there is no sentence units or length, the method is null safe and returns just the sentence description")
+    @Test
+    void givenNoSentenceUnits_whenMapValues_thenOnlyShowSentenceDescription() {
+        List<CommunityApiNsiManager> nsiManagers = singletonList(
+            buildNsiManager(LocalDate.of(2020, 5, 1), TEAM));
+
+        CommunityApiNsi communityApiNsi = buildNsi(nsiManagers);
+        Conviction conviction = buildConviction(SENTENCE_DESCRIPTION);
+
+        BreachResponse breach = NsiMapper.breachOf(communityApiNsi, conviction, null, SENTENCING_COURT_NAME);
+
+        assertThat(breach.getOrder()).isEqualTo(SENTENCE_DESCRIPTION);
     }
 
     private Conviction buildConviction() {
         return Conviction.builder()
                 .convictionId(CONVICTION_ID)
                 .sentence(Sentence.builder()
-                        .description(ORDER)
+                        .description(SENTENCE_DESCRIPTION)
+                        .lengthUnits(LENGTH_UNITS)
+                        .length(LENGTH)
                         .build())
                 .build();
     }
 
+    private Conviction buildConviction(String description) {
+        return Conviction.builder()
+            .convictionId(CONVICTION_ID)
+            .sentence(Sentence.builder()
+                .description(description)
+                .build())
+            .build();
+    }
+
     @DisplayName("Selects the most recent team name from NSI managers")
     @Test
-    public void givenMultipleNsiManagers_thenGetValuesFromMostRecent() {
+    void givenMultipleNsiManagers_thenGetValuesFromMostRecent() {
         List<CommunityApiNsiManager> nsiManagers = asList(
                 buildNsiManager(LocalDate.of(2020, 5, 5), "Wrong Team"),
                 buildNsiManager(LocalDate.of(2020, 5, 1), "Wrong Team"),
@@ -86,7 +128,7 @@ class NsiMapperTest {
 
         CommunityApiNsi communityApiNsi = buildNsi(nsiManagers);
         Conviction conviction = buildConviction();
-        BreachResponse breach = mapper.breachOf(communityApiNsi, conviction, buildGroupedDocuments(CONVICTION_ID, 123L));
+        BreachResponse breach = NsiMapper.breachOf(communityApiNsi, conviction, buildGroupedDocuments(CONVICTION_ID, 123L), SENTENCING_COURT_NAME);
 
         assertThat(breach.getTeam()).isEqualTo("Expected Team");
         assertThat(breach.getDocuments()).isEmpty();
@@ -94,10 +136,10 @@ class NsiMapperTest {
 
     @DisplayName("Handling null NSI managers")
     @Test
-    public void givenNullNsiManagers_thenHandle() {
+    void givenNullNsiManagers_thenHandle() {
 
         CommunityApiNsi communityApiNsi = buildNsi(null);
-        BreachResponse breach = mapper.breachOf(communityApiNsi, buildConviction(), buildGroupedDocuments(CONVICTION_ID, 123L));
+        BreachResponse breach = NsiMapper.breachOf(communityApiNsi, buildConviction(), buildGroupedDocuments(CONVICTION_ID, 123L), SENTENCING_COURT_NAME);
 
         assertThat(breach.getTeam()).isNull();
         assertThat(breach.getDocuments()).isEmpty();
@@ -105,22 +147,22 @@ class NsiMapperTest {
 
     @DisplayName("Handling null grouped documents")
     @Test
-    public void givenNullGroupedDocuments_thenHandle() {
+    void givenNullGroupedDocuments_thenHandle() {
 
-        BreachResponse breach = mapper.breachOf(buildNsi(Collections.emptyList()), buildConviction(), null);
+        BreachResponse breach = NsiMapper.breachOf(buildNsi(Collections.emptyList()), buildConviction(), null, null);
 
         assertThat(breach.getDocuments()).isEmpty();
     }
 
     @DisplayName("Handling case where there are no NSI managers")
     @Test
-    public void givenZeroNsiManagers_thenReturnNullValues() {
+    void givenZeroNsiManagers_thenReturnNullValues() {
         List<CommunityApiNsiManager> nsiManagers = Collections.emptyList();
 
         CommunityApiNsi communityApiNsi = buildNsi(nsiManagers);
         Conviction conviction = buildConviction();
         GroupedDocuments groupedDocuments = buildGroupedDocuments("NON_MATCH_CONVICTION_ID", NSI_ID);
-        BreachResponse breach = mapper.breachOf(communityApiNsi, conviction, groupedDocuments);
+        BreachResponse breach = NsiMapper.breachOf(communityApiNsi, conviction, groupedDocuments, null);
 
         assertThat(breach.getOfficer()).isEqualTo(null);
         assertThat(breach.getProvider()).isEqualTo(null);

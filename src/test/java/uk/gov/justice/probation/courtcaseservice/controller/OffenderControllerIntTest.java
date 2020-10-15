@@ -154,7 +154,8 @@ public class OffenderControllerIntTest extends BaseIntTest {
                 .body("team", equalTo("Unallocated"))
                 .body("officer", equalTo("Unallocated Staff"))
                 .body("status", equalTo("Induction Completed - Opted Out"))
-                .body("order", equalTo("CJA - Community Order"))
+                .body("order", equalTo("CJA - Community Order (12 Months)"))
+                .body("sentencingCourtName", equalTo("Bicester Magistrates Court"))
                 .body("documents", hasSize(1))
         ;
     }

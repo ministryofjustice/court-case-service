@@ -1,0 +1,1 @@
+create index court_case_created_idx on court_case (created);

@@ -20,6 +20,8 @@ INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court
 '2020-09-01 16:59:59');
 INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created) VALUES (5555559, 1600028917, 'SHF', 1,'2019-12-14 12:59:59', 'No record', 'X320745', 'Mr Hideo Kojima',
 '2020-10-01 16:59:59');
+INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created) VALUES (5555559, 1600028917, 'SHF', 1,'2019-12-14 12:59:59', 'No record', 'X320745', 'Mr Hideo Kojima',
+'2020-10-01 18:59:59');
 
 
 -- See CourtCaseControllerPutIntTest.whenPurgeCases_ThenReturn204NoContent()

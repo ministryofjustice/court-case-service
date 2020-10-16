@@ -1,9 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.format.DateTimeFormatter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +8,11 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +44,7 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
     private final LocalDateTime now = LocalDateTime.now();
 
     @Test
-    public void GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnCasesForToday() {
+    public void GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnAllCases() {
 
         given()
                 .auth()
@@ -53,21 +54,24 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
                 .then()
                 .assertThat()
                 .statusCode(200)
-                .body("cases", hasSize(3))
+                .body("cases", hasSize(5))
                 .body("cases[0].courtCode", equalTo(COURT_CODE))
                 .body("cases[0].caseNo", equalTo("1600028914"))
                 .body("cases[0].caseId", equalTo("5555556"))
                 .body("cases[0].defendantType", equalTo("PERSON"))
                 .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 0, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("cases[0].lastUpdated", containsString(now.format(DateTimeFormatter.ISO_DATE)))
                 .body("cases[1].offences", hasSize(2))
                 .body("cases[1].caseNo", equalTo("1600028913"))
                 .body("cases[1].offences[0].sequenceNumber", equalTo(1))
                 .body("cases[1].offences[1].sequenceNumber", equalTo(2))
                 .body("cases[1].numberOfPossibleMatches", equalTo(3))
-                .body("cases[0].lastUpdated", containsString(now.format(DateTimeFormatter.ISO_DATE)))
                 .body("cases[1].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 9, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("cases[2].caseNo", equalTo("1600028915"))
-                .body("cases[2].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)));
+                .body("cases[2].caseNo", equalTo("1600028917"))
+                .body("cases[2].lastUpdated", equalTo(LocalDateTime.of(2020, 10, 1, 18, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("cases[3].caseNo", equalTo("1600028916"))
+                .body("cases[4].caseNo", equalTo("1600028915"))
+                .body("cases[4].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)));
     }
 
     @Test

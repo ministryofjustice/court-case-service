@@ -1,10 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Mockito.when;
-
+import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,18 +14,35 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.NsiRestClient;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.NsiMapper;
+import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsi;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsiType;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.NsiNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.CourtAppearance;
+import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.when;
 
 @ExtendWith({MockitoExtension.class})
 class BreachServiceTest {
     public static final String CRN = "CRN";
     public static final long CONVICTION_ID = 12358073L;
     public static final long BREACH_ID = 1267523687L;
+    private static final String SENTENCE_TYPE = "S";
+    private static final String COURT_NAME = "Sheffield Crown Court";
+    private static final String COURT_CODE = "B14LO00";
+
+    private final CourtAppearance courtAppearance = buildCourtAppearance(LocalDateTime.now().minusMonths(1), "S", COURT_NAME);
+
+    private final BreachResponse expectedBreachResponse = BreachResponse.builder()
+                                                        .breachId(BREACH_ID)
+                                                        .documents(Collections.emptyList())
+                                                        .sentencingCourtName(COURT_NAME)
+                                                        .build();
 
     @Mock
     private CommunityApiNsi nsi;
@@ -43,45 +59,88 @@ class BreachServiceTest {
     @Mock
     private DocumentRestClient documentRestClient;
     @Mock
-    private NsiMapper nsiMapper;
-    @Mock
-    private BreachResponse expectedBreachResponse;
+    private OffenderRestClient offenderRestClient;
+
     private BreachService breachService;
 
     @BeforeEach
-    public void setUp() {
-        breachService = new BreachService(nsiRestClient, convictionRestClient, documentRestClient, nsiMapper, Arrays.asList("BRE", "BRES"));
-        when(nsi.getType()).thenReturn(nsiType);
-        when(nsiRestClient.getNsiById(CRN, CONVICTION_ID, BREACH_ID)).thenReturn(Mono.just(nsi));
-        when(convictionRestClient.getConviction(CRN, CONVICTION_ID)).thenReturn(Mono.just(conviction));
-        when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+    void setUp() {
+        breachService = new BreachService(nsiRestClient, convictionRestClient, documentRestClient, offenderRestClient, Arrays.asList("BRE", "BRES"), "S");
     }
 
     @Test
-    public void whenGetBreachHasTypeBRE_thenReturnBreach() {
+    void whenGetBreachHasTypeBRE_thenReturnBreach() {
         when(nsiType.getCode()).thenReturn("BRE");
-        when(nsiMapper.breachOf(nsi, conviction, groupedDocuments)).thenReturn(expectedBreachResponse);
+        mockForGetBreach();
+
         BreachResponse actualBreachResponse = breachService.getBreach(CRN, CONVICTION_ID, BREACH_ID);
 
         assertThat(actualBreachResponse).isEqualTo(expectedBreachResponse);
     }
 
     @Test
-    public void whenGetBreachHasTypeBRES_thenReturnBreach() {
+    void whenGetBreachHasTypeBRES_thenReturnBreach() {
         when(nsiType.getCode()).thenReturn("BRES");
-        when(nsiMapper.breachOf(nsi, conviction, groupedDocuments)).thenReturn(expectedBreachResponse);
+        mockForGetBreach();
+
         BreachResponse actualBreachResponse = breachService.getBreach(CRN, CONVICTION_ID, BREACH_ID);
 
         assertThat(actualBreachResponse).isEqualTo(expectedBreachResponse);
     }
 
     @Test
-    public void whenNsiIsNotABreach_thenThrowNotFoundException() {
+    void whenNsiIsNotABreach_thenThrowNotFoundException() {
         when(nsiType.getCode()).thenReturn("NOTBRE");
         when(nsi.getNsiId()).thenReturn(BREACH_ID);
+        mockForGetBreach();
 
         assertThatExceptionOfType(NsiNotFoundException.class)
                 .isThrownBy(() -> breachService.getBreach(CRN, CONVICTION_ID, BREACH_ID))
                 .withMessage("Breach with id '1267523687' does not exist");
+    }
+
+    @Test
+    void givenMultipleAppearances_whenFindSentencingCourt_thenReturn() {
+        LocalDateTime now = LocalDateTime.now();
+        var sentenceAppearance1 = buildCourtAppearance(now.minusDays(1), SENTENCE_TYPE, COURT_NAME);
+        var sentenceAppearance2 = buildCourtAppearance(now.minusDays(2), SENTENCE_TYPE, "Liverpool");
+        var appearance1 = buildCourtAppearance(now, "M", "Newcastle");
+        var appearance2 = buildCourtAppearance(now.plusDays(1), "M", "London");
+        var appearance3 = buildCourtAppearance(now.minusDays(2), "M", "Newcastle");
+
+        String courtName = breachService.findLatestSentencingCourt(List.of(appearance1, sentenceAppearance1, appearance2, sentenceAppearance2, appearance3));
+
+        assertThat(courtName).isEqualTo(COURT_NAME);
+    }
+
+    @Test
+    void givenNoSentenceAppearances_whenFindSentencingCourt_thenReturnNull() {
+        LocalDateTime now = LocalDateTime.now();
+        var appearance1 = buildCourtAppearance(now, "M", "Newcastle");
+        var appearance2 = buildCourtAppearance(now.plusDays(1), "M", "London");
+        var appearance3 = buildCourtAppearance(now.minusDays(2), "M", "Newcastle");
+
+        String courtName = breachService.findLatestSentencingCourt(List.of(appearance1, appearance2, appearance3));
+
+        assertThat(courtName).isNull();
+    }
+
+    private CourtAppearance buildCourtAppearance(LocalDateTime date, String type, String courtName) {
+        return CourtAppearance.builder()
+            .date(date)
+            .type(new KeyValue(type, "CODE"))
+            .courtCode(COURT_CODE)
+            .courtName(courtName)
+            .build();
+    }
+
+    private void mockForGetBreach() {
+        CourtAppearance nonSentenceAppearance = buildCourtAppearance(LocalDateTime.now(), "M", "Newcastle");
+        when(nsi.getType()).thenReturn(nsiType);
+        when(nsi.getNsiId()).thenReturn(BREACH_ID);
+        when(nsiRestClient.getNsiById(CRN, CONVICTION_ID, BREACH_ID)).thenReturn(Mono.just(nsi));
+        when(convictionRestClient.getConviction(CRN, CONVICTION_ID)).thenReturn(Mono.just(conviction));
+        when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+        when(offenderRestClient.getOffenderCourtAppearances(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(nonSentenceAppearance, courtAppearance)));
     }
 }

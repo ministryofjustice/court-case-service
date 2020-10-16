@@ -1,8 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDate;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +24,7 @@ public class BreachResponse {
     private final String officer;
     private final String status;
     private final String order;
+    private final String sentencingCourtName;
 
     private final List<OffenderDocumentDetail> documents;
 }

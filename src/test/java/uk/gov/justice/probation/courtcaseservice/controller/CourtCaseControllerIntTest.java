@@ -68,6 +68,7 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
                 .body("cases[1].numberOfPossibleMatches", equalTo(3))
                 .body("cases[1].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 9, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[2].caseNo", equalTo("1600028917"))
+                .body("cases[2].lastUpdated", equalTo(LocalDateTime.of(2020, 10, 1, 18, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[3].caseNo", equalTo("1600028916"))
                 .body("cases[4].caseNo", equalTo("1600028915"))
                 .body("cases[4].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)));

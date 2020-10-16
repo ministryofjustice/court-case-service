@@ -45,6 +45,27 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
             "    ]\n" +
             "}";
 
+    public static final String MULTIPLE_NON_EXACT_MATCH_BODY =  "{\n" +
+        "    \"matches\": [\n" +
+        "        {\n" +
+        "                \"matchIdentifiers\": {\n" +
+        "                \"crn\": \"X12345\"\n" +
+        "            },\n" +
+        "            \"matchType\": \"PARTIAL_NAME\",\n" +
+        "            \"confirmed\": \"false\",\n" +
+        "            \"rejected\": \"false\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "                \"matchIdentifiers\": {\n" +
+        "                \"crn\": \"X12346\"\n" +
+        "            },\n" +
+        "            \"matchType\": \"NAME_DOB_ALIAS\",\n" +
+        "            \"confirmed\": \"false\",\n" +
+        "            \"rejected\": \"false\"\n" +
+        "        }\n" +
+        "    ]\n" +
+        "}";
+
     @Test
     public void givenCaseExists_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {
         String location = given()
@@ -78,6 +99,45 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
                 .body("offenderMatches[0].cro", equalTo("cro456"))
                 .body("offenderMatches[0].matchType",  equalTo("NAME_DOB"))
                 .body("offenderMatches[0].confirmed", equalTo(true));
+    }
+
+    @Test
+    public void givenNewCase_whenPostMadeToOffenderMatchesWithMultipleMatches_thenReturn201CreatedWithValidLocation() {
+
+        String location = given()
+            .auth()
+            .oauth2(getToken())
+            .accept(APPLICATION_JSON_VALUE)
+            .contentType(APPLICATION_JSON_VALUE)
+            .body(MULTIPLE_NON_EXACT_MATCH_BODY)
+            .when()
+            .post("/court/SHF/case/1600028913/grouped-offender-matches")
+            .then()
+            .statusCode(201)
+            .header("Location", matchesPattern("/court/SHF/case/1600028913/grouped-offender-matches/[0-9]+"))
+            .extract()
+            .header("Location");
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .accept(APPLICATION_JSON_VALUE)
+            .contentType(APPLICATION_JSON_VALUE)
+            .when()
+            .get(location)
+            .then()
+            .statusCode(200)
+            .body("courtCode", equalTo("SHF"))
+            .body("caseNo", equalTo("1600028913"))
+            .body("offenderMatches", hasSize(2))
+            .body("offenderMatches[0].crn", equalTo("X12345"))
+            .body("offenderMatches[0].pnc", equalTo(null))
+            .body("offenderMatches[0].cro", equalTo(null))
+            .body("offenderMatches[0].matchType",  equalTo("PARTIAL_NAME"))
+            .body("offenderMatches[0].confirmed", equalTo(false))
+            .body("offenderMatches[0].rejected", equalTo(false))
+            .body("offenderMatches[1].matchType",  equalTo("NAME_DOB_ALIAS"))
+        ;
     }
 
     @Test

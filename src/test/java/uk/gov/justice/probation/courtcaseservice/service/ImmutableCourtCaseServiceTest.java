@@ -179,7 +179,7 @@ class ImmutableCourtCaseServiceTest {
         when(courtEntity.getCourtCode()).thenReturn(COURT_CODE);
         LocalDateTime startTime = LocalDateTime.of(SEARCH_DATE, LocalTime.MIDNIGHT);
         LocalDateTime endTime = startTime.plusDays(1);
-        when(courtCaseRepository.findByCourtCodeAndSessionStartTimeBetweenAndCreatedAfter(eq(COURT_CODE), eq(startTime), eq(endTime), eq(createdAfter))).thenReturn(caseList);
+        when(courtCaseRepository.findByCourtCodeAndSessionStartTime(eq(COURT_CODE), eq(startTime), eq(endTime), eq(createdAfter))).thenReturn(caseList);
 
         List<CourtCaseEntity> courtCaseEntities = service.filterCasesByCourtAndDate(COURT_CODE, SEARCH_DATE, createdAfter);
 

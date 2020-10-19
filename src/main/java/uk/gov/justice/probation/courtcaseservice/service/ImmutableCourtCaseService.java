@@ -71,7 +71,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
             .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
 
         LocalDateTime start = LocalDateTime.of(date, LocalTime.MIDNIGHT);
-        return courtCaseRepository.findByCourtCodeAndSessionStartTimeBetweenAndCreatedAfter(court.getCourtCode(), start, start.plusDays(1), createdAfter);
+        return courtCaseRepository.findByCourtCodeAndSessionStartTime(court.getCourtCode(), start, start.plusDays(1), createdAfter);
     }
 
     private void validateEntity(String courtCode, String caseNo, CourtCaseEntity updatedCase) {

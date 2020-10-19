@@ -18,15 +18,15 @@ public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Lon
 
     @Query(value="select cc.*, grouped_cases.min_created as first_created from court_case cc " +
             "inner join (select min(created) as min_created, max(created) as max_created, case_no from court_case group_cc " +
-            "where session_start_time >= :start " +
-            "and session_start_time < :end " +
+            "where session_start_time >= :sessionStartAfter " +
+            "and session_start_time < :sessionStartBefore " +
             "and created >= :createdAfter " +
             "and group_cc.court_code = :courtCode " +
             "group by case_no, court_code) grouped_cases " +
             "on cc.case_no = grouped_cases.case_no " +
             "and cc.created = grouped_cases.max_created",
             nativeQuery=true)
-    List<CourtCaseEntity> findByCourtCodeAndSessionStartTimeBetweenAndCreatedAfter(String courtCode, LocalDateTime start, LocalDateTime end, LocalDateTime createdAfter);
+    List<CourtCaseEntity> findByCourtCodeAndSessionStartTime(String courtCode, LocalDateTime sessionStartAfter, LocalDateTime sessionStartBefore, LocalDateTime createdAfter);
 
     @Query(value = "Select cc FROM CourtCaseEntity cc "
         + "WHERE cc.courtCode = :courtCode "

@@ -44,9 +44,7 @@ public class CourtCaseResponseMapper {
                 .defendantType(courtCaseEntity.getDefendantType())
                 .nationality1(courtCaseEntity.getNationality1())
                 .nationality2(courtCaseEntity.getNationality2())
-// TODO: Update createdToday mapping to use firstCreated field
-//                .createdToday(LocalDate.now().isEqual(Optional.ofNullable(courtCaseEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()))
-                .createdToday(LocalDate.now().isEqual(Optional.ofNullable(courtCaseEntity.getCreated()).orElse(LocalDateTime.now()).toLocalDate()))
+                .createdToday(LocalDate.now().isEqual(Optional.ofNullable(courtCaseEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()))
                 .numberOfPossibleMatches(calculateNumberOfPossibleMatches(groupedOffenderMatches))
                 .build();
     }

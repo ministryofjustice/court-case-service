@@ -16,24 +16,13 @@ public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Lon
 //    TODO: Update this to return first_created
     Optional<CourtCaseEntity> findTopByCourtCodeAndCaseNoOrderByCreatedDesc(String courtCode, String caseNo);
 
-//    TODO: Return new first_created value in CourtCaseEntity
-//    @Query(value="select cc.*, grouped_cases.min_created as first_created from court_case cc " +
-//            "inner join (select min(created) as min_created, max(created) as max_created, case_no from court_case group_cc " +
-//            "where session_start_time >= :start " +
-//            "and session_start_time < :end " +
-//            "and created >= :createdAfter " +
-//            "and group_cc.court_code = :courtCode " +
-//            "group by case_no, court_code) grouped_cases " +
-//            "on cc.case_no = grouped_cases.case_no " +
-//            "and cc.created = grouped_cases.max_created",
-//            nativeQuery=true)
-    @Query(value="select cc.* from court_case cc " +
-            "inner join (select max(created) as max_created, case_no from court_case group_cc " +
-                "where session_start_time >= :start " +
-                "and session_start_time < :end " +
-                "and created >= :createdAfter " +
-                "and group_cc.court_code = :courtCode " +
-                "group by case_no, court_code) grouped_cases " +
+    @Query(value="select cc.*, grouped_cases.min_created as first_created from court_case cc " +
+            "inner join (select min(created) as min_created, max(created) as max_created, case_no from court_case group_cc " +
+            "where session_start_time >= :start " +
+            "and session_start_time < :end " +
+            "and created >= :createdAfter " +
+            "and group_cc.court_code = :courtCode " +
+            "group by case_no, court_code) grouped_cases " +
             "on cc.case_no = grouped_cases.case_no " +
             "and cc.created = grouped_cases.max_created",
             nativeQuery=true)

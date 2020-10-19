@@ -1,14 +1,19 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import io.swagger.annotations.ApiModel;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,15 +25,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
 @ApiModel(description = "Court Case")
 @Entity
@@ -120,6 +121,9 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
 
     @Column(name = "deleted", nullable = false, updatable = false)
     private final boolean deleted;
+// TODO: Add firstCreated field to entity
+//    @Column(name = "first_created")
+//    private final LocalDateTime firstCreated;
 
     public CourtSession getSession() {
         return CourtSession.from(sessionStartTime);

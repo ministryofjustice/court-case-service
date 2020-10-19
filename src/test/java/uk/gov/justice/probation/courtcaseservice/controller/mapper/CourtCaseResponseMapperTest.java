@@ -1,12 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
@@ -17,6 +10,14 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,6 +49,7 @@ class CourtCaseResponseMapperTest {
     private static final String NATIONALITY_1 = "NATIONALITY_1";
     private static final String NATIONALITY_2 = "NATIONALITY_2";
     private static final CourtSession SESSION = CourtSession.MORNING;
+    private static final LocalDateTime FIRST_CREATED = LocalDateTime.of(2020, 1, 1, 1, 1);
     private CourtCaseEntity courtCaseEntity;
     private List<OffenceEntity> offences;
     private final CourtCaseResponseMapper courtCaseResponseMapper = new CourtCaseResponseMapper();
@@ -72,7 +74,7 @@ class CourtCaseResponseMapperTest {
             OffenceEntity.builder().offenceTitle(OFFENCE_TITLE + "2").offenceSummary(OFFENCE_SUMMARY + "2").act(ACT + "2").sequenceNumber(2).build()
         );
         matchGroups = buildMatchGroups();
-        courtCaseEntity = buildCourtCaseEntity(offences);
+        courtCaseEntity = buildCourtCaseEntity(offences, FIRST_CREATED);
     }
 
     @Test
@@ -102,13 +104,19 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getDefendantSex()).isEqualTo(DEFENDANT_SEX);
         assertThat(courtCaseResponse.getNationality1()).isEqualTo(NATIONALITY_1);
         assertThat(courtCaseResponse.getNationality2()).isEqualTo(NATIONALITY_2);
-        assertThat(courtCaseResponse.isCreatedToday()).isTrue();
+        assertThat(courtCaseResponse.isCreatedToday()).isFalse();
         assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(2);
     }
 
     @Test
+    void shouldSetCreatedTodayToTrueIfCreatedToday() {
+        var courtCaseResponse = courtCaseResponseMapper.mapFrom(buildCourtCaseEntity(offences, LocalDateTime.now()), matchGroups);
+        assertThat(courtCaseResponse.isCreatedToday()).isTrue();
+    }
+
+    @Test
     void shouldReturn0IfNoPossibleMatches() {
-        var courtCaseResponse = courtCaseResponseMapper.mapFrom(buildCourtCaseEntity(offences), null);
+        var courtCaseResponse = courtCaseResponseMapper.mapFrom(buildCourtCaseEntity(offences, FIRST_CREATED), null);
 
         assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(0);
     }
@@ -148,7 +156,7 @@ class CourtCaseResponseMapperTest {
             .collect(Collectors.toList());
         Collections.reverse(reorderedOffences);
 
-        var reorderedCourtCaseEntity = buildCourtCaseEntity(reorderedOffences);
+        var reorderedCourtCaseEntity = buildCourtCaseEntity(reorderedOffences, FIRST_CREATED);
 
         var courtCaseResponse = courtCaseResponseMapper.mapFrom(reorderedCourtCaseEntity, matchGroups);
 
@@ -173,7 +181,7 @@ class CourtCaseResponseMapperTest {
                         .build();
     }
 
-    private CourtCaseEntity buildCourtCaseEntity(List<OffenceEntity> offences) {
+    private CourtCaseEntity buildCourtCaseEntity(List<OffenceEntity> offences, LocalDateTime firstCreated) {
         return CourtCaseEntity.builder()
             .id(ID)
             .pnc(PNC)
@@ -199,6 +207,7 @@ class CourtCaseResponseMapperTest {
             .caseId(CASE_ID)
             .created(LAST_UPDATED)
             .offences(offences)
+            .firstCreated(firstCreated)
             .build();
     }
 }

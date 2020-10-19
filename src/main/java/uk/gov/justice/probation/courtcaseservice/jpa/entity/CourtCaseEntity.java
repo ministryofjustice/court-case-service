@@ -121,9 +121,9 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
 
     @Column(name = "deleted", nullable = false, updatable = false)
     private final boolean deleted;
-// TODO: Add firstCreated field to entity
-//    @Column(name = "first_created")
-//    private final LocalDateTime firstCreated;
+
+    @Column(name = "first_created")
+    private final LocalDateTime firstCreated;
 
     public CourtSession getSession() {
         return CourtSession.from(sessionStartTime);

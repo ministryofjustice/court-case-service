@@ -54,13 +54,14 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
                 .then()
                 .assertThat()
                 .statusCode(200)
-                .body("cases", hasSize(5))
+                .body("cases", hasSize(6))
                 .body("cases[0].courtCode", equalTo(COURT_CODE))
                 .body("cases[0].caseNo", equalTo("1600028914"))
                 .body("cases[0].caseId", equalTo("5555556"))
                 .body("cases[0].defendantType", equalTo("PERSON"))
                 .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 0, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[0].lastUpdated", containsString(now.format(DateTimeFormatter.ISO_DATE)))
+                .body("cases[0].createdToday", equalTo(true))
                 .body("cases[1].offences", hasSize(2))
                 .body("cases[1].caseNo", equalTo("1600028913"))
                 .body("cases[1].offences[0].sequenceNumber", equalTo(1))
@@ -71,7 +72,9 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
                 .body("cases[2].lastUpdated", equalTo(LocalDateTime.of(2020, 10, 1, 18, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[3].caseNo", equalTo("1600028916"))
                 .body("cases[4].caseNo", equalTo("1600028915"))
-                .body("cases[4].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)));
+                .body("cases[4].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("cases[5].caseNo", equalTo("1600028918"))
+                .body("cases[5].createdToday", equalTo(false));
     }
 
     @Test
@@ -85,11 +88,12 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
                 .then()
                 .assertThat()
                 .statusCode(200)
-                .body("cases", hasSize(4))
+                .body("cases", hasSize(5))
                 .body("cases[0].caseNo", equalTo("1600028914"))
                 .body("cases[1].caseNo", equalTo("1600028913"))
                 .body("cases[2].caseNo", equalTo("1600028917"))
                 .body("cases[3].caseNo", equalTo("1600028915"))
+                .body("cases[4].caseNo", equalTo("1600028918"))
         ;
     }
 

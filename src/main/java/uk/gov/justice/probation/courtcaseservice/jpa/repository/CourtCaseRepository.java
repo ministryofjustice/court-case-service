@@ -13,7 +13,14 @@ import java.util.Optional;
 
 @Repository
 public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Long> {
-//    TODO: Update this to return first_created
+    @Query(value="select cc.*, grouped_cases.min_created as first_created from court_case cc " +
+            "inner join (select max(created) as max_created,  min(created) as min_created, case_no from court_case group_cc " +
+            "where group_cc.case_no = :caseNo " +
+            "and group_cc.court_code = :courtCode " +
+            "group by case_no, court_code) grouped_cases " +
+            "on cc.case_no = grouped_cases.case_no " +
+            "and cc.created = grouped_cases.max_created",
+            nativeQuery=true)
     Optional<CourtCaseEntity> findTopByCourtCodeAndCaseNoOrderByCreatedDesc(String courtCode, String caseNo);
 
     @Query(value="select cc.*, grouped_cases.min_created as first_created from court_case cc " +

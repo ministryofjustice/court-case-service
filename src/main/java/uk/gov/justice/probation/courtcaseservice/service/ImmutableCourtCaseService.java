@@ -32,7 +32,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     @Override
     public CourtCaseEntity createCase(String courtCode, String caseNo, CourtCaseEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
         validateEntity(courtCode, caseNo, updatedCase);
-        courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(courtCode, caseNo)
+        courtCaseRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
                 .ifPresentOrElse(
                         (existingCase) -> {
                             updateOffenderMatches(existingCase, updatedCase);
@@ -61,7 +61,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     public CourtCaseEntity getCaseByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException {
         checkCourtExists(courtCode);
         log.info("Court case requested for court {} for case {}", courtCode, caseNo);
-        return courtCaseRepository.findTopByCourtCodeAndCaseNoOrderByCreatedDesc(courtCode, caseNo)
+        return courtCaseRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
             .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found for court %s", caseNo, courtCode)));
     }
 
@@ -71,7 +71,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
             .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
 
         LocalDateTime start = LocalDateTime.of(date, LocalTime.MIDNIGHT);
-        return courtCaseRepository.findByCourtCodeAndSessionStartTimeBetweenAndCreatedAfter(court.getCourtCode(), start, start.plusDays(1), createdAfter);
+        return courtCaseRepository.findByCourtCodeAndSessionStartTime(court.getCourtCode(), start, start.plusDays(1), createdAfter);
     }
 
     private void validateEntity(String courtCode, String caseNo, CourtCaseEntity updatedCase) {

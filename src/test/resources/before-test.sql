@@ -23,6 +23,13 @@ INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court
 INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created) VALUES (5555559, 1600028917, 'SHF', 1,'2019-12-14 12:59:59', 'No record', 'X320745', 'Mr Hideo Kojima',
 '2020-10-01 18:59:59');
 
+-- See CourtCaseControllerIntTest.GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnAllCases()
+-- These records are used to test that the createdToday field returns false if a new record was created today updating an existing one
+INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created) VALUES (5555559, 1600028918, 'SHF', 2,'2019-12-14 13:00:00', 'No record', 'X320746', 'Mr David Bowie',
+'2020-10-01 16:59:59');
+INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created) VALUES (5555559, 1600028918, 'SHF', 2,'2019-12-14 13:00:00', 'No record', 'X320746', 'Mr David Bowie',
+now());
+
 
 -- See CourtCaseControllerPutIntTest.whenPurgeCases_ThenReturn204NoContent()
 -- These records are used to test edge cases when returning court case list for a given date (midnight to 1 second before midnight the next day)

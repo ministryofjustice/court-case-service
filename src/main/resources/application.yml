@@ -87,7 +87,7 @@ community-api:
   nsis-url-template: /secure/offenders/crn/%s/convictions/%s/nsis
   current-order-header-url-template: /secure/offenders/crn/%s/convictions/%s/sentences/%s/custodialStatus
   nsi-by-id-url-template: /secure/offenders/crn/%s/convictions/%s/nsis/%s
-  court-appearances-by-crn-and-nsi-url-template: /offenders/crn/%s/convictions/%s/courtAppearances
+  court-appearances-by-crn-and-nsi-url-template: /secure/offenders/crn/%s/convictions/%s/courtAppearances
 
   probation-record-filter.document.types: "COURT_REPORT_DOCUMENT"
   probation-record-filter.document.subtype.codes: "CJF,CJO,CJS,PSA,PSB,PSN,PSR,SSR,XPR,CR02,CR05"

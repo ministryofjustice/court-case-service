@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -134,56 +133,6 @@ public class OffenderControllerIntTest extends BaseIntTest {
 
                 .body("convictions[2].convictionId", equalTo("2500295343"))
                 .body("convictions[2].documents", hasSize(7))
-        ;
-    }
-
-    @Test
-    public void whenCallMadeToGetBreach_thenReturnCorrectData() {
-        given()
-            .auth()
-            .oauth2(getToken())
-            .accept(MediaType.APPLICATION_JSON_VALUE)
-        .when()
-                .get("/offender/X320741/convictions/2500295343/breaches/2500003903")
-        .then()
-                .statusCode(200)
-                .body("breachId", equalTo(2500003903L))
-                .body("incidentDate", equalTo("2017-03-21"))
-                .body("started", equalTo("2017-03-22"))
-                .body("provider", equalTo("CPA West Yorkshire"))
-                .body("team", equalTo("Unallocated"))
-                .body("officer", equalTo("Unallocated Staff"))
-                .body("status", equalTo("Induction Completed - Opted Out"))
-                .body("order", equalTo("CJA - Community Order (12 Months)"))
-                .body("sentencingCourtName", equalTo("Bicester Magistrates Court"))
-                .body("documents", hasSize(1))
-        ;
-    }
-
-    @Test
-    public void whenBreachDoesNotExist_thenReturn404() {
-        given()
-            .auth()
-            .oauth2(getToken())
-            .accept(MediaType.APPLICATION_JSON_VALUE)
-        .when()
-            .get("/offender/D003080/convictions/2500295343/breaches/1230000000")
-        .then()
-            .statusCode(404)
-        ;
-    }
-
-    @Ignore("This test is non-deterministic because there are three calls made but only one has been mocked to return a 500. Defect: PIC-507")
-    @Test
-    public void whenBreachThrowsServerError_thenReturn500() {
-        given()
-            .auth()
-            .oauth2(getToken())
-            .accept(MediaType.APPLICATION_JSON_VALUE)
-        .when()
-            .get("/offender/X320123/convictions/2500295343/breaches/2500003903")
-        .then()
-            .statusCode(500)
         ;
     }
 

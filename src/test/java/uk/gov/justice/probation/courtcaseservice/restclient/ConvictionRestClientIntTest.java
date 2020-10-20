@@ -1,5 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
+import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +13,6 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHe
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 
-import java.util.List;
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -24,7 +23,7 @@ public class ConvictionRestClientIntTest extends BaseIntTest {
     public static final Long SOME_SENTENCE_ID = 2500298861L;
     public static final Long UNKNOWN_CONVICTION_ID = 9999L;
     public static final String SERVER_ERROR_CRN = "X320500";
-    public static final String UNKNOWN_CRN = "X320999";
+    public static final String UNKNOWN_CRN = "CRNXXX";
 
     @Autowired
     private ConvictionRestClient webTestClient;

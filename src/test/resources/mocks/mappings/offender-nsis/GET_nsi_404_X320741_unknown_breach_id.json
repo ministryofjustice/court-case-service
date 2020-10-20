@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/secure/offenders/crn/CRNXXX/convictions/2500295343",
+    "urlPath": "/secure/offenders/crn/X320741/convictions/2500295343/nsis/0",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"
@@ -13,6 +13,6 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "body": "{\n    \"status\": 404,\n    \"developerMessage\": \"Offender with crn CRNXXX not found\"\n}"
+    "body": "{\"status\": 404, \"developerMessage\": \"NSI with id 0 not found\"}"
   }
 }

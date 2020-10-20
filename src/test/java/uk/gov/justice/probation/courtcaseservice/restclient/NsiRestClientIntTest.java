@@ -30,7 +30,7 @@ public class NsiRestClientIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenNsiDoesNotExist_whenGetNsi_thenReturnEmpty() {
+    public void givenNsiDoesNotExist_whenGetNsi_thenReturnThrowNotFound() {
         assertThatExceptionOfType(NsiNotFoundException.class)
             .isThrownBy(() -> client.getNsiById(CRN, CONVICTION_ID, 1230045000L).block())
             .withMessage("Nsi with id '1230045000' not found for convictionId '2500295343' and crn 'X320741'");
@@ -39,7 +39,6 @@ public class NsiRestClientIntTest extends BaseIntTest {
     @Test
     public void givenServerError_whenGetNsi_thenThrow() {
         assertThatExceptionOfType(WebClientResponseException.class)
-                .isThrownBy(() -> client.getNsiById("X320123", CONVICTION_ID, NSI_ID).block());
-
+                .isThrownBy(() -> client.getNsiById(CRN, CONVICTION_ID, 500L).block());
     }
 }

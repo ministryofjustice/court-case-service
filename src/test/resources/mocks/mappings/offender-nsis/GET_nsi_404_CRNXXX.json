@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/secure/offenders/crn/X320123/convictions/2500295343/nsis/2500003903",
+    "urlPath": "/secure/offenders/crn/CRNXXX/convictions/2500295343/nsis/2500003903",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"
@@ -9,9 +9,10 @@
     }
   },
   "response": {
-    "status": 500,
+    "status": 404,
     "headers": {
       "Content-Type": "application/json"
-    }
+    },
+    "body": "{\"status\": 404, \"developerMessage\": \"NSI with id 1234 not found\"}"
   }
 }

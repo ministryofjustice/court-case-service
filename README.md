@@ -37,9 +37,6 @@ We also use:
 
 ## API
 
-####Swagger UI
-The API can be examined with Swagger UI: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
-
 The following actuator endpoints are available:
 * *Application health* : `$ curl -X GET http://localhost:8080/health`
 * *Application info* : `$ curl -X GET http://localhost:8080/info`

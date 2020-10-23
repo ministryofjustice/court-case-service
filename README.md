@@ -1,5 +1,6 @@
 # Court Case Service
-[![CircleCI](https://circleci.com/gh/ministryofjustice/court-case-service.svg?style=svg)](https://circleci.com/gh/ministryofjustice/court-case-service)
+[![CircleCI](https://circleci.com/gh/ministryofjustice/court-case-service.svg?style=svg)](https://circleci.com/gh/ministryofjustice/court-case-service) 
+[![Swagger API docs (needs VPN)](https://img.shields.io/badge/API_docs_(needs_VPN)-view-85EA2D.svg?logo=swagger)](https://court-case-service-dev.apps.live-1.cloud-platform.service.justice.gov.uk/swagger-ui.html#)
 
 ### Service to access court cases imported from HMCTS Libra court lists
 
@@ -35,9 +36,6 @@ We also use:
 ---
 
 ## API
-
-####Swagger UI
-The API can be examined with Swagger UI: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
 The following actuator endpoints are available:
 * *Application health* : `$ curl -X GET http://localhost:8080/health`

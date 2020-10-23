@@ -1,5 +1,6 @@
 # Court Case Service
-[![CircleCI](https://circleci.com/gh/ministryofjustice/court-case-service.svg?style=svg)](https://circleci.com/gh/ministryofjustice/court-case-service) [![API docs](https://img.shields.io/badge/API_docs_(needs_VPN)-view-85EA2D.svg?logo=swagger)](https://court-case-service-dev.apps.live-1.cloud-platform.service.justice.gov.uk/swagger-ui.html#)
+[![CircleCI](https://circleci.com/gh/ministryofjustice/court-case-service.svg?style=svg)](https://circleci.com/gh/ministryofjustice/court-case-service) 
+[![API docs](https://img.shields.io/badge/API_docs_(needs_VPN)-view-85EA2D.svg?logo=swagger)](https://court-case-service-dev.apps.live-1.cloud-platform.service.justice.gov.uk/swagger-ui.html#)
 
 ### Service to access court cases imported from HMCTS Libra court lists
 

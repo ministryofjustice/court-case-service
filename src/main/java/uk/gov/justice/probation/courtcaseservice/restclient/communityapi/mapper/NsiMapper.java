@@ -31,7 +31,7 @@ public class NsiMapper {
                 .breachId(nsi.getNsiId())
                 .incidentDate(nsi.getReferralDate())
                 .started(nsi.getActualStartDate())
-                .statusDate(Optional.ofNullable(nsi.getStatusDate()).map(LocalDateTime::toLocalDate).orElse(null))
+                .statusDate(Optional.ofNullable(nsi.getStatusDateTime()).map(LocalDateTime::toLocalDate).orElse(null))
                 .officer(getOfficer(nsiManager))
                 .provider(getProvider(nsiManager))
                 .team(getTeam(nsiManager))

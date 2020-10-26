@@ -19,7 +19,7 @@ public class CommunityApiNsi {
     private Long nsiId;
     private LocalDate actualStartDate;
     private LocalDate referralDate;
-    private LocalDateTime statusDate;
+    private LocalDateTime statusDateTime;
 
     @JsonProperty("nsiType")
     private CommunityApiNsiType type;

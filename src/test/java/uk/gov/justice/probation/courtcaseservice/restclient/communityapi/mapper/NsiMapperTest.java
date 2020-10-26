@@ -179,7 +179,7 @@ class NsiMapperTest {
                 .nsiId(NSI_ID)
                 .referralDate(INCIDENT_DATE)
                 .actualStartDate(STARTED_DATE)
-                .statusDate(STATUS_DATE_TIME)
+                .statusDateTime(STATUS_DATE_TIME)
                 .nsiManagers(nsiManagers)
                 .status(CommunityApiNsiStatus.builder()
                         .description(BREACH_STATUS)

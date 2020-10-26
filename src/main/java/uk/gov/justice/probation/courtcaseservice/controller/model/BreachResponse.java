@@ -19,6 +19,7 @@ public class BreachResponse {
     private final Long breachId;
     private final LocalDate incidentDate;
     private final LocalDate started;
+    private final LocalDate statusDate;
     private final String provider;
     private final String team;
     private final String officer;

@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +33,8 @@ class NsiMapperTest {
     private static final long NSI_ID = 123456L;
     private static final LocalDate INCIDENT_DATE = LocalDate.of(2020, 5, 13);
     private static final LocalDate STARTED_DATE = LocalDate.of(2020, 5, 14);
+    private static final LocalDateTime STATUS_DATE_TIME = LocalDateTime.of(2020, 6, 14, 9, 0);
+    private static final LocalDate STATUS_DATE = LocalDate.of(2020, 6, 14);
     private static final String OFFICER = "Forename Lastname";
     private static final String PROVIDER = "Some provider";
     private static final String CONVICTION_ID = "1234";
@@ -58,6 +61,7 @@ class NsiMapperTest {
         assertThat(breach.getBreachId()).isEqualTo(NSI_ID);
         assertThat(breach.getIncidentDate()).isEqualTo(INCIDENT_DATE);
         assertThat(breach.getStarted()).isEqualTo(STARTED_DATE);
+        assertThat(breach.getStatusDate()).isEqualTo(STATUS_DATE);
         assertThat(breach.getOfficer()).isEqualTo(OFFICER);
         assertThat(breach.getProvider()).isEqualTo(PROVIDER);
         assertThat(breach.getTeam()).isEqualTo(TEAM);
@@ -175,6 +179,7 @@ class NsiMapperTest {
                 .nsiId(NSI_ID)
                 .referralDate(INCIDENT_DATE)
                 .actualStartDate(STARTED_DATE)
+                .statusDateTime(STATUS_DATE_TIME)
                 .nsiManagers(nsiManagers)
                 .status(CommunityApiNsiStatus.builder()
                         .description(BREACH_STATUS)

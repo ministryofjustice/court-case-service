@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.service.model;
 
 public enum MatchType {
     NAME_DOB,
+    NAME_DOB_PNC,
     /** Matches to all the parameters supplied but at least one from the one of the aliases associated to the offender */
     NAME_DOB_ALIAS,
     HMPPS_KEY,

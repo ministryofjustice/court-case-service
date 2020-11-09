@@ -152,7 +152,7 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.20.0'
-    testImplementation ('io.rest-assured:rest-assured:3.3.0'){
+    testImplementation ('io.rest-assured:rest-assured:4.3.2'){
         exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
     }
 

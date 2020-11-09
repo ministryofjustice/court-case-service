@@ -15,6 +15,9 @@ repositories {
     maven {
         url 'https://s3-us-west-2.amazonaws.com/dynamodb-local/release'
     }
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 project.sourceCompatibility = JavaVersion.VERSION_14
@@ -34,6 +37,7 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    agentDeps.transitive = false
 }
 
 jar {
@@ -183,6 +187,8 @@ dependencies {
     implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.2'
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.2'
     implementation 'net.logstash.logback:logstash-logback-encoder:6.4'
+
+    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.0.0'
 }
 
 jacoco {
@@ -220,3 +226,15 @@ jacocoTestCoverageVerification {
     }
 }
 
+task copyAgent(type: Copy) {
+    from configurations.agentDeps
+    into "$buildDir/libs"
+}
+
+task copyAgentConfig(type: Copy) {
+    from "applicationinsights.json"
+    into "$buildDir/libs"
+}
+
+assemble.dependsOn copyAgent
+assemble.dependsOn copyAgentConfig

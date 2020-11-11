@@ -41,6 +41,7 @@ public class OffenderController_BreachIntTest extends BaseIntTest {
                 .body("incidentDate", equalTo("2017-03-21"))
                 .body("statusDate", equalTo("2017-05-22"))
                 .body("started", equalTo("2017-03-22"))
+                .body("notes", equalTo("Paragraph 1: Some information.\nParagraph 2: And some more."))
                 .body("provider", equalTo("CPA West Yorkshire"))
                 .body("team", equalTo("Unallocated"))
                 .body("officer", equalTo("Unallocated Staff"))

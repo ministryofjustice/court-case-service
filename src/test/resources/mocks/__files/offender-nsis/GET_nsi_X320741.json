@@ -16,6 +16,7 @@
   "statusDateTime": "2017-05-22T09:10:10",
   "referralDate": "2017-03-21",
   "lengthUnit": "Months",
+  "notes": "Paragraph 1: Some information.\nParagraph 2: And some more.",
   "nsiManagers": [
     {
       "probationArea": {

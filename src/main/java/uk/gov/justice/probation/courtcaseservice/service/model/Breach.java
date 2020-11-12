@@ -1,8 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
+import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
-import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,4 +20,5 @@ public class Breach {
     private final String description;
     private final String status;
     private final LocalDate started;
+    private final LocalDate statusDate;
 }

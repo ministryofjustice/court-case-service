@@ -37,6 +37,7 @@ public class NsiMapper {
                 .team(getTeam(nsiManager))
                 .status(getStatus(nsi))
                 .sentencingCourtName(courtName)
+                .notes(nsi.getNotes())
                 .order(getOrder(conviction.getSentence()))
                 .documents(getMatchedDocsFor(breachDocuments, nsi.getNsiId(), conviction.getConvictionId()))
             .build();

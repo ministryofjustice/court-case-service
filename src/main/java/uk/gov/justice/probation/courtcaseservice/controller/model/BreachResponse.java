@@ -26,6 +26,7 @@ public class BreachResponse {
     private final String status;
     private final String order;
     private final String sentencingCourtName;
+    private final String notes;
 
     private final List<OffenderDocumentDetail> documents;
 }

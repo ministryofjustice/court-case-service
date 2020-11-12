@@ -43,6 +43,7 @@ class NsiMapperTest {
     private static final String SENTENCING_COURT_NAME = "Sheffield Crown Court";
     private static final String ORDER = "CJA - Std Determinate Custody (12 months)";
     private static final String SENTENCE_DESCRIPTION = "CJA - Std Determinate Custody";
+    private static final String NOTES = "Some notes for a breach";
     private static final Integer LENGTH = 12;
     private static final String LENGTH_UNITS = "months";
 
@@ -63,6 +64,7 @@ class NsiMapperTest {
         assertThat(breach.getStarted()).isEqualTo(STARTED_DATE);
         assertThat(breach.getStatusDate()).isEqualTo(STATUS_DATE);
         assertThat(breach.getOfficer()).isEqualTo(OFFICER);
+        assertThat(breach.getNotes()).isEqualTo(NOTES);
         assertThat(breach.getProvider()).isEqualTo(PROVIDER);
         assertThat(breach.getTeam()).isEqualTo(TEAM);
         assertThat(breach.getStatus()).isEqualTo(BREACH_STATUS);
@@ -180,6 +182,7 @@ class NsiMapperTest {
                 .referralDate(INCIDENT_DATE)
                 .actualStartDate(STARTED_DATE)
                 .statusDateTime(STATUS_DATE_TIME)
+                .notes(NOTES)
                 .nsiManagers(nsiManagers)
                 .status(CommunityApiNsiStatus.builder()
                         .description(BREACH_STATUS)

@@ -68,8 +68,6 @@ public class OffenderRestClient {
     @Value("${community-api.offender-address-code}")
     private String addressCode;
     @Autowired
-    private BreachMapper breachMapper;
-    @Autowired
     @Qualifier("communityApiClient")
     private RestClientHelper clientHelper;
 
@@ -117,7 +115,7 @@ public class OffenderRestClient {
                 .onStatus(HttpStatus::is4xxClientError, resp -> clientHelper.handleConvictionError(crn, Long.valueOf(convictionId), resp))
                 .bodyToMono(CommunityApiNsiResponse.class)
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving breaches data for CRN '%s' and conviction id '%s'", crn, convictionId), e))
-                .map(resp -> breachMapper.breachesFrom(resp));
+                .map(BreachMapper::breachesFrom);
     }
 
     public Mono<List<Requirement>> getConvictionRequirements(String crn, String convictionId) {

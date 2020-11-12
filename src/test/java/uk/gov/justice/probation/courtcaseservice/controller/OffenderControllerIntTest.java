@@ -109,6 +109,10 @@ public class OffenderControllerIntTest extends BaseIntTest {
                 .body("convictions[2].documents", hasSize(0))
                 .body("convictions[2].breaches", hasSize(1))
                 .body("convictions[2].breaches[0].breachId", equalTo(11131321))
+                .body("convictions[2].breaches[0].description", equalTo("Community Order"))
+                .body("convictions[2].breaches[0].started", equalTo(standardDateOf(2019, 10, 20)))
+                .body("convictions[2].breaches[0].status", equalTo("Breach Initiated"))
+                .body("convictions[2].breaches[0].statusDate", equalTo(standardDateOf(2019, 12, 18)))
         ;
     }
 

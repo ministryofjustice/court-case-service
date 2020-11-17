@@ -1,25 +1,25 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -32,52 +32,67 @@ public class CourtCaseControllerTest {
     private static final String CASE_NO = "CASE_NO";
     private static final LocalDate DATE = LocalDate.of(2020, 2, 24);
     private static final LocalDateTime CREATED_AFTER = LocalDateTime.of(2020, 2, 23, 0, 0);
-
+    private final LocalDateTime now = LocalDateTime.now();
     @Mock
     private CourtCaseService courtCaseService;
-    @Mock
-    private CourtCaseResponseMapper courtCaseResponseMapper;
-    @Mock
-    private CourtCaseResponse courtCaseResponse;
     @Mock
     private CourtCaseRequest courtCaseUpdate;
     @Mock
     private OffenderMatchService offenderMatchService;
-    @Mock
-    private GroupedOffenderMatchesEntity groupedOffenderMatchesEntity;
     @InjectMocks
     private CourtCaseController courtCaseController;
-    private final CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().caseNo(CASE_NO).courtCode(COURT_CODE).build();
+    private final CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder()
+        .caseNo(CASE_NO)
+        .courtCode(COURT_CODE)
+        .sessionStartTime(now)
+        .build();
+
+    private CourtSession session;
+
+    @BeforeEach
+    public void beforeEach() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("a");
+        session = formatter.format(now).equalsIgnoreCase("am") ? CourtSession.MORNING : CourtSession.AFTERNOON;
+    }
 
     @Test
     public void getCourtCase_shouldReturnCourtCaseResponse() {
-        when(courtCaseResponseMapper.mapFrom(courtCaseEntity, null)).thenReturn(courtCaseResponse);
         when(courtCaseService.getCaseByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(courtCaseEntity);
         CourtCaseResponse courtCase = courtCaseController.getCourtCase(COURT_CODE, CASE_NO);
-        assertThat(courtCase).isEqualTo(courtCaseResponse);
+        assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(courtCase.getCaseNo()).isEqualTo(CASE_NO);
+        assertThat(courtCase.getSessionStartTime()).isNotNull();
+        assertThat(courtCase.getSession()).isSameAs(session);
     }
 
     @Test
     public void updateCaseByCourtAndCaseNo_shouldReturnCourtCaseResponse() {
-        when(courtCaseResponseMapper.mapFrom(courtCaseEntity, null)).thenReturn(courtCaseResponse);
         when(courtCaseUpdate.asEntity()).thenReturn(courtCaseEntity);
         when(courtCaseService.createCase(COURT_CODE, CASE_NO, courtCaseEntity)).thenReturn(courtCaseEntity);
         CourtCaseResponse courtCase = courtCaseController.updateCourtCaseNo(COURT_CODE, CASE_NO, courtCaseUpdate);
-        assertThat(courtCase).isSameAs(courtCaseResponse);
+
+        assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(courtCase.getCaseNo()).isEqualTo(CASE_NO);
+        assertThat(courtCase.getSessionStartTime()).isNotNull();
+        assertThat(courtCase.getSession()).isSameAs(session);
     }
 
     @Test
     public void getCaseList_shouldReturnCourtCaseResponse() {
-        when(courtCaseResponseMapper.mapFrom(courtCaseEntity, null)).thenReturn(courtCaseResponse);
+
         when(courtCaseService.filterCasesByCourtAndDate(COURT_CODE, DATE, CREATED_AFTER)).thenReturn(Collections.singletonList(courtCaseEntity));
         CaseListResponse caseList = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER);
-        assertThat(caseList.getCases().get(0)).isEqualTo(courtCaseResponse);
-    }
 
+        assertThat(caseList.getCases()).hasSize(1);
+        assertThat(caseList.getCases().get(0).getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(caseList.getCases().get(0).getCaseNo()).isEqualTo(CASE_NO);
+        assertThat(caseList.getCases().get(0).getSessionStartTime()).isNotNull();
+        assertThat(caseList.getCases().get(0).getSession()).isSameAs(session);
+    }
 
     @Test
     public void getCaseList_sorted() {
-        CourtCaseController controller = new CourtCaseController(courtCaseService, new CourtCaseResponseMapper(), offenderMatchService);
+        CourtCaseController controller = new CourtCaseController(courtCaseService, offenderMatchService);
 
         LocalDateTime mornSession = LocalDateTime.of(DATE, LocalTime.of(9, 30));
         LocalDateTime aftSession = LocalDateTime.of(DATE, LocalTime.of(14, 0));
@@ -102,10 +117,9 @@ public class CourtCaseControllerTest {
         assertPosition(4, cases, "3", "Mrs Juliette BINOCHE", aftSession);
     }
 
-
     @Test
     public void whenCreatedAfterIsNull_thenDefaultToUnixEpoch() {
-        CourtCaseController controller = new CourtCaseController(courtCaseService, new CourtCaseResponseMapper(), offenderMatchService);
+        CourtCaseController controller = new CourtCaseController(courtCaseService, offenderMatchService);
         final LocalDateTime createdAfter = LocalDateTime.of(LocalDate.EPOCH, LocalTime.MIDNIGHT);
         controller.getCaseList(COURT_CODE, DATE, null);
 

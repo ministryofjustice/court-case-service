@@ -1,13 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 
-import org.springframework.stereotype.Component;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -15,10 +7,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
-@Component
 public class CourtCaseResponseMapper {
-    public CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, GroupedOffenderMatchesEntity groupedOffenderMatches) {
+    public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, GroupedOffenderMatchesEntity groupedOffenderMatches) {
         return CourtCaseResponse.builder()
                 .caseId(courtCaseEntity.getCaseId())
                 .caseNo(courtCaseEntity.getCaseNo())
@@ -37,6 +34,7 @@ public class CourtCaseResponseMapper {
                 .suspendedSentenceOrder(courtCaseEntity.getSuspendedSentenceOrder())
                 .breach(courtCaseEntity.getBreach())
                 .defendantName(courtCaseEntity.getDefendantName())
+                .name(courtCaseEntity.getName())
                 .defendantAddress(courtCaseEntity.getDefendantAddress())
                 .name(courtCaseEntity.getName())
                 .defendantDob(courtCaseEntity.getDefendantDob())
@@ -60,17 +58,17 @@ public class CourtCaseResponseMapper {
                 .count();
     }
 
-    private List<OffenceResponse> mapOffencesFrom(CourtCaseEntity courtCaseEntity) {
+    private static List<OffenceResponse> mapOffencesFrom(CourtCaseEntity courtCaseEntity) {
         return Optional.ofNullable(courtCaseEntity.getOffences()).orElse(Collections.emptyList())
                 .stream()
                 .sorted(Comparator.comparing(offenceEntity ->
                         // Default to very high number so that unordered items are last
                         (offenceEntity.getSequenceNumber() != null ? offenceEntity.getSequenceNumber() : Integer.MAX_VALUE)))
-                .map(this::mapFrom)
+                .map(CourtCaseResponseMapper::mapFrom)
                 .collect(Collectors.toList());
     }
 
-    private OffenceResponse mapFrom(OffenceEntity offenceEntity) {
+    private static OffenceResponse mapFrom(OffenceEntity offenceEntity) {
         return OffenceResponse.builder()
                 .offenceTitle(offenceEntity.getOffenceTitle())
                 .offenceSummary(offenceEntity.getOffenceSummary())

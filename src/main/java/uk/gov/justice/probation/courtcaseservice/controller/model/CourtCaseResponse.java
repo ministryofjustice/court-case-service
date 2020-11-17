@@ -3,7 +3,6 @@ package uk.gov.justice.probation.courtcaseservice.controller.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
@@ -40,7 +39,6 @@ public class CourtCaseResponse {
     private final Boolean breach;
     private final List<OffenceResponse> offences;
     private final String defendantName;
-    @JsonIgnore
     private final NamePropertiesEntity name;
     private final AddressPropertiesEntity defendantAddress;
     private final LocalDate defendantDob;

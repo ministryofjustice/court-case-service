@@ -1,5 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,11 +12,6 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.format.DateTimeFormatter;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +39,6 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
     private static final String CASE_NO = "1600028913";
     private static final String PROBATION_STATUS = "Previously known";
     private static final String NOT_FOUND_COURT_CODE = "LPL";
-    private static final String DEFENDANT_NAME = "Mr Johnny BALL";
     private final LocalDateTime now = LocalDateTime.now();
 
     @Test
@@ -143,7 +141,6 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
         assertThat(result.getStatus()).isEqualTo(404);
     }
 
-
     @Test
     public void shouldGetCaseWhenCourtExists() {
         given()
@@ -186,8 +183,13 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
                 .body("listNo", equalTo("3rd"))
                 .body("courtCode", equalTo(COURT_CODE))
                 .body("sessionStartTime", equalTo(startTime))
-//                .body("lastUpdated", equalTo(startTime)) // TODO: Update this test to match created time
-                .body("defendantName", equalTo(DEFENDANT_NAME))
+                .body("lastUpdated", containsString(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE))) // TODO: Update this test to match created time
+                .body("defendantName", equalTo("Mr Johnny BALL"))
+                .body("name.title", equalTo("Mr"))
+                .body("name.forename1", equalTo("Johnny"))
+                .body("name.forename2", equalTo("John"))
+                .body("name.forename3", equalTo("Jon"))
+                .body("name.surname", equalTo("BALL"))
                 .body("defendantAddress.line1", equalTo("27"))
                 .body("defendantAddress.line2", equalTo("Elm Place"))
                 .body("defendantAddress.postcode", equalTo("ad21 5dr"))

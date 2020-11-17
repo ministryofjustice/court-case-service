@@ -36,7 +36,6 @@ public class CourtCaseResponseMapper {
                 .defendantName(courtCaseEntity.getDefendantName())
                 .name(courtCaseEntity.getName())
                 .defendantAddress(courtCaseEntity.getDefendantAddress())
-                .name(courtCaseEntity.getName())
                 .defendantDob(courtCaseEntity.getDefendantDob())
                 .defendantSex(courtCaseEntity.getDefendantSex())
                 .defendantType(courtCaseEntity.getDefendantType())

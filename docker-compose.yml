@@ -4,7 +4,6 @@ services:
 
   postgres:
     image: circleci/postgres:11.6-alpine-ram
-    restart: always
     ports:
       - 5432:5432
     networks:
@@ -43,7 +42,6 @@ services:
 
   offender-assessment-api:
     image: mojdigitalstudio/offender-assessments-api:latest
-    restart: always
     networks:
       - hmpps
     container_name: offender-assessment-api

@@ -1,11 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import uk.gov.justice.probation.courtcaseservice.controller.model.Address;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.Event;
@@ -33,6 +27,13 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Staff;
 import uk.gov.justice.probation.courtcaseservice.service.model.Team;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 
 public class OffenderMapper {
     public static ProbationRecord probationRecordFrom(CommunityApiOffenderResponse offenderResponse) {
@@ -49,7 +50,7 @@ public class OffenderMapper {
 
     public static OffenderDetail offenderDetailFrom(CommunityApiOffenderResponse offenderResponse) {
         return OffenderDetail.builder()
-            .otherIds(offenderResponse.getOtherIds())
+            .otherIds(otherIdsFrom(offenderResponse))
             .probationStatus(offenderResponse.isCurrentDisposal() ? ProbationStatus.CURRENT : ProbationStatus.PREVIOUSLY_KNOWN)
             .dateOfBirth(offenderResponse.getDateOfBirth())
             .forename(offenderResponse.getFirstName())
@@ -57,6 +58,13 @@ public class OffenderMapper {
             .surname(offenderResponse.getSurname())
             .title(offenderResponse.getTitle())
             .build();
+    }
+
+    public static uk.gov.justice.probation.courtcaseservice.service.model.OtherIds otherIdsFrom(CommunityApiOffenderResponse offenderResponse) {
+        return uk.gov.justice.probation.courtcaseservice.service.model.OtherIds.builder()
+                .crn(offenderResponse.getOtherIds().getCrn())
+                .offenderId(offenderResponse.getOffenderId())
+                .build();
     }
 
     public static OffenderMatchDetail offenderMatchDetailFrom(CommunityApiOffenderResponse offenderResponse, String addressCode) {

@@ -151,7 +151,7 @@ dependencies {
     runtime 'org.postgresql:postgresql:42.2.18'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.21.0'
+    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.22.0'
     testImplementation ('io.rest-assured:rest-assured:3.3.0'){
         exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
     }

@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class OtherIds {
     private final String crn;
-    private final String offenderId;
+    private final Long offenderId;
 }

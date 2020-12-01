@@ -6,3 +6,6 @@ nomis-oauth:
 
 offender-assessments-api:
   base-url: https://dev.devtest.assessment-api.hmpps.dsd.io
+
+delius:
+  base-url: https://ndelius.test.probation.service.justice.gov.uk

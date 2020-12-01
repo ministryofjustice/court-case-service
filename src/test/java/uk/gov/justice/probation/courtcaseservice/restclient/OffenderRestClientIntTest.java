@@ -1,8 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +11,10 @@ import uk.gov.justice.probation.courtcaseservice.restclient.exception.Conviction
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.RequirementMapperTest.EXPECTED_RQMNT_1;
@@ -170,6 +171,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
         assertThat(offenderDetail.getDateOfBirth()).isEqualTo(LocalDate.of(2000, Month.JULY, 19));
         assertThat(offenderDetail.getForename()).isEqualTo("Aadland");
         assertThat(offenderDetail.getSurname()).isEqualTo("Bertrand");
+        assertThat(offenderDetail.getOtherIds().getOffenderId()).isEqualTo(2500343964L);
         assertThat(offenderDetail.getOtherIds().getCrn()).isEqualTo("X320741");
         assertThat(offenderDetail.getMiddleNames()).containsExactlyInAnyOrder("Hope", "Felix");
     }

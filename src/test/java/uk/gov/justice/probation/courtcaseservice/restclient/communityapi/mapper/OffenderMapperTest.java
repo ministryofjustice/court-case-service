@@ -108,7 +108,7 @@ public class OffenderMapperTest {
             .isEqualTo("X320741");
         assertThat(offenderDetail.getTitle()).isEqualTo("Mr.");
         assertThat(offenderDetail.getOtherIds().getCrn()).isEqualTo("X320741");
-        assertThat(offenderDetail.getOtherIds().getOffenderId()).isEqualTo("2500343964");
+        assertThat(offenderDetail.getOtherIds().getOffenderId()).isEqualTo(2500343964L);
         assertThat(offenderDetail.getMiddleNames()).containsExactlyInAnyOrder("Hope", "Felix");
         assertThat(offenderDetail.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
         assertThat(offenderDetail.getDateOfBirth()).isNull();

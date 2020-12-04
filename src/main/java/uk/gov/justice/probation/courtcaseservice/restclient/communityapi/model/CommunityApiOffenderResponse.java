@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommunityApiOffenderResponse {
-    private String offenderId;
+    private Long offenderId;
     @JsonProperty("otherIds")
     private OtherIds otherIds;
     @JsonProperty("offenderManagers")

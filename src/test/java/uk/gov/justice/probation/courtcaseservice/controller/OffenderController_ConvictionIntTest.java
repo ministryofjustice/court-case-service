@@ -73,7 +73,9 @@ public class OffenderController_ConvictionIntTest extends BaseIntTest {
 
         assertThat(response.getAttendances()).containsExactlyInAnyOrder(expectedAttendance1, expectedAttendance2);
 
-        assertThat(response.getUnpaidWork()).isEqualToComparingFieldByField(UnpaidWork.builder()
+        assertThat(response.getUnpaidWork())
+                .usingRecursiveComparison()
+                .isEqualTo(UnpaidWork.builder()
                                                                                             .minutesOffered(3600)
                                                                                             .minutesCompleted(360)
                                                                                             .appointmentsToDate(5)
@@ -83,18 +85,23 @@ public class OffenderController_ConvictionIntTest extends BaseIntTest {
                                                                                             .status("Being worked")
                                                                                             .build());
 
-        assertThat(response.getCurrentOrderHeaderDetail()).isEqualToComparingFieldByField(CurrentOrderHeaderResponse.builder()
-                .sentenceId(2500298861L)
-                .custodialType(KeyValue.builder().code("P").description("Post Sentence Supervision").build())
-                .sentenceDescription("CJA - Intermediate Public Prot.")
-                .mainOffenceDescription("Common assault and battery - 10501")
-                .sentenceDate(LocalDate.of(2018, Month.DECEMBER, 3))
-                .actualReleaseDate(LocalDate.of(2019, Month.JULY, 3))
-                .licenceExpiryDate(LocalDate.of(2019, Month.NOVEMBER, 3))
-                .pssEndDate(LocalDate.of(2020, Month.JUNE, 3))
-                .length(11)
-                .lengthUnits("Months")
-                .build());
+        assertThat(response.getCurrentOrderHeaderDetail())
+                .usingRecursiveComparison()
+                .isEqualTo(CurrentOrderHeaderResponse.builder()
+                    .sentenceId(2500298861L)
+                    .custodialType(KeyValue.builder().code("P").description("Post Sentence Supervision").build())
+                    .sentenceDescription("CJA - Intermediate Public Prot.")
+                    .mainOffenceDescription("Common assault and battery - 10501")
+                    .sentenceDate(LocalDate.of(2018, Month.DECEMBER, 3))
+                    .actualReleaseDate(LocalDate.of(2019, Month.JULY, 3))
+                    .licenceExpiryDate(LocalDate.of(2019, Month.NOVEMBER, 3))
+                    .pssEndDate(LocalDate.of(2020, Month.JUNE, 3))
+                    .length(11)
+                    .lengthUnits("Months")
+                    .build());
+
+        assertThat(response.getLinks().getDeliusContactList())
+                .isEqualTo("https://ndelius.test.probation.service.justice.gov.uk/NDelius-war/delius/JSP/deeplink.jsp?component=ContactList&offenderId=2500343964&eventId=2500295343");
     }
 
     @Test

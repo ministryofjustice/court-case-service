@@ -24,6 +24,8 @@ env:
     base_url: https://sign-in-preprod.hmpps.service.justice.gov.uk
   offender_assessments_api:
     base_url: https://offender-prprod.aks-live-1.studio-hosting.service.justice.gov.uk/
+  delius:
+      base_url: https://ndelius.stage.probation.service.justice.gov.uk
 
 spring:
   profile: instrumented

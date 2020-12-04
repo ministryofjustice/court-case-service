@@ -24,3 +24,6 @@ spring:
     properties:
       hibernate:
         format_sql: false
+
+delius:
+  base-url: https://ndelius.test.probation.service.justice.gov.uk

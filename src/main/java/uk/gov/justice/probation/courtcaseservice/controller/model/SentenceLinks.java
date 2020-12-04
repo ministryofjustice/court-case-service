@@ -1,17 +1,16 @@
-package uk.gov.justice.probation.courtcaseservice.service.model;
-
+package uk.gov.justice.probation.courtcaseservice.controller.model;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class OtherIds {
-    private final String crn;
-    private final Long offenderId;
+public class SentenceLinks {
+    private String deliusContactList;
 }
+

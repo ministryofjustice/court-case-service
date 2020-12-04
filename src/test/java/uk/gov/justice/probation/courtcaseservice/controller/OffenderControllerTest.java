@@ -21,6 +21,7 @@ import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
+import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
@@ -86,7 +87,7 @@ class OffenderControllerTest {
                 .build();
         when(convictionService.getConvictionOnly(CRN, SOME_EVENT_ID)).thenReturn(sentenceResponse);
 
-        assertThat(controller.getSentence(CRN, SOME_EVENT_ID, SOME_SENTENCE_ID)).isEqualToComparingFieldByField(sentenceResponse);
+        assertThat(controller.getSentence(CRN, SOME_EVENT_ID, SOME_SENTENCE_ID)).usingRecursiveComparison().isEqualTo(sentenceResponse);
         verify(convictionService).getConvictionOnly(CRN, SOME_EVENT_ID);
         verifyNoMoreInteractions(convictionService);
     }
@@ -166,6 +167,19 @@ class OffenderControllerTest {
         List<Registration> registrations = controller.getOffenderRegistrations(CRN).block();
 
         assertThat(registrations).containsExactly(registration);
+        verifyNoMoreInteractions(offenderService);
+    }
+
+    @DisplayName("Ensures that the controller calls the service and returns the same probation status detail")
+    @Test
+    public void whenGetProbationStatusDetail_thenReturnIt() {
+        ProbationStatusDetail expectedDetail = ProbationStatusDetail.builder().build();
+        when(offenderService.getProbationStatusDetail(CRN)).thenReturn(Mono.just(expectedDetail));
+
+        ProbationStatusDetail probationStatusDetail = controller.getProbationStatusDetail(CRN).block();
+
+        assertThat(probationStatusDetail).isSameAs(expectedDetail);
+        verify(offenderService).getProbationStatusDetail(CRN);
         verifyNoMoreInteractions(offenderService);
     }
 }

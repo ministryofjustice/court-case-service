@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.service;
 import java.net.ConnectException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
@@ -25,6 +27,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
+import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
@@ -381,6 +384,49 @@ class OffenderServiceTest {
         List<Registration> registrations = service.getOffenderRegistrations(CRN).block();
 
         assertThat(registrations).containsExactly(registration);
+    }
+
+    @DisplayName("With convictions and previously known then set previously known termination date")
+    @Test
+    void givenProbationStatusAndConvictions_whenCombine_thenReturn() {
+        OffenderDetail offenderDetail = OffenderDetail.builder().probationStatus(ProbationStatus.PREVIOUSLY_KNOWN).build();
+
+        Conviction firstConviction = Conviction.builder()
+            .sentence(Sentence.builder()
+                            .terminationDate(LocalDate.of(2002, Month.AUGUST, 25))
+                            .build())
+            .build();
+        Conviction secondConviction = Conviction.builder()
+            .sentence(Sentence.builder()
+                            .terminationDate(LocalDate.of(2005, Month.AUGUST, 25))
+                            .build())
+            .build();
+
+        ProbationStatusDetail probationStatusDetail = service.combineProbationStatusDetail(offenderDetail, List.of(firstConviction, secondConviction));
+
+        assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.PREVIOUSLY_KNOWN);
+        assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2005, Month.AUGUST, 25));
+        assertThat(probationStatusDetail.getInBreach()).isNull();
+    }
+
+    @DisplayName("With convictions but current is status then do not set previously known termination date but is in breach")
+    @Test
+    void givenProbationStatusCurrent_whenCombine_thenReturnNoTerminationDate() {
+        OffenderDetail offenderDetail = OffenderDetail.builder().probationStatus(ProbationStatus.CURRENT).build();
+
+        Conviction firstConviction = Conviction.builder()
+            .sentence(Sentence.builder()
+                    .terminationDate(LocalDate.of(2002, Month.AUGUST, 25))
+                    .build())
+            .inBreach(Boolean.TRUE)
+            .active(Boolean.TRUE)
+            .build();
+
+        ProbationStatusDetail probationStatusDetail = service.combineProbationStatusDetail(offenderDetail, List.of(this.conviction, firstConviction));
+
+        assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
+        assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isNull();
+        assertThat(probationStatusDetail.getInBreach()).isTrue();
     }
 
     private void mockForStandardClientCalls(List<Conviction> convictions, List<Assessment> assessments) {

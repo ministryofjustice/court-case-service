@@ -1,5 +1,11 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.Collections;
+import java.util.List;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -20,13 +26,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.Staff;
-
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.Collections;
-import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -158,7 +157,7 @@ public class OffenderMapperTest {
 
         Conviction conviction2 = convictions.get(1);
         assertThat(conviction2.getConvictionId()).isEqualTo("2500295345");
-        assertThat(conviction2.getInBreach()).isFalse();
+        assertThat(conviction2.getInBreach()).isTrue();
         assertThat(conviction2.getSentence().getSentenceId()).isEqualTo("123457");
         assertThat(conviction2.getSentence().getDescription()).isEqualTo("CJA - Indeterminate Public Prot.");
         assertThat(conviction2.getSentence().getTerminationDate()).isEqualTo(LocalDate.of(2019,1,1));
@@ -200,7 +199,7 @@ public class OffenderMapperTest {
             .build();
 
         assertThat(convictions).hasSize(1);
-        assertThat(convictions.get(0)).isEqualToComparingFieldByField(expectedConviction);
+        assertThat(convictions.get(0)).usingRecursiveComparison().isEqualTo(expectedConviction);
     }
 
     @DisplayName("Maps convictions response to court case service conviction.")
@@ -226,7 +225,7 @@ public class OffenderMapperTest {
             .build();
 
         assertThat(convictions).hasSize(1);
-        assertThat(convictions.get(0)).isEqualToComparingFieldByField(expectedConviction);
+        assertThat(convictions.get(0)).usingRecursiveComparison().isEqualTo(expectedConviction);
     }
 
     @DisplayName("No end date if sentence is null")

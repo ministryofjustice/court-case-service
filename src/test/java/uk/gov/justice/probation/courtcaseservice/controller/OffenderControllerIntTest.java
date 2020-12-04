@@ -67,7 +67,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
 
                 .body("convictions[0].convictionId", equalTo("2500295345"))
                 .body("convictions[0].active", equalTo(true))
-                .body("convictions[0].inBreach", equalTo(false))
+                .body("convictions[0].inBreach", equalTo(true))
                 .body("convictions[0].offences[0].description", equalTo("Arson - 05600"))
                 .body("convictions[0].offences[1].description", equalTo("Burglary (dwelling) with intent to commit, or the commission of an offence triable only on indictment - 02801"))
                 .body("convictions[0].sentence.sentenceId", equalTo("123457"))
@@ -138,6 +138,35 @@ public class OffenderControllerIntTest extends BaseIntTest {
                 .body("convictions[2].convictionId", equalTo("2500295343"))
                 .body("convictions[2].documents", hasSize(7))
         ;
+    }
+
+    @Test
+    public void whenCallMadeToGetProbationStatusDetail_thenReturn() {
+        given()
+            .auth()
+            .oauth2(getToken())
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .get("/offender/X320741/probation-status-detail")
+            .then()
+            .statusCode(200)
+            .body("probationStatus",  equalTo("Current"))
+            .body("inBreach",  equalTo(true))
+        ;
+    }
+
+    @Test
+    public void givenOffenderDoesNotExist_whenCallMadeToGetProbationStatusDetail_thenReturnNotFound() {
+        given()
+            .auth()
+            .oauth2(getToken())
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .get("/offender/CRNXXX/probation-status-detail")
+            .then()
+            .statusCode(404)
+            .body("userMessage", equalTo("Offender with CRN 'CRNXXX' not found"))
+            .body("developerMessage" , equalTo("Offender with CRN 'CRNXXX' not found"));
     }
 
     @Test

@@ -153,18 +153,13 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.22.0'
 
-    testImplementation ('org.codehaus.groovy:groovy-json:2.5.13') {
+    testImplementation ('org.codehaus.groovy:groovy:2.5.14'){
         because 'Transitive dependency. Used by rest-assured. Previous versions have a known vulnerability'
     }
-    testImplementation ('io.rest-assured:json-path:4.2.0'){
-        exclude group: 'org.codehaus.groovy', module: 'groovy'
-    }
-    testImplementation ('io.rest-assured:xml-path:4.2.0'){
-        exclude group: 'org.codehaus.groovy', module: 'groovy'
-    }
+    testImplementation ('io.rest-assured:json-path:4.2.0')
+    testImplementation ('io.rest-assured:xml-path:4.2.0')
     testImplementation ('io.rest-assured:rest-assured:4.2.0'){
         exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
-        exclude group: 'org.codehaus.groovy', module: 'groovy'
     }
 
     testImplementation(platform("org.junit:junit-bom:5.7.0"))

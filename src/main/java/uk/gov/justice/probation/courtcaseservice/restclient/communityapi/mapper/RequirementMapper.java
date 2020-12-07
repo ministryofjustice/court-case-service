@@ -9,6 +9,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiPssRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
+import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
@@ -61,8 +62,15 @@ public class RequirementMapper {
     public static List<LicenceCondition> licenceConditionsFrom(CommunityApiLicenceConditionsResponse licenceConditionsResponse) {
         return Optional.ofNullable(licenceConditionsResponse.getLicenceConditions()).orElse(Collections.emptyList())
             .stream()
-            .map(lic ->  LicenceCondition.builder()
-                .description(lic.getLicenceConditionTypeMainCat().getDescription())
+            .map(lic -> LicenceCondition.builder()
+                .description(Optional.ofNullable(lic.getLicenceConditionTypeMainCat())
+                                                .map(KeyValue::getDescription)
+                                                .orElse(null))
+                .subTypeDescription(Optional.ofNullable(lic.getLicenceConditionTypeSubCat())
+                                                .map(KeyValue::getDescription)
+                                                .orElse(null))
+                .notes(lic.getLicenceConditionNotes())
+                .startDate(lic.getStartDate())
                 .active(Optional.ofNullable(lic.getActive()).orElse(false))
                 .build())
             .collect(Collectors.toList());

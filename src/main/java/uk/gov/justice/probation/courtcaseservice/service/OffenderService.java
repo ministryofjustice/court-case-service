@@ -142,11 +142,12 @@ public class OffenderService {
 
         return Mono.zip(defaultClient.getConvictionRequirements(crn, convictionId),
                         defaultClient.getConvictionPssRequirements(crn, convictionId),
-                        defaultClient.getConvictionLicenceConditions(crn, convictionId))
+                        defaultClient.getConvictionLicenceConditions(crn, convictionId)
+        )
                 .map(this::combineAndFilterRequirements);
     }
 
-    RequirementsResponse combineAndFilterRequirements(Tuple3<List<Requirement>, List<PssRequirement>,  List<LicenceCondition>> tuple3) {
+    RequirementsResponse combineAndFilterRequirements(Tuple3<List<Requirement>, List<PssRequirement>, List<LicenceCondition>> tuple3) {
 
         return RequirementsResponse.builder()
             .requirements(tuple3.getT1())

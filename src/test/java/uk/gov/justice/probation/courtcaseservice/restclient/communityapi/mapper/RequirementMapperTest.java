@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiLicenceCondition;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiLicenceCondition.MainCatTypeDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiLicenceConditionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiPssRequirementResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiPssRequirementResponse.CommunityApiPssRequirementResponseBuilder;
@@ -78,8 +78,8 @@ public class RequirementMapperTest {
         final Requirement rqmt2 = requirements.stream()
             .filter(requirement -> requirement.getRequirementId().equals(2500007925L))
             .findFirst().orElse(null);
-        assertThat(EXPECTED_RQMNT_1).isEqualToComparingFieldByField(rqmt1);
-        assertThat(EXPECTED_RQMNT_2).isEqualToComparingFieldByField(rqmt2);
+        assertThat(EXPECTED_RQMNT_1).usingRecursiveComparison().isEqualTo(rqmt1);
+        assertThat(EXPECTED_RQMNT_2).usingRecursiveComparison().isEqualTo(rqmt2);
     }
 
     @DisplayName("Tests empty requirements list.")
@@ -126,13 +126,21 @@ public class RequirementMapperTest {
     @DisplayName("Tests licence conditions list and ensures that mapper is just mapping and not filtering.")
     @Test
     void shouldMapLicenceConditions() {
+        LocalDate date1 = LocalDate.of(2020, Month.AUGUST, 28);
+        LocalDate date2 = LocalDate.of(2020, Month.SEPTEMBER, 28);
         CommunityApiLicenceCondition licCondition1 = CommunityApiLicenceCondition.builder()
             .active(Boolean.FALSE)
-            .licenceConditionTypeMainCat(MainCatTypeDetail.builder().code("CODE1").description("desc1").build())
+            .licenceConditionTypeMainCat(KeyValue.builder().code("CODE1").description("desc1").build())
+            .licenceConditionTypeSubCat(KeyValue.builder().code("CODE2").description("subtype description 1").build())
+            .startDate(date1)
+            .licenceConditionNotes("Some notes")
             .build();
         CommunityApiLicenceCondition licCondition2 = CommunityApiLicenceCondition.builder()
             .active(Boolean.TRUE)
-            .licenceConditionTypeMainCat(MainCatTypeDetail.builder().code("CODE2").description("desc2").build())
+            .licenceConditionTypeSubCat(KeyValue.builder().code("CODE3").description("subtype description 2").build())
+            .startDate(date2)
+            .licenceConditionNotes("Some more notes")
+            .licenceConditionTypeMainCat(KeyValue.builder().code("CODE4").description("desc2").build())
             .build();
 
         CommunityApiLicenceConditionsResponse licenceConditionsResponse = CommunityApiLicenceConditionsResponse.builder()
@@ -143,11 +151,38 @@ public class RequirementMapperTest {
 
         assertThat(licenceConditions).hasSize(2);
 
-        LicenceCondition pssRequirement = LicenceCondition.builder()
-            .description("desc1")
-            .active(false)
+        assertThat(licenceConditions).extracting(LicenceCondition::getNotes)
+            .contains("Some notes", "Some more notes");
+        assertThat(licenceConditions).extracting(LicenceCondition::getDescription)
+            .contains("desc1", "desc1");
+        assertThat(licenceConditions).extracting(LicenceCondition::getSubTypeDescription)
+            .contains("subtype description 2", "subtype description 1");
+        assertThat(licenceConditions).extracting(LicenceCondition::getStartDate)
+            .contains(date1, date2);
+        assertThat(licenceConditions).extracting(LicenceCondition::isActive)
+            .contains(true, false);
+    }
+
+    @DisplayName("Tests licence conditions list and ensures that mapper is just mapping and not filtering.")
+    @Test
+    void givenNullContent_whenMapLicenceCondition_shouldReturn() {
+        CommunityApiLicenceCondition licCondition1 = CommunityApiLicenceCondition.builder()
+            .active(Boolean.FALSE)
             .build();
-        assertThat(licenceConditions).contains(pssRequirement);
+        CommunityApiLicenceCondition licCondition2 = CommunityApiLicenceCondition.builder()
+            .active(Boolean.TRUE)
+            .build();
+
+        CommunityApiLicenceConditionsResponse licenceConditionsResponse = CommunityApiLicenceConditionsResponse.builder()
+            .licenceConditions(List.of(licCondition1, licCondition2))
+            .build();
+
+        List<LicenceCondition> licenceConditions = RequirementMapper.licenceConditionsFrom(licenceConditionsResponse);
+
+        assertThat(licenceConditions).hasSize(2);
+
+        assertThat(licenceConditions).extracting(LicenceCondition::isActive)
+            .contains(true, false);
     }
 
     @DisplayName("Tests null licence conditions list and ensures that empty list is returned.")

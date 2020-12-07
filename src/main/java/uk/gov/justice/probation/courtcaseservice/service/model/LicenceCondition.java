@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
+import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
@@ -10,7 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@ApiModel("Licence Condition" )
+@ApiModel("Licence Condition")
 @Getter
 @EqualsAndHashCode
 @Builder
@@ -20,6 +21,10 @@ import lombok.NoArgsConstructor;
 public class LicenceCondition {
 
     private final String description;
+    private final String subTypeDescription;
+    private final LocalDate startDate;
+    private final String notes;
+
     @JsonIgnore
     private final boolean active;
 }

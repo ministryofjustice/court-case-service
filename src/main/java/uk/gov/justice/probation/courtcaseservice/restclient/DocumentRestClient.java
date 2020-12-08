@@ -53,7 +53,7 @@ public class DocumentRestClient {
         // Unlike retrieve(), exchange() does not throw exceptions which means we have to handle our own
         final Mono<ResponseEntity<Resource>> resourceMono = clientHelper.get(String.format(offenderDocumentUrlTemplate, crn, documentId), MediaType.ALL)
             .exchange()
-            .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender data for CRN '%s'", crn), e))
+            .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender document ID '%s' for CRN '%s'", documentId, crn), e))
             .flatMap(clientResponse -> clientResponse.toEntity(Resource.class));
 
         // This puts work off to another thread and therefore won't block

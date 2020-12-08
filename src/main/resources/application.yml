@@ -112,6 +112,7 @@ web:
     connect-timeout-ms: 20000
     read-timeout-ms: 5000
     write-timeout-ms: 5000
+    document-byte-buffer-size: 20971520
 
 hibernate:
   types:

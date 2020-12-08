@@ -35,7 +35,7 @@ public class DocumentRestClient {
     private DocumentMapper documentMapper;
 
     @Autowired
-    @Qualifier("communityApiClient")
+    @Qualifier("documentApiClient")
     private RestClientHelper clientHelper;
 
     public Mono<GroupedDocuments> getDocumentsByCrn(String crn) {

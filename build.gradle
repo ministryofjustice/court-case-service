@@ -140,7 +140,6 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-validation"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation 'org.springframework.security:spring-security-oauth2-client'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.0'
     implementation 'org.flywaydb:flyway-core'
     implementation "io.springfox:springfox-swagger2:$swaggerVersion"
     implementation "io.springfox:springfox-swagger-ui:$swaggerVersion"

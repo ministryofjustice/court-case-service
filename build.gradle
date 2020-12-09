@@ -153,7 +153,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.22.0'
 
-    testImplementation ('org.codehaus.groovy:groovy:2.5.14'){
+    testImplementation ('org.codehaus.groovy:groovy:3.0.7'){
         because 'Transitive dependency. Used by rest-assured. Previous versions have a known vulnerability'
     }
     testImplementation ("io.rest-assured:json-path:$restAssuredVersion")

@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.application;
 
+import java.util.concurrent.TimeUnit;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
@@ -16,11 +17,16 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper;
 
-import java.util.concurrent.TimeUnit;
-
 @EnableJpaAuditing
 @Configuration
 public class WebClientConfig {
+
+    /**
+     * Size of buffer by default.
+     * @see org.springframework.core.codec.AbstractDataBufferDecoder
+     * */
+    private static final int DEFAULT_BYTE_BUFFER_SIZE = 262144;
+
     @Value("${feature.flags.disable-auth:false}")
     private boolean disableAuthentication;
 
@@ -42,6 +48,14 @@ public class WebClientConfig {
     @Value("${web.client.write-timeout-ms}")
     private long writeTimeoutMs;
 
+    @Value("${web.client.document-byte-buffer-size}")
+    private int documentBufferByteSize;
+
+    @Bean
+    public RestClientHelper documentApiClient(WebClient documentWebClient) {
+        return new RestClientHelper(documentWebClient, "community-api-client", disableAuthentication);
+    }
+
     @Bean
     public RestClientHelper communityApiClient(WebClient communityWebClient) {
         return new RestClientHelper(communityWebClient, "community-api-client", disableAuthentication);
@@ -53,20 +67,26 @@ public class WebClientConfig {
     }
 
     @Bean
-    public WebClient communityWebClient(OAuth2AuthorizedClientManager authorizedClientManager) {
-        return webClientFactory(communityApiBaseUrl, authorizedClientManager);
+    public WebClient documentWebClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+        return webClientFactory(communityApiBaseUrl, authorizedClientManager, documentBufferByteSize);
     }
+
+    @Bean
+    public WebClient communityWebClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+        return webClientFactory(communityApiBaseUrl, authorizedClientManager, DEFAULT_BYTE_BUFFER_SIZE);
+    }
+
     @Bean
     public WebClient assessmentsWebClient(OAuth2AuthorizedClientManager authorizedClientManager) {
-        return webClientFactory(assessmentsApiBaseUrl, authorizedClientManager);
+        return webClientFactory(assessmentsApiBaseUrl, authorizedClientManager, DEFAULT_BYTE_BUFFER_SIZE);
     }
 
     @Bean
     public WebClient oauthWebClient(OAuth2AuthorizedClientManager authorizedClientManager) {
-        return webClientFactory(oauthApiBaseUrl, authorizedClientManager);
+        return webClientFactory(oauthApiBaseUrl, authorizedClientManager, DEFAULT_BYTE_BUFFER_SIZE);
     }
 
-    private WebClient webClientFactory(String baseUrl, OAuth2AuthorizedClientManager authorizedClientManager) {
+    private WebClient webClientFactory(String baseUrl, OAuth2AuthorizedClientManager authorizedClientManager, int bufferByteCount) {
         ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2Client =
                 new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
 
@@ -80,6 +100,7 @@ public class WebClientConfig {
         return WebClient
                 .builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(bufferByteCount))
                 .baseUrl(baseUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .apply(oauth2Client.oauth2Configuration())

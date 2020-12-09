@@ -15,7 +15,4 @@ updates:
         versions: ["2.x", "3.x"]
       - dependency-name: "swaggerVersion"
         versions: ["2.x", "3.x"]
-      # Version 4 of restAssured introduces breaking changes
-      - dependency-name: "io.rest-assured:rest-assured"
-        versions: ["4.x"]
         

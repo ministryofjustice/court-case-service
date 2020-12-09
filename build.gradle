@@ -27,6 +27,7 @@ group = 'uk.gov.justice.probation'
 
 ext {
     swaggerVersion = '2.9.2'
+    restAssuredVersion = '4.2.0'
 }
 
 def today = Instant.now()
@@ -155,9 +156,9 @@ dependencies {
     testImplementation ('org.codehaus.groovy:groovy:2.5.14'){
         because 'Transitive dependency. Used by rest-assured. Previous versions have a known vulnerability'
     }
-    testImplementation ('io.rest-assured:json-path:4.2.0')
-    testImplementation ('io.rest-assured:xml-path:4.2.0')
-    testImplementation ('io.rest-assured:rest-assured:4.2.0'){
+    testImplementation ("io.rest-assured:json-path:$restAssuredVersion")
+    testImplementation ("io.rest-assured:xml-path:$restAssuredVersion")
+    testImplementation ("io.rest-assured:rest-assured:$restAssuredVersion"){
         exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
     }
 

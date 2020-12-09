@@ -156,7 +156,7 @@ dependencies {
         because 'Transitive dependency. Used by rest-assured. Previous versions have a known vulnerability'
     }
     testImplementation ('io.rest-assured:json-path:4.2.0')
-    testImplementation ('io.rest-assured:xml-path:4.2.0')
+    testImplementation ('io.rest-assured:xml-path:4.3.2')
     testImplementation ('io.rest-assured:rest-assured:4.2.0'){
         exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
     }

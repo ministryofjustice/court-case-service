@@ -31,7 +31,7 @@ class BreachMapperTest {
             = OBJECT_MAPPER.readValue(new File(BASE_MOCK_PATH + "GET_nsis_breach_X320741.json"), CommunityApiNsiResponse.class);
 
         var breaches = BreachMapper.breachesFrom(nsiResponse);
-        assertThat(breaches.size()).isEqualTo(1);
+        assertThat(breaches.size()).isEqualTo(2);
         assertThat(breaches.get(0).getBreachId()).isEqualTo(11131321);
         assertThat(breaches.get(0).getDescription()).isEqualTo("Community Order");
         assertThat(breaches.get(0).getStatus()).isEqualTo("Breach Initiated");

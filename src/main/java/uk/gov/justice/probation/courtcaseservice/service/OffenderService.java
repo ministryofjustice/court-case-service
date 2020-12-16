@@ -22,6 +22,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
+import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.ConvictionBySentenceComparator;
 import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
@@ -80,7 +81,9 @@ public class OffenderService {
                 log.debug("getting breaches for crn {} and conviction id {}", crn, convictionId);
                 return defaultClient.getBreaches(crn, convictionId)
                     .map(breaches -> {
-                        conviction.setBreaches(breaches);
+                        conviction.setBreaches(breaches.stream()
+                                                .sorted(Comparator.comparing(Breach::getStatusDate, Comparator.nullsLast(Comparator.reverseOrder())))
+                                                .collect(Collectors.toList()));
                         return conviction;
                     });
             })

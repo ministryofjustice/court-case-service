@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.springframework.util.StringUtils;
+import reactor.util.StringUtils;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRegistrationResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRegistrationsResponse;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;

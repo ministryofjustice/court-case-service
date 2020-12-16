@@ -98,8 +98,8 @@ public class OffenderControllerIntTest extends BaseIntTest {
                 .body("convictions[1].sentence", not(hasKey("unpaidWork")))
                 .body("convictions[1].convictionDate", equalTo(standardDateOf(2019, 9,16)))
                 .body("convictions[1].documents", hasSize(0))
-                .body("convictions[1].breaches", hasSize(1))
-                .body("convictions[1].breaches[0].breachId", equalTo(11131321))
+                .body("convictions[1].breaches", hasSize(2))
+                .body("convictions[1].breaches[0].breachId", equalTo(11131322))
 
                 .body("convictions[2].convictionId", equalTo("2500295343"))
                 .body("convictions[2].active", equalTo(false))
@@ -107,12 +107,13 @@ public class OffenderControllerIntTest extends BaseIntTest {
                 .body("convictions[2].offences[0].description", equalTo("Arson - 05600"))
                 .body("convictions[2].convictionDate", equalTo(null))
                 .body("convictions[2].documents", hasSize(0))
-                .body("convictions[2].breaches", hasSize(1))
-                .body("convictions[2].breaches[0].breachId", equalTo(11131321))
+                .body("convictions[2].breaches", hasSize(2))
+                .body("convictions[2].breaches[0].breachId", equalTo(11131322))
                 .body("convictions[2].breaches[0].description", equalTo("Community Order"))
-                .body("convictions[2].breaches[0].started", equalTo(standardDateOf(2019, 10, 20)))
+                .body("convictions[2].breaches[0].started", equalTo(standardDateOf(2020, 10, 20)))
                 .body("convictions[2].breaches[0].status", equalTo("Breach Initiated"))
-                .body("convictions[2].breaches[0].statusDate", equalTo(standardDateOf(2019, 12, 18)))
+                .body("convictions[2].breaches[0].statusDate", equalTo(standardDateOf(2020, 12, 18)))
+                .body("convictions[2].breaches[1].statusDate", equalTo(standardDateOf(2019, 12, 18)))
         ;
     }
 

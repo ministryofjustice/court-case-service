@@ -1,5 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
+import java.time.LocalDate;
+import java.time.Month;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +11,6 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
-import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
-import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
-
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.RequirementMapperTest.EXPECTED_RQMNT_1;
@@ -85,21 +81,21 @@ public class OffenderRestClientIntTest extends BaseIntTest {
 
         assertThat(optionalRequirements).isNotEmpty();
 
-        final List<Requirement> rqmnts = optionalRequirements.get();
+        var rqmnts = optionalRequirements.get();
         assertThat(rqmnts).hasSize(2);
 
-        final Requirement rqmt1 = rqmnts.stream()
+        var rqmt1 = rqmnts.stream()
             .filter(requirement -> requirement.getRequirementId().equals(2500083652L))
             .findFirst().orElse(null);
 
-        assertThat(EXPECTED_RQMNT_1).isEqualToComparingFieldByField(rqmt1);
+        assertThat(EXPECTED_RQMNT_1).usingRecursiveComparison().isEqualTo(rqmt1);
     }
 
     @Test
     public void givenKnownCrnUnknownConvictionId_whenGetConvictionRequirementsCalled_thenReturnEmptyRequirements() {
         var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, "2500297999").blockOptional();
 
-        final List<Requirement> reqs = optionalRequirements.get();
+        var reqs = optionalRequirements.get();
 
         assertThat(reqs).isEmpty();
     }
@@ -118,11 +114,14 @@ public class OffenderRestClientIntTest extends BaseIntTest {
         assertThat(optionalBreaches).isNotEmpty();
 
         var breaches = optionalBreaches.get();
-        assertThat(breaches.size()).isEqualTo(1);
+        assertThat(breaches.size()).isEqualTo(2);
 
         var breach = breaches.get(0);
         assertThat(breach.getStatus()).isEqualTo("Breach Initiated");
+        assertThat(breach.getBreachId()).isEqualTo(11131321L);
         assertThat(breach.getDescription()).isEqualTo("Community Order");
+        assertThat(breach.getStatusDate()).isEqualTo(LocalDate.of(2019, Month.DECEMBER, 18));
+        assertThat(breach.getStarted()).isEqualTo(LocalDate.of(2019, Month.OCTOBER, 20));
     }
 
     @Test(expected = ConvictionNotFoundException.class)
@@ -191,7 +190,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
         var optionalRequirements = offenderRestClient.getConvictionPssRequirements(CRN, CONVICTION_ID).blockOptional();
         assertThat(optionalRequirements).isNotEmpty();
 
-        final List<PssRequirement> pssRqmnts = optionalRequirements.get();
+        var pssRqmnts = optionalRequirements.get();
         assertThat(pssRqmnts).hasSize(4);
         assertThat(pssRqmnts).extracting("description")
             .contains("Specified Activity", "Travel Restriction", "Inactive description", "UK Travel Restriction");

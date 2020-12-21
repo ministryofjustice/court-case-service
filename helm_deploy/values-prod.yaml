@@ -2,6 +2,7 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 4
+maxSurge: 2
 
 image:
   repository: docker.io/mojdigitalstudio/court-case-service

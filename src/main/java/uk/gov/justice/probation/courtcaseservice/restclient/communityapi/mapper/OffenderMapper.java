@@ -64,6 +64,8 @@ public class OffenderMapper {
         return uk.gov.justice.probation.courtcaseservice.service.model.OtherIds.builder()
                 .crn(offenderResponse.getOtherIds().getCrn())
                 .offenderId(offenderResponse.getOffenderId())
+                .pncNumber(offenderResponse.getOtherIds().getPncNumber())
+                .croNumber(offenderResponse.getOtherIds().getCroNumber())
                 .build();
     }
 

@@ -1,11 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.Collections;
-import java.util.List;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -26,6 +20,13 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.Staff;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.Collections;
+import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -109,6 +110,8 @@ public class OffenderMapperTest {
         assertThat(offenderDetail.getTitle()).isEqualTo("Mr.");
         assertThat(offenderDetail.getOtherIds().getCrn()).isEqualTo("X320741");
         assertThat(offenderDetail.getOtherIds().getOffenderId()).isEqualTo(2500343964L);
+        assertThat(offenderDetail.getOtherIds().getPncNumber()).isEqualTo("2004/0712343H");
+        assertThat(offenderDetail.getOtherIds().getCroNumber()).isEqualTo("123456/04A");
         assertThat(offenderDetail.getMiddleNames()).containsExactlyInAnyOrder("Hope", "Felix");
         assertThat(offenderDetail.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
         assertThat(offenderDetail.getDateOfBirth()).isNull();

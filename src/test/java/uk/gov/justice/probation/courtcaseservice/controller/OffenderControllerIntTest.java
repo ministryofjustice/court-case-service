@@ -233,6 +233,8 @@ public class OffenderControllerIntTest extends BaseIntTest {
             .body("surname", equalTo("Bertrand"))
             .body("otherIds.crn", equalTo("X320741"))
             .body("otherIds.offenderId", equalTo(2500343964L))
+            .body("otherIds.pncNumber", equalTo("2004/0712343H"))
+            .body("otherIds.croNumber", equalTo("123456/04A"))
         ;
     }
 

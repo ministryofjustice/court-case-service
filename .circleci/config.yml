@@ -91,7 +91,7 @@ orbs:
   aws-cli: circleci/aws-cli@0.1.13
   dps: ministryofjustice/dps@1.2.1
   kubernetes: circleci/kubernetes@0.3.0
-  helm: circleci/helm@0.1.2
+  helm: circleci/helm@1.1.2
   mem: circleci/rememborb@0.0.1
   snyk: snyk/snyk@0.0.12
   jira: circleci/jira@1.2.2
@@ -271,27 +271,26 @@ workflows:
           name: helm_lint_dev
           env: dev
           chart_name: court-case-service
-      - build_docker:
-          requires:
-            - build
-          filters:
-            branches:
-              ignore: main
+#          TODO: Uncomment these lines before merge
+#      - build_docker:
+#          requires:
+#            - build
+#          filters:
+#            branches:
+#              ignore: main
       - build_docker:
           name: build_docker_main
           requires:
             - build
-          filters:
-            branches:
-              only: main
-          main: true
+#            TODO: Uncomment these lines before merge
+#          filters:
+#            branches:
+#              only: main
+#          main: true
       - deploy_dev:
           requires:
             - helm_lint_dev
             - build_docker_main
-          filters:
-            branches:
-              only: main
       - request_preprod_approval:
           type: approval
           requires:

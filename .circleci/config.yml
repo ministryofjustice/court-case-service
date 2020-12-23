@@ -270,26 +270,27 @@ workflows:
           name: helm_lint_dev
           env: dev
           chart_name: court-case-service
-#          TODO: Uncomment these lines before merge
-#      - build_docker:
-#          requires:
-#            - build
-#          filters:
-#            branches:
-#              ignore: main
+      - build_docker:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: main
       - build_docker:
           name: build_docker_main
           requires:
             - build
-#            TODO: Uncomment these lines before merge
-#          filters:
-#            branches:
-#              only: main
-#          main: true
+          filters:
+            branches:
+              only: main
+          main: true
       - deploy_dev:
           requires:
             - helm_lint_dev
             - build_docker_main
+          filters:
+            branches:
+              only: main
       - request_preprod_approval:
           type: approval
           requires:

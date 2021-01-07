@@ -199,13 +199,12 @@ public class OffenderService {
         var builder = ProbationStatusDetail.builder().probationStatus(offenderDetail.getProbationStatus());
 
         if (offenderDetail.getProbationStatus() == ProbationStatus.PREVIOUSLY_KNOWN) {
-            LocalDate localDate = Optional.ofNullable(convictions).orElse(Collections.emptyList()).stream()
-                .filter(conviction -> conviction.getSentenceTerminationDate().isPresent())
-                .max(Comparator.comparing(s -> s.getSentenceTerminationDate().orElse(LocalDate.MIN).toEpochDay()))
-                .map(Conviction::getSentenceTerminationDate)
-                .get()
-                .orElse(null);
-            builder.previouslyKnownTerminationDate(localDate);
+            Optional.ofNullable(convictions).orElse(Collections.emptyList())
+                .stream()
+                .filter(conviction -> conviction.getSentence() != null && conviction.getSentence().getTerminationDate() != null)
+                .map(conviction -> conviction.getSentence().getTerminationDate())
+                .max(Comparator.comparing(LocalDate::toEpochDay))
+                .ifPresent(builder::previouslyKnownTerminationDate);
         }
 
         if (offenderDetail.getProbationStatus() == ProbationStatus.CURRENT) {

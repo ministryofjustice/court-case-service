@@ -376,8 +376,8 @@ class ImmutableCourtCaseServiceTest {
 
     @ExtendWith(MockitoExtension.class)
     @Nested
-    @DisplayName("Tests for updateStatus")
-    class PostUpdateStatusTest {
+    @DisplayName("Tests for updateOtherCaseStatusByCrn")
+    class UpdateCaseStatusTest {
 
         @Test
         public void givenNoExistingCase_whenCreateOrUpdateCaseCalledWithCrn_thenLogCreatedAndLinkedEvent() {
@@ -388,7 +388,7 @@ class ImmutableCourtCaseServiceTest {
 
             when(courtCaseRepository.findOtherCurrentCasesByCrn(CRN, CASE_NO)).thenReturn(List.of(courtCaseToIgnore, courtCaseToUpdate));
 
-            service.updateStatusForCrn(CRN, "Current", CASE_NO);
+            service.updateOtherCaseStatusByCrn(CRN, "Current", CASE_NO);
 
             // The case to be saved will be same as the updated with case no 1236 but with Current as the
             var expectedCourtCaseToSave = EntityHelper.aCourtCaseEntity(CRN, "1236", now.plusDays(1), "Current");

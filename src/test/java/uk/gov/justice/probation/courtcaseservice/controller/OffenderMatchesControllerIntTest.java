@@ -28,7 +28,6 @@ import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.get
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class OffenderMatchesControllerIntTest extends BaseIntTest {
 
-//    private static final String COURT_CODE = "SHF";
     private static final String CASE_NO = "1600028913";
 
     public static final String SINGLE_EXACT_MATCH_BODY = "{\n" +

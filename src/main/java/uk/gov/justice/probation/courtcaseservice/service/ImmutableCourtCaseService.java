@@ -42,11 +42,14 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                         () -> trackCreateEvents(updatedCase));
 
         return Mono.just(updatedCase)
-            .map(courtCaseRepository::save)
-            .doAfterTerminate(() -> updateStatusForCrn(updatedCase.getCrn(), updatedCase.getProbationStatus(), updatedCase.getCaseNo()));
+            .map((courtCaseEntity) -> {
+                log.debug("Saving case {} for court {}", caseNo, courtCode);
+                return courtCaseRepository.save(courtCaseEntity);
+            })
+            .doAfterTerminate(() -> updateOtherProbationStatusForCrn(updatedCase.getCrn(), updatedCase.getProbationStatus(), updatedCase.getCaseNo()));
     }
 
-    void updateStatusForCrn(String crn, String probationStatus, String caseNo) {
+    void updateOtherProbationStatusForCrn(String crn, String probationStatus, String caseNo) {
         final var courtCases = courtCaseRepository.findOtherCurrentCasesByCrn(crn, caseNo)
             .stream()
             .filter(courtCaseEntity -> !courtCaseEntity.getProbationStatus().equalsIgnoreCase(probationStatus))

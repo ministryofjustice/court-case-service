@@ -1,35 +1,31 @@
 package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.MatchIdentifiers;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.service.model.MatchType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 
 class OffenderMatchMapperTest {
 
     public static final long CASE_ID = 123L;
     public static final String CASE_NO = "1234";
-    public static final String COURT_CODE = "COURT_CODE";
 
     @Test
     public void givenMultipleMatches_thenMapAllFields() {
-        var offenderMatchMapper = new OffenderMatchMapper();
-        var courtCaseEntity = CourtCaseEntity.builder()
-                .id(CASE_ID)
-                .caseNo(CASE_NO)
-                .courtCode(COURT_CODE)
-                .build();
+        var courtCaseEntity = EntityHelper.aCourtCaseEntity(CRN, CASE_NO);
         var groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
                 .matches(Arrays.asList(OffenderMatchRequest.builder()
                             .matchType(MatchType.NAME)
@@ -44,7 +40,7 @@ class OffenderMatchMapperTest {
                                 .matchIdentifiers(new MatchIdentifiers("CRN2", "PNC2", "CRO2"))
                                 .build()))
                 .build();
-        var matchesEntity = offenderMatchMapper.newGroupedMatchesOf(groupedOffenderMatchesRequest, courtCaseEntity);
+        var matchesEntity = OffenderMatchMapper.newGroupedMatchesOf(groupedOffenderMatchesRequest, courtCaseEntity);
 
         assertThat(matchesEntity.getOffenderMatches()).hasSize(2);
         assertThat(matchesEntity.getId()).isNull();
@@ -72,14 +68,13 @@ class OffenderMatchMapperTest {
 
     @Test
     public void givenZeroMatches_thenMapAllFields() {
-        var offenderMatchMapper = new OffenderMatchMapper();
         var courtCaseEntity = CourtCaseEntity.builder()
                 .id(CASE_ID)
                 .build();
         var groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
                 .matches(Collections.emptyList())
                 .build();
-        var matchesEntity = offenderMatchMapper.newGroupedMatchesOf(groupedOffenderMatchesRequest, courtCaseEntity);
+        var matchesEntity = OffenderMatchMapper.newGroupedMatchesOf(groupedOffenderMatchesRequest, courtCaseEntity);
 
         assertThat(matchesEntity.getOffenderMatches()).isEmpty();
         assertThat(matchesEntity.getId()).isNull();
@@ -87,7 +82,6 @@ class OffenderMatchMapperTest {
 
     @Test
     public void whenUpdate_thenRefreshMatches() {
-        var offenderMatchMapper = new OffenderMatchMapper();
         var courtCaseEntity = CourtCaseEntity.builder()
             .id(CASE_ID)
             .caseNo(CASE_NO)
@@ -112,14 +106,14 @@ class OffenderMatchMapperTest {
             .build();
 
         var groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
-            .matches(Arrays.asList(OffenderMatchRequest.builder()
+            .matches(List.of(OffenderMatchRequest.builder()
                     .matchType(MatchType.NAME)
                     .confirmed(true)
                     .rejected(false)
                     .matchIdentifiers(new MatchIdentifiers("CRN3", "PNC3", "CRO3"))
                     .build()))
             .build();
-        var matchesEntity = offenderMatchMapper.update(existingEntity, groupedOffenderMatchesRequest);
+        var matchesEntity = OffenderMatchMapper.update(existingEntity, groupedOffenderMatchesRequest);
 
         assertThat(matchesEntity.getOffenderMatches()).hasSize(1);
         assertThat(matchesEntity).isSameAs(existingEntity);

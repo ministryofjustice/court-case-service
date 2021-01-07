@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
@@ -71,10 +72,11 @@ public class CourtCaseController {
     @PutMapping(value = "/court/{courtCode}/case/{caseNo}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    CourtCaseResponse updateCourtCaseNo(@PathVariable(value = "courtCode") String courtCode,
+    Mono<CourtCaseResponse> updateCourtCaseNo(@PathVariable(value = "courtCode") String courtCode,
                                         @PathVariable(value = "caseNo") String caseNo ,
                                         @Valid @RequestBody CourtCaseRequest courtCaseRequest) {
-        return buildCourtCaseResponse(courtCaseService.createCase(courtCode, caseNo, courtCaseRequest.asEntity()));
+        return courtCaseService.createCase(courtCode, caseNo, courtCaseRequest.asEntity())
+            .map(this::buildCourtCaseResponse);
     }
 
     @ApiOperation(value = "Gets case data for a court on a date. ",

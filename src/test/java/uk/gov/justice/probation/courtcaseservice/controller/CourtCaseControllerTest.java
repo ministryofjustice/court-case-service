@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
@@ -68,8 +69,8 @@ public class CourtCaseControllerTest {
     @Test
     public void updateCaseByCourtAndCaseNo_shouldReturnCourtCaseResponse() {
         when(courtCaseUpdate.asEntity()).thenReturn(courtCaseEntity);
-        when(courtCaseService.createCase(COURT_CODE, CASE_NO, courtCaseEntity)).thenReturn(courtCaseEntity);
-        CourtCaseResponse courtCase = courtCaseController.updateCourtCaseNo(COURT_CODE, CASE_NO, courtCaseUpdate);
+        when(courtCaseService.createCase(COURT_CODE, CASE_NO, courtCaseEntity)).thenReturn(Mono.just(courtCaseEntity));
+        CourtCaseResponse courtCase = courtCaseController.updateCourtCaseNo(COURT_CODE, CASE_NO, courtCaseUpdate).block();
 
         assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCase.getCaseNo()).isEqualTo(CASE_NO);

@@ -19,6 +19,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.controller.OffenderMatchesControllerTest.OFFENDER_MATCHES_DETAIL_PATH;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @RunWith(SpringRunner.class)
@@ -27,7 +28,7 @@ import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.get
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class OffenderMatchesControllerIntTest extends BaseIntTest {
 
-    private static final String COURT_CODE = "SHF";
+//    private static final String COURT_CODE = "SHF";
     private static final String CASE_NO = "1600028913";
 
     public static final String SINGLE_EXACT_MATCH_BODY = "{\n" +
@@ -75,10 +76,10 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
                 .contentType(APPLICATION_JSON_VALUE)
                 .body(SINGLE_EXACT_MATCH_BODY)
             .when()
-                .post("/court/SHF/case/1600028913/grouped-offender-matches")
+                .post("/court/" + COURT_CODE + "/case/1600028913/grouped-offender-matches")
             .then()
                 .statusCode(201)
-                .header("Location", matchesPattern("/court/SHF/case/1600028913/grouped-offender-matches/[0-9]+"))
+                .header("Location", matchesPattern("/court/" + COURT_CODE + "/case/1600028913/grouped-offender-matches/[0-9]+"))
                 .extract()
                 .header("Location");
 
@@ -91,7 +92,7 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
                 .get(location)
             .then()
                 .statusCode(200)
-                .body("courtCode", equalTo("SHF"))
+                .body("courtCode", equalTo(COURT_CODE))
                 .body("caseNo", equalTo("1600028913"))
                 .body("offenderMatches", hasSize(1))
                 .body("offenderMatches[0].crn", equalTo("X346204"))
@@ -111,10 +112,10 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
             .contentType(APPLICATION_JSON_VALUE)
             .body(MULTIPLE_NON_EXACT_MATCH_BODY)
             .when()
-            .post("/court/SHF/case/1600028913/grouped-offender-matches")
+            .post("/court/" + COURT_CODE + "/case/1600028913/grouped-offender-matches")
             .then()
             .statusCode(201)
-            .header("Location", matchesPattern("/court/SHF/case/1600028913/grouped-offender-matches/[0-9]+"))
+            .header("Location", matchesPattern("/court/" + COURT_CODE + "/case/1600028913/grouped-offender-matches/[0-9]+"))
             .extract()
             .header("Location");
 
@@ -127,7 +128,7 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
             .get(location)
             .then()
             .statusCode(200)
-            .body("courtCode", equalTo("SHF"))
+            .body("courtCode", equalTo(COURT_CODE))
             .body("caseNo", equalTo("1600028913"))
             .body("offenderMatches", hasSize(2))
             .body("offenderMatches[0].crn", equalTo("X12345"))
@@ -165,11 +166,11 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
                 .contentType(APPLICATION_JSON_VALUE)
                 .body(SINGLE_EXACT_MATCH_BODY)
             .when()
-                .post("/court/SHF/case/1234567890/grouped-offender-matches")
+                .post("/court/" + COURT_CODE + "/case/1234567890/grouped-offender-matches")
             .then()
                 .statusCode(404)
-                    .body("userMessage", equalTo("Case 1234567890 not found for court SHF"))
-                    .body("developerMessage" , equalTo("Case 1234567890 not found for court SHF"));
+                    .body("userMessage", equalTo("Case 1234567890 not found for court " + COURT_CODE))
+                    .body("developerMessage" , equalTo("Case 1234567890 not found for court " + COURT_CODE));
     }
 
     @Test
@@ -248,8 +249,8 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
             .get(path)
             .then()
             .statusCode(404)
-            .body("userMessage", equalTo("Case 23456541141414 not found for court SHF"))
-            .body("developerMessage" , equalTo("Case 23456541141414 not found for court SHF"));
+            .body("userMessage", equalTo("Case 23456541141414 not found for court " + COURT_CODE))
+            .body("developerMessage" , equalTo("Case 23456541141414 not found for court " + COURT_CODE));
     }
 
 }

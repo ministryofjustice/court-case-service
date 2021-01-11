@@ -264,6 +264,32 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     }
 
     @Test
+    public void givenNullCrn_whenUpdateCaseDataByCourtAndCaseNo_ThenDoNotUpdateOtherStatuses() {
+
+        var newCaseNo = "15005";
+        var updatedJson = caseDetailsJson
+            .replace("\"caseNo\": \"1700028914\"", "\"caseNo\": \"" + newCaseNo + "\"")
+            .replace("\"crn\": \"X320741\",", "")
+            ;
+
+        // Create
+        given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(updatedJson)
+            .when()
+            .put(String.format("/court/%s/case/%s", COURT_CODE, newCaseNo))
+            .then()
+            .statusCode(201)
+            .body("caseNo", equalTo(newCaseNo))
+            .body("probationStatus", equalTo("Previously known"))
+        ;
+
+    }
+
+    @Test
     public void whenCreateCourtCaseByCourtAndCaseWithUnknownCourt_ThenRaise404() {
 
         CourtCaseEntity courtCaseEntity = createCaseDetails(NOT_FOUND_COURT_CODE);

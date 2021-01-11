@@ -452,8 +452,8 @@ class OffenderServiceTest {
     }
 
     @Nested
-    @DisplayName("Tests for the method getProbationStatus")
-    class ProbationStatusTest {
+    @DisplayName("Tests for the method getProbationStatusDetail")
+    class ProbationStatusDetailTest {
 
         private Conviction conviction;
 
@@ -466,25 +466,44 @@ class OffenderServiceTest {
 
         @DisplayName("With convictions and previously known then set previously known termination date")
         @Test
-        void givenProbationStatusAndConvictions_whenCombine_thenReturn() {
+        void givenProbationStatusAndConvictionsWithNullSentencesAndDates_whenCombine_thenReturn() {
             var offenderDetail = OffenderDetail.builder().probationStatus(ProbationStatus.PREVIOUSLY_KNOWN).build();
 
-            var firstConviction = Conviction.builder()
+            var conviction1 = Conviction.builder().build();
+            var conviction2 = Conviction.builder()
+                .sentence(Sentence.builder().build())
+                .build();
+            var conviction3 = Conviction.builder()
                 .sentence(Sentence.builder()
                     .terminationDate(LocalDate.of(2002, Month.AUGUST, 25))
                     .build())
                 .build();
-            var secondConviction = Conviction.builder()
+            var conviction4 = Conviction.builder()
                 .sentence(Sentence.builder()
                     .terminationDate(LocalDate.of(2005, Month.AUGUST, 25))
                     .build())
                 .build();
 
             var probationStatusDetail = service
-                .combineProbationStatusDetail(offenderDetail, List.of(firstConviction, secondConviction));
+                .combineProbationStatusDetail(offenderDetail, List.of(conviction1, conviction2, conviction3, conviction4));
 
             assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.PREVIOUSLY_KNOWN);
             assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2005, Month.AUGUST, 25));
+            assertThat(probationStatusDetail.getInBreach()).isNull();
+        }
+
+        @DisplayName("With convictions but all with no sentences and previously known then do not set previously known termination date")
+        @Test
+        void givenProbationStatusAndConvictionWithNoSentences_whenCombine_thenReturn() {
+            var offenderDetail = OffenderDetail.builder().probationStatus(ProbationStatus.PREVIOUSLY_KNOWN).build();
+
+            var conviction1 = Conviction.builder().build();
+            var conviction2 = Conviction.builder().build();
+
+            var probationStatusDetail = service.combineProbationStatusDetail(offenderDetail, List.of(conviction1, conviction2));
+
+            assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.PREVIOUSLY_KNOWN);
+            assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isNull();
             assertThat(probationStatusDetail.getInBreach()).isNull();
         }
 

@@ -1,6 +1,12 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,16 +23,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderM
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
-import uk.gov.justice.probation.courtcaseservice.service.mapper.OffenderMatchMapper;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
-
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -51,8 +49,6 @@ class OffenderMatchServiceTest {
     private GroupedOffenderMatchesEntity groupedOffenderMatchesEntity;
     @Mock
     private GroupedOffenderMatchesRequest groupedOffenderMatchesRequest;
-    @Mock
-    private OffenderMatchMapper mapper;
 
     @InjectMocks
     private OffenderMatchService service;
@@ -61,8 +57,7 @@ class OffenderMatchServiceTest {
     void givenValidRequest_whenCreateGroupedMatchesCalled_thenCreateAndReturnMatch() {
         when(offenderMatchRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.empty());
         when(courtCaseService.getCaseByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(courtCaseEntity);
-        when(mapper.newGroupedMatchesOf(groupedOffenderMatchesRequest, courtCaseEntity)).thenReturn(groupedOffenderMatchesEntity);
-        when(offenderMatchRepository.save(groupedOffenderMatchesEntity)).thenReturn(groupedOffenderMatchesEntity);
+        when(offenderMatchRepository.save(any(GroupedOffenderMatchesEntity.class))).thenReturn(groupedOffenderMatchesEntity);
 
         Optional<GroupedOffenderMatchesEntity> match = service.createOrUpdateGroupedMatches(COURT_CODE, CASE_NO, groupedOffenderMatchesRequest).blockOptional();
 
@@ -74,7 +69,6 @@ class OffenderMatchServiceTest {
     void givenValidRequest_whenUpdateGroupedMatchesCalled_thenCreateAndReturnMatch() {
 
         when(offenderMatchRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(groupedOffenderMatchesEntity));
-        when(mapper.update(groupedOffenderMatchesEntity, groupedOffenderMatchesRequest)).thenReturn(groupedOffenderMatchesEntity);
         when(offenderMatchRepository.save(any(GroupedOffenderMatchesEntity.class))).thenReturn(groupedOffenderMatchesEntity);
 
         Optional<GroupedOffenderMatchesEntity> match = service.createOrUpdateGroupedMatches(COURT_CODE, CASE_NO, groupedOffenderMatchesRequest).blockOptional();

@@ -8,7 +8,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.MDC;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
@@ -77,7 +76,6 @@ class TelemetryServiceTest {
         assertThat(properties.get("clientId")).isEqualTo("Van der Linde");
 
         assertThat(metricsCaptor.getValue()).isEmpty();
-        MDC.clear();
     }
 
     @Test
@@ -103,7 +101,6 @@ class TelemetryServiceTest {
         assertThat(properties.get("clientId")).isEqualTo("Van der Linde");
 
         assertThat(metricsCaptor.getValue()).isEmpty();
-        MDC.clear();
     }
 
     @Test

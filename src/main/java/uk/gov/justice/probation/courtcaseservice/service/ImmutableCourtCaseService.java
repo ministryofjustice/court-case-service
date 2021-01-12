@@ -50,15 +50,17 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     void updateOtherProbationStatusForCrn(String crn, String probationStatus, String caseNo) {
-        final var courtCases = courtCaseRepository.findOtherCurrentCasesByCrn(crn, caseNo)
-            .stream()
-            .filter(courtCaseEntity -> !courtCaseEntity.getProbationStatus().equalsIgnoreCase(probationStatus))
-            .map(courtCaseEntity -> CourtCaseMapper.create(courtCaseEntity, probationStatus))
-            .collect(Collectors.toList());
+        if (crn != null) {
+            final var courtCases = courtCaseRepository.findOtherCurrentCasesByCrn(crn, caseNo)
+                .stream()
+                .filter(courtCaseEntity -> !courtCaseEntity.getProbationStatus().equalsIgnoreCase(probationStatus))
+                .map(courtCaseEntity -> CourtCaseMapper.create(courtCaseEntity, probationStatus))
+                .collect(Collectors.toList());
 
-        if (!courtCases.isEmpty()) {
-            log.debug("Updating {} cases for CRN {} with changed probation status to {}", courtCases.size(), crn, probationStatus);
-            courtCaseRepository.saveAll(courtCases);
+            if (!courtCases.isEmpty()) {
+                log.debug("Updating {} cases for CRN {} with changed probation status to {}", courtCases.size(), crn, probationStatus);
+                courtCaseRepository.saveAll(courtCases);
+            }
         }
     }
 

@@ -8,6 +8,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
@@ -34,7 +35,7 @@ class TelemetryServiceTest {
     @Mock
     private TelemetryClient telemetryClient;
     @Mock
-    private Map<String, String> requestProperties;
+    private ClientDetails clientDetails;
 
     @Captor
     private ArgumentCaptor<Map<String, String>> properties;
@@ -46,8 +47,8 @@ class TelemetryServiceTest {
 
     @Test
     public void givenUserDetailsAvailable_whenTrackMatchEvent_thenAddAllProperties() {
-        when(requestProperties.get("username")).thenReturn("Arthur");
-        when(requestProperties.get("clientId")).thenReturn("Van der Linde");
+        when(clientDetails.getUsername()).thenReturn("Arthur");
+        when(clientDetails.getClientId()).thenReturn("Van der Linde");
 
         OffenderMatchEntity match = OffenderMatchEntity.builder()
                 .group(GroupedOffenderMatchesEntity.builder()
@@ -74,13 +75,13 @@ class TelemetryServiceTest {
         assertThat(properties.get("username")).isEqualTo("Arthur");
         assertThat(properties.get("clientId")).isEqualTo("Van der Linde");
 
-        assertThat(metricsCaptor.getValue().isEmpty());
+        assertThat(metricsCaptor.getValue()).isEmpty();
     }
 
     @Test
     public void givenUserDetailsAvailable_whenTrackCourtCaseEvent_thenAddAllProperties() {
-        when(requestProperties.get("username")).thenReturn("Arthur");
-        when(requestProperties.get("clientId")).thenReturn("Van der Linde");
+        when(clientDetails.getUsername()).thenReturn("Arthur");
+        when(clientDetails.getClientId()).thenReturn("Van der Linde");
 
         CourtCaseEntity courtCase = buildCourtCase();
 
@@ -99,7 +100,7 @@ class TelemetryServiceTest {
         assertThat(properties.get("username")).isEqualTo("Arthur");
         assertThat(properties.get("clientId")).isEqualTo("Van der Linde");
 
-        assertThat(metricsCaptor.getValue().isEmpty());
+        assertThat(metricsCaptor.getValue()).isEmpty();
     }
 
     @Test
@@ -119,7 +120,7 @@ class TelemetryServiceTest {
         assertThat(properties.get("pnc")).isEqualTo(PNC);
         assertThat(properties.get("hearingDate")).isEqualTo(standardDateOf(2020, 9 , 22));
 
-        assertThat(metricsCaptor.getValue().isEmpty());
+        assertThat(metricsCaptor.getValue()).isEmpty();
     }
 
     @Test
@@ -134,7 +135,7 @@ class TelemetryServiceTest {
         var properties = this.properties.getValue();
         assertThat(properties.size()).isEqualTo(0);
 
-        assertThat(metricsCaptor.getValue().isEmpty());
+        assertThat(metricsCaptor.getValue()).isEmpty();
     }
 
     private CourtCaseEntity buildCourtCase() {

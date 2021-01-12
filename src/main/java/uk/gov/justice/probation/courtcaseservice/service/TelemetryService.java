@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.service;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
@@ -21,7 +22,7 @@ import static java.util.Optional.ofNullable;
 public class TelemetryService {
     private final TelemetryClient telemetryClient;
 
-    private final Map<String, String> requestProperties;
+    private final ClientDetails clientDetails;
 
     void trackCourtCaseEvent(TelemetryEventType eventType, CourtCaseEntity courtCaseEntity) {
 
@@ -74,9 +75,9 @@ public class TelemetryService {
     }
 
     private void addRequestProperties(Map<String, String> properties) {
-        Optional.ofNullable(requestProperties.get("username"))
+        Optional.ofNullable(clientDetails.getUsername())
                 .ifPresent((caseNo) -> properties.put("username", caseNo));
-        Optional.ofNullable(requestProperties.get("clientId"))
+        Optional.ofNullable(clientDetails.getClientId())
                 .ifPresent((caseNo) -> properties.put("clientId", caseNo));
     }
 }

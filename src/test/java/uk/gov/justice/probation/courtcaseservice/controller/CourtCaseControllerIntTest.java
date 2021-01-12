@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @RunWith(SpringRunner.class)
@@ -35,7 +36,6 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
     @Autowired
     CourtCaseRepository courtCaseRepository;
 
-    private static final String COURT_CODE = "SHF";
     private static final String CASE_NO = "1600028913";
     private static final String PROBATION_STATUS = "Previously known";
     private static final String NOT_FOUND_COURT_CODE = "LPL";

@@ -6,8 +6,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
@@ -16,6 +19,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 
 @Data
 @Builder
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
+@AllArgsConstructor
 public class CourtCaseRequest {
     private final String caseId;
     private final String caseNo;

@@ -34,13 +34,19 @@ import static org.hamcrest.Matchers.not;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_SEX;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_1;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_2;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aCourtCaseEntity;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class CourtCaseControllerPutIntTest extends BaseIntTest {
-    public static final String CRO = "CRO";
 
     /* before-test.sql sets up a court case in the database */
 
@@ -53,16 +59,9 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     private static final String CRN = "X320741";
     private static final String PNC = "A/1234560BA";
     private static final String COURT_ROOM = "1";
-    private static final String LIST_NO = "1st";
-    private static final String DEFENDANT_SEX = "M";
-    private static final String NATIONALITY_1 = "British";
-    private static final String NATIONALITY_2 = "Polish";
-    private static final String COURT_CODE = "SHF";
     private static final AddressPropertiesEntity ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "Bangor", null, null, "ad21 5dr");
-    private static final String PROBATION_STATUS = "Previously known";
     private static final String NOT_FOUND_COURT_CODE = "LPL";
     private static final String DEFENDANT_NAME = "Mr Dylan Adam ARMSTRONG";
-    private static final LocalDate DEFENDANT_DOB = LocalDate.of(1958, 12, 14);
     private static final LocalDateTime sessionStartTime = LocalDateTime.of(2019, 12, 14, 9, 0);
 
     @Value("classpath:integration/request/PUT_courtCase_success.json")
@@ -221,7 +220,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .accept(APPLICATION_JSON_VALUE)
                 .contentType(APPLICATION_JSON_VALUE)
             .when()
-                .get("/court/SHF/case/1600028914/grouped-offender-matches/9999992")
+                .get("/court/"+ COURT_CODE + "/case/1600028914/grouped-offender-matches/9999992")
             .then()
                 .statusCode(200)
                 .body("offenderMatches[0].crn", equalTo("3234"))
@@ -231,9 +230,69 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     }
 
     @Test
+    public void whenUpdateCaseDataByCourtAndCaseNo_ThenUpdateProbationStatusOnCurrentCasesWithSameCrn() {
+
+        var existingCaseNo = "15000";
+        var newCaseNo = "15005";
+        var crn = "X320747";
+        var updatedJson = caseDetailsJson
+            .replace("\"caseNo\": \"1700028914\"", "\"caseNo\": \"" + newCaseNo + "\"")
+            .replace("\"crn\": \"X320741\"", "\"crn\": \"" + crn + "\"")
+            ;
+
+        CourtCaseEntity preUpdateCourtCase = courtCaseRepository.findByCourtCodeAndCaseNo("B10JQ", existingCaseNo).get();
+        assertThat(preUpdateCourtCase.getProbationStatus()).isEqualTo("No record");
+
+        // Create
+        given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(updatedJson)
+            .when()
+            .put(String.format("/court/%s/case/%s", COURT_CODE, newCaseNo))
+            .then()
+            .statusCode(201)
+            .body("caseNo", equalTo(newCaseNo))
+            .body("crn", equalTo(crn))
+            .body("probationStatus", equalTo("Previously known"))
+            ;
+
+        CourtCaseEntity courtCaseEntity = courtCaseRepository.findByCourtCodeAndCaseNo("B10JQ", existingCaseNo).get();
+        assertThat(courtCaseEntity.getProbationStatus()).isEqualTo("Previously known");
+    }
+
+    @Test
+    public void givenNullCrn_whenUpdateCaseDataByCourtAndCaseNo_ThenDoNotUpdateOtherStatuses() {
+
+        var newCaseNo = "15005";
+        var updatedJson = caseDetailsJson
+            .replace("\"caseNo\": \"1700028914\"", "\"caseNo\": \"" + newCaseNo + "\"")
+            .replace("\"crn\": \"X320741\",", "")
+            ;
+
+        // Create
+        given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(updatedJson)
+            .when()
+            .put(String.format("/court/%s/case/%s", COURT_CODE, newCaseNo))
+            .then()
+            .statusCode(201)
+            .body("caseNo", equalTo(newCaseNo))
+            .body("probationStatus", equalTo("Previously known"))
+        ;
+
+    }
+
+    @Test
     public void whenCreateCourtCaseByCourtAndCaseWithUnknownCourt_ThenRaise404() {
 
-        CourtCaseEntity courtCaseEntity = createCaseDetails(NOT_FOUND_COURT_CODE, JSON_CASE_NO, JSON_CASE_ID);
+        CourtCaseEntity courtCaseEntity = createCaseDetails(NOT_FOUND_COURT_CODE);
 
         ErrorResponse result = given()
             .auth()
@@ -257,7 +316,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     @Test
     public void whenCreateCourtCaseByCourtAndCaseWithMismatchCourt_ThenRaise400() {
 
-        CourtCaseEntity courtCaseEntity = createCaseDetails(COURT_CODE, JSON_CASE_NO, JSON_CASE_ID);
+        CourtCaseEntity courtCaseEntity = createCaseDetails(COURT_CODE);
 
         given()
             .auth()
@@ -269,7 +328,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
             .put(String.format("/court/%s/case/%s", "NWS", "99999"))
             .then()
             .statusCode(400)
-            .body("developerMessage", equalTo("Case No 99999 and Court Code NWS do not match with values from body 1700028914 and SHF"))
+            .body("developerMessage", equalTo("Case No 99999 and Court Code NWS do not match with values from body 1700028914 and B10JQ"))
         ;
 
     }
@@ -293,27 +352,8 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
         ;
     }
 
-    private CourtCaseEntity createCaseDetails(String courtCode, String caseNo, String caseId) {
-
-        return CourtCaseEntity.builder()
-                .courtCode(courtCode)
-                .caseNo(caseNo)
-                .caseId(caseId)
-                .courtRoom("1")
-                .sessionStartTime(LocalDateTime.now())
-                .probationStatus(PROBATION_STATUS)
-                .previouslyKnownTerminationDate(LocalDate.of(2010, 1, 1))
-                .suspendedSentenceOrder(true)
-                .breach(true)
-                .defendantName(DEFENDANT_NAME)
-                .defendantAddress(ADDRESS)
-                .pnc(PNC)
-                .listNo(LIST_NO)
-                .defendantDob(DEFENDANT_DOB)
-                .defendantSex(DEFENDANT_SEX)
-                .nationality1(NATIONALITY_1)
-                .nationality2(NATIONALITY_2)
-                .build();
+    private CourtCaseEntity createCaseDetails(String courtCode) {
+        return aCourtCaseEntity(null, JSON_CASE_NO, LocalDateTime.now(), PROBATION_STATUS, JSON_CASE_ID, courtCode);
     }
 
     private void createCase() {

@@ -1,23 +1,24 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.InputMismatchException;
-import java.util.List;
+import uk.gov.justice.probation.courtcaseservice.service.mapper.CourtCaseMapper;
 
 @Service
 @Slf4j
@@ -30,7 +31,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private final GroupedOffenderMatchRepository matchRepository;
 
     @Override
-    public CourtCaseEntity createCase(String courtCode, String caseNo, CourtCaseEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
+    public Mono<CourtCaseEntity> createCase(String courtCode, String caseNo, CourtCaseEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
         validateEntity(courtCode, caseNo, updatedCase);
         courtCaseRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
                 .ifPresentOrElse(
@@ -40,7 +41,27 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                         },
                         () -> trackCreateEvents(updatedCase));
 
-        return courtCaseRepository.save(updatedCase);
+        return Mono.just(updatedCase)
+            .map((courtCaseEntity) -> {
+                log.debug("Saving case {} for court {}", caseNo, courtCode);
+                return courtCaseRepository.save(courtCaseEntity);
+            })
+            .doAfterTerminate(() -> updateOtherProbationStatusForCrn(updatedCase.getCrn(), updatedCase.getProbationStatus(), updatedCase.getCaseNo()));
+    }
+
+    void updateOtherProbationStatusForCrn(String crn, String probationStatus, String caseNo) {
+        if (crn != null) {
+            final var courtCases = courtCaseRepository.findOtherCurrentCasesByCrn(crn, caseNo)
+                .stream()
+                .filter(courtCaseEntity -> !courtCaseEntity.getProbationStatus().equalsIgnoreCase(probationStatus))
+                .map(courtCaseEntity -> CourtCaseMapper.create(courtCaseEntity, probationStatus))
+                .collect(Collectors.toList());
+
+            if (!courtCases.isEmpty()) {
+                log.debug("Updating {} cases for CRN {} with changed probation status to {}", courtCases.size(), crn, probationStatus);
+                courtCaseRepository.saveAll(courtCases);
+            }
+        }
     }
 
     private void trackCreateEvents(CourtCaseEntity createdCase) {
@@ -67,10 +88,10 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     @Override
     public List<CourtCaseEntity> filterCasesByCourtAndDate(String courtCode, LocalDate date, LocalDateTime createdAfter) {
-        CourtEntity court = courtRepository.findByCourtCode(courtCode)
+        final var court = courtRepository.findByCourtCode(courtCode)
             .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
 
-        LocalDateTime start = LocalDateTime.of(date, LocalTime.MIDNIGHT);
+        final var start = LocalDateTime.of(date, LocalTime.MIDNIGHT);
         return courtCaseRepository.findByCourtCodeAndSessionStartTime(court.getCourtCode(), start, start.plusDays(1), createdAfter);
     }
 

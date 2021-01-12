@@ -1,5 +1,11 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +26,6 @@ import uk.gov.justice.probation.courtcaseservice.service.mapper.OffenderMatchMap
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 @Service
 @Slf4j
 @AllArgsConstructor
@@ -38,21 +37,18 @@ public class OffenderMatchService {
     private GroupedOffenderMatchRepository offenderMatchRepository;
 
     @Autowired
-    private OffenderMatchMapper mapper;
-
-    @Autowired
     private OffenderRestClient offenderRestClient;
 
     public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatches(String courtCode, String caseNo, GroupedOffenderMatchesRequest offenderMatches) {
         return Mono.just(offenderMatchRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
-            .map(existingGroup -> mapper.update(existingGroup, offenderMatches))
+            .map(existingGroup -> OffenderMatchMapper.update(existingGroup, offenderMatches))
             .orElseGet(() -> create(courtCode, caseNo, offenderMatches)))
             .map(groupedOffenderMatchesEntity -> offenderMatchRepository.save(groupedOffenderMatchesEntity));
     }
 
     private GroupedOffenderMatchesEntity create(String courtCode, String caseNo, GroupedOffenderMatchesRequest offenderMatches) {
         CourtCaseEntity courtCaseEntity = courtCaseService.getCaseByCaseNumber(courtCode, caseNo);
-        return mapper.newGroupedMatchesOf(offenderMatches, courtCaseEntity);
+        return OffenderMatchMapper.newGroupedMatchesOf(offenderMatches, courtCaseEntity);
     }
 
     public Mono<GroupedOffenderMatchesEntity> getGroupedMatches(String courtCode, String caseNo, Long groupId) {

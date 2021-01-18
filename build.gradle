@@ -198,7 +198,7 @@ dependencies {
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.2'
     implementation 'net.logstash.logback:logstash-logback-encoder:6.6'
 
-    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.0.0'
+    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.0.1'
 }
 
 jacoco {

@@ -11,8 +11,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.CommunityApiError;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.CustodialStatusNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.NsiNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 
@@ -28,7 +30,7 @@ public class RestClientHelper {
     private Boolean disableAuthentication;
 
     public WebClient.RequestHeadersSpec<?> get(final String path) {
-        return get(path, new LinkedMultiValueMap(0));
+        return get(path, new LinkedMultiValueMap<>(0));
     }
 
     public WebClient.RequestHeadersSpec<?> get(final String path, final MultiValueMap<String, String> queryParams) {
@@ -69,6 +71,10 @@ public class RestClientHelper {
     public Mono<? extends Throwable> handleOffenderError(final String crn, final ClientResponse clientResponse) {
         if (HttpStatus.NOT_FOUND.equals(clientResponse.statusCode())) {
             return Mono.error(new OffenderNotFoundException(crn));
+        }
+        if (HttpStatus.FORBIDDEN.equals(clientResponse.statusCode())) {
+            return clientResponse.bodyToMono(CommunityApiError.class)
+                    .flatMap((error) -> Mono.error(new ForbiddenException(error.getDeveloperMessage())));
         }
         return handleError(clientResponse);
     }

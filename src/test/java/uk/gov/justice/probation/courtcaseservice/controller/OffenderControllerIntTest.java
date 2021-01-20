@@ -46,6 +46,19 @@ public class OffenderControllerIntTest extends BaseIntTest {
     }
 
     @Test
+    public void givenOffenderExclusionsApply_whenCallMadeToGetProbationRecord_thenReturn403() {
+        given()
+            .auth()
+            .oauth2(getToken())
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+        .when()
+                .get("/offender/CRN007/probation-record")
+                .then()
+                .statusCode(403)
+                    .body("developerMessage" , equalTo("You are excluded from viewing this offender record. Please contact a system administrator"));
+    }
+
+    @Test
     public void whenCallMadeToGetProbationRecord_thenReturnCorrectData() {
         given()
             .auth()
@@ -157,6 +170,20 @@ public class OffenderControllerIntTest extends BaseIntTest {
     }
 
     @Test
+    public void givenUserIsExcluded_whenCallMadeToGetProbationStatusDetail_thenReturn403() {
+        given()
+            .auth()
+            .oauth2(getToken())
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .get("/offender/CRN007/probation-status-detail")
+            .then()
+            .statusCode(403)
+            .body("developerMessage" , equalTo("You are excluded from viewing this offender record. Please contact a system administrator"))
+        ;
+    }
+
+    @Test
     public void givenOffenderDoesNotExist_whenCallMadeToGetProbationStatusDetail_thenReturnNotFound() {
         given()
             .auth()
@@ -235,6 +262,20 @@ public class OffenderControllerIntTest extends BaseIntTest {
             .body("otherIds.offenderId", equalTo(2500343964L))
             .body("otherIds.pncNumber", equalTo("2004/0712343H"))
             .body("otherIds.croNumber", equalTo("123456/04A"))
+        ;
+    }
+
+    @Test
+    public void givenUserIsExcluded_whenCallMadeToGetOffenderDetail_thenReturn403() {
+        given()
+            .auth()
+            .oauth2(getToken())
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .get("/offender/CRN007/detail")
+            .then()
+            .statusCode(403)
+            .body("developerMessage" , equalTo("You are excluded from viewing this offender record. Please contact a system administrator"))
         ;
     }
 

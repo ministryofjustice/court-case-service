@@ -7,9 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.NsiNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class RestClientHelperTest {
@@ -45,7 +47,20 @@ class RestClientHelperTest {
         assertThrows(NsiNotFoundException.class, () -> restClientHelper.handleNsiError("CRN", 12345L, 123456L, clientResponse).block());
     }
 
-    @DisplayName("Error handling when the code is in the range of 400 but other than NOT FOUND")
+    @DisplayName("Error handling when the code is FORBIDDEN")
+    @Test
+    void handleForbiddenError() {
+        final ClientResponse clientResponse = ClientResponse.create(HttpStatus.FORBIDDEN)
+                .body("{\"status\": 403, \"developerMessage\": \"User is excluded\"}")
+                .header("Content-Type", "application/json")
+                .build();
+
+        assertThatExceptionOfType(ForbiddenException.class)
+                .isThrownBy(() ->restClientHelper.handleOffenderError("CRN", clientResponse).block())
+                .withMessage("User is excluded");
+    }
+
+    @DisplayName("Error handling when the code is in the range of 400 but other than NOT FOUND or FORBIDDEN")
     @Test
     void handleNonNotFoundError() {
         final ClientResponse clientResponse = ClientResponse.create(HttpStatus.BAD_REQUEST).build();

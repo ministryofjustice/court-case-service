@@ -1,12 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import java.net.ConnectException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -35,6 +28,14 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Convicti
 import uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
+
+import java.net.ConnectException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -109,7 +110,7 @@ class OffenderServiceTest {
                 .completed(LocalDateTime.of(2018,4,23,10,5,20))
                 .status("COMPLETE")
                 .build();
-            service = new OffenderService(offenderRestClient, assessmentsRestClient, documentRestClient, documentTypeFilter);
+            service = new OffenderService(offenderRestClient, assessmentsRestClient, documentRestClient, documentTypeFilter, webClientFactory);
             service.setPssRqmntDescriptionsKeepSubType(List.of(PSS_DESC_TO_KEEP));
             service.setAssessmentStatuses(List.of("COMPLETE"));
         }
@@ -363,7 +364,7 @@ class OffenderServiceTest {
 
         @BeforeEach
         void beforeEach() {
-            service = new OffenderService(offenderRestClient, assessmentsRestClient, documentRestClient, documentTypeFilter);
+            service = new OffenderService(offenderRestClient, assessmentsRestClient, documentRestClient, documentTypeFilter, webClientFactory);
             service.setPssRqmntDescriptionsKeepSubType(List.of(PSS_DESC_TO_KEEP));
         }
 
@@ -413,7 +414,7 @@ class OffenderServiceTest {
 
         @BeforeEach
         void beforeEach() {
-            service = new OffenderService(offenderRestClient, assessmentsRestClient, documentRestClient, documentTypeFilter);
+            service = new OffenderService(offenderRestClient, assessmentsRestClient, documentRestClient, documentTypeFilter, webClientFactory);
             service.setPssRqmntDescriptionsKeepSubType(List.of(PSS_DESC_TO_KEEP));
         }
 
@@ -435,7 +436,7 @@ class OffenderServiceTest {
 
         @BeforeEach
         void beforeEach() {
-            service = new OffenderService(offenderRestClient, assessmentsRestClient, documentRestClient, documentTypeFilter);
+            service = new OffenderService(offenderRestClient, assessmentsRestClient, documentRestClient, documentTypeFilter, webClientFactory);
             service.setPssRqmntDescriptionsKeepSubType(List.of(PSS_DESC_TO_KEEP));
         }
 
@@ -461,7 +462,7 @@ class OffenderServiceTest {
         void beforeEach() {
             var sentence = Sentence.builder().startDate(LocalDate.now()).build();
             this.conviction = Conviction.builder().convictionId(CONVICTION_ID).sentence(sentence).active(Boolean.TRUE).build();
-            service = new OffenderService(offenderRestClient, assessmentsRestClient, documentRestClient, documentTypeFilter);
+            service = new OffenderService(offenderRestClient, assessmentsRestClient, documentRestClient, documentTypeFilter, webClientFactory);
         }
 
         @DisplayName("With convictions and previously known then set previously known termination date")

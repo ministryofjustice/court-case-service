@@ -3,15 +3,13 @@ package uk.gov.justice.probation.courtcaseservice.restclient;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.context.annotation.RequestScope;
 import reactor.core.publisher.Mono;
-import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.CourtAppearanceMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
@@ -43,6 +41,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Slf4j
+@RequestScope
 public class OffenderRestClient {
     @Value("${community-api.offender-by-crn-url-template}")
     private String offenderUrlTemplate;
@@ -69,32 +68,32 @@ public class OffenderRestClient {
     private List<String> nsiBreachCodes;
     @Value("${community-api.offender-address-code}")
     private String addressCode;
-    @Autowired
-    @Qualifier("communityApiClient")
     private RestClientHelper clientHelper;
-    @Autowired
-    private ClientDetails clientDetails;
 
     public Mono<ProbationRecord> getProbationRecordByCrn(String crn) {
-        return clientHelper.get(String.format(offenderAllUrlTemplate, crn))
+        return getClientHelper().get(String.format(offenderAllUrlTemplate, crn))
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
+                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> getClientHelper().handleOffenderError(crn, clientResponse))
                 .bodyToMono(CommunityApiOffenderResponse.class)
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender probation record data for CRN '%s'", crn), e))
                 .map(OffenderMapper::probationRecordFrom);
     }
 
+    public RestClientHelper getClientHelper() {
+        return clientHelper;
+    }
+
     public Mono<OffenderDetail> getOffenderDetailByCrn(String crn) {
-        return clientHelper.get(String.format(offenderUrlTemplate, crn))
+        return getClientHelper().get(String.format(offenderUrlTemplate, crn))
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> getClientHelper().handleOffenderError(crn, clientResponse))
             .bodyToMono(CommunityApiOffenderResponse.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender detail data for CRN '%s'", crn), e))
             .map(OffenderMapper::offenderDetailFrom);
     }
 
     public Mono<OffenderMatchDetail> getOffenderMatchDetailByCrn(String crn) {
-        return clientHelper.get(String.format(offenderAllUrlTemplate, crn))
+        return getClientHelper().get(String.format(offenderAllUrlTemplate, crn))
             .retrieve()
             .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> Mono.justOrEmpty(null))
             .bodyToMono(CommunityApiOffenderResponse.class)
@@ -103,9 +102,9 @@ public class OffenderRestClient {
     }
 
     public Mono<List<Conviction>> getConvictionsByCrn(String crn) {
-        return clientHelper.get(String.format(convictionsUrlTemplate, crn))
+        return getClientHelper().get(String.format(convictionsUrlTemplate, crn))
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
+                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> getClientHelper().handleOffenderError(crn, clientResponse))
                 .bodyToMono(CommunityApiConvictionsResponse.class)
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving convictions data for CRN '%s'", crn), e))
                 .map(OffenderMapper::convictionsFrom);
@@ -114,18 +113,18 @@ public class OffenderRestClient {
     public Mono<List<Breach>> getBreaches(String crn, String convictionId) {
         final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.addAll(nsiCodesParam, nsiBreachCodes);
-        return clientHelper.get(String.format(nsisTemplate, crn, convictionId), params)
+        return getClientHelper().get(String.format(nsisTemplate, crn, convictionId), params)
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, resp -> clientHelper.handleConvictionError(crn, Long.valueOf(convictionId), resp))
+                .onStatus(HttpStatus::is4xxClientError, resp -> getClientHelper().handleConvictionError(crn, Long.valueOf(convictionId), resp))
                 .bodyToMono(CommunityApiNsiResponse.class)
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving breaches data for CRN '%s' and conviction id '%s'", crn, convictionId), e))
                 .map(BreachMapper::breachesFrom);
     }
 
     public Mono<List<Requirement>> getConvictionRequirements(String crn, String convictionId) {
-        return clientHelper.get(String.format(requirementsUrlTemplate, crn, convictionId))
+        return getClientHelper().get(String.format(requirementsUrlTemplate, crn, convictionId))
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
+                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> getClientHelper().handleOffenderError(crn, clientResponse))
                 .bodyToMono(CommunityApiRequirementsResponse.class)
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving requirements data for CONVICTIONID '%s'", convictionId), e))
                 .map(RequirementMapper::requirementsFrom)
@@ -133,9 +132,9 @@ public class OffenderRestClient {
     }
 
     public Mono<List<PssRequirement>> getConvictionPssRequirements(String crn, String convictionId) {
-        return clientHelper.get(String.format(pssRequirementsUrlTemplate, crn, convictionId))
+        return getClientHelper().get(String.format(pssRequirementsUrlTemplate, crn, convictionId))
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> getClientHelper().handleOffenderError(crn, clientResponse))
             .bodyToMono(CommunityApiPssRequirementsResponse.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when retrieving PSS requirements data for CONVICTIONID '%s'", convictionId), e))
             .map(RequirementMapper::pssRequirementsFrom)
@@ -143,9 +142,9 @@ public class OffenderRestClient {
     }
 
     public Mono<List<LicenceCondition>> getConvictionLicenceConditions(String crn, String convictionId) {
-        return clientHelper.get(String.format(licenceConditionsUrlTemplate, crn, convictionId))
+        return getClientHelper().get(String.format(licenceConditionsUrlTemplate, crn, convictionId))
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> getClientHelper().handleOffenderError(crn, clientResponse))
             .bodyToMono(CommunityApiLicenceConditionsResponse.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when retrieving licence conditions data for CONVICTIONID '%s'", convictionId), e))
             .map(RequirementMapper::licenceConditionsFrom)
@@ -153,18 +152,18 @@ public class OffenderRestClient {
     }
 
     public Mono<List<Registration>> getOffenderRegistrations(String crn) {
-        return clientHelper.get(String.format(registrationsUrlTemplate, crn))
+        return getClientHelper().get(String.format(registrationsUrlTemplate, crn))
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> getClientHelper().handleOffenderError(crn, clientResponse))
             .bodyToMono(CommunityApiRegistrationsResponse.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when registration data for CRN '%s'", crn), e))
             .map(RegistrationMapper::registrationsFrom);
     }
 
     public Mono<List<CourtAppearance>> getOffenderCourtAppearances(String crn, Long convictionId) {
-        return clientHelper.get(String.format(courtAppearancesTemplate, crn, convictionId))
+        return getClientHelper().get(String.format(courtAppearancesTemplate, crn, convictionId))
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> getClientHelper().handleOffenderError(crn, clientResponse))
             .bodyToMono(CommunityApiCourtAppearancesResponse.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when fetching court appearances for CRN '%s' with conviction ID '%s'", crn, convictionId), e))
             .map(CourtAppearanceMapper::appearancesFrom);

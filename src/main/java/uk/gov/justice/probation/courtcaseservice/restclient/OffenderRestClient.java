@@ -1,7 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import java.util.Collections;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.CourtAppearanceMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
@@ -36,6 +35,9 @@ import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
+
+import java.util.Collections;
+import java.util.List;
 
 @Component
 @AllArgsConstructor
@@ -70,6 +72,8 @@ public class OffenderRestClient {
     @Autowired
     @Qualifier("communityApiClient")
     private RestClientHelper clientHelper;
+    @Autowired
+    private ClientDetails clientDetails;
 
     public Mono<ProbationRecord> getProbationRecordByCrn(String crn) {
         return clientHelper.get(String.format(offenderAllUrlTemplate, crn))

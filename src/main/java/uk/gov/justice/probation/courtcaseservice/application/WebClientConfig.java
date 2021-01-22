@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.application;
 
-import java.util.concurrent.TimeUnit;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
@@ -13,9 +12,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
+import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper;
+
+import java.util.concurrent.TimeUnit;
 
 @EnableJpaAuditing
 @Configuration
@@ -72,6 +74,7 @@ public class WebClientConfig {
     }
 
     @Bean
+    @RequestScope
     public WebClient communityWebClient(OAuth2AuthorizedClientManager authorizedClientManager) {
         return webClientFactory(communityApiBaseUrl, authorizedClientManager, DEFAULT_BYTE_BUFFER_SIZE);
     }

@@ -93,11 +93,8 @@ public class ConvictionRestClientIntTest extends BaseIntTest {
         webTestClient.getCurrentOrderHeader(SERVER_ERROR_CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID).block();
     }
 
-    @Test
+    @Test(expected = ConvictionNotFoundException.class)
     public void givenServiceReturns404_whenGetCurrentOrderHeaderByCrnCalled_thenReturnDefault() {
-        CurrentOrderHeaderResponse response = webTestClient.getCurrentOrderHeader(UNKNOWN_CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID).block();
-        assertThat(response.getSentenceId()).isEqualTo(SOME_SENTENCE_ID);
-        assertThat(response.getCustodialType().getCode()).isEqualTo("NOT_IN_CUSTODY");
-        assertThat(response.getCustodialType().getDescription()).isEqualTo("Not in custody");
+        webTestClient.getCurrentOrderHeader(UNKNOWN_CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID).block();
     }
 }

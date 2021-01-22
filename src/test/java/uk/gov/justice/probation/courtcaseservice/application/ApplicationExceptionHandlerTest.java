@@ -8,6 +8,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.ErrorResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.DocumentNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.DuplicateEntityException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
@@ -75,6 +76,14 @@ public class ApplicationExceptionHandlerTest {
         ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(webClientException);
 
         assertGoodErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, THE_MESSAGE);
+    }
+
+
+    @Test
+    public void whenForbiddenExceptionCaught_thenReturnAppropriateErrorResponse() {
+        ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(new ForbiddenException(THE_MESSAGE));
+
+        assertGoodErrorResponse(response, HttpStatus.FORBIDDEN, THE_MESSAGE);
     }
 
     private void assertGoodErrorResponse(ResponseEntity<ErrorResponse> response, HttpStatus httpStatus, String message) {

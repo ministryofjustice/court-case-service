@@ -80,7 +80,7 @@ public class WebClientFactory {
 
     private OAuth2AuthorizedClientManager buildAuthorizedClientManager() {
 
-        var converter = new CustomOAuth2ClientCredentialsGrantRequestEntityConverter();
+        var converter = new UserAwareEntityConverter();
 
         var username = clientDetails.getUsername();
         var clientCredentialsTokenResponseClient = new DefaultClientCredentialsTokenResponseClient();

@@ -13,8 +13,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsRe
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
+import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
-import uk.gov.justice.probation.courtcaseservice.security.WebClientFactory;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
@@ -30,7 +30,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Convicti
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,51 +57,15 @@ public class OffenderService {
     @Setter
     @Value("#{'${offender-service.pss-rqmnt.descriptions-to-keep-subtype}'.split(',')}")
     private List<String> pssRqmntDescriptionsKeepSubType;
-    private WebClientFactory webClientFactory;
 
-
-    @Value("${community-api.offender-by-crn-url-template}")
-    private String offenderUrlTemplate;
-    @Value("${community-api.offender-by-crn-all-url-template}")
-    private String offenderAllUrlTemplate;
-    @Value("${community-api.convictions-by-crn-url-template}")
-    private String convictionsUrlTemplate;
-    @Value("${community-api.requirements-by-crn-url-template}")
-    private String requirementsUrlTemplate;
-    @Value("${community-api.pss-requirements-by-crn-and-conviction-url-template}")
-    private String pssRequirementsUrlTemplate;
-    @Value("${community-api.licence-conditions-by-crn-and-conviction-url-template}")
-    private String licenceConditionsUrlTemplate;
-    @Value("${community-api.registrations-by-crn-url-template}")
-    private String registrationsUrlTemplate;
-    @Value("${community-api.nsis-url-template}")
-    private String nsisTemplate;
-    @Value("${community-api.court-appearances-by-crn-and-nsi-url-template}")
-    private String courtAppearancesTemplate;
-
-    @Value("${community-api.nsis-filter.codes.queryParameter}")
-    private String nsiCodesParam;
-    @Value("#{'${community-api.nsis-filter.codes.breaches}'.split(',')}")
-    private List<String> nsiBreachCodes;
-    @Value("${community-api.offender-address-code}")
-    private String addressCode;
-
-    public OffenderService(final OffenderRestClient offenderRestClient,
+    public OffenderService(final OffenderRestClientFactory offenderRestClientFactory,
                            final AssessmentsRestClient assessmentsClient,
                            final DocumentRestClient documentRestClient,
-                           final DocumentTypeFilter documentTypeFilter,
-                           WebClientFactory webClientFactory) {
-//        this.offenderRestClient = offenderRestClient;
+                           final DocumentTypeFilter documentTypeFilter) {
+        this.offenderRestClient = offenderRestClientFactory.build();
         this.assessmentsClient = assessmentsClient;
         this.documentRestClient = documentRestClient;
         this.documentTypeFilter = documentTypeFilter;
-        this.webClientFactory = webClientFactory;
-    }
-
-    @PostConstruct
-    private void initClientHelper() {
-        final var restClientHelper = webClientFactory.buildCommunityApiClient();
-        offenderRestClient = new OffenderRestClient(offenderUrlTemplate, offenderAllUrlTemplate, convictionsUrlTemplate, requirementsUrlTemplate, pssRequirementsUrlTemplate, licenceConditionsUrlTemplate, registrationsUrlTemplate, nsisTemplate, courtAppearancesTemplate, nsiCodesParam, nsiBreachCodes, addressCode, restClientHelper);
     }
 
     public ProbationRecord getProbationRecord(String crn, boolean applyDocumentFilter) {

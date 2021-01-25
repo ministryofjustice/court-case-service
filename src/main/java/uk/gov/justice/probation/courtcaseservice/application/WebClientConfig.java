@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.reactive.function.client.WebClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper;
 import uk.gov.justice.probation.courtcaseservice.security.WebClientFactory;
@@ -55,7 +54,6 @@ public class WebClientConfig {
     }
 
     @Bean
-    @RequestScope
     public WebClient communityWebClient(WebClientFactory webClientFactory) {
         return webClientFactory.buildWebClient(communityApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE);
     }

@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import java.time.LocalDate;
-import java.time.Month;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +10,9 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
+
+import java.time.LocalDate;
+import java.time.Month;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.RequirementMapperTest.EXPECTED_RQMNT_1;
@@ -24,7 +26,13 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     public static final String SERVER_ERROR_CRN = "X320742";
 
     @Autowired
+    private OffenderRestClientFactory offenderRestClientFactory;
     private OffenderRestClient offenderRestClient;
+
+    @Before
+    public void setUp() {
+        offenderRestClient = offenderRestClientFactory.build();
+    }
 
     @Test
     public void whenGetOffenderByCrnCalled_thenMakeRestCallToCommunityApi() {

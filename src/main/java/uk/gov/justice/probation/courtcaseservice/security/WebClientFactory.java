@@ -53,6 +53,7 @@ public class WebClientFactory {
     private OAuth2AuthorizedClientRepository authorizedClientRepository;
 
     public RestClientHelper buildCommunityApiClient() {
+        // TODO: Test this class
         final var webClient = buildWebClient(communityApiBaseUrl,  DEFAULT_BYTE_BUFFER_SIZE);
         return new RestClientHelper(webClient, "community-api-client", disableAuthentication);
     }

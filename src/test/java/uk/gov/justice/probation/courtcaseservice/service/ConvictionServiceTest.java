@@ -12,6 +12,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHe
 import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
+import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
@@ -53,13 +54,17 @@ class ConvictionServiceTest {
     private ConvictionRestClient convictionRestClient;
 
     @Mock
+    private OffenderRestClientFactory offenderRestClientFactory;
+
+    @Mock
     private OffenderRestClient offenderRestClient;
 
     private ConvictionService service;
 
     @BeforeEach
     void beforeEach() {
-        service = new ConvictionService(convictionRestClient, offenderRestClient, DELIUS_LINK_TEMPLATE);
+        when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
+        service = new ConvictionService(convictionRestClient, offenderRestClientFactory, DELIUS_LINK_TEMPLATE);
         final Sentence sentence = Sentence.builder().unpaidWork(UnpaidWork.builder().acceptableAbsences(100).build()).build();
         conviction = Conviction.builder().convictionId(String.valueOf(SOME_CONVICTION_ID)).sentence(sentence).build();
     }

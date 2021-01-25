@@ -1,15 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
@@ -21,10 +15,18 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
+import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -38,6 +40,8 @@ class OffenderMatchServiceTest {
     public static final String CASE_NO = "123456789";
     public static final long ID = 1234L;
     @Mock
+    private OffenderRestClientFactory offenderRestClientFactory;
+    @Mock
     private OffenderRestClient offenderRestClient;
     @Mock
     private CourtCaseService courtCaseService;
@@ -50,8 +54,13 @@ class OffenderMatchServiceTest {
     @Mock
     private GroupedOffenderMatchesRequest groupedOffenderMatchesRequest;
 
-    @InjectMocks
     private OffenderMatchService service;
+
+    @BeforeEach
+    public void setUp() {
+        when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
+        service = new OffenderMatchService(courtCaseService, offenderMatchRepository, offenderRestClientFactory);
+    }
 
     @Test
     void givenValidRequest_whenCreateGroupedMatchesCalled_thenCreateAndReturnMatch() {

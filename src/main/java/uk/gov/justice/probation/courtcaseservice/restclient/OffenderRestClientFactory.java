@@ -41,7 +41,7 @@ public class OffenderRestClientFactory {
     }
 
     public OffenderRestClient build() {
-        final var restClientHelper = webClientFactory.buildCommunityApiClient();
+        final var restClientHelper = webClientFactory.buildCommunityRestClientHelper();
         return new OffenderRestClient(offenderUrlTemplate, offenderAllUrlTemplate, convictionsUrlTemplate, requirementsUrlTemplate, pssRequirementsUrlTemplate, licenceConditionsUrlTemplate, registrationsUrlTemplate, nsisTemplate, courtAppearancesTemplate, nsiCodesParam, nsiBreachCodes, addressCode, restClientHelper);
     }
 }

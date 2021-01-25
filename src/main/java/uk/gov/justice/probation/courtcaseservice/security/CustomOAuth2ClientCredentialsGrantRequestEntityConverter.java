@@ -8,6 +8,7 @@ import org.springframework.util.MultiValueMap;
 
 public class CustomOAuth2ClientCredentialsGrantRequestEntityConverter extends OAuth2ClientCredentialsGrantRequestEntityConverter {
     public RequestEntity enhanceWithUsername(OAuth2ClientCredentialsGrantRequest grantRequest, String username) {
+        // TODO: Test this
         var request = super.convert(grantRequest);
         var headers = request.getHeaders();
         var formParameters = (MultiValueMap<String, Object>) request.getBody();

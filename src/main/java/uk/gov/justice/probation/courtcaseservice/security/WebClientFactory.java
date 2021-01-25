@@ -52,18 +52,16 @@ public class WebClientFactory {
     @Autowired
     private OAuth2AuthorizedClientRepository authorizedClientRepository;
 
-    public RestClientHelper buildCommunityApiClient() {
-        // TODO: Test this class
-        final var webClient = buildWebClient(communityApiBaseUrl,  DEFAULT_BYTE_BUFFER_SIZE);
+    public RestClientHelper buildCommunityRestClientHelper() {
+        final var webClient = buildWebClient(communityApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE);
         return new RestClientHelper(webClient, "community-api-client", disableAuthentication);
     }
 
 
     public WebClient buildWebClient(String baseUrl, int bufferByteCount) {
-        ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2Client =
-                new ServletOAuth2AuthorizedClientExchangeFilterFunction(buildAuthorizedClientManager());
+        var oauth2Client = new ServletOAuth2AuthorizedClientExchangeFilterFunction(buildAuthorizedClientManager());
 
-        HttpClient httpClient = HttpClient.create()
+        var httpClient = HttpClient.create()
                 .tcpConfiguration(client ->
                         client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutMs)
                                 .doOnConnected(conn -> conn
@@ -86,9 +84,9 @@ public class WebClientFactory {
 
         var username = clientDetails.getUsername();
         var clientCredentialsTokenResponseClient = new DefaultClientCredentialsTokenResponseClient();
-        clientCredentialsTokenResponseClient.setRequestEntityConverter(grantRequest -> {
-            return converter.enhanceWithUsername(grantRequest, username);
-        });
+        clientCredentialsTokenResponseClient.setRequestEntityConverter(
+                grantRequest -> converter.enhanceWithUsername(grantRequest, username)
+        );
 
         var authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
                 .clientCredentials(builder ->

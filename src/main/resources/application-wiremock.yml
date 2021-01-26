@@ -1,0 +1,23 @@
+feature:
+  flags:
+    disable-auth: false
+    fetch-sentence-data: true
+
+community-api:
+  base-url: http://localhost:8090
+
+offender-assessments-api:
+  base-url: http://localhost:8090
+  client-id: sentence-plan-api-client
+  client-secret: clientsecret
+
+nomis-oauth:
+  base-url: https://sign-in-dev.hmpps.service.justice.gov.uk
+
+delius:
+  base-url: https://ndelius.test.probation.service.justice.gov.uk
+
+spring:
+  flyway:
+    defaultSchema: ${database.schema.name}
+    locations: classpath:db/migration/courtcase,filesystem:src/test/resources/db/migration/development

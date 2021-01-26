@@ -10,6 +10,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceLinks;
 import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
+import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.CustodialStatusNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
@@ -29,10 +30,10 @@ public class ConvictionService {
 
     @Autowired
     public ConvictionService(final ConvictionRestClient client,
-                             final OffenderRestClient offenderRestClient,
+                             final OffenderRestClientFactory offenderRestClientFactory,
                              @Value("${delius.contact-list-url-template}") final String deliusContactListUrlTemplate) {
         this.convictionRestClient = client;
-        this.offenderRestClient = offenderRestClient;
+        this.offenderRestClient = offenderRestClientFactory.build();
         this.deliusContactListUrlTemplate = deliusContactListUrlTemplate;
     }
 

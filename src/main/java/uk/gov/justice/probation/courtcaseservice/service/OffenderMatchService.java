@@ -1,15 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
@@ -19,6 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
+import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
@@ -26,18 +21,27 @@ import uk.gov.justice.probation.courtcaseservice.service.mapper.OffenderMatchMap
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 @Slf4j
-@AllArgsConstructor
+@RequestScope
 public class OffenderMatchService {
-    @Autowired
     private CourtCaseService courtCaseService;
-
-    @Autowired
     private GroupedOffenderMatchRepository offenderMatchRepository;
+    private OffenderRestClient offenderRestClient;
 
     @Autowired
-    private OffenderRestClient offenderRestClient;
+    public OffenderMatchService(CourtCaseService courtCaseService, GroupedOffenderMatchRepository offenderMatchRepository, OffenderRestClientFactory offenderRestClientFactory) {
+        this.courtCaseService = courtCaseService;
+        this.offenderMatchRepository = offenderMatchRepository;
+        this.offenderRestClient = offenderRestClientFactory.build();
+    }
 
     public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatches(String courtCode, String caseNo, GroupedOffenderMatchesRequest offenderMatches) {
         return Mono.just(offenderMatchRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)

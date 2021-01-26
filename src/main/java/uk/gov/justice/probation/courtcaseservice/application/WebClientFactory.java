@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtcaseservice.security;
+package uk.gov.justice.probation.courtcaseservice.application;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.endpoint.DefaultClientCredentialsTokenResponseClient;
@@ -20,8 +21,8 @@ import org.springframework.security.oauth2.client.web.reactive.function.client.S
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
-import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper;
+import uk.gov.justice.probation.courtcaseservice.security.UserAwareEntityConverter;
 
 import java.util.concurrent.TimeUnit;
 
@@ -52,14 +53,17 @@ public class WebClientFactory {
     @Autowired
     private OAuth2AuthorizedClientRepository authorizedClientRepository;
 
-    public RestClientHelper buildCommunityRestClientHelper() {
-        final var webClient = buildWebClient(communityApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE);
+    public RestClientHelper buildCommunityRestClientHelper(@Nullable String username) {
+        final var webClient = buildWebClient(communityApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE, username);
         return new RestClientHelper(webClient, "community-api-client", disableAuthentication);
     }
 
-
     public WebClient buildWebClient(String baseUrl, int bufferByteCount) {
-        var oauth2Client = new ServletOAuth2AuthorizedClientExchangeFilterFunction(buildAuthorizedClientManager());
+        return buildWebClient(baseUrl, bufferByteCount, null);
+    }
+
+    public WebClient buildWebClient(String baseUrl, int bufferByteCount, @Nullable String username) {
+        var oauth2Client = new ServletOAuth2AuthorizedClientExchangeFilterFunction(buildAuthorizedClientManager(username));
 
         var httpClient = HttpClient.create()
                 .tcpConfiguration(client ->
@@ -78,11 +82,10 @@ public class WebClientFactory {
                 .build();
     }
 
-    private OAuth2AuthorizedClientManager buildAuthorizedClientManager() {
+    private OAuth2AuthorizedClientManager buildAuthorizedClientManager(@Nullable String username) {
 
         var converter = new UserAwareEntityConverter();
 
-        var username = clientDetails.getUsername();
         var clientCredentialsTokenResponseClient = new DefaultClientCredentialsTokenResponseClient();
         clientCredentialsTokenResponseClient.setRequestEntityConverter(
                 grantRequest -> converter.enhanceWithUsername(grantRequest, username)

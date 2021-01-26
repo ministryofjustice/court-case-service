@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepo
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
+import uk.gov.justice.probation.courtcaseservice.application.WebClientFactory;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -47,7 +48,7 @@ public class WebClientFactoryIntTest extends BaseIntTest {
 
     @Test
     public void shouldReturnWorkingCommunityApiWebClient() {
-        final var client = webClientFactory.buildCommunityRestClientHelper();
+        final var client = webClientFactory.buildCommunityRestClientHelper("username");
         final var responseString = client.get("/ping")
                 .retrieve()
                 .bodyToMono(String.class)

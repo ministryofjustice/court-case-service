@@ -1,9 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import java.util.Comparator;
-import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,23 +9,21 @@ import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.NsiRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
+import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.NsiMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsi;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.NsiNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.CourtAppearance;
 
+import java.util.Comparator;
+import java.util.List;
+
 @Service
-@AllArgsConstructor
-@NoArgsConstructor
 public class BreachService {
 
-    @Autowired
     private NsiRestClient nsiRestClient;
-    @Autowired
     private ConvictionRestClient convictionRestClient;
-    @Autowired
     private DocumentRestClient documentRestClient;
-    @Autowired
     private OffenderRestClient offenderRestClient;
 
     @Value("#{'${community-api.nsis-filter.codes.breaches}'.split(',')}")
@@ -37,6 +31,21 @@ public class BreachService {
 
     @Value("${community-api.sentence-appearance-code}")
     private String sentenceAppearanceCode;
+
+    @Autowired
+    public BreachService(NsiRestClient nsiRestClient,
+                         ConvictionRestClient convictionRestClient,
+                         DocumentRestClient documentRestClient,
+                         OffenderRestClientFactory offenderRestClientFactory,
+                         @Value("#{'${community-api.nsis-filter.codes.breaches}'.split(',')}") List<String> nsiBreachCodes,
+                         @Value("${community-api.sentence-appearance-code}") String sentenceAppearanceCode) {
+        this.nsiRestClient = nsiRestClient;
+        this.convictionRestClient = convictionRestClient;
+        this.documentRestClient = documentRestClient;
+        this.offenderRestClient = offenderRestClientFactory.build();
+        this.nsiBreachCodes = nsiBreachCodes;
+        this.sentenceAppearanceCode = sentenceAppearanceCode;
+    }
 
     public BreachResponse getBreach(String crn, Long convictionId, Long breachId) {
         return Mono.zip(

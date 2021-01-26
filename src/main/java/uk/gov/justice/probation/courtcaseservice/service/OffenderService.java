@@ -1,17 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentMap;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
@@ -20,6 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsRe
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
+import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
@@ -36,11 +30,21 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Convicti
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
 
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 @Service
 @Slf4j
+@RequestScope
 public class OffenderService {
 
-    private final OffenderRestClient defaultClient;
+    private OffenderRestClient offenderRestClient;
     private final AssessmentsRestClient assessmentsClient;
     private final DocumentRestClient documentRestClient;
 
@@ -54,11 +58,11 @@ public class OffenderService {
     @Value("#{'${offender-service.pss-rqmnt.descriptions-to-keep-subtype}'.split(',')}")
     private List<String> pssRqmntDescriptionsKeepSubType;
 
-    public OffenderService(final OffenderRestClient defaultClient,
+    public OffenderService(final OffenderRestClientFactory offenderRestClientFactory,
                            final AssessmentsRestClient assessmentsClient,
                            final DocumentRestClient documentRestClient,
                            final DocumentTypeFilter documentTypeFilter) {
-        this.defaultClient = defaultClient;
+        this.offenderRestClient = offenderRestClientFactory.build();
         this.assessmentsClient = assessmentsClient;
         this.documentRestClient = documentRestClient;
         this.documentTypeFilter = documentTypeFilter;
@@ -74,12 +78,12 @@ public class OffenderService {
         // sense, the oasys assessment data is optional.
 
         // This Mono resolves to a list of convictions including a list of breaches for each conviction
-        Mono<List<Conviction>> convictions = defaultClient.getConvictionsByCrn(crn)
+        Mono<List<Conviction>> convictions = offenderRestClient.getConvictionsByCrn(crn)
             .flatMapMany(Flux::fromIterable)
             .flatMap(conviction -> {
                 var convictionId = conviction.getConvictionId();
                 log.debug("getting breaches for crn {} and conviction id {}", crn, convictionId);
-                return defaultClient.getBreaches(crn, convictionId)
+                return offenderRestClient.getBreaches(crn, convictionId)
                     .map(breaches -> {
                         conviction.setBreaches(breaches.stream()
                                                 .sorted(Comparator.comparing(Breach::getStatusDate, Comparator.nullsLast(Comparator.reverseOrder())))
@@ -92,7 +96,7 @@ public class OffenderService {
 
         // This Mono resolves to a 3 tuple containing the record itself, the above-mentioned convictions, and the documents
         Mono<Tuple3<ProbationRecord, List<Conviction>, GroupedDocuments>> probationMono = Mono.zip(
-            defaultClient.getProbationRecordByCrn(crn),
+            offenderRestClient.getProbationRecordByCrn(crn),
             convictions,
             documentRestClient.getDocumentsByCrn(crn)
         );
@@ -143,9 +147,9 @@ public class OffenderService {
 
     public Mono<RequirementsResponse> getConvictionRequirements(String crn, String convictionId) {
 
-        return Mono.zip(defaultClient.getConvictionRequirements(crn, convictionId),
-                        defaultClient.getConvictionPssRequirements(crn, convictionId),
-                        defaultClient.getConvictionLicenceConditions(crn, convictionId)
+        return Mono.zip(offenderRestClient.getConvictionRequirements(crn, convictionId),
+                        offenderRestClient.getConvictionPssRequirements(crn, convictionId),
+                        offenderRestClient.getConvictionLicenceConditions(crn, convictionId)
         )
                 .map(this::combineAndFilterRequirements);
     }
@@ -177,11 +181,11 @@ public class OffenderService {
     }
 
     public Mono<OffenderDetail> getOffenderDetail(String crn) {
-        return defaultClient.getOffenderDetailByCrn(crn);
+        return offenderRestClient.getOffenderDetailByCrn(crn);
     }
 
     public Mono<List<Registration>> getOffenderRegistrations(String crn) {
-        return defaultClient.getOffenderRegistrations(crn);
+        return offenderRestClient.getOffenderRegistrations(crn);
     }
 
     private Optional<Assessment> findMostRecentByStatus(List<Assessment> assessments) {
@@ -191,7 +195,7 @@ public class OffenderService {
     }
 
     public Mono<ProbationStatusDetail> getProbationStatusDetail(String crn) {
-        return Mono.zip(defaultClient.getConvictionsByCrn(crn), defaultClient.getOffenderDetailByCrn(crn))
+        return Mono.zip(offenderRestClient.getConvictionsByCrn(crn), offenderRestClient.getOffenderDetailByCrn(crn))
             .map((t) -> combineProbationStatusDetail(t.getT2(), t.getT1()));
     }
 

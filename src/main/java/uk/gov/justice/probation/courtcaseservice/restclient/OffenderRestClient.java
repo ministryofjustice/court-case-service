@@ -1,15 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import java.util.Collections;
-import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
@@ -37,9 +31,10 @@ import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
-@Component
+import java.util.Collections;
+import java.util.List;
+
 @AllArgsConstructor
-@NoArgsConstructor
 @Slf4j
 public class OffenderRestClient {
     @Value("${community-api.offender-by-crn-url-template}")
@@ -67,8 +62,6 @@ public class OffenderRestClient {
     private List<String> nsiBreachCodes;
     @Value("${community-api.offender-address-code}")
     private String addressCode;
-    @Autowired
-    @Qualifier("communityApiClient")
     private RestClientHelper clientHelper;
 
     public Mono<ProbationRecord> getProbationRecordByCrn(String crn) {
@@ -92,7 +85,7 @@ public class OffenderRestClient {
     public Mono<OffenderMatchDetail> getOffenderMatchDetailByCrn(String crn) {
         return clientHelper.get(String.format(offenderAllUrlTemplate, crn))
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> Mono.justOrEmpty(null))
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> Mono.empty())
             .bodyToMono(CommunityApiOffenderResponse.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender match detail data for CRN '%s'", crn), e))
             .map(offender -> OffenderMapper.offenderMatchDetailFrom(offender, addressCode));

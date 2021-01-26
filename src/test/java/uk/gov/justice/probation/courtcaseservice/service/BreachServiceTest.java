@@ -1,9 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.NsiRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
+import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsi;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsiType;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.NsiNotFoundException;
@@ -22,6 +19,11 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.CourtAppearance;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -59,13 +61,16 @@ class BreachServiceTest {
     @Mock
     private DocumentRestClient documentRestClient;
     @Mock
+    private OffenderRestClientFactory offenderRestClientFactory;
+    @Mock
     private OffenderRestClient offenderRestClient;
 
     private BreachService breachService;
 
     @BeforeEach
     void setUp() {
-        breachService = new BreachService(nsiRestClient, convictionRestClient, documentRestClient, offenderRestClient, Arrays.asList("BRE", "BRES"), "S");
+        when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
+        breachService = new BreachService(nsiRestClient, convictionRestClient, documentRestClient, offenderRestClientFactory, Arrays.asList("BRE", "BRES"), "S");
     }
 
     @Test

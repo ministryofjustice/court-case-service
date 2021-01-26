@@ -91,6 +91,7 @@ community-api:
 
   probation-record-filter.document.types: "COURT_REPORT_DOCUMENT"
   probation-record-filter.document.subtype.codes: "CJF,CJO,CJS,PSA,PSB,PSN,PSR,SSR,XPR,CR02,CR05"
+  mandated-username-client-ids: "prepare-a-case-for-court"
   nsis-filter.codes.queryParameter: nsiCodes
   nsis-filter.codes.breaches: BRE,BRES
   offender-address-code: M

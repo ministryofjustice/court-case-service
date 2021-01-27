@@ -151,7 +151,7 @@ dependencies {
     runtime 'org.postgresql:postgresql:42.2.18'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.22.1'
+    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.23.0'
 
     testImplementation ('org.codehaus.groovy:groovy:3.0.7'){
         because 'Transitive dependency. Used by rest-assured. Previous versions have a known vulnerability'

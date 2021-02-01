@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -103,21 +104,21 @@ public class OffenderController_RqmntIntTest extends BaseIntTest {
         ;
     }
 
-//    @Ignore
-//    @Test
-//    public void givenErrorFromServices_whenCallMadeToGetRequirementData_thenReturnEmptyLists() {
-//        given()
-//            .auth()
-//            .oauth2(getToken())
-//            .accept(MediaType.APPLICATION_JSON_VALUE)
-//            .when()
-//            .get(String.format("/offender/%s/convictions/%s/requirements", KNOWN_CRN, "99999"))
-//            .then()
-//            .statusCode(200)
-//            .body("requirements.size()", is(0))
-//            .body("pssRequirements.size()", is(0))
-//            .body("licenceConditions.size()", is(0))
-//            ;
-//    }
+    @Ignore
+    @Test
+    public void givenErrorFromServices_whenCallMadeToGetRequirementData_thenReturnEmptyLists() {
+        given()
+            .auth()
+            .oauth2(getToken())
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .get(String.format("/offender/%s/convictions/%s/requirements", KNOWN_CRN, "99999"))
+            .then()
+            .statusCode(200)
+            .body("requirements.size()", is(0))
+            .body("pssRequirements.size()", is(0))
+            .body("licenceConditions.size()", is(0))
+            ;
+    }
 
 }

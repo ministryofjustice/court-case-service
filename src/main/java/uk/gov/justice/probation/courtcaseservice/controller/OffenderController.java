@@ -114,8 +114,8 @@ public class OffenderController {
         })
     @GetMapping(path="offender/{crn}/convictions/{convictionId}/requirements", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
-    Mono<RequirementsResponse> getRequirements(@PathVariable String crn, @PathVariable String convictionId) {
-        return offenderService.getConvictionRequirements(crn, convictionId);
+    Mono<RequirementsResponse> getRequirements(@PathVariable String crn, @PathVariable Long convictionId) {
+        return convictionService.getConvictionRequirements(crn, convictionId);
     }
 
     @GetMapping(value = "/offender/{crn}/convictions/{convictionId}/sentences/{sentenceId}", produces = APPLICATION_JSON_VALUE)

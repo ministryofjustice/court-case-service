@@ -85,7 +85,8 @@ community-api:
   grouped-documents-by-crn-url-template: /secure/offenders/crn/%s/documents/grouped
   offender-document-by-crn-url-template: /secure/offenders/crn/%s/documents/%s
   nsis-url-template: /secure/offenders/crn/%s/convictions/%s/nsis
-  current-order-header-url-template: /secure/offenders/crn/%s/convictions/%s/sentences/%s/status
+#  current-order-hdr-url-template: /offenders/crn/{crn}/convictions/{convictionId}/sentenceStatus
+  current-order-header-url-template: /secure/offenders/crn/%s/convictions/%s/sentenceStatus
   nsi-by-id-url-template: /secure/offenders/crn/%s/convictions/%s/nsis/%s
   court-appearances-by-crn-and-nsi-url-template: /secure/offenders/crn/%s/convictions/%s/courtAppearances
 

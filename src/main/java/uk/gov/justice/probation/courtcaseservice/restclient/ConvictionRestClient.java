@@ -64,8 +64,8 @@ public class ConvictionRestClient {
     }
 
 
-    public Mono<CurrentOrderHeaderResponse> getCurrentOrderHeader(final String crn, final Long convictionId, final Long sentenceId) {
-        final String path = String.format(currentOrderUrlTemplate, crn, convictionId, sentenceId);
+    public Mono<CurrentOrderHeaderResponse> getCurrentOrderHeader(final String crn, final Long convictionId) {
+        final String path = String.format(currentOrderUrlTemplate, crn, convictionId);
         return clientHelper.get(path)
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))

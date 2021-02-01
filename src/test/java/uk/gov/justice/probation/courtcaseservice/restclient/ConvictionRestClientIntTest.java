@@ -83,18 +83,18 @@ public class ConvictionRestClientIntTest extends BaseIntTest {
 
     @Test
     public void whenGetCurrentOrderHeaderDetailByCrnAndConvictionIdAndSentenceIdToCommunityApi() {
-        final Optional<CurrentOrderHeaderResponse> response = webTestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID).blockOptional();
+        final Optional<CurrentOrderHeaderResponse> response = webTestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID).blockOptional();
 
         assertThat(response).isPresent();
     }
 
     @Test(expected = WebClientResponseException.class)
     public void givenServiceThrowsError_whenGetCurrentOrderHeaderByCrnCalled_thenFailFastAndThrowException() {
-        webTestClient.getCurrentOrderHeader(SERVER_ERROR_CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID).block();
+        webTestClient.getCurrentOrderHeader(SERVER_ERROR_CRN, SOME_CONVICTION_ID).block();
     }
 
     @Test(expected = ConvictionNotFoundException.class)
     public void givenServiceReturns404_whenGetCurrentOrderHeaderByCrnCalled_thenReturnDefault() {
-        webTestClient.getCurrentOrderHeader(UNKNOWN_CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID).block();
+        webTestClient.getCurrentOrderHeader(UNKNOWN_CRN, SOME_CONVICTION_ID).block();
     }
 }

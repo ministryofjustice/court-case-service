@@ -22,7 +22,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
 
     private static final String CRN = "X320741";
     private static final String UNKNOWN_CRN = "CRNXXX";
-    private static final String CONVICTION_ID = "2500297061";
+    private static final Long CONVICTION_ID = 2500297061L;
     public static final String SERVER_ERROR_CRN = "X320742";
 
     @Autowired
@@ -101,7 +101,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
 
     @Test
     public void givenKnownCrnUnknownConvictionId_whenGetConvictionRequirementsCalled_thenReturnEmptyRequirements() {
-        var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, "2500297999").blockOptional();
+        var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, 2500297999L).blockOptional();
 
         var reqs = optionalRequirements.get();
 
@@ -111,14 +111,14 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     @Test
     public void givenServiceThrowsError_whenGetConvictionRequirementsCalled_thenReturnEmptyList() {
         // This endpoint is used as a composite so we will return an empty list for a 500 error
-        var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, "99999").block();
+        var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, 99999L).block();
 
         assertThat(optionalRequirements).isEmpty();
     }
 
     @Test
     public void whenGetBreaches_thenMakeRestCallToCommunityApi() {
-        var optionalBreaches = offenderRestClient.getBreaches(CRN, CONVICTION_ID).blockOptional();
+        var optionalBreaches = offenderRestClient.getBreaches(CRN, CONVICTION_ID.toString()).blockOptional();
         assertThat(optionalBreaches).isNotEmpty();
 
         var breaches = optionalBreaches.get();
@@ -134,7 +134,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
 
     @Test(expected = ConvictionNotFoundException.class)
     public void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoCRN() {
-        offenderRestClient.getBreaches("xxx", CONVICTION_ID).block();
+        offenderRestClient.getBreaches("xxx", CONVICTION_ID.toString()).block();
     }
 
     @Test(expected = ConvictionNotFoundException.class)
@@ -144,7 +144,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
 
     @Test(expected = WebClientResponseException.class)
     public void whenGetBreaches_thenMakeRestCallToCommunityApi_500ServerError() {
-        offenderRestClient.getBreaches(SERVER_ERROR_CRN, CONVICTION_ID).block();
+        offenderRestClient.getBreaches(SERVER_ERROR_CRN, CONVICTION_ID.toString()).block();
     }
 
     @Test
@@ -207,7 +207,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     @Test
     public void givenServiceThrowsError_whenGetConvictionPssRequirementsCalled_thenReturnEmptyList() {
         // This endpoint is used as a composite so we will return an empty list for a 500 error
-        var optionalRequirements = offenderRestClient.getConvictionPssRequirements(CRN, "99999").block();
+        var optionalRequirements = offenderRestClient.getConvictionPssRequirements(CRN, 99999L).block();
 
         assertThat(optionalRequirements).isEmpty();
     }
@@ -225,7 +225,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
 
     @Test
     public void givenServiceThrowsError_whenGetLicenceConditionsCalled_thenReturnEmptyList() {
-        var optionalRequirements = offenderRestClient.getConvictionLicenceConditions(CRN, "99999").blockOptional();
+        var optionalRequirements = offenderRestClient.getConvictionLicenceConditions(CRN, 99999L).blockOptional();
 
         assertThat(optionalRequirements).isNotEmpty();
         assertThat(optionalRequirements.get()).isEmpty();
@@ -260,6 +260,6 @@ public class OffenderRestClientIntTest extends BaseIntTest {
 
     @Test(expected = OffenderNotFoundException.class)
     public void  givenOffenderDoesNotExist_whenGetCourtAppearancesCalled_thenExpectException() {
-        offenderRestClient.getOffenderCourtAppearances(UNKNOWN_CRN, Long.valueOf(CONVICTION_ID)).blockOptional();
+        offenderRestClient.getOffenderCourtAppearances(UNKNOWN_CRN, CONVICTION_ID).blockOptional();
     }
 }

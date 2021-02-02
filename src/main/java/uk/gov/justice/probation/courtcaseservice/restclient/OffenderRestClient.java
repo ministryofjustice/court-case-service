@@ -111,7 +111,7 @@ public class OffenderRestClient {
                 .map(BreachMapper::breachesFrom);
     }
 
-    public Mono<List<Requirement>> getConvictionRequirements(String crn, String convictionId) {
+    public Mono<List<Requirement>> getConvictionRequirements(String crn, Long convictionId) {
         return clientHelper.get(String.format(requirementsUrlTemplate, crn, convictionId))
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
@@ -121,7 +121,7 @@ public class OffenderRestClient {
                 .onErrorReturn(Collections.emptyList());
     }
 
-    public Mono<List<PssRequirement>> getConvictionPssRequirements(String crn, String convictionId) {
+    public Mono<List<PssRequirement>> getConvictionPssRequirements(String crn, Long convictionId) {
         return clientHelper.get(String.format(pssRequirementsUrlTemplate, crn, convictionId))
             .retrieve()
             .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
@@ -131,7 +131,7 @@ public class OffenderRestClient {
             .onErrorReturn(Collections.emptyList());
     }
 
-    public Mono<List<LicenceCondition>> getConvictionLicenceConditions(String crn, String convictionId) {
+    public Mono<List<LicenceCondition>> getConvictionLicenceConditions(String crn, Long convictionId) {
         return clientHelper.get(String.format(licenceConditionsUrlTemplate, crn, convictionId))
             .retrieve()
             .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))

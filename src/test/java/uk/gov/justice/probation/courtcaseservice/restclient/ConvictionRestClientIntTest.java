@@ -12,6 +12,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResp
 import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -83,18 +84,37 @@ public class ConvictionRestClientIntTest extends BaseIntTest {
 
     @Test
     public void whenGetCurrentOrderHeaderDetailByCrnAndConvictionIdAndSentenceIdToCommunityApi() {
-        final Optional<CurrentOrderHeaderResponse> response = webTestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID).blockOptional();
+        final Optional<CurrentOrderHeaderResponse> response = webTestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID).blockOptional();
 
         assertThat(response).isPresent();
+        assertThat(response.get().getMainOffenceDescription()).isEqualTo("Common assault and battery - 10501");
     }
 
     @Test(expected = WebClientResponseException.class)
     public void givenServiceThrowsError_whenGetCurrentOrderHeaderByCrnCalled_thenFailFastAndThrowException() {
-        webTestClient.getCurrentOrderHeader(SERVER_ERROR_CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID).block();
+        webTestClient.getCurrentOrderHeader(SERVER_ERROR_CRN, SOME_CONVICTION_ID).block();
     }
 
     @Test(expected = ConvictionNotFoundException.class)
     public void givenServiceReturns404_whenGetCurrentOrderHeaderByCrnCalled_thenReturnDefault() {
-        webTestClient.getCurrentOrderHeader(UNKNOWN_CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID).block();
+        webTestClient.getCurrentOrderHeader(UNKNOWN_CRN, SOME_CONVICTION_ID).block();
+    }
+
+    @Test
+    public void whenGetCustodialStatusByCrnAndConvictionIdAndSentenceIdToCommunityApi() {
+        final Optional<CustodialStatus> response = webTestClient.getCustodialStatus(CRN, SOME_CONVICTION_ID).blockOptional();
+
+        assertThat(response).isPresent();
+        assertThat(response.get()).isSameAs(CustodialStatus.POST_SENTENCE_SUPERVISION);
+    }
+
+    @Test(expected = WebClientResponseException.class)
+    public void givenServiceThrowsError_whenGetCustodialStatusByCrnCalled_thenFailFastAndThrowException() {
+        webTestClient.getCustodialStatus(SERVER_ERROR_CRN, SOME_CONVICTION_ID).block();
+    }
+
+    @Test(expected = ConvictionNotFoundException.class)
+    public void givenServiceReturns404_whenGetCustodialStatusByCrnCalled_thenReturnDefault() {
+        webTestClient.getCustodialStatus(UNKNOWN_CRN, SOME_CONVICTION_ID).block();
     }
 }

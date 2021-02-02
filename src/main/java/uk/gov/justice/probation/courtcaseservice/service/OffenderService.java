@@ -9,7 +9,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
-import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
@@ -19,13 +18,10 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.ConvictionBySentenceComparator;
-import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
-import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
-import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.ConvictionDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
@@ -54,9 +50,6 @@ public class OffenderService {
     @Value("#{'${offender-service.assessment.included-statuses}'.split(',')}")
     private List<String> assessmentStatuses;
 
-    @Setter
-    @Value("#{'${offender-service.pss-rqmnt.descriptions-to-keep-subtype}'.split(',')}")
-    private List<String> pssRqmntDescriptionsKeepSubType;
 
     public OffenderService(final OffenderRestClientFactory offenderRestClientFactory,
                            final AssessmentsRestClient assessmentsClient,
@@ -145,40 +138,6 @@ public class OffenderService {
         return probationRecord;
     }
 
-    public Mono<RequirementsResponse> getConvictionRequirements(String crn, String convictionId) {
-
-        return Mono.zip(offenderRestClient.getConvictionRequirements(crn, convictionId),
-                        offenderRestClient.getConvictionPssRequirements(crn, convictionId),
-                        offenderRestClient.getConvictionLicenceConditions(crn, convictionId)
-        )
-                .map(this::combineAndFilterRequirements);
-    }
-
-    RequirementsResponse combineAndFilterRequirements(Tuple3<List<Requirement>, List<PssRequirement>, List<LicenceCondition>> tuple3) {
-
-        return RequirementsResponse.builder()
-            .requirements(tuple3.getT1())
-            .pssRequirements(tuple3.getT2()
-                                .stream()
-                                .filter(PssRequirement::isActive)
-                                .map(this::transform)
-                                .collect(Collectors.toList()))
-            .licenceConditions(tuple3.getT3()
-                                .stream()
-                                .filter(LicenceCondition::isActive)
-                                .collect(Collectors.toList()))
-            .build();
-    }
-
-    private PssRequirement transform(PssRequirement pssRequirement) {
-        if (pssRqmntDescriptionsKeepSubType.contains(pssRequirement.getDescription().toLowerCase())) {
-            return pssRequirement;
-        }
-        return PssRequirement.builder()
-            .description(pssRequirement.getDescription())
-            .active(pssRequirement.isActive())
-            .build();
-    }
 
     public Mono<OffenderDetail> getOffenderDetail(String crn) {
         return offenderRestClient.getOffenderDetailByCrn(crn);

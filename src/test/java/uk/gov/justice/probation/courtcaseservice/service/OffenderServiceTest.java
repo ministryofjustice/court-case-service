@@ -18,12 +18,9 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
-import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
-import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
-import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.ConvictionDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType;
@@ -52,7 +49,6 @@ class OffenderServiceTest {
 
     public static final String CRN = "CRN";
     public static final String CONVICTION_ID = "123";
-    private static final String PSS_DESC_TO_KEEP = "specified activity";
 
     private final DocumentTypeFilter documentTypeFilter
         = new DocumentTypeFilter(singletonList(COURT_REPORT_DOCUMENT), singletonList("CJF"));
@@ -65,10 +61,8 @@ class OffenderServiceTest {
     private OffenderRestClient offenderRestClient;
     @Mock
     private DocumentRestClient documentRestClient;
-    @Mock
-    private List<Requirement> expectedRequirements;
 
-    OffenderService service;
+    private OffenderService service;
 
     @ExtendWith(MockitoExtension.class)
     @Nested
@@ -115,7 +109,6 @@ class OffenderServiceTest {
                 .build();
             when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
             service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter);
-            service.setPssRqmntDescriptionsKeepSubType(List.of(PSS_DESC_TO_KEEP));
             service.setAssessmentStatuses(List.of("COMPLETE"));
         }
 
@@ -363,57 +356,6 @@ class OffenderServiceTest {
     }
 
     @Nested
-    @DisplayName("Tests for the method getConvictionRequirements")
-    class ConvictionRequirementsTest {
-
-        @BeforeEach
-        void beforeEach() {
-            when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
-            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter);
-            service.setPssRqmntDescriptionsKeepSubType(List.of(PSS_DESC_TO_KEEP));
-        }
-
-        @DisplayName("Getting offender convictions requirements, filter out inactive and remove subtype descriptions")
-        @Test
-        void givenInactivePssRequirements_whenGetConvictionRequirements_returnRequirementsWithInactiveNotPresent() {
-
-            var pssRqmnt1 = PssRequirement.builder()
-                .active(true)
-                .description(PSS_DESC_TO_KEEP)
-                .subTypeDescription("subType desc 1")
-                .build();
-            var pssRqmnt2 = PssRequirement.builder()
-                .active(false)
-                .description("Desc rqmnt 2")
-                .subTypeDescription("subType desc 2")
-                .build();
-            var pssRqmnt3 = PssRequirement.builder()
-                .active(true)
-                .description("Desc rqmnt 3")
-                .subTypeDescription("subType desc 3")
-                .build();
-
-            var licenceCondition1 = LicenceCondition.builder().description("Desc 1").active(false).build();
-            var licenceCondition2 = LicenceCondition.builder().description("Desc 2").active(true).build();
-
-            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(expectedRequirements));
-            when(offenderRestClient.getConvictionPssRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(pssRqmnt1, pssRqmnt2, pssRqmnt3)));
-            when(offenderRestClient.getConvictionLicenceConditions(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(licenceCondition1, licenceCondition2)));
-
-            var requirements = service.getConvictionRequirements(CRN, CONVICTION_ID).block();
-
-            assertThat(requirements.getRequirements()).isSameAs(expectedRequirements);
-            assertThat(requirements.getPssRequirements()).hasSize(2);
-            assertThat(requirements.getPssRequirements()).extracting("description").contains(PSS_DESC_TO_KEEP, "Desc rqmnt 3")
-                .doesNotContain("Desc rqmnt 2");
-            assertThat(requirements.getPssRequirements()).extracting("subTypeDescription").contains("subType desc 1")
-                .doesNotContain("subType desc 2", "subType desc 3");
-            assertThat(requirements.getLicenceConditions()).hasSize(1);
-            assertThat(requirements.getLicenceConditions().get(0).getDescription()).isEqualTo("Desc 2");
-        }
-    }
-
-    @Nested
     @DisplayName("Tests for the method getOffenderDetail")
     class OffenderDetailTest {
 
@@ -421,7 +363,6 @@ class OffenderServiceTest {
         void beforeEach() {
             when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
             service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter);
-            service.setPssRqmntDescriptionsKeepSubType(List.of(PSS_DESC_TO_KEEP));
         }
 
         @DisplayName("Simple get of offender detail")
@@ -444,7 +385,6 @@ class OffenderServiceTest {
         void beforeEach() {
             when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
             service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter);
-            service.setPssRqmntDescriptionsKeepSubType(List.of(PSS_DESC_TO_KEEP));
         }
 
         @DisplayName("Simple get of offender registrations")

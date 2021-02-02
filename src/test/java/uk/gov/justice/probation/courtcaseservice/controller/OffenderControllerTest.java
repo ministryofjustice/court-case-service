@@ -110,12 +110,12 @@ class OffenderControllerTest {
     @DisplayName("Ensures that the controller calls the service and returns the same list of requirements")
     @Test
     public void whenGetRequirements_thenReturnIt() {
-        when(offenderService.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(expectedRequirements));
+        when(convictionService.getConvictionRequirements(CRN, SOME_EVENT_ID)).thenReturn(Mono.just(expectedRequirements));
 
-        RequirementsResponse requirementResponse = controller.getRequirements(CRN, CONVICTION_ID).block();
+        RequirementsResponse requirementResponse = controller.getRequirements(CRN, SOME_EVENT_ID).block();
 
         assertThat(requirementResponse).isSameAs(expectedRequirements);
-        verify(offenderService).getConvictionRequirements(CRN, CONVICTION_ID);
+        verify(convictionService).getConvictionRequirements(CRN, SOME_EVENT_ID);
     }
 
     @DisplayName("Ensures that the controller calls the service and returns the same breach")

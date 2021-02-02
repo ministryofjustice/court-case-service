@@ -164,7 +164,7 @@ public class OffenderMapper {
                 .sentenceId(custodialStatusResponse.getSentenceId())
                 .custodialType(custodialStatusResponse.getCustodialType())
                 .sentenceDescription(custodialStatusResponse.getSentence() != null ? custodialStatusResponse.getSentence().getDescription() : null)
-                .mainOffenceDescription(custodialStatusResponse.getMainOffence() != null ?custodialStatusResponse.getMainOffence().getDescription() : null)
+                .mainOffenceDescription(custodialStatusResponse.getMainOffence() != null ? custodialStatusResponse.getMainOffence().getDescription() : null)
                 .sentenceDate(custodialStatusResponse.getSentenceDate())
                 .actualReleaseDate(custodialStatusResponse.getActualReleaseDate())
                 .licenceExpiryDate(custodialStatusResponse.getLicenceExpiryDate())

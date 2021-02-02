@@ -9,9 +9,10 @@
     }
   },
   "response": {
-    "status": 500,
+    "status": 200,
     "headers": {
       "Content-Type": "application/json"
-    }
+    },
+    "bodyFileName": "offender-currentOrderHeaderDetail/GET_currentOrderHeaderDetail_PSS_X320741.json"
   }
 }

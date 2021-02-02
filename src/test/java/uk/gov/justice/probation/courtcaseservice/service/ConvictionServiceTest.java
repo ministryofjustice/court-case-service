@@ -16,7 +16,6 @@ import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFa
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
-import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.OtherIds;
@@ -157,7 +156,7 @@ class ConvictionServiceTest {
 
         when(convictionRestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
 
-        final CurrentOrderHeaderResponse response = service.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
+        final CurrentOrderHeaderResponse response = service.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID);
 
         assertThat(response).isEqualTo(currentOrderHeaderResponse);
         verify(convictionRestClient).getCurrentOrderHeader(CRN, SOME_CONVICTION_ID);
@@ -175,14 +174,11 @@ class ConvictionServiceTest {
 
         var licenceCondition1 = LicenceCondition.builder().description("Desc 1").active(false).build();
         var licenceCondition2 = LicenceCondition.builder().description("Desc 2").active(true).build();
-        var currentOrderHeader = CurrentOrderHeaderResponse.builder()
-                                                .custodialType(KeyValue.builder().code(CustodialStatus.RELEASED_ON_LICENCE.getCode()).description("Released - On Licence").build())
-                                                .build();
 
         when(offenderRestClient.getConvictionRequirements(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(expectedRequirements));
         when(offenderRestClient.getConvictionPssRequirements(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(List.of(pssRqmnt1)));
         when(offenderRestClient.getConvictionLicenceConditions(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(List.of(licenceCondition1, licenceCondition2)));
-        when(convictionRestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(currentOrderHeader));
+        when(convictionRestClient.getCustodialStatus(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(CustodialStatus.RELEASED_ON_LICENCE));
 
         var requirements = service.getConvictionRequirements(CRN, SOME_CONVICTION_ID).block();
 
@@ -213,14 +209,11 @@ class ConvictionServiceTest {
             .build();
 
         var licenceCondition1 = LicenceCondition.builder().description("Desc 2").active(true).build();
-        var currentOrderHeader = CurrentOrderHeaderResponse.builder()
-            .custodialType(KeyValue.builder().code(CustodialStatus.POST_SENTENCE_SUPERVISION.getCode()).description("Post Sentence Supervision").build())
-            .build();
 
         when(offenderRestClient.getConvictionRequirements(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(expectedRequirements));
         when(offenderRestClient.getConvictionPssRequirements(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(List.of(pssRqmnt1, pssRqmnt2, pssRqmnt3)));
         when(offenderRestClient.getConvictionLicenceConditions(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(List.of(licenceCondition1)));
-        when(convictionRestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(currentOrderHeader));
+        when(convictionRestClient.getCustodialStatus(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(CustodialStatus.POST_SENTENCE_SUPERVISION));
 
         var requirements = service.getConvictionRequirements(CRN, SOME_CONVICTION_ID).block();
 

@@ -69,7 +69,7 @@ public class ConvictionService {
         return combineOffenderAndConvictions(tuple4.getT1(), tuple4.getT2(), tuple4.getT3(), tuple4.getT4());
     }
 
-    public CurrentOrderHeaderResponse getCurrentOrderHeader(final String crn, final Long convictionId, final Long sentenceId) {
+    public CurrentOrderHeaderResponse getCurrentOrderHeader(final String crn, final Long convictionId) {
         return convictionRestClient.getCurrentOrderHeader(crn, convictionId)
                 .blockOptional()
                 .orElseThrow(() -> new CustodialStatusNotFoundException(crn));
@@ -78,7 +78,7 @@ public class ConvictionService {
     public Mono<RequirementsResponse> getConvictionRequirements(String crn, Long convictionId) {
 
         return Mono.zip(offenderRestClient.getConvictionRequirements(crn, convictionId),
-            convictionRestClient.getCurrentOrderHeader(crn, convictionId),
+            convictionRestClient.getCustodialStatus(crn, convictionId),
             offenderRestClient.getConvictionPssRequirements(crn, convictionId),
             offenderRestClient.getConvictionLicenceConditions(crn, convictionId)
         )
@@ -86,15 +86,14 @@ public class ConvictionService {
     }
 
     RequirementsResponse combineAndFilterRequirements(
-        Tuple4<List<Requirement>, CurrentOrderHeaderResponse, List<PssRequirement>, List<LicenceCondition>> tuple4) {
+        Tuple4<List<Requirement>, CustodialStatus, List<PssRequirement>, List<LicenceCondition>> tuple4) {
 
         var builder = RequirementsResponse.builder()
             .requirements(tuple4.getT1())
             .pssRequirements(Collections.emptyList())
             .licenceConditions(Collections.emptyList());
 
-        var custodialStatus = CustodialStatus.fromString(tuple4.getT2().getCustodialType().getCode());
-        switch (custodialStatus) {
+        switch (tuple4.getT2()) {
             case POST_SENTENCE_SUPERVISION:
                 builder.pssRequirements(tuple4.getT3()
                     .stream()

@@ -1,6 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
-public enum CustodialStatus {
+import java.util.function.Function;
+
+public enum CustodialStatus implements Function<KeyValue, CustodialStatus> {
     SENTENCED_IN_CUSTODY("A"),
     IN_CUSTODY("D"),
     RELEASED_ON_LICENCE("B"),
@@ -31,4 +33,9 @@ public enum CustodialStatus {
         return null;
     }
 
+    @Override
+    public CustodialStatus apply(KeyValue keyValue) {
+
+        return CustodialStatus.fromString(keyValue.getCode());
+    }
 }

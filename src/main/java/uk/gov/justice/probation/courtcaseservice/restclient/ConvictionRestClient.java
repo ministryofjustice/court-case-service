@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,8 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
+import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 
 @Component
 @AllArgsConstructor
@@ -75,6 +78,25 @@ public class ConvictionRestClient {
                     return e1;
                 })
                 .map(OffenderMapper::buildCurrentOrderHeaderDetail);
+    }
+
+    public Mono<CustodialStatus> getCustodialStatus(final String crn, final Long convictionId) {
+        final String path = String.format(currentOrderUrlTemplate, crn, convictionId);
+        return clientHelper.get(path)
+            .retrieve()
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
+            .bodyToMono(CommunityApiCustodialStatusResponse.class)
+            .onErrorMap(e1 -> {
+                log.error(String.format(ERROR_MSG_FORMAT, "sentence current order header detail ", crn, convictionId), e1);
+                return e1;
+            })
+            .map(custodialStatusResponse -> {
+                var code = Optional.ofNullable(custodialStatusResponse.getCustodialType()).map(KeyValue::getCode).orElse(null);
+                return Optional.ofNullable(code)
+                    .map(CustodialStatus::fromString)
+                    .orElse(null);
+            })
+            ;
     }
 
 }

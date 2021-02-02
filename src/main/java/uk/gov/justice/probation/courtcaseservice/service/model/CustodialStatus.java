@@ -1,8 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
+import java.util.Arrays;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
-public enum CustodialStatus implements Function<KeyValue, CustodialStatus> {
+public enum CustodialStatus {
     SENTENCED_IN_CUSTODY("A"),
     IN_CUSTODY("D"),
     RELEASED_ON_LICENCE("B"),
@@ -24,18 +26,11 @@ public enum CustodialStatus implements Function<KeyValue, CustodialStatus> {
         return code;
     }
 
-    public static CustodialStatus fromString(String text) {
-        for (CustodialStatus b : CustodialStatus.values()) {
-            if (b.getCode().equalsIgnoreCase(text)) {
-                return b;
-            }
-        }
-        return null;
+    public static CustodialStatus fromString(final String text) {
+        return Stream.of(CustodialStatus.values())
+            .filter(custodialStatus -> custodialStatus.getCode().equalsIgnoreCase(text))
+            .findFirst()
+            .orElse(null);
     }
 
-    @Override
-    public CustodialStatus apply(KeyValue keyValue) {
-
-        return CustodialStatus.fromString(keyValue.getCode());
-    }
 }

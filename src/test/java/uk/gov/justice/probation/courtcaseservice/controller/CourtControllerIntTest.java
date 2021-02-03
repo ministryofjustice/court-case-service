@@ -13,11 +13,14 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @RunWith(SpringRunner.class)
+@Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class CourtControllerIntTest extends BaseIntTest {
 
@@ -66,5 +69,26 @@ public class CourtControllerIntTest extends BaseIntTest {
                 .then()
                 .assertThat()
                 .statusCode(400);
+    }
+
+    @Test
+    public void whenGetCourts_thenReturnListSorted() {
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .when()
+            .get("/courts")
+            .then()
+            .assertThat()
+            .statusCode(200)
+            .body("courts", hasSize(3))
+            .body("courts[0].code", equalTo("B63AD"))
+            .body("courts[0].name", equalTo("Aberystwyth"))
+            .body("courts[1].code", equalTo("B33HU"))
+            .body("courts[1].name", equalTo("Leicester"))
+            .body("courts[2].code", equalTo("B10JQ"))
+            .body("courts[2].name", equalTo("North Shields"))
+        ;
     }
 }

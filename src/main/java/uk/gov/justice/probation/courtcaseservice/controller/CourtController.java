@@ -1,6 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -9,8 +13,16 @@ import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CourtListResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CourtResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtService;
 
@@ -50,4 +62,27 @@ public class CourtController {
         return courtService.updateCourt(courtEntity);
     }
 
+    @ApiOperation(value = "Gets a list of all courts with code and names.")
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+        })
+    @GetMapping(value = "/courts", produces = APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    CourtListResponse getCourts() {
+        List<CourtResponse> courtResponseList = courtService.getCourts()
+            .stream()
+            .map(this::buildCourt)
+            .collect(Collectors.toList());
+        return CourtListResponse.builder().courts(courtResponseList).build();
+    }
+
+    private CourtResponse buildCourt(CourtEntity courtEntity) {
+        return CourtResponse.builder()
+            .name(courtEntity.getName())
+            .code(courtEntity.getCourtCode())
+            .build();
+    }
 }

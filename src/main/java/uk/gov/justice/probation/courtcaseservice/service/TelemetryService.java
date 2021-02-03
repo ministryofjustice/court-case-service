@@ -24,6 +24,10 @@ public class TelemetryService {
 
     private final ClientDetails clientDetails;
 
+    void trackTelemetryEvent(TelemetryEventType eventType) {
+        telemetryClient.trackEvent(eventType.eventName);
+    }
+
     void trackCourtCaseEvent(TelemetryEventType eventType, CourtCaseEntity courtCaseEntity) {
 
         Map<String, String> properties = new HashMap<>();

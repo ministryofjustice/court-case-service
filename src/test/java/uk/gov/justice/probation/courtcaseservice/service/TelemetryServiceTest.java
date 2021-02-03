@@ -138,6 +138,14 @@ class TelemetryServiceTest {
         assertThat(metricsCaptor.getValue()).isEmpty();
     }
 
+    @Test
+    public void whenTrackSimpleEvent_thenCallService() {
+
+        service.trackTelemetryEvent(TelemetryEventType.GRACEFUL_DEGRADE);
+
+        verify(telemetryClient).trackEvent(TelemetryEventType.GRACEFUL_DEGRADE.eventName);
+    }
+
     private CourtCaseEntity buildCourtCase() {
         return CourtCaseEntity.builder()
                 .courtCode(COURT_CODE)

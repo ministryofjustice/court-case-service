@@ -40,9 +40,10 @@ import java.util.stream.Collectors;
 @RequestScope
 public class OffenderService {
 
-    private OffenderRestClient offenderRestClient;
+    private final OffenderRestClient offenderRestClient;
     private final AssessmentsRestClient assessmentsClient;
     private final DocumentRestClient documentRestClient;
+    private final TelemetryService telemetryService;
 
     private final Predicate<OffenderDocumentDetail> documentTypeFilter;
 
@@ -50,15 +51,16 @@ public class OffenderService {
     @Value("#{'${offender-service.assessment.included-statuses}'.split(',')}")
     private List<String> assessmentStatuses;
 
-
     public OffenderService(final OffenderRestClientFactory offenderRestClientFactory,
                            final AssessmentsRestClient assessmentsClient,
                            final DocumentRestClient documentRestClient,
-                           final DocumentTypeFilter documentTypeFilter) {
+                           final DocumentTypeFilter documentTypeFilter,
+                           final TelemetryService telemetryService) {
         this.offenderRestClient = offenderRestClientFactory.build();
         this.assessmentsClient = assessmentsClient;
         this.documentRestClient = documentRestClient;
         this.documentTypeFilter = documentTypeFilter;
+        this.telemetryService = telemetryService;
     }
 
     public ProbationRecord getProbationRecord(String crn, boolean applyDocumentFilter) {
@@ -107,8 +109,10 @@ public class OffenderService {
                 probationRecord.setAssessment(findMostRecentByStatus(assessments).orElse(null));
             });
         } catch (OffenderNotFoundException e) {
+            telemetryService.trackTelemetryEvent(TelemetryEventType.GRACEFUL_DEGRADE);
             log.info("assessment data missing from probation record (CRN '{}' not found in oasys)", crn);
         } catch (Exception e) {
+            telemetryService.trackTelemetryEvent(TelemetryEventType.GRACEFUL_DEGRADE);
             log.warn("assessment data missing from probation record for CRN '{}': {}", crn, e.toString());
         }
 

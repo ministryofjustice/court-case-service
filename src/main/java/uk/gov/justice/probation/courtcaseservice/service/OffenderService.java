@@ -109,11 +109,9 @@ public class OffenderService {
                 probationRecord.setAssessment(findMostRecentByStatus(assessments).orElse(null));
             });
         } catch (OffenderNotFoundException e) {
-            telemetryService.trackTelemetryEvent(TelemetryEventType.GRACEFUL_DEGRADE);
-            log.info("assessment data missing from probation record (CRN '{}' not found in oasys)", crn);
+            telemetryService.trackApplicationDegradationEvent("assessment data missing from probation record (CRN '" + crn + "' not found in oasys)", e, crn);
         } catch (Exception e) {
-            telemetryService.trackTelemetryEvent(TelemetryEventType.GRACEFUL_DEGRADE);
-            log.warn("assessment data missing from probation record for CRN '{}': {}", crn, e.toString());
+            telemetryService.trackApplicationDegradationEvent("call failed to get assessment data for for CRN '" + crn + "'", e, crn);
         }
 
         return probationRecord;

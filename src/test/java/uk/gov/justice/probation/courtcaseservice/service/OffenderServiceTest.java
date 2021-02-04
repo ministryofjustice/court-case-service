@@ -38,6 +38,8 @@ import java.util.List;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -238,7 +240,10 @@ class OffenderServiceTest {
             final Conviction conviction = probationRecord.getConvictions().get(0);
             assertThat(conviction.getDocuments()).hasSize(2);
 
-            verify(telemetryService).trackTelemetryEvent(TelemetryEventType.GRACEFUL_DEGRADE);
+            verify(telemetryService)
+                .trackApplicationDegradationEvent(eq("assessment data missing from probation record (CRN '" + CRN + "' not found in oasys)"),
+                                                any(OffenderNotFoundException.class),
+                                                eq(CRN));
         }
 
         @DisplayName("Getting probation record does not throw exception when assessment api fails for any reason")
@@ -262,7 +267,10 @@ class OffenderServiceTest {
             var conviction = probationRecord.getConvictions().get(0);
             assertThat(conviction.getDocuments()).hasSize(2);
 
-            verify(telemetryService).trackTelemetryEvent(TelemetryEventType.GRACEFUL_DEGRADE);
+            verify(telemetryService)
+                .trackApplicationDegradationEvent(eq("call failed to get assessment data for for CRN '" + CRN + "'"),
+                    any(Exception.class),
+                    eq(CRN));
         }
 
         @DisplayName("Get the most recent COMPLETE assessment, ignore the more recent PENDING one")

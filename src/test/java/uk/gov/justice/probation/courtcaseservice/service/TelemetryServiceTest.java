@@ -12,9 +12,11 @@ import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 
 import static java.util.Collections.emptyList;
@@ -139,11 +141,15 @@ class TelemetryServiceTest {
     }
 
     @Test
-    public void whenTrackSimpleEvent_thenCallService() {
+    public void whenTrackApplicationDegradationEvent_thenCallService() {
 
-        service.trackTelemetryEvent(TelemetryEventType.GRACEFUL_DEGRADE);
+        var e = new OffenderNotFoundException(CRN);
 
-        verify(telemetryClient).trackEvent(TelemetryEventType.GRACEFUL_DEGRADE.eventName);
+        service.trackApplicationDegradationEvent("desc", e, CRN);
+
+        var properties = Map.of("description", "desc", "crn", CRN, "cause", "Offender with CRN 'CRN' not found");
+
+        verify(telemetryClient).trackEvent(TelemetryEventType.GRACEFUL_DEGRADE.eventName, properties, Collections.emptyMap());
     }
 
     private CourtCaseEntity buildCourtCase() {

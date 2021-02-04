@@ -1,8 +1,8 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 2
-maxSurge: 1
+replicaCount: 4
+maxSurge: 2
 
 image:
   repository: docker.io/mojdigitalstudio/court-case-service
@@ -20,7 +20,7 @@ ingress:
 env:
   JAVA_OPTS: "-Xmx512m"
   community_api:
-    base_url: https://community-api-secure.pre-prod.delius.probation.hmpps.dsd.io
+    base_url: https://community-api-secure.perf.delius.probation.hmpps.dsd.io
   nomis_oauth:
     base_url: https://sign-in-preprod.hmpps.service.justice.gov.uk
   offender_assessments_api:

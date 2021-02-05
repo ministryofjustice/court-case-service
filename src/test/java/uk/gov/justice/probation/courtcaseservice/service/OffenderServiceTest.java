@@ -38,6 +38,8 @@ import java.util.List;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -53,6 +55,8 @@ class OffenderServiceTest {
     private final DocumentTypeFilter documentTypeFilter
         = new DocumentTypeFilter(singletonList(COURT_REPORT_DOCUMENT), singletonList("CJF"));
 
+    @Mock
+    private TelemetryService telemetryService;
     @Mock
     private AssessmentsRestClient assessmentsRestClient;
     @Mock
@@ -108,7 +112,7 @@ class OffenderServiceTest {
                 .status("COMPLETE")
                 .build();
             when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
-            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter);
+            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter, telemetryService);
             service.setAssessmentStatuses(List.of("COMPLETE"));
         }
 
@@ -235,6 +239,11 @@ class OffenderServiceTest {
             assertThat(probationRecord.getConvictions()).hasSize(1);
             final Conviction conviction = probationRecord.getConvictions().get(0);
             assertThat(conviction.getDocuments()).hasSize(2);
+
+            verify(telemetryService)
+                .trackApplicationDegradationEvent(eq("assessment data missing from probation record (CRN '" + CRN + "' not found in oasys)"),
+                                                any(OffenderNotFoundException.class),
+                                                eq(CRN));
         }
 
         @DisplayName("Getting probation record does not throw exception when assessment api fails for any reason")
@@ -257,6 +266,11 @@ class OffenderServiceTest {
             assertThat(probationRecord.getConvictions()).hasSize(1);
             var conviction = probationRecord.getConvictions().get(0);
             assertThat(conviction.getDocuments()).hasSize(2);
+
+            verify(telemetryService)
+                .trackApplicationDegradationEvent(eq("call failed to get assessment data for for CRN '" + CRN + "'"),
+                    any(Exception.class),
+                    eq(CRN));
         }
 
         @DisplayName("Get the most recent COMPLETE assessment, ignore the more recent PENDING one")
@@ -362,7 +376,7 @@ class OffenderServiceTest {
         @BeforeEach
         void beforeEach() {
             when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
-            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter);
+            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter, telemetryService);
         }
 
         @DisplayName("Simple get of offender detail")
@@ -384,7 +398,7 @@ class OffenderServiceTest {
         @BeforeEach
         void beforeEach() {
             when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
-            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter);
+            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter, telemetryService);
         }
 
         @DisplayName("Simple get of offender registrations")
@@ -410,7 +424,7 @@ class OffenderServiceTest {
             when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
             var sentence = Sentence.builder().startDate(LocalDate.now()).build();
             this.conviction = Conviction.builder().convictionId(CONVICTION_ID).sentence(sentence).active(Boolean.TRUE).build();
-            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter);
+            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter, telemetryService);
         }
 
         @DisplayName("With convictions and previously known then set previously known termination date")

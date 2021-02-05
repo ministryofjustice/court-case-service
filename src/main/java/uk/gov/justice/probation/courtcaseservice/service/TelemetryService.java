@@ -24,6 +24,15 @@ public class TelemetryService {
 
     private final ClientDetails clientDetails;
 
+    void trackApplicationDegradationEvent(String description, Exception exception, String crn) {
+
+        Map<String, String> properties = new HashMap<>(3);
+        properties.put("description", description);
+        properties.put("crn", crn);
+        ofNullable(exception).ifPresent((code) -> properties.put("cause", exception.getMessage()));
+        telemetryClient.trackEvent(TelemetryEventType.GRACEFUL_DEGRADE.eventName, properties, Collections.emptyMap());
+    }
+
     void trackCourtCaseEvent(TelemetryEventType eventType, CourtCaseEntity courtCaseEntity) {
 
         Map<String, String> properties = new HashMap<>();

@@ -8,7 +8,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.minReplicaCount }}
   revisionHistoryLimit: 2
   minReadySeconds: 10
   strategy:
@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: court-case-service
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}" 
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.image.port }}

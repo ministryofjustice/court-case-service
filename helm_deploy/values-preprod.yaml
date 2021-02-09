@@ -2,7 +2,7 @@
 # Declare variables to be passed into your templates.
 
 minReplicaCount: 2
-maxReplicaCount: 6
+maxReplicaCount: 8
 maxSurge: 2
 
 image:

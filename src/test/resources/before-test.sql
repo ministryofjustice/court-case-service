@@ -33,6 +33,13 @@ INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court
 INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created) VALUES (5555559, 1600028918, 'B10JQ', 2,'2019-12-14 13:00:00', 'No record', 'X320746', 'Mr David Bowie',
 now());
 
+-- See CourtCaseControllerIntTest.GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnAllCases()
+-- These cases simulate when a case has been moved to a future date, in this case it should no longer appear in the old case list
+INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created)
+VALUES (5555557, 1600028921, 'B10JQ', 1,'2020-02-14 13:00:00', 'No record', 'X320743', 'Mr Future', '2019-11-15 00:00:00');
+INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created)
+VALUES (5555557, 1600028921, 'B10JQ', 1,'2019-12-14 13:00:00', 'No record', 'X320743', 'Mr Future', '2019-11-14 00:00:00');
+
 -- These records are used to test soft deletion
 INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, deleted) VALUES (5555559, 1600128918, 'B10JQ', 2,'2019-12-14 13:00:00', 'No record', 'X320746', 'Mr David Bowie',
 '2020-10-01 16:59:59', false);

@@ -1,9 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.format.DateTimeFormatter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +8,11 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -227,6 +228,30 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
 
         assertThat(result.getDeveloperMessage()).contains("Case " + NOT_FOUND_CASE_NO + " not found");
         assertThat(result.getUserMessage()).contains("Case " + NOT_FOUND_CASE_NO + " not found");
+        assertThat(result.getStatus()).isEqualTo(404);
+    }
+
+
+    @Test
+    public void shouldReturnNotFoundForDeletedCase() {
+
+        String DELETED_CASE_NO = "1600128918";
+
+        ErrorResponse result = given()
+                .given()
+                .auth()
+                .oauth2(getToken())
+        .when()
+                .header("Accept", "application/json")
+                .get("/court/{courtCode}/case/{caseNo}", COURT_CODE, DELETED_CASE_NO)
+                .then()
+                .statusCode(404)
+                .extract()
+                .body()
+                .as(ErrorResponse.class);
+
+        assertThat(result.getDeveloperMessage()).contains("Case " + DELETED_CASE_NO + " not found");
+        assertThat(result.getUserMessage()).contains("Case " + DELETED_CASE_NO + " not found");
         assertThat(result.getStatus()).isEqualTo(404);
     }
 

@@ -7,7 +7,6 @@ metadata:
     chart: {{ template "app.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-{{/*  namespace: court-probation-preprod*/}}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1

@@ -67,7 +67,7 @@ public class OffenderController {
         })
     @GetMapping(path="offender/{crn}/probation-record", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
-    ProbationRecord getProbationRecord(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @PathVariable String crn,
+    ProbationRecord getProbationRecord(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @UpperCasePathVariable("crn") String crn,
         @ApiParam(name = "applyDocTypeFilter", value = "Whether or not to apply document filter, optional and defaults to true", example = "true")
         @RequestParam(value="applyDocTypeFilter", required = false, defaultValue = "true") boolean applyDocTypeFilter) {
         return offenderService.getProbationRecord(crn, applyDocTypeFilter);
@@ -84,7 +84,7 @@ public class OffenderController {
         })
     @GetMapping(path="offender/{crn}/probation-status-detail", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
-    Mono<ProbationStatusDetail> getProbationStatusDetail(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @PathVariable String crn) {
+    Mono<ProbationStatusDetail> getProbationStatusDetail(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @UpperCasePathVariable("crn") String crn) {
         return offenderService.getProbationStatusDetail(crn);
     }
 
@@ -99,7 +99,7 @@ public class OffenderController {
         })
     @GetMapping(path="offender/{crn}/detail", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
-    Mono<OffenderDetail> getOffenderDetail(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @PathVariable String crn) {
+    Mono<OffenderDetail> getOffenderDetail(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @UpperCasePathVariable("crn") String crn) {
         return offenderService.getOffenderDetail(crn);
     }
 
@@ -114,7 +114,7 @@ public class OffenderController {
         })
     @GetMapping(path="offender/{crn}/convictions/{convictionId}/requirements", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
-    Mono<RequirementsResponse> getRequirements(@PathVariable String crn, @PathVariable Long convictionId) {
+    Mono<RequirementsResponse> getRequirements(@UpperCasePathVariable("crn") String crn, @PathVariable Long convictionId) {
         return convictionService.getConvictionRequirements(crn, convictionId);
     }
 
@@ -128,7 +128,7 @@ public class OffenderController {
             @ApiResponse(code = 404, message = "Not found. For example if the CRN can't be matched.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
         })
-    public SentenceResponse getSentence(@PathVariable String crn, @PathVariable Long convictionId, @PathVariable Long sentenceId) {
+    public SentenceResponse getSentence(@UpperCasePathVariable("crn") String crn, @PathVariable Long convictionId, @PathVariable Long sentenceId) {
         if (!featureFlags.sentenceData()) {
             return convictionService.getConvictionOnly(crn, convictionId);
         }
@@ -146,7 +146,7 @@ public class OffenderController {
             })
     @GetMapping(path="offender/{crn}/convictions/{convictionId}/breaches/{breachId}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
-    BreachResponse getBreach(@PathVariable String crn, @PathVariable Long convictionId, @PathVariable Long breachId) {
+    BreachResponse getBreach(@UpperCasePathVariable("crn") String crn, @PathVariable Long convictionId, @PathVariable Long breachId) {
         return breachService.getBreach(crn, convictionId, breachId);
     }
 
@@ -161,7 +161,7 @@ public class OffenderController {
         })
     @GetMapping(path="offender/{crn}/documents/{documentId}")
     public HttpEntity<Resource> getOffenderDocumentByCrn(
-        @ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @NotNull final @PathVariable("crn") String crn,
+        @ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @NotNull final @UpperCasePathVariable("crn") String crn,
         @ApiParam(name = "documentId", value = "Document Id", example = "12312322", required = true) @NotNull final @PathVariable("documentId") String documentId) {
 
         return Optional.ofNullable(documentService.getDocument(crn, documentId))
@@ -179,7 +179,7 @@ public class OffenderController {
         })
     @GetMapping(path="offender/{crn}/registrations", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
-    Mono<List<Registration>> getOffenderRegistrations(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @PathVariable String crn) {
+    Mono<List<Registration>> getOffenderRegistrations(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @UpperCasePathVariable("crn") String crn) {
         return offenderService.getOffenderRegistrations(crn);
     }
 }

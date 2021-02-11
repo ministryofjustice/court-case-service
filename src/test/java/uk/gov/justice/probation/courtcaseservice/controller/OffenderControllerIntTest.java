@@ -244,13 +244,13 @@ public class OffenderControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenCallMadeToGetOffenderDetail_thenReturnCorrectData() {
+    public void givenLowerCaseCrn_whenCallMadeToGetOffenderDetail_thenReturnCorrectData() {
         given()
             .auth()
             .oauth2(getToken())
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .when()
-            .get("/offender/X320741/detail")
+            .get("/offender/x320741/detail")
             .then()
             .statusCode(200)
             .body("title",  equalTo("Mr."))

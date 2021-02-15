@@ -14,4 +14,4 @@ spec:
     name: {{ template "app.name" . }}
   minReplicas: {{ .Values.minReplicaCount }}
   maxReplicas: {{ .Values.maxReplicaCount }}
-  targetCPUUtilizationPercentage: 50
+  targetCPUUtilizationPercentage: 100

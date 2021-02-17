@@ -57,8 +57,8 @@ INSERT INTO OFFENCE (
 	);
 
 INSERT INTO offender_match_group
-( case_no, court_code, created, last_updated, created_by, last_updated_by, deleted, "version")
-VALUES( '1600029021', 'SHF', now(), now(), 'R_seed_data', '', false, 0);
+( id, case_no, court_code, created, last_updated, created_by, last_updated_by, deleted, "version")
+VALUES( 1, '1600029021', 'SHF', now(), now(), 'R_seed_data', '', false, 0);
 
 INSERT INTO offender_match
 (confirmed, crn, cro, match_type, pnc, group_id, created, last_updated, created_by, last_updated_by, deleted, "version", rejected)

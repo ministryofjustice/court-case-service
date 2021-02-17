@@ -6,7 +6,6 @@ PUT http://{{host}}/court/{{courtCode}}/case/{{caseNo}}
 Content-Type: application/json
 
 {
-  "lastUpdated": "2019-12-14T09:00:00",
   "caseId": "1168461",
   "caseNo": "1600028975",
   "crn": "X320744",

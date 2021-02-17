@@ -22,7 +22,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CourtCaseResponse {
-    private final LocalDateTime lastUpdated;
     private final String caseId;
     private final String caseNo;
     private final String crn;

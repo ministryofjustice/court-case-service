@@ -33,7 +33,7 @@ class CourtCaseResponseMapperTest {
     private static final boolean SUSPENDED_SENTENCE_ORDER = true;
     private static final boolean BREACH = true;
     private static final boolean PRE_SENTENCE_ACTIVITY = true;
-    private static final LocalDateTime LAST_UPDATED = LocalDateTime.now();
+    private static final LocalDateTime CREATED = LocalDateTime.now();
     private static final LocalDateTime SESSION_START_TIME = LocalDateTime.of(2020, 2, 25, 1, 0);
     private static final LocalDate PREVIOUSLY_KNOWN_TERMINATION_DATE = LocalDate.of(2020, 2, 26);
     private static final String OFFENCE_TITLE = "OFFENCE_TITLE";
@@ -85,7 +85,6 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getCaseNo()).isEqualTo(CASE_NO);
         assertThat(courtCaseResponse.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCaseResponse.getCourtRoom()).isEqualTo(COURT_ROOM);
-        assertThat(courtCaseResponse.getLastUpdated()).isEqualTo(LAST_UPDATED);
         assertThat(courtCaseResponse.getPreviouslyKnownTerminationDate()).isEqualTo(PREVIOUSLY_KNOWN_TERMINATION_DATE);
         assertThat(courtCaseResponse.getProbationStatus()).isEqualTo(PROBATION_STATUS);
         assertThat(courtCaseResponse.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE_ORDER);
@@ -206,7 +205,7 @@ class CourtCaseResponseMapperTest {
             .breach(BREACH)
             .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
             .caseId(CASE_ID)
-            .created(LAST_UPDATED)
+            .created(CREATED)
             .offences(offences)
             .firstCreated(firstCreated)
             .build();

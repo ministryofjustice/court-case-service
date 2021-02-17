@@ -25,7 +25,6 @@ public class CourtCaseResponseMapper {
                 .listNo(courtCaseEntity.getListNo())
                 .courtRoom(courtCaseEntity.getCourtRoom())
                 .courtCode(courtCaseEntity.getCourtCode())
-                .lastUpdated(courtCaseEntity.getCreated())
                 .offences(mapOffencesFrom(courtCaseEntity))
                 .previouslyKnownTerminationDate(courtCaseEntity.getPreviouslyKnownTerminationDate())
                 .probationStatus(courtCaseEntity.getProbationStatus())

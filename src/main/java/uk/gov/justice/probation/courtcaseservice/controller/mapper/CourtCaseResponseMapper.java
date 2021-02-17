@@ -33,6 +33,7 @@ public class CourtCaseResponseMapper {
                 .session(courtCaseEntity.getSession())
                 .suspendedSentenceOrder(courtCaseEntity.getSuspendedSentenceOrder())
                 .breach(courtCaseEntity.getBreach())
+                .preSentenceActivity(courtCaseEntity.getPreSentenceActivity())
                 .defendantName(courtCaseEntity.getDefendantName())
                 .name(courtCaseEntity.getName())
                 .defendantAddress(courtCaseEntity.getDefendantAddress())

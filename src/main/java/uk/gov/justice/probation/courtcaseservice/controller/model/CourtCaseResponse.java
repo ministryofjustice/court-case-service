@@ -37,6 +37,7 @@ public class CourtCaseResponse {
     private final LocalDate previouslyKnownTerminationDate;
     private final Boolean suspendedSentenceOrder;
     private final Boolean breach;
+    private final Boolean preSentenceActivity;
     private final List<OffenceResponse> offences;
     private final String defendantName;
     private final NamePropertiesEntity name;

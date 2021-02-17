@@ -13,6 +13,7 @@
   "previouslyKnownTerminationDate": "2018-06-24",
   "suspendedSentenceOrder": true,
   "breach": true,
+  "preSentenceActivity": true,
   "offences": [
     {
       "offenceTitle": "Theft from a shop",

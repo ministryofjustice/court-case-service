@@ -31,6 +31,7 @@ public class CourtCaseRequest {
     private final LocalDate previouslyKnownTerminationDate;
     private final Boolean suspendedSentenceOrder;
     private final Boolean breach;
+    private final Boolean preSentenceActivity;
     private final List<OffenceRequest> offences;
     private final NamePropertiesEntity name;
     private final String defendantName;
@@ -70,6 +71,7 @@ public class CourtCaseRequest {
                 .previouslyKnownTerminationDate(previouslyKnownTerminationDate)
                 .suspendedSentenceOrder(suspendedSentenceOrder)
                 .breach(breach)
+                .preSentenceActivity(preSentenceActivity)
                 .defendantName(defendantName)
                 .defendantDob(defendantDob)
                 .defendantSex(defendantSex)

@@ -15,6 +15,7 @@ class CourtCaseRequestTest {
     private static final LocalDate DOB = LocalDate.of(1985, 8, 1);
     private static final boolean SUSPENDED_SENTENCE_ORDER = true;
     private static final boolean BREACH = false;
+    private static final boolean PRE_SENTENCE_ACTIVITY = true;
 
     @Test
     void givenAllFieldsPresent_whenCallAsEntity_returnCourtCaseEntity() {
@@ -28,6 +29,7 @@ class CourtCaseRequestTest {
         .previouslyKnownTerminationDate(PREVIOUS_TERMINATION_DATE)
         .suspendedSentenceOrder(SUSPENDED_SENTENCE_ORDER)
         .breach(BREACH)
+        .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
         .offences(Arrays.asList(
                 new OffenceRequest("OFFENCE_TITLE1", "OFFENCE_SUMMARY1","ACT1"),
                 new OffenceRequest("OFFENCE_TITLE2", "OFFENCE_SUMMARY2","ACT2")
@@ -56,6 +58,7 @@ class CourtCaseRequestTest {
         assertThat(entity.getPreviouslyKnownTerminationDate()).isEqualTo(PREVIOUS_TERMINATION_DATE);
         assertThat(entity.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE_ORDER);
         assertThat(entity.getBreach()).isEqualTo(BREACH);
+        assertThat(entity.getPreSentenceActivity()).isEqualTo(PRE_SENTENCE_ACTIVITY);
         assertThat(entity.getDefendantName()).isEqualTo("DEFENDANT_NAME");
         assertThat(entity.getDefendantAddress().getLine1()).isEqualTo("LINE1");
         assertThat(entity.getDefendantAddress().getLine2()).isEqualTo("LINE2");

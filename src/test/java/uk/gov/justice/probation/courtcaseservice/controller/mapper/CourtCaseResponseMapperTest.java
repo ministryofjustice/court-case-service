@@ -32,6 +32,7 @@ class CourtCaseResponseMapperTest {
     private static final String PROBATION_STATUS = "PROBATION_STATUS";
     private static final boolean SUSPENDED_SENTENCE_ORDER = true;
     private static final boolean BREACH = true;
+    private static final boolean PRE_SENTENCE_ACTIVITY = true;
     private static final LocalDateTime LAST_UPDATED = LocalDateTime.now();
     private static final LocalDateTime SESSION_START_TIME = LocalDateTime.of(2020, 2, 25, 1, 0);
     private static final LocalDate PREVIOUSLY_KNOWN_TERMINATION_DATE = LocalDate.of(2020, 2, 26);
@@ -52,7 +53,6 @@ class CourtCaseResponseMapperTest {
     private static final LocalDateTime FIRST_CREATED = LocalDateTime.of(2020, 1, 1, 1, 1);
     private CourtCaseEntity courtCaseEntity;
     private List<OffenceEntity> offences;
-    private final CourtCaseResponseMapper courtCaseResponseMapper = new CourtCaseResponseMapper();
     private final AddressPropertiesEntity addressPropertiesEntity = AddressPropertiesEntity.builder()
         .line1("27")
         .line2("Elm Place")
@@ -79,7 +79,7 @@ class CourtCaseResponseMapperTest {
 
     @Test
     void shouldMapEntityToResponse() {
-        var courtCaseResponse = courtCaseResponseMapper.mapFrom(courtCaseEntity, matchGroups);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, matchGroups);
 
         assertThat(courtCaseResponse.getCaseId()).isEqualTo(CASE_ID);
         assertThat(courtCaseResponse.getCaseNo()).isEqualTo(CASE_NO);
@@ -90,6 +90,7 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getProbationStatus()).isEqualTo(PROBATION_STATUS);
         assertThat(courtCaseResponse.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE_ORDER);
         assertThat(courtCaseResponse.getBreach()).isEqualTo(BREACH);
+        assertThat(courtCaseResponse.getPreSentenceActivity()).isEqualTo(PRE_SENTENCE_ACTIVITY);
         assertThat(courtCaseResponse.getDefendantName()).isEqualTo(DEFENDANT_NAME);
         assertThat(courtCaseResponse.getDefendantType()).isEqualTo(DEFENDANT_TYPE);
         assertThat(courtCaseResponse.getDefendantAddress()).isEqualTo(addressPropertiesEntity);
@@ -110,28 +111,27 @@ class CourtCaseResponseMapperTest {
 
     @Test
     void shouldSetCreatedTodayToTrueIfCreatedToday() {
-        var courtCaseResponse = courtCaseResponseMapper.mapFrom(buildCourtCaseEntity(offences, LocalDateTime.now()), matchGroups);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(buildCourtCaseEntity(offences, LocalDateTime.now()), matchGroups);
         assertThat(courtCaseResponse.isCreatedToday()).isTrue();
     }
 
     @Test
     void shouldReturn0IfNoPossibleMatches() {
-        var courtCaseResponse = courtCaseResponseMapper.mapFrom(buildCourtCaseEntity(offences, FIRST_CREATED), null);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(buildCourtCaseEntity(offences, FIRST_CREATED), null);
 
         assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(0);
     }
 
-
     @Test
     void shouldReturn0IfNullPossibleMatches() {
-        var courtCaseResponse = courtCaseResponseMapper.mapFrom(courtCaseEntity, null);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, null);
 
         assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(0);
     }
 
     @Test
     void shouldMapOffencesToResponse() {
-        var courtCaseResponse = courtCaseResponseMapper.mapFrom(courtCaseEntity, matchGroups);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, matchGroups);
 
         assertThat(courtCaseResponse.getOffences().size()).isEqualTo(2);
 
@@ -158,7 +158,7 @@ class CourtCaseResponseMapperTest {
 
         var reorderedCourtCaseEntity = buildCourtCaseEntity(reorderedOffences, FIRST_CREATED);
 
-        var courtCaseResponse = courtCaseResponseMapper.mapFrom(reorderedCourtCaseEntity, matchGroups);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(reorderedCourtCaseEntity, matchGroups);
 
         var firstOffence = courtCaseResponse.getOffences().get(0);
         assertThat(firstOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE);
@@ -204,6 +204,7 @@ class CourtCaseResponseMapperTest {
             .courtCode(COURT_CODE)
             .caseNo(CASE_NO)
             .breach(BREACH)
+            .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
             .caseId(CASE_ID)
             .created(LAST_UPDATED)
             .offences(offences)

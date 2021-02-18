@@ -164,8 +164,10 @@ public class OffenderControllerIntTest extends BaseIntTest {
             .get("/offender/X320741/probation-status-detail")
             .then()
             .statusCode(200)
-            .body("probationStatus",  equalTo("Current"))
+            .body("probationStatus",  equalTo("Previously known"))
             .body("inBreach",  equalTo(true))
+            .body("preSentenceActivity", equalTo(true))
+            .body("previouslyKnownTerminationDate", equalTo(standardDateOf(2010, 4, 5)))
         ;
     }
 
@@ -176,7 +178,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
             .oauth2(getToken())
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .when()
-            .get("/offender/CRN007/probation-status-detail")
+            .get("/offender/CRN403/probation-status-detail")
             .then()
             .statusCode(403)
             .body("developerMessage" , equalTo("You are excluded from viewing this offender record. Please contact a system administrator"))
@@ -184,7 +186,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenOffenderDoesNotExist_whenCallMadeToGetProbationStatusDetail_thenReturnNotFound() {
+    public void givenOffenderDoesNotExist_whenCallMadeToGetProbationStatusDetail_thenReturn() {
         given()
             .auth()
             .oauth2(getToken())
@@ -192,9 +194,10 @@ public class OffenderControllerIntTest extends BaseIntTest {
             .when()
             .get("/offender/CRNXXX/probation-status-detail")
             .then()
-            .statusCode(404)
-            .body("userMessage", equalTo("Offender with CRN 'CRNXXX' not found"))
-            .body("developerMessage" , equalTo("Offender with CRN 'CRNXXX' not found"));
+            .statusCode(200)
+            .body("probationStatus",  equalTo("No record"))
+            .body("preSentenceActivity", equalTo(false))
+        ;
     }
 
     @Test

@@ -39,6 +39,7 @@ class OffenderRestClientFactoryTest {
                 "registrationsUrlTemplate",
                 "nsisTemplate",
                 "courtAppearancesTemplate",
+                "probationStatusTemplate",
                 "nsiCodesParam",
                 nsiBreachCodes,
                 "addressCode",

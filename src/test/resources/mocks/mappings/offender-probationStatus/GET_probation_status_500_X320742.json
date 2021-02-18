@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/secure/offenders/crn/X320742/probationStatus",
+    "headers" : {
+      "Content-Type": {
+        "equalTo": "application/json"
+      }
+    }
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"message\": \"Server error\"}"
+  }
+}

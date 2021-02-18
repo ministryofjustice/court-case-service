@@ -18,21 +18,26 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiLicenceConditionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsiResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiPssRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRegistrationsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.CourtAppearance;
 import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
+import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
 import java.util.Collections;
 import java.util.List;
+
+import static uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail.NO_RECORD_STATUS;
 
 @AllArgsConstructor
 @Slf4j
@@ -55,6 +60,8 @@ public class OffenderRestClient {
     private String nsisTemplate;
     @Value("${community-api.court-appearances-by-crn-and-nsi-url-template}")
     private String courtAppearancesTemplate;
+    @Value("${community-api.probation-status-by-crn}")
+    private String probationStatusTemplate;
 
     @Value("${community-api.nsis-filter.codes.queryParameter}")
     private String nsiCodesParam;
@@ -71,6 +78,16 @@ public class OffenderRestClient {
                 .bodyToMono(CommunityApiOffenderResponse.class)
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender probation record data for CRN '%s'", crn), e))
                 .map(OffenderMapper::probationRecordFrom);
+    }
+
+    public Mono<ProbationStatusDetail> getProbationStatusByCrn(String crn) {
+        return clientHelper.get(String.format(probationStatusTemplate, crn))
+            .retrieve()
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse)-> clientHelper.handleOffenderError(crn, clientResponse))
+            .bodyToMono(CommunityApiProbationStatusDetail.class)
+            .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender probation status data for CRN '%s'", crn), e))
+            .map(OffenderMapper::probationStatusDetailFrom)
+            .onErrorReturn(OffenderNotFoundException.class, NO_RECORD_STATUS);
     }
 
     public Mono<OffenderDetail> getOffenderDetailByCrn(String crn) {

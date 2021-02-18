@@ -20,6 +20,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
+import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.ConvictionDocuments;
@@ -427,6 +428,7 @@ class OffenderServiceTest {
             service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter, telemetryService);
         }
 
+        @Deprecated(forRemoval = true)
         @DisplayName("With convictions and previously known then set previously known termination date")
         @Test
         void givenProbationStatusAndConvictionsWithNullSentencesAndDates_whenCombine_thenReturn() {
@@ -455,6 +457,7 @@ class OffenderServiceTest {
             assertThat(probationStatusDetail.getInBreach()).isNull();
         }
 
+        @Deprecated(forRemoval = true)
         @DisplayName("With convictions but all with no sentences and previously known then do not set previously known termination date")
         @Test
         void givenProbationStatusAndConvictionWithNoSentences_whenCombine_thenReturn() {
@@ -470,6 +473,7 @@ class OffenderServiceTest {
             assertThat(probationStatusDetail.getInBreach()).isNull();
         }
 
+        @Deprecated(forRemoval = true)
         @DisplayName("With convictions but current is status then do not set previously known termination date but is in breach")
         @Test
         void givenProbationStatusCurrent_whenCombine_thenReturnNoTerminationDate() {
@@ -491,6 +495,15 @@ class OffenderServiceTest {
             assertThat(probationStatusDetail.getInBreach()).isTrue();
         }
 
+        @Test
+        void whenGetProbationStatus_thenReturn() {
+            var probationStatus = ProbationStatusDetail.builder().probationStatus(ProbationStatus.CURRENT).build();
+            when(offenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatus));
+
+            var probationStatusDetail = service.getProbationStatus(CRN).blockOptional();
+
+            assertThat(probationStatusDetail).hasValue(probationStatus);
+        }
     }
 
 }

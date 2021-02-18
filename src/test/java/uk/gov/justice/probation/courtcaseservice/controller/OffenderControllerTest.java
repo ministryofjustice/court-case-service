@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
@@ -68,7 +67,7 @@ class OffenderControllerTest {
     @DisplayName("Normal sentence service call returns response")
     @Test
     void callReturnsResponse() {
-        final SentenceResponse attendancesResponse = SentenceResponse.builder().attendances(Collections.emptyList()).build();
+        var attendancesResponse = SentenceResponse.builder().attendances(Collections.emptyList()).build();
         when(convictionService.getSentence(CRN, SOME_EVENT_ID, SOME_SENTENCE_ID)).thenReturn(attendancesResponse);
 
         assertThat(controller.getSentence(CRN, SOME_EVENT_ID, SOME_SENTENCE_ID)).isEqualTo(attendancesResponse);
@@ -81,7 +80,7 @@ class OffenderControllerTest {
     @Test
     void featureToggleFalseSentenceData() {
         featureFlags.setFlagValue("fetch-sentence-data", false);
-        final SentenceResponse sentenceResponse = SentenceResponse.builder()
+        var sentenceResponse = SentenceResponse.builder()
                 .attendances(Collections.emptyList())
                 .unpaidWork(UnpaidWork.builder().build())
                 .build();
@@ -96,10 +95,10 @@ class OffenderControllerTest {
     @Test
     public void whenGetProbationRecord_thenReturnIt() {
 
-        final boolean applyFilter = true;
+        var applyFilter = true;
         when(offenderService.getProbationRecord(CRN, applyFilter)).thenReturn(expectedProbationRecord);
 
-        ProbationRecord probationRecordResponse = controller.getProbationRecord(CRN, applyFilter);
+        var probationRecordResponse = controller.getProbationRecord(CRN, applyFilter);
 
         assertThat(probationRecordResponse).isNotNull();
         assertThat(probationRecordResponse).isEqualTo(expectedProbationRecord);
@@ -112,7 +111,7 @@ class OffenderControllerTest {
     public void whenGetRequirements_thenReturnIt() {
         when(convictionService.getConvictionRequirements(CRN, SOME_EVENT_ID)).thenReturn(Mono.just(expectedRequirements));
 
-        RequirementsResponse requirementResponse = controller.getRequirements(CRN, SOME_EVENT_ID).block();
+        var requirementResponse = controller.getRequirements(CRN, SOME_EVENT_ID).block();
 
         assertThat(requirementResponse).isSameAs(expectedRequirements);
         verify(convictionService).getConvictionRequirements(CRN, SOME_EVENT_ID);
@@ -124,7 +123,7 @@ class OffenderControllerTest {
 
         when(breachService.getBreach(CRN, BREACH_CONVICTION_ID, BREACH_ID)).thenReturn(expectedBreach);
 
-        BreachResponse actualBreach = controller.getBreach(CRN, BREACH_CONVICTION_ID, BREACH_ID);
+        var actualBreach = controller.getBreach(CRN, BREACH_CONVICTION_ID, BREACH_ID);
 
         assertThat(actualBreach).isNotNull();
         assertThat(actualBreach).isEqualTo(expectedBreach);
@@ -135,10 +134,10 @@ class OffenderControllerTest {
     @Test
     public void whenGetDocument_thenReturnIt() {
 
-        final ResponseEntity expectedResponse = mock(ResponseEntity.class);
+        var expectedResponse = mock(ResponseEntity.class);
         when(documentService.getDocument(CRN, CONVICTION_ID)).thenReturn(expectedResponse);
 
-        HttpEntity responseEntity = controller.getOffenderDocumentByCrn(CRN, CONVICTION_ID);
+        var responseEntity = controller.getOffenderDocumentByCrn(CRN, CONVICTION_ID);
 
         assertThat(responseEntity).isSameAs(expectedResponse);
         verify(documentService).getDocument(CRN, CONVICTION_ID);
@@ -147,11 +146,11 @@ class OffenderControllerTest {
     @DisplayName("Ensures that the controller calls the service and returns the same offender detail record")
     @Test
     public void whenGetOffenderDetail_thenReturnIt() {
-        OffenderDetail offenderDetail = mock(OffenderDetail.class);
+        var offenderDetail = mock(OffenderDetail.class);
 
         when(offenderService.getOffenderDetail(CRN)).thenReturn(Mono.just(offenderDetail));
 
-        OffenderDetail offenderDetailResponse = controller.getOffenderDetail(CRN).block();
+        var offenderDetailResponse = controller.getOffenderDetail(CRN).block();
 
         assertThat(offenderDetailResponse).isSameAs(offenderDetail);
         verify(offenderService).getOffenderDetail(CRN);
@@ -161,10 +160,10 @@ class OffenderControllerTest {
     @DisplayName("Ensures that the controller calls the service and returns the same registrations")
     @Test
     public void whenGetOffenderRegistrations_thenReturnIt() {
-        Registration registration = Registration.builder().build();
+        var registration = Registration.builder().build();
         when(offenderService.getOffenderRegistrations(CRN)).thenReturn(Mono.just(List.of(registration)));
 
-        List<Registration> registrations = controller.getOffenderRegistrations(CRN).block();
+        var registrations = controller.getOffenderRegistrations(CRN).block();
 
         assertThat(registrations).containsExactly(registration);
         verifyNoMoreInteractions(offenderService);
@@ -173,13 +172,28 @@ class OffenderControllerTest {
     @DisplayName("Ensures that the controller calls the service and returns the same probation status detail")
     @Test
     public void whenGetProbationStatusDetail_thenReturnIt() {
-        ProbationStatusDetail expectedDetail = ProbationStatusDetail.builder().build();
+        var expectedDetail = ProbationStatusDetail.builder().build();
         when(offenderService.getProbationStatusDetail(CRN)).thenReturn(Mono.just(expectedDetail));
 
-        ProbationStatusDetail probationStatusDetail = controller.getProbationStatusDetail(CRN).block();
+        var probationStatusDetail = controller.getProbationStatusDetail(CRN).block();
 
         assertThat(probationStatusDetail).isSameAs(expectedDetail);
         verify(offenderService).getProbationStatusDetail(CRN);
+        verifyNoMoreInteractions(offenderService);
+    }
+
+    @DisplayName("Ensures that the controller calls the service and returns the same probation status detail")
+    @Test
+    public void whenGetProbationStatusDetailFromCommunityApi_thenReturnIt() {
+        featureFlags.setFlagValue("use-community-api-for-probation-status", true);
+
+        var expectedDetail = ProbationStatusDetail.builder().build();
+        when(offenderService.getProbationStatus(CRN)).thenReturn(Mono.just(expectedDetail));
+
+        var probationStatusDetail = controller.getProbationStatusDetail(CRN).block();
+
+        assertThat(probationStatusDetail).isSameAs(expectedDetail);
+        verify(offenderService).getProbationStatus(CRN);
         verifyNoMoreInteractions(offenderService);
     }
 }

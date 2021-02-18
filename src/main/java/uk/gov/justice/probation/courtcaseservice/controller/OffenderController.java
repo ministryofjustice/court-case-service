@@ -85,7 +85,10 @@ public class OffenderController {
     @GetMapping(path="offender/{crn}/probation-status-detail", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     Mono<ProbationStatusDetail> getProbationStatusDetail(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @UpperCasePathVariable("crn") String crn) {
-        return offenderService.getProbationStatusDetail(crn);
+        if (!featureFlags.communityApiForProbationStatus()) {
+             return offenderService.getProbationStatusDetail(crn);
+        }
+        return offenderService.getProbationStatus(crn);
     }
 
     @ApiOperation(value = "Gets the offender detail by CRN")

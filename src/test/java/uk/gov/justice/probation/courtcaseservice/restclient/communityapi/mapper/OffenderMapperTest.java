@@ -111,13 +111,14 @@ public class OffenderMapperTest {
     @Test
     void givenNulls_whenMapProbationStatus_thenReturn() {
         var communityApiProbationStatus = CommunityApiProbationStatusDetail.builder()
-            .probationStatus("CURRENT")
+            .probationStatus("NOT_SENTENCED")
             .preSentenceActivity(Boolean.FALSE)
             .build();
 
         var probationStatusDetail = OffenderMapper.probationStatusDetailFrom(communityApiProbationStatus);
 
-        assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
+        assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.NOT_SENTENCED);
+        assertThat(probationStatusDetail.getProbationStatus().getName()).isEqualTo("No record");
         assertThat(probationStatusDetail.getInBreach()).isNull();
         assertThat(probationStatusDetail.isPreSentenceActivity()).isFalse();
         assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isNull();

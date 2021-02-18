@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum ProbationStatus {
     CURRENT("Current"),
     PREVIOUSLY_KNOWN("Previously known"),
-    NOT_SENTENCED("Not sentenced"),
+    NOT_SENTENCED("No record"),
     NO_RECORD("No record");
 
     private final String name;

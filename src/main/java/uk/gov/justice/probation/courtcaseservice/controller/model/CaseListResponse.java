@@ -20,13 +20,4 @@ import java.util.List;
 @ApiModel(description = "Response object for a list of cases")
 public class CaseListResponse {
     private final List<CourtCaseResponse> cases;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_FORMAT)
-    public LocalDateTime getLastUpdated() {
-        return cases.stream()
-                .max(Comparator.comparing(CourtCaseResponse::getLastUpdated))
-                .map(CourtCaseResponse::getLastUpdated)
-                .orElse(null);
-
-    }
 }

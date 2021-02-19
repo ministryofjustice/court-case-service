@@ -15,6 +15,7 @@ public class EntityHelper {
     public static final LocalDateTime SESSION_START_TIME = LocalDateTime.of(2020, 2, 26, 9, 0);
     public static final boolean SUSPENDED_SENTENCE = true;
     public static final boolean BREACH = true;
+    public static final boolean PRE_SENTENCE_ACTIVITY = true;
     public static final LocalDate TERMINATION_DATE = LocalDate.of(2020, 2, 27);
     public static final String PNC = "PNC";
     public static final String LIST_NO = "1st";
@@ -72,6 +73,7 @@ public class EntityHelper {
             .probationStatus(PROBATION_STATUS)
             .previouslyKnownTerminationDate(TERMINATION_DATE)
             .suspendedSentenceOrder(SUSPENDED_SENTENCE)
+            .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
             .breach(BREACH)
             .defendantName(DEFENDANT_NAME)
             .name(NamePropertiesEntity.builder().forename1("Gordon").surname("BENNETT").build())

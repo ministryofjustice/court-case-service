@@ -76,6 +76,9 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "BREACH", nullable = false)
     private final Boolean breach;
 
+    @Column(name = "PRE_SENTENCE_ACTIVITY", nullable = false)
+    private final Boolean preSentenceActivity;
+
     @JsonManagedReference
     @OneToMany(mappedBy = "courtCase", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval=true)
     private final List<OffenceEntity> offences;

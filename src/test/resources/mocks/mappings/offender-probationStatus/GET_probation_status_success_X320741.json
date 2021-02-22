@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/secure/offenders/crn/X320741/probationStatus",
+    "headers" : {
+      "Content-Type": {
+        "equalTo": "application/json"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"probationStatus\": \"PREVIOUSLY_KNOWN\", \"previouslyKnownTerminationDate\": \"2010-04-05\", \"inBreach\": true, \"preSentenceActivity\": true}"
+  }
+}

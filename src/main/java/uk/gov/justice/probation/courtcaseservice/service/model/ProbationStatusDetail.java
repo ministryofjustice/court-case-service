@@ -10,14 +10,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 
-@ApiModel("Basic Probation Status Detail")
+@ApiModel("Probation Status Detail")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProbationStatusDetail {
+    public static final ProbationStatusDetail NO_RECORD_STATUS = ProbationStatusDetail.builder().probationStatus(ProbationStatus.NO_RECORD).build();
     private final ProbationStatus probationStatus;
     private final LocalDate previouslyKnownTerminationDate;
     private final Boolean inBreach;
+    private final boolean preSentenceActivity;
 }

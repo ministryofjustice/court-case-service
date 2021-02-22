@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 
 import java.time.LocalDate;
@@ -261,5 +262,39 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     @Test(expected = OffenderNotFoundException.class)
     public void  givenOffenderDoesNotExist_whenGetCourtAppearancesCalled_thenExpectException() {
         offenderRestClient.getOffenderCourtAppearances(UNKNOWN_CRN, CONVICTION_ID).blockOptional();
+    }
+
+    @Test
+    public void whenGetProbationStatus_thenReturn() {
+        var optionalProbationStatusDetail = offenderRestClient.getProbationStatusByCrn(CRN).blockOptional();
+        assertThat(optionalProbationStatusDetail).isNotEmpty();
+
+        var probationStatusDetail = optionalProbationStatusDetail.get();
+        assertThat(probationStatusDetail.getInBreach()).isTrue();
+        assertThat(probationStatusDetail.isPreSentenceActivity()).isTrue();
+        assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.PREVIOUSLY_KNOWN);
+        assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2010, Month.APRIL, 5));
+    }
+
+    @Test
+    public void givenUnknownCrn_whenGetProbationStatus_thenReturn() {
+        var optionalProbationStatusDetail = offenderRestClient.getProbationStatusByCrn(UNKNOWN_CRN).blockOptional();
+        assertThat(optionalProbationStatusDetail).isNotEmpty();
+
+        var probationStatusDetail = optionalProbationStatusDetail.get();
+        assertThat(probationStatusDetail.getInBreach()).isNull();
+        assertThat(probationStatusDetail.isPreSentenceActivity()).isFalse();
+        assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.NO_RECORD);
+        assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isNull();
+    }
+
+    @Test(expected = ForbiddenException.class)
+    public void givenForbiddenError_whenGetProbationStatus_thenReturn() {
+        offenderRestClient.getProbationStatusByCrn("CRN403").blockOptional();
+    }
+
+    @Test(expected = WebClientResponseException.class)
+    public void givenServerError_whenGetProbationStatus_thenReturn() {
+        offenderRestClient.getProbationStatusByCrn(SERVER_ERROR_CRN).blockOptional();
     }
 }

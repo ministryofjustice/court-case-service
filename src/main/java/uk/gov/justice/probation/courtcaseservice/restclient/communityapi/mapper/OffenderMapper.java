@@ -12,6 +12,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderManager;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentence;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiStaff;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiTeam;
@@ -22,6 +23,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Offence;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderManager;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
+import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.Staff;
 import uk.gov.justice.probation.courtcaseservice.service.model.Team;
@@ -36,6 +38,16 @@ import java.util.stream.Collectors;
 
 
 public class OffenderMapper {
+
+    public static ProbationStatusDetail probationStatusDetailFrom(CommunityApiProbationStatusDetail probationStatusDetail) {
+        return ProbationStatusDetail.builder()
+            .probationStatus(ProbationStatus.valueOf(probationStatusDetail.getProbationStatus()))
+            .previouslyKnownTerminationDate(probationStatusDetail.getPreviouslyKnownTerminationDate())
+            .preSentenceActivity(probationStatusDetail.getPreSentenceActivity())
+            .inBreach(probationStatusDetail.getInBreach())
+            .build();
+    }
+
     public static ProbationRecord probationRecordFrom(CommunityApiOffenderResponse offenderResponse) {
         return ProbationRecord.builder()
                 .crn(offenderResponse.getOtherIds().getCrn())

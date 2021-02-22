@@ -14,6 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderManager;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentence;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.OtherIds;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
@@ -84,6 +85,43 @@ public class OffenderMapperTest {
         var offender = OffenderMapper.probationRecordFrom(apiOffenderResponse);
 
         assertThat(offender.getOffenderManagers()).isEmpty();
+    }
+
+    @DisplayName("Map probation status detail")
+    @Test
+    void whenMapProbationStatus_thenReturn() {
+        var date = LocalDate.of(2020, Month.FEBRUARY, 1);
+
+        var communityApiProbationStatus = CommunityApiProbationStatusDetail.builder()
+            .probationStatus("NOT_SENTENCED")
+            .preSentenceActivity(Boolean.TRUE)
+            .inBreach(Boolean.TRUE)
+            .previouslyKnownTerminationDate(date)
+            .build();
+
+        var probationStatusDetail = OffenderMapper.probationStatusDetailFrom(communityApiProbationStatus);
+
+        assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.NOT_SENTENCED);
+        assertThat(probationStatusDetail.getInBreach()).isTrue();
+        assertThat(probationStatusDetail.isPreSentenceActivity()).isTrue();
+        assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isEqualTo(date);
+    }
+
+    @DisplayName("Map probation status detail for unknown")
+    @Test
+    void givenNulls_whenMapProbationStatus_thenReturn() {
+        var communityApiProbationStatus = CommunityApiProbationStatusDetail.builder()
+            .probationStatus("NOT_SENTENCED")
+            .preSentenceActivity(Boolean.FALSE)
+            .build();
+
+        var probationStatusDetail = OffenderMapper.probationStatusDetailFrom(communityApiProbationStatus);
+
+        assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.NOT_SENTENCED);
+        assertThat(probationStatusDetail.getProbationStatus().getName()).isEqualTo("No record");
+        assertThat(probationStatusDetail.getInBreach()).isNull();
+        assertThat(probationStatusDetail.isPreSentenceActivity()).isFalse();
+        assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isNull();
     }
 
     @DisplayName("Maps community API offender manager to offender manager handling nulls")

@@ -140,7 +140,6 @@ public class OffenderService {
         return probationRecord;
     }
 
-
     public Mono<OffenderDetail> getOffenderDetail(String crn) {
         return offenderRestClient.getOffenderDetailByCrn(crn);
     }
@@ -155,6 +154,11 @@ public class OffenderService {
             .max(Comparator.comparing(Assessment::getCompleted));
     }
 
+    public Mono<ProbationStatusDetail> getProbationStatus(String crn) {
+        return offenderRestClient.getProbationStatusByCrn(crn);
+    }
+
+    @Deprecated(forRemoval = true)
     public Mono<ProbationStatusDetail> getProbationStatusDetail(String crn) {
         return Mono.zip(offenderRestClient.getConvictionsByCrn(crn), offenderRestClient.getOffenderDetailByCrn(crn))
             .map((t) -> combineProbationStatusDetail(t.getT2(), t.getT1()));
@@ -182,4 +186,6 @@ public class OffenderService {
 
         return builder.build();
     }
+
+
 }

@@ -32,6 +32,8 @@ public class OffenderRestClientFactory {
     private String nsisTemplate;
     @Value("${community-api.court-appearances-by-crn-and-nsi-url-template}")
     private String courtAppearancesTemplate;
+    @Value("${community-api.probation-status-by-crn}")
+    private String probationStatusTemplate;
 
     @Value("${community-api.nsis-filter.codes.queryParameter}")
     private String nsiCodesParam;
@@ -69,6 +71,6 @@ public class OffenderRestClientFactory {
             throw new UnableToGetTokenOnBehalfOfUserException(message);
         }
         final var restClientHelper = webClientFactory.buildCommunityRestClientHelper(clientDetails.getUsername());
-        return new OffenderRestClient(offenderUrlTemplate, offenderAllUrlTemplate, convictionsUrlTemplate, requirementsUrlTemplate, pssRequirementsUrlTemplate, licenceConditionsUrlTemplate, registrationsUrlTemplate, nsisTemplate, courtAppearancesTemplate, nsiCodesParam, nsiBreachCodes, addressCode, restClientHelper);
+        return new OffenderRestClient(offenderUrlTemplate, offenderAllUrlTemplate, convictionsUrlTemplate, requirementsUrlTemplate, pssRequirementsUrlTemplate, licenceConditionsUrlTemplate, registrationsUrlTemplate, nsisTemplate, courtAppearancesTemplate, probationStatusTemplate, nsiCodesParam, nsiBreachCodes, addressCode, restClientHelper);
     }
 }

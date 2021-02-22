@@ -6,18 +6,18 @@ PUT http://{{host}}/court/{{courtCode}}/case/{{caseNo}}
 Content-Type: application/json
 
 {
-  "lastUpdated": "2019-12-14T09:00:00",
   "caseId": "1168461",
   "caseNo": "1600028975",
   "crn": "X320744",
   "pnc": "D/1234560BC",
   "listNo": "2nd",
-  "courtCode": "B10JQ",
+  "courtCode": "SHF",
   "defendantType": "PERSON",
   "courtRoom": "1",
   "sessionStartTime": "2021-12-13T09:00:00",
   "probationStatus": "Previously known",
   "previouslyKnownTerminationDate": null,
+  "preSentenceActivity": true,
   "suspendedSentenceOrder": true,
   "breach": true,
   "offences": [

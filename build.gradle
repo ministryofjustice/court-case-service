@@ -148,7 +148,7 @@ dependencies {
     implementation 'com.vladmihalcea:hibernate-types-52:2.10.2'
 
     runtimeOnly "org.springframework.boot:spring-boot-devtools"
-    runtime 'org.postgresql:postgresql:42.2.18'
+    runtime 'org.postgresql:postgresql:42.2.19'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.24.0'

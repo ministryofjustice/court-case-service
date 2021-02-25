@@ -1,11 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +13,13 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.CourtCaseMapper;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -87,12 +88,12 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     @Override
-    public List<CourtCaseEntity> filterCasesByCourtAndDate(String courtCode, LocalDate date, LocalDateTime createdAfter) {
+    public List<CourtCaseEntity> filterCasesByCourtAndDate(String courtCode, LocalDate date, LocalDateTime createdAfter, LocalDateTime createdBefore) {
         final var court = courtRepository.findByCourtCode(courtCode)
             .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
 
         final var start = LocalDateTime.of(date, LocalTime.MIDNIGHT);
-        return courtCaseRepository.findByCourtCodeAndSessionStartTime(court.getCourtCode(), start, start.plusDays(1), createdAfter);
+        return courtCaseRepository.findByCourtCodeAndSessionStartTime(court.getCourtCode(), start, start.plusDays(1), createdAfter, createdBefore);
     }
 
     private void validateEntity(String courtCode, String caseNo, CourtCaseEntity updatedCase) {

@@ -1,17 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -33,6 +25,15 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
+import javax.validation.Valid;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Api(tags = "Court and Cases Resources")
@@ -40,6 +41,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @AllArgsConstructor
 public class CourtCaseController {
 
+    // See https://www.postgresql.org/docs/9.0/datatype-datetime.html
+    private static final int MAX_YEAR_SUPPORTED_BY_DB = 294276;
     private final CourtCaseService courtCaseService;
     private final OffenderMatchService offenderMatchService;
 
@@ -97,12 +100,18 @@ public class CourtCaseController {
             @RequestParam(value = "date")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(value = "createdAfter", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdAfter
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdAfter,
+            @RequestParam(value = "createdBefore", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdBefore
 
     ) {
-        final var createdAfter1 = Optional.ofNullable(createdAfter)
+        final var createdAfterOrDefault = Optional.ofNullable(createdAfter)
                 .orElse(LocalDateTime.of(LocalDate.EPOCH, LocalTime.MIDNIGHT));
-        List<CourtCaseEntity> courtCases = courtCaseService.filterCasesByCourtAndDate(courtCode, date, createdAfter1);
+
+        final var createdBeforeOrDefault = Optional.ofNullable(createdBefore)
+                .orElse(LocalDateTime.of(MAX_YEAR_SUPPORTED_BY_DB, 12, 31, 23, 59));
+
+        List<CourtCaseEntity> courtCases = courtCaseService.filterCasesByCourtAndDate(courtCode, date, createdAfterOrDefault, createdBeforeOrDefault);
         List<CourtCaseResponse> courtCaseResponses = courtCases.stream()
                 .sorted(Comparator.comparing(CourtCaseEntity::getCourtRoom)
                                 .thenComparing(CourtCaseEntity::getSessionStartTime)

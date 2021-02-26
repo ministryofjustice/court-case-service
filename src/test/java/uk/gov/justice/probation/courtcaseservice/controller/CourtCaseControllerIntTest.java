@@ -16,7 +16,6 @@ import java.time.format.DateTimeFormatter;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -40,7 +39,6 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
     private static final String CASE_NO = "1600028913";
     private static final String PROBATION_STATUS = "Previously known";
     private static final String NOT_FOUND_COURT_CODE = "LPL";
-    private final LocalDateTime now = LocalDateTime.now();
 
     @Test
     public void GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnAllCases() {
@@ -92,6 +90,38 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
                 .body("cases[2].caseNo", equalTo("1600028917"))
                 .body("cases[3].caseNo", equalTo("1600028915"))
                 .body("cases[4].caseNo", equalTo("1600028918"))
+        ;
+    }
+
+    @Test
+    public void GET_cases_givenCreatedBeforeFilterParam_whenGetCases_thenReturnCasesBeforeSpecifiedTime() {
+        given()
+                .auth()
+                .oauth2(getToken())
+        .when()
+                .get("/court/{courtCode}/cases?date={date}&createdBefore=2020-09-02T00:00:00", COURT_CODE, LocalDate.of(2019, 12, 14).format(DateTimeFormatter.ISO_DATE))
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .body("cases", hasSize(1))
+                .body("cases[0].caseNo", equalTo("1600028916"))
+        ;
+    }
+
+    @Test
+    public void GET_cases_givenCreatedBefore_andCreatedAfterFilterParams_whenGetCases_thenReturnCasesBetweenSpecifiedTimes() {
+
+        given()
+                .auth()
+                .oauth2(getToken())
+        .when()
+                .get("/court/{courtCode}/cases?date={date}&createdAfter=2020-09-01T16:59:59&createdBefore=2020-09-01T17:00:00",
+                        COURT_CODE, LocalDate.of(2019, 12, 14).format(DateTimeFormatter.ISO_DATE))
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .body("cases", hasSize(1))
+                .body("cases[0].caseNo", equalTo("1600028916"))
         ;
     }
 

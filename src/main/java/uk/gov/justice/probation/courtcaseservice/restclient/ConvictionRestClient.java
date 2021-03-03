@@ -51,7 +51,7 @@ public class ConvictionRestClient {
             .bodyToMono(CommunityApiAttendances.class)
             // TODO: doOnError will swallow the exception and fail later - use onErrorMap
             .doOnError(e -> log.error(String.format(ERROR_MSG_FORMAT, "sentence attendance", crn, convictionId), e))
-            .map(attendances -> AttendanceMapper.attendancesFrom(attendances));
+            .map(AttendanceMapper::attendancesFrom);
     }
 
 
@@ -94,7 +94,7 @@ public class ConvictionRestClient {
                 var code = Optional.ofNullable(custodialStatusResponse.getCustodialType()).map(KeyValue::getCode).orElse(null);
                 return Optional.ofNullable(code)
                     .map(CustodialStatus::fromString)
-                    .orElse(null);
+                    .orElse(CustodialStatus.UNKNOWN);
             })
             ;
     }

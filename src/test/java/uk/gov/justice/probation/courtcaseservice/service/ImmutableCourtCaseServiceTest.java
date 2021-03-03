@@ -45,6 +45,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 class ImmutableCourtCaseServiceTest {
 
     private static final String CASE_NO = "1600028912";
+    private static final LocalDateTime CREATED_BEFORE = LocalDateTime.of(2020, 11, 9, 12, 50);
 
     @Mock
     private CourtRepository courtRepository;
@@ -164,25 +165,39 @@ class ImmutableCourtCaseServiceTest {
         private List<CourtCaseEntity> caseList;
 
         @Test
-        void filterByDateShouldRetrieveCourtCasesFromRepository() {
+        void givenCreatedBeforeIsNull_filterByDateShouldRetrieveCourtCasesFromRepository() {
             when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             when(courtEntity.getCourtCode()).thenReturn(COURT_CODE);
             LocalDateTime startTime = LocalDateTime.of(SEARCH_DATE, LocalTime.MIDNIGHT);
             LocalDateTime endTime = startTime.plusDays(1);
-            when(courtCaseRepository.findByCourtCodeAndSessionStartTime(eq(COURT_CODE), eq(startTime), eq(endTime), eq(CREATED_AFTER)))
+            when(courtCaseRepository.findByCourtCodeAndSessionStartTime(eq(COURT_CODE), eq(startTime), eq(endTime), eq(CREATED_AFTER), eq(CREATED_BEFORE)))
                 .thenReturn(caseList);
 
-            List<CourtCaseEntity> courtCaseEntities = service.filterCasesByCourtAndDate(COURT_CODE, SEARCH_DATE, CREATED_AFTER);
+            List<CourtCaseEntity> courtCaseEntities = service.filterCasesByCourtAndDate(COURT_CODE, SEARCH_DATE, CREATED_AFTER, CREATED_BEFORE);
 
             assertThat(courtCaseEntities).isEqualTo(caseList);
         }
 
         @Test
-        void filterByDateShouldThrowNotFoundExceptionIfCourtCodeNotFound() {
+        void givenCreatedBeforeIsNotNull_filterByDateShouldRetrieveCourtCasesFromRepository() {
+            when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+            when(courtEntity.getCourtCode()).thenReturn(COURT_CODE);
+            LocalDateTime startTime = LocalDateTime.of(SEARCH_DATE, LocalTime.MIDNIGHT);
+            LocalDateTime endTime = startTime.plusDays(1);
+            when(courtCaseRepository.findByCourtCodeAndSessionStartTime(eq(COURT_CODE), eq(startTime), eq(endTime), eq(CREATED_AFTER), eq(CREATED_BEFORE)))
+                .thenReturn(caseList);
+
+            List<CourtCaseEntity> courtCaseEntities = service.filterCasesByCourtAndDate(COURT_CODE, SEARCH_DATE, CREATED_AFTER, CREATED_BEFORE);
+
+            assertThat(courtCaseEntities).isEqualTo(caseList);
+        }
+
+        @Test
+        void givenCreatedBeforeIsNull_filterByDateShouldThrowNotFoundExceptionIfCourtCodeNotFound() {
             when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.empty());
 
             var exception = catchThrowable(() ->
-                service.filterCasesByCourtAndDate(COURT_CODE, SEARCH_DATE, CREATED_AFTER));
+                service.filterCasesByCourtAndDate(COURT_CODE, SEARCH_DATE, CREATED_AFTER, null));
             assertThat(exception).isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Court " + COURT_CODE + " not found");
 

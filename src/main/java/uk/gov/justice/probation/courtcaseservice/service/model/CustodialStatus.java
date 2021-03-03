@@ -1,7 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
-import java.util.Arrays;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 public enum CustodialStatus {
@@ -14,7 +12,9 @@ public enum CustodialStatus {
     MIGRATED_DATA("-1"),
     IN_CUSTODY_RoTL("R"),
     IN_CUSTODY_IRC("I"),
-    AUTO_TERMINATED("AT");
+    AUTO_TERMINATED("AT"),
+    NOT_IN_CUSTODY("NOT_IN_CUSTODY"),
+    UNKNOWN("");
 
     private final String code;
 

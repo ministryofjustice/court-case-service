@@ -1,0 +1,16 @@
+{
+  "sentenceId": 1502924527,
+  "custodialType": {
+    "code": "XXXXX",
+    "description": "Some other code"
+  },
+  "sentence": {
+    "description": "ORA Community Order"
+  },
+  "mainOffence": {
+    "description": "Harassment, alarm or distress (Public Order Act 1986) - 12512"
+  },
+  "sentenceDate": "2020-10-07",
+  "length": 3,
+  "lengthUnit": "Months"
+}

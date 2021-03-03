@@ -108,6 +108,14 @@ public class ConvictionRestClientIntTest extends BaseIntTest {
         assertThat(response.get()).isSameAs(CustodialStatus.POST_SENTENCE_SUPERVISION);
     }
 
+    @Test
+    public void givenUnknownStatus_whenGetCustodialStatusByCrnAndConvictionId_thenReturn() {
+        final Optional<CustodialStatus> response = webTestClient.getCustodialStatus("E396405", 1502992087L).blockOptional();
+
+        assertThat(response).isPresent();
+        assertThat(response.get()).isSameAs(CustodialStatus.UNKNOWN);
+    }
+
     @Test(expected = WebClientResponseException.class)
     public void givenServiceThrowsError_whenGetCustodialStatusByCrnCalled_thenFailFastAndThrowException() {
         webTestClient.getCustodialStatus(SERVER_ERROR_CRN, SOME_CONVICTION_ID).block();

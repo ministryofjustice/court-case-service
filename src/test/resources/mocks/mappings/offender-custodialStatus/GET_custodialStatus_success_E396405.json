@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/secure/offenders/crn/E396405/convictions/1502992087/sentenceStatus",
+    "headers" : {
+      "Content-Type": {
+        "equalTo": "application/json"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "offender-currentOrderHeaderDetail/GET_currentOrderHeaderDetail_NotInCustody_E396405.json"
+  }
+}

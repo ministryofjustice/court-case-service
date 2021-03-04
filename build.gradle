@@ -187,7 +187,7 @@ dependencies {
         because 'Transitive dependency. Previous versions have a known vulnerability'
     }
 
-    implementation ('org.hibernate:hibernate-core:5.4.28.Final') {
+    implementation ('org.hibernate:hibernate-core:5.4.29.Final') {
         because 'Transitive dependency. Previous versions have a known vulnerability'
     }
 

@@ -126,6 +126,24 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
     }
 
     @Test
+    public void GET_cases_givenCreatedBefore_andCreatedAfterFilterParams_andManualUpdatesHaveBeenMadeAfterTheseTimes_whenGetCases_thenReturnManualUpdates() {
+
+        given()
+                .auth()
+                .oauth2(getToken())
+        .when()
+                .get("/court/B30NY/cases?date={date}&createdAfter=2020-09-01T16:59:59&createdBefore=2020-09-01T17:00:00",
+                        LocalDate.of(2019, 12, 14).format(DateTimeFormatter.ISO_DATE))
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .body("cases", hasSize(1))
+                .body("cases[0].caseNo", equalTo("1600028919"))
+                .body("cases[0].defendantName", equalTo("Hubert Farnsworth"))
+        ;
+    }
+
+    @Test
     public void GET_cases_shouldGetEmptyCaseListWhenNoCasesMatch() {
         given()
                 .auth()

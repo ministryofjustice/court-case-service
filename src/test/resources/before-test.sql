@@ -28,7 +28,7 @@ INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court
 '2020-10-01 18:59:59');
 
 
-INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, created_by) VALUES (5555560, 1600028919, 'B30NY', 1, '2020-12-14 12:59:59', 'No record', 'X320654', 'Hubert Farnsworth',
+INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, created_by) VALUES (5555560, 1600028919, 'B30NY', 1, '2019-12-14 12:59:59', 'No record', 'X320654', 'Hubert Farnsworth',
 '2020-10-01 16:59:59', 'TURANGALEE(prepare-a-case)');
 
 -- See CourtCaseControllerIntTest.GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnAllCases()

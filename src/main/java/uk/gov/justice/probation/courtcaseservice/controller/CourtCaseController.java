@@ -83,7 +83,10 @@ public class CourtCaseController {
     }
 
     @ApiOperation(value = "Gets case data for a court on a date. ",
-        notes = "Response is sorted by court room, session start time and by defendant surname")
+        notes = "Response is sorted by court room, session start time and by defendant surname. The createdAfter and " +
+                "createdBefore filters will not filter out updates originating from prepare-a-case, these manual updates" +
+                " are always assumed to be correct as they have been deliberately made by authorised users rather than " +
+                "automated systems.")
     @ApiResponses(
         value = {
             @ApiResponse(code = 200, message = "OK", response = CaseListResponse.class),

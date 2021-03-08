@@ -41,7 +41,7 @@ public class OffenderMapper {
 
     public static ProbationStatusDetail probationStatusDetailFrom(CommunityApiProbationStatusDetail probationStatusDetail) {
         return ProbationStatusDetail.builder()
-            .probationStatus(ProbationStatus.valueOf(probationStatusDetail.getProbationStatus()))
+            .probationStatus(ProbationStatus.valueOf(probationStatusDetail.getStatus()))
             .previouslyKnownTerminationDate(probationStatusDetail.getPreviouslyKnownTerminationDate())
             .preSentenceActivity(probationStatusDetail.getPreSentenceActivity())
             .inBreach(probationStatusDetail.getInBreach())
@@ -72,7 +72,7 @@ public class OffenderMapper {
             .build();
     }
 
-    public static uk.gov.justice.probation.courtcaseservice.service.model.OtherIds otherIdsFrom(CommunityApiOffenderResponse offenderResponse) {
+    private static uk.gov.justice.probation.courtcaseservice.service.model.OtherIds otherIdsFrom(CommunityApiOffenderResponse offenderResponse) {
         return uk.gov.justice.probation.courtcaseservice.service.model.OtherIds.builder()
                 .crn(offenderResponse.getOtherIds().getCrn())
                 .offenderId(offenderResponse.getOffenderId())

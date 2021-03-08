@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor
 public class CommunityApiProbationStatusDetail {
-    private final String probationStatus;
+    private final String status;
     private final LocalDate previouslyKnownTerminationDate;
     private final Boolean preSentenceActivity;
     private final Boolean inBreach;

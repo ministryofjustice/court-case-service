@@ -25,9 +25,10 @@ public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Lon
 
     @Query(value = "select cc.*, grouped_cases.min_created as first_created from court_case cc " +
             "inner join (select min(created) as min_created, max(created) as max_created, case_no, court_code from court_case group_cc " +
-            "where ((group_cc.created >= :createdAfter " +
-            "and group_cc.created < :createdBefore) " +
-            "or group_cc.created_by LIKE '%(prepare-a-case)')" +
+            "where (" +
+                "(group_cc.created >= :createdAfter and group_cc.created < :createdBefore) " +
+                "or (group_cc.created >= :createdBefore and group_cc.created_by LIKE '%(prepare-a-case)')" +
+            ")" +
             "and group_cc.court_code = :courtCode " +
             "group by group_cc.case_no, group_cc.court_code) grouped_cases " +
             "on cc.case_no = grouped_cases.case_no " +

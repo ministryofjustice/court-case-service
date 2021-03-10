@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
@@ -27,7 +28,7 @@ public class CourtCaseResponseMapper {
                 .courtCode(courtCaseEntity.getCourtCode())
                 .offences(mapOffencesFrom(courtCaseEntity))
                 .previouslyKnownTerminationDate(courtCaseEntity.getPreviouslyKnownTerminationDate())
-                .probationStatus(courtCaseEntity.getProbationStatus())
+                .probationStatus(ProbationStatus.of(courtCaseEntity.getProbationStatus()))
                 .sessionStartTime(courtCaseEntity.getSessionStartTime())
                 .session(courtCaseEntity.getSession())
                 .suspendedSentenceOrder(courtCaseEntity.getSuspendedSentenceOrder())

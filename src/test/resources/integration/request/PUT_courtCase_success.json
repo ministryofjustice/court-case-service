@@ -8,7 +8,7 @@
   "listNo": "1st",
   "courtRoom": "1",
   "sessionStartTime": "2019-12-14T09:00:00",
-  "probationStatus": "Previously known",
+  "probationStatus": "PREVIOUSLY_KNOWN",
   "previouslyKnownTerminationDate": "2018-06-24",
   "suspendedSentenceOrder": true,
   "breach": true,

@@ -262,7 +262,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
             ;
 
         CourtCaseEntity courtCaseEntity = courtCaseRepository.findByCourtCodeAndCaseNo("B10JQ", existingCaseNo).get();
-        assertThat(courtCaseEntity.getProbationStatus()).isEqualTo("Previously known");
+        assertThat(courtCaseEntity.getProbationStatus()).isEqualTo("PREVIOUSLY_KNOWN");
     }
 
     @Test

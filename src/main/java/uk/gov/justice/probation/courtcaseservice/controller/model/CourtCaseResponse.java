@@ -32,7 +32,7 @@ public class CourtCaseResponse {
     private final String courtRoom;
     private final LocalDateTime sessionStartTime;
     private final CourtSession session;
-    private final String probationStatus;
+    private final ProbationStatus probationStatus;
     private final LocalDate previouslyKnownTerminationDate;
     private final Boolean suspendedSentenceOrder;
     private final Boolean breach;

@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
@@ -29,7 +30,7 @@ class CourtCaseResponseMapperTest {
     private static final String CASE_NO = "CASE_NO";
     private static final String COURT_CODE = "COURT_CODE";
     private static final String COURT_ROOM = "COURT_ROOM";
-    private static final String PROBATION_STATUS = "PROBATION_STATUS";
+    private static final String PROBATION_STATUS_NOT_SENTENCED = "NOT_SENTENCED";
     private static final boolean SUSPENDED_SENTENCE_ORDER = true;
     private static final boolean BREACH = true;
     private static final boolean PRE_SENTENCE_ACTIVITY = true;
@@ -86,7 +87,7 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCaseResponse.getCourtRoom()).isEqualTo(COURT_ROOM);
         assertThat(courtCaseResponse.getPreviouslyKnownTerminationDate()).isEqualTo(PREVIOUSLY_KNOWN_TERMINATION_DATE);
-        assertThat(courtCaseResponse.getProbationStatus()).isEqualTo(PROBATION_STATUS);
+        assertThat(courtCaseResponse.getProbationStatus()).isSameAs(ProbationStatus.NOT_SENTENCED);
         assertThat(courtCaseResponse.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE_ORDER);
         assertThat(courtCaseResponse.getBreach()).isEqualTo(BREACH);
         assertThat(courtCaseResponse.getPreSentenceActivity()).isEqualTo(PRE_SENTENCE_ACTIVITY);
@@ -188,7 +189,7 @@ class CourtCaseResponseMapperTest {
             .previouslyKnownTerminationDate(PREVIOUSLY_KNOWN_TERMINATION_DATE)
             .suspendedSentenceOrder(SUSPENDED_SENTENCE_ORDER)
             .sessionStartTime(SESSION_START_TIME)
-            .probationStatus(PROBATION_STATUS)
+            .probationStatus(PROBATION_STATUS_NOT_SENTENCED)
             .nationality2(NATIONALITY_2)
             .nationality1(NATIONALITY_1)
             .listNo(LIST_NO)

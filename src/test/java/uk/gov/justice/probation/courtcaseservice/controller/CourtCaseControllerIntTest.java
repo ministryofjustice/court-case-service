@@ -37,7 +37,7 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
     CourtCaseRepository courtCaseRepository;
 
     private static final String CASE_NO = "1600028913";
-    private static final String PROBATION_STATUS = "Previously known";
+    private static final String PROBATION_STATUS = "Possible nDelius record";
     private static final String NOT_FOUND_COURT_CODE = "LPL";
 
     @Test
@@ -62,7 +62,7 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
                 .body("cases[1].offences", hasSize(2))
                 .body("cases[1].caseNo", equalTo("1600028913"))
                 .body("cases[1].preSentenceActivity", equalTo(true))
-                .body("cases[1].probationStatus", equalTo("Previously known"))
+                .body("cases[1].probationStatus", equalTo("Possible nDelius record"))
                 .body("cases[1].offences[0].sequenceNumber", equalTo(1))
                 .body("cases[1].offences[1].sequenceNumber", equalTo(2))
                 .body("cases[1].numberOfPossibleMatches", equalTo(3))
@@ -228,7 +228,7 @@ public class CourtCaseControllerIntTest extends uk.gov.justice.probation.courtca
                 .body("suspendedSentenceOrder", equalTo(true))
                 .body("breach", equalTo(true))
                 .body("preSentenceActivity", equalTo(true))
-                .body("crn", equalTo("X320741"))
+                .body("crn", equalTo(null))
                 .body("cro", equalTo("311462/13E"))
                 .body("pnc", equalTo("A/1234560BA"))
                 .body("listNo", equalTo("3rd"))

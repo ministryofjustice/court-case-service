@@ -9,7 +9,7 @@ INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Leicester', '
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Aberystwyth', 'B63AD');
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('New New York', 'B30NY');
 
-INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, defendant_name, name, defendant_address, crn, pnc, cro, list_no, defendant_dob, defendant_sex, nationality_1, nationality_2, created) VALUES (1700028913, 5555555, 1600028913, 'B10JQ', 1, '2019-12-14 09:00', 'PREVIOUSLY_KNOWN', '2010-01-01', true, true, true, 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}','{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'X320741', 'A/1234560BA', '311462/13E', '3rd', '1958-10-10', 'M', 'British', 'Polish' , now());
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, defendant_name, name, defendant_address, crn, pnc, cro, list_no, defendant_dob, defendant_sex, nationality_1, nationality_2, created) VALUES (1700028913, 5555555, 1600028913, 'B10JQ', 1, '2019-12-14 09:00', null, '2010-01-01', true, true, true, 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}','{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', null, 'A/1234560BA', '311462/13E', '3rd', '1958-10-10', 'M', 'British', 'Polish' , now());
 
 -- See CourtCaseControllerIntTest.GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnCasesForToday()
 -- These records are used to test edge cases when returning court case list for a given date (midnight to 1 second before midnight the next day)
@@ -24,18 +24,18 @@ INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court
 '2020-09-01 16:59:59');
 INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created) VALUES (5555559, 1600028917, 'B10JQ', 1,'2019-12-14 12:59:59', 'CURRENT', 'X320745', 'Mr Hideo Kojima',
 '2020-10-01 16:59:59');
-INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created) VALUES (5555559, 1600028917, 'B10JQ', 1,'2019-12-14 12:59:59', 'No record', 'X320745', 'Mr Hideo Kojima',
+INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created) VALUES (5555559, 1600028917, 'B10JQ', 1,'2019-12-14 12:59:59', 'NO_RECORD', 'X320745', 'Mr Hideo Kojima',
 '2020-10-01 18:59:59');
 
 
-INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, created_by) VALUES (5555560, 1600028919, 'B30NY', 1, '2019-12-14 12:59:59', 'No record', 'X320654', 'Hubert Farnsworth',
+INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, created_by) VALUES (5555560, 1600028919, 'B30NY', 1, '2019-12-14 12:59:59', 'NO_RECORD', 'X320654', 'Hubert Farnsworth',
 '2020-10-01 16:59:59', 'TURANGALEE(prepare-a-case)');
 
 -- See CourtCaseControllerIntTest.GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnAllCases()
 -- These records are used to test that the createdToday field returns false if a new record was created today updating an existing one
-INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created) VALUES (5555559, 1600028918, 'B10JQ', 2,'2019-12-14 13:00:00', 'No record', 'X320746', 'Mr David Bowie',
+INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created) VALUES (5555559, 1600028918, 'B10JQ', 2,'2019-12-14 13:00:00', 'NO_RECORD', 'X320746', 'Mr David Bowie',
 '2020-10-01 16:59:59');
-INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created) VALUES (5555559, 1600028918, 'B10JQ', 2,'2019-12-14 13:00:00', 'No record', 'X320746', 'Mr David Bowie',
+INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created) VALUES (5555559, 1600028918, 'B10JQ', 2,'2019-12-14 13:00:00', 'NO_RECORD', 'X320746', 'Mr David Bowie',
 now());
 
 -- See CourtCaseControllerIntTest.GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnAllCases()

@@ -87,7 +87,7 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCaseResponse.getCourtRoom()).isEqualTo(COURT_ROOM);
         assertThat(courtCaseResponse.getPreviouslyKnownTerminationDate()).isEqualTo(PREVIOUSLY_KNOWN_TERMINATION_DATE);
-        assertThat(courtCaseResponse.getProbationStatus()).isSameAs(ProbationStatus.NOT_SENTENCED);
+        assertThat(courtCaseResponse.getProbationStatus()).isSameAs(ProbationStatus.NOT_SENTENCED.getName());
         assertThat(courtCaseResponse.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE_ORDER);
         assertThat(courtCaseResponse.getBreach()).isEqualTo(BREACH);
         assertThat(courtCaseResponse.getPreSentenceActivity()).isEqualTo(PRE_SENTENCE_ACTIVITY);

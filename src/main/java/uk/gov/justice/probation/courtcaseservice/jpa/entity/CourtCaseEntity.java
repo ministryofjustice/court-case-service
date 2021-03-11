@@ -64,7 +64,7 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "SESSION_START_TIME", nullable = false)
     private final LocalDateTime sessionStartTime;
 
-    @Column(name = "PROBATION_STATUS", nullable = false)
+    @Column(name = "PROBATION_STATUS")
     private final String probationStatus;
 
     @Column(name = "PREVIOUSLY_KNOWN_TERMINATION_DATE")

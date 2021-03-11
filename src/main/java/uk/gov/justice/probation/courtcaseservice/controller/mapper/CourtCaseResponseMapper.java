@@ -16,6 +16,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
 public class CourtCaseResponseMapper {
+
     public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, GroupedOffenderMatchesEntity groupedOffenderMatches) {
         return CourtCaseResponse.builder()
                 .caseId(courtCaseEntity.getCaseId())
@@ -28,7 +29,7 @@ public class CourtCaseResponseMapper {
                 .courtCode(courtCaseEntity.getCourtCode())
                 .offences(mapOffencesFrom(courtCaseEntity))
                 .previouslyKnownTerminationDate(courtCaseEntity.getPreviouslyKnownTerminationDate())
-                .probationStatus(ProbationStatus.of(courtCaseEntity.getProbationStatus()))
+                .probationStatus(Optional.ofNullable(courtCaseEntity.getProbationStatus()).map(ProbationStatus::of).orElse(null))
                 .sessionStartTime(courtCaseEntity.getSessionStartTime())
                 .session(courtCaseEntity.getSession())
                 .suspendedSentenceOrder(courtCaseEntity.getSuspendedSentenceOrder())
@@ -76,4 +77,5 @@ public class CourtCaseResponseMapper {
                 .sequenceNumber(offenceEntity.getSequenceNumber())
                 .build();
     }
+
 }

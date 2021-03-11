@@ -33,17 +33,17 @@ class CourtCaseResponseTest {
             .numberOfPossibleMatches(3)
             .build();
 
-        assertThat(response.getProbationStatus()).isEqualTo(ProbationStatus.NOT_SENTENCED.getName());
+        assertThat(response.getProbationStatus()).isEqualTo("No record");
     }
 
     @Test
     void givenMatchedCase_whenGetProbationStatusCurrent_thenReturnName() {
         CourtCaseResponse response = CourtCaseResponse.builder()
             .crn("X340741")
-            .probationStatus(ProbationStatus.NOT_SENTENCED)
+            .probationStatus(ProbationStatus.CURRENT)
             .numberOfPossibleMatches(3)
             .build();
 
-        assertThat(response.getProbationStatus()).isEqualTo("No record");
+        assertThat(response.getProbationStatus()).isEqualTo("Current");
     }
 }

@@ -3,7 +3,9 @@ package uk.gov.justice.probation.courtcaseservice.controller.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,6 +24,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CourtCaseResponse {
+
+    private static final String POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS = "Possible nDelius record";
+
     private final String caseId;
     private final String caseNo;
     private final String crn;
@@ -48,7 +53,14 @@ public class CourtCaseResponse {
     private final String nationality2;
     private final boolean createdToday;
     private final boolean removed;
-    private final Long numberOfPossibleMatches;
+    private final long numberOfPossibleMatches;
+
+    @JsonProperty
+    public String getProbationStatus() {
+        return Optional.ofNullable(probationStatus)
+                .map(ProbationStatus::getName)
+                .orElse(crn == null && numberOfPossibleMatches >= 1 ? POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS : ProbationStatus.NO_RECORD.getName());
+    }
 }
 
 

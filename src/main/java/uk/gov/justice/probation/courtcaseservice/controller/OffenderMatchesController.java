@@ -1,11 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import java.net.URI;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +20,9 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchD
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
+import javax.validation.Valid;
+import java.net.URI;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Api(tags = "Offender Matches Resources")
@@ -33,6 +34,7 @@ public class OffenderMatchesController {
     @ApiOperation(value = "Creates a new offender-match entity associated with a case")
     @ApiResponses(
             value = {
+                    @ApiResponse(code = 200, message = "OK", response = GroupedOffenderMatchesEntity.class),
                     @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
                     @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
                     @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
@@ -50,9 +52,10 @@ public class OffenderMatchesController {
                     .build());
     }
 
-    @ApiOperation(value = "Creates a new offender-match entity associated with a case")
+    @ApiOperation(value = "Gets an existing offender-match entity associated with a case")
     @ApiResponses(
             value = {
+                    @ApiResponse(code = 200, message = "OK", response = GroupedOffenderMatchesEntity.class),
                     @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
                     @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
                     @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
@@ -68,7 +71,7 @@ public class OffenderMatchesController {
          return offenderMatchService.getGroupedMatches(courtCode, caseNo, groupId);
     }
 
-    @ApiOperation(value = "Creates a new offender-match entity associated with a case")
+    @ApiOperation(value = "Returns all possible matches found for a given case")
     @ApiResponses(
         value = {
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),

@@ -84,7 +84,6 @@ public class OffenderRestClient {
             .bodyToMono(CommunityApiProbationStatusDetail.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender probation status data for CRN '%s'", crn), e))
             .map(OffenderMapper::probationStatusDetailFrom);
-//            .onErrorReturn(OffenderNotFoundException.class, NO_RECORD_STATUS);
     }
 
     public Mono<OffenderDetail> getOffenderDetailByCrn(String crn) {

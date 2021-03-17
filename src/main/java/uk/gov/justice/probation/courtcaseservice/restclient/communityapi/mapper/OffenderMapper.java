@@ -88,7 +88,6 @@ public class OffenderMapper {
             .middleNames(Optional.ofNullable(offenderResponse.getMiddleNames()).orElse(Collections.emptyList()))
             .surname(offenderResponse.getSurname())
             .address(addressFrom(offenderResponse.getContactDetails(), addressCode))
-            .probationStatus(offenderResponse.isCurrentDisposal() ? ProbationStatus.CURRENT : ProbationStatus.PREVIOUSLY_KNOWN)
             .matchIdentifiers(Optional.ofNullable(offenderResponse.getOtherIds())
                 .map(otherIds -> MatchIdentifiers.builder().crn(otherIds.getCrn())
                                                             .cro(otherIds.getCroNumber())
@@ -100,14 +99,14 @@ public class OffenderMapper {
             .build();
     }
 
-    public static OffenderMatchDetail offenderMatchDetailFrom(OffenderMatchDetail offenderMatchDetail, Sentence sentence) {
+    public static OffenderMatchDetail offenderMatchDetailFrom(OffenderMatchDetail offenderMatchDetail, Sentence sentence, ProbationStatusDetail probationStatus) {
         OffenderMatchDetail.OffenderMatchDetailBuilder builder = OffenderMatchDetail.builder()
             .title(offenderMatchDetail.getTitle())
             .forename(offenderMatchDetail.getForename())
             .middleNames(Optional.ofNullable(offenderMatchDetail.getMiddleNames()).orElse(Collections.emptyList()))
             .surname(offenderMatchDetail.getSurname())
             .address(offenderMatchDetail.getAddress())
-            .probationStatus(offenderMatchDetail.getProbationStatus())
+            .probationStatus(ProbationStatus.of(probationStatus.getStatus()))
             .matchIdentifiers(offenderMatchDetail.getMatchIdentifiers())
             .dateOfBirth(offenderMatchDetail.getDateOfBirth());
         if (sentence != null) {

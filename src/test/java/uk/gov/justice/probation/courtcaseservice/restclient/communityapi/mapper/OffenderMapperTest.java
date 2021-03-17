@@ -376,6 +376,8 @@ public class OffenderMapperTest {
         @Test
         void shouldMapOffenderToMatchDetail() {
             OffenderMatchDetail offenderMatchDetail = OffenderMapper.offenderMatchDetailFrom(offenderResponse, "M");
+
+            assertThat(offenderMatchDetail.getProbationStatus()).isNull();
             assertOffenderMatchFields(offenderMatchDetail);
         }
 
@@ -387,7 +389,7 @@ public class OffenderMapperTest {
             OffenderMatchDetail offenderMatchDetail = OffenderMapper.offenderMatchDetailFrom(offenderResponse, "M");
 
             assertThat(offenderMatchDetail.getTitle()).isEqualTo("Mr.");
-            assertThat(offenderMatchDetail.getProbationStatus()).isSameAs(ProbationStatus.PREVIOUSLY_KNOWN);
+            assertThat(offenderMatchDetail.getProbationStatus()).isNull();
             assertThat(offenderMatchDetail.getAddress()).isNull();
             assertThat(offenderMatchDetail.getEvent()).isNull();
             assertThat(offenderMatchDetail.getMiddleNames()).hasSize(0);
@@ -395,7 +397,7 @@ public class OffenderMapperTest {
 
         @DisplayName("Test mapping of an offender match with additional fields for Event coming from the Sentence")
         @Test
-        void shouldMapOffenderToMatchDetail_WithSentenceEvent() {
+        void shouldMapOffenderToMatchDetail_WithSentenceEventAndProbationStatus() {
 
             LocalDate eventDate = LocalDate.of(2020, Month.JULY, 29);
             OffenderMatchDetail offenderMatch = OffenderMapper.offenderMatchDetailFrom(offenderResponse, "M");
@@ -406,9 +408,14 @@ public class OffenderMapperTest {
                 .startDate(eventDate)
                 .build();
 
-            OffenderMatchDetail offenderMatchDetail = OffenderMapper.offenderMatchDetailFrom(offenderMatch, sentence);
+            final var probationStatus = ProbationStatusDetail.builder()
+                    .status("CURRENT")
+                    .build();
+            OffenderMatchDetail offenderMatchDetail = OffenderMapper.offenderMatchDetailFrom(offenderMatch, sentence, probationStatus);
 
             assertOffenderMatchFields(offenderMatchDetail);
+
+            assertThat(offenderMatchDetail.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
             assertThat(offenderMatchDetail.getEvent().getLength()).isEqualTo(6);
             assertThat(offenderMatchDetail.getEvent().getLengthUnits()).isEqualTo("Months");
             assertThat(offenderMatchDetail.getEvent().getText()).isEqualTo("Sentence description");
@@ -432,8 +439,6 @@ public class OffenderMapperTest {
             assertThat(offenderMatchDetail.getAddress().getTown()).isEqualTo("Sheffield");
             assertThat(offenderMatchDetail.getAddress().getCounty()).isEqualTo("South Yorkshire");
             assertThat(offenderMatchDetail.getAddress().getPostcode()).isEqualTo("S10 2NA");
-
-            assertThat(offenderMatchDetail.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
         }
     }
 

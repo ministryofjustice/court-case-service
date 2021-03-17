@@ -202,7 +202,7 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
             .body("offenderMatchDetails[0].matchIdentifiers.crn", equalTo("X320741"))
             .body("offenderMatchDetails[0].matchIdentifiers.pnc", equalTo("2004/0712343H"))
             .body("offenderMatchDetails[0].matchIdentifiers.cro", equalTo("123456/04A"))
-            .body("offenderMatchDetails[0].probationStatus", equalTo("Current"))
+            .body("offenderMatchDetails[0].probationStatus", equalTo("Previously known"))
             .body("offenderMatchDetails[0].mostRecentEvent.text", equalTo("CJA - Indeterminate Public Prot."))
             .body("offenderMatchDetails[0].mostRecentEvent.length", equalTo(5))
             .body("offenderMatchDetails[0].mostRecentEvent.lengthUnits", equalTo("Years"))

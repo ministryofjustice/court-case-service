@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetailResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
@@ -19,6 +20,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFa
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 
 import java.time.LocalDate;
@@ -154,6 +156,7 @@ class OffenderMatchServiceTest {
         verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);
         verify(offenderRestClient).getConvictionsByCrn(crn);
         assertThat(offenderMatchDetail.getForename()).isEqualTo("Chris");
+        assertThat(offenderMatchDetail.getProbationStatus()).isEqualTo(ProbationStatus.CURRENT);
     }
 
     @Test
@@ -168,6 +171,7 @@ class OffenderMatchServiceTest {
         assertThat(offenderMatchDetail.getForename()).isEqualTo("Chris");
         verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);
         verify(offenderRestClient).getConvictionsByCrn(crn);
+        assertThat(offenderMatchDetail.getProbationStatus()).isEqualTo(ProbationStatus.CURRENT);
     }
 
     @Test
@@ -177,10 +181,12 @@ class OffenderMatchServiceTest {
         String crn = "X320741";
         when(offenderRestClient.getOffenderMatchDetailByCrn(crn)).thenReturn(Mono.justOrEmpty(matchDetail));
         when(offenderRestClient.getConvictionsByCrn(crn)).thenReturn(Mono.error( new OffenderNotFoundException(crn)));
+        when(offenderRestClient.getProbationStatusByCrn(crn)).thenReturn(Mono.just(ProbationStatusDetail.builder().status("CURRENT").build()));
 
         OffenderMatchDetail offenderMatchDetail = service.getOffenderMatchDetail("X320741");
 
         assertThat(offenderMatchDetail.getForename()).isEqualTo("Chris");
+        assertThat(offenderMatchDetail.getProbationStatus()).isEqualTo(ProbationStatus.CURRENT);
     }
 
     @Test
@@ -195,6 +201,7 @@ class OffenderMatchServiceTest {
         assertThat(offenderMatchDetail).isNull();
         verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);
         verify(offenderRestClient).getConvictionsByCrn(crn);
+        verify(offenderRestClient).getProbationStatusByCrn(crn);
     }
 
     @Test
@@ -222,6 +229,7 @@ class OffenderMatchServiceTest {
     private void mockOffenderDetailMatch(String crn, OffenderMatchDetail matchDetail, List<Conviction> convictions) {
         when(offenderRestClient.getOffenderMatchDetailByCrn(crn)).thenReturn(Mono.justOrEmpty(matchDetail));
         when(offenderRestClient.getConvictionsByCrn(crn)).thenReturn(Mono.just(convictions));
+        when(offenderRestClient.getProbationStatusByCrn(crn)).thenReturn(Mono.just(ProbationStatusDetail.builder().status("CURRENT").build()));
     }
 
     private Conviction buildConviction(boolean active, String sentenceDesc) {

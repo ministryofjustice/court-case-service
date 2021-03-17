@@ -19,6 +19,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNo
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.OffenderMatchMapper;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 
 import java.util.Collections;
@@ -88,12 +89,15 @@ public class OffenderMatchService {
         log.debug("Looking for offender detail for CRN :{}", crn);
         return Mono.zip(offenderRestClient.getOffenderMatchDetailByCrn(crn),
                         offenderRestClient.getConvictionsByCrn(crn)
-                        .onErrorResume(OffenderNotFoundException.class, e -> Mono.just(Collections.emptyList())))
-            .map(tuple -> addMostRecentEventToOffenderMatch(tuple.getT1(), tuple.getT2()))
+                            .onErrorResume(OffenderNotFoundException.class, e -> Mono.just(Collections.emptyList())),
+                        offenderRestClient.getProbationStatusByCrn(crn))
+            .map(tuple -> addMostRecentEventToOffenderMatch(tuple.getT1(), tuple.getT2(), tuple.getT3()))
             .block();
     }
 
-    OffenderMatchDetail addMostRecentEventToOffenderMatch(OffenderMatchDetail offenderMatchDetail, List<Conviction> convictions) {
+    private OffenderMatchDetail addMostRecentEventToOffenderMatch(OffenderMatchDetail offenderMatchDetail,
+                                                          List<Conviction> convictions,
+                                                          ProbationStatusDetail probationStatus) {
 
         if (offenderMatchDetail == null) {
             return null;
@@ -105,7 +109,7 @@ public class OffenderMatchService {
             .map(Conviction::getSentence)
             .orElse(getSentenceForMostRecentConviction(convictions));
 
-        return OffenderMapper.offenderMatchDetailFrom(offenderMatchDetail, sentence);
+        return OffenderMapper.offenderMatchDetailFrom(offenderMatchDetail, sentence, probationStatus);
     }
 
     Sentence getSentenceForMostRecentConviction(List<Conviction> convictions) {

@@ -22,7 +22,6 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiPssRequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRegistrationsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiRequirementsResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.CourtAppearance;
@@ -36,8 +35,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
 import java.util.Collections;
 import java.util.List;
-
-import static uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail.NO_RECORD_STATUS;
 
 @AllArgsConstructor
 @Slf4j
@@ -86,8 +83,8 @@ public class OffenderRestClient {
             .onStatus(HttpStatus::is4xxClientError, (clientResponse)-> clientHelper.handleOffenderError(crn, clientResponse))
             .bodyToMono(CommunityApiProbationStatusDetail.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender probation status data for CRN '%s'", crn), e))
-            .map(OffenderMapper::probationStatusDetailFrom)
-            .onErrorReturn(OffenderNotFoundException.class, NO_RECORD_STATUS);
+            .map(OffenderMapper::probationStatusDetailFrom);
+//            .onErrorReturn(OffenderNotFoundException.class, NO_RECORD_STATUS);
     }
 
     public Mono<OffenderDetail> getOffenderDetailByCrn(String crn) {

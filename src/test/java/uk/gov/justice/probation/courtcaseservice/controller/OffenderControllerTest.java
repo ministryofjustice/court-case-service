@@ -171,19 +171,6 @@ class OffenderControllerTest {
 
     @DisplayName("Ensures that the controller calls the service and returns the same probation status detail")
     @Test
-    public void whenGetProbationStatusDetail_thenReturnIt() {
-        var expectedDetail = ProbationStatusDetail.builder().build();
-        when(offenderService.getProbationStatusDetail(CRN)).thenReturn(Mono.just(expectedDetail));
-
-        var probationStatusDetail = controller.getProbationStatusDetail(CRN).block();
-
-        assertThat(probationStatusDetail).isSameAs(expectedDetail);
-        verify(offenderService).getProbationStatusDetail(CRN);
-        verifyNoMoreInteractions(offenderService);
-    }
-
-    @DisplayName("Ensures that the controller calls the service and returns the same probation status detail")
-    @Test
     public void whenGetProbationStatusDetailFromCommunityApi_thenReturnIt() {
         featureFlags.setFlagValue("use-community-api-for-probation-status", true);
 

@@ -164,7 +164,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
             .get("/offender/X320741/probation-status-detail")
             .then()
             .statusCode(200)
-            .body("probationStatus",  equalTo("Previously known"))
+            .body("status",  equalTo("PREVIOUSLY_KNOWN"))
             .body("inBreach",  equalTo(true))
             .body("preSentenceActivity", equalTo(true))
             .body("previouslyKnownTerminationDate", equalTo(standardDateOf(2010, 4, 5)))
@@ -194,9 +194,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
             .when()
             .get("/offender/CRNXXX/probation-status-detail")
             .then()
-            .statusCode(200)
-            .body("probationStatus",  equalTo("No record"))
-            .body("preSentenceActivity", equalTo(false))
+            .statusCode(404)
         ;
     }
 

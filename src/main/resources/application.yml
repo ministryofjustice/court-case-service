@@ -127,3 +127,7 @@ offender-service:
   assessment:
     # Comma-separated, all upper case
     included-statuses: "COMPLETE"
+
+feature:
+  flags:
+    use-community-api-for-probation-status: true

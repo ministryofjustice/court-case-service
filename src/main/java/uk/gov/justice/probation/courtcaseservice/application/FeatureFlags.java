@@ -23,10 +23,6 @@ public class FeatureFlags {
         return flags.getOrDefault("fetch-sentence-data", true);
     }
 
-    public boolean communityApiForProbationStatus() {
-        return flags.getOrDefault("use-community-api-for-probation-status", false);
-    }
-
     public void setFlagValue(final String flagName, final boolean value) {
         flags.put(flagName, value);
     }

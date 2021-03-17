@@ -272,20 +272,13 @@ public class OffenderRestClientIntTest extends BaseIntTest {
         var probationStatusDetail = optionalProbationStatusDetail.get();
         assertThat(probationStatusDetail.getInBreach()).isTrue();
         assertThat(probationStatusDetail.isPreSentenceActivity()).isTrue();
-        assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.PREVIOUSLY_KNOWN);
+        assertThat(probationStatusDetail.getStatus()).isEqualTo(ProbationStatus.PREVIOUSLY_KNOWN.name());
         assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2010, Month.APRIL, 5));
     }
 
-    @Test
-    public void givenUnknownCrn_whenGetProbationStatus_thenReturn() {
-        var optionalProbationStatusDetail = offenderRestClient.getProbationStatusByCrn(UNKNOWN_CRN).blockOptional();
-        assertThat(optionalProbationStatusDetail).isNotEmpty();
-
-        var probationStatusDetail = optionalProbationStatusDetail.get();
-        assertThat(probationStatusDetail.getInBreach()).isNull();
-        assertThat(probationStatusDetail.isPreSentenceActivity()).isFalse();
-        assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.NO_RECORD);
-        assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isNull();
+    @Test(expected = OffenderNotFoundException.class)
+    public void givenUnknownCrn_whenGetProbationStatus_thenExpectException() {
+        offenderRestClient.getProbationStatusByCrn(UNKNOWN_CRN).blockOptional();
     }
 
     @Test(expected = ForbiddenException.class)

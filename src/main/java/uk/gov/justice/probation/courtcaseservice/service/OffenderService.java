@@ -8,7 +8,6 @@ import org.springframework.web.context.annotation.RequestScope;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
@@ -26,7 +25,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Convicti
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -157,35 +155,5 @@ public class OffenderService {
     public Mono<ProbationStatusDetail> getProbationStatus(String crn) {
         return offenderRestClient.getProbationStatusByCrn(crn);
     }
-
-    @Deprecated(forRemoval = true)
-    public Mono<ProbationStatusDetail> getProbationStatusDetail(String crn) {
-        return Mono.zip(offenderRestClient.getConvictionsByCrn(crn), offenderRestClient.getOffenderDetailByCrn(crn))
-            .map((t) -> combineProbationStatusDetail(t.getT2(), t.getT1()));
-    }
-
-    ProbationStatusDetail combineProbationStatusDetail(OffenderDetail offenderDetail, List<Conviction> convictions) {
-        var builder = ProbationStatusDetail.builder().probationStatus(offenderDetail.getProbationStatus());
-
-        if (offenderDetail.getProbationStatus() == ProbationStatus.PREVIOUSLY_KNOWN) {
-            Optional.ofNullable(convictions).orElse(Collections.emptyList())
-                .stream()
-                .filter(conviction -> conviction.getSentence() != null && conviction.getSentence().getTerminationDate() != null)
-                .map(conviction -> conviction.getSentence().getTerminationDate())
-                .max(Comparator.comparing(LocalDate::toEpochDay))
-                .ifPresent(builder::previouslyKnownTerminationDate);
-        }
-
-        if (offenderDetail.getProbationStatus() == ProbationStatus.CURRENT) {
-            builder.inBreach(Optional.ofNullable(convictions)
-                                    .orElse(Collections.emptyList())
-                                    .stream()
-                                    .anyMatch(conviction -> conviction.getActive() != null && conviction.getActive()
-                                                            && conviction.getInBreach() != null && conviction.getInBreach()));
-        }
-
-        return builder.build();
-    }
-
 
 }

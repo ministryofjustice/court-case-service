@@ -72,7 +72,7 @@ executors:
     working_directory: ~/app
   builder:
     docker:
-      - image: circleci/openjdk:14-jdk-buster-browsers
+      - image: circleci/openjdk:16-jdk-buster-browsers
         environment:
           SPRING_PROFILES_ACTIVE: test
           DATABASE_USERNAME: root

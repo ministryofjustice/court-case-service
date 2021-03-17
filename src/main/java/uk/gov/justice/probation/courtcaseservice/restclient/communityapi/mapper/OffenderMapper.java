@@ -41,7 +41,7 @@ public class OffenderMapper {
 
     public static ProbationStatusDetail probationStatusDetailFrom(CommunityApiProbationStatusDetail probationStatusDetail) {
         return ProbationStatusDetail.builder()
-            .probationStatus(ProbationStatus.valueOf(probationStatusDetail.getStatus()))
+            .status(probationStatusDetail.getStatus())
             .previouslyKnownTerminationDate(probationStatusDetail.getPreviouslyKnownTerminationDate())
             .preSentenceActivity(probationStatusDetail.getPreSentenceActivity())
             .inBreach(probationStatusDetail.getInBreach())

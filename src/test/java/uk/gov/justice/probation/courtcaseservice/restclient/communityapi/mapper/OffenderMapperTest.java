@@ -20,6 +20,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.OtherIds;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
+import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.Staff;
 
@@ -151,7 +152,9 @@ public class OffenderMapperTest {
         void shouldMapOffenderDetailsToOffenderDetail() {
             offenderResponse.setDateOfBirth(null);
 
-            var offenderDetail = OffenderMapper.offenderDetailFrom(offenderResponse);
+            var offenderDetail = OffenderMapper.offenderDetailFrom(offenderResponse, ProbationStatusDetail.builder()
+                    .status("CURRENT")
+                    .build());
 
             assertThat(offenderDetail.getOtherIds().getCrn())
                 .isNotNull()

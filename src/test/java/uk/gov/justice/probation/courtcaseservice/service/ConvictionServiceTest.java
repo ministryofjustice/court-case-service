@@ -13,12 +13,11 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceRespon
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
 import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
-import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
-import uk.gov.justice.probation.courtcaseservice.service.model.OtherIds;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
@@ -41,10 +40,8 @@ class ConvictionServiceTest {
     public static final Long SOME_SENTENCE_ID = 5467L;
     public static final Long SOME_OFFENDER_ID = 789456L;
     private static final String PSS_DESC_TO_KEEP = "specified activity";
-    private static final OffenderDetail OFFENDER_DETAIL = OffenderDetail.builder()
-            .otherIds(OtherIds.builder()
-                    .offenderId(SOME_OFFENDER_ID)
-                    .build())
+    private static final CommunityApiOffenderResponse OFFENDER_DETAIL = CommunityApiOffenderResponse.builder()
+            .offenderId(SOME_OFFENDER_ID)
             .build();
     private static final String DELIUS_LINK_TEMPLATE = "http://test.url/foo/?bar=%s&baz=%s";
     private Conviction conviction;
@@ -85,7 +82,7 @@ class ConvictionServiceTest {
         when(convictionRestClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(attendancesResponse));
         when(convictionRestClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(conviction));
         when(convictionRestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
-        when(offenderRestClient.getOffenderDetailByCrn(CRN)).thenReturn(Mono.just(OFFENDER_DETAIL));
+        when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(OFFENDER_DETAIL));
 
         final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
 
@@ -105,7 +102,7 @@ class ConvictionServiceTest {
         when(convictionRestClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(attendancesResponse));
         when(convictionRestClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(conviction));
         when(convictionRestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
-        when(offenderRestClient.getOffenderDetailByCrn(CRN)).thenReturn(Mono.just(OFFENDER_DETAIL));
+        when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(OFFENDER_DETAIL));
 
         final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
 
@@ -124,7 +121,7 @@ class ConvictionServiceTest {
         when(convictionRestClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
         when(convictionRestClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(conviction));
         when(convictionRestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
-        when(offenderRestClient.getOffenderDetailByCrn(CRN)).thenReturn(Mono.just(OFFENDER_DETAIL));
+        when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(OFFENDER_DETAIL));
 
         final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
 
@@ -143,7 +140,7 @@ class ConvictionServiceTest {
         when(convictionRestClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
         when(convictionRestClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
         when(convictionRestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
-        when(offenderRestClient.getOffenderDetailByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
+        when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
 
         assertThatExceptionOfType(OffenderNotFoundException.class)
             .isThrownBy(() -> service.getSentence(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID))

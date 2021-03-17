@@ -60,10 +60,10 @@ public class OffenderMapper {
                 .build();
     }
 
-    public static OffenderDetail offenderDetailFrom(CommunityApiOffenderResponse offenderResponse) {
+    public static OffenderDetail offenderDetailFrom(CommunityApiOffenderResponse offenderResponse, ProbationStatusDetail probationStatusDetail) {
         return OffenderDetail.builder()
             .otherIds(otherIdsFrom(offenderResponse))
-            .probationStatus(offenderResponse.isCurrentDisposal() ? ProbationStatus.CURRENT : ProbationStatus.PREVIOUSLY_KNOWN)
+            .probationStatus(ProbationStatus.of(probationStatusDetail.getStatus()))
             .dateOfBirth(offenderResponse.getDateOfBirth())
             .forename(offenderResponse.getFirstName())
             .middleNames(offenderResponse.getMiddleNames())

@@ -170,28 +170,27 @@ public class OffenderRestClientIntTest extends BaseIntTest {
 
     @Test
     public void whenGetOffenderDetailByCrnCalled_thenMakeRestCallToCommunityApi() {
-        var optionalOffender = offenderRestClient.getOffenderDetailByCrn(CRN).blockOptional();
+        var optionalOffender = offenderRestClient.getOffender(CRN).blockOptional();
 
         assertThat(optionalOffender).isNotEmpty();
         var offenderDetail = optionalOffender.get();
         assertThat(offenderDetail.getTitle()).isEqualTo("Mr.");
-        assertThat(offenderDetail.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
         assertThat(offenderDetail.getDateOfBirth()).isEqualTo(LocalDate.of(2000, Month.JULY, 19));
-        assertThat(offenderDetail.getForename()).isEqualTo("Aadland");
+        assertThat(offenderDetail.getFirstName()).isEqualTo("Aadland");
         assertThat(offenderDetail.getSurname()).isEqualTo("Bertrand");
-        assertThat(offenderDetail.getOtherIds().getOffenderId()).isEqualTo(2500343964L);
+        assertThat(offenderDetail.getOffenderId()).isEqualTo(2500343964L);
         assertThat(offenderDetail.getOtherIds().getCrn()).isEqualTo("X320741");
         assertThat(offenderDetail.getMiddleNames()).containsExactlyInAnyOrder("Hope", "Felix");
     }
 
     @Test(expected = OffenderNotFoundException.class)
     public void givenOffenderDetailDoesNotExist_whenGetOffenderByCrnCalled_thenExpectException() {
-        offenderRestClient.getOffenderDetailByCrn(UNKNOWN_CRN).blockOptional();
+        offenderRestClient.getOffender(UNKNOWN_CRN).blockOptional();
     }
 
     @Test(expected = WebClientResponseException.class)
     public void givenServiceThrowsError_whenGetOffenderDetailByCrnCalled_thenFailFastAndThrowException() {
-        offenderRestClient.getOffenderDetailByCrn(SERVER_ERROR_CRN).block();
+        offenderRestClient.getOffender(SERVER_ERROR_CRN).block();
     }
 
     @Test

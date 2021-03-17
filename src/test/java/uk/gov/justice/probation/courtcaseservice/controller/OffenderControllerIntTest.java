@@ -255,7 +255,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
             .then()
             .statusCode(200)
             .body("title",  equalTo("Mr."))
-            .body("probationStatus", equalTo("Current"))
+            .body("probationStatus", equalTo("Previously known"))
             .body("dateOfBirth", equalTo("2000-07-19"))
             .body("forename", equalTo("Aadland"))
             .body("surname", equalTo("Bertrand"))

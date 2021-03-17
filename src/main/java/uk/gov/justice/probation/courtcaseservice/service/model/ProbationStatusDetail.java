@@ -17,8 +17,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatu
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProbationStatusDetail {
-    public static final ProbationStatusDetail NO_RECORD_STATUS = ProbationStatusDetail.builder().probationStatus(ProbationStatus.NO_RECORD).build();
-    private final ProbationStatus probationStatus;
+    public static final ProbationStatusDetail NO_RECORD_STATUS = ProbationStatusDetail.builder().status(ProbationStatus.NO_RECORD.name()).build();
+    private final String status;
     private final LocalDate previouslyKnownTerminationDate;
     private final Boolean inBreach;
     private final boolean preSentenceActivity;

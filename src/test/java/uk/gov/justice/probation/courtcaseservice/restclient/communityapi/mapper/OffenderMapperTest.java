@@ -109,7 +109,7 @@ public class OffenderMapperTest {
 
             var probationStatusDetail = OffenderMapper.probationStatusDetailFrom(communityApiProbationStatus);
 
-            assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.NOT_SENTENCED);
+            assertThat(probationStatusDetail.getStatus()).isEqualTo(ProbationStatus.NOT_SENTENCED.name());
             assertThat(probationStatusDetail.getInBreach()).isTrue();
             assertThat(probationStatusDetail.isPreSentenceActivity()).isTrue();
             assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isEqualTo(date);
@@ -125,8 +125,7 @@ public class OffenderMapperTest {
 
             var probationStatusDetail = OffenderMapper.probationStatusDetailFrom(communityApiProbationStatus);
 
-            assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.NOT_SENTENCED);
-            assertThat(probationStatusDetail.getProbationStatus().getName()).isEqualTo("No record");
+            assertThat(probationStatusDetail.getStatus()).isEqualTo("NOT_SENTENCED");
             assertThat(probationStatusDetail.getInBreach()).isNull();
             assertThat(probationStatusDetail.isPreSentenceActivity()).isFalse();
             assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isNull();

@@ -127,3 +127,4 @@ offender-service:
   assessment:
     # Comma-separated, all upper case
     included-statuses: "COMPLETE"
+

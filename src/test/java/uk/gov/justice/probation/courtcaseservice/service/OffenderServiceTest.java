@@ -418,86 +418,15 @@ class OffenderServiceTest {
     @DisplayName("Tests for the method getProbationStatusDetail")
     class ProbationStatusDetailTest {
 
-        private Conviction conviction;
-
         @BeforeEach
         void beforeEach() {
             when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
-            var sentence = Sentence.builder().startDate(LocalDate.now()).build();
-            this.conviction = Conviction.builder().convictionId(CONVICTION_ID).sentence(sentence).active(Boolean.TRUE).build();
             service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter, telemetryService);
-        }
-
-        @Deprecated(forRemoval = true)
-        @DisplayName("With convictions and previously known then set previously known termination date")
-        @Test
-        void givenProbationStatusAndConvictionsWithNullSentencesAndDates_whenCombine_thenReturn() {
-            var offenderDetail = OffenderDetail.builder().probationStatus(ProbationStatus.PREVIOUSLY_KNOWN).build();
-
-            var conviction1 = Conviction.builder().build();
-            var conviction2 = Conviction.builder()
-                .sentence(Sentence.builder().build())
-                .build();
-            var conviction3 = Conviction.builder()
-                .sentence(Sentence.builder()
-                    .terminationDate(LocalDate.of(2002, Month.AUGUST, 25))
-                    .build())
-                .build();
-            var conviction4 = Conviction.builder()
-                .sentence(Sentence.builder()
-                    .terminationDate(LocalDate.of(2005, Month.AUGUST, 25))
-                    .build())
-                .build();
-
-            var probationStatusDetail = service
-                .combineProbationStatusDetail(offenderDetail, List.of(conviction1, conviction2, conviction3, conviction4));
-
-            assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.PREVIOUSLY_KNOWN);
-            assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2005, Month.AUGUST, 25));
-            assertThat(probationStatusDetail.getInBreach()).isNull();
-        }
-
-        @Deprecated(forRemoval = true)
-        @DisplayName("With convictions but all with no sentences and previously known then do not set previously known termination date")
-        @Test
-        void givenProbationStatusAndConvictionWithNoSentences_whenCombine_thenReturn() {
-            var offenderDetail = OffenderDetail.builder().probationStatus(ProbationStatus.PREVIOUSLY_KNOWN).build();
-
-            var conviction1 = Conviction.builder().build();
-            var conviction2 = Conviction.builder().build();
-
-            var probationStatusDetail = service.combineProbationStatusDetail(offenderDetail, List.of(conviction1, conviction2));
-
-            assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.PREVIOUSLY_KNOWN);
-            assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isNull();
-            assertThat(probationStatusDetail.getInBreach()).isNull();
-        }
-
-        @Deprecated(forRemoval = true)
-        @DisplayName("With convictions but current is status then do not set previously known termination date but is in breach")
-        @Test
-        void givenProbationStatusCurrent_whenCombine_thenReturnNoTerminationDate() {
-            var offenderDetail = OffenderDetail.builder().probationStatus(ProbationStatus.CURRENT).build();
-
-            var firstConviction = Conviction.builder()
-                .sentence(Sentence.builder()
-                    .terminationDate(LocalDate.of(2002, Month.AUGUST, 25))
-                    .build())
-                .inBreach(Boolean.TRUE)
-                .active(Boolean.TRUE)
-                .build();
-
-            var probationStatusDetail = service
-                .combineProbationStatusDetail(offenderDetail, List.of(this.conviction, firstConviction));
-
-            assertThat(probationStatusDetail.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
-            assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isNull();
-            assertThat(probationStatusDetail.getInBreach()).isTrue();
         }
 
         @Test
         void whenGetProbationStatus_thenReturn() {
-            var probationStatus = ProbationStatusDetail.builder().probationStatus(ProbationStatus.CURRENT).build();
+            var probationStatus = ProbationStatusDetail.builder().status(ProbationStatus.CURRENT.name()).build();
             when(offenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatus));
 
             var probationStatusDetail = service.getProbationStatus(CRN).blockOptional();

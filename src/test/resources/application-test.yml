@@ -2,7 +2,6 @@ feature:
   flags:
     disable-auth: true
     fetch-sentence-data: true
-    use-community-api-for-probation-status: true
 
 database:
   schema:

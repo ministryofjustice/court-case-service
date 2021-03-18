@@ -24,7 +24,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     private static final String CRN = "X320741";
     private static final String UNKNOWN_CRN = "CRNXXX";
     private static final Long CONVICTION_ID = 2500297061L;
-    public static final String SERVER_ERROR_CRN = "X320742";
+    public static final String SERVER_ERROR_CRN = "SE12345";
 
     @Autowired
     private OffenderRestClientFactory offenderRestClientFactory;
@@ -287,6 +287,6 @@ public class OffenderRestClientIntTest extends BaseIntTest {
 
     @Test(expected = WebClientResponseException.class)
     public void givenServerError_whenGetProbationStatus_thenReturn() {
-        offenderRestClient.getProbationStatusByCrn("X320999").blockOptional();
+        offenderRestClient.getProbationStatusByCrn("SE12345").blockOptional();
     }
 }

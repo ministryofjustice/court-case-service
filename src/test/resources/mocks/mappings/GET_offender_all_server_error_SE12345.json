@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/secure/offenders/crn/X320999/probationStatus",
+    "urlPath": "/secure/offenders/crn/SE12345/all",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"

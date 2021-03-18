@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/secure/offenders/crn/X320742",
+    "urlPath": "/secure/offenders/crn/SE12345/convictions/2500297061/nsis",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"
@@ -12,7 +12,6 @@
     "status": 500,
     "headers": {
       "Content-Type": "application/json"
-    },
-    "body": "{\"message\": \"Server error\"}"
+    }
   }
 }

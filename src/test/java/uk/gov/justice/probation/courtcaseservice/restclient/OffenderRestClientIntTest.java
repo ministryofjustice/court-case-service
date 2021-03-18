@@ -287,6 +287,6 @@ public class OffenderRestClientIntTest extends BaseIntTest {
 
     @Test(expected = WebClientResponseException.class)
     public void givenServerError_whenGetProbationStatus_thenReturn() {
-        offenderRestClient.getProbationStatusByCrn(SERVER_ERROR_CRN).blockOptional();
+        offenderRestClient.getProbationStatusByCrn("X320999").blockOptional();
     }
 }

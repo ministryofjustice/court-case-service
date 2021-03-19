@@ -26,7 +26,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.CourtAppearance;
 import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
-import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
@@ -86,13 +85,12 @@ public class OffenderRestClient {
             .map(OffenderMapper::probationStatusDetailFrom);
     }
 
-    public Mono<OffenderDetail> getOffenderDetailByCrn(String crn) {
+    public Mono<CommunityApiOffenderResponse> getOffender(String crn) {
         return clientHelper.get(String.format(offenderUrlTemplate, crn))
             .retrieve()
             .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
             .bodyToMono(CommunityApiOffenderResponse.class)
-            .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender detail data for CRN '%s'", crn), e))
-            .map(OffenderMapper::offenderDetailFrom);
+            .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender detail data for CRN '%s'", crn), e));
     }
 
     public Mono<OffenderMatchDetail> getOffenderMatchDetailByCrn(String crn) {

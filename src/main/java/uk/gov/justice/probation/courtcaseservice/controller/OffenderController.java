@@ -76,6 +76,7 @@ public class OffenderController {
     @ApiOperation(value = "Gets the basic offender probation status details by CRN")
     @ApiResponses(
         value = {
+            @ApiResponse(code = 200, message = "OK", response = ProbationStatusDetail.class),
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
@@ -91,6 +92,7 @@ public class OffenderController {
     @ApiOperation(value = "Gets the offender detail by CRN")
     @ApiResponses(
         value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenderDetail.class),
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
@@ -106,6 +108,7 @@ public class OffenderController {
     @ApiOperation(value = "Gets the requirement data by CRN and conviction ID.")
     @ApiResponses(
         value = {
+            @ApiResponse(code = 200, message = "OK", response = RequirementsResponse.class),
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),

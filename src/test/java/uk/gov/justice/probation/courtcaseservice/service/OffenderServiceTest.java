@@ -13,12 +13,13 @@ import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClien
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.OtherIds;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
-import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
@@ -50,8 +51,10 @@ import static uk.gov.justice.probation.courtcaseservice.service.model.document.D
 @ExtendWith(MockitoExtension.class)
 class OffenderServiceTest {
 
-    public static final String CRN = "CRN";
-    public static final String CONVICTION_ID = "123";
+    private static final String CRN = "CRN";
+    private static final String CONVICTION_ID = "123";
+    private static final Long OFFENDER_ID = 12345L;
+    private static final String PROBATION_STATUS = "CURRENT";
 
     private final DocumentTypeFilter documentTypeFilter
         = new DocumentTypeFilter(singletonList(COURT_REPORT_DOCUMENT), singletonList("CJF"));
@@ -382,13 +385,24 @@ class OffenderServiceTest {
 
         @DisplayName("Simple get of offender detail")
         @Test
-        void whenGetOffenderDetail_thenReturnSame() {
-            var offenderDetail = OffenderDetail.builder().build();
-            when(offenderRestClient.getOffenderDetailByCrn(CRN)).thenReturn(Mono.just(offenderDetail));
+        void whenGetOffenderDetail_thenReturnDetailWithCorrectProbationStatus() {
+            final var communityApiOffenderResponse = CommunityApiOffenderResponse.builder()
+                    .offenderId(OFFENDER_ID)
+                    .otherIds(OtherIds.builder()
+                            .crn("CRN")
+                            .build())
+                    .build();
+            final var probationStatusDetail = ProbationStatusDetail.builder()
+                    .status(PROBATION_STATUS)
+                    .build();
+
+            when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
+            when(offenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
 
             var detail = service.getOffenderDetail(CRN).block();
 
-            assertThat(detail).isSameAs(offenderDetail);
+            assertThat(detail.getOtherIds().getOffenderId()).isEqualTo(OFFENDER_ID);
+            assertThat(detail.getProbationStatus()).isEqualTo(ProbationStatus.CURRENT);
         }
     }
 

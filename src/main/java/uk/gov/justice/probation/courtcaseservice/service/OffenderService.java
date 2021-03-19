@@ -12,6 +12,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClien
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
@@ -139,7 +140,8 @@ public class OffenderService {
     }
 
     public Mono<OffenderDetail> getOffenderDetail(String crn) {
-        return offenderRestClient.getOffenderDetailByCrn(crn);
+        return Mono.zip(offenderRestClient.getOffender(crn), offenderRestClient.getProbationStatusByCrn(crn))
+                .map((tuple2) -> OffenderMapper.offenderDetailFrom(tuple2.getT1(), tuple2.getT2()));
     }
 
     public Mono<List<Registration>> getOffenderRegistrations(String crn) {

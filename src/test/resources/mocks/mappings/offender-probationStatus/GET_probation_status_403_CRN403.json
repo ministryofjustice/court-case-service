@@ -1,4 +1,5 @@
 {
+  "priority": 1,
   "request": {
     "method": "GET",
     "urlPath": "/secure/offenders/crn/CRN403/probationStatus",

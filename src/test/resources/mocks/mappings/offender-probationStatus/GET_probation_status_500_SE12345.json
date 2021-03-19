@@ -2,7 +2,7 @@
   "priority": 1,
   "request": {
     "method": "GET",
-    "urlPath": "/secure/offenders/crn/CRNXXX/probationStatus",
+    "urlPath": "/secure/offenders/crn/SE12345/probationStatus",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"
@@ -10,10 +10,10 @@
     }
   },
   "response": {
-    "status": 404,
+    "status": 500,
     "headers": {
       "Content-Type": "application/json"
     },
-    "body": "{\"status\": 404, \"developerMessage\": \"Offender with CRN 'CRNXXX' not found\"}"
+    "body": "{\"message\": \"Server error\"}"
   }
 }

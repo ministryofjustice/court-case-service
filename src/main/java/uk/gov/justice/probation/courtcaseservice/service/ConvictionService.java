@@ -14,12 +14,12 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceRespon
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.CustodialStatusNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
 import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
-import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
@@ -61,7 +61,7 @@ public class ConvictionService {
                 convictionRestClient.getAttendances(crn, convictionId),
                 convictionRestClient.getConviction(crn, convictionId),
                 convictionRestClient.getCurrentOrderHeader(crn, convictionId),
-                offenderRestClient.getOffenderDetailByCrn(crn)
+                offenderRestClient.getOffender(crn)
         );
 
         var tuple4 = sentenceMono.blockOptional().orElseThrow(() -> new OffenderNotFoundException(crn));
@@ -123,13 +123,13 @@ public class ConvictionService {
             .build();
     }
 
-    private SentenceResponse combineOffenderAndConvictions(List<AttendanceResponse> attendanceResponses, Conviction conviction, CurrentOrderHeaderResponse currentOrderHeaderResponse, OffenderDetail offenderDetail) {
+    private SentenceResponse combineOffenderAndConvictions(List<AttendanceResponse> attendanceResponses, Conviction conviction, CurrentOrderHeaderResponse currentOrderHeaderResponse, CommunityApiOffenderResponse offenderDetail) {
         return SentenceResponse.builder()
                 .attendances(attendanceResponses)
                 .unpaidWork(Optional.ofNullable(conviction.getSentence()).map(Sentence::getUnpaidWork).orElse(null))
                 .currentOrderHeaderDetail(currentOrderHeaderResponse)
                 .links(SentenceLinks.builder()
-                        .deliusContactList(String.format(deliusContactListUrlTemplate, offenderDetail.getOtherIds().getOffenderId(), conviction.getConvictionId()))
+                        .deliusContactList(String.format(deliusContactListUrlTemplate, offenderDetail.getOffenderId(), conviction.getConvictionId()))
                         .build())
                 .build();
     }

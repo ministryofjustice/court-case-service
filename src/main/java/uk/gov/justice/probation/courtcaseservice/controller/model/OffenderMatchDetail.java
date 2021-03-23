@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,4 +32,10 @@ public class OffenderMatchDetail {
     @JsonProperty("mostRecentEvent")
     private final Event event;
 
+    @JsonProperty
+    public String getProbationStatusActual() {
+        return Optional.ofNullable(probationStatus)
+            .map(ProbationStatus::name)
+            .orElse(null);
+    }
 }

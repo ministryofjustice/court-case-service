@@ -61,6 +61,13 @@ public class CourtCaseResponse {
                 .map(ProbationStatus::getName)
                 .orElse(crn == null && numberOfPossibleMatches >= 1 ? POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS : ProbationStatus.NO_RECORD.getName());
     }
+
+    @JsonProperty
+    public String getProbationStatusActual() {
+        return Optional.ofNullable(probationStatus)
+            .map(ProbationStatus::name)
+            .orElse(null);
+    }
 }
 
 

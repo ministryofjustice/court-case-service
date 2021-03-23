@@ -13,6 +13,7 @@ class CourtCaseResponseTest {
             .build();
 
         assertThat(response.getProbationStatus()).isEqualTo("Possible nDelius record");
+        assertThat(response.getProbationStatusActual()).isNull();
     }
 
     @Test
@@ -23,6 +24,7 @@ class CourtCaseResponseTest {
             .build();
 
         assertThat(response.getProbationStatus()).isEqualTo("No record");
+        assertThat(response.getProbationStatusActual()).isNull();
     }
 
     @Test
@@ -34,6 +36,7 @@ class CourtCaseResponseTest {
             .build();
 
         assertThat(response.getProbationStatus()).isEqualTo("No record");
+        assertThat(response.getProbationStatusActual()).isEqualTo("NOT_SENTENCED");
     }
 
     @Test
@@ -45,5 +48,17 @@ class CourtCaseResponseTest {
             .build();
 
         assertThat(response.getProbationStatus()).isEqualTo("Current");
+        assertThat(response.getProbationStatusActual()).isEqualTo("CURRENT");
+    }
+
+    @Test
+    void givenMatchedCase_whenGetProbationStatusPreviouslyKnown_thenReturn() {
+        CourtCaseResponse response = CourtCaseResponse.builder()
+            .crn("X340741")
+            .probationStatus(ProbationStatus.PREVIOUSLY_KNOWN)
+            .build();
+
+        assertThat(response.getProbationStatus()).isEqualTo("Previously known");
+        assertThat(response.getProbationStatusActual()).isEqualTo("PREVIOUSLY_KNOWN");
     }
 }

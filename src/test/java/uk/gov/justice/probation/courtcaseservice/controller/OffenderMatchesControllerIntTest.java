@@ -203,6 +203,7 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
             .body("offenderMatchDetails[0].matchIdentifiers.pnc", equalTo("2004/0712343H"))
             .body("offenderMatchDetails[0].matchIdentifiers.cro", equalTo("123456/04A"))
             .body("offenderMatchDetails[0].probationStatus", equalTo("Previously known"))
+            .body("offenderMatchDetails[0].probationStatusActual", equalTo("PREVIOUSLY_KNOWN"))
             .body("offenderMatchDetails[0].mostRecentEvent.text", equalTo("CJA - Indeterminate Public Prot."))
             .body("offenderMatchDetails[0].mostRecentEvent.length", equalTo(5))
             .body("offenderMatchDetails[0].mostRecentEvent.lengthUnits", equalTo("Years"))
@@ -232,6 +233,7 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
             .body("offenderMatchDetails[0].address", equalTo(null))
             .body("offenderMatchDetails[0].matchIdentifiers.crn", equalTo("X980123"))
             .body("offenderMatchDetails[0].probationStatus", equalTo("Previously known"))
+            .body("offenderMatchDetails[0].probationStatusActual", equalTo("PREVIOUSLY_KNOWN"))
             .body("offenderMatchDetails[0].mostRecentEvent", equalTo(null))
         ;
     }

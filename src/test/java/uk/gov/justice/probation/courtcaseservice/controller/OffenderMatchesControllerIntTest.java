@@ -130,13 +130,13 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
             .body("courtCode", equalTo(COURT_CODE))
             .body("caseNo", equalTo("1600028913"))
             .body("offenderMatches", hasSize(2))
-            .body("offenderMatches[0].crn", equalTo("X12345"))
-            .body("offenderMatches[0].pnc", equalTo(null))
-            .body("offenderMatches[0].cro", equalTo(null))
-            .body("offenderMatches[0].matchType",  equalTo("PARTIAL_NAME"))
-            .body("offenderMatches[0].confirmed", equalTo(false))
-            .body("offenderMatches[0].rejected", equalTo(false))
-            .body("offenderMatches[1].matchType",  equalTo("NAME_DOB_ALIAS"))
+            .body("offenderMatches[1].crn", equalTo("X12345"))
+            .body("offenderMatches[1].pnc", equalTo(null))
+            .body("offenderMatches[1].cro", equalTo(null))
+            .body("offenderMatches[1].matchType",  equalTo("PARTIAL_NAME"))
+            .body("offenderMatches[1].confirmed", equalTo(false))
+            .body("offenderMatches[1].rejected", equalTo(false))
+            .body("offenderMatches[0].matchType",  equalTo("NAME_DOB_ALIAS"))
         ;
     }
 

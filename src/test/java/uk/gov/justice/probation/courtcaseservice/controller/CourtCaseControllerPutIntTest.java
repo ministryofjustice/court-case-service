@@ -1,13 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import java.nio.file.Files;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
 import org.junit.Before;
@@ -24,6 +16,15 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
+
+import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -211,9 +212,9 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
             .then()
                 .statusCode(200)
                 .body("offenderMatches", hasSize(3))
-                .body("offenderMatches[0].crn", equalTo("X320741"))
-                .body("offenderMatches[0].confirmed",  equalTo(false))
-                .body("offenderMatches[0].rejected",  equalTo(true))
+                .body("offenderMatches[2].crn", equalTo("X320741"))
+                .body("offenderMatches[2].confirmed",  equalTo(false))
+                .body("offenderMatches[2].rejected",  equalTo(true))
                 ;
 
         given()

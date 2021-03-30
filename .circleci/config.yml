@@ -290,6 +290,7 @@ workflows:
           main: true
       - image_scan
   build-test-and-deploy:
+    unless: << pipeline.parameters.only_pacts >>
     jobs:
       - app_scan:
           filters:
@@ -346,3 +347,8 @@ workflows:
           context: court-probation-prod
           requires:
             - request_prod_approval
+
+  pact:
+    jobs:
+      - pact_check_and_publish:
+          consumer_tags: << pipeline.parameters.pact_consumer_tags >>

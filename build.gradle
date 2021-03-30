@@ -127,16 +127,12 @@ task integrationTest(type: Test) {
 task pactTestAndPublish(type: Test) {
     useJUnitPlatform ()
     filter {
-        includeTestsMatching '*PactIntTest'
+        includeTestsMatching '*PactTest'
     }
-    systemProperty("pactbroker.host", System.getenv("pactbroker.host"))
-    systemProperty("PACT_BROKER_USERNAME", System.getenv("PACT_BROKER_USERNAME"))
-    systemProperty("PACT_BROKER_PASSWORD", System.getenv("PACT_BROKER_PASSWORD"))
-    systemProperty("pact.provider.tag", System.getenv("PACT_PROVIDER_TAG"))
-    systemProperty("pact.provider.version", System.getenv("PACT_PROVIDER_VERSION"))
-    systemProperty("pact.verifier.publishResults", System.getenv("PACT_PUBLISH_RESULTS"))
     systemProperties['pact.verifier.publishResults'] = true
-    systemProperties['pactbroker.host'] = "pact-broker-prod.apps.live-1.cloud-platform.service.justice.gov.uk"
+    systemProperties['pactbroker.host'] = System.getenv("PACTBROKER_HOST")
+    systemProperties['PACT_BROKER_USERNAME'] = System.getenv("PACT_BROKER_USERNAME")
+    systemProperties['PACT_BROKER_PASSWORD'] = System.getenv("PACT_BROKER_PASSWORD")
 }
 
 task unitTest(type: Test) {

@@ -53,7 +53,7 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 @Provider("Court case service")
 @PactBroker
 @Import(TestSecurity.class)
-class PrepareACaseConsumerVerificationPactIntTest extends BaseIntTest {
+class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
 
     public static final String CRN = "D991494";
     @MockBean
@@ -65,7 +65,6 @@ class PrepareACaseConsumerVerificationPactIntTest extends BaseIntTest {
     }
 
     @TestTemplate
-//    @ExtendWith(PactVerificationInvocationContextProvider.class)
     @ExtendWith(PactVerificationSpringProvider.class)
     void pactVerificationTestTemplate(PactVerificationContext context) {
         context.verifyInteraction();

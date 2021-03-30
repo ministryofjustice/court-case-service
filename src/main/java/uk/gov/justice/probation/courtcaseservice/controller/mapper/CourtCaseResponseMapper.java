@@ -19,11 +19,9 @@ public class CourtCaseResponseMapper {
 
     public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, GroupedOffenderMatchesEntity groupedOffenderMatches) {
         return CourtCaseResponse.builder()
-                .caseId(courtCaseEntity.getCaseId())
                 .caseNo(courtCaseEntity.getCaseNo())
                 .crn(courtCaseEntity.getCrn())
                 .pnc(courtCaseEntity.getPnc())
-                .cro(courtCaseEntity.getCro())
                 .listNo(courtCaseEntity.getListNo())
                 .courtRoom(courtCaseEntity.getCourtRoom())
                 .courtCode(courtCaseEntity.getCourtCode())

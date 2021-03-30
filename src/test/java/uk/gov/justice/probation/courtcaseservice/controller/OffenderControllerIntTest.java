@@ -1,12 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 
 import static io.restassured.RestAssured.given;
@@ -23,16 +20,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.DateHelper.standardDateOf;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
-public class OffenderControllerIntTest extends BaseIntTest {
+class OffenderControllerIntTest extends BaseIntTest {
 
     private static final String GET_DOCUMENT_PATH = "/offender/%s/documents/%s";
 
     private static final String KNOWN_CRN = "X320741";
 
     @Test
-    public void givenOffenderDoesNotExist_whenCallMadeToGetProbationRecord_thenReturnNotFound() {
+    void givenOffenderDoesNotExist_whenCallMadeToGetProbationRecord_thenReturnNotFound() {
         given()
             .auth()
             .oauth2(getToken())
@@ -46,7 +41,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenOffenderExclusionsApply_whenCallMadeToGetProbationRecord_thenReturn403() {
+    void givenOffenderExclusionsApply_whenCallMadeToGetProbationRecord_thenReturn403() {
         given()
             .auth()
             .oauth2(getToken())
@@ -59,7 +54,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenCallMadeToGetProbationRecord_thenReturnCorrectData() {
+    void whenCallMadeToGetProbationRecord_thenReturnCorrectData() {
         given()
             .auth()
             .oauth2(getToken())
@@ -131,7 +126,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenCallMadeToGetProbationRecordNotFiltered_thenReturnExtraDocuments() {
+    void whenCallMadeToGetProbationRecordNotFiltered_thenReturnExtraDocuments() {
         given()
             .auth()
             .oauth2(getToken())
@@ -155,7 +150,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenCallMadeToGetProbationStatusDetail_thenReturn() {
+    void whenCallMadeToGetProbationStatusDetail_thenReturn() {
         given()
             .auth()
             .oauth2(getToken())
@@ -172,7 +167,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenUserIsExcluded_whenCallMadeToGetProbationStatusDetail_thenReturn403() {
+    void givenUserIsExcluded_whenCallMadeToGetProbationStatusDetail_thenReturn403() {
         given()
             .auth()
             .oauth2(getToken())
@@ -186,7 +181,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenOffenderDoesNotExist_whenCallMadeToGetProbationStatusDetail_thenReturn() {
+    void givenOffenderDoesNotExist_whenCallMadeToGetProbationStatusDetail_thenReturn() {
         given()
             .auth()
             .oauth2(getToken())
@@ -199,7 +194,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void singleDocument_givenExistingDocumentIdThenReturn200AndHeaders() {
+    void singleDocument_givenExistingDocumentIdThenReturn200AndHeaders() {
         final byte[] bytes =
         given()
             .auth()
@@ -221,7 +216,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void singleDocument_givenUnknownDocumentIdThenReturn404() {
+    void singleDocument_givenUnknownDocumentIdThenReturn404() {
         given()
             .auth()
             .oauth2(getToken())
@@ -233,7 +228,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void singleDocument_givenServerError() {
+    void singleDocument_givenServerError() {
         given()
             .auth()
             .oauth2(getToken())
@@ -245,7 +240,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenLowerCaseCrn_whenCallMadeToGetOffenderDetail_thenReturnCorrectData() {
+    void givenLowerCaseCrn_whenCallMadeToGetOffenderDetail_thenReturnCorrectData() {
         given()
             .auth()
             .oauth2(getToken())
@@ -267,7 +262,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenUserIsExcluded_whenCallMadeToGetOffenderDetail_thenReturn403() {
+    void givenUserIsExcluded_whenCallMadeToGetOffenderDetail_thenReturn403() {
         given()
             .auth()
             .oauth2(getToken())
@@ -281,7 +276,7 @@ public class OffenderControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenOffenderDoesNotExist_whenCallMadeToGetOffenderDetail_thenReturnNotFound() {
+    void givenOffenderDoesNotExist_whenCallMadeToGetOffenderDetail_thenReturnNotFound() {
         given()
             .auth()
             .oauth2(getToken())

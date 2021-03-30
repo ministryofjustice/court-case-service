@@ -1,10 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.time.LocalDate;
+import java.time.Month;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
@@ -12,14 +12,11 @@ import uk.gov.justice.probation.courtcaseservice.restclient.exception.Conviction
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 
-import java.time.LocalDate;
-import java.time.Month;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.RequirementMapperTest.EXPECTED_RQMNT_1;
 
-@RunWith(SpringRunner.class)
-public class OffenderRestClientIntTest extends BaseIntTest {
+class OffenderRestClientIntTest extends BaseIntTest {
 
     private static final String CRN = "X320741";
     private static final String UNKNOWN_CRN = "CRNXXX";
@@ -30,13 +27,13 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     private OffenderRestClientFactory offenderRestClientFactory;
     private OffenderRestClient offenderRestClient;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void beforeEach() {
         offenderRestClient = offenderRestClientFactory.build();
     }
 
     @Test
-    public void whenGetOffenderByCrnCalled_thenMakeRestCallToCommunityApi() {
+    void whenGetOffenderByCrnCalled_thenMakeRestCallToCommunityApi() {
         var optionalOffender = offenderRestClient.getProbationRecordByCrn(CRN).blockOptional();
 
         assertThat(optionalOffender).isNotEmpty();
@@ -55,18 +52,22 @@ public class OffenderRestClientIntTest extends BaseIntTest {
         assertThat(offender.getOffenderManagers().get(0).getAllocatedDate()).isEqualTo(LocalDate.of(2019,9,30));
     }
 
-    @Test(expected = OffenderNotFoundException.class)
-    public void givenOffenderDoesNotExist_whenGetOffenderByCrnCalled_ReturnEmpty() {
-        offenderRestClient.getProbationRecordByCrn("CRNXXX").blockOptional();
-    }
-
-    @Test(expected = WebClientResponseException.class)
-    public void givenServiceThrowsError_whenGetOffenderByCrnCalled_thenFailFastAndThrowException() {
-        offenderRestClient.getProbationRecordByCrn(SERVER_ERROR_CRN).block();
+    @Test
+    void givenOffenderDoesNotExist_whenGetOffenderByCrnCalled_ReturnEmpty() {
+        assertThrows(OffenderNotFoundException.class, () ->
+            offenderRestClient.getProbationRecordByCrn("CRNXXX").blockOptional()
+        );
     }
 
     @Test
-    public void whenGetConvictionsByCrnCalled_thenMakeRestCallToCommunityApi() {
+    void givenServiceThrowsError_whenGetOffenderByCrnCalled_thenFailFastAndThrowException() {
+        assertThrows(WebClientResponseException.class, () ->
+            offenderRestClient.getProbationRecordByCrn(SERVER_ERROR_CRN).block()
+        );
+    }
+
+    @Test
+    void whenGetConvictionsByCrnCalled_thenMakeRestCallToCommunityApi() {
         var optionalConvictions = offenderRestClient.getConvictionsByCrn(CRN).blockOptional();
 
         assertThat(optionalConvictions).isNotEmpty();
@@ -74,18 +75,22 @@ public class OffenderRestClientIntTest extends BaseIntTest {
         assertThat(optionalConvictions.get()).hasSize(3);
     }
 
-    @Test(expected = OffenderNotFoundException.class)
-    public void givenOffenderDoesNotExist_whenGetConvictionsByCrnCalled_ReturnEmpty() {
-        offenderRestClient.getConvictionsByCrn(UNKNOWN_CRN).block();
-    }
-
-    @Test(expected = WebClientResponseException.class)
-    public void givenServiceThrowsError_whenGetConvictionsByCrnCalled_thenFailFastAndThrowException() {
-        offenderRestClient.getConvictionsByCrn(SERVER_ERROR_CRN).block();
+    @Test
+    void givenOffenderDoesNotExist_whenGetConvictionsByCrnCalled_ReturnEmpty() {
+        assertThrows(OffenderNotFoundException.class, () ->
+            offenderRestClient.getConvictionsByCrn(UNKNOWN_CRN).block()
+        );
     }
 
     @Test
-    public void whenGetConvictionRequirementsCalled_thenMakeRestCallToCommunityApi() {
+    void givenServiceThrowsError_whenGetConvictionsByCrnCalled_thenFailFastAndThrowException() {
+        assertThrows(WebClientResponseException.class, () ->
+            offenderRestClient.getConvictionsByCrn(SERVER_ERROR_CRN).block()
+        );
+    }
+
+    @Test
+    void whenGetConvictionRequirementsCalled_thenMakeRestCallToCommunityApi() {
        var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID).blockOptional();
 
         assertThat(optionalRequirements).isNotEmpty();
@@ -101,7 +106,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenKnownCrnUnknownConvictionId_whenGetConvictionRequirementsCalled_thenReturnEmptyRequirements() {
+    void givenKnownCrnUnknownConvictionId_whenGetConvictionRequirementsCalled_thenReturnEmptyRequirements() {
         var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, 2500297999L).blockOptional();
 
         var reqs = optionalRequirements.get();
@@ -110,7 +115,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenServiceThrowsError_whenGetConvictionRequirementsCalled_thenReturnEmptyList() {
+    void givenServiceThrowsError_whenGetConvictionRequirementsCalled_thenReturnEmptyList() {
         // This endpoint is used as a composite so we will return an empty list for a 500 error
         var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, 99999L).block();
 
@@ -118,7 +123,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenGetBreaches_thenMakeRestCallToCommunityApi() {
+    void whenGetBreaches_thenMakeRestCallToCommunityApi() {
         var optionalBreaches = offenderRestClient.getBreaches(CRN, CONVICTION_ID.toString()).blockOptional();
         assertThat(optionalBreaches).isNotEmpty();
 
@@ -133,23 +138,29 @@ public class OffenderRestClientIntTest extends BaseIntTest {
         assertThat(breach.getStarted()).isEqualTo(LocalDate.of(2019, Month.OCTOBER, 20));
     }
 
-    @Test(expected = ConvictionNotFoundException.class)
-    public void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoCRN() {
-        offenderRestClient.getBreaches("xxx", CONVICTION_ID.toString()).block();
-    }
-
-    @Test(expected = ConvictionNotFoundException.class)
-    public void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoConvictionId() {
-        offenderRestClient.getBreaches(CRN, "123").block();
-    }
-
-    @Test(expected = WebClientResponseException.class)
-    public void whenGetBreaches_thenMakeRestCallToCommunityApi_500ServerError() {
-        offenderRestClient.getBreaches(SERVER_ERROR_CRN, CONVICTION_ID.toString()).block();
+    @Test
+    void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoCRN() {
+        assertThrows(ConvictionNotFoundException.class, () ->
+            offenderRestClient.getBreaches("xxx", CONVICTION_ID.toString()).block()
+        );
     }
 
     @Test
-    public void whenGetOffenderMatchDetail_thenMakeRestCallToCommunityApi() {
+    void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoConvictionId() {
+        assertThrows(ConvictionNotFoundException.class, () ->
+           offenderRestClient.getBreaches(CRN, "123").block()
+        );
+    }
+
+    @Test
+    void whenGetBreaches_thenMakeRestCallToCommunityApi_500ServerError() {
+        assertThrows(WebClientResponseException.class, () ->
+            offenderRestClient.getBreaches(SERVER_ERROR_CRN, CONVICTION_ID.toString()).block()
+        );
+    }
+
+    @Test
+    void whenGetOffenderMatchDetail_thenMakeRestCallToCommunityApi() {
         var optionalOffenderMatchDetail = offenderRestClient.getOffenderMatchDetailByCrn(CRN).blockOptional();
         assertThat(optionalOffenderMatchDetail).isNotEmpty();
 
@@ -158,18 +169,20 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenOffenderDoesNotExist_whenGetOffenderMatchDetail_thenReturnNull() {
+    void givenOffenderDoesNotExist_whenGetOffenderMatchDetail_thenReturnNull() {
         var optionalOffenderMatchDetail = offenderRestClient.getOffenderMatchDetailByCrn(UNKNOWN_CRN).blockOptional();
         assertThat(optionalOffenderMatchDetail.get().getForename()).isNull();
     }
 
-    @Test(expected = WebClientResponseException.class)
-    public void givenServiceThrowsError_whenGetOffenderMatchDetail_thenFailFastAndThrowException() {
-        offenderRestClient.getOffenderMatchDetailByCrn(SERVER_ERROR_CRN).block();
+    @Test
+    void givenServiceThrowsError_whenGetOffenderMatchDetail_thenFailFastAndThrowException() {
+        assertThrows(WebClientResponseException.class, () ->
+            offenderRestClient.getOffenderMatchDetailByCrn(SERVER_ERROR_CRN).block()
+        );
     }
 
     @Test
-    public void whenGetOffenderDetailByCrnCalled_thenMakeRestCallToCommunityApi() {
+    void whenGetOffenderDetailByCrnCalled_thenMakeRestCallToCommunityApi() {
         var optionalOffender = offenderRestClient.getOffender(CRN).blockOptional();
 
         assertThat(optionalOffender).isNotEmpty();
@@ -183,18 +196,22 @@ public class OffenderRestClientIntTest extends BaseIntTest {
         assertThat(offenderDetail.getMiddleNames()).containsExactlyInAnyOrder("Hope", "Felix");
     }
 
-    @Test(expected = OffenderNotFoundException.class)
-    public void givenOffenderDetailDoesNotExist_whenGetOffenderByCrnCalled_thenExpectException() {
-        offenderRestClient.getOffender(UNKNOWN_CRN).blockOptional();
-    }
-
-    @Test(expected = WebClientResponseException.class)
-    public void givenServiceThrowsError_whenGetOffenderDetailByCrnCalled_thenFailFastAndThrowException() {
-        offenderRestClient.getOffender(SERVER_ERROR_CRN).block();
+    @Test
+    void givenOffenderDetailDoesNotExist_whenGetOffenderByCrnCalled_thenExpectException() {
+        assertThrows(OffenderNotFoundException.class, () ->
+            offenderRestClient.getOffender(UNKNOWN_CRN).blockOptional()
+        );
     }
 
     @Test
-    public void whenGetConvictionPssRequirementsCalled_thenReturn() {
+    void givenServiceThrowsError_whenGetOffenderDetailByCrnCalled_thenFailFastAndThrowException() {
+        assertThrows(WebClientResponseException.class, () ->
+            offenderRestClient.getOffender(SERVER_ERROR_CRN).block()
+        );
+    }
+
+    @Test
+    void whenGetConvictionPssRequirementsCalled_thenReturn() {
         var optionalRequirements = offenderRestClient.getConvictionPssRequirements(CRN, CONVICTION_ID).blockOptional();
         assertThat(optionalRequirements).isNotEmpty();
 
@@ -205,7 +222,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenServiceThrowsError_whenGetConvictionPssRequirementsCalled_thenReturnEmptyList() {
+    void givenServiceThrowsError_whenGetConvictionPssRequirementsCalled_thenReturnEmptyList() {
         // This endpoint is used as a composite so we will return an empty list for a 500 error
         var optionalRequirements = offenderRestClient.getConvictionPssRequirements(CRN, 99999L).block();
 
@@ -213,7 +230,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenGetLicenceConditionsCalled_thenReturn() {
+    void whenGetLicenceConditionsCalled_thenReturn() {
         var optionalRequirements = offenderRestClient.getConvictionLicenceConditions(CRN, CONVICTION_ID).blockOptional();
         assertThat(optionalRequirements).isNotEmpty();
 
@@ -224,7 +241,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenServiceThrowsError_whenGetLicenceConditionsCalled_thenReturnEmptyList() {
+    void givenServiceThrowsError_whenGetLicenceConditionsCalled_thenReturnEmptyList() {
         var optionalRequirements = offenderRestClient.getConvictionLicenceConditions(CRN, 99999L).blockOptional();
 
         assertThat(optionalRequirements).isNotEmpty();
@@ -232,7 +249,7 @@ public class OffenderRestClientIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenGetRegistrationsCalled_thenReturn() {
+    void whenGetRegistrationsCalled_thenReturn() {
         var optionalRegistrations = offenderRestClient.getOffenderRegistrations(CRN).blockOptional();
         assertThat(optionalRegistrations).isNotEmpty();
 
@@ -242,13 +259,15 @@ public class OffenderRestClientIntTest extends BaseIntTest {
             .contains("Suicide/Self Harm", "Domestic Abuse Perpetrator", "Medium RoSH", "Risk to Staff");
     }
 
-    @Test(expected = OffenderNotFoundException.class)
-    public void  givenOffenderDoesNotExist_whenGetRegistrationsCalled_thenExpectException() {
-        offenderRestClient.getOffenderRegistrations(UNKNOWN_CRN).blockOptional();
+    @Test
+    void  givenOffenderDoesNotExist_whenGetRegistrationsCalled_thenExpectException() {
+        assertThrows(OffenderNotFoundException.class, () ->
+            offenderRestClient.getOffenderRegistrations(UNKNOWN_CRN).blockOptional()
+        );
     }
 
     @Test
-    public void whenGetCourtAppearancesCalled_thenReturn() {
+    void whenGetCourtAppearancesCalled_thenReturn() {
         var optionalCourtAppearances = offenderRestClient.getOffenderCourtAppearances(CRN, 2500295343L).blockOptional();
         assertThat(optionalCourtAppearances).isNotEmpty();
 
@@ -258,13 +277,15 @@ public class OffenderRestClientIntTest extends BaseIntTest {
             .contains("Aberdare Magistrates Court", "Aberdare Magistrates Court", "Bicester Magistrates Court");
     }
 
-    @Test(expected = OffenderNotFoundException.class)
-    public void  givenOffenderDoesNotExist_whenGetCourtAppearancesCalled_thenExpectException() {
-        offenderRestClient.getOffenderCourtAppearances(UNKNOWN_CRN, CONVICTION_ID).blockOptional();
+    @Test
+    void  givenOffenderDoesNotExist_whenGetCourtAppearancesCalled_thenExpectException() {
+        assertThrows(OffenderNotFoundException.class, () ->
+            offenderRestClient.getOffenderCourtAppearances(UNKNOWN_CRN, CONVICTION_ID).blockOptional()
+        );
     }
 
     @Test
-    public void whenGetProbationStatus_thenReturn() {
+    void whenGetProbationStatus_thenReturn() {
         var optionalProbationStatusDetail = offenderRestClient.getProbationStatusByCrn(CRN).blockOptional();
         assertThat(optionalProbationStatusDetail).isNotEmpty();
 
@@ -275,18 +296,24 @@ public class OffenderRestClientIntTest extends BaseIntTest {
         assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2010, Month.APRIL, 5));
     }
 
-    @Test(expected = OffenderNotFoundException.class)
-    public void givenUnknownCrn_whenGetProbationStatus_thenExpectException() {
-        offenderRestClient.getProbationStatusByCrn(UNKNOWN_CRN).blockOptional();
+    @Test
+    void givenUnknownCrn_whenGetProbationStatus_thenExpectException() {
+        assertThrows(OffenderNotFoundException.class, () ->
+            offenderRestClient.getProbationStatusByCrn(UNKNOWN_CRN).blockOptional()
+        );
     }
 
-    @Test(expected = ForbiddenException.class)
-    public void givenForbiddenError_whenGetProbationStatus_thenReturn() {
-        offenderRestClient.getProbationStatusByCrn("CRN403").blockOptional();
+    @Test
+    void givenForbiddenError_whenGetProbationStatus_thenReturn() {
+        assertThrows(ForbiddenException.class, () ->
+            offenderRestClient.getProbationStatusByCrn("CRN403").blockOptional()
+        );
     }
 
-    @Test(expected = WebClientResponseException.class)
-    public void givenServerError_whenGetProbationStatus_thenReturn() {
-        offenderRestClient.getProbationStatusByCrn("SE12345").blockOptional();
+    @Test
+    void givenServerError_whenGetProbationStatus_thenReturn() {
+        assertThrows(WebClientResponseException.class, () ->
+            offenderRestClient.getProbationStatusByCrn("SE12345").blockOptional()
+        );
     }
 }

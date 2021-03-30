@@ -1,12 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 
 import static io.restassured.RestAssured.given;
@@ -16,14 +13,12 @@ import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRes
 import static uk.gov.justice.probation.courtcaseservice.testUtil.DateHelper.standardDateOf;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
-public class OffenderController_RegistrationIntTest extends BaseIntTest {
+class OffenderController_RegistrationIntTest extends BaseIntTest {
 
     private static final String PATH = "/offender/%s/registrations";
 
     @Test
-    public void whenGetRegistrations_thenReturn() {
+    void whenGetRegistrations_thenReturn() {
 
         given()
             .auth()
@@ -47,7 +42,7 @@ public class OffenderController_RegistrationIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenUnknownCrn_whenGetRegistrations_thenReturn404() {
+    void givenUnknownCrn_whenGetRegistrations_thenReturn404() {
 
         final String getPath = String.format(PATH, "CRNXXX");
         given()

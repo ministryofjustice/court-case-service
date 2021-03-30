@@ -1,19 +1,16 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
-public class PingControllerIntTest extends BaseIntTest {
+class PingControllerIntTest extends BaseIntTest {
 
     @Test
-    public void pingEndpoint() {
+    void pingEndpoint() {
 
         String response = given()
                 .when()

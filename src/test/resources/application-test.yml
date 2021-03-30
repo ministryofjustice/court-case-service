@@ -27,3 +27,9 @@ spring:
 
 delius:
   base-url: https://ndelius.test.probation.service.justice.gov.uk
+
+pactbroker:
+  host: pact-broker-prod.apps.live-1.cloud-platform.service.justice.gov.uk
+  scheme: https
+  consumerversionselectors:
+    tags: main

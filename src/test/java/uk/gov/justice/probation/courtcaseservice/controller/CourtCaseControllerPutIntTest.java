@@ -10,16 +10,14 @@ import java.util.List;
 import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
@@ -43,10 +41,9 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aCourtCaseEntity;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
-@RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
-public class CourtCaseControllerPutIntTest extends BaseIntTest {
+class CourtCaseControllerPutIntTest extends BaseIntTest {
 
     /* before-test.sql sets up a court case in the database */
 
@@ -72,14 +69,14 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     private static final String JSON_CASE_NO = "1700028914";
     private static final String JSON_CASE_ID = "654321";
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    void beforeEach() throws Exception {
         caseDetailsJson = Files.readString(caseDetailsResource.getFile().toPath());
         super.setup();
     }
 
     @Test
-    public void whenCreateCaseDataByCourtAndCaseNo_ThenCreateNewRecord() {
+    void whenCreateCaseDataByCourtAndCaseNo_ThenCreateNewRecord() {
 
         given()
             .auth()
@@ -91,7 +88,6 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
             .put(String.format("/court/%s/case/%s", COURT_CODE, JSON_CASE_NO))
         .then()
             .statusCode(201)
-            .body("caseId", equalTo(JSON_CASE_ID))
             .body("caseNo", equalTo(JSON_CASE_NO))
             .body("crn", equalTo(CRN))
             .body("courtCode", equalTo(COURT_CODE))
@@ -127,7 +123,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenUpdateCaseDataByCourtAndCaseNo_ThenUpdate() {
+    void whenUpdateCaseDataByCourtAndCaseNo_ThenUpdate() {
 
         createCase();
 
@@ -143,7 +139,6 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
             .put(String.format("/court/%s/case/%s", COURT_CODE, JSON_CASE_NO))
         .then()
             .statusCode(201)
-            .body("caseId", equalTo(JSON_CASE_ID))
             .body("caseNo", equalTo(JSON_CASE_NO))
             .body("courtCode", equalTo(COURT_CODE))
             .body("crn", equalTo(CRN))
@@ -177,7 +172,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenUpdateCaseDataByCourtAndCaseNo_ThenUpdateOffenderMatchesConfirmedRejectedFlags() {
+    void whenUpdateCaseDataByCourtAndCaseNo_ThenUpdateOffenderMatchesConfirmedRejectedFlags() {
 
         String updatedJson = caseDetailsJson
                 .replace("\"caseNo\": \"1700028914\"", "\"caseNo\": \"1600028913\"")
@@ -199,7 +194,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .body("caseNo", equalTo("1600028913"))
                 .body("crn", equalTo("2234"))
                 .body("pnc", equalTo("223456"))
-                .body("cro", equalTo("22345"));
+        ;
 
         given()
                 .auth()
@@ -232,7 +227,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenUpdateCaseDataByCourtAndCaseNo_ThenUpdateProbationStatusOnCurrentCasesWithSameCrn() {
+    void whenUpdateCaseDataByCourtAndCaseNo_ThenUpdateProbationStatusOnCurrentCasesWithSameCrn() {
 
         var existingCaseNo = "15000";
         var newCaseNo = "15005";
@@ -266,7 +261,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenNullCrn_whenUpdateCaseDataByCourtAndCaseNo_ThenDoNotUpdateOtherStatuses() {
+    void givenNullCrn_whenUpdateCaseDataByCourtAndCaseNo_ThenDoNotUpdateOtherStatuses() {
 
         var newCaseNo = "15005";
         var updatedJson = caseDetailsJson
@@ -292,7 +287,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenCreateCourtCaseByCourtAndCaseWithUnknownCourt_ThenRaise404() {
+    void whenCreateCourtCaseByCourtAndCaseWithUnknownCourt_ThenRaise404() {
 
         CourtCaseEntity courtCaseEntity = createCaseDetails(NOT_FOUND_COURT_CODE);
 
@@ -316,7 +311,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenCreateCourtCaseByCourtAndCaseWithMismatchCourt_ThenRaise400() {
+    void whenCreateCourtCaseByCourtAndCaseWithMismatchCourt_ThenRaise400() {
 
         CourtCaseEntity courtCaseEntity = createCaseDetails(COURT_CODE);
 
@@ -336,7 +331,7 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenUnknownCourtCode_whenPurgeCases_ThenReturn404() {
+    void givenUnknownCourtCode_whenPurgeCases_ThenReturn404() {
 
         Map<LocalDate, List<Long>> existingCases = new HashMap<>(2);
         existingCases.put(LocalDate.now(), Arrays.asList(1L, 4L));
@@ -370,7 +365,6 @@ public class CourtCaseControllerPutIntTest extends BaseIntTest {
             .put(String.format("/court/%s/case/%s", COURT_CODE, JSON_CASE_NO))
             .then()
             .statusCode(201)
-            .body("caseId", equalTo(JSON_CASE_ID))
             .body("caseNo", equalTo(JSON_CASE_NO))
             .body("crn", equalTo(CRN))
             .body("courtCode", equalTo(COURT_CODE))

@@ -8,6 +8,7 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.38.0'
     id "org.flywaydb.flyway" version "7.7.1"
     id 'jacoco'
+    id "au.com.dius.pact" version "4.1.0"
 }
 
 repositories {
@@ -72,28 +73,28 @@ springBoot {
     }
 }
 
-//pact {
-//    serviceProviders {
-//        'Court case service' { // Define the name of your provider here
-//            fromPactBroker {
+pact {
+    serviceProviders {
+        'Court case service' { // Define the name of your provider here
+            fromPactBroker {
 //                selectors = latestTags('main') // specify your tags here. You can leave this out to just use the latest pacts
-//            }
-//
-//        }
-//    }
-//
-//    broker {
-//        pactBrokerUrl = System.getenv('PACT_BROKER_URL')
-//
-//        // To use basic auth
-//        pactBrokerUsername = System.getenv('PACT_BROKER_USERNAME')
-//        pactBrokerPassword = System.getenv('PACT_BROKER_PASSWORD')
-//    }
-//
-//    publish {
-//        pactBrokerUrl = System.getenv('PACT_BROKER_URL')
-//    }
-//}
+            }
+
+        }
+    }
+
+    broker {
+        pactBrokerUrl = System.getenv('PACT_BROKER_URL')
+
+        // To use basic auth
+        pactBrokerUsername = System.getenv('PACT_BROKER_USERNAME')
+        pactBrokerPassword = System.getenv('PACT_BROKER_PASSWORD')
+    }
+
+    publish {
+        pactBrokerUrl = System.getenv('PACT_BROKER_URL')
+    }
+}
 
 test {
     useJUnitPlatform ()
@@ -129,10 +130,17 @@ task pactTestAndPublish(type: Test) {
     filter {
         includeTestsMatching '*PactTest'
     }
-    systemProperties['pact.verifier.publishResults'] = true
-    systemProperties['pactbroker.host'] = System.getenv("PACTBROKER_HOST")
-    systemProperties['PACT_BROKER_USERNAME'] = System.getenv("PACT_BROKER_USERNAME")
-    systemProperties['PACT_BROKER_PASSWORD'] = System.getenv("PACT_BROKER_PASSWORD")
+//    systemProperties['pact.verifier.publishResults'] = true
+//    systemProperties['pactbroker.host'] = System.getenv("PACTBROKER_HOST")
+//    systemProperties['PACT_BROKER_USERNAME'] = System.getenv("PACT_BROKER_USERNAME")
+//    systemProperties['PACT_BROKER_PASSWORD'] = System.getenv("PACT_BROKER_PASSWORD")
+
+    systemProperty("pact.provider.tag", System.getenv("PACT_PROVIDER_TAG"))
+    systemProperty("pact.provider.version", System.getenv("PACT_PROVIDER_VERSION"))
+    systemProperty("pact.verifier.publishResults", true)
+    systemProperty("pactbroker.host",  System.getenv("PACTBROKER_HOST"))
+    systemProperty("PACT_BROKER_USERNAME",  System.getenv("PACT_BROKER_USERNAME"))
+    systemProperty("PACT_BROKER_PASSWORD",  System.getenv("PACT_BROKER_PASSWORD"))
 }
 
 task unitTest(type: Test) {

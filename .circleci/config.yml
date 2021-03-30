@@ -96,6 +96,7 @@ executors:
     working_directory: ~/app
 
 orbs:
+  hmpps: ministryofjustice/hmpps@2.3.2
   aws-cli: circleci/aws-cli@0.1.13
   dps: ministryofjustice/dps@1.2.1
   kubernetes: circleci/kubernetes@0.3.0
@@ -191,7 +192,7 @@ jobs:
     environment:
       PACTBROKER_HOST: "pact-broker-prod.apps.live-1.cloud-platform.service.justice.gov.uk"
       PACTBROKER_AUTH_USERNAME: "interventions"
-    executor: builder
+    executor: hmpps/java
     steps:
       - checkout
       - restore_cache:
@@ -204,7 +205,7 @@ jobs:
               PACT_PROVIDER_TAG="$CIRCLE_BRANCH" \
               PACTBROKER_CONSUMERVERSIONSELECTORS_TAGS="main" \
               PACT_PUBLISH_RESULTS="true" \
-              ./gradlew pactTestPublish
+              ./gradlew check
       - save_cache:
           paths:
             - ~/.gradle

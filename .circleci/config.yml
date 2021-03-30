@@ -192,7 +192,7 @@ jobs:
     environment:
       PACTBROKER_HOST: "pact-broker-prod.apps.live-1.cloud-platform.service.justice.gov.uk"
       PACTBROKER_AUTH_USERNAME: "interventions"
-    executor: hmpps/java
+    executor: builder
     steps:
       - checkout
       - restore_cache:
@@ -205,7 +205,7 @@ jobs:
               PACT_PROVIDER_TAG="$CIRCLE_BRANCH" \
               PACTBROKER_CONSUMERVERSIONSELECTORS_TAGS="main" \
               PACT_PUBLISH_RESULTS="true" \
-              ./gradlew check
+              ./gradlew pactTestAndPublish
       - save_cache:
           paths:
             - ~/.gradle

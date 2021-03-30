@@ -13,6 +13,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -24,6 +25,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -37,7 +39,7 @@ import java.util.Objects;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @SQLDelete(sql = "UPDATE COURT_CASE SET deleted = true WHERE ID = ? AND VERSION = ?")
 @SuperBuilder
-@ToString
+@ToString(doNotUseGetters = true)
 @Getter
 @Table(name = "COURT_CASE")
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
@@ -127,6 +129,14 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
 
     @Column(name = "first_created", insertable = false, updatable = false)
     private final LocalDateTime firstCreated;
+
+    @Column(name = "manual_update", nullable = false, updatable = false)
+    private boolean manualUpdate;
+
+    @PrePersist
+    public void isManualUpdate(){
+        manualUpdate = "prepare-a-case-for-court".equals(new ClientDetails().getClientId());
+    }
 
     public CourtSession getSession() {
         return CourtSession.from(sessionStartTime);

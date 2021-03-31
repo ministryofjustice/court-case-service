@@ -8,7 +8,6 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.38.0'
     id "org.flywaydb.flyway" version "7.7.1"
     id 'jacoco'
-    id "au.com.dius.pact" version "4.1.0"
 }
 
 repositories {
@@ -73,28 +72,28 @@ springBoot {
     }
 }
 
-pact {
-    serviceProviders {
-        'Court case service' { // Define the name of your provider here
-            fromPactBroker {
-//                selectors = latestTags('main') // specify your tags here. You can leave this out to just use the latest pacts
-            }
-
-        }
-    }
-
-    broker {
-        pactBrokerUrl = System.getenv('PACT_BROKER_URL')
-
-        // To use basic auth
-        pactBrokerUsername = System.getenv('PACT_BROKER_USERNAME')
-        pactBrokerPassword = System.getenv('PACT_BROKER_PASSWORD')
-    }
-
-    publish {
-        pactBrokerUrl = System.getenv('PACT_BROKER_URL')
-    }
-}
+//pact {
+//    serviceProviders {
+//        'Court case service' { // Define the name of your provider here
+//            fromPactBroker {
+////                selectors = latestTags('main') // specify your tags here. You can leave this out to just use the latest pacts
+//            }
+//
+//        }
+//    }
+//
+//    broker {
+//        pactBrokerUrl = System.getenv('PACT_BROKER_URL')
+//
+//        // To use basic auth
+//        pactBrokerUsername = System.getenv('PACT_BROKER_USERNAME')
+//        pactBrokerPassword = System.getenv('PACT_BROKER_PASSWORD')
+//    }
+//
+//    publish {
+//        pactBrokerUrl = System.getenv('PACT_BROKER_URL')
+//    }
+//}
 
 test {
     useJUnitPlatform ()
@@ -128,19 +127,30 @@ task integrationTest(type: Test) {
 task pactTestAndPublish(type: Test) {
     useJUnitPlatform ()
     filter {
+        excludeTestsMatching '*IntTest'
         includeTestsMatching '*PactTest'
     }
-//    systemProperties['pact.verifier.publishResults'] = true
-//    systemProperties['pactbroker.host'] = System.getenv("PACTBROKER_HOST")
-//    systemProperties['PACT_BROKER_USERNAME'] = System.getenv("PACT_BROKER_USERNAME")
-//    systemProperties['PACT_BROKER_PASSWORD'] = System.getenv("PACT_BROKER_PASSWORD")
 
     systemProperty("pact.provider.tag", System.getenv("PACT_PROVIDER_TAG"))
     systemProperty("pact.provider.version", System.getenv("PACT_PROVIDER_VERSION"))
     systemProperty("pact.verifier.publishResults", true)
     systemProperty("pactbroker.host",  System.getenv("PACTBROKER_HOST"))
-    systemProperty("PACT_BROKER_USERNAME",  System.getenv("PACT_BROKER_USERNAME"))
-    systemProperty("PACT_BROKER_PASSWORD",  System.getenv("PACT_BROKER_PASSWORD"))
+//    systemProperty("PACT_BROKER_USERNAME",  System.getenv("PACT_BROKER_USERNAME"))
+//    systemProperty("PACT_BROKER_PASSWORD",  System.getenv("PACT_BROKER_PASSWORD"))
+
+    testLogging {
+        events "started", "passed", "skipped", "failed", "standardError"
+        exceptionFormat "short"
+        showStackTraces = true
+        showExceptions = true
+        showCauses = true
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                println "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+            }
+        }
+    }
 }
 
 task unitTest(type: Test) {
@@ -173,14 +183,13 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-webflux'
     compile 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 
-    implementation 'au.com.dius.pact.provider:gradle:4.1.0'
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.boot:spring-boot-starter-validation"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation 'org.springframework.security:spring-security-oauth2-client'
-    implementation 'org.flywaydb:flyway-core'
+    runtimeOnly 'org.flywaydb:flyway-core'
     implementation "io.springfox:springfox-swagger2:$swaggerVersion"
     implementation "io.springfox:springfox-swagger-ui:$swaggerVersion"
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
@@ -214,7 +223,7 @@ dependencies {
 
     testRuntimeOnly "org.eclipse.jetty:jetty-webapp:11.0.1"
     testCompile("org.springframework.retry:spring-retry:1.3.1")
-    testImplementation("au.com.dius.pact.provider:junit5spring:4.2.2")
+    testImplementation("au.com.dius.pact.provider:junit5spring:4.2.0")
     testImplementation("au.com.dius:pact-jvm-provider-junit5:4.0.10") {
         exclude group: 'junit', module: 'junit'
     }

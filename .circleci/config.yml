@@ -192,10 +192,6 @@ jobs:
     executor: builder
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - gradle-{{ checksum "build.gradle" }}
-            - gradle-
       - run:
           command: |
             PACT_PROVIDER_VERSION="$CIRCLE_SHA1" \
@@ -203,10 +199,6 @@ jobs:
               PACTBROKER_CONSUMERVERSIONSELECTORS_TAGS="<< parameters.consumer_tags >>" \
               PACT_PUBLISH_RESULTS="true" \
               ./gradlew pactTestPublish
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: gradle-{{ checksum "build.gradle" }}
       - store_test_results:
           path: build/test-results
       - store_artifacts:

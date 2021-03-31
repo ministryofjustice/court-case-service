@@ -8,23 +8,16 @@ import java.util.List;
 import au.com.dius.pact.provider.junit.Provider;
 import au.com.dius.pact.provider.junit.State;
 import au.com.dius.pact.provider.junit.loader.PactBroker;
-import au.com.dius.pact.provider.junit.loader.PactBrokerAuth;
 import au.com.dius.pact.provider.junit5.HttpTestTarget;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
-import au.com.dius.pact.provider.junit5.PactVerificationInvocationContextProvider;
 import au.com.dius.pact.provider.spring.junit5.PactVerificationSpringProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
@@ -46,30 +39,18 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Team;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.ReportDocumentDates;
-import uk.gov.justice.probation.courtcaseservice.wiremock.WiremockExtension;
-import uk.gov.justice.probation.courtcaseservice.wiremock.WiremockMockServer;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
-import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 @Provider("Court case service")
 @PactBroker
 @Import(TestSecurity.class)
-class PrepareACaseConsumerVerificationPactTest {
+class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
 
-    private static final WiremockMockServer MOCK_SERVER = new WiremockMockServer(WIREMOCK_PORT);
-
-    @RegisterExtension
-    static WiremockExtension wiremockExtension = new WiremockExtension(MOCK_SERVER);
-
-    @LocalServerPort
-    protected int port;
 
     public static final String CRN = "D991494";
     @MockBean

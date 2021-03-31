@@ -72,29 +72,6 @@ springBoot {
     }
 }
 
-//pact {
-//    serviceProviders {
-//        'Court case service' { // Define the name of your provider here
-//            fromPactBroker {
-////                selectors = latestTags('main') // specify your tags here. You can leave this out to just use the latest pacts
-//            }
-//
-//        }
-//    }
-//
-//    broker {
-//        pactBrokerUrl = System.getenv('PACT_BROKER_URL')
-//
-//        // To use basic auth
-//        pactBrokerUsername = System.getenv('PACT_BROKER_USERNAME')
-//        pactBrokerPassword = System.getenv('PACT_BROKER_PASSWORD')
-//    }
-//
-//    publish {
-//        pactBrokerUrl = System.getenv('PACT_BROKER_URL')
-//    }
-//}
-
 test {
     useJUnitPlatform ()
     filter {
@@ -124,7 +101,7 @@ task integrationTest(type: Test) {
     }
 }
 
-task pactTestAndPublish(type: Test) {
+task pactTestPublish(type: Test) {
     useJUnitPlatform ()
     filter {
         excludeTestsMatching '*IntTest'
@@ -135,8 +112,6 @@ task pactTestAndPublish(type: Test) {
     systemProperty("pact.provider.version", System.getenv("PACT_PROVIDER_VERSION"))
     systemProperty("pact.verifier.publishResults", true)
     systemProperty("pactbroker.host",  System.getenv("PACTBROKER_HOST"))
-//    systemProperty("PACT_BROKER_USERNAME",  System.getenv("PACT_BROKER_USERNAME"))
-//    systemProperty("PACT_BROKER_PASSWORD",  System.getenv("PACT_BROKER_PASSWORD"))
 
     testLogging {
         events "started", "passed", "skipped", "failed", "standardError"

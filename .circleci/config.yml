@@ -96,7 +96,6 @@ executors:
     working_directory: ~/app
 
 orbs:
-  hmpps: ministryofjustice/hmpps@2.3.2
   aws-cli: circleci/aws-cli@0.1.13
   dps: ministryofjustice/dps@1.2.1
   kubernetes: circleci/kubernetes@0.3.0

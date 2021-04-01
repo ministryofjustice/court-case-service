@@ -143,12 +143,6 @@ task wipTest(type: Test) {
     }
 }
 
-task smokeTest(type: Test) {
-    filter {
-        includeTestsMatching '*SmokeTest'
-    }
-}
-
 dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'

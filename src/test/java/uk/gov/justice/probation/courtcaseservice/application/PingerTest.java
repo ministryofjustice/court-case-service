@@ -45,7 +45,6 @@ class PingerTest extends BaseIntTest {
         assertThat(health.getDetails().get("httpStatus")).isEqualTo("500 INTERNAL_SERVER_ERROR");
     }
 
-    @Disabled
     @Test
     void whenError_thenDown() {
         Pinger pinger = new Pinger("/ping");

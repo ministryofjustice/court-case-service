@@ -197,8 +197,6 @@ jobs:
           keys:
             - gradle-{{ checksum "build.gradle" }}
             - gradle-
-      - mem/recall:
-          env_var: APP_VERSION
       - run:
           command: |
             PACT_PROVIDER_VERSION="$APP_VERSION" \
@@ -311,6 +309,10 @@ workflows:
           name: helm_lint_dev
           env: dev
           chart_name: court-case-service
+      - pact_check_and_publish:
+          consumer_tags: << pipeline.parameters.pact_consumer_tags >>
+          requires:
+            - build
       - build_docker:
           requires:
             - build
@@ -349,7 +351,7 @@ workflows:
           requires:
             - request_prod_approval
 
-  pact:
-    jobs:
-      - pact_check_and_publish:
-          consumer_tags: << pipeline.parameters.pact_consumer_tags >>
+#  pact:
+#    jobs:
+#      - pact_check_and_publish:
+#          consumer_tags: << pipeline.parameters.pact_consumer_tags >>

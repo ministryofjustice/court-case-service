@@ -75,6 +75,7 @@ springBoot {
 test {
     useJUnitPlatform ()
     filter {
+        excludeTestsMatching '*PactTest'
         excludeTestsMatching '*SmokeTest'
         excludeTestsMatching '*WIP*'
     }

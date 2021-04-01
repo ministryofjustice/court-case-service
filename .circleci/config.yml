@@ -197,9 +197,11 @@ jobs:
           keys:
             - gradle-{{ checksum "build.gradle" }}
             - gradle-
+      - mem/recall:
+          env_var: APP_VERSION
       - run:
           command: |
-            PACT_PROVIDER_VERSION="$CIRCLE_SHA1" \
+            PACT_PROVIDER_VERSION="$APP_VERSION" \
               PACT_PROVIDER_TAG="$CIRCLE_BRANCH" \
               PACTBROKER_CONSUMERVERSIONSELECTORS_TAGS="<< parameters.consumer_tags >>" \
               PACT_PUBLISH_RESULTS="true" \

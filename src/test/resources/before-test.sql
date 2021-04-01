@@ -28,8 +28,8 @@ INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court
 '2020-10-01 18:59:59');
 
 
-INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, created_by) VALUES (5555560, 1600028919, 'B30NY', 1, '2019-12-14 12:59:59', 'NO_RECORD', 'X320654', 'Hubert Farnsworth',
-'2020-10-01 16:59:59', 'TURANGALEE(prepare-a-case-for-court)');
+INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, created_by, manual_update) VALUES (5555560, 1600028919, 'B30NY', 1, '2019-12-14 12:59:59', 'NO_RECORD', 'X320654', 'Hubert Farnsworth',
+'2020-10-01 16:59:59', 'TURANGALEE(prepare-a-case-for-court)', true);
 
 -- See CourtCaseControllerIntTest.GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnAllCases()
 -- These records are used to test that the createdToday field returns false if a new record was created today updating an existing one

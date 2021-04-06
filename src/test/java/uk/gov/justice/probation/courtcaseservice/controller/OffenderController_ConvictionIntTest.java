@@ -1,14 +1,11 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
@@ -32,9 +29,7 @@ import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRes
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.UNKNOWN_CRN;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
-public class OffenderController_ConvictionIntTest extends BaseIntTest {
+class OffenderController_ConvictionIntTest extends BaseIntTest {
 
     private static final String PATH = "/offender/%s/convictions/%s/sentences/%s";
     private static final String CONVICTION_PATH = "/offender/%s/convictions/%s";
@@ -42,17 +37,17 @@ public class OffenderController_ConvictionIntTest extends BaseIntTest {
     @Autowired
     private FeatureFlags featureFlags;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         super.setup();
         featureFlags.setFlagValue("fetch-sentence-data",true);
     }
 
     @Test
-    public void whenCallMadeToGetSentenceKnownCrnAndConvictionId() {
+    void whenCallMadeToGetSentenceKnownCrnAndConvictionId() {
 
         final String getPath = String.format(PATH, CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
-        final SentenceResponse response = given()
+        var response = given()
             .auth()
             .oauth2(getToken())
             .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -109,7 +104,7 @@ public class OffenderController_ConvictionIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenCallMadeToGetSentenceAttendanceFlagFalseKnownCrnAndConvictionId() {
+    void whenCallMadeToGetSentenceAttendanceFlagFalseKnownCrnAndConvictionId() {
 
         featureFlags.setFlagValue("fetch-sentence-data", false);
 
@@ -133,7 +128,7 @@ public class OffenderController_ConvictionIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenCallMadeToGetSentenceOnCommunityApiReturns404() {
+    void whenCallMadeToGetSentenceOnCommunityApiReturns404() {
 
         final String getPath = String.format(PATH, UNKNOWN_CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
         given()

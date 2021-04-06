@@ -2,12 +2,10 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 
@@ -19,10 +17,9 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
-@RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
-public class CourtControllerIntTest extends BaseIntTest {
+class CourtControllerIntTest extends BaseIntTest {
 
 
     private static final String COURT_CODE = "FOO";
@@ -36,7 +33,7 @@ public class CourtControllerIntTest extends BaseIntTest {
     ObjectMapper mapper;
 
     @Test
-    public void whenCourtCreated_thenReturnSuccess() {
+    void whenCourtCreated_thenReturnSuccess() {
 
         CourtEntity result = given()
                 .auth()
@@ -58,7 +55,7 @@ public class CourtControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenCourtCodeInPathAndBodyConflict_whenCourtCreated_thenReturnBadRequest() {
+    void givenCourtCodeInPathAndBodyConflict_whenCourtCreated_thenReturnBadRequest() {
         given()
                 .auth()
                 .oauth2(getToken()).body(PUT_BODY)
@@ -72,7 +69,7 @@ public class CourtControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void whenGetCourts_thenReturnListSorted() {
+    void whenGetCourts_thenReturnListSorted() {
 
         given()
             .auth()

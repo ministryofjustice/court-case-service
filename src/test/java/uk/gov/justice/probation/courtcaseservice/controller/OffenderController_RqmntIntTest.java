@@ -1,11 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 
 import static io.restassured.RestAssured.given;
@@ -14,15 +11,13 @@ import static org.hamcrest.Matchers.is;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.DateHelper.standardDateOf;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
-public class OffenderController_RqmntIntTest extends BaseIntTest {
+class OffenderController_RqmntIntTest extends BaseIntTest {
 
     private static final String KNOWN_CRN = "X320741";
     private static final String KNOWN_CONVICTION_ID = "2500297061";
 
     @Test
-    public void givenOnLicenceStatus_whenCallMadeToGetRequirementData_thenReturnWithNoPSS() {
+    void givenOnLicenceStatus_whenCallMadeToGetRequirementData_thenReturnWithNoPSS() {
         given()
             .auth()
             .oauth2(getToken())
@@ -62,7 +57,7 @@ public class OffenderController_RqmntIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenPSSStatus_whenCallMadeToGetRequirementData_thenReturnWithPSS() {
+    void givenPSSStatus_whenCallMadeToGetRequirementData_thenReturnWithPSS() {
         given()
             .auth()
             .oauth2(getToken())
@@ -104,7 +99,7 @@ public class OffenderController_RqmntIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenErrorFromServices_whenCallMadeToGetRequirementData_thenReturnEmptyLists() {
+    void givenErrorFromServices_whenCallMadeToGetRequirementData_thenReturnEmptyLists() {
         given()
             .auth()
             .oauth2(getToken())

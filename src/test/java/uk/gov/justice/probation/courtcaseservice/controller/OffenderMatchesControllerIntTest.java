@@ -1,13 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 
 import static io.restassured.RestAssured.given;
@@ -22,11 +19,9 @@ import static uk.gov.justice.probation.courtcaseservice.controller.OffenderMatch
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "org.apache.catalina.connector.RECYCLE_FACADES=true")
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = BEFORE_TEST_METHOD)
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
-public class OffenderMatchesControllerIntTest extends BaseIntTest {
+class OffenderMatchesControllerIntTest extends BaseIntTest {
 
     private static final String CASE_NO = "1600028913";
 
@@ -67,7 +62,7 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
         "}";
 
     @Test
-    public void givenCaseExists_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {
+    void givenCaseExists_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {
         String location = given()
                 .auth()
                 .oauth2(getToken())
@@ -102,7 +97,7 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenNewCase_whenPostMadeToOffenderMatchesWithMultipleMatches_thenReturn201CreatedWithValidLocation() {
+    void givenNewCase_whenPostMadeToOffenderMatchesWithMultipleMatches_thenReturn201CreatedWithValidLocation() {
 
         String location = given()
             .auth()
@@ -141,7 +136,7 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenCourtDoesNotExist_whenPostMadeToOffenderMatches_thenReturnNotFound() {
+    void givenCourtDoesNotExist_whenPostMadeToOffenderMatches_thenReturnNotFound() {
         given()
                 .auth()
                 .oauth2(getToken())
@@ -157,7 +152,7 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenCaseDoesNotExist_whenPostMadeToOffenderMatches_thenReturnNotFound() {
+    void givenCaseDoesNotExist_whenPostMadeToOffenderMatches_thenReturnNotFound() {
         given()
                 .auth()
                 .oauth2(getToken())
@@ -173,7 +168,7 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenMultipleMatchesOneNotFound_whenGetOffenderDetailMatch_thenReturn200() {
+    void givenMultipleMatchesOneNotFound_whenGetOffenderDetailMatch_thenReturn200() {
 
         String path = String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, CASE_NO);
         given()
@@ -212,7 +207,7 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenMatchWithNoConvictions_whenGetOffenderDetailMatch_thenReturn200WithNoMostRecentEvent() {
+    void givenMatchWithNoConvictions_whenGetOffenderDetailMatch_thenReturn200WithNoMostRecentEvent() {
 
         String path = String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, "1000002");
         given()
@@ -239,7 +234,7 @@ public class OffenderMatchesControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenCaseDoesNotExist_whenGetOffenderDetailMatch_thenReturnNotFound() {
+    void givenCaseDoesNotExist_whenGetOffenderDetailMatch_thenReturnNotFound() {
         String path = String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, "23456541141414");
         given()
             .auth()

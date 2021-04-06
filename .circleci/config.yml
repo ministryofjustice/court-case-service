@@ -347,7 +347,7 @@ workflows:
           requires:
             - request_prod_approval
 
-  pact:
-    jobs:
-      - pact_check_and_publish:
-          consumer_tags: << pipeline.parameters.pact_consumer_tags >>
+#  pact:
+#    jobs:
+#      - pact_check_and_publish:
+#          consumer_tags: << pipeline.parameters.pact_consumer_tags >>

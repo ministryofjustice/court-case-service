@@ -187,7 +187,7 @@ dependencies {
         because 'Transitive dependency. Previous versions have a known vulnerability'
     }
 
-    implementation ('org.eclipse.jetty:jetty-io:9.4.39.v20210325') {
+    testImplementation ('org.eclipse.jetty:jetty-io:9.4.39.v20210325') {
         because 'Transitive dependency. Previous versions have a known vulnerability'
     }
 

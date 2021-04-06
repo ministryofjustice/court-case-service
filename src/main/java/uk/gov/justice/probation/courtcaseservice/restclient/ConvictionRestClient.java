@@ -61,8 +61,10 @@ public class ConvictionRestClient {
             .retrieve()
             .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
             .bodyToMono(CommunityApiConvictionResponse.class)
-            // TODO: doOnError will swallow the exception and fail later - use onErrorMap
-            .doOnError(e -> log.error(String.format(ERROR_MSG_FORMAT, "conviction", crn, convictionId), e))
+            .onErrorMap(e1 -> {
+                log.error(String.format(ERROR_MSG_FORMAT, "conviction ", crn, convictionId), e1);
+                return e1;
+            })
             .map(OffenderMapper::convictionFrom);
     }
 

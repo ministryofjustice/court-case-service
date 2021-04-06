@@ -12,6 +12,7 @@ import au.com.dius.pact.provider.junit5.HttpTestTarget;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
 import au.com.dius.pact.provider.spring.junit5.PactVerificationSpringProvider;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -49,6 +50,7 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 @Provider("Court case service")
 @PactBroker
 @Import(TestSecurity.class)
+@Disabled
 class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
 
 

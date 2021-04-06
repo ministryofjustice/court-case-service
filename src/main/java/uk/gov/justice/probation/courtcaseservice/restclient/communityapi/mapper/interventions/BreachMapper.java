@@ -1,6 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.interventions;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,6 +22,10 @@ public class BreachMapper {
     }
 
     public static List<Breach> breachesFrom(CommunityApiNsiResponse nsis) {
-        return nsis.getNsis().stream().map(BreachMapper::breachFrom).collect(Collectors.toList());
+        return Optional.ofNullable(nsis)
+            .map(nsiResponse -> Optional.ofNullable(nsiResponse.getNsis()).orElse(Collections.emptyList()))
+            .stream()
+            .flatMap(Collection::stream)
+            .map(BreachMapper::breachFrom).collect(Collectors.toList());
     }
 }

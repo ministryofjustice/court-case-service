@@ -132,8 +132,12 @@
           "documentName": "Event document 2.txt",
           "author": "Andy Marke",
           "type": {
-            "code": "CONVICTION_DOCUMENT",
+            "code": "COURT_REPORT_DOCUMENT",
             "description": "Sentence related"
+          },
+          "subType": {
+            "code": "CR02",
+            "description": "Court Report"
           },
           "lastModifiedAt": "2019-09-04T11:52:57.054",
           "createdAt": "2019-09-04T00:00:00",

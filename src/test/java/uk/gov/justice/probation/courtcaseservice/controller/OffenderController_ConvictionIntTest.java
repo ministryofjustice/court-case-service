@@ -23,9 +23,12 @@ import java.time.Month;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.CRN;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.SOME_CONVICTION_ID;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.SOME_SENTENCE_ID;
+import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.UNKNOWN_CONVICTION_ID;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.UNKNOWN_CRN;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
@@ -34,6 +37,7 @@ import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.get
 public class OffenderController_ConvictionIntTest extends BaseIntTest {
 
     private static final String PATH = "/offender/%s/convictions/%s/sentences/%s";
+    private static final String CONVICTION_PATH = "/offender/%s/convictions/%s";
 
     @Autowired
     private FeatureFlags featureFlags;
@@ -141,4 +145,65 @@ public class OffenderController_ConvictionIntTest extends BaseIntTest {
         .then()
             .statusCode(404);
     }
+
+    @Test
+    public void whenGetConvictionById_thenReturn() {
+
+        final String path = String.format(CONVICTION_PATH, CRN, SOME_CONVICTION_ID);
+        given()
+            .auth()
+            .oauth2(getToken())
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .get(path)
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("convictionId", equalTo("2500295343"))
+            .body("active", equalTo(true))
+            .body("inBreach", equalTo(false))
+            .body("convictionDate", equalTo("2017-06-01"))
+            .body("offences", hasSize(1))
+            .body("offences[0].description", equalTo("Arson - 05600"))
+            .body("sentence.description", equalTo("CJA - Community Order"))
+            .body("sentence.length", equalTo(12))
+            .body("sentence.lengthUnits", equalTo("Months"))
+            .body("sentence.lengthInDays", equalTo(364))
+            .body("sentence.terminationDate", equalTo("2017-12-01"))
+            .body("sentence.startDate", equalTo("2017-06-01"))
+            .body("sentence.endDate", equalTo("2018-05-31"))
+            .body("sentence.terminationReason", equalTo("Completed - early good progress"))
+            .body("endDate", equalTo("2018-05-31"))
+            .body("breaches", hasSize(2))
+            .body("breaches[0].breachId", equalTo(11131322))
+            .body("breaches[0].description", equalTo("Community Order"))
+            .body("breaches[0].status", equalTo("Breach Initiated"))
+            .body("breaches[0].started", equalTo("2020-10-20"))
+            .body("breaches[0].statusDate", equalTo("2020-12-18"))
+            .body("documents", hasSize(1))
+            .body("documents[0].documentId", equalTo("5058ca66-3751-4701-855a-86bf518d9392"))
+            .body("documents[0].documentName", equalTo("Event document 2.txt"))
+            .body("documents[0].author", equalTo("Andy Marke"))
+            .body("documents[0].type", equalTo("COURT_REPORT_DOCUMENT"))
+            .body("documents[0].createdAt", equalTo("2019-09-04T00:00:00"))
+            .body("documents[0].subType.code", equalTo("CR02"))
+            ;
+    }
+
+    @Test
+    public void givenUnknownConvictionId_whenGetConvictionById_thenReturn404() {
+
+        final String path = String.format(CONVICTION_PATH, CRN, UNKNOWN_CONVICTION_ID);
+        given()
+            .auth()
+            .oauth2(getToken())
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .get(path)
+            .then()
+            .statusCode(HttpStatus.NOT_FOUND.value())
+            .body("userMessage", equalTo("Conviction with id '9999' for offender with CRN 'X320741' not found"))
+            .body("developerMessage" , equalTo("Conviction with id '9999' for offender with CRN 'X320741' not found"))
+        ;
+    }
+
 }

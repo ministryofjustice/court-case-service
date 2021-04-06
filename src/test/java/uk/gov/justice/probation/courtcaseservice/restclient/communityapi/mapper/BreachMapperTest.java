@@ -38,4 +38,16 @@ class BreachMapperTest {
         assertThat(breaches.get(0).getStarted()).isEqualTo(LocalDate.of(2019, 10, 20));
         assertThat(breaches.get(0).getStatusDate()).isEqualTo(LocalDate.of(2019, 12, 18));
     }
+
+    @DisplayName("maps null NSI response to empty list of breaches")
+    @Test
+    void shouldMapNullNsiToEmptyBreaches() {
+        assertThat(BreachMapper.breachesFrom(null)).isEmpty();
+    }
+
+    @DisplayName("maps null NSI list of breaches in response to empty list of breaches")
+    @Test
+    void shouldMapNullNsiListOfBreachesToEmptyBreaches() {
+        assertThat(BreachMapper.breachesFrom(CommunityApiNsiResponse.builder().build())).isEmpty();
+    }
 }

@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
+import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
@@ -46,6 +47,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType.COURT_REPORT_DOCUMENT;
+import static uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType.INSTITUTION_REPORT_DOCUMENT;
 
 @DisplayName("OffenderService tests")
 @ExtendWith(MockitoExtension.class)
@@ -63,6 +65,8 @@ class OffenderServiceTest {
     private TelemetryService telemetryService;
     @Mock
     private AssessmentsRestClient assessmentsRestClient;
+    @Mock
+    private ConvictionRestClient convictionRestClient;
     @Mock
     private OffenderRestClientFactory offenderRestClientFactory;
     @Mock
@@ -116,7 +120,7 @@ class OffenderServiceTest {
                 .status("COMPLETE")
                 .build();
             when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
-            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter, telemetryService);
+            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
             service.setAssessmentStatuses(List.of("COMPLETE"));
         }
 
@@ -373,6 +377,67 @@ class OffenderServiceTest {
         }
     }
 
+    @ExtendWith(MockitoExtension.class)
+    @Nested
+    @DisplayName("Tests for the method getProbationRecord")
+    class ConvictionByIdTest {
+
+        private GroupedDocuments groupedDocuments;
+        private Conviction conviction;
+
+        @BeforeEach
+        void beforeEach() {
+
+            var courtReportDocumentDetail = OffenderDocumentDetail.builder()
+                .documentName("PSR")
+                .type(COURT_REPORT_DOCUMENT)
+                .subType(new KeyValue("CJF", "Pre-Sentence Report - Fast"))
+                .build();
+            var nonCourtReport = OffenderDocumentDetail.builder()
+                .documentName("PSR")
+                .type(INSTITUTION_REPORT_DOCUMENT)
+                .subType(new KeyValue("CJF", "Pre-Sentence Report - Fast"))
+                .build();
+            this.groupedDocuments = GroupedDocuments.builder()
+                .convictions(List.of(ConvictionDocuments.builder()
+                                        .convictionId(CONVICTION_ID)
+                                        .documents(List.of(courtReportDocumentDetail))
+                                        .build(),
+                                    ConvictionDocuments.builder()
+                                        .convictionId("83472343")
+                                        .documents(List.of(nonCourtReport))
+                                        .build()))
+                .documents(Collections.emptyList())
+                .build();
+            var sentence = Sentence.builder().startDate(LocalDate.now()).build();
+            this.conviction = Conviction.builder().convictionId(CONVICTION_ID).sentence(sentence).active(Boolean.TRUE).build();
+            when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
+            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
+        }
+
+        @DisplayName("Getting offender also includes calls to get convictions and conviction documents and merges the results")
+        @Test
+        void whenGetOffender_returnOffenderWithConvictionsDocumentsNotFiltered() {
+            var convictionId = Long.parseLong(CONVICTION_ID);
+            when(convictionRestClient.getConviction(CRN, convictionId)).thenReturn(Mono.just(conviction));
+            var breach1 = getBreach(null);
+            var breach2 = getBreach(LocalDate.of(2018, Month.SEPTEMBER, 29));
+            var breach3 = getBreach(LocalDate.of(2019, Month.SEPTEMBER, 29));
+            when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(breach1, breach2, breach3)));
+            when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+
+            var conviction = service.getConviction(CRN, convictionId).block();
+
+            assertThat(conviction.getActive()).isTrue();
+            assertThat(conviction.getBreaches()).hasSize(3);
+            assertThat(conviction.getBreaches().get(0).getStatusDate()).isEqualTo(LocalDate.of(2019, Month.SEPTEMBER, 29));
+            assertThat(conviction.getBreaches().get(1).getStatusDate()).isEqualTo(LocalDate.of(2018, Month.SEPTEMBER, 29));
+            assertThat(conviction.getBreaches().get(2).getStatusDate()).isNull();
+            assertThat(conviction.getDocuments()).hasSize(1);
+        }
+
+    }
+
     @Nested
     @DisplayName("Tests for the method getOffenderDetail")
     class OffenderDetailTest {
@@ -380,7 +445,7 @@ class OffenderServiceTest {
         @BeforeEach
         void beforeEach() {
             when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
-            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter, telemetryService);
+            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
         }
 
         @DisplayName("Simple get of offender detail")
@@ -413,7 +478,7 @@ class OffenderServiceTest {
         @BeforeEach
         void beforeEach() {
             when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
-            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter, telemetryService);
+            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
         }
 
         @DisplayName("Simple get of offender registrations")
@@ -435,7 +500,7 @@ class OffenderServiceTest {
         @BeforeEach
         void beforeEach() {
             when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
-            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, documentRestClient, documentTypeFilter, telemetryService);
+            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
         }
 
         @Test
@@ -449,4 +514,13 @@ class OffenderServiceTest {
         }
     }
 
+    private Breach getBreach(LocalDate statusDate) {
+        return Breach.builder()
+            .breachId(2500020697L)
+            .description("Community Order")
+            .status("Breach Initiated")
+            .started(LocalDate.of(2020, 4, 23))
+            .statusDate(statusDate)
+            .build();
+    }
 }

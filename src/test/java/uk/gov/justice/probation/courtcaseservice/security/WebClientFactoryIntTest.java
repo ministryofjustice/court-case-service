@@ -1,22 +1,19 @@
 package uk.gov.justice.probation.courtcaseservice.security;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.application.WebClientFactory;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@RunWith(SpringRunner.class)
-public class WebClientFactoryIntTest extends BaseIntTest {
+class WebClientFactoryIntTest extends BaseIntTest {
 
     @Value("${web.client.connect-timeout-ms}")
     private Integer connectTimeoutMs;
@@ -41,13 +38,13 @@ public class WebClientFactoryIntTest extends BaseIntTest {
 
     private WebClientFactory webClientFactory;
 
-    @Before
-    public void setUp(){
+    @BeforeEach
+    void beforeEach(){
         webClientFactory = new WebClientFactory(connectTimeoutMs, readTimeoutMs, writeTimeoutMs, communityApiBaseUrl, disableAuthentication, clientDetails, clientRegistrationRepository, authorizedClientRepository);
     }
 
     @Test
-    public void shouldReturnWorkingCommunityApiWebClient() {
+    void shouldReturnWorkingCommunityApiWebClient() {
         final var client = webClientFactory.buildCommunityRestClientHelper("username");
         final var responseString = client.get("/ping")
                 .retrieve()
@@ -57,7 +54,7 @@ public class WebClientFactoryIntTest extends BaseIntTest {
     }
 
     @Test
-    public void shouldReturnWorkingGenericClient() {
+    void shouldReturnWorkingGenericClient() {
         final var client = webClientFactory.buildWebClient(String.format("http://localhost:%s", this.port), 262144);
         final var responseString = client.get()
                     .uri(uriBuilder -> uriBuilder

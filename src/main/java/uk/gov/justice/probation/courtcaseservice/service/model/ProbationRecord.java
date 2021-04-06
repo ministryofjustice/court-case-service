@@ -1,8 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

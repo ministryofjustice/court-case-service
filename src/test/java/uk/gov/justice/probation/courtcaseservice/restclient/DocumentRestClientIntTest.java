@@ -1,12 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.DocumentNotFoundException;
@@ -17,10 +15,9 @@ import java.io.IOException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-
-@RunWith(SpringRunner.class)
-public class DocumentRestClientIntTest extends BaseIntTest {
+class DocumentRestClientIntTest extends BaseIntTest {
 
     private static final String CRN = "X320741";
     private static final String SERVER_ERROR_CRN = "X320500";
@@ -29,7 +26,7 @@ public class DocumentRestClientIntTest extends BaseIntTest {
     private DocumentRestClient restClient;
 
     @Test
-    public void whenGetConvictionDocumentsCalled_thenMakeRestCallToCommunityApi() {
+    void whenGetConvictionDocumentsCalled_thenMakeRestCallToCommunityApi() {
         Optional<GroupedDocuments> documentsResponse = restClient.getDocumentsByCrn(CRN).blockOptional();
 
         final GroupedDocuments groupedDocuments = documentsResponse.get();
@@ -39,35 +36,39 @@ public class DocumentRestClientIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenKnownCrnNoDocuments_whenGetConvictionDocumentsCalled_thenMakeRestCallToCommunityApi() {
+    void givenKnownCrnNoDocuments_whenGetConvictionDocumentsCalled_thenMakeRestCallToCommunityApi() {
         GroupedDocuments documentsResponse = restClient.getDocumentsByCrn("CRN800").blockOptional().get();
 
         assertThat(documentsResponse.getDocuments()).isEmpty();
         assertThat(documentsResponse.getConvictions()).isEmpty();
     }
 
-    @Test(expected = OffenderNotFoundException.class)
-    public void givenOffenderDoesNotExist_whenGetConvictionsDocumentsByCrnCalled_ThrowException() {
-        restClient.getDocumentsByCrn("CRNXXX").block();
+    @Test
+    void givenOffenderDoesNotExist_whenGetConvictionsDocumentsByCrnCalled_ThrowException() {
+        assertThrows(OffenderNotFoundException.class, () ->
+            restClient.getDocumentsByCrn("CRNXXX").block()
+        );
     }
 
     @Test
-    public void whenGetDocument_thenReturnDocument() throws IOException {
+    void whenGetDocument_thenReturnDocument() throws IOException {
         final ResponseEntity<Resource> responseEntity = restClient.getDocument(CRN, "abc-def").blockOptional().get();
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody().contentLength()).isEqualTo(20992);
     }
 
-    @Test(expected = DocumentNotFoundException.class)
-    public void givenDocumentDoesNotExist_whenGetDocument_thenThrowException()  {
-        restClient.getDocument(CRN, "xxx").blockOptional().get();
+    @Test
+    void givenDocumentDoesNotExist_whenGetDocument_thenThrowException()  {
+        assertThrows(DocumentNotFoundException.class, () ->
+            restClient.getDocument(CRN, "xxx").blockOptional().get()
+        );
     }
 
-    @Test(expected = WebClientResponseException.class)
-    public void whenGetDocument_ServerError_thenFailFastAndThrowException() {
-        final ResponseEntity<Resource> responseEntity = restClient.getDocument(SERVER_ERROR_CRN, "abc-def").blockOptional().get();
-
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+    @Test
+    void whenGetDocument_ServerError_thenFailFastAndThrowException() {
+        assertThrows(WebClientResponseException.class, () ->
+            restClient.getDocument(SERVER_ERROR_CRN, "abc-def").blockOptional()
+        );
     }
 }

@@ -1,6 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.application;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -17,57 +17,55 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+class ApplicationExceptionHandlerTest {
 
-public class ApplicationExceptionHandlerTest {
-
-    public static final String THE_MESSAGE = "This is the message";
+    private static final String THE_MESSAGE = "This is the message";
     private final ApplicationExceptionHandler applicationExceptionHandler = new ApplicationExceptionHandler();
 
     @Test
-    public void whenOffenderNotFoundExceptionCaught_thenReturnAppropriateErrorResponse() {
+    void whenOffenderNotFoundExceptionCaught_thenReturnAppropriateErrorResponse() {
         ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(new OffenderNotFoundException("BAD_CRN"));
 
         assertGoodErrorResponse(response, HttpStatus.NOT_FOUND, "Offender with CRN 'BAD_CRN' not found");
     }
 
     @Test
-    public void whenConvictionNotFoundExceptionCaught_thenReturnAppropriateErrorResponse() {
+    void whenConvictionNotFoundExceptionCaught_thenReturnAppropriateErrorResponse() {
         ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(new ConvictionNotFoundException("CRN", 123456L));
 
         assertGoodErrorResponse(response, HttpStatus.NOT_FOUND, "Conviction with id '123456' for offender with CRN 'CRN' not found");
     }
+
     @Test
-    public void whenDocumentNotFoundExceptionCaught_thenReturnAppropriateErrorResponse() {
+    void whenDocumentNotFoundExceptionCaught_thenReturnAppropriateErrorResponse() {
         ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(new DocumentNotFoundException("abc-def", "BAD_CRN"));
 
         assertGoodErrorResponse(response, HttpStatus.NOT_FOUND, "Document with ID 'abc-def' not found for offender with CRN 'BAD_CRN'");
     }
 
     @Test
-    public void whenDuplicateEntityExceptionCaught_thenReturnAppropriateErrorResponse() {
+    void whenDuplicateEntityExceptionCaught_thenReturnAppropriateErrorResponse() {
         ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(new DuplicateEntityException(THE_MESSAGE));
 
         assertGoodErrorResponse(response, HttpStatus.BAD_REQUEST, THE_MESSAGE);
     }
 
-
     @Test
-    public void whenConflictingInputExceptionCaught_thenReturnAppropriateErrorResponse() {
+    void whenConflictingInputExceptionCaught_thenReturnAppropriateErrorResponse() {
         ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(new ConflictingInputException(THE_MESSAGE));
 
         assertGoodErrorResponse(response, HttpStatus.BAD_REQUEST, THE_MESSAGE);
     }
 
-
     @Test
-    public void whenEntityNotFoundExceptionCaught_thenReturnAppropriateErrorResponse() {
+    void whenEntityNotFoundExceptionCaught_thenReturnAppropriateErrorResponse() {
         ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(new EntityNotFoundException(THE_MESSAGE));
 
         assertGoodErrorResponse(response, HttpStatus.NOT_FOUND, THE_MESSAGE);
     }
 
     @Test
-    public void whenWebClientResponseException() {
+    void whenWebClientResponseException() {
         final WebClientResponseException webClientException = mock(WebClientResponseException.class);
         when(webClientException.getRawStatusCode()).thenReturn(HttpStatus.INTERNAL_SERVER_ERROR.value());
         when(webClientException.getStatusCode()).thenReturn(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -78,9 +76,8 @@ public class ApplicationExceptionHandlerTest {
         assertGoodErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, THE_MESSAGE);
     }
 
-
     @Test
-    public void whenForbiddenExceptionCaught_thenReturnAppropriateErrorResponse() {
+    void whenForbiddenExceptionCaught_thenReturnAppropriateErrorResponse() {
         ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(new ForbiddenException(THE_MESSAGE));
 
         assertGoodErrorResponse(response, HttpStatus.FORBIDDEN, THE_MESSAGE);

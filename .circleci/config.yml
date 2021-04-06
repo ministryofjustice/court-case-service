@@ -1,4 +1,13 @@
 version: 2.1
+
+parameters:
+  only_pacts:
+    type: boolean
+    default: false
+  pact_consumer_tags:
+    type: string
+    default: main
+
 commands:
   setup:
     description: "Install tools and configure kubectl"
@@ -175,6 +184,35 @@ jobs:
           token_name: JIRA_CIRCLE_TOKEN
           job_type: build
 
+  pact_check_and_publish:
+    parameters:
+      consumer_tags:
+        type: string
+    environment:
+      PACTBROKER_HOST: "pact-broker-prod.apps.live-1.cloud-platform.service.justice.gov.uk"
+    executor: builder
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - gradle-{{ checksum "build.gradle" }}
+            - gradle-
+      - run:
+          command: |
+            PACT_PROVIDER_VERSION="$CIRCLE_SHA1" \
+              PACT_PROVIDER_TAG="$CIRCLE_BRANCH" \
+              PACTBROKER_CONSUMERVERSIONSELECTORS_TAGS="<< parameters.consumer_tags >>" \
+              PACT_PUBLISH_RESULTS="true" \
+              ./gradlew pactTestPublish
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: gradle-{{ checksum "build.gradle" }}
+      - store_test_results:
+          path: build/test-results
+      - store_artifacts:
+          path: build/reports/tests
+
   app_scan:
     executor: builder
     parameters:
@@ -251,6 +289,7 @@ workflows:
           main: true
       - image_scan
   build-test-and-deploy:
+    unless: << pipeline.parameters.only_pacts >>
     jobs:
       - app_scan:
           filters:
@@ -307,3 +346,8 @@ workflows:
           context: court-probation-prod
           requires:
             - request_prod_approval
+
+#  pact:
+#    jobs:
+#      - pact_check_and_publish:
+#          consumer_tags: << pipeline.parameters.pact_consumer_tags >>

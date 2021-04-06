@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsi;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsiResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsiStatus;
@@ -28,6 +29,7 @@ public class BreachMapper {
             .map(nsiResponse -> Optional.ofNullable(nsiResponse.getNsis()).orElse(Collections.emptyList()))
             .stream()
             .flatMap(Collection::stream)
-            .map(BreachMapper::breachFrom).collect(Collectors.toList());
+            .map(BreachMapper::breachFrom)
+            .collect(Collectors.toList());
     }
 }

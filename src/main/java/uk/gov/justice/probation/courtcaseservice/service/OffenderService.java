@@ -9,6 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
+import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
@@ -42,6 +43,7 @@ public class OffenderService {
     private final OffenderRestClient offenderRestClient;
     private final AssessmentsRestClient assessmentsClient;
     private final DocumentRestClient documentRestClient;
+    private final ConvictionRestClient convictionRestClient;
     private final TelemetryService telemetryService;
 
     private final Predicate<OffenderDocumentDetail> documentTypeFilter;
@@ -52,10 +54,12 @@ public class OffenderService {
 
     public OffenderService(final OffenderRestClientFactory offenderRestClientFactory,
                            final AssessmentsRestClient assessmentsClient,
+                           final ConvictionRestClient convictionRestClient,
                            final DocumentRestClient documentRestClient,
                            final DocumentTypeFilter documentTypeFilter,
                            final TelemetryService telemetryService) {
         this.offenderRestClient = offenderRestClientFactory.build();
+        this.convictionRestClient = convictionRestClient;
         this.assessmentsClient = assessmentsClient;
         this.documentRestClient = documentRestClient;
         this.documentTypeFilter = documentTypeFilter;
@@ -78,12 +82,7 @@ public class OffenderService {
                 var convictionId = conviction.getConvictionId();
                 log.debug("getting breaches for crn {} and conviction id {}", crn, convictionId);
                 return offenderRestClient.getBreaches(crn, convictionId)
-                    .map(breaches -> {
-                        conviction.setBreaches(breaches.stream()
-                                                .sorted(Comparator.comparing(Breach::getStatusDate, Comparator.nullsLast(Comparator.reverseOrder())))
-                                                .collect(Collectors.toList()));
-                        return conviction;
-                    });
+                    .map(breaches -> addBreachesToConviction(conviction, breaches));
             })
             .collectSortedList(new ConvictionBySentenceComparator()
                                 .thenComparing(Conviction::getConvictionId));
@@ -116,22 +115,47 @@ public class OffenderService {
         return probationRecord;
     }
 
+    public Mono<Conviction> getConviction(final String crn, final Long convictionId) {
+        Mono<Tuple3<Conviction, List<Breach>, GroupedDocuments>> convictionMono = Mono.zip(
+            convictionRestClient.getConviction(crn, convictionId),
+            offenderRestClient.getBreaches(crn, String.valueOf(convictionId)),
+            documentRestClient.getDocumentsByCrn(crn));
+
+        return convictionMono.map(tuple3 -> {
+            final Conviction conviction = tuple3.getT1();
+            addBreachesToConviction(conviction, tuple3.getT2());
+            final ConcurrentMap<String, List<OffenderDocumentDetail>> allConvictionDocuments = groupFilteredDocuments(tuple3.getT3().getConvictions(), true);
+            conviction.setDocuments(allConvictionDocuments.getOrDefault(Long.toString(convictionId), Collections.emptyList()));
+            return conviction;
+        });
+    }
+
+    private Conviction addBreachesToConviction(Conviction conviction, List<Breach> breaches) {
+        conviction.setBreaches(breaches.stream()
+                                    .sorted(Comparator.comparing(Breach::getStatusDate, Comparator.nullsLast(Comparator.reverseOrder())))
+                                    .collect(Collectors.toList()));
+        return conviction;
+    }
+
     private void combineConvictionsAndDocuments(final ProbationRecord probationRecord, final List<ConvictionDocuments> convictionDocuments, boolean applyDocumentFilter) {
 
-        final ConcurrentMap<String, List<OffenderDocumentDetail>> allConvictionDocuments = convictionDocuments.stream()
-                                .map(convictionDocument -> ConvictionDocuments.builder()
-                                                                .convictionId(convictionDocument.getConvictionId())
-                                                                .documents(convictionDocument.getDocuments().stream()
-                                                                            .filter(doc -> (!applyDocumentFilter || documentTypeFilter.test(doc)))
-                                                                            .collect(Collectors.toList()))
-                                                                .build())
-                                .collect(Collectors.toConcurrentMap(ConvictionDocuments::getConvictionId, ConvictionDocuments::getDocuments));
-
+        final ConcurrentMap<String, List<OffenderDocumentDetail>> allConvictionDocuments = groupFilteredDocuments(convictionDocuments, applyDocumentFilter);
         probationRecord.getConvictions()
             .forEach((conviction) -> {
                 final String convictionId = conviction.getConvictionId();
                 conviction.setDocuments(allConvictionDocuments.getOrDefault(convictionId, Collections.emptyList()));
             });
+    }
+
+    private ConcurrentMap<String, List<OffenderDocumentDetail>> groupFilteredDocuments(final List<ConvictionDocuments> convictionDocuments, boolean applyDocumentFilter) {
+        return convictionDocuments.stream()
+            .map(convictionDocument -> ConvictionDocuments.builder()
+                .convictionId(convictionDocument.getConvictionId())
+                .documents(convictionDocument.getDocuments().stream()
+                    .filter(doc -> (!applyDocumentFilter || documentTypeFilter.test(doc)))
+                    .collect(Collectors.toList()))
+                .build())
+            .collect(Collectors.toConcurrentMap(ConvictionDocuments::getConvictionId, ConvictionDocuments::getDocuments));
     }
 
     private ProbationRecord addConvictionsToProbationRecord(ProbationRecord probationRecord, List<Conviction> convictions) {

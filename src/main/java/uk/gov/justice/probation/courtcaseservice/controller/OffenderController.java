@@ -24,6 +24,7 @@ import uk.gov.justice.probation.courtcaseservice.service.BreachService;
 import uk.gov.justice.probation.courtcaseservice.service.ConvictionService;
 import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
+import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
@@ -103,6 +104,22 @@ public class OffenderController {
     public @ResponseBody
     Mono<OffenderDetail> getOffenderDetail(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @UpperCasePathVariable("crn") String crn) {
         return offenderService.getOffenderDetail(crn);
+    }
+
+    @ApiOperation(value = "Gets the conviction by CRN and conviction ID.")
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 200, message = "OK", response = Conviction.class),
+            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Not Found. For example if the CRN can't be matched.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+        })
+    @GetMapping(path="offender/{crn}/convictions/{convictionId}", produces = APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    Mono<Conviction> getConviction(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @UpperCasePathVariable("crn") String crn,
+        @ApiParam(name = "convictionId", value = "Conviction Id", example = "12312322", required = true) @NotNull @PathVariable Long convictionId) {
+        return offenderService.getConviction(crn, convictionId);
     }
 
     @ApiOperation(value = "Gets the requirement data by CRN and conviction ID.")

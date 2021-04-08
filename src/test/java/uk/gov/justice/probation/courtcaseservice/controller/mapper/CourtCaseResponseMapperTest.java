@@ -82,6 +82,7 @@ class CourtCaseResponseMapperTest {
     void shouldMapEntityToResponse() {
         var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, matchGroups);
 
+        assertThat(courtCaseResponse.getCaseId()).isEqualTo(CASE_ID);
         assertThat(courtCaseResponse.getCaseNo()).isEqualTo(CASE_NO);
         assertThat(courtCaseResponse.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCaseResponse.getCourtRoom()).isEqualTo(COURT_ROOM);
@@ -98,6 +99,7 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getCrn()).isEqualTo(CRN);
         assertThat(courtCaseResponse.getSession()).isEqualTo(SESSION);
         assertThat(courtCaseResponse.getPnc()).isEqualTo(PNC);
+        assertThat(courtCaseResponse.getCro()).isEqualTo(CRO);
         assertThat(courtCaseResponse.getListNo()).isEqualTo(LIST_NO);
         assertThat(courtCaseResponse.getDefendantDob()).isEqualTo(DEFENDANT_DOB);
         assertThat(courtCaseResponse.getDefendantSex()).isEqualTo(DEFENDANT_SEX);

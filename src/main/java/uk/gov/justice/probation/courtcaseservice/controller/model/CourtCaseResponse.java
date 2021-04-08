@@ -1,9 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
@@ -17,6 +13,11 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 @ApiModel(description = "Case Information")
 @Data
 @AllArgsConstructor
@@ -27,9 +28,11 @@ public class CourtCaseResponse {
 
     private static final String POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS = "Possible nDelius record";
 
+    private final String caseId;
     private final String caseNo;
     private final String crn;
     private final String pnc;
+    private final String cro;
     private final String listNo;
     private final String courtCode;
     private final String courtRoom;

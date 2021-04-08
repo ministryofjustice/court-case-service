@@ -1,12 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
@@ -15,13 +8,23 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 public class CourtCaseResponseMapper {
 
     public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, GroupedOffenderMatchesEntity groupedOffenderMatches) {
         return CourtCaseResponse.builder()
+                .caseId(courtCaseEntity.getCaseId())
                 .caseNo(courtCaseEntity.getCaseNo())
                 .crn(courtCaseEntity.getCrn())
                 .pnc(courtCaseEntity.getPnc())
+                .cro(courtCaseEntity.getCro())
                 .listNo(courtCaseEntity.getListNo())
                 .courtRoom(courtCaseEntity.getCourtRoom())
                 .courtCode(courtCaseEntity.getCourtCode())

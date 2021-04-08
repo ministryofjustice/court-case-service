@@ -198,6 +198,10 @@ dependencies {
         because 'Transitive dependency. Previous versions have a known vulnerability'
     }
 
+    implementation ('com.nimbusds:oauth2-oidc-sdk:9.3.1') {
+        because 'Transitive dependency. Previous versions have a known vulnerability'
+    }
+
     implementation ('org.yaml:snakeyaml:1.28') {
         because 'Transitive dependency. Previous versions have a known vulnerability'
     }

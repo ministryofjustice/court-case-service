@@ -43,7 +43,7 @@ whitelist:
 
 resources:
   cpu:
-    limit: 1000m
+    limit: 5000m
     request: 500m
   memory:
     limit: 1200Mi

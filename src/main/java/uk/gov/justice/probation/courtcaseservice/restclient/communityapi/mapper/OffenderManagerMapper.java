@@ -51,7 +51,7 @@ public class OffenderManagerMapper {
         return Optional.ofNullable(team)
             .map(tm -> Team.builder()
                 .description(tm.getDescription())
-                .district(tm.getDistrict().getDescription())
+                .district(Optional.ofNullable(tm.getDistrict()).map(KeyValue::getDescription).orElse(null))
                 .localDeliveryUnit(Optional.ofNullable(tm.getLocalDeliveryUnit()).map(KeyValue::getDescription).orElse(null))
                 .telephone(tm.getTelephone())
                 .build())

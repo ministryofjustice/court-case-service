@@ -106,8 +106,7 @@ public class OffenderRestClient {
                 log.error(String.format("Unexpected exception when retrieving offender managers data for CRN '%s'", crn), e1);
                 return e1;
             })
-            .map(OffenderManagerMapper::offenderManagersFrom)
-            ;
+            .map(OffenderManagerMapper::offenderManagersFrom);
     }
 
     public Mono<List<Conviction>> getConvictionsByCrn(String crn) {

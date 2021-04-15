@@ -13,16 +13,13 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatu
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderManager;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentence;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.OtherIds;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
-import uk.gov.justice.probation.courtcaseservice.service.model.Staff;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,48 +46,6 @@ class OffenderMapperTest {
 
         offenderResponse
             = OBJECT_MAPPER.readValue(new File(BASE_MOCK_PATH + "GET_offender_all_X320741.json"), CommunityApiOffenderResponse.class);
-    }
-
-    @Nested
-    class ProbationRecordTest {
-
-        @DisplayName("Maps community API offender to ProbationRecord with an offender manager")
-        @Test
-        void shouldMapOffenderProbationRecordDetailsToOffender() {
-
-            var offender = OffenderMapper.probationRecordFrom(offenderResponse);
-
-            assertThat(offender.getCrn())
-                .isNotNull()
-                .isEqualTo("X320741");
-
-            assertThat(offender.getConvictions()).isNull();
-            assertThat(offender.getOffenderManagers()).hasSize(1);
-            var offenderManager = offender.getOffenderManagers().get(0);
-            assertThat(offenderManager.getStaff()).isEqualTo(Staff.builder().forenames("Temperance").surname("Brennan").build());
-            assertThat(offenderManager.getTeam().getTelephone()).isEqualTo("0151 222 3333");
-            assertThat(offenderManager.getTeam().getDescription()).isEqualTo("OMIC OMU A");
-            assertThat(offenderManager.getTeam().getDistrict()).isEqualTo("OMiC POM Responsibility");
-            assertThat(offenderManager.getTeam().getLocalDeliveryUnit()).isEqualTo("LDU Description");
-            assertThat(offenderManager.getAllocatedDate()).isEqualTo(LocalDate.of(2019, 9, 30));
-            assertThat(offenderManager.getProvider()).isEqualTo("NPS North East");
-        }
-
-        @DisplayName("Maps community API offender managers but filters out soft deleted and inactive")
-        @Test
-        void givenInactiveOrDeleted_whenMapOffenderManagers_thenFilterThemOut() {
-
-            CommunityApiOffenderManager offenderManager1 = CommunityApiOffenderManager.builder().active(true).softDeleted(true).build();
-            CommunityApiOffenderManager offenderManager2 = CommunityApiOffenderManager.builder().active(false).softDeleted(false).build();
-            CommunityApiOffenderManager offenderManager3 = CommunityApiOffenderManager.builder().active(false).softDeleted(true).build();
-            CommunityApiOffenderResponse apiOffenderResponse = CommunityApiOffenderResponse.builder()
-                .otherIds(OtherIds.builder().crn("CRN").build())
-                .offenderManagers(List.of(offenderManager1, offenderManager2, offenderManager3))
-                .build();
-            var offender = OffenderMapper.probationRecordFrom(apiOffenderResponse);
-
-            assertThat(offender.getOffenderManagers()).isEmpty();
-        }
     }
 
     @Nested
@@ -135,17 +90,6 @@ class OffenderMapperTest {
 
     @Nested
     class OffenderDetailTest {
-
-        @DisplayName("Maps community API offender manager to offender manager handling nulls")
-        @Test
-        void givenNulls_whenMapOffenderManager_thenReturn() {
-
-            var offenderManager = OffenderMapper.buildOffenderManager(CommunityApiOffenderManager.builder().build());
-
-            assertThat(offenderManager.isActive()).isFalse();
-            assertThat(offenderManager.isSoftDeleted()).isFalse();
-            assertThat(offenderManager.getTeam()).isNull();
-        }
 
         @DisplayName("Maps community API offender to OffenderDetail")
         @Test

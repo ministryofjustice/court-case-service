@@ -1,0 +1,158 @@
+  [
+    {
+      "staffCode": "SH0007",
+      "staffId": 17,
+      "isResponsibleOfficer": false,
+      "isPrisonOffenderManager": false,
+      "isUnallocated": false,
+      "staff": {
+        "forenames": "JIM",
+        "surname": "SNOW",
+        "email": "jim.snow@justice.gov.uk",
+        "phoneNumber": "01512112121"
+      },
+      "team": {
+        "code": "ASPUAT",
+        "description": "Team desc",
+        "telephone": "02033334444",
+        "localDeliveryUnit": {
+          "code": "ASPUAT",
+          "description": "LDU desc"
+        },
+        "teamType": {
+          "code": "ASPUAT",
+          "description": "Unallocated"
+        },
+        "district": {
+          "code": "ASPUAT",
+          "description": "Team district desc"
+        },
+        "borough": {
+          "code": "ASPUAT",
+          "description": "Unallocated"
+        }
+      },
+      "probationArea": {
+        "probationAreaId": 11,
+        "code": "ESX",
+        "description": "Essex",
+        "organisation": {
+          "code": "EA",
+          "description": "Eastern"
+        },
+        "teams": [
+          {
+            "teamId": 110,
+            "code": "ESXUAT",
+            "description": "Unallocated",
+            "isPrivate": false,
+            "scProvider": {
+              "code": "ESXUAT",
+              "description": "Unallocated"
+            },
+            "localDeliveryUnit": {
+              "code": "ESXUAT",
+              "description": "Unallocated"
+            },
+            "district": {
+              "code": "ESXUAT",
+              "description": "Unallocated"
+            },
+            "borough": {
+              "code": "ESXUAT",
+              "description": "Unallocated"
+            }
+          },
+          {
+            "teamId": 160,
+            "code": "ESXMIG",
+            "description": "Migrated Default",
+            "isPrivate": false,
+            "scProvider": {
+              "code": "ESXMIG",
+              "description": "Migrated Default"
+            },
+            "localDeliveryUnit": {
+              "code": "ESXMIG",
+              "description": "Migrated Default"
+            },
+            "district": {
+              "code": "ESXMIG",
+              "description": "Migrated Default"
+            },
+            "borough": {
+              "code": "ESXMIG",
+              "description": "Migrated Default"
+            }
+          }
+        ]
+      },
+      "fromDate": "2018-05-04"
+    },
+    {
+      "staffCode": "BEDUATU",
+      "staffId": 101,
+      "isResponsibleOfficer": false,
+      "isPrisonOffenderManager": true,
+      "isUnallocated": true,
+      "staff": {
+        "forenames": "Unallocated",
+        "surname": "Staff"
+      },
+      "team": {
+        "code": "BEDUAT",
+        "description": "Unallocated",
+        "localDeliveryUnit": {
+          "code": "BED_LUT",
+          "description": "Luton LDU"
+        },
+        "teamType": {
+          "code": "BEDUAT",
+          "description": "Unallocated"
+        },
+        "district": {
+          "code": "BED_LUT",
+          "description": "Luton LDU"
+        },
+        "borough": {
+          "code": "BED_ALL",
+          "description": "All Bedfordshire"
+        }
+      },
+      "probationArea": {
+        "probationAreaId": 12,
+        "code": "GCS",
+        "description": "Gloucestershire",
+        "organisation": {
+          "code": "SW",
+          "description": "South West"
+        },
+        "teams": [
+          {
+            "teamId": 111,
+            "code": "GCSUAT",
+            "description": "Non GPT Staff",
+            "isPrivate": false,
+            "scProvider": {
+              "code": "GCSUAT",
+              "description": "Non GPT Staff"
+            },
+            "localDeliveryUnit": {
+              "code": "GCS_ALL",
+              "description": "Gloucestershire All LDU"
+            },
+            "district": {
+              "code": "GCSGLDU",
+              "description": "CRC Gloucestershire LDU"
+            },
+            "borough": {
+              "code": "GCSCRC",
+              "description": "CRC  Gloucestershire Cluster"
+            }
+          }
+        ]
+      },
+      "fromDate": "2019-01-01"
+    }
+  ]
+

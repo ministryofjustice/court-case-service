@@ -75,6 +75,7 @@ spring:
 community-api:
   offender-by-crn-url-template: /secure/offenders/crn/%s
   offender-by-crn-all-url-template: /secure/offenders/crn/%s/all
+  offender-managers-by-crn-url-template: /secure/offenders/crn/%s/allOffenderManagers
   convictions-by-crn-url-template: /secure/offenders/crn/%s/convictions
   conviction-by-crn-url-template: /secure/offenders/crn/%s/convictions/%s
   attendances-by-crn-and-conviction-url-template: /secure/offenders/crn/%s/convictions/%s/attendancesFilter

@@ -8,18 +8,21 @@ import org.springframework.web.context.annotation.RequestScope;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
+import reactor.util.function.Tuple4;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.ConvictionBySentenceComparator;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
+import uk.gov.justice.probation.courtcaseservice.service.model.OffenderManager;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
@@ -87,21 +90,22 @@ public class OffenderService {
             .collectSortedList(new ConvictionBySentenceComparator()
                                 .thenComparing(Conviction::getConvictionId));
 
-        // This Mono resolves to a 3 tuple containing the record itself, the above-mentioned convictions, and the documents
-        Mono<Tuple3<ProbationRecord, List<Conviction>, GroupedDocuments>> probationMono = Mono.zip(
-            offenderRestClient.getProbationRecordByCrn(crn),
+        // This Mono resolves to a 4 tuple containing the convictions (see above), offender managers and CRN documents
+        // As a check against exclusions only we call getOffender which will return 403 status
+        Mono<Tuple4<List<Conviction>, List<OffenderManager>, GroupedDocuments, CommunityApiOffenderResponse>> communityApiMono = Mono.zip(
             convictions,
-            documentRestClient.getDocumentsByCrn(crn)
+            offenderRestClient.getOffenderManagers(crn),
+            documentRestClient.getDocumentsByCrn(crn),
+            offenderRestClient.getOffender(crn)
         );
-        Mono<List<Assessment>> assessmentsMono = assessmentsClient.getAssessmentsByCrn(crn);
 
-        var tuple3 = probationMono.blockOptional().orElseThrow(() -> new OffenderNotFoundException(crn));
-        ProbationRecord probationRecord = addConvictionsToProbationRecord(tuple3.getT1(), tuple3.getT2());
-        combineConvictionsAndDocuments(probationRecord, tuple3.getT3().getConvictions(), applyDocumentFilter);
+        var tuple4 = communityApiMono.blockOptional().orElseThrow(() -> new OffenderNotFoundException(crn));
+        var probationRecord = buildProbationRecord(crn, tuple4.getT1(), tuple4.getT2(), tuple4.getT3().getConvictions(), applyDocumentFilter);
 
         // The code below handles 2 different classes of exceptions which could be thrown when the mono is resolved.
         // Currently the error is ignored in both cases. However there is an ongoing discussion about how we should
         // populate the response based on the type of error we encounter - see PIC-432 for more details.
+        Mono<List<Assessment>> assessmentsMono = assessmentsClient.getAssessmentsByCrn(crn);
         try {
             assessmentsMono.blockOptional().ifPresent(assessments -> {
                 probationRecord.setAssessment(findMostRecentByStatus(assessments).orElse(null));
@@ -113,6 +117,22 @@ public class OffenderService {
         }
 
         return probationRecord;
+    }
+
+    private ProbationRecord buildProbationRecord(String crn, List<Conviction> convictions, List<OffenderManager> offenderManagers, List<ConvictionDocuments> convictionDocuments, final boolean applyDocumentFilter) {
+
+        final ConcurrentMap<String, List<OffenderDocumentDetail>> allConvictionDocuments = groupFilteredDocuments(convictionDocuments, applyDocumentFilter);
+        convictions
+            .forEach((conviction) -> {
+                final String convictionId = conviction.getConvictionId();
+                conviction.setDocuments(allConvictionDocuments.getOrDefault(convictionId, Collections.emptyList()));
+            });
+
+        return ProbationRecord.builder()
+            .crn(crn)
+            .convictions(convictions)
+            .offenderManagers(offenderManagers)
+            .build();
     }
 
     public Mono<Conviction> getConviction(final String crn, final Long convictionId) {
@@ -132,19 +152,9 @@ public class OffenderService {
 
     private Conviction addBreachesToConviction(Conviction conviction, List<Breach> breaches) {
         conviction.setBreaches(breaches.stream()
-                                    .sorted(Comparator.comparing(Breach::getStatusDate, Comparator.nullsLast(Comparator.reverseOrder())))
-                                    .collect(Collectors.toList()));
+            .sorted(Comparator.comparing(Breach::getStatusDate, Comparator.nullsLast(Comparator.reverseOrder())))
+            .collect(Collectors.toList()));
         return conviction;
-    }
-
-    private void combineConvictionsAndDocuments(final ProbationRecord probationRecord, final List<ConvictionDocuments> convictionDocuments, boolean applyDocumentFilter) {
-
-        final ConcurrentMap<String, List<OffenderDocumentDetail>> allConvictionDocuments = groupFilteredDocuments(convictionDocuments, applyDocumentFilter);
-        probationRecord.getConvictions()
-            .forEach((conviction) -> {
-                final String convictionId = conviction.getConvictionId();
-                conviction.setDocuments(allConvictionDocuments.getOrDefault(convictionId, Collections.emptyList()));
-            });
     }
 
     private ConcurrentMap<String, List<OffenderDocumentDetail>> groupFilteredDocuments(final List<ConvictionDocuments> convictionDocuments, boolean applyDocumentFilter) {
@@ -156,11 +166,6 @@ public class OffenderService {
                     .collect(Collectors.toList()))
                 .build())
             .collect(Collectors.toConcurrentMap(ConvictionDocuments::getConvictionId, ConvictionDocuments::getDocuments));
-    }
-
-    private ProbationRecord addConvictionsToProbationRecord(ProbationRecord probationRecord, List<Conviction> convictions) {
-        probationRecord.setConvictions(convictions);
-        return probationRecord;
     }
 
     public Mono<OffenderDetail> getOffenderDetail(String crn) {

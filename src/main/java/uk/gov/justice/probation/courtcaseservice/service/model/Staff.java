@@ -17,5 +17,7 @@ import lombok.NoArgsConstructor;
 public class Staff {
     private final String forenames;
     private final String surname;
+    private final String telephone;
+    private final String email;
 
 }

@@ -10,23 +10,15 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderManager;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentence;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiStaff;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiTeam;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiUnpaidWork;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
-import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.Offence;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
-import uk.gov.justice.probation.courtcaseservice.service.model.OffenderManager;
-import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
-import uk.gov.justice.probation.courtcaseservice.service.model.Staff;
-import uk.gov.justice.probation.courtcaseservice.service.model.Team;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
 import java.time.LocalDate;
@@ -35,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 
 public class OffenderMapper {
 
@@ -46,18 +37,6 @@ public class OffenderMapper {
             .preSentenceActivity(probationStatusDetail.getPreSentenceActivity())
             .inBreach(probationStatusDetail.getInBreach())
             .build();
-    }
-
-    public static ProbationRecord probationRecordFrom(CommunityApiOffenderResponse offenderResponse) {
-        return ProbationRecord.builder()
-                .crn(offenderResponse.getOtherIds().getCrn())
-                .offenderManagers(
-                        offenderResponse.getOffenderManagers().stream()
-                                .map(OffenderMapper::buildOffenderManager)
-                                .filter(offenderManager -> offenderManager.isActive() && !offenderManager.isSoftDeleted())
-                                .collect(Collectors.toList())
-                )
-                .build();
     }
 
     public static OffenderDetail offenderDetailFrom(CommunityApiOffenderResponse offenderResponse, ProbationStatusDetail probationStatusDetail) {
@@ -138,17 +117,6 @@ public class OffenderMapper {
             .orElse(null);
     }
 
-    static OffenderManager buildOffenderManager(CommunityApiOffenderManager offenderManager) {
-        return OffenderManager.builder()
-            .staff(OffenderMapper.staffOf(offenderManager.getStaff()))
-            .provider(Optional.ofNullable(offenderManager.getProbationArea()).map(KeyValue::getDescription).orElse(null))
-            .team(OffenderMapper.teamOf(offenderManager.getTeam()))
-            .allocatedDate(offenderManager.getFromDate())
-            .active(Optional.ofNullable(offenderManager.getActive()).orElse(Boolean.FALSE))
-            .softDeleted(Optional.ofNullable(offenderManager.getSoftDeleted()).orElse(Boolean.FALSE))
-            .build();
-    }
-
     public static List<Conviction> convictionsFrom(CommunityApiConvictionsResponse convictionsResponse) {
         return convictionsResponse.getConvictions().stream()
             .map(OffenderMapper::convictionFrom)
@@ -210,26 +178,6 @@ public class OffenderMapper {
                 .unacceptableAbsences(communityApiUnpaidWork.getAppointments().getUnacceptableAbsences())
                 .status(communityApiUnpaidWork.getStatus())
                 .build();
-    }
-
-    static Staff staffOf(CommunityApiStaff staff) {
-        return Optional.ofNullable(staff)
-                                .map(s -> Staff.builder()
-                                                .forenames(s.getForenames())
-                                                .surname(s.getSurname())
-                                                .build())
-                                .orElse(null);
-    }
-
-    static Team teamOf(CommunityApiTeam team) {
-        return Optional.ofNullable(team)
-            .map(s -> Team.builder()
-                .description(team.getDescription())
-                .district(team.getDistrict().getDescription())
-                .localDeliveryUnit(Optional.ofNullable(team.getLocalDeliveryUnit()).map(KeyValue::getDescription).orElse(null))
-                .telephone(team.getTelephone())
-                .build())
-            .orElse(null);
     }
 
     static LocalDate endDateCalculator(CommunityApiSentence sentence) {

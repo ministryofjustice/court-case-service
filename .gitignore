@@ -31,3 +31,6 @@ HELP.md
 
 ### VS Code ###
 .vscode/
+
+### ADR ###
+.adr-dir

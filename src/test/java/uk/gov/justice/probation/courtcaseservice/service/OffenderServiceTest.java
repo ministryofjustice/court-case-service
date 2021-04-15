@@ -21,7 +21,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
-import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
@@ -85,6 +84,7 @@ class OffenderServiceTest {
         private Conviction conviction;
         private Assessment assessment;
         private Breach breach;
+        private CommunityApiOffenderResponse communityApiOffenderResponse;
 
         @BeforeEach
         void beforeEach() {
@@ -120,6 +120,7 @@ class OffenderServiceTest {
                 .status("COMPLETE")
                 .build();
             when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
+            this.communityApiOffenderResponse = CommunityApiOffenderResponse.builder().build();
             service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
             service.setAssessmentStatuses(List.of("COMPLETE"));
         }
@@ -156,7 +157,7 @@ class OffenderServiceTest {
             assertThat(conviction.getDocuments().get(0).getDocumentName()).isEqualTo("PSR");
             assertThat(conviction.getDocuments().get(1).getDocumentName()).isEqualTo("CPS");
             assertThat(probationRecord.getAssessment().getType()).isEqualTo("OLDER_COMPLETE_ASSESSMENT");
-            verify(offenderRestClient).getProbationRecordByCrn(CRN);
+            verify(offenderRestClient).getOffenderManagers(CRN);
             verify(offenderRestClient).getConvictionsByCrn(CRN);
             verify(documentRestClient).getDocumentsByCrn(CRN);
             verify(assessmentsRestClient).getAssessmentsByCrn(CRN);
@@ -174,7 +175,7 @@ class OffenderServiceTest {
             assertThat(conviction.getDocuments()).hasSize(1);
             assertThat(conviction.getDocuments().stream().filter(doc -> COURT_REPORT_DOCUMENT.equals(doc.getType())).findFirst().get().getDocumentName())
                 .isEqualTo("PSR");
-            verify(offenderRestClient).getProbationRecordByCrn(CRN);
+            verify(offenderRestClient).getOffenderManagers(CRN);
             verify(offenderRestClient).getConvictionsByCrn(CRN);
             verify(documentRestClient).getDocumentsByCrn(CRN);
             verifyNoMoreInteractions(offenderRestClient);
@@ -195,7 +196,7 @@ class OffenderServiceTest {
 
             assertThat(probationRecord.getConvictions()).hasSize(3);
             assertThat(probationRecord.getConvictions()).containsExactly(conviction, conviction2, conviction3);
-            verify(offenderRestClient).getProbationRecordByCrn(CRN);
+            verify(offenderRestClient).getOffenderManagers(CRN);
             verify(offenderRestClient).getConvictionsByCrn(CRN);
             verify(documentRestClient).getDocumentsByCrn(CRN);
             verifyNoMoreInteractions(offenderRestClient);
@@ -205,9 +206,10 @@ class OffenderServiceTest {
         @Test
         void givenOffenderNotFound_whenGetOffender_thenThrowException() {
             when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
+            when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
-            when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
-            when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.just(List.of(assessment)));
+            when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
+            when(offenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
 
             assertThatExceptionOfType(OffenderNotFoundException.class)
                 .isThrownBy(() -> service.getProbationRecord(CRN, true))
@@ -217,10 +219,10 @@ class OffenderServiceTest {
         @DisplayName("Getting offender convictions throws exception when CRN not found, even if other calls succeed")
         @Test
         void givenConvictionsNotFound_whenGetOffender_thenThrowException() {
-            when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
+            when(offenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
+            when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
             when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
-            when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.just(List.of(assessment)));
 
             assertThatExceptionOfType(OffenderNotFoundException.class)
                 .isThrownBy(() -> service.getProbationRecord(CRN, true))
@@ -230,9 +232,10 @@ class OffenderServiceTest {
         @DisplayName("Getting probation record does not throw exception when oasys assessment data is missing")
         @Test
         void givenAssessmentNotFound_whenGetOffender_thenDoNotThrowException() {
-            when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
+            when(offenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
             when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
             when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
+            when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
             // throw OffenderNotFoundException to simulate a 404 returned by assessments api
             when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
@@ -257,10 +260,11 @@ class OffenderServiceTest {
         @DisplayName("Getting probation record does not throw exception when assessment api fails for any reason")
         @Test
         void givenAssessmentRequestFails_whenGetOffender_thenDoNotThrowException() {
-            when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
+            when(offenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
             when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
             when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+            when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
             // throw ConnectException to simulate server side connection issues
             when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.error(new ConnectException("Connection refused")));
 
@@ -333,10 +337,10 @@ class OffenderServiceTest {
         @Test
         void givenBreachRequestFailsWith404_whenGetOffender_thenThrowException() {
             // all these are normal return values
-            when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
+            when(offenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
             when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
-            when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.just(List.of(assessment)));
+            when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
 
             // OffenderNotFound returned on 404 from community api
             when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
@@ -350,10 +354,9 @@ class OffenderServiceTest {
         @Test
         void givenBreachRequestFailsWithConnectionIssue_whenGetOffender_thenThrowException() {
             // all these are normal return values
-            when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
+            when(offenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
             when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
-            when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.just(List.of(assessment)));
 
             // throw ConnectException to simulate server side connection issues
             when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.error(new ConnectException("Connection refused")));
@@ -369,10 +372,11 @@ class OffenderServiceTest {
         }
 
         private void mockForStandardClientCalls(List<Conviction> convictions, List<Assessment> assessments, List<Breach> breaches) {
-            when(offenderRestClient.getProbationRecordByCrn(CRN)).thenReturn(Mono.just(ProbationRecord.builder().crn(CRN).build()));
+            when(offenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
             when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(convictions));
             when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(breaches));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+            when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
             when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.just(assessments));
         }
     }

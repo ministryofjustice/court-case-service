@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.restclient;
 import java.time.LocalDate;
 import java.time.Month;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -32,131 +33,149 @@ class OffenderRestClientIntTest extends BaseIntTest {
         offenderRestClient = offenderRestClientFactory.build();
     }
 
-    @Test
-    void whenGetOffenderByCrnCalled_thenMakeRestCallToCommunityApi() {
-        var optionalOffender = offenderRestClient.getProbationRecordByCrn(CRN).blockOptional();
+    @Nested
+    class getOffenderManagers {
 
-        assertThat(optionalOffender).isNotEmpty();
-        var offender = optionalOffender.get();
-        assertThat(offender.getCrn()).isEqualTo(CRN);
+        @Test
+        void whenGetOffenderManagersByCrnCalled_thenMakeRestCallToCommunityApi() {
+            var maybeOffenderManagers = offenderRestClient.getOffenderManagers(CRN).blockOptional();
 
-        assertThat(offender.getOffenderManagers()).hasSize(1);
-        var offenderManager = offender.getOffenderManagers().get(0);
-        assertThat(offenderManager.getStaff().getForenames()).isEqualTo("Temperance");
-        assertThat(offenderManager.getStaff().getSurname()).isEqualTo("Brennan");
-        assertThat(offenderManager.getProvider()).isEqualTo("NPS North East");
-        assertThat(offenderManager.getTeam().getDescription()).isEqualTo("OMIC OMU A");
-        assertThat(offenderManager.getTeam().getTelephone()).isEqualTo("0151 222 3333");
-        assertThat(offenderManager.getTeam().getLocalDeliveryUnit()).isEqualTo("LDU Description");
-        assertThat(offenderManager.getTeam().getDistrict()).isEqualTo("OMiC POM Responsibility");
-        assertThat(offender.getOffenderManagers().get(0).getAllocatedDate()).isEqualTo(LocalDate.of(2019,9,30));
+            assertThat(maybeOffenderManagers).isNotEmpty();
+            var offenderManagers = maybeOffenderManagers.get();
+            assertThat(offenderManagers).hasSize(1);
+            var offenderManager = offenderManagers.get(0);
+            assertThat(offenderManager.getProvider()).isEqualTo("Essex");
+            assertThat(offenderManager.getStaff().getForenames()).isEqualTo("JIM");
+            assertThat(offenderManager.getStaff().getSurname()).isEqualTo("SNOW");
+            assertThat(offenderManager.getStaff().getEmail()).isEqualTo("jim.snow@justice.gov.uk");
+            assertThat(offenderManager.getStaff().getTelephone()).isEqualTo("01512112121");
+            assertThat(offenderManager.getAllocatedDate()).isEqualTo(LocalDate.of(2018, Month.MAY, 4));
+            assertThat(offenderManager.getTeam().getDescription()).isEqualTo("Team desc");
+            assertThat(offenderManager.getTeam().getDistrict()).isEqualTo("Team district desc");
+            assertThat(offenderManager.getTeam().getTelephone()).isEqualTo("02033334444");
+            assertThat(offenderManager.getTeam().getLocalDeliveryUnit()).isEqualTo("LDU desc");
+        }
+
+        @Test
+        void givenOffenderDoesNotExist_whenGetOffenderManagersByCrnCalled_ReturnEmpty() {
+            assertThrows(OffenderNotFoundException.class, () ->
+                offenderRestClient.getOffenderManagers("CRNXXX").blockOptional()
+            );
+        }
+
+        @Test
+        void givenServiceThrowsError_whenGetOffenderByCrnCalled_thenFailFastAndThrowException() {
+            assertThrows(WebClientResponseException.class, () ->
+                offenderRestClient.getOffenderManagers(SERVER_ERROR_CRN).block()
+            );
+        }
     }
 
-    @Test
-    void givenOffenderDoesNotExist_whenGetOffenderByCrnCalled_ReturnEmpty() {
-        assertThrows(OffenderNotFoundException.class, () ->
-            offenderRestClient.getProbationRecordByCrn("CRNXXX").blockOptional()
-        );
+    @Nested
+    class convictionsByCrn {
+
+        @Test
+        void whenGetConvictionsByCrnCalled_thenMakeRestCallToCommunityApi() {
+            var optionalConvictions = offenderRestClient.getConvictionsByCrn(CRN).blockOptional();
+
+            assertThat(optionalConvictions).isNotEmpty();
+
+            assertThat(optionalConvictions.get()).hasSize(3);
+        }
+
+        @Test
+        void givenOffenderDoesNotExist_whenGetConvictionsByCrnCalled_ReturnEmpty() {
+            assertThrows(OffenderNotFoundException.class, () ->
+                offenderRestClient.getConvictionsByCrn(UNKNOWN_CRN).block()
+            );
+        }
+
+        @Test
+        void givenServiceThrowsError_whenGetConvictionsByCrnCalled_thenFailFastAndThrowException() {
+            assertThrows(WebClientResponseException.class, () ->
+                offenderRestClient.getConvictionsByCrn(SERVER_ERROR_CRN).block()
+            );
+        }
     }
 
-    @Test
-    void givenServiceThrowsError_whenGetOffenderByCrnCalled_thenFailFastAndThrowException() {
-        assertThrows(WebClientResponseException.class, () ->
-            offenderRestClient.getProbationRecordByCrn(SERVER_ERROR_CRN).block()
-        );
+
+    @Nested
+    class convictionRequirements {
+
+        @Test
+        void whenGetConvictionRequirementsCalled_thenMakeRestCallToCommunityApi() {
+            var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID).blockOptional();
+
+            assertThat(optionalRequirements).isNotEmpty();
+
+            var rqmnts = optionalRequirements.get();
+            assertThat(rqmnts).hasSize(2);
+
+            var rqmt1 = rqmnts.stream()
+                .filter(requirement -> requirement.getRequirementId().equals(2500083652L))
+                .findFirst().orElse(null);
+
+            assertThat(EXPECTED_RQMNT_1).usingRecursiveComparison().isEqualTo(rqmt1);
+        }
+
+        @Test
+        void givenKnownCrnUnknownConvictionId_whenGetConvictionRequirementsCalled_thenReturnEmptyRequirements() {
+            var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, 2500297999L).blockOptional();
+
+            var reqs = optionalRequirements.get();
+
+            assertThat(reqs).isEmpty();
+        }
+
+        @Test
+        void givenServiceThrowsError_whenGetConvictionRequirementsCalled_thenReturnEmptyList() {
+            // This endpoint is used as a composite so we will return an empty list for a 500 error
+            var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, 99999L).block();
+
+            assertThat(optionalRequirements).isEmpty();
+        }
     }
 
-    @Test
-    void whenGetConvictionsByCrnCalled_thenMakeRestCallToCommunityApi() {
-        var optionalConvictions = offenderRestClient.getConvictionsByCrn(CRN).blockOptional();
 
-        assertThat(optionalConvictions).isNotEmpty();
+    @Nested
+    class getBreaches {
 
-        assertThat(optionalConvictions.get()).hasSize(3);
-    }
+        @Test
+        void whenGetBreaches_thenMakeRestCallToCommunityApi() {
+            var optionalBreaches = offenderRestClient.getBreaches(CRN, CONVICTION_ID.toString()).blockOptional();
+            assertThat(optionalBreaches).isNotEmpty();
 
-    @Test
-    void givenOffenderDoesNotExist_whenGetConvictionsByCrnCalled_ReturnEmpty() {
-        assertThrows(OffenderNotFoundException.class, () ->
-            offenderRestClient.getConvictionsByCrn(UNKNOWN_CRN).block()
-        );
-    }
+            var breaches = optionalBreaches.get();
+            assertThat(breaches.size()).isEqualTo(2);
 
-    @Test
-    void givenServiceThrowsError_whenGetConvictionsByCrnCalled_thenFailFastAndThrowException() {
-        assertThrows(WebClientResponseException.class, () ->
-            offenderRestClient.getConvictionsByCrn(SERVER_ERROR_CRN).block()
-        );
-    }
+            var breach = breaches.get(0);
+            assertThat(breach.getStatus()).isEqualTo("Breach Initiated");
+            assertThat(breach.getBreachId()).isEqualTo(11131321L);
+            assertThat(breach.getDescription()).isEqualTo("Community Order");
+            assertThat(breach.getStatusDate()).isEqualTo(LocalDate.of(2019, Month.DECEMBER, 18));
+            assertThat(breach.getStarted()).isEqualTo(LocalDate.of(2019, Month.OCTOBER, 20));
+        }
 
-    @Test
-    void whenGetConvictionRequirementsCalled_thenMakeRestCallToCommunityApi() {
-       var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID).blockOptional();
+        @Test
+        void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoCRN() {
+            assertThrows(ConvictionNotFoundException.class, () ->
+                offenderRestClient.getBreaches("xxx", CONVICTION_ID.toString()).block()
+            );
+        }
 
-        assertThat(optionalRequirements).isNotEmpty();
+        @Test
+        void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoConvictionId() {
+            assertThrows(ConvictionNotFoundException.class, () ->
+                offenderRestClient.getBreaches(CRN, "123").block()
+            );
+        }
 
-        var rqmnts = optionalRequirements.get();
-        assertThat(rqmnts).hasSize(2);
-
-        var rqmt1 = rqmnts.stream()
-            .filter(requirement -> requirement.getRequirementId().equals(2500083652L))
-            .findFirst().orElse(null);
-
-        assertThat(EXPECTED_RQMNT_1).usingRecursiveComparison().isEqualTo(rqmt1);
-    }
-
-    @Test
-    void givenKnownCrnUnknownConvictionId_whenGetConvictionRequirementsCalled_thenReturnEmptyRequirements() {
-        var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, 2500297999L).blockOptional();
-
-        var reqs = optionalRequirements.get();
-
-        assertThat(reqs).isEmpty();
-    }
-
-    @Test
-    void givenServiceThrowsError_whenGetConvictionRequirementsCalled_thenReturnEmptyList() {
-        // This endpoint is used as a composite so we will return an empty list for a 500 error
-        var optionalRequirements = offenderRestClient.getConvictionRequirements(CRN, 99999L).block();
-
-        assertThat(optionalRequirements).isEmpty();
-    }
-
-    @Test
-    void whenGetBreaches_thenMakeRestCallToCommunityApi() {
-        var optionalBreaches = offenderRestClient.getBreaches(CRN, CONVICTION_ID.toString()).blockOptional();
-        assertThat(optionalBreaches).isNotEmpty();
-
-        var breaches = optionalBreaches.get();
-        assertThat(breaches.size()).isEqualTo(2);
-
-        var breach = breaches.get(0);
-        assertThat(breach.getStatus()).isEqualTo("Breach Initiated");
-        assertThat(breach.getBreachId()).isEqualTo(11131321L);
-        assertThat(breach.getDescription()).isEqualTo("Community Order");
-        assertThat(breach.getStatusDate()).isEqualTo(LocalDate.of(2019, Month.DECEMBER, 18));
-        assertThat(breach.getStarted()).isEqualTo(LocalDate.of(2019, Month.OCTOBER, 20));
-    }
-
-    @Test
-    void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoCRN() {
-        assertThrows(ConvictionNotFoundException.class, () ->
-            offenderRestClient.getBreaches("xxx", CONVICTION_ID.toString()).block()
-        );
-    }
-
-    @Test
-    void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoConvictionId() {
-        assertThrows(ConvictionNotFoundException.class, () ->
-           offenderRestClient.getBreaches(CRN, "123").block()
-        );
-    }
-
-    @Test
-    void whenGetBreaches_thenMakeRestCallToCommunityApi_500ServerError() {
-        assertThrows(WebClientResponseException.class, () ->
-            offenderRestClient.getBreaches(SERVER_ERROR_CRN, CONVICTION_ID.toString()).block()
-        );
+        @Test
+        void whenGetBreaches_thenMakeRestCallToCommunityApi_500ServerError() {
+            assertThrows(WebClientResponseException.class, () ->
+                offenderRestClient.getBreaches(SERVER_ERROR_CRN, CONVICTION_ID.toString()).block()
+            );
+        }
     }
 
     @Test

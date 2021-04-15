@@ -9,10 +9,12 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.CourtAppearanceMapper;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderManagerMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.RegistrationMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.RequirementMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.interventions.BreachMapper;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCommunityOrPrisonOffenderManagerResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCourtAppearancesResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiLicenceConditionsResponse;
@@ -26,7 +28,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.CourtAppearance;
 import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
-import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
+import uk.gov.justice.probation.courtcaseservice.service.model.OffenderManager;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
@@ -42,6 +44,8 @@ public class OffenderRestClient {
     private String offenderUrlTemplate;
     @Value("${community-api.offender-by-crn-all-url-template}")
     private String offenderAllUrlTemplate;
+    @Value("${community-api.offender-managers-by-crn-url-template}")
+    private String offenderManagersUrlTemplate;
     @Value("${community-api.convictions-by-crn-url-template}")
     private String convictionsUrlTemplate;
     @Value("${community-api.requirements-by-crn-url-template}")
@@ -67,15 +71,6 @@ public class OffenderRestClient {
     private String addressCode;
     private RestClientHelper clientHelper;
 
-    public Mono<ProbationRecord> getProbationRecordByCrn(String crn) {
-        return clientHelper.get(String.format(offenderAllUrlTemplate, crn))
-                .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
-                .bodyToMono(CommunityApiOffenderResponse.class)
-                .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender probation record data for CRN '%s'", crn), e))
-                .map(OffenderMapper::probationRecordFrom);
-    }
-
     public Mono<ProbationStatusDetail> getProbationStatusByCrn(String crn) {
         return clientHelper.get(String.format(probationStatusTemplate, crn))
             .retrieve()
@@ -100,6 +95,18 @@ public class OffenderRestClient {
             .bodyToMono(CommunityApiOffenderResponse.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender match detail data for CRN '%s'", crn), e))
             .map(offender -> OffenderMapper.offenderMatchDetailFrom(offender, addressCode));
+    }
+
+    public Mono<List<OffenderManager>> getOffenderManagers(String crn) {
+        return clientHelper.get(String.format(offenderManagersUrlTemplate, crn))
+            .retrieve()
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
+            .bodyToMono(CommunityApiCommunityOrPrisonOffenderManagerResponse.class)
+            .onErrorMap(e1 -> {
+                log.error(String.format("Unexpected exception when retrieving offender managers data for CRN '%s'", crn), e1);
+                return e1;
+            })
+            .map(OffenderManagerMapper::offenderManagersFrom);
     }
 
     public Mono<List<Conviction>> getConvictionsByCrn(String crn) {

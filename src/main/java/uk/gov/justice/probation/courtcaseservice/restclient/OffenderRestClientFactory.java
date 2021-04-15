@@ -18,6 +18,8 @@ public class OffenderRestClientFactory {
     private String offenderUrlTemplate;
     @Value("${community-api.offender-by-crn-all-url-template}")
     private String offenderAllUrlTemplate;
+    @Value("${community-api.offender-managers-by-crn-url-template}")
+    private String offenderManagersUrlTemplate;
     @Value("${community-api.convictions-by-crn-url-template}")
     private String convictionsUrlTemplate;
     @Value("${community-api.requirements-by-crn-url-template}")
@@ -71,6 +73,6 @@ public class OffenderRestClientFactory {
             throw new UnableToGetTokenOnBehalfOfUserException(message);
         }
         final var restClientHelper = webClientFactory.buildCommunityRestClientHelper(clientDetails.getUsername());
-        return new OffenderRestClient(offenderUrlTemplate, offenderAllUrlTemplate, convictionsUrlTemplate, requirementsUrlTemplate, pssRequirementsUrlTemplate, licenceConditionsUrlTemplate, registrationsUrlTemplate, nsisTemplate, courtAppearancesTemplate, probationStatusTemplate, nsiCodesParam, nsiBreachCodes, addressCode, restClientHelper);
+        return new OffenderRestClient(offenderUrlTemplate, offenderAllUrlTemplate, offenderManagersUrlTemplate, convictionsUrlTemplate, requirementsUrlTemplate, pssRequirementsUrlTemplate, licenceConditionsUrlTemplate, registrationsUrlTemplate, nsisTemplate, courtAppearancesTemplate, probationStatusTemplate, nsiCodesParam, nsiBreachCodes, addressCode, restClientHelper);
     }
 }

@@ -24,14 +24,15 @@ class OffenderRestClientFactoryTest {
     @Mock
     private ClientDetails clientDetails;
     private OffenderRestClientFactory clientFactory;
-    private List<String> nsiBreachCodes = Collections.singletonList("BRE");
-    private List<String> mandatesUsernameClientIds = Collections.singletonList("mandatory-username");
+    private final List<String> nsiBreachCodes = Collections.singletonList("BRE");
+    private final List<String> mandatesUsernameClientIds = Collections.singletonList("mandatory-username");
 
     @BeforeEach
     public void setUp() {
         clientFactory = new OffenderRestClientFactory(
                 "offenderUrlTemplate",
                 "offenderAllUrlTemplate",
+                "offenderManagersUrlTemplate",
                 "convictionsUrlTemplate",
                 "requirementsUrlTemplate",
                 "pssRequirementsUrlTemplate",

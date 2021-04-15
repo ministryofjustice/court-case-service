@@ -113,17 +113,17 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
             .district("OMiC POM Responsibility")
             .build();
 
-        var staff = Staff.builder()
-            .forenames("ANGEL")
-            .surname("Extravaganza")
-            .build();
-
         var offenderManager = OffenderManager.builder().active(true)
             .allocatedDate(LocalDate.of(2019, Month.SEPTEMBER, 30))
             .softDeleted(false)
             .provider("NPS North East")
             .team(team)
-            .staff(staff)
+            .staff(Staff.builder()
+                .forenames("ANGEL")
+                .surname("Extravaganza")
+                .email("angel@heaven.com")
+                .telephone("02011112222")
+                .build())
             .build();
 
         var sentence = Sentence.builder()

@@ -171,7 +171,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .then()
                 .assertThat()
                 .statusCode(400)
-                .body("developerMessage", equalTo("Required LocalDate parameter 'date' is not present"));
+                .body("developerMessage", equalTo("Required request parameter 'date' for method parameter type LocalDate is not present"));
     }
 
     @Test

@@ -10,7 +10,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.interventions.BreachMapper;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsi;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsiResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsiStatus;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsiType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,6 +40,31 @@ class BreachMapperTest {
         assertThat(breaches.get(0).getStatus()).isEqualTo("Breach Initiated");
         assertThat(breaches.get(0).getStarted()).isEqualTo(LocalDate.of(2019, 10, 20));
         assertThat(breaches.get(0).getStatusDate()).isEqualTo(LocalDate.of(2019, 12, 18));
+    }
+
+    @DisplayName("maps breach with no subType, gets description from the type")
+    @Test
+    void givenNoSubType_whenMapNsiToBreach_thenDescriptionIsFromType() {
+
+        var breach = BreachMapper.breachFrom(CommunityApiNsi.builder()
+                                                                .nsiId(1L)
+                                                                .type(new CommunityApiNsiType("BRE", "Breach Request"))
+                                                                .status(new CommunityApiNsiStatus("CODE", "Breach Initiated"))
+                                                                .build());
+
+        assertThat(breach.getDescription()).isEqualTo("Breach Request");
+    }
+
+    @DisplayName("maps breach with no subType or type sets description to null")
+    @Test
+    void givenNoSubTypeOrType_whenMapNsiToBreach_thenDescriptionIsNull() {
+
+        var breach = BreachMapper.breachFrom(CommunityApiNsi.builder()
+            .nsiId(1L)
+            .status(new CommunityApiNsiStatus("CODE", "Breach Initiated"))
+            .build());
+
+        assertThat(breach.getDescription()).isNull();
     }
 
     @DisplayName("maps null NSI response to empty list of breaches")

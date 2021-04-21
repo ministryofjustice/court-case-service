@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsi;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsiResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiNsiStatus;
@@ -17,7 +16,9 @@ public class BreachMapper {
     public static Breach breachFrom(CommunityApiNsi nsi) {
         return Breach.builder()
             .breachId(nsi.getNsiId())
-            .description(Optional.ofNullable(nsi.getSubType()).map(CommunityApiNsiType::getDescription).orElse(null))
+            .description(Optional.ofNullable(nsi.getSubType()).map(CommunityApiNsiType::getDescription)
+                        .orElse(Optional.ofNullable(nsi.getType()).map(CommunityApiNsiType::getDescription)
+                        .orElse(null)))
             .status(Optional.ofNullable(nsi.getStatus()).map(CommunityApiNsiStatus::getDescription).orElse(null))
             .started(nsi.getActualStartDate())
             .statusDate(Optional.ofNullable(nsi.getStatusDateTime()).map(LocalDateTime::toLocalDate).orElse(null))

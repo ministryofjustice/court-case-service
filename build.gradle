@@ -33,7 +33,7 @@ ext {
 
 def today = Instant.now()
 def todaysDate = LocalDate.now().format('yyyy-MM-dd')
-version = System.getenv('CI') ? "${todaysDate}.${System.getenv('CIRCLE_BUILD_NUM')}" : todaysDate
+def appVersion = System.getenv('CI') ? "${todaysDate}.${System.getenv('CIRCLE_BUILD_NUM')}" : todaysDate
 
 configurations {
     compileOnly {
@@ -50,6 +50,10 @@ jar {
     }
 }
 
+bootJar {
+    manifest = jar.manifest
+}
+
 flyway {
     url = 'jdbc:postgresql://localhost:5432/postgres?currentSchema=courtcaseservice&user=root&password=dev'
 }
@@ -58,7 +62,7 @@ springBoot {
     buildInfo {
         properties {
             artifact = rootProject.name
-            version = version
+            version = appVersion
             group = group
             name = rootProject.name
             time = today

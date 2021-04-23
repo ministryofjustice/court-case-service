@@ -33,7 +33,7 @@ ext {
 
 def today = Instant.now()
 def todaysDate = LocalDate.now().format('yyyy-MM-dd')
-def appVersion = System.getenv('CI') ? "${todaysDate}.${System.getenv('CIRCLE_BUILD_NUM')}" : todaysDate
+version = System.getenv('CI') ? "${todaysDate}.${System.getenv('CIRCLE_BUILD_NUM')}" : todaysDate
 
 configurations {
     compileOnly {
@@ -62,7 +62,7 @@ springBoot {
     buildInfo {
         properties {
             artifact = rootProject.name
-            version = appVersion
+            version = version
             group = group
             name = rootProject.name
             time = today

@@ -22,6 +22,7 @@ class DeploymentLoggerTest {
         when(buildProperties.getVersion()).thenReturn("expected_version");
         final var logger = new DeploymentLogger(buildProperties);
 
+        TestAppender.events.clear();
         logger.onApplicationEvent(null);
         assertThat(TestAppender.events.size()).isEqualTo(1);
         assertThat(TestAppender.events.get(0).toString()).startsWith("[INFO] Starting CourtCaseServiceApplication expected_version using Java ");

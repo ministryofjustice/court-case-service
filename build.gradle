@@ -50,6 +50,10 @@ jar {
     }
 }
 
+bootJar {
+    manifest = jar.manifest
+}
+
 flyway {
     url = 'jdbc:postgresql://localhost:5432/postgres?currentSchema=courtcaseservice&user=root&password=dev'
 }

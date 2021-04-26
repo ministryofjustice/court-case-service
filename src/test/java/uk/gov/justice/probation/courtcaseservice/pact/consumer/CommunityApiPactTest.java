@@ -25,23 +25,24 @@ class CommunityApiPactTest {
     @Pact(provider="community-api", consumer="court-case-service")
     public RequestResponsePact getNsis(PactDslWithProvider builder) {
 
-        PactDslJsonBody keyValueType = new PactDslJsonBody()
+        var keyValueType = new PactDslJsonBody()
             .stringType("code", "description");
 
-        PactDslJsonBody body = new PactDslJsonBody()
-            .integerType("nsiId", 2500003903L)
-            .date("actualStartDate","yyyy-MM-dd")
-            .datetime("statusDateTime")
-            .object("nsiType", keyValueType)
-            .object("nsiSubType", keyValueType)
-            .object("nsiStatus", keyValueType)
-            ;
+        var body = new PactDslJsonBody()
+            .eachLike("nsis")
+                .numberType("nsiId")
+                .object("nsiType", keyValueType)
+                .object("nsiSubType", keyValueType)
+                .object("nsiStatus", keyValueType)
+                .datetime("statusDateTime")
+                .date("actualStartDate","yyyy-MM-dd")
+            .closeArray();
 
         return builder
-            .given("an NSI exists for CRN X320741 and conviction id 2500018597")
+            .given("an NSI exists for CRN X320741 and conviction id 2500295345")
             .uponReceiving("a request for a NSIs by CRN and conviction ID")
-            .path("/secure/offenders/crn/X320741/convictions/2500018597/nsis")
-            .query("nsiCodes=BRE")
+            .path("/secure/offenders/crn/X320741/convictions/2500295345/nsis")
+            .query("nsiCodes=BRE&nsiCodes=BRES")
             .method("GET")
             .willRespondWith()
             .headers(Map.of("Content-Type", MediaType.APPLICATION_JSON_VALUE))
@@ -54,7 +55,7 @@ class CommunityApiPactTest {
     @Test
     void getNsis(MockServer mockServer) throws IOException {
         var httpResponse = Request
-            .Get(mockServer.getUrl() + "/secure/offenders/crn/X320741/convictions/2500018597/nsis?nsiCodes=BRE")
+            .Get(mockServer.getUrl() + "/secure/offenders/crn/X320741/convictions/2500295345/nsis?nsiCodes=BRE&nsiCodes=BRES")
             .execute()
             .returnResponse();
 

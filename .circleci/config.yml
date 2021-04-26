@@ -138,6 +138,16 @@ jobs:
           token_name: JIRA_CIRCLE_TOKEN
           job_type: build
 
+  pact-consumer-publish:
+    executor: builder
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - gradle-{{ checksum "build.gradle" }}
+            - gradle-
+      - run: PACTCONSUMER_VERSION=main ./gradlew -Dpact.writer.overwrite=true test pactPublish
+
   build_docker:
     executor: deployer
     parameters:
@@ -305,6 +315,12 @@ workflows:
           filters:
             tags:
               ignore: /.*/
+      - pact-consumer-publish:
+          requires:
+            - build
+#          filters:
+#            branches:
+#              only: main
       - dps/helm_lint:
           name: helm_lint_dev
           env: dev

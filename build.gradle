@@ -201,13 +201,10 @@ dependencies {
 
     testImplementation("au.com.dius.pact.provider:junit5spring:$pactVersion")
     testImplementation("au.com.dius.pact.provider:junit5:$pactVersion")
-//    testImplementation("au.com.dius.pact.core:model:$pactVersion")
     testImplementation("au.com.dius.pact:consumer:$pactVersion")
     testImplementation("au.com.dius.pact.consumer:junit5:$pactVersion")
 
     testImplementation("org.apache.httpcomponents:fluent-hc:4.5.13")
-
-
 
     agentDeps 'com.microsoft.azure:applicationinsights-agent:3.0.3'
 

@@ -47,7 +47,7 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
-@Provider("Court case service")
+@Provider("court-case-service")
 @PactBroker
 @Import(TestSecurity.class)
 @Disabled

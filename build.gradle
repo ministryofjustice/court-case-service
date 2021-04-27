@@ -159,7 +159,7 @@ dependencies {
 
     runtimeOnly 'org.flywaydb:flyway-core'
     runtimeOnly "org.springframework.boot:spring-boot-devtools"
-    runtimeOnly 'org.postgresql:postgresql:42.2.19'
+    runtimeOnly 'org.postgresql:postgresql:42.2.20'
 
     implementation 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'

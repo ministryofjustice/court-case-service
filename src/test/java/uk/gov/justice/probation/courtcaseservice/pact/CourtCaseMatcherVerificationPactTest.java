@@ -10,6 +10,7 @@ import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
 import au.com.dius.pact.provider.spring.junit5.PactVerificationSpringProvider;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.when;
 @Provider("court-case-service")
 @PactBroker
 @Import(TestSecurity.class)
+@Disabled
 class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
 
     @MockBean

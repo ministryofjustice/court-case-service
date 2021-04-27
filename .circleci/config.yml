@@ -318,9 +318,9 @@ workflows:
       - pact-consumer-publish:
           requires:
             - build
-#          filters:
-#            branches:
-#              only: main
+          filters:
+            branches:
+              only: main
       - dps/helm_lint:
           name: helm_lint_dev
           env: dev
@@ -363,7 +363,7 @@ workflows:
           requires:
             - request_prod_approval
 
-  pact:
-    jobs:
-      - pact_check_and_publish:
-          consumer_tags: << pipeline.parameters.pact_consumer_tags >>
+#  pact:
+#    jobs:
+#      - pact_check_and_publish:
+#          consumer_tags: << pipeline.parameters.pact_consumer_tags >>

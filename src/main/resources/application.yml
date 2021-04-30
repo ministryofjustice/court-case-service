@@ -50,8 +50,6 @@ spring:
 
   datasource:
     url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=${database.schema.name}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
-    hikari:
-      maximum-pool-size: 70
 
   flyway:
     schemas: ${database.schema.name}

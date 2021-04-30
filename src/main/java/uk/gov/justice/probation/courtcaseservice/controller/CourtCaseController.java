@@ -126,9 +126,9 @@ public class CourtCaseController {
     }
 
     private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity) {
-        final var offenderMatchesEntity = offenderMatchService.getOffenderMatches(courtCaseEntity.getCourtCode(), courtCaseEntity.getCaseNo())
-                .orElse(null);
+        final var offenderMatchesCount = offenderMatchService.getMatchCount(courtCaseEntity.getCourtCode(), courtCaseEntity.getCaseNo())
+                .orElse(0);
 
-        return CourtCaseResponseMapper.mapFrom(courtCaseEntity, offenderMatchesEntity);
+        return CourtCaseResponseMapper.mapFrom(courtCaseEntity, offenderMatchesCount);
     }
 }

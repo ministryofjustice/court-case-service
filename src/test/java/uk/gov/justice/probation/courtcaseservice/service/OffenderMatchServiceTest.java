@@ -226,6 +226,14 @@ class OffenderMatchServiceTest {
         assertThat(response.getOffenderMatchDetails()).extracting("forename").containsExactlyInAnyOrder("Chris", "Dave");
     }
 
+    @Test
+    void whenGetOffenderMatchCount_thenReturn() {
+
+        when(offenderMatchRepository.getMatchCount(COURT_CODE, CASE_NO)).thenReturn(Optional.ofNullable(2));
+
+        assertThat(service.getMatchCount(COURT_CODE, CASE_NO).get()).isEqualTo(2);
+    }
+
     private void mockOffenderDetailMatch(String crn, OffenderMatchDetail matchDetail, List<Conviction> convictions) {
         when(offenderRestClient.getOffenderMatchDetailByCrn(crn)).thenReturn(Mono.justOrEmpty(matchDetail));
         when(offenderRestClient.getConvictionsByCrn(crn)).thenReturn(Mono.just(convictions));

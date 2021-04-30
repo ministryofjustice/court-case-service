@@ -18,46 +18,35 @@ import java.util.stream.Collectors;
 
 public class CourtCaseResponseMapper {
 
-    public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, GroupedOffenderMatchesEntity groupedOffenderMatches) {
+    public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, int matchCount) {
         return CourtCaseResponse.builder()
-                .caseId(courtCaseEntity.getCaseId())
-                .caseNo(courtCaseEntity.getCaseNo())
-                .crn(courtCaseEntity.getCrn())
-                .pnc(courtCaseEntity.getPnc())
-                .cro(courtCaseEntity.getCro())
-                .listNo(courtCaseEntity.getListNo())
-                .courtRoom(courtCaseEntity.getCourtRoom())
-                .courtCode(courtCaseEntity.getCourtCode())
-                .offences(mapOffencesFrom(courtCaseEntity))
-                .previouslyKnownTerminationDate(courtCaseEntity.getPreviouslyKnownTerminationDate())
-                .probationStatus(Optional.ofNullable(courtCaseEntity.getProbationStatus()).map(ProbationStatus::of).orElse(null))
-                .sessionStartTime(courtCaseEntity.getSessionStartTime())
-                .session(courtCaseEntity.getSession())
-                .suspendedSentenceOrder(courtCaseEntity.getSuspendedSentenceOrder())
-                .breach(courtCaseEntity.getBreach())
-                .preSentenceActivity(courtCaseEntity.getPreSentenceActivity())
-                .defendantName(courtCaseEntity.getDefendantName())
-                .name(courtCaseEntity.getName())
-                .defendantAddress(courtCaseEntity.getDefendantAddress())
-                .defendantDob(courtCaseEntity.getDefendantDob())
-                .defendantSex(courtCaseEntity.getDefendantSex())
-                .defendantType(courtCaseEntity.getDefendantType())
-                .nationality1(courtCaseEntity.getNationality1())
-                .nationality2(courtCaseEntity.getNationality2())
-                .createdToday(LocalDate.now().isEqual(Optional.ofNullable(courtCaseEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()))
-                .numberOfPossibleMatches(calculateNumberOfPossibleMatches(groupedOffenderMatches))
-                .build();
-    }
-
-    public static long calculateNumberOfPossibleMatches(GroupedOffenderMatchesEntity groupedOffenderMatches) {
-        if (groupedOffenderMatches == null) {
-            return 0;
-        }
-        return groupedOffenderMatches.getOffenderMatches()
-                .stream()
-                .map(OffenderMatchEntity::getCrn)
-                .distinct()
-                .count();
+            .caseId(courtCaseEntity.getCaseId())
+            .caseNo(courtCaseEntity.getCaseNo())
+            .crn(courtCaseEntity.getCrn())
+            .pnc(courtCaseEntity.getPnc())
+            .cro(courtCaseEntity.getCro())
+            .listNo(courtCaseEntity.getListNo())
+            .courtRoom(courtCaseEntity.getCourtRoom())
+            .courtCode(courtCaseEntity.getCourtCode())
+            .offences(mapOffencesFrom(courtCaseEntity))
+            .previouslyKnownTerminationDate(courtCaseEntity.getPreviouslyKnownTerminationDate())
+            .probationStatus(Optional.ofNullable(courtCaseEntity.getProbationStatus()).map(ProbationStatus::of).orElse(null))
+            .sessionStartTime(courtCaseEntity.getSessionStartTime())
+            .session(courtCaseEntity.getSession())
+            .suspendedSentenceOrder(courtCaseEntity.getSuspendedSentenceOrder())
+            .breach(courtCaseEntity.getBreach())
+            .preSentenceActivity(courtCaseEntity.getPreSentenceActivity())
+            .defendantName(courtCaseEntity.getDefendantName())
+            .name(courtCaseEntity.getName())
+            .defendantAddress(courtCaseEntity.getDefendantAddress())
+            .defendantDob(courtCaseEntity.getDefendantDob())
+            .defendantSex(courtCaseEntity.getDefendantSex())
+            .defendantType(courtCaseEntity.getDefendantType())
+            .nationality1(courtCaseEntity.getNationality1())
+            .nationality2(courtCaseEntity.getNationality2())
+            .createdToday(LocalDate.now().isEqual(Optional.ofNullable(courtCaseEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()))
+            .numberOfPossibleMatches(matchCount)
+            .build();
     }
 
     private static List<OffenceResponse> mapOffencesFrom(CourtCaseEntity courtCaseEntity) {

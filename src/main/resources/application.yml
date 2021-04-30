@@ -62,6 +62,7 @@ spring:
         jdbc:
           lob:
             non_contextual_creation: true
+    open-in-view: false
 
 # Uncomment the following lines to generate create.sql on build
 #      javax:

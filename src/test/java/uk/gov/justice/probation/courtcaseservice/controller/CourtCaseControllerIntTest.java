@@ -56,7 +56,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[0].defendantType", equalTo("PERSON"))
                 .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 0, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[0].createdToday", equalTo(true))
-                .body("cases[0].probationStatus", equalTo("No record"))
+                .body("cases[0].probationStatus", equalTo("Pre-sentence record"))
                 .body("cases[0].probationStatusActual", equalTo("NOT_SENTENCED"))
                 .body("cases[1].offences", hasSize(2))
                 .body("cases[1].caseNo", equalTo("1600028913"))

@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
+import uk.gov.justice.probation.courtcaseservice.application.UnsecuredResourceServerConfiguration;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
@@ -30,7 +31,7 @@ import static org.mockito.Mockito.when;
 
 @Provider("court-case-service")
 @PactBroker
-@Import(TestSecurity.class)
+@Import(UnsecuredResourceServerConfiguration.class)
 @Disabled
 class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
 

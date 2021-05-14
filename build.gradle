@@ -8,7 +8,7 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.38.0'
     id "org.flywaydb.flyway" version "7.8.1"
     id 'jacoco'
-    id "au.com.dius.pact" version "4.2.2"
+    id "au.com.dius.pact" version "4.2.5"
     id 'java-library'
 }
 
@@ -31,7 +31,7 @@ group = 'uk.gov.justice.probation'
 ext {
     swaggerVersion = '2.9.2'
     restAssuredVersion = '4.2.0'
-    pactVersion = '4.2.2'
+    pactVersion = '4.2.5'
 }
 
 def today = Instant.now()
@@ -113,7 +113,7 @@ task pactTestPublish(type: Test) {
     useJUnitPlatform ()
     filter {
         excludeTestsMatching '*IntTest'
-        includeTestsMatching '*VerificationPactTest'
+        includeTestsMatching '*PrepareACaseConsumerVerificationPactTest'
     }
 
     systemProperty("pact.provider.tag", System.getenv("PACT_PROVIDER_TAG"))

@@ -3,7 +3,6 @@ package uk.gov.justice.probation.courtcaseservice.pact;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.Collections;
 import java.util.List;
 import au.com.dius.pact.provider.junit5.HttpTestTarget;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
@@ -12,11 +11,11 @@ import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
 import au.com.dius.pact.provider.spring.junit5.PactVerificationSpringProvider;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import reactor.core.publisher.Mono;
@@ -49,8 +48,7 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 @Provider("court-case-service")
 @PactBroker
-@Import(TestSecurity.class)
-@Disabled
+@ActiveProfiles("unsecured")
 class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
 
 
@@ -69,8 +67,12 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
         context.verifyInteraction();
     }
 
-    @State({"a list of cases exist for the given date", "a case exists with the given case number"})
-    void getCases() {
+    @State({"a list of cases exist for the given date",
+        "a case exists with the given case number",
+        "the defendant has possible matches with existing offender records",
+        "the defendant has an existing conviction",
+        "will return the specific conviction breach details"})
+    void stateFromIntegrationTests() {
     }
 
     @State({"an offender record exists"})
@@ -192,27 +194,9 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
         when(offenderService.getProbationRecord(CRN, true)).thenReturn(probationRecord);
     }
 
-    @State({"the defendant has an existing conviction"})
-    void defendantHasAnExistingConviction() {
-
-    }
-
-    @State({"the defendant has possible matches with existing offender records"})
-    void defendantHasPossibleMatches() {
-
-    }
-
     @State({"the defendant has an existing risk assessment"})
     void defendantHasAnExistingRiskAssessment() {
-        var reg1 = Registration.builder()
-            .active(true)
-            .startDate(LocalDate.of(2020, Month.SEPTEMBER, 30))
-            .endDate(LocalDate.of(2021, Month.JANUARY, 1))
-            .type("MAPPA")
-            .nextReviewDate(LocalDate.of(2020, Month.DECEMBER, 30))
-            .notes(Collections.emptyList())
-            .build();
-        var reg2 = Registration.builder()
+        var reg = Registration.builder()
             .active(false)
             .startDate(LocalDate.of(2019, Month.SEPTEMBER, 30))
             .endDate(LocalDate.of(2020, Month.JANUARY, 1))
@@ -220,12 +204,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
             .nextReviewDate(LocalDate.of(2019, Month.DECEMBER, 30))
             .notes(List.of("01-01-20 - MAPPA has now ended."))
             .build();
-        when(offenderService.getOffenderRegistrations(CRN)).thenReturn(Mono.just(List.of(reg1, reg2)));
-    }
-
-    @State({"will return the specific conviction breach details"})
-    void offenderHasSpecificConvictionWithBreach() {
-
+        when(offenderService.getOffenderRegistrations("D541487")).thenReturn(Mono.just(List.of(reg)));
     }
 
 }

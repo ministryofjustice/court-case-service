@@ -210,7 +210,7 @@ dependencies {
 
     testImplementation("org.apache.httpcomponents:fluent-hc:4.5.13")
 
-    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.0.3'
+    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.1.0'
 
     testImplementation ('org.eclipse.jetty:jetty-io:9.4.39.v20210325') {
         because 'Transitive dependency. Previous versions have a known vulnerability'

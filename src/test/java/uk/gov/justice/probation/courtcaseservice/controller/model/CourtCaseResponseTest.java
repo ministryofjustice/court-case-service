@@ -35,7 +35,7 @@ class CourtCaseResponseTest {
             .numberOfPossibleMatches(3)
             .build();
 
-        assertThat(response.getProbationStatus()).isEqualTo("No record");
+        assertThat(response.getProbationStatus()).isEqualTo("Pre-sentence record");
         assertThat(response.getProbationStatusActual()).isEqualTo("NOT_SENTENCED");
     }
 

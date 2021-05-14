@@ -56,7 +56,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[0].defendantType", equalTo("PERSON"))
                 .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 0, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[0].createdToday", equalTo(true))
-                .body("cases[0].probationStatus", equalTo("No record"))
+                .body("cases[0].probationStatus", equalTo("Pre-sentence record"))
                 .body("cases[0].probationStatusActual", equalTo("NOT_SENTENCED"))
                 .body("cases[1].offences", hasSize(2))
                 .body("cases[1].caseNo", equalTo("1600028913"))
@@ -67,7 +67,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[1].offences[1].sequenceNumber", equalTo(2))
                 .body("cases[1].numberOfPossibleMatches", equalTo(3))
                 .body("cases[1].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 9, 0).format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("cases[2].caseNo", equalTo("1600028917"))
                 .body("cases[3].caseNo", equalTo("1600028916"))
                 .body("cases[4].caseNo", equalTo("1600028915"))
                 .body("cases[4].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)))
@@ -98,17 +97,17 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
     }
 
     @Test
-    void GET_cases_givenCreatedBeforeFilterParam_whenGetCases_thenReturnCasesBeforeSpecifiedTime() {
+    void GET_cases_givenCreatedBeforeFilterParam_whenGetCases_thenReturnCasesCreatedUpTo8DaysBeforeListDate() {
         given()
                 .auth()
                 .oauth2(getToken())
         .when()
-                .get("/court/{courtCode}/cases?date={date}&createdBefore=2020-09-02T00:00:00", COURT_CODE, LocalDate.of(2019, 12, 14).format(DateTimeFormatter.ISO_DATE))
+                .get("/court/{courtCode}/cases?date={date}&createdBefore=2020-10-05T00:00:00", COURT_CODE, LocalDate.of(2020, 5, 01).format(DateTimeFormatter.ISO_DATE))
                 .then()
                 .assertThat()
                 .statusCode(200)
                 .body("cases", hasSize(1))
-                .body("cases[0].caseNo", equalTo("1600028916"))
+                .body("cases[0].caseNo", equalTo("1600028930"))
         ;
     }
 

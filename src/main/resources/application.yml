@@ -62,6 +62,7 @@ spring:
         jdbc:
           lob:
             non_contextual_creation: true
+    open-in-view: false
 
 # Uncomment the following lines to generate create.sql on build
 #      javax:
@@ -100,7 +101,6 @@ community-api:
   sentence-appearance-code: S
 
 offender-assessments-api:
-  # assessment-crn-url-template: /offenders/crn/%s/assessments/latest
   assessment-crn-url-template: /offenders/crn/%s/assessments/summary
 
 delius:

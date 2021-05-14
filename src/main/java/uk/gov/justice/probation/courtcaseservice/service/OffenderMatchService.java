@@ -85,6 +85,10 @@ public class OffenderMatchService {
         return offenderMatchRepository.findByCourtCodeAndCaseNo(courtCode, caseNo);
     }
 
+    public Optional<Integer> getMatchCount(String courtCode, String caseNo) {
+        return offenderMatchRepository.getMatchCount(courtCode, caseNo);
+    }
+
     OffenderMatchDetail getOffenderMatchDetail(String crn) {
         log.debug("Looking for offender detail for CRN :{}", crn);
         return Mono.zip(offenderRestClient.getOffenderMatchDetailByCrn(crn),

@@ -80,7 +80,7 @@ class CourtCaseResponseMapperTest {
 
     @Test
     void shouldMapEntityToResponse() {
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, matchGroups);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 20);
 
         assertThat(courtCaseResponse.getCaseId()).isEqualTo(CASE_ID);
         assertThat(courtCaseResponse.getCaseNo()).isEqualTo(CASE_NO);
@@ -106,32 +106,18 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getNationality1()).isEqualTo(NATIONALITY_1);
         assertThat(courtCaseResponse.getNationality2()).isEqualTo(NATIONALITY_2);
         assertThat(courtCaseResponse.isCreatedToday()).isFalse();
-        assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(2);
+        assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(20);
     }
 
     @Test
     void shouldSetCreatedTodayToTrueIfCreatedToday() {
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(buildCourtCaseEntity(offences, LocalDateTime.now()), matchGroups);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(buildCourtCaseEntity(offences, LocalDateTime.now()), 1);
         assertThat(courtCaseResponse.isCreatedToday()).isTrue();
     }
 
     @Test
-    void shouldReturn0IfNoPossibleMatches() {
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(buildCourtCaseEntity(offences, FIRST_CREATED), null);
-
-        assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(0);
-    }
-
-    @Test
-    void shouldReturn0IfNullPossibleMatches() {
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, null);
-
-        assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(0);
-    }
-
-    @Test
     void shouldMapOffencesToResponse() {
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, matchGroups);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 1);
 
         assertThat(courtCaseResponse.getOffences().size()).isEqualTo(2);
 
@@ -158,7 +144,7 @@ class CourtCaseResponseMapperTest {
 
         var reorderedCourtCaseEntity = buildCourtCaseEntity(reorderedOffences, FIRST_CREATED);
 
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(reorderedCourtCaseEntity, matchGroups);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(reorderedCourtCaseEntity, 1);
 
         var firstOffence = courtCaseResponse.getOffences().get(0);
         assertThat(firstOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE);

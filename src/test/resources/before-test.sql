@@ -27,6 +27,12 @@ INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court
 INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created) VALUES (5555559, 1600028917, 'B10JQ', 1,'2019-12-14 12:59:59', 'NO_RECORD', 'X320745', 'Mr Hideo Kojima',
 '2020-10-01 18:59:59');
 
+-- See GET_cases_givenCreatedBeforeFilterParam_whenGetCases_thenReturnCasesCreatedUpTo8DaysBeforeListDate
+-- Used to test default createdBefore date
+INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created) VALUES (5555559, 1600028930, 'B10JQ', 1,'2020-05-01 12:59:59', 'NO_RECORD', 'X320745', 'Mr Hideo Kojima',
+'2020-05-01 18:59:59');
+
+
 
 INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, created_by, manual_update) VALUES (5555560, 1600028919, 'B30NY', 1, '2019-12-14 12:59:59', 'NO_RECORD', 'X320654', 'Hubert Farnsworth',
 '2020-10-01 16:59:59', 'TURANGALEE(prepare-a-case-for-court)', true);

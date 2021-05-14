@@ -6,7 +6,7 @@ plugins {
     id 'org.springframework.boot' version '2.4.5'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'com.github.ben-manes.versions' version '0.38.0'
-    id "org.flywaydb.flyway" version "7.8.1"
+    id "org.flywaydb.flyway" version "7.8.2"
     id 'jacoco'
     id "au.com.dius.pact" version "4.2.5"
     id 'java-library'
@@ -201,7 +201,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.7.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
-    testImplementation ("com.github.tomakehurst:wiremock-jre8:2.27.1")
+    testImplementation ("com.github.tomakehurst:wiremock-jre8:2.27.2")
 
     testImplementation("au.com.dius.pact.provider:junit5spring:$pactVersion")
     testImplementation("au.com.dius.pact.provider:junit5:$pactVersion")
@@ -210,7 +210,7 @@ dependencies {
 
     testImplementation("org.apache.httpcomponents:fluent-hc:4.5.13")
 
-    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.0.3'
+    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.1.0'
 
     testImplementation ('org.eclipse.jetty:jetty-io:9.4.39.v20210325') {
         because 'Transitive dependency. Previous versions have a known vulnerability'

@@ -212,7 +212,7 @@ dependencies {
 
     agentDeps 'com.microsoft.azure:applicationinsights-agent:3.1.0'
 
-    testImplementation ('org.eclipse.jetty:jetty-io:9.4.39.v20210325') {
+    testImplementation ('org.eclipse.jetty:jetty-io:11.0.3') {
         because 'Transitive dependency. Previous versions have a known vulnerability'
     }
 }

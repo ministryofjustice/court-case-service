@@ -192,7 +192,7 @@ dependencies {
     }
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.25.0'
+    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.26.0'
     testImplementation ("io.rest-assured:json-path:$restAssuredVersion")
     testImplementation ("io.rest-assured:xml-path:$restAssuredVersion")
     testImplementation ("io.rest-assured:rest-assured:$restAssuredVersion"){

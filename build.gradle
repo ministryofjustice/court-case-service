@@ -3,12 +3,12 @@ import java.time.LocalDate
 
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.4.5'
+    id 'org.springframework.boot' version '2.5.0'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'com.github.ben-manes.versions' version '0.38.0'
     id "org.flywaydb.flyway" version "7.9.1"
     id 'jacoco'
-    id "au.com.dius.pact" version "4.2.5"
+    id "au.com.dius.pact" version "4.2.6"
     id 'java-library'
 }
 
@@ -31,7 +31,7 @@ group = 'uk.gov.justice.probation'
 ext {
     swaggerVersion = '2.9.2'
     restAssuredVersion = '4.2.0'
-    pactVersion = '4.2.5'
+    pactVersion = '4.2.6'
 }
 
 def today = Instant.now()
@@ -46,6 +46,7 @@ configurations {
 }
 
 jar {
+    enabled = false
     manifest {
         attributes (
             'Implementation-Title': rootProject.name, 'Implementation-Version': archiveVersion
@@ -271,5 +272,6 @@ pact {
         consumerVersion = System.getenv("PACTCONSUMER_VERSION")
     }
 }
+
 assemble.dependsOn copyAgent
 assemble.dependsOn copyAgentConfig

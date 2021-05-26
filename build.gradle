@@ -46,6 +46,7 @@ configurations {
 }
 
 jar {
+    enabled = false
     manifest {
         attributes (
             'Implementation-Title': rootProject.name, 'Implementation-Version': archiveVersion
@@ -271,5 +272,6 @@ pact {
         consumerVersion = System.getenv("PACTCONSUMER_VERSION")
     }
 }
+
 assemble.dependsOn copyAgent
 assemble.dependsOn copyAgentConfig

@@ -213,6 +213,7 @@ jobs:
               PACT_PROVIDER_TAG="$CIRCLE_BRANCH" \
               PACTBROKER_CONSUMERVERSIONSELECTORS_TAGS="<< parameters.consumer_tags >>" \
               PACT_PUBLISH_RESULTS="true" \
+              SPRING_PROFILES_ACTIVE="unsecured" \
               ./gradlew pactTestPublish
       - save_cache:
           paths:
@@ -363,7 +364,7 @@ workflows:
           requires:
             - request_prod_approval
 
-#  pact:
-#    jobs:
-#      - pact_check_and_publish:
-#          consumer_tags: << pipeline.parameters.pact_consumer_tags >>
+  pact:
+    jobs:
+      - pact_check_and_publish:
+          consumer_tags: << pipeline.parameters.pact_consumer_tags >>

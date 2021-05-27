@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.pact;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Month;
 import java.util.Collections;
 import java.util.List;
@@ -12,11 +13,10 @@ import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
 import au.com.dius.pact.provider.spring.junit5.PactVerificationSpringProvider;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import reactor.core.publisher.Mono;
@@ -49,8 +49,7 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 @Provider("court-case-service")
 @PactBroker
-@Import(TestSecurity.class)
-@Disabled
+@ActiveProfiles("unsecured")
 class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
 
 
@@ -69,8 +68,15 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
         context.verifyInteraction();
     }
 
-    @State({"a list of cases exist for the given date", "a case exists with the given case number"})
-    void getCases() {
+    @State({"a list of cases exist for the given date",
+        "a case exists with the given case number",
+        "the defendant has possible matches with existing offender records",
+        "the defendant has an existing conviction with sentence",
+        "a defendant has an existing conviction",
+        "will return the specific conviction breach details",
+        "a defendant has an existing conviction"})
+    @SuppressWarnings({"EmptyMethod"})
+    void stateFromIntegrationTests() {
     }
 
     @State({"an offender record exists"})
@@ -155,20 +161,8 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                 .completedDate(LocalDateTime.of(2018, Month.FEBRUARY, 28, 0, 0,0)).build())
             .build();
 
-        var breach1 = Breach.builder()
-            .breachId(11131322L)
-            .description("Community Order")
-            .status("Breach Initiated")
-            .started(LocalDate.of(2020, Month.OCTOBER, 20))
-            .statusDate(LocalDate.of(2020, Month.DECEMBER, 18))
-            .build();
-        var breach2 = Breach.builder()
-            .breachId(11131321L)
-            .description("Community Order")
-            .status("Breach Initiated")
-            .started(LocalDate.of(2019, Month.OCTOBER, 20))
-            .statusDate(LocalDate.of(2019, Month.DECEMBER, 18))
-            .build();
+        var breachStartDate = LocalDate.of(2020, Month.OCTOBER, 20);
+        var breachStatusDate = LocalDate.of(2020, Month.DECEMBER, 18);
 
         var conviction = Conviction.builder()
             .convictionId("2500295345")
@@ -179,7 +173,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
             .sentence(sentence)
             .endDate(LocalDate.of(2019, Month.JANUARY, 1))
             .documents(List.of(document))
-            .breaches(List.of(breach1, breach2))
+            .breaches(List.of(getBreach(11131322L, breachStartDate, breachStatusDate), getBreach(11131321L, breachStartDate.minusYears(1), breachStatusDate.minusYears(1))))
             .build();
 
         var probationRecord = ProbationRecord.builder()
@@ -192,27 +186,9 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
         when(offenderService.getProbationRecord(CRN, true)).thenReturn(probationRecord);
     }
 
-    @State({"the defendant has an existing conviction"})
-    void defendantHasAnExistingConviction() {
-
-    }
-
-    @State({"the defendant has possible matches with existing offender records"})
-    void defendantHasPossibleMatches() {
-
-    }
-
     @State({"the defendant has an existing risk assessment"})
     void defendantHasAnExistingRiskAssessment() {
-        var reg1 = Registration.builder()
-            .active(true)
-            .startDate(LocalDate.of(2020, Month.SEPTEMBER, 30))
-            .endDate(LocalDate.of(2021, Month.JANUARY, 1))
-            .type("MAPPA")
-            .nextReviewDate(LocalDate.of(2020, Month.DECEMBER, 30))
-            .notes(Collections.emptyList())
-            .build();
-        var reg2 = Registration.builder()
+        var reg = Registration.builder()
             .active(false)
             .startDate(LocalDate.of(2019, Month.SEPTEMBER, 30))
             .endDate(LocalDate.of(2020, Month.JANUARY, 1))
@@ -220,12 +196,56 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
             .nextReviewDate(LocalDate.of(2019, Month.DECEMBER, 30))
             .notes(List.of("01-01-20 - MAPPA has now ended."))
             .build();
-        when(offenderService.getOffenderRegistrations(CRN)).thenReturn(Mono.just(List.of(reg1, reg2)));
+        when(offenderService.getOffenderRegistrations("D991494")).thenReturn(Mono.just(List.of(reg)));
     }
 
-    @State({"will return the specific conviction breach details"})
-    void offenderHasSpecificConvictionWithBreach() {
+    @State({"a defendant has an existing conviction"})
+    void defendantHasAnExistingConviction() {
+        var start = LocalDate.of(2017, Month.JUNE, 1);
+        var end = LocalDate.of(2018, Month.MAY, 31);
+        var breachStartDate = LocalDate.of(2020, Month.OCTOBER, 20);
+        var breachStatusDate = LocalDate.of(2020, Month.DECEMBER, 18);
 
+        var conviction = Conviction.builder()
+            .convictionId("2500295343")
+            .active(Boolean.TRUE)
+            .inBreach(Boolean.FALSE)
+            .convictionDate(start)
+            .endDate(end)
+            .sentence(Sentence.builder()
+                    .description("CJA - Community Order")
+                    .length(12)
+                    .lengthUnits("Months")
+                    .lengthInDays(364)
+                    .terminationDate(LocalDate.of(2017, Month.DECEMBER, 1))
+                    .startDate(start)
+                    .endDate(end)
+                    .terminationReason("Completed - early good progress")
+                    .build())
+            .breaches(List.of(getBreach(11131322L, breachStartDate, breachStatusDate), getBreach(11131321L, breachStartDate.minusYears(1), breachStatusDate.minusYears(1))))
+            .documents(List.of(OffenderDocumentDetail.builder()
+                                .documentId("5058ca66-3751-4701-855a-86bf518d9392")
+                                .documentName("documentName")
+                                .author("Andy Marke")
+                                .type(DocumentType.COURT_REPORT_DOCUMENT)
+                                .createdAt(LocalDateTime.of(LocalDate.of(2019, Month.SEPTEMBER, 4), LocalTime.MIN))
+                                .subType(KeyValue.builder()
+                                    .code("CR02")
+                                    .description("Court Report")
+                                    .build())
+                                .build()))
+            .offences(Collections.emptyList())
+            .build();
+        when(offenderService.getConviction("X320741", 2500295343L)).thenReturn(Mono.just(conviction));
     }
 
+    private Breach getBreach(Long id, LocalDate startedDate, LocalDate statusDate) {
+        return Breach.builder()
+            .breachId(id)
+            .description("Community Order")
+            .status("Breach Initiated")
+            .started(startedDate)
+            .statusDate(statusDate)
+            .build();
+    }
 }

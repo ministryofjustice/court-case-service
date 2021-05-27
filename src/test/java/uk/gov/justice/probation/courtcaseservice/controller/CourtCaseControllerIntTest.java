@@ -35,7 +35,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
     CourtCaseRepository courtCaseRepository;
 
     private static final String CASE_NO = "1600028913";
-    private static final String PROBATION_STATUS = "Possible nDelius record";
+    private static final String PROBATION_STATUS = "Possible NDelius record";
     private static final String NOT_FOUND_COURT_CODE = "LPL";
 
     @Test
@@ -61,7 +61,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[1].offences", hasSize(2))
                 .body("cases[1].caseNo", equalTo("1600028913"))
                 .body("cases[1].preSentenceActivity", equalTo(true))
-                .body("cases[1].probationStatus", equalTo("Possible nDelius record"))
+                .body("cases[1].probationStatus", equalTo("Possible NDelius record"))
                 .body("cases[1].probationStatusActual", equalTo(null))
                 .body("cases[1].offences[0].sequenceNumber", equalTo(1))
                 .body("cases[1].offences[1].sequenceNumber", equalTo(2))

@@ -45,6 +45,7 @@ class CourtCaseRequestTest {
         .listNo("LIST_NO")
         .nationality1("NATIONALITY_1")
         .nationality2("NATIONALITY_2")
+        .awaitingPsr(false)
         .build();
 
         final var entity = request.asEntity();
@@ -74,6 +75,7 @@ class CourtCaseRequestTest {
         assertThat(entity.getListNo()).isEqualTo("LIST_NO");
         assertThat(entity.getNationality1()).isEqualTo("NATIONALITY_1");
         assertThat(entity.getNationality2()).isEqualTo("NATIONALITY_2");
+        assertThat(entity.getAwaitingPsr()).isEqualTo(false);
         assertThat(entity.getOffences().get(0).getSequenceNumber()).isEqualTo(1);
         assertThat(entity.getOffences().get(0).getOffenceTitle()).isEqualTo("OFFENCE_TITLE1");
         assertThat(entity.getOffences().get(0).getOffenceSummary()).isEqualTo("OFFENCE_SUMMARY1");

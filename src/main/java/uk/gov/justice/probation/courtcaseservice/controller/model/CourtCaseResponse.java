@@ -55,6 +55,7 @@ public class CourtCaseResponse {
     private final boolean createdToday;
     private final boolean removed;
     private final long numberOfPossibleMatches;
+    private final Boolean awaitingPsr;
 
     @JsonProperty
     public String getProbationStatus() {

@@ -119,6 +119,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             .body("defendantSex", equalTo(DEFENDANT_SEX))
             .body("nationality1", equalTo(NATIONALITY_1))
             .body("nationality2", equalTo(NATIONALITY_2))
+            .body("awaitingPsr", equalTo(true))
         ;
 
     }

@@ -45,5 +45,6 @@
   "defendantDob": "1958-12-14",
   "defendantSex": "M",
   "nationality1": "British",
-  "nationality2": "Polish"
+  "nationality2": "Polish",
+  "awaitingPsr": true
 }

@@ -12,7 +12,7 @@ class CourtCaseResponseTest {
             .numberOfPossibleMatches(3)
             .build();
 
-        assertThat(response.getProbationStatus()).isEqualTo("Possible nDelius record");
+        assertThat(response.getProbationStatus()).isEqualTo("Possible NDelius record");
         assertThat(response.getProbationStatusActual()).isNull();
     }
 

@@ -86,6 +86,7 @@ public class EntityHelper {
             .listNo(LIST_NO)
             .nationality1(NATIONALITY_1)
             .nationality2(NATIONALITY_2)
+            .awaitingPsr(false)
             .deleted(false)
             .firstCreated(LocalDateTime.now())
             .offences(List.of(anOffence()));

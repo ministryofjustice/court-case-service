@@ -124,6 +124,9 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "NATIONALITY_2")
     private final String nationality2;
 
+    @Column(name = "AWAITING_PSR")
+    private final Boolean awaitingPsr;
+
     @Column(name = "deleted", nullable = false, updatable = false)
     private final boolean deleted;
 

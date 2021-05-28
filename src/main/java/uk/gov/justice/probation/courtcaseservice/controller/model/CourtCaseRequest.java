@@ -1,11 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +10,13 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Data
 @Builder
@@ -45,6 +46,7 @@ public class CourtCaseRequest {
     private final String listNo;
     private final String nationality1;
     private final String nationality2;
+    private final Boolean awaitingPsr;
 
     public CourtCaseEntity asEntity() {
         final List<OffenceEntity> offences = IntStream.range(0, Optional.ofNullable(getOffences())
@@ -102,6 +104,7 @@ public class CourtCaseRequest {
                                 .postcode(defendantAddress.getPostcode())
                             .build()
                         ).orElse(null))
+                .awaitingPsr(awaitingPsr)
                 .build();
 
         offences.forEach(offence -> offence.setCourtCase(entity));

@@ -107,6 +107,7 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getNationality2()).isEqualTo(NATIONALITY_2);
         assertThat(courtCaseResponse.isCreatedToday()).isFalse();
         assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(20);
+        assertThat(courtCaseResponse.getAwaitingPsr()).isEqualTo(true);
     }
 
     @Test
@@ -195,6 +196,7 @@ class CourtCaseResponseMapperTest {
             .created(CREATED)
             .offences(offences)
             .firstCreated(firstCreated)
+            .awaitingPsr(true)
             .build();
     }
 }

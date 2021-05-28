@@ -61,6 +61,7 @@ class OffenderMapperTest {
                 .preSentenceActivity(Boolean.TRUE)
                 .inBreach(Boolean.TRUE)
                 .previouslyKnownTerminationDate(date)
+                .awaitingPsr(true)
                 .build();
 
             var probationStatusDetail = OffenderMapper.probationStatusDetailFrom(communityApiProbationStatus);
@@ -69,6 +70,7 @@ class OffenderMapperTest {
             assertThat(probationStatusDetail.getInBreach()).isTrue();
             assertThat(probationStatusDetail.isPreSentenceActivity()).isTrue();
             assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isEqualTo(date);
+            assertThat(probationStatusDetail.isAwaitingPsr()).isTrue();
         }
 
         @DisplayName("Map probation status detail for unknown")
@@ -77,6 +79,7 @@ class OffenderMapperTest {
             var communityApiProbationStatus = CommunityApiProbationStatusDetail.builder()
                 .status("NOT_SENTENCED")
                 .preSentenceActivity(Boolean.FALSE)
+                .awaitingPsr(false)
                 .build();
 
             var probationStatusDetail = OffenderMapper.probationStatusDetailFrom(communityApiProbationStatus);
@@ -85,6 +88,7 @@ class OffenderMapperTest {
             assertThat(probationStatusDetail.getInBreach()).isNull();
             assertThat(probationStatusDetail.isPreSentenceActivity()).isFalse();
             assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isNull();
+            assertThat(probationStatusDetail.isAwaitingPsr()).isFalse();
         }
     }
 

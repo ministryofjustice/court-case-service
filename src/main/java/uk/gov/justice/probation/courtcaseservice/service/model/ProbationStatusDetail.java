@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
-import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
@@ -9,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
+
+import java.time.LocalDate;
 
 @ApiModel("Probation Status Detail")
 @Data
@@ -22,4 +23,5 @@ public class ProbationStatusDetail {
     private final LocalDate previouslyKnownTerminationDate;
     private final Boolean inBreach;
     private final boolean preSentenceActivity;
+    private final boolean awaitingPsr;
 }

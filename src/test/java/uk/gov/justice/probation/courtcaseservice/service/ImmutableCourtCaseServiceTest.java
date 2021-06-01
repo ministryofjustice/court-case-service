@@ -202,6 +202,14 @@ class ImmutableCourtCaseServiceTest {
                 .hasMessageContaining("Court " + COURT_CODE + " not found");
 
         }
+
+        @Test
+        void whenFilterByCourtAndDateForLastModified_thenReturn() {
+
+            var lastModified = service.filterCasesLastModified(COURT_CODE, SEARCH_DATE);
+
+            assertThat(lastModified).isNotNull();
+        }
     }
 
     @ExtendWith(MockitoExtension.class)

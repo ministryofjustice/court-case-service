@@ -141,4 +141,8 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                     match.getId(), existingCase.getCrn(), match.getCro(), existingCase.getCro()));
         }
     }
+
+    public LocalDateTime filterCasesLastModified(String courtCode, LocalDate search_date) {
+        return LocalDateTime.now();
+    }
 }

@@ -6,8 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
 import reactor.core.publisher.Mono;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
@@ -18,6 +18,7 @@ import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -83,18 +84,24 @@ public class CourtCaseControllerTest {
     @Test
     public void getCaseList_shouldReturnCourtCaseResponse() {
 
+        var lastModified = LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28));
+        when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
         when(courtCaseService.filterCasesByCourtAndDate(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE)).thenReturn(Collections.singletonList(courtCaseEntity));
-        CaseListResponse caseList = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE);
+        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE);
 
-        assertThat(caseList.getCases()).hasSize(1);
-        assertThat(caseList.getCases().get(0).getCourtCode()).isEqualTo(COURT_CODE);
-        assertThat(caseList.getCases().get(0).getCaseNo()).isEqualTo(CASE_NO);
-        assertThat(caseList.getCases().get(0).getSessionStartTime()).isNotNull();
-        assertThat(caseList.getCases().get(0).getSession()).isSameAs(session);
+        assertThat(responseEntity.getBody().getCases()).hasSize(1);
+        assertThat(responseEntity.getBody().getCases().get(0).getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(responseEntity.getBody().getCases().get(0).getCaseNo()).isEqualTo(CASE_NO);
+        assertThat(responseEntity.getBody().getCases().get(0).getSessionStartTime()).isNotNull();
+        assertThat(responseEntity.getBody().getCases().get(0).getSession()).isSameAs(session);
+        assertThat(responseEntity.getHeaders().getFirst(HttpHeaders.LAST_MODIFIED)).isEqualTo("Wed, 21 Oct 2015 07:28:00 GMT");
     }
 
     @Test
     public void getCaseList_sorted() {
+        var lastModified = LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28));
+        when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
+
         CourtCaseController controller = new CourtCaseController(courtCaseService, offenderMatchService);
 
         LocalDateTime mornSession = LocalDateTime.of(DATE, LocalTime.of(9, 30));
@@ -108,9 +115,9 @@ public class CourtCaseControllerTest {
         // Add in reverse order
         final LocalDateTime createdAfter = LocalDateTime.now().minus(1, ChronoUnit.DAYS);
         when(courtCaseService.filterCasesByCourtAndDate(COURT_CODE, DATE, createdAfter, CREATED_BEFORE)).thenReturn(List.of(entity5, entity4, entity3, entity2, entity1));
-        CaseListResponse caseList = controller.getCaseList(COURT_CODE, DATE, createdAfter, CREATED_BEFORE);
+        var responseEntity = controller.getCaseList(COURT_CODE, DATE, createdAfter, CREATED_BEFORE);
 
-        List<CourtCaseResponse> cases = caseList.getCases();
+        List<CourtCaseResponse> cases = responseEntity.getBody().getCases();
         assertThat(cases).hasSize(5);
 
         assertPosition(0, cases, "1", "Mr Nicholas CAGE", mornSession);
@@ -118,10 +125,13 @@ public class CourtCaseControllerTest {
         assertPosition(2, cases, "1", "Mr Darren ARONOFSKY", aftSession);
         assertPosition(3, cases, "3", "Mrs Minnie DRIVER", mornSession);
         assertPosition(4, cases, "3", "Mrs Juliette BINOCHE", aftSession);
+        assertThat(responseEntity.getHeaders().getFirst(HttpHeaders.LAST_MODIFIED)).isEqualTo("Wed, 21 Oct 2015 07:28:00 GMT");
     }
 
     @Test
     public void whenCreatedAfterIsNull_thenDefaultToTodayMinus8Days() {
+        var lastModified = LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28));
+        when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
         CourtCaseController controller = new CourtCaseController(courtCaseService, offenderMatchService);
         final LocalDateTime createdAfter = LocalDateTime.of(DATE, LocalTime.MIDNIGHT).minusDays(8);
         controller.getCaseList(COURT_CODE, DATE, null, CREATED_BEFORE);
@@ -131,6 +141,8 @@ public class CourtCaseControllerTest {
 
     @Test
     public void whenCreatedBeforeIsNull_thenDefaultToMaxDate() {
+        var lastModified = LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28));
+        when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
         CourtCaseController controller = new CourtCaseController(courtCaseService, offenderMatchService);
         final LocalDateTime createdBefore = LocalDateTime.of(294276, 12, 31, 23, 59);
         controller.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null);

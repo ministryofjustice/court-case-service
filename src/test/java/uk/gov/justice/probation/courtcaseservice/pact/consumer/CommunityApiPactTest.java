@@ -16,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static uk.gov.justice.probation.courtcaseservice.testUtil.DateHelper.standardDateOf;
 
 @ExtendWith(PactConsumerTestExt.class)
 @PactTestFor(providerName = "community-api")
@@ -51,11 +53,42 @@ class CommunityApiPactTest {
             .toPact();
     }
 
+    @Pact(provider="community-api", consumer="court-case-service")
+    public RequestResponsePact getProbationStatusDetail(PactDslWithProvider builder) {
+
+        var body = new PactDslJsonBody()
+            .booleanType("preSentenceActivity", "inBreach", "awaitingPsr")
+            .stringType("status")
+            .date("previouslyKnownTerminationDate");
+
+        return builder
+            .given("probation status detail is available for CRN X320741")
+            .uponReceiving("a request for a probation status detail by CRN")
+            .path("/secure/offenders/crn/X320741/probationStatus")
+            .method("GET")
+            .willRespondWith()
+            .headers(Map.of("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+            .body(body)
+            .status(200)
+            .toPact();
+    }
+
     @PactTestFor(pactMethod = "getNsis")
     @Test
     void getNsis(MockServer mockServer) throws IOException {
         var httpResponse = Request
             .Get(mockServer.getUrl() + "/secure/offenders/crn/X320741/convictions/2500295345/nsis?nsiCodes=BRE&nsiCodes=BRES")
+            .execute()
+            .returnResponse();
+
+        assertThat(httpResponse.getStatusLine().getStatusCode()).isEqualTo(200);
+    }
+
+    @PactTestFor(pactMethod = "getProbationStatusDetail")
+    @Test
+    void getProbationStatusDetail(MockServer mockServer) throws IOException {
+        var httpResponse = Request
+            .Get(mockServer.getUrl() + "/secure/offenders/crn/X320741/probationStatus")
             .execute()
             .returnResponse();
 

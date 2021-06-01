@@ -173,7 +173,7 @@ class ImmutableCourtCaseServiceTest {
             when(courtCaseRepository.findByCourtCodeAndSessionStartTime(eq(COURT_CODE), eq(startTime), eq(endTime), eq(CREATED_AFTER), eq(CREATED_BEFORE)))
                 .thenReturn(caseList);
 
-            List<CourtCaseEntity> courtCaseEntities = service.filterCasesByCourtAndDate(COURT_CODE, SEARCH_DATE, CREATED_AFTER, CREATED_BEFORE);
+            List<CourtCaseEntity> courtCaseEntities = service.filterCases(COURT_CODE, SEARCH_DATE, CREATED_AFTER, CREATED_BEFORE);
 
             assertThat(courtCaseEntities).isEqualTo(caseList);
         }
@@ -187,7 +187,7 @@ class ImmutableCourtCaseServiceTest {
             when(courtCaseRepository.findByCourtCodeAndSessionStartTime(eq(COURT_CODE), eq(startTime), eq(endTime), eq(CREATED_AFTER), eq(CREATED_BEFORE)))
                 .thenReturn(caseList);
 
-            List<CourtCaseEntity> courtCaseEntities = service.filterCasesByCourtAndDate(COURT_CODE, SEARCH_DATE, CREATED_AFTER, CREATED_BEFORE);
+            List<CourtCaseEntity> courtCaseEntities = service.filterCases(COURT_CODE, SEARCH_DATE, CREATED_AFTER, CREATED_BEFORE);
 
             assertThat(courtCaseEntities).isEqualTo(caseList);
         }
@@ -197,7 +197,7 @@ class ImmutableCourtCaseServiceTest {
             when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.empty());
 
             var exception = catchThrowable(() ->
-                service.filterCasesByCourtAndDate(COURT_CODE, SEARCH_DATE, CREATED_AFTER, null));
+                service.filterCases(COURT_CODE, SEARCH_DATE, CREATED_AFTER, null));
             assertThat(exception).isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Court " + COURT_CODE + " not found");
 

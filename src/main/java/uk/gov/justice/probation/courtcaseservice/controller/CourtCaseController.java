@@ -118,7 +118,7 @@ public class CourtCaseController {
         final var createdBeforeOrDefault = Optional.ofNullable(createdBefore)
                 .orElse(LocalDateTime.of(MAX_YEAR_SUPPORTED_BY_DB, 12, 31, 23, 59));
 
-        List<CourtCaseEntity> courtCases = courtCaseService.filterCasesByCourtAndDate(courtCode, date, createdAfterOrDefault, createdBeforeOrDefault);
+        List<CourtCaseEntity> courtCases = courtCaseService.filterCases(courtCode, date, createdAfterOrDefault, createdBeforeOrDefault);
         List<CourtCaseResponse> courtCaseResponses = courtCases.stream()
                 .sorted(Comparator.comparing(CourtCaseEntity::getCourtRoom)
                         .thenComparing(CourtCaseEntity::getSessionStartTime)

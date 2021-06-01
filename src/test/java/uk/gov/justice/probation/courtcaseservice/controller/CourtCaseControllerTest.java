@@ -86,7 +86,7 @@ public class CourtCaseControllerTest {
 
         var lastModified = LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
-        when(courtCaseService.filterCasesByCourtAndDate(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE)).thenReturn(Collections.singletonList(courtCaseEntity));
+        when(courtCaseService.filterCases(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE)).thenReturn(Collections.singletonList(courtCaseEntity));
         var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE);
 
         assertThat(responseEntity.getBody().getCases()).hasSize(1);
@@ -114,7 +114,7 @@ public class CourtCaseControllerTest {
 
         // Add in reverse order
         final LocalDateTime createdAfter = LocalDateTime.now().minus(1, ChronoUnit.DAYS);
-        when(courtCaseService.filterCasesByCourtAndDate(COURT_CODE, DATE, createdAfter, CREATED_BEFORE)).thenReturn(List.of(entity5, entity4, entity3, entity2, entity1));
+        when(courtCaseService.filterCases(COURT_CODE, DATE, createdAfter, CREATED_BEFORE)).thenReturn(List.of(entity5, entity4, entity3, entity2, entity1));
         var responseEntity = controller.getCaseList(COURT_CODE, DATE, createdAfter, CREATED_BEFORE);
 
         List<CourtCaseResponse> cases = responseEntity.getBody().getCases();
@@ -136,7 +136,7 @@ public class CourtCaseControllerTest {
         final LocalDateTime createdAfter = LocalDateTime.of(DATE, LocalTime.MIDNIGHT).minusDays(8);
         controller.getCaseList(COURT_CODE, DATE, null, CREATED_BEFORE);
 
-        verify(courtCaseService).filterCasesByCourtAndDate(COURT_CODE, DATE, createdAfter, CREATED_BEFORE);
+        verify(courtCaseService).filterCases(COURT_CODE, DATE, createdAfter, CREATED_BEFORE);
     }
 
     @Test
@@ -147,7 +147,7 @@ public class CourtCaseControllerTest {
         final LocalDateTime createdBefore = LocalDateTime.of(294276, 12, 31, 23, 59);
         controller.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null);
 
-        verify(courtCaseService).filterCasesByCourtAndDate(COURT_CODE, DATE, CREATED_AFTER, createdBefore);
+        verify(courtCaseService).filterCases(COURT_CODE, DATE, CREATED_AFTER, createdBefore);
     }
 
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, String defendantName, LocalDateTime sessionTime) {

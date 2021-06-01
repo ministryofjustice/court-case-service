@@ -205,10 +205,28 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void whenFilterByCourtAndDateForLastModified_thenReturn() {
+            final var expectedLastModified = LocalDateTime.of(2021, 6, 1, 16, 59, 59);
+            final var startTime = LocalDateTime.of(SEARCH_DATE, LocalTime.MIDNIGHT);
+            final var endTime = LocalDateTime.of(SEARCH_DATE.plusDays(1), LocalTime.MIDNIGHT);
+            when(courtCaseRepository.findLastModified(COURT_CODE, startTime, endTime))
+                    .thenReturn(Optional.of(expectedLastModified));
 
-            var lastModified = service.filterCasesLastModified(COURT_CODE, SEARCH_DATE);
+            Optional<LocalDateTime> lastModified = service.filterCasesLastModified(COURT_CODE, SEARCH_DATE);
 
-            assertThat(lastModified).isNotNull();
+            assertThat(lastModified).isPresent();
+            assertThat(lastModified.get()).isEqualTo(expectedLastModified);
+        }
+
+        @Test
+        void whenFilterByCourtAndDateForLastModified_andNoneFound_thenReturnEmpty() {
+            final var startTime = LocalDateTime.of(SEARCH_DATE, LocalTime.MIDNIGHT);
+            final var endTime = LocalDateTime.of(SEARCH_DATE.plusDays(1), LocalTime.MIDNIGHT);
+            when(courtCaseRepository.findLastModified(COURT_CODE, startTime, endTime))
+                    .thenReturn(Optional.empty());
+
+            Optional<LocalDateTime> lastModified = service.filterCasesLastModified(COURT_CODE, SEARCH_DATE);
+
+            assertThat(lastModified).isEmpty();
         }
     }
 

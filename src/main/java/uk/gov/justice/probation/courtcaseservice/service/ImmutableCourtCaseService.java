@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -142,7 +143,8 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         }
     }
 
-    public LocalDateTime filterCasesLastModified(String courtCode, LocalDate search_date) {
-        return LocalDateTime.now();
+    public Optional<LocalDateTime> filterCasesLastModified(String courtCode, LocalDate searchDate) {
+        final var start = LocalDateTime.of(searchDate, LocalTime.MIDNIGHT);
+        return courtCaseRepository.findLastModified(courtCode, start, start.plusDays(1));
     }
 }

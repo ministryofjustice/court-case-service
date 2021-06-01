@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +30,7 @@ import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -127,7 +127,9 @@ public class CourtCaseController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok()
-            .header(HttpHeaders.LAST_MODIFIED, lastModifiedFormatter.format(courtCaseService.filterCasesLastModified(courtCode, date)))
+                .lastModified(courtCaseService.filterCasesLastModified(courtCode, date)
+                        .orElse(LocalDateTime.now())
+                        .toInstant(ZoneOffset.UTC))
             .body(CaseListResponse.builder().cases(courtCaseResponses).build());
     }
 

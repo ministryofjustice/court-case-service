@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -84,7 +85,7 @@ public class CourtCaseControllerTest {
     @Test
     public void getCaseList_shouldReturnCourtCaseResponse() {
 
-        var lastModified = LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28));
+        Optional<LocalDateTime> lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
         when(courtCaseService.filterCases(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE)).thenReturn(Collections.singletonList(courtCaseEntity));
         var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE);
@@ -99,7 +100,7 @@ public class CourtCaseControllerTest {
 
     @Test
     public void getCaseList_sorted() {
-        var lastModified = LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28));
+        Optional<LocalDateTime> lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
 
         CourtCaseController controller = new CourtCaseController(courtCaseService, offenderMatchService);
@@ -130,7 +131,7 @@ public class CourtCaseControllerTest {
 
     @Test
     public void whenCreatedAfterIsNull_thenDefaultToTodayMinus8Days() {
-        var lastModified = LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28));
+        Optional<LocalDateTime> lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
         CourtCaseController controller = new CourtCaseController(courtCaseService, offenderMatchService);
         final LocalDateTime createdAfter = LocalDateTime.of(DATE, LocalTime.MIDNIGHT).minusDays(8);
@@ -141,7 +142,7 @@ public class CourtCaseControllerTest {
 
     @Test
     public void whenCreatedBeforeIsNull_thenDefaultToMaxDate() {
-        var lastModified = LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28));
+        Optional<LocalDateTime> lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
         CourtCaseController controller = new CourtCaseController(courtCaseService, offenderMatchService);
         final LocalDateTime createdBefore = LocalDateTime.of(294276, 12, 31, 23, 59);

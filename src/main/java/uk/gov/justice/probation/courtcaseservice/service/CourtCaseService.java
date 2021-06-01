@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Optional;
 
 public interface CourtCaseService {
     CourtCaseEntity getCaseByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException;
@@ -15,5 +16,7 @@ public interface CourtCaseService {
     Mono<CourtCaseEntity> createCase(String courtCode, String caseNo, CourtCaseEntity updatedCase)
         throws EntityNotFoundException, InputMismatchException;
 
-    List<CourtCaseEntity> filterCasesByCourtAndDate(String courtCode, LocalDate date, LocalDateTime createdAfter, LocalDateTime createdBefore);
+    List<CourtCaseEntity> filterCases(String courtCode, LocalDate date, LocalDateTime createdAfter, LocalDateTime createdBefore);
+
+    Optional<LocalDateTime> filterCasesLastModified(String courtCode, LocalDate date);
 }

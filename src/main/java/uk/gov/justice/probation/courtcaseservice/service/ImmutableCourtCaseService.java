@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -88,7 +89,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     @Override
-    public List<CourtCaseEntity> filterCasesByCourtAndDate(String courtCode, LocalDate date, LocalDateTime createdAfter, LocalDateTime createdBefore) {
+    public List<CourtCaseEntity> filterCases(String courtCode, LocalDate date, LocalDateTime createdAfter, LocalDateTime createdBefore) {
         final var court = courtRepository.findByCourtCode(courtCode)
             .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
 
@@ -140,5 +141,10 @@ public class ImmutableCourtCaseService implements CourtCaseService {
             log.warn(String.format("Unexpected CRO mismatch when updating offender match - matchId: '%s', crn: '%s', matchCro: %s, updateCro: %s",
                     match.getId(), existingCase.getCrn(), match.getCro(), existingCase.getCro()));
         }
+    }
+
+    public Optional<LocalDateTime> filterCasesLastModified(String courtCode, LocalDate searchDate) {
+        final var start = LocalDateTime.of(searchDate, LocalTime.MIDNIGHT);
+        return courtCaseRepository.findLastModified(courtCode, start, start.plusDays(1));
     }
 }

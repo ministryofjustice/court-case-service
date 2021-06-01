@@ -78,6 +78,21 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
     }
 
     @Test
+    void givenLastModifiedRecent_whenRequestCases_thenReturnLastModifiedHeader() {
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .when()
+            .get("/court/{courtCode}/cases?date={date}", COURT_CODE, LocalDate.of(2021, 6, 1).format(DateTimeFormatter.ISO_DATE))
+            .then()
+            .assertThat()
+            .statusCode(200)
+            .header("Last-Modified", equalTo("Tue, 01 Jun 2021 16:59:59 GMT"))
+            ;
+    }
+
+    @Test
     void GET_cases_givenCreatedAfterFilterParam_whenGetCases_thenReturnCasesAfterSpecifiedTime() {
 
         given()

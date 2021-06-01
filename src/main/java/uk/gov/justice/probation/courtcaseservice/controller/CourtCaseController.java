@@ -6,8 +6,10 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -29,6 +31,7 @@ import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +48,7 @@ public class CourtCaseController {
     private static final int MAX_YEAR_SUPPORTED_BY_DB = 294276;
     private final CourtCaseService courtCaseService;
     private final OffenderMatchService offenderMatchService;
+    private final DateTimeFormatter lastModifiedFormatter = DateTimeFormatter.ofPattern("EEE, dd LLL yyyy HH:mm:ss 'GMT'");
 
     @ApiOperation(value = "Gets the court case data by case number.")
     @ApiResponses(
@@ -97,8 +101,7 @@ public class CourtCaseController {
                     @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
             })
     @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    CaseListResponse getCaseList(
+    public ResponseEntity<CaseListResponse> getCaseList(
             @PathVariable String courtCode,
             @RequestParam(value = "date")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
@@ -106,7 +109,6 @@ public class CourtCaseController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdAfter,
             @RequestParam(value = "createdBefore", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdBefore
-
     ) {
         final var createdAfterOrDefault = Optional.ofNullable(createdAfter)
                 .orElse(
@@ -124,7 +126,9 @@ public class CourtCaseController {
                 .map(this::buildCourtCaseResponse)
                 .collect(Collectors.toList());
 
-        return CaseListResponse.builder().cases(courtCaseResponses).build();
+        return ResponseEntity.ok()
+            .header(HttpHeaders.LAST_MODIFIED, lastModifiedFormatter.format(courtCaseService.filterCasesLastModified(courtCode, date)))
+            .body(CaseListResponse.builder().cases(courtCaseResponses).build());
     }
 
     private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity) {

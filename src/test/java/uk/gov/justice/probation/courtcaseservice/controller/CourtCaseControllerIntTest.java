@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -75,6 +76,21 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[4].probationStatusActual", equalTo("NO_RECORD"))
                 .body("cases[5].caseNo", equalTo("1600028918"))
                 .body("cases[5].createdToday", equalTo(false));
+    }
+
+    @Test
+    void givenLastModifiedRecent_whenRequestCases_thenReturnLastModifiedHeader() {
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .when()
+            .get("/court/{courtCode}/cases?date={date}", COURT_CODE, LocalDate.of(2019, 12, 14).format(DateTimeFormatter.ISO_DATE))
+            .then()
+            .assertThat()
+            .statusCode(200)
+            .header("Last-Modified", any(String.class))
+            ;
     }
 
     @Test

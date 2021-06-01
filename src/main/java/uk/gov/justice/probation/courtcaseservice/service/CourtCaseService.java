@@ -16,4 +16,6 @@ public interface CourtCaseService {
         throws EntityNotFoundException, InputMismatchException;
 
     List<CourtCaseEntity> filterCasesByCourtAndDate(String courtCode, LocalDate date, LocalDateTime createdAfter, LocalDateTime createdBefore);
+
+    LocalDateTime filterCasesLastModified(String courtCode, LocalDate date);
 }

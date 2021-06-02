@@ -352,6 +352,7 @@ workflows:
           dockerfile_path: ./nginx
           requires:
             - build
+          main: true
 #          filters:
 #            branches:
 #              only: main

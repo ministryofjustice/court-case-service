@@ -154,6 +154,11 @@ jobs:
       main:
         type: boolean
         default: false
+      app_name:
+        type: string
+      dockerfile_path:
+        type: string
+        default: .
     steps:
       - checkout
       - attach_workspace:
@@ -165,9 +170,9 @@ jobs:
       - run:
           name: Build docker image
           command: |
-            docker build --rm=false . \
+            docker build --rm=false <<parameters.dockerfile_path>> \
                --pull \
-               --tag "mojdigitalstudio/court-case-service:$APP_VERSION" \
+               --tag "mojdigitalstudio/<<parameters.app_name>>:$APP_VERSION" \
                --label "maintainer=info@digital.justice.gov.uk" \
                --label "app.version=$APP_VERSION" \
                --label "build.version=$APP_VERSION" \
@@ -176,7 +181,7 @@ jobs:
                --label "build.gitref=$CIRCLE_SHA1"
       - snyk/scan:
           project: '${CIRCLE_PROJECT_REPONAME}-docker/${CIRCLE_BRANCH}'
-          docker-image-name: 'mojdigitalstudio/court-case-service:$APP_VERSION'
+          docker-image-name: 'mojdigitalstudio/<<parameters.app_name>>:$APP_VERSION'
           target-file: 'Dockerfile'
           monitor-on-build: << parameters.main >>
           <<: *snyk_options
@@ -187,9 +192,9 @@ jobs:
                 name: Publish to docker hub
                 command: |
                   docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-                  docker tag mojdigitalstudio/court-case-service:$APP_VERSION mojdigitalstudio/court-case-service:latest
-                  docker push mojdigitalstudio/court-case-service:$APP_VERSION
-                  docker push mojdigitalstudio/court-case-service:latest
+                  docker tag mojdigitalstudio/<<parameters.app_name>>:$APP_VERSION mojdigitalstudio/<<parameters.app_name>>:latest
+                  docker push mojdigitalstudio/<<parameters.app_name>>:$APP_VERSION
+                  docker push mojdigitalstudio/<<parameters.app_name>>:latest
       - jira/notify:
           token_name: JIRA_CIRCLE_TOKEN
           job_type: build
@@ -239,13 +244,16 @@ jobs:
 
   image_scan:
     executor: deployer
+    parameters:
+      image_name:
+        type: string
     steps:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
       - snyk/scan:
           project: '${CIRCLE_PROJECT_REPONAME}-docker/${CIRCLE_BRANCH}'
-          docker-image-name: 'mojdigitalstudio/court-case-service:latest'
+          docker-image-name: 'mojdigitalstudio/<<parameters.image_name>>:latest'
           target-file: 'Dockerfile'
           monitor-on-build: true
           <<: *snyk_options
@@ -298,7 +306,12 @@ workflows:
               ignore: /.*/
       - app_scan:
           main: true
-      - image_scan
+      - image_scan:
+          name: court-case-service-scan
+          image_name: court-case-service
+      - image_scan:
+          name: court-case-service-scan-nginx
+          image_name: court-case-service-nginx
   build-test-and-deploy:
     unless: << pipeline.parameters.only_pacts >>
     jobs:
@@ -327,13 +340,24 @@ workflows:
           env: dev
           chart_name: court-case-service
       - build_docker:
+          app_name: court-case-service
           requires:
             - build
           filters:
             branches:
               ignore: main
       - build_docker:
+          name: build_docker_nginx
+          app_name: court-case-service-nginx
+          dockerfile_path: ./nginx
+          requires:
+            - build
+#          filters:
+#            branches:
+#              only: main
+      - build_docker:
           name: build_docker_main
+          app_name: court-case-service
           requires:
             - build
           filters:

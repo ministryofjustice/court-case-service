@@ -1,4 +1,4 @@
-FROM nginx:1.21.0
+FROM nginx:1.21.0-alpine
 
 RUN chown -R nginx:nginx /etc/nginx
 

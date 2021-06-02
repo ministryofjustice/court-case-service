@@ -4,6 +4,6 @@ RUN chown -R nginx:nginx /etc/nginx
 RUN chown -R nginx:nginx /var/cache/nginx
 
 COPY /nginx.conf /etc/nginx/
-COPY /default.conf /etc/nginx/conf.d/
+COPY /conf.d/default.conf /etc/nginx/conf.d/
 
 EXPOSE 8080

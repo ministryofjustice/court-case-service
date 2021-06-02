@@ -182,7 +182,7 @@ jobs:
       - snyk/scan:
           project: '${CIRCLE_PROJECT_REPONAME}-docker/${CIRCLE_BRANCH}'
           docker-image-name: 'mojdigitalstudio/<<parameters.app_name>>:$APP_VERSION'
-          target-file: 'Dockerfile'
+          target-file: '<<parameters.dockerfile_path>>/Dockerfile'
           monitor-on-build: << parameters.main >>
           <<: *snyk_options
       - when:

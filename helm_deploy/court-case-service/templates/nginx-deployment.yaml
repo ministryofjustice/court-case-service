@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.nginx_proxy.name }}
+  labels:
+    app: {{ .Values.nginx_proxy.name }}
+    chart: {{ template "app.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.nginx_proxy.replicaCount }}
+  selector:
+    matchLabels:
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.nginx_proxy.name }}
+        release: {{ .Release.Name }}
+    spec:
+      securityContext:
+        runAsUser: 101
+      containers:
+        - name: {{ printf "%s-%s" .Values.nginx_proxy.name "nginx"}}
+          image: "{{ .Values.nginx_proxy.deployment.image.repository }}:{{ .Values.nginx_proxy.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.nginx_proxy.deployment.image.pullPolicy }}
+          env:
+            - name: SERVICE_HOST
+              value: {{ .Values.nginx_proxy.service_host }}
+          ports:
+            - containerPort: {{ .Values.nginx_proxy.deployment.port }}

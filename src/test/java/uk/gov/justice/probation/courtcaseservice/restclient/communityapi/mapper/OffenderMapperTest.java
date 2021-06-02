@@ -70,7 +70,7 @@ class OffenderMapperTest {
             assertThat(probationStatusDetail.getInBreach()).isTrue();
             assertThat(probationStatusDetail.isPreSentenceActivity()).isTrue();
             assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isEqualTo(date);
-            assertThat(probationStatusDetail.isAwaitingPsr()).isTrue();
+            assertThat(probationStatusDetail.getAwaitingPsr()).isTrue();
         }
 
         @DisplayName("Map probation status detail for unknown")
@@ -88,7 +88,7 @@ class OffenderMapperTest {
             assertThat(probationStatusDetail.getInBreach()).isNull();
             assertThat(probationStatusDetail.isPreSentenceActivity()).isFalse();
             assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isNull();
-            assertThat(probationStatusDetail.isAwaitingPsr()).isFalse();
+            assertThat(probationStatusDetail.getAwaitingPsr()).isFalse();
         }
     }
 

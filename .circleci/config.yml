@@ -353,9 +353,9 @@ workflows:
           requires:
             - build
           main: true
-#          filters:
-#            branches:
-#              only: main
+          filters:
+            branches:
+              only: main
       - build_docker:
           name: build_docker_main
           app_name: court-case-service

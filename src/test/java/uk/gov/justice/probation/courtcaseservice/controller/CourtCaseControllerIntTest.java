@@ -90,6 +90,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             .assertThat()
             .statusCode(200)
             .header("Last-Modified", equalTo("Tue, 01 Jun 2021 16:59:59 GMT"))
+            .header("Cache-Control", equalTo("max-age=86400"))
             ;
     }
 

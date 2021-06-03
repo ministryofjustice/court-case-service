@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -135,7 +137,8 @@ public class CourtCaseController {
 
         return ResponseEntity.ok()
                 .lastModified(lastModified)
-            .body(CaseListResponse.builder().cases(courtCaseResponses).build());
+                .cacheControl(CacheControl.maxAge(24, TimeUnit.HOURS))
+                .body(CaseListResponse.builder().cases(courtCaseResponses).build());
     }
 
     private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity) {

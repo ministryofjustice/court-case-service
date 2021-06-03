@@ -17,6 +17,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.List;
@@ -38,6 +39,7 @@ public class GroupedOffenderMatchesEntity extends BaseEntity implements Serializ
 
     @Setter
     @OneToMany(mappedBy = "group", fetch = FetchType.EAGER, cascade = { CascadeType.ALL }, orphanRemoval=true)
+    @OrderBy("crn ASC")
     private List<OffenderMatchEntity> offenderMatches;
 
     @Column(name = "CASE_NO")

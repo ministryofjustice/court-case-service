@@ -14,6 +14,6 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "body": "{\"status\": \"PREVIOUSLY_KNOWN\", \"previouslyKnownTerminationDate\": \"2010-04-05\", \"inBreach\": true, \"preSentenceActivity\": true}"
+    "body": "{\"status\": \"PREVIOUSLY_KNOWN\", \"previouslyKnownTerminationDate\": \"2010-04-05\", \"inBreach\": true, \"preSentenceActivity\": true, \"awaitingPsr\": false}"
   }
 }

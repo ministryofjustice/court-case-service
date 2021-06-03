@@ -73,7 +73,8 @@ commands:
               --description="${APP_VERSION} - ${CIRCLE_BUILD_URL}" \
               --values ~/git/helm_deploy/values-<< parameters.env >>.yaml \
               --values - \
-              --set image.tag="${APP_VERSION}"
+              --set image.tag="${APP_VERSION}" \
+              --set nginx_proxy.deployment.image.tag="${APP_VERSION}"
 executors:
   deployer:
     docker:

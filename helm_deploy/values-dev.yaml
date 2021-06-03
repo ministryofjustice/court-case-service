@@ -20,7 +20,7 @@ ingress:
 
 nginx_proxy:
   name: court-case-service-proxy
-  service_host: http://court-case-service.court-probation-dev
+  service_host: http://court-case-service.court-probation-dev/
   replicaCount: 1
 
   service:

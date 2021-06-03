@@ -36,6 +36,7 @@ public class OffenderMapper {
             .previouslyKnownTerminationDate(probationStatusDetail.getPreviouslyKnownTerminationDate())
             .preSentenceActivity(probationStatusDetail.getPreSentenceActivity())
             .inBreach(probationStatusDetail.getInBreach())
+            .awaitingPsr(probationStatusDetail.getAwaitingPsr())
             .build();
     }
 

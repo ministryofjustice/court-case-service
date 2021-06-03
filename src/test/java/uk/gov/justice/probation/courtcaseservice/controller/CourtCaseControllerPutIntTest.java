@@ -208,9 +208,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             .then()
                 .statusCode(200)
                 .body("offenderMatches", hasSize(3))
-                .body("offenderMatches[2].crn", equalTo("X320741"))
-                .body("offenderMatches[2].confirmed",  equalTo(false))
-                .body("offenderMatches[2].rejected",  equalTo(true))
+                .body("offenderMatches[1].crn", equalTo("X320741"))
+                .body("offenderMatches[1].confirmed",  equalTo(false))
+                .body("offenderMatches[1].rejected",  equalTo(true))
                 ;
 
         given()

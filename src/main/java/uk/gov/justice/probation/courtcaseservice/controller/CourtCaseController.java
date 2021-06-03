@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
@@ -31,10 +33,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -48,7 +49,6 @@ public class CourtCaseController {
     private static final int MAX_YEAR_SUPPORTED_BY_DB = 294276;
     private final CourtCaseService courtCaseService;
     private final OffenderMatchService offenderMatchService;
-    private final DateTimeFormatter lastModifiedFormatter = DateTimeFormatter.ofPattern("EEE, dd LLL yyyy HH:mm:ss 'GMT'");
 
     @ApiOperation(value = "Gets the court case data by case number.")
     @ApiResponses(
@@ -94,6 +94,7 @@ public class CourtCaseController {
     @ApiResponses(
             value = {
                     @ApiResponse(code = 200, message = "OK", response = CaseListResponse.class),
+                    @ApiResponse(code = 304, message = "Not modified"),
                     @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
                     @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
                     @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
@@ -108,8 +109,16 @@ public class CourtCaseController {
             @RequestParam(value = "createdAfter", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdAfter,
             @RequestParam(value = "createdBefore", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdBefore
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdBefore,
+            WebRequest webRequest
     ) {
+        var lastModified = courtCaseService.filterCasesLastModified(courtCode, date)
+            .orElse(LocalDateTime.now())
+            .toInstant(ZoneOffset.UTC);
+        if (webRequest.checkNotModified(lastModified.toEpochMilli())) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+        }
+
         final var createdAfterOrDefault = Optional.ofNullable(createdAfter)
                 .orElse(
                         LocalDateTime.of(date, LocalTime.MIDNIGHT).minusDays(8)
@@ -118,8 +127,8 @@ public class CourtCaseController {
         final var createdBeforeOrDefault = Optional.ofNullable(createdBefore)
                 .orElse(LocalDateTime.of(MAX_YEAR_SUPPORTED_BY_DB, 12, 31, 23, 59));
 
-        List<CourtCaseEntity> courtCases = courtCaseService.filterCases(courtCode, date, createdAfterOrDefault, createdBeforeOrDefault);
-        List<CourtCaseResponse> courtCaseResponses = courtCases.stream()
+        var courtCases = courtCaseService.filterCases(courtCode, date, createdAfterOrDefault, createdBeforeOrDefault);
+        var courtCaseResponses = courtCases.stream()
                 .sorted(Comparator.comparing(CourtCaseEntity::getCourtRoom)
                         .thenComparing(CourtCaseEntity::getSessionStartTime)
                         .thenComparing(CourtCaseEntity::getDefendantSurname))
@@ -127,10 +136,9 @@ public class CourtCaseController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok()
-                .lastModified(courtCaseService.filterCasesLastModified(courtCode, date)
-                        .orElse(LocalDateTime.now())
-                        .toInstant(ZoneOffset.UTC))
-            .body(CaseListResponse.builder().cases(courtCaseResponses).build());
+                .lastModified(lastModified)
+                .cacheControl(CacheControl.maxAge(24, TimeUnit.HOURS))
+                .body(CaseListResponse.builder().cases(courtCaseResponses).build());
     }
 
     private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity) {

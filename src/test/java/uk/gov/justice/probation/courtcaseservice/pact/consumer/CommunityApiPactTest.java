@@ -1,7 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.pact.consumer;
 
-import java.io.IOException;
-import java.util.Map;
 import au.com.dius.pact.consumer.MockServer;
 import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
@@ -14,6 +12,9 @@ import org.apache.http.client.fluent.Request;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.MediaType;
+
+import java.io.IOException;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -119,6 +120,41 @@ class CommunityApiPactTest {
             .Get(mockServer.getUrl() + "/secure/offenders/crn/CRN40/probationStatus")
             .execute()
             .returnResponse();
+
+        assertThat(httpResponse.getStatusLine().getStatusCode()).isEqualTo(200);
+    }
+
+
+    @Pact(provider="community-api", consumer="court-case-service")
+    public RequestResponsePact getProbationStatus(PactDslWithProvider builder) {
+
+        var body = new PactDslJsonBody()
+                .booleanType("awaitingPsr")
+                .booleanType("inBreach")
+                .booleanType("preSentenceActivity")
+                .date("previouslyKnownTerminationDate", "yyyy-MM-dd")
+                .stringType("status")
+                ;
+
+        return builder
+                .given("an offender exists with CRN X320741")
+                .uponReceiving("a request for probation status")
+                .path("/secure/offenders/crn/X320741/probationStatus")
+                .method("GET")
+                .willRespondWith()
+                .headers(Map.of("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .body(body)
+                .status(200)
+                .toPact();
+    }
+
+    @PactTestFor(pactMethod = "getProbationStatus")
+    @Test
+    void getProbationStatus(MockServer mockServer) throws IOException {
+        var httpResponse = Request
+                .Get(mockServer.getUrl() + "/secure/offenders/crn/X320741/probationStatus")
+                .execute()
+                .returnResponse();
 
         assertThat(httpResponse.getStatusLine().getStatusCode()).isEqualTo(200);
     }

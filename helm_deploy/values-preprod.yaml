@@ -12,11 +12,28 @@ image:
   port: 8080
 
 ingress:
+  service: court-case-service
   enabled: true
   enable_whitelist: true
   hosts:
     - host: court-case-service-preprod.apps.live-1.cloud-platform.service.justice.gov.uk
   path: /
+
+nginx_proxy:
+  name: court-case-service-proxy
+  service_host: http://court-case-service.court-probation-preprod
+  replicaCount: 1
+
+  service:
+    port:
+      http: 80
+
+  deployment:
+    image:
+      repository: docker.io/mojdigitalstudio/court-case-service-nginx
+      tag: latest
+      pullPolicy: Always
+    port: 8080
 
 env:
   JAVA_OPTS: "-Xmx512m"

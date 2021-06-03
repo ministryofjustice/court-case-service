@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
@@ -89,7 +90,23 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             .assertThat()
             .statusCode(200)
             .header("Last-Modified", equalTo("Tue, 01 Jun 2021 16:59:59 GMT"))
+            .header("Cache-Control", equalTo("max-age=86400"))
             ;
+    }
+
+    @Test
+    void givenNoDataChange_whenGetCases_thenReturn304() {
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .header(HttpHeaders.IF_UNMODIFIED_SINCE, "Tue, 04 Feb 1970 19:57:25 GMT")
+            .when()
+            .get("/court/{courtCode}/cases?date={date}", COURT_CODE, LocalDate.of(2021, 6, 1).format(DateTimeFormatter.ISO_DATE))
+            .then()
+            .assertThat()
+            .statusCode(304)
+        ;
     }
 
     @Test

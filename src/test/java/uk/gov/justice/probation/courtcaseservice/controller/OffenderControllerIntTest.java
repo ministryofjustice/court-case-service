@@ -165,6 +165,7 @@ class OffenderControllerIntTest extends BaseIntTest {
             .body("inBreach",  equalTo(true))
             .body("preSentenceActivity", equalTo(true))
             .body("previouslyKnownTerminationDate", equalTo(standardDateOf(2010, 4, 5)))
+            .body("awaitingPsr", equalTo(false))
         ;
     }
 

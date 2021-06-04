@@ -137,7 +137,8 @@ public class CourtCaseController {
 
         return ResponseEntity.ok()
                 .lastModified(lastModified)
-                .cacheControl(CacheControl.maxAge(0, TimeUnit.SECONDS).mustRevalidate())
+                .eTag("something")
+                .cacheControl(CacheControl.maxAge(0, TimeUnit.HOURS).mustRevalidate())
                 .body(CaseListResponse.builder().cases(courtCaseResponses).build());
     }
 

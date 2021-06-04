@@ -10,6 +10,7 @@ server {
 
     location / {
         proxy_cache court_case_service_cache;
+        proxy_cache_revalidate on;
         proxy_pass ${SERVICE_HOST}/;
     }
 

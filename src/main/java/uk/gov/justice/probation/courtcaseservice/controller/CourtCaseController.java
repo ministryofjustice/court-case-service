@@ -31,13 +31,13 @@ import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static java.time.LocalTime.MIDNIGHT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Api(tags = "Court and Cases Resources")
@@ -47,6 +47,7 @@ public class CourtCaseController {
 
     // See https://www.postgresql.org/docs/9.0/datatype-datetime.html
     private static final int MAX_YEAR_SUPPORTED_BY_DB = 294276;
+    private static final LocalDateTime NEVER_MODIFIED_DATE = LocalDateTime.of(2020, 1, 1, 0, 0);
     private final CourtCaseService courtCaseService;
     private final OffenderMatchService offenderMatchService;
 
@@ -113,7 +114,7 @@ public class CourtCaseController {
             WebRequest webRequest
     ) {
         var lastModified = courtCaseService.filterCasesLastModified(courtCode, date)
-            .orElse(LocalDateTime.now())
+            .orElse(NEVER_MODIFIED_DATE)
             .toInstant(ZoneOffset.UTC);
         if (webRequest.checkNotModified(lastModified.toEpochMilli())) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
@@ -121,7 +122,7 @@ public class CourtCaseController {
 
         final var createdAfterOrDefault = Optional.ofNullable(createdAfter)
                 .orElse(
-                        LocalDateTime.of(date, LocalTime.MIDNIGHT).minusDays(8)
+                        LocalDateTime.of(date, MIDNIGHT).minusDays(8)
                 );
 
         final var createdBeforeOrDefault = Optional.ofNullable(createdBefore)

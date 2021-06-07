@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -156,7 +157,7 @@ public class CourtCaseControllerTest {
     }
 
     @Test
-    public void whenPageIsNotModified_thenReturn() {
+    public void whenListIsNotModified_thenReturn() {
         Optional<LocalDateTime> lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
         CourtCaseController controller = new CourtCaseController(courtCaseService, offenderMatchService);
@@ -165,6 +166,17 @@ public class CourtCaseControllerTest {
         var responseEntity = controller.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
 
         assertThat(responseEntity.getStatusCode().value()).isEqualTo(304);
+    }
+
+    @Test
+    public void whenListHasNeverBeenModified_thenReturnNeverModifiedDate() {
+        when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(Optional.empty());
+        when(webRequest.checkNotModified(any(Long.class))).thenReturn(false);
+        CourtCaseController controller = new CourtCaseController(courtCaseService, offenderMatchService);
+
+        var responseEntity = controller.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
+
+        assertThat(responseEntity.getHeaders().get("Last-Modified").get(0)).isEqualTo("Wed, 01 Jan 2020 00:00:00 GMT");
     }
 
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, String defendantName, LocalDateTime sessionTime) {

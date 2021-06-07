@@ -73,3 +73,18 @@ To run build which generates and published the consumer PACTs to the broker, the
 The PACTs can be generated and published, tagged with "main" with the following command
 
 `PACTCONSUMER_VERSION=main ./gradlew -Dpact.writer.overwrite=true test pactPublish`
+
+---
+
+### Caching
+
+The case list page is cacheable and returns a Last-Modified header for cache validation. There is an nginx docker container configured to do this in `./nginx/Dockerfile`.
+
+To build and run the nginx cache against a local instance of court-case-service running on port 8090:
+
+```
+docker build ./nginx --tag court-case-service-proxy
+docker run -p 8080:8080 --env SERVICE_HOST=http://host.docker.internal:8090 court-case-service-proxy
+```
+
+This will act as a simple reverse proxy with caching. It is configured to return an `X-Cache-Status` header which indicates whether the response was retrieved from the cache.

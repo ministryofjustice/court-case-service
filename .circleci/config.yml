@@ -348,16 +348,6 @@ workflows:
             branches:
               ignore: main
       - build_docker:
-          name: build_docker_nginx
-          app_name: court-case-service-nginx
-          dockerfile_path: ./nginx
-          requires:
-            - build
-          main: true
-          filters:
-            branches:
-              only: main
-      - build_docker:
           name: build_docker_main
           app_name: court-case-service
           requires:
@@ -366,10 +356,22 @@ workflows:
             branches:
               only: main
           main: true
-      - deploy_dev:
+      - build_docker:
+          name: build_docker_nginx
+          app_name: court-case-service-nginx
+          dockerfile_path: ./nginx
           requires:
-            - helm_lint_dev
-            - build_docker_main
+            - build
+          filters:
+            branches:
+              ignore: main
+      - build_docker:
+          name: build_docker_nginx_main
+          app_name: court-case-service-nginx
+          dockerfile_path: ./nginx
+          requires:
+            - build
+          main: true
           filters:
             branches:
               only: main
@@ -377,6 +379,14 @@ workflows:
           type: approval
           requires:
             - deploy_dev
+      - deploy_dev:
+          requires:
+            - helm_lint_dev
+            - build_docker_main
+            - build_docker_nginx_main
+          filters:
+            branches:
+              only: main
       - deploy_preprod:
           context: court-probation-preprod
           requires:

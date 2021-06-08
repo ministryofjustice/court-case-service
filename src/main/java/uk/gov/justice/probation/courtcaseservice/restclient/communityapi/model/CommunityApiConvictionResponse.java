@@ -30,4 +30,6 @@ public class CommunityApiConvictionResponse {
     private List<CommunityApiOffence> offences;
     @JsonProperty
     private CommunityApiSentence sentence;
+    @JsonProperty
+    private CommunityApiCustody custody;
 }

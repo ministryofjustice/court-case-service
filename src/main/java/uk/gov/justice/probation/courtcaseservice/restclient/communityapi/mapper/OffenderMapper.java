@@ -10,6 +10,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustody;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentence;
@@ -130,6 +131,7 @@ public class OffenderMapper {
                 .active(conviction.getActive())
                 .inBreach(conviction.getInBreach())
                 .convictionDate(conviction.getConvictionDate())
+                .custodialType(Optional.ofNullable(conviction.getCustody()).map(CommunityApiCustody::getStatus).orElse(null))
                 .offences(Optional.ofNullable(conviction.getOffences()).orElse(Collections.emptyList()).stream()
                     .map(offence -> new Offence(offence.getDetail().getDescription()))
                     .collect(Collectors.toList())

@@ -13,6 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatu
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustody;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentence;
@@ -26,7 +27,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Collections;
-import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -127,19 +127,21 @@ class OffenderMapperTest {
         @Test
         void shouldMapConvictionDetailsToConviction() throws IOException {
 
-            CommunityApiConvictionsResponse convictionsResponse
+            var convictionsResponse
                 = OBJECT_MAPPER
                 .readValue(new File(BASE_MOCK_PATH + "offender-convictions/GET_offender_convictions_X320741.json"),
                     CommunityApiConvictionsResponse.class);
 
-            List<Conviction> convictions = OffenderMapper.convictionsFrom(convictionsResponse);
+            var convictions = OffenderMapper.convictionsFrom(convictionsResponse);
 
             assertThat(convictions).hasSize(3);
-            Conviction conviction1 = convictions.get(0);
+            var conviction1 = convictions.get(0);
             assertThat(conviction1.getConvictionId()).isEqualTo("2500297061");
             assertThat(conviction1.getActive()).isEqualTo(false);
             assertThat(conviction1.getInBreach()).isTrue();
             assertThat(conviction1.getConvictionDate()).isEqualTo(LocalDate.of(2019, 9, 16));
+            assertThat(conviction1.getCustodialType().getCode()).isEqualTo("B");
+            assertThat(conviction1.getCustodialType().getDescription()).isEqualTo("Released - On Licence");
 
             assertThat(conviction1.getOffences()).hasSize(1);
             assertThat(conviction1.getOffences().get(0).getDescription()).isEqualTo("Assault on Police Officer - 10400");
@@ -163,9 +165,10 @@ class OffenderMapperTest {
             assertThat(conviction1.getSentence().getEndDate()).isNull();
             assertThat(conviction1.getEndDate()).isNull();
 
-            Conviction conviction2 = convictions.get(1);
+            var conviction2 = convictions.get(1);
             assertThat(conviction2.getConvictionId()).isEqualTo("2500295345");
             assertThat(conviction2.getInBreach()).isTrue();
+            assertThat(conviction2.getCustodialType()).isNull();
             assertThat(conviction2.getSentence().getSentenceId()).isEqualTo("123457");
             assertThat(conviction2.getSentence().getDescription()).isEqualTo("CJA - Indeterminate Public Prot.");
             assertThat(conviction2.getSentence().getTerminationDate()).isEqualTo(LocalDate.of(2019, 1, 1));
@@ -178,7 +181,7 @@ class OffenderMapperTest {
             assertThat(conviction2.getSentence().getEndDate()).isEqualTo(LocalDate.of(2014, 1, 1).plusDays(1826));
             assertThat(conviction2.getEndDate()).isEqualTo(LocalDate.of(2014, 1, 1).plusDays(1826));
 
-            Conviction conviction3 = convictions.get(2);
+            var conviction3 = convictions.get(2);
             assertThat(conviction3.getConvictionId()).isEqualTo("2500295343");
             assertThat(conviction3.getEndDate()).isNull();
             assertThat(conviction3.getSentence()).isNull();
@@ -188,16 +191,16 @@ class OffenderMapperTest {
         @Test
         void shouldMapConvictionDetailsToConvictionNull() {
 
-            final CommunityApiConvictionResponse convictionResponse = CommunityApiConvictionResponse
+            var convictionResponse = CommunityApiConvictionResponse
                 .builder()
                 .convictionId("123")
                 .offences(null)
                 .build();
-            final CommunityApiConvictionsResponse convictionsResponse = new CommunityApiConvictionsResponse(singletonList(convictionResponse));
+            var convictionsResponse = new CommunityApiConvictionsResponse(singletonList(convictionResponse));
 
-            final List<Conviction> convictions = OffenderMapper.convictionsFrom(convictionsResponse);
+            var convictions = OffenderMapper.convictionsFrom(convictionsResponse);
 
-            final Conviction expectedConviction = Conviction.builder()
+            var expectedConviction = Conviction.builder()
                 .active(null)
                 .convictionDate(null)
                 .sentence(null)
@@ -212,18 +215,19 @@ class OffenderMapperTest {
 
         @DisplayName("Maps convictions response to court case service conviction.")
         @Test
-        void shouldMapConvictionDetailsToConvictionSentenceSetNullUnpaidWord() {
+        void shouldMapConvictionDetailsToConvictionSentenceSetNullUnpaidWordNullCustodialType() {
 
-            final CommunityApiConvictionResponse convictionResponse = CommunityApiConvictionResponse
+            var convictionResponse = CommunityApiConvictionResponse
                 .builder()
                 .convictionId("123")
+                .custody(CommunityApiCustody.builder().build())
                 .offences(Collections.emptyList())
                 .build();
-            final CommunityApiConvictionsResponse convictionsResponse = new CommunityApiConvictionsResponse(singletonList(convictionResponse));
+            var convictionsResponse = new CommunityApiConvictionsResponse(singletonList(convictionResponse));
 
-            final List<Conviction> convictions = OffenderMapper.convictionsFrom(convictionsResponse);
+            var convictions = OffenderMapper.convictionsFrom(convictionsResponse);
 
-            final Conviction expectedConviction = Conviction.builder()
+            var expectedConviction = Conviction.builder()
                 .active(null)
                 .convictionDate(null)
                 .sentence(null)

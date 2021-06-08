@@ -52,5 +52,24 @@
   "latestCourtAppearanceOutcome": {
     "code": "201",
     "description": "CJA - Community Order"
+  },
+  "custody": {
+    "institution": {
+      "institutionId": 156,
+      "isEstablishment": true,
+      "code": "COMMUN",
+      "description": "In the Community",
+      "institutionName": "In the Community",
+      "establishmentType": {
+        "code": "E",
+        "description": "Prison"
+      }
+    },
+    "keyDates": {},
+    "status": {
+      "code": "B",
+      "description": "Released - On Licence"
+    },
+    "sentenceStartDate": "2019-10-01"
   }
 }

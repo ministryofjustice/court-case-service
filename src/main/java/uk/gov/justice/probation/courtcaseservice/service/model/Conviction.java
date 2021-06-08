@@ -28,6 +28,7 @@ public class Conviction implements Comparable<Conviction>{
     private final List<Offence> offences;
     private final Sentence sentence;
     private final LocalDate endDate;
+    private final KeyValue custodialType;
     @Setter
     private List<OffenderDocumentDetail> documents;
     @Setter

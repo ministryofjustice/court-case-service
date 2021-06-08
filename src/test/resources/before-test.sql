@@ -5,6 +5,7 @@ TRUNCATE courtcaseservicetest.court_case CASCADE;
 TRUNCATE courtcaseservicetest.court CASCADE;
 
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('North Shields', 'B10JQ');
+INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Sheffield', 'B14LO');
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Leicester', 'B33HU');
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Aberystwyth', 'B63AD');
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('New New York', 'B30NY');
@@ -58,9 +59,9 @@ INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court
 now(), true);
 
 -- These records are used to test the Last-Modified header
-INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, deleted) VALUES (5555559, 1600128919, 'B10JQ', 2,'2021-06-01 13:00:00', 'No record', 'X320746', 'Mr David Bowie',
+INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, deleted) VALUES (5555559, 1600128919, 'B14LO', 2,'2021-06-01 13:00:00', 'No record', 'X320746', 'Mr David Bowie',
 '2020-10-01 16:59:59', false);
-INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, deleted) VALUES (5555559, 1600128920, 'B10JQ', 2,'2021-06-01 13:00:00', 'No record', 'X320746', 'Mr David Bowie',
+INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, deleted) VALUES (5555559, 1600128920, 'B14LO', 2,'2021-06-01 13:00:00', 'No record', 'X320746', 'Mr David Bowie',
 '2021-06-01 16:59:59', false);
 
 

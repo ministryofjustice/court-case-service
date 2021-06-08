@@ -28,6 +28,7 @@ import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.get
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class CourtCaseControllerIntTest extends BaseIntTest {
     public static final String KEY_ID = "mock-key";
+    private static final String LAST_MODIFIED_COURT_CODE = "B14LO";
 
     @Autowired
     ObjectMapper mapper;
@@ -85,7 +86,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             .auth()
             .oauth2(getToken())
             .when()
-            .get("/court/{courtCode}/cases?date={date}", COURT_CODE, LocalDate.of(2021, 6, 1).format(DateTimeFormatter.ISO_DATE))
+            .get("/court/{courtCode}/cases?date={date}", LAST_MODIFIED_COURT_CODE, LocalDate.of(2021, 6, 1).format(DateTimeFormatter.ISO_DATE))
             .then()
             .assertThat()
             .statusCode(200)
@@ -102,7 +103,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             .oauth2(getToken())
             .header(HttpHeaders.IF_UNMODIFIED_SINCE, "Tue, 04 Feb 1970 19:57:25 GMT")
             .when()
-            .get("/court/{courtCode}/cases?date={date}", COURT_CODE, LocalDate.of(2021, 6, 1).format(DateTimeFormatter.ISO_DATE))
+            .get("/court/{courtCode}/cases?date={date}", LAST_MODIFIED_COURT_CODE, LocalDate.of(2021, 6, 1).format(DateTimeFormatter.ISO_DATE))
             .then()
             .assertThat()
             .statusCode(304)

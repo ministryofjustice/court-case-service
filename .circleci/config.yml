@@ -248,6 +248,9 @@ jobs:
     parameters:
       image_name:
         type: string
+      dockerfile:
+        type: string
+        default: Dockerfile
     steps:
       - checkout
       - setup_remote_docker:
@@ -255,7 +258,7 @@ jobs:
       - snyk/scan:
           project: '${CIRCLE_PROJECT_REPONAME}-docker/${CIRCLE_BRANCH}'
           docker-image-name: 'mojdigitalstudio/<<parameters.image_name>>:latest'
-          target-file: 'Dockerfile'
+          target-file: '<<parameters.dockerfile>>'
           monitor-on-build: true
           <<: *snyk_options
 
@@ -313,6 +316,7 @@ workflows:
       - image_scan:
           name: court-case-service-scan-nginx
           image_name: court-case-service-nginx
+          dockerfile: ./nginx/Dockerfile
   build-test-and-deploy:
     unless: << pipeline.parameters.only_pacts >>
     jobs:

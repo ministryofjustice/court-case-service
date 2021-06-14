@@ -8,6 +8,7 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
@@ -124,6 +125,24 @@ class OffenderControllerIntTest extends BaseIntTest {
                 .body("convictions[2].breaches[0].status", equalTo("Breach Initiated"))
                 .body("convictions[2].breaches[0].statusDate", equalTo(standardDateOf(2020, 12, 18)))
                 .body("convictions[2].breaches[1].statusDate", equalTo(standardDateOf(2019, 12, 18)))
+
+                .body("assessment.type",  equalTo("LAYER_1"))
+                .body("assessment.completed",  equalTo("2018-06-20T23:11:09"))
+                .body("assessment.status",  equalTo("COMPLETE"))
+        ;
+    }
+    @Test
+    void whenCallMadeToGetProbationRecord_andNoAssessmentsFound_thenDegradeGracefully() {
+        given()
+            .auth()
+            .oauth2(getToken())
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+        .when()
+                .get("/offender/X980123/probation-record")
+        .then()
+                .statusCode(200)
+                .body("crn",  equalTo("X980123"))
+                .body("assessment", emptyOrNullString())
         ;
     }
 

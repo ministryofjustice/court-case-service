@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/secure/offenders/crn/X320742/convictions/2500297061/pssRequirements",
+    "urlPath": "/secure/offenders/crn/X320741/convictions/2500295345/licenceConditions",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"
@@ -13,6 +13,6 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "offender-requirements/GET_pss_requirements_X320741.json"
+    "body": "{\"pssRequirements\": [] }"
   }
 }

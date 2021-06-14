@@ -9,6 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple4;
+import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
@@ -21,11 +22,15 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.ConvictionBySentenceComparator;
+import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
+import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderManager;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
+import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
+import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.ConvictionDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
@@ -55,6 +60,10 @@ public class OffenderService {
     @Value("#{'${offender-service.assessment.included-statuses}'.split(',')}")
     private List<String> assessmentStatuses;
 
+    @Setter
+    @Value("#{'${offender-service.pss-rqmnt.descriptions-to-keep-subtype}'.split(',')}")
+    private List<String> pssRqmntDescriptionsKeepSubType;
+
     public OffenderService(final OffenderRestClientFactory offenderRestClientFactory,
                            final AssessmentsRestClient assessmentsClient,
                            final ConvictionRestClient convictionRestClient,
@@ -82,10 +91,8 @@ public class OffenderService {
         Mono<List<Conviction>> convictions = offenderRestClient.getConvictionsByCrn(crn)
             .flatMapMany(Flux::fromIterable)
             .flatMap(conviction -> {
-                var convictionId = conviction.getConvictionId();
-                log.debug("getting breaches for crn {} and conviction id {}", crn, convictionId);
-                return offenderRestClient.getBreaches(crn, convictionId)
-                    .map(breaches -> addBreachesToConviction(conviction, breaches));
+                log.debug("getting breaches and requirements for crn {} and conviction id {}", crn, conviction.getConvictionId());
+                return enrichConviction(crn, conviction);
             })
             .collectSortedList(new ConvictionBySentenceComparator()
                                 .thenComparing(Conviction::getConvictionId));
@@ -119,6 +126,20 @@ public class OffenderService {
         return probationRecord;
     }
 
+    private Mono<Conviction> enrichConviction(String crn, Conviction conviction) {
+
+        var convictionId = Long.valueOf(conviction.getConvictionId());
+        var enrichedConvictionMono = Mono.zip(
+            offenderRestClient.getBreaches(crn, convictionId),
+            getConvictionRequirements(crn, convictionId));
+
+        return enrichedConvictionMono.map(tuple2 -> {
+            addBreachesToConviction(conviction, tuple2.getT1());
+            addRequirementsToConviction(conviction, tuple2.getT2());
+            return conviction;
+        });
+    }
+
     private ProbationRecord buildProbationRecord(String crn, List<Conviction> convictions, List<OffenderManager> offenderManagers, List<ConvictionDocuments> convictionDocuments, final boolean applyDocumentFilter) {
 
         final ConcurrentMap<String, List<OffenderDocumentDetail>> allConvictionDocuments = groupFilteredDocuments(convictionDocuments, applyDocumentFilter);
@@ -138,7 +159,7 @@ public class OffenderService {
     public Mono<Conviction> getConviction(final String crn, final Long convictionId) {
         Mono<Tuple3<Conviction, List<Breach>, GroupedDocuments>> convictionMono = Mono.zip(
             convictionRestClient.getConviction(crn, convictionId),
-            offenderRestClient.getBreaches(crn, String.valueOf(convictionId)),
+            offenderRestClient.getBreaches(crn, convictionId),
             documentRestClient.getDocumentsByCrn(crn));
 
         return convictionMono.map(tuple3 -> {
@@ -154,6 +175,13 @@ public class OffenderService {
         conviction.setBreaches(breaches.stream()
             .sorted(Comparator.comparing(Breach::getStatusDate, Comparator.nullsLast(Comparator.reverseOrder())))
             .collect(Collectors.toList()));
+        return conviction;
+    }
+
+    private Conviction addRequirementsToConviction(Conviction conviction, RequirementsResponse requirements) {
+        conviction.setRequirements(Optional.ofNullable(requirements.getRequirements()).orElse(Collections.emptyList()));
+        conviction.setPssRequirements(Optional.ofNullable(requirements.getPssRequirements()).orElse(Collections.emptyList()));
+        conviction.setLicenceConditions(Optional.ofNullable(requirements.getLicenceConditions()).orElse(Collections.emptyList()));
         return conviction;
     }
 
@@ -187,4 +215,51 @@ public class OffenderService {
         return offenderRestClient.getProbationStatusByCrn(crn);
     }
 
+    public Mono<RequirementsResponse> getConvictionRequirements(String crn, Long convictionId) {
+
+        return Mono.zip(offenderRestClient.getConvictionRequirements(crn, convictionId),
+            convictionRestClient.getCustodialStatus(crn, convictionId),
+            offenderRestClient.getConvictionPssRequirements(crn, convictionId),
+            offenderRestClient.getConvictionLicenceConditions(crn, convictionId)
+        )
+            .map(this::combineAndFilterRequirements);
+    }
+
+    RequirementsResponse combineAndFilterRequirements(Tuple4<List<Requirement>, CustodialStatus, List<PssRequirement>, List<LicenceCondition>> tuple4) {
+
+        var builder = RequirementsResponse.builder()
+            .requirements(tuple4.getT1())
+            .licenceConditions(Collections.emptyList())
+            .pssRequirements(Collections.emptyList());
+
+        switch (tuple4.getT2()) {
+            case POST_SENTENCE_SUPERVISION:
+                builder.pssRequirements(tuple4.getT3()
+                    .stream()
+                    .filter(PssRequirement::isActive)
+                    .map(this::transform)
+                    .collect(Collectors.toList()));
+                break;
+            case RELEASED_ON_LICENCE:
+                builder.licenceConditions(tuple4.getT4()
+                    .stream()
+                    .filter(LicenceCondition::isActive)
+                    .collect(Collectors.toList()));
+                break;
+            default:
+                break;
+        }
+        return builder.build();
+    }
+
+    PssRequirement transform(PssRequirement pssRequirement) {
+        var description = Optional.ofNullable(pssRequirement.getDescription()).map(String::toLowerCase).orElse("");
+        if (pssRqmntDescriptionsKeepSubType.contains(description)) {
+            return pssRequirement;
+        }
+        return PssRequirement.builder()
+            .description(pssRequirement.getDescription())
+            .active(pssRequirement.isActive())
+            .build();
+    }
 }

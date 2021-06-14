@@ -187,6 +187,7 @@ dependencies {
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.3'
     implementation 'net.logstash.logback:logstash-logback-encoder:6.6'
 
+    testAnnotationProcessor 'org.projectlombok:lombok'
     testRuntimeOnly("org.junit.platform:junit-platform-launcher") {
         because 'allows tests to run from IDEs that bundle older version of launcher'
     }

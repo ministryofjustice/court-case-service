@@ -2,20 +2,19 @@ package uk.gov.justice.probation.courtcaseservice.service;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
-import reactor.util.function.Tuple4;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
@@ -92,34 +91,41 @@ public class OffenderService {
 
         // This Mono resolves to a 4 tuple containing the convictions (see above), offender managers and CRN documents
         // As a check against exclusions only we call getOffender which will return 403 status
-        Mono<Tuple4<List<Conviction>, List<OffenderManager>, GroupedDocuments, CommunityApiOffenderResponse>> communityApiMono = Mono.zip(
+        var communityApiMono = Mono.zip(
             convictions,
             offenderRestClient.getOffenderManagers(crn),
             documentRestClient.getDocumentsByCrn(crn),
+            getAssessments(crn),
             offenderRestClient.getOffender(crn)
         );
 
-        var tuple4 = communityApiMono.blockOptional().orElseThrow(() -> new OffenderNotFoundException(crn));
-        var probationRecord = buildProbationRecord(crn, tuple4.getT1(), tuple4.getT2(), tuple4.getT3().getConvictions(), applyDocumentFilter);
-
-        // The code below handles 2 different classes of exceptions which could be thrown when the mono is resolved.
-        // Currently the error is ignored in both cases. However there is an ongoing discussion about how we should
-        // populate the response based on the type of error we encounter - see PIC-432 for more details.
-        Mono<List<Assessment>> assessmentsMono = assessmentsClient.getAssessmentsByCrn(crn);
-        try {
-            assessmentsMono.blockOptional().ifPresent(assessments -> {
-                probationRecord.setAssessment(findMostRecentByStatus(assessments).orElse(null));
-            });
-        } catch (OffenderNotFoundException e) {
-            telemetryService.trackApplicationDegradationEvent("assessment data missing from probation record (CRN '" + crn + "' not found in oasys)", e, crn);
-        } catch (Exception e) {
-            telemetryService.trackApplicationDegradationEvent("call failed to get assessment data for for CRN '" + crn + "'", e, crn);
-        }
+        var tuple5 = communityApiMono.blockOptional().orElseThrow(() -> new OffenderNotFoundException(crn));
+        var probationRecord = buildProbationRecord(
+                crn,
+                tuple5.getT1(),
+                tuple5.getT2(),
+                tuple5.getT3().getConvictions(),
+                tuple5.getT4(),
+                applyDocumentFilter
+        );
 
         return probationRecord;
     }
 
-    private ProbationRecord buildProbationRecord(String crn, List<Conviction> convictions, List<OffenderManager> offenderManagers, List<ConvictionDocuments> convictionDocuments, final boolean applyDocumentFilter) {
+    @NotNull
+    private Mono<List<Assessment>> getAssessments(String crn) {
+        return assessmentsClient.getAssessmentsByCrn(crn)
+                // The code below handles 2 different classes of exceptions which could be thrown when the mono is resolved.
+                // Currently the error is ignored in both cases. However there is an ongoing discussion about how we should
+                // populate the response based on the type of error we encounter - see PIC-432 for more details.
+                .doOnError(OffenderNotFoundException.class,
+                        e -> telemetryService.trackApplicationDegradationEvent("assessment data missing from probation record (CRN '" + crn + "' not found in oasys)", e, crn))
+                .doOnError(Exception.class,
+                        e -> telemetryService.trackApplicationDegradationEvent("call failed to get assessment data for for CRN '" + crn + "'", e, crn))
+                .onErrorResume((e) -> Mono.just(Collections.emptyList()));
+    }
+
+    private ProbationRecord buildProbationRecord(String crn, List<Conviction> convictions, List<OffenderManager> offenderManagers, List<ConvictionDocuments> convictionDocuments, List<Assessment> assessments, final boolean applyDocumentFilter) {
 
         final ConcurrentMap<String, List<OffenderDocumentDetail>> allConvictionDocuments = groupFilteredDocuments(convictionDocuments, applyDocumentFilter);
         convictions
@@ -132,6 +138,7 @@ public class OffenderService {
             .crn(crn)
             .convictions(convictions)
             .offenderManagers(offenderManagers)
+            .assessment(findMostRecentByStatus(assessments).orElse(null))
             .build();
     }
 

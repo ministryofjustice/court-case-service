@@ -6,7 +6,7 @@ plugins {
     id 'org.springframework.boot' version '2.5.0'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'com.github.ben-manes.versions' version '0.39.0'
-    id "org.flywaydb.flyway" version "7.9.1"
+    id "org.flywaydb.flyway" version "7.10.0"
     id 'jacoco'
     id "au.com.dius.pact" version "4.2.6"
     id 'java-library'
@@ -160,7 +160,7 @@ dependencies {
 
     runtimeOnly 'org.flywaydb:flyway-core'
     runtimeOnly "org.springframework.boot:spring-boot-devtools"
-    runtimeOnly 'org.postgresql:postgresql:42.2.20'
+    runtimeOnly 'org.postgresql:postgresql:42.2.21'
 
     implementation 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'

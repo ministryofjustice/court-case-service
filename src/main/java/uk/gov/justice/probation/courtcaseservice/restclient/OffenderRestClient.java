@@ -118,12 +118,12 @@ public class OffenderRestClient {
                 .map(OffenderMapper::convictionsFrom);
     }
 
-    public Mono<List<Breach>> getBreaches(String crn, String convictionId) {
+    public Mono<List<Breach>> getBreaches(String crn, Long convictionId) {
         final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.addAll(nsiCodesParam, nsiBreachCodes);
         return clientHelper.get(String.format(nsisTemplate, crn, convictionId), params)
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, resp -> clientHelper.handleConvictionError(crn, Long.valueOf(convictionId), resp))
+                .onStatus(HttpStatus::is4xxClientError, resp -> clientHelper.handleConvictionError(crn, convictionId, resp))
                 .bodyToMono(CommunityApiNsiResponse.class)
                 .onErrorMap(e1 -> {
                     log.error(String.format("Unexpected exception when retrieving breaches data for CRN '%s' and conviction id '%s'", crn, convictionId), e1);

@@ -33,6 +33,12 @@ public class Conviction implements Comparable<Conviction>{
     private List<OffenderDocumentDetail> documents;
     @Setter
     private List<Breach> breaches;
+    @Setter
+    private List<Requirement> requirements;
+    @Setter
+    private List<PssRequirement> pssRequirements;
+    @Setter
+    private List<LicenceCondition> licenceConditions;
 
     @Override
     public int compareTo(Conviction other) {

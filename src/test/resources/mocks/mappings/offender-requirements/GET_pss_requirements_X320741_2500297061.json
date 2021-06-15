@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/secure/offenders/crn/X320742/convictions/2500297061/pssRequirements",
+    "urlPattern": "/secure/offenders/crn/X32074[1-2]/convictions/2500297061/pssRequirements",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"

@@ -107,6 +107,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             .then()
             .assertThat()
             .statusCode(304)
+            .header("Cache-Control", equalTo("max-age=1"))
         ;
     }
 

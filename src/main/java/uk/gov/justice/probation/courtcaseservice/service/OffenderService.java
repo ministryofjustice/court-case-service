@@ -79,16 +79,8 @@ public class OffenderService {
     }
 
     public ProbationRecord getProbationRecord(String crn, boolean applyDocumentFilter) {
-        // FIXME: the reactive code in this method could be written in a more idiomatic way
-
-        // The handling of the probation record data is split into two parts to allow different
-        // behaviour depending on whether the data is missing from the community api (delius) or
-        // the assessments api (oasys). In the latter case we can still get most of the important
-        // information to populate the response so do not need to throw an exception. In this
-        // sense, the oasys assessment data is optional.
-
         // This Mono resolves to a list of convictions including a list of breaches for each conviction
-        Mono<List<Conviction>> convictions = offenderRestClient.getConvictionsByCrn(crn)
+        var convictions = offenderRestClient.getConvictionsByCrn(crn)
             .flatMapMany(Flux::fromIterable)
             .flatMap(conviction -> {
                 log.debug("getting breaches and requirements for crn {} and conviction id {}", crn, conviction.getConvictionId());
@@ -97,34 +89,32 @@ public class OffenderService {
             .collectSortedList(new ConvictionBySentenceComparator()
                                 .thenComparing(Conviction::getConvictionId));
 
-        // This Mono resolves to a 5 tuple containing the convictions (see above), offender managers, CRN documents and assessments
+        // This resolves to a 5 tuple containing the convictions (see above), offender managers, CRN documents and assessments
         // As a check against exclusions only we call getOffender which will return 403 status
-        var communityApiMono = Mono.zip(
+        var zippedResponses = Mono.zip(
             convictions,
             offenderRestClient.getOffenderManagers(crn),
             documentRestClient.getDocumentsByCrn(crn),
             getAssessments(crn),
             offenderRestClient.getOffender(crn)
-        );
+        ).blockOptional()
+            .orElseThrow(() -> new OffenderNotFoundException(crn));
 
-        var tuple5 = communityApiMono.blockOptional().orElseThrow(() -> new OffenderNotFoundException(crn));
-        var probationRecord = buildProbationRecord(
+        return buildProbationRecord(
                 crn,
-                tuple5.getT1(),
-                tuple5.getT2(),
-                tuple5.getT3().getConvictions(),
-                tuple5.getT4(),
+                zippedResponses.getT1(),
+                zippedResponses.getT2(),
+                zippedResponses.getT3().getConvictions(),
+                zippedResponses.getT4(),
                 applyDocumentFilter
         );
-
-        return probationRecord;
     }
 
     @NotNull
     private Mono<List<Assessment>> getAssessments(String crn) {
         return assessmentsClient.getAssessmentsByCrn(crn)
-                // The code below handles 2 different classes of exceptions which could be thrown when the mono is resolved.
-                // Currently the error is ignored in both cases. However there is an ongoing discussion about how we should
+                // Degrade gracefully if the offender assessments call fails
+                // Currently any error is ignored. However there is an ongoing discussion about how we should
                 // populate the response based on the type of error we encounter - see PIC-432 for more details.
                 .doOnError(OffenderNotFoundException.class,
                         e -> telemetryService.trackApplicationDegradationEvent("assessment data missing from probation record (CRN '" + crn + "' not found in oasys)", e, crn))

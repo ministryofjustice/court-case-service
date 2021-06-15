@@ -93,6 +93,11 @@ class OffenderControllerIntTest extends BaseIntTest {
                 .body("convictions[0].breaches", hasSize(0))
                 .body("convictions[0].endDate", equalTo(standardDateOf(2019, 1,1)))
                 .body("convictions[0].sentence.endDate", equalTo(standardDateOf(2019, 1,1)))
+                .body("convictions[0].requirements", hasSize(0))
+                .body("convictions[0].pssRequirements", hasSize(0))
+                .body("convictions[0].licenceConditions", hasSize(2))
+                .body("convictions[0].licenceConditions[0].description", equalTo("Curfew Arrangement"))
+                .body("convictions[0].licenceConditions[0].startDate", equalTo(standardDateOf(2020, 2,1)))
 
                 .body("convictions[1].convictionId", equalTo("2500297061"))
                 .body("convictions[1].active", equalTo(false))
@@ -110,6 +115,9 @@ class OffenderControllerIntTest extends BaseIntTest {
                 .body("convictions[1].documents", hasSize(0))
                 .body("convictions[1].breaches", hasSize(2))
                 .body("convictions[1].breaches[0].breachId", equalTo(11131322))
+                .body("convictions[1].requirements", hasSize(0))
+                .body("convictions[1].pssRequirements", hasSize(0))
+                .body("convictions[1].licenceConditions", hasSize(0))
 
                 .body("convictions[2].convictionId", equalTo("2500295343"))
                 .body("convictions[2].active", equalTo(false))

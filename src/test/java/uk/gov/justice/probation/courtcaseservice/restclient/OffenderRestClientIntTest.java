@@ -142,7 +142,7 @@ class OffenderRestClientIntTest extends BaseIntTest {
 
         @Test
         void whenGetBreaches_thenMakeRestCallToCommunityApi() {
-            var optionalBreaches = offenderRestClient.getBreaches(CRN, CONVICTION_ID.toString()).blockOptional();
+            var optionalBreaches = offenderRestClient.getBreaches(CRN, CONVICTION_ID).blockOptional();
             assertThat(optionalBreaches).isNotEmpty();
 
             var breaches = optionalBreaches.get();
@@ -159,21 +159,21 @@ class OffenderRestClientIntTest extends BaseIntTest {
         @Test
         void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoCRN() {
             assertThrows(ConvictionNotFoundException.class, () ->
-                offenderRestClient.getBreaches("xxx", CONVICTION_ID.toString()).block()
+                offenderRestClient.getBreaches("xxx", CONVICTION_ID).block()
             );
         }
 
         @Test
         void whenGetBreaches_thenMakeRestCallToCommunityApi_404NoConvictionId() {
             assertThrows(ConvictionNotFoundException.class, () ->
-                offenderRestClient.getBreaches(CRN, "123").block()
+                offenderRestClient.getBreaches(CRN, 123L).block()
             );
         }
 
         @Test
         void whenGetBreaches_thenMakeRestCallToCommunityApi_500ServerError() {
             assertThrows(WebClientResponseException.class, () ->
-                offenderRestClient.getBreaches(SERVER_ERROR_CRN, CONVICTION_ID.toString()).block()
+                offenderRestClient.getBreaches(SERVER_ERROR_CRN, CONVICTION_ID).block()
             );
         }
     }

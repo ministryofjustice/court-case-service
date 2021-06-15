@@ -1,13 +1,9 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
-  SNYK-ORACLE7-PYTHON-1085691:
+  SNYK-ORACLE7-KRB5LIBS-1303151:
     - '*':
-        reason: Python not used. Ticket created to replace base image.
-        expires: 2021-04-07T00:00:00.000Z
-  SNYK-ORACLE7-PYTHONLIBS-1085694:
-    - '*':
-        reason: Python not used. Ticket created to replace base image.
-        expires: 2021-04-07T00:00:00.000Z
+        reason: Kerberos not used. We will move to Java 16 base image
+        expires: 2021-06-30T00:00:00.000Z
 patch: {}
 version: v1.13.5

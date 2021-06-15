@@ -2,7 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.service;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
@@ -110,7 +109,6 @@ public class OffenderService {
         );
     }
 
-    @NotNull
     private Mono<List<Assessment>> getAssessments(String crn) {
         return assessmentsClient.getAssessmentsByCrn(crn)
                 // Degrade gracefully if the offender assessments call fails

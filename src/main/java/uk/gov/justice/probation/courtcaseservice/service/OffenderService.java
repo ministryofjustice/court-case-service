@@ -131,7 +131,7 @@ public class OffenderService {
         var convictionId = Long.valueOf(conviction.getConvictionId());
         var enrichedConvictionMono = Mono.zip(
             offenderRestClient.getBreaches(crn, convictionId),
-            getConvictionRequirements(crn, convictionId));
+            getConvictionRequirements(crn, convictionId, conviction.getActive()));
 
         return enrichedConvictionMono.map(tuple2 -> {
             addBreachesToConviction(conviction, tuple2.getT1());
@@ -215,14 +215,19 @@ public class OffenderService {
         return offenderRestClient.getProbationStatusByCrn(crn);
     }
 
-    public Mono<RequirementsResponse> getConvictionRequirements(String crn, Long convictionId) {
+    public Mono<RequirementsResponse> getConvictionRequirements(String crn, Long convictionId, boolean active) {
 
-        return Mono.zip(offenderRestClient.getConvictionRequirements(crn, convictionId),
-            convictionRestClient.getCustodialStatus(crn, convictionId),
-            offenderRestClient.getConvictionPssRequirements(crn, convictionId),
-            offenderRestClient.getConvictionLicenceConditions(crn, convictionId)
-        )
-            .map(this::combineAndFilterRequirements);
+        if (active) {
+            return Mono.zip(offenderRestClient.getConvictionRequirements(crn, convictionId),
+                convictionRestClient.getCustodialStatus(crn, convictionId),
+                offenderRestClient.getConvictionPssRequirements(crn, convictionId),
+                offenderRestClient.getConvictionLicenceConditions(crn, convictionId)
+                )
+                .map(this::combineAndFilterRequirements);
+        }
+        else {
+            return Mono.just(RequirementsResponse.builder().build());
+        }
     }
 
     RequirementsResponse combineAndFilterRequirements(Tuple4<List<Requirement>, CustodialStatus, List<PssRequirement>, List<LicenceCondition>> tuple4) {

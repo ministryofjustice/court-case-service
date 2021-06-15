@@ -47,7 +47,8 @@ public class CourtCaseController {
 
     // See https://www.postgresql.org/docs/9.0/datatype-datetime.html
     private static final int MAX_YEAR_SUPPORTED_BY_DB = 294276;
-    private static final LocalDateTime NEVER_MODIFIED_DATE = LocalDateTime.of(2020, 1, 1, 0, 0);
+    private static final int MAX_AGE = 1;
+    private static final LocalDateTime NEVER_MODIFIED_DATE = LocalDateTime.of(2020, MAX_AGE, MAX_AGE, 0, 0);
     private final CourtCaseService courtCaseService;
     private final OffenderMatchService offenderMatchService;
 
@@ -117,7 +118,9 @@ public class CourtCaseController {
             .orElse(NEVER_MODIFIED_DATE)
             .toInstant(ZoneOffset.UTC);
         if (webRequest.checkNotModified(lastModified.toEpochMilli())) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
+                    .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS))
+                    .build();
         }
 
         final var createdAfterOrDefault = Optional.ofNullable(createdAfter)
@@ -138,7 +141,7 @@ public class CourtCaseController {
 
         return ResponseEntity.ok()
                 .lastModified(lastModified)
-                .cacheControl(CacheControl.maxAge(1, TimeUnit.SECONDS))
+                .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS))
                 .body(CaseListResponse.builder().cases(courtCaseResponses).build());
     }
 

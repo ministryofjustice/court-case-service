@@ -36,7 +36,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
-import uk.gov.justice.probation.courtcaseservice.service.model.Requirement.RequirementBuilder;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.Staff;
 import uk.gov.justice.probation.courtcaseservice.service.model.Team;

@@ -168,7 +168,7 @@ class OffenderMapperTest {
             var conviction2 = convictions.get(1);
             assertThat(conviction2.getConvictionId()).isEqualTo("2500295345");
             assertThat(conviction2.getInBreach()).isTrue();
-            assertThat(conviction2.getCustodialType()).isNull();
+            assertThat(conviction2.getCustodialType().getCode()).isEqualTo("B");
             assertThat(conviction2.getSentence().getSentenceId()).isEqualTo("123457");
             assertThat(conviction2.getSentence().getDescription()).isEqualTo("CJA - Indeterminate Public Prot.");
             assertThat(conviction2.getSentence().getTerminationDate()).isEqualTo(LocalDate.of(2019, 1, 1));

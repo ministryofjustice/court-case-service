@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
+import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,6 +80,8 @@ class OffenderControllerIntTest extends BaseIntTest {
                 .body("convictions[0].convictionId", equalTo("2500295345"))
                 .body("convictions[0].active", equalTo(true))
                 .body("convictions[0].inBreach", equalTo(true))
+                .body("convictions[0].custodialType.code", equalTo(CustodialStatus.RELEASED_ON_LICENCE.getCode()))
+                .body("convictions[0].custodialType.description", equalTo("Released - On Licence"))
                 .body("convictions[0].offences[0].description", equalTo("Arson - 05600"))
                 .body("convictions[0].offences[1].description", equalTo("Burglary (dwelling) with intent to commit, or the commission of an offence triable only on indictment - 02801"))
                 .body("convictions[0].sentence.sentenceId", equalTo("123457"))

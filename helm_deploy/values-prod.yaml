@@ -12,7 +12,7 @@ image:
   port: 8080
 
 ingress:
-  service: court-case-service
+  service: court-case-service-proxy
   enabled: true
   enable_whitelist: true
   hosts:

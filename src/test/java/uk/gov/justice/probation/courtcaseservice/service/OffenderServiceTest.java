@@ -1,7 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import lombok.Builder;
-import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -458,7 +456,6 @@ class  OffenderServiceTest {
         }
 
         private void mockForStandardClientCalls(List<Conviction> convictions, List<Assessment> assessments) {
-
             mockForStandardClientCalls(convictions, assessments, singletonList(breach));
         }
 
@@ -485,6 +482,7 @@ class  OffenderServiceTest {
 
         private GroupedDocuments groupedDocuments;
         private Conviction conviction;
+        private Requirement requirement;
 
         @BeforeEach
         void beforeEach() {
@@ -510,21 +508,24 @@ class  OffenderServiceTest {
                                         .build()))
                 .documents(Collections.emptyList())
                 .build();
-            var sentence = Sentence.builder().startDate(LocalDate.now()).build();
-            this.conviction = Conviction.builder().convictionId(CONVICTION_ID.toString()).sentence(sentence).active(Boolean.TRUE).build();
+            this.conviction = Conviction.builder().convictionId(CONVICTION_ID.toString()).sentence(Sentence.builder().startDate(LocalDate.now()).build()).active(Boolean.TRUE).build();
+            this.requirement = getRequirement(LocalDate.of(2018, Month.SEPTEMBER, 29), true);
             when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
             service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
+            service.setPssRqmntDescriptionsKeepSubType(List.of(PSS_DESC_TO_KEEP));
         }
 
-        @DisplayName("Getting offender also includes calls to get convictions and conviction documents and merges the results")
+        @DisplayName("Getting conviction includes calls to get documents, breaches and requirements and merges the results")
         @Test
-        void whenGetOffender_returnOffenderWithConvictionsDocumentsNotFiltered() {
+        void whenGetConviction_returnWithConvictionsDocumentsNotFiltered() {
+            var inactiveRequirement = getRequirement(LocalDate.of(2018, Month.SEPTEMBER, 29), false);
             when(convictionRestClient.getConviction(CRN, CONVICTION_ID)).thenReturn(Mono.just(conviction));
             var breach1 = getBreach(null);
             var breach2 = getBreach(LocalDate.of(2018, Month.SEPTEMBER, 29));
             var breach3 = getBreach(LocalDate.of(2019, Month.SEPTEMBER, 29));
             when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(breach1, breach2, breach3)));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
+            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(requirement, inactiveRequirement)));
 
             var conviction = service.getConviction(CRN, CONVICTION_ID).block();
 
@@ -534,8 +535,73 @@ class  OffenderServiceTest {
             assertThat(conviction.getBreaches().get(1).getStatusDate()).isEqualTo(LocalDate.of(2018, Month.SEPTEMBER, 29));
             assertThat(conviction.getBreaches().get(2).getStatusDate()).isNull();
             assertThat(conviction.getDocuments()).hasSize(1);
+            assertThat(conviction.getRequirements()).hasSize(2);
+            assertThat(conviction.getPssRequirements()).isEmpty();
+            assertThat(conviction.getLicenceConditions()).isEmpty();
         }
 
+        @DisplayName("Getting conviction in on licence status results in licence conditions in the conviction")
+        @Test
+        void givenOnLicenceStatus_whenGetConviction_thenReturnOnlyActiveLicenceConditions() {
+            var convictionOnLicence = Conviction.builder()
+                .convictionId(CONVICTION_ID.toString())
+                .sentence(Sentence.builder().startDate(LocalDate.now()).build())
+                .active(Boolean.TRUE)
+                .custodialType(KeyValue.builder().code(CustodialStatus.RELEASED_ON_LICENCE.getCode()).build())
+                .build();
+            var licenceCondition1 = getLicenceCondition("description", true);
+            var licenceCondition2 = getLicenceCondition("description inactive", false);
+            var emptyGroupedDocuments = GroupedDocuments.builder().documents(emptyList()).convictions(emptyList()).build();
+
+            when(convictionRestClient.getConviction(CRN, CONVICTION_ID)).thenReturn(Mono.just(convictionOnLicence));
+            when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(emptyList()));
+            when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(emptyGroupedDocuments));
+            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(requirement)));
+            when(offenderRestClient.getConvictionLicenceConditions(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(licenceCondition1, licenceCondition2)));
+
+            var conviction = service.getConviction(CRN, CONVICTION_ID).block();
+
+            assertThat(conviction.getActive()).isTrue();
+            assertThat(conviction.getBreaches()).isEmpty();
+            assertThat(conviction.getDocuments()).isEmpty();
+            assertThat(conviction.getRequirements()).hasSize(1);
+            assertThat(conviction.getPssRequirements()).isEmpty();
+            assertThat(conviction.getLicenceConditions()).hasSize(1);
+            assertThat(conviction.getLicenceConditions().get(0).getDescription()).isEqualTo("description");
+        }
+
+        @DisplayName("Getting conviction in PSS status results in PSS requirements in the conviction with filtering")
+        @Test
+        void givenPssStatus_whenGetConviction_thenReturn() {
+            var convictionPss = Conviction.builder()
+                .convictionId(CONVICTION_ID.toString())
+                .sentence(Sentence.builder().startDate(LocalDate.now()).build())
+                .active(Boolean.TRUE)
+                .custodialType(KeyValue.builder().code(POST_SENTENCE_SUPERVISION.getCode()).build())
+                .build();
+            var pssRqmnt1 = getPssRequirement("SPECIFIED ACTIVITY", "sub type desc", true);
+            var pssRqmnt2 = getPssRequirement("specified activity", null, false);
+            var pssRqmnt3 = getPssRequirement("description 3", "sub type description 3", true);
+            var emptyGroupedDocuments = GroupedDocuments.builder().documents(emptyList()).convictions(emptyList()).build();
+
+            when(convictionRestClient.getConviction(CRN, CONVICTION_ID)).thenReturn(Mono.just(convictionPss));
+            when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(emptyList()));
+            when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(emptyGroupedDocuments));
+            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(requirement)));
+            when(offenderRestClient.getConvictionPssRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(pssRqmnt1, pssRqmnt2, pssRqmnt3)));
+
+            var conviction = service.getConviction(CRN, CONVICTION_ID).block();
+
+            assertThat(conviction.getActive()).isTrue();
+            assertThat(conviction.getBreaches()).isEmpty();
+            assertThat(conviction.getDocuments()).isEmpty();
+            assertThat(conviction.getRequirements()).hasSize(1);
+            assertThat(conviction.getLicenceConditions()).isEmpty();
+            assertThat(conviction.getPssRequirements()).hasSize(2);
+            assertThat(conviction.getPssRequirements()).extracting("subTypeDescription").containsOnly("sub type desc", null);
+            assertThat(conviction.getPssRequirements()).filteredOn(rqmnt -> rqmnt.getDescription().contains("SPECIFIED ACTIVITY")).hasSize(1);
+            assertThat(conviction.getPssRequirements()).filteredOn(rqmnt -> rqmnt.getDescription().equals("description 3")).hasSize(1);
+        }
     }
 
     @Nested

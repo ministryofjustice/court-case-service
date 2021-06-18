@@ -27,6 +27,7 @@ import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRes
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.SOME_SENTENCE_ID;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.UNKNOWN_CONVICTION_ID;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.UNKNOWN_CRN;
+import static uk.gov.justice.probation.courtcaseservice.testUtil.DateHelper.standardDateOf;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 class OffenderController_ConvictionIntTest extends BaseIntTest {
@@ -183,7 +184,16 @@ class OffenderController_ConvictionIntTest extends BaseIntTest {
             .body("documents[0].type", equalTo("COURT_REPORT_DOCUMENT"))
             .body("documents[0].createdAt", equalTo("2019-09-04T00:00:00"))
             .body("documents[0].subType.code", equalTo("CR02"))
-            ;
+            .body("requirements", hasSize(2))
+            .body("requirements[0].active", equalTo(false))
+            .body("requirements[1].active", equalTo(true))
+            .body("pssRequirements", hasSize(0))
+            .body("licenceConditions", hasSize(2))
+            .body("licenceConditions[0].description", equalTo("Curfew Arrangement"))
+            .body("licenceConditions[0].subTypeDescription", equalTo("ETE - High intensity"))
+            .body("licenceConditions[0].startDate", equalTo(standardDateOf(2020, 2, 1)))
+            .body("licenceConditions[0].notes", equalTo("This is an example of licence condition notes"))
+        ;
     }
 
     @Test

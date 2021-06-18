@@ -26,6 +26,7 @@ import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.Offence;
@@ -227,6 +228,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
             .inBreach(Boolean.FALSE)
             .convictionDate(start)
             .endDate(end)
+            .custodialType(KeyValue.builder().code(CustodialStatus.RELEASED_ON_LICENCE.getCode()).description("Released - On Licence").build())
             .sentence(Sentence.builder()
                     .description("CJA - Community Order")
                     .length(12)

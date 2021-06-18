@@ -216,6 +216,11 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
         var breachStartDate = LocalDate.of(2020, Month.OCTOBER, 20);
         var breachStatusDate = LocalDate.of(2020, Month.DECEMBER, 18);
 
+        var rqmnt1 = getRequirement(2500083652L, LocalDate.of(2017, 6, 1), false, false);
+        var rqmnt2 = getRequirement(2500007925L, LocalDate.of(2015, 7, 1), true, true);
+        var licenceCondition1 = getLicenceCondition("Curfew Arrangement");
+        var licenceCondition2 = getLicenceCondition("Participate or co-op with Programme or Activities");
+
         var conviction = Conviction.builder()
             .convictionId("2500295343")
             .active(Boolean.TRUE)
@@ -244,8 +249,12 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                                     .description("Court Report")
                                     .build())
                                 .build()))
+            .requirements(List.of(rqmnt1, rqmnt2))
+            .licenceConditions(List.of(licenceCondition1, licenceCondition2))
+            .pssRequirements(Collections.emptyList())
             .offences(Collections.emptyList())
             .build();
+
         when(offenderService.getConviction("X320741", 2500295343L)).thenReturn(Mono.just(conviction));
     }
 

@@ -1,7 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import java.time.LocalDate;
-import java.time.Month;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -12,6 +10,9 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatu
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
+
+import java.time.LocalDate;
+import java.time.Month;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;

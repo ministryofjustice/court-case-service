@@ -1,8 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
@@ -13,6 +10,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 @ApiModel("Conviction")
 @Data

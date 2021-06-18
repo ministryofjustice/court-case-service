@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -57,7 +58,7 @@ import static uk.gov.justice.probation.courtcaseservice.service.model.document.D
 
 @DisplayName("OffenderService tests")
 @ExtendWith(MockitoExtension.class)
-class OffenderServiceTest {
+class  OffenderServiceTest {
 
     private static final String CRN = "CRN";
     private static final Long CONVICTION_ID = 123L;
@@ -92,9 +93,9 @@ class OffenderServiceTest {
         private Conviction conviction;
         private Assessment assessment;
         private Breach breach;
-        private ExpectedRequirements expectedRequirements;
 
         private CommunityApiOffenderResponse communityApiOffenderResponse;
+        private Requirement requirement;
 
         @BeforeEach
         void beforeEach() {
@@ -122,17 +123,12 @@ class OffenderServiceTest {
                 .started(LocalDate.of(2020,4,23))
                 .statusDate(LocalDate.of(2020, Month.APRIL, 23))
                 .build();
-            var requirement = getRequirement(LocalDate.of(2020, Month.APRIL, 23), true);
-            var pssRequirement = getPssRequirement(PSS_DESC_TO_KEEP, "sub type desc", true);
-            var licenceCondition = getLicenceCondition("Licence Condition Desc", true);
-            this.expectedRequirements = ExpectedRequirements.builder()
-                .requirements(singletonList(requirement))
-                .pssRequirements(singletonList(pssRequirement))
-                .licenceConditions(singletonList(licenceCondition))
-                .custodialStatus(POST_SENTENCE_SUPERVISION)
+            this.requirement = getRequirement(LocalDate.of(2020, Month.APRIL, 23), true);
+            this.conviction = Conviction.builder()
+                .convictionId(CONVICTION_ID.toString())
+                .sentence(Sentence.builder().startDate(LocalDate.now()).build())
+                .active(Boolean.TRUE)
                 .build();
-            var sentence = Sentence.builder().startDate(LocalDate.now()).build();
-            this.conviction = Conviction.builder().convictionId(CONVICTION_ID.toString()).sentence(sentence).active(Boolean.TRUE).build();
             this.assessment = Assessment.builder()
                 .type("OLDER_COMPLETE_ASSESSMENT")
                 .completed(LocalDateTime.of(2018,4,23,10,5,20))
@@ -162,6 +158,7 @@ class OffenderServiceTest {
                 .started(LocalDate.of(2020, Month.APRIL,23))
                 .build();
             mockForStandardClientCalls(List.of(breach, breachMostRecent, breachNullStatusDate));
+            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(this.requirement)));
 
             var probationRecord = service.getProbationRecord(CRN, false);
 
@@ -176,9 +173,8 @@ class OffenderServiceTest {
             assertThat(conviction.getDocuments().get(0).getDocumentName()).isEqualTo("PSR");
             assertThat(conviction.getDocuments().get(1).getDocumentName()).isEqualTo("CPS");
             assertThat(conviction.getRequirements()).hasSize(1);
-            assertThat(conviction.getPssRequirements()).hasSize(1);
-            assertThat(conviction.getPssRequirements().get(0).getDescription()).isEqualTo("specified activity");
-            assertThat(conviction.getPssRequirements().get(0).getSubTypeDescription()).isEqualTo("sub type desc");
+            assertThat(conviction.getPssRequirements()).isEmpty();
+            assertThat(conviction.getLicenceConditions()).isEmpty();
             assertThat(probationRecord.getAssessment().getType()).isEqualTo("OLDER_COMPLETE_ASSESSMENT");
             verify(offenderRestClient).getOffenderManagers(CRN);
             verify(offenderRestClient).getConvictionsByCrn(CRN);
@@ -194,15 +190,16 @@ class OffenderServiceTest {
             var pssRqmnt1 = getPssRequirement("SPECIFIED ACTIVITY", "sub type desc", true);
             var pssRqmnt2 = getPssRequirement("specified activity", null, false);
             var pssRqmnt3 = getPssRequirement("description 3", "sub type description 3", true);
-
-            var expectedRequirements = ExpectedRequirements.builder()
-                .requirements(this.expectedRequirements.getRequirements())
-                .pssRequirements(List.of(pssRqmnt1, pssRqmnt2, pssRqmnt3))
-                .custodialStatus(POST_SENTENCE_SUPERVISION)
-                .licenceConditions(this.expectedRequirements.getLicenceConditions())
+            var convictionPss = Conviction.builder()
+                .convictionId(CONVICTION_ID.toString())
+                .sentence(Sentence.builder().startDate(LocalDate.now()).build())
+                .active(Boolean.TRUE)
+                .custodialType(KeyValue.builder().code(POST_SENTENCE_SUPERVISION.getCode()).build())
                 .build();
 
-            mockForStandardClientCalls(expectedRequirements);
+            mockForStandardClientCalls(convictionPss);
+            when(offenderRestClient.getConvictionRequirements(eq(CRN), any(Long.class))).thenReturn(Mono.just(List.of(requirement)));
+            when(offenderRestClient.getConvictionPssRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(pssRqmnt1, pssRqmnt2, pssRqmnt3)));
 
             var probationRecord = service.getProbationRecord(CRN, false);
 
@@ -215,20 +212,21 @@ class OffenderServiceTest {
             assertThat(conviction.getPssRequirements()).extracting("subTypeDescription").containsOnly("sub type desc", null);
         }
 
-        @DisplayName("An offender on licence has licence conditions and requiremens but no PSS requirements")
+        @DisplayName("An offender on licence has licence conditions and requirements but no PSS requirements")
         @Test
-        void givenLicenceConditions_whenGetProbationRecord_returnActiveLicenceConditions() {
+        void givenLicenceConditionCustodialStatus_whenGetProbationRecord_returnActiveLicenceConditions() {
 
             var licenceCondition1 = getLicenceCondition("description 1", true);
             var licenceCondition2 = getLicenceCondition("description 2", false);
-            var expectedRequirements = ExpectedRequirements.builder()
-                .requirements(this.expectedRequirements.getRequirements())
-                .pssRequirements(this.expectedRequirements.getPssRequirements())
-                .custodialStatus(CustodialStatus.RELEASED_ON_LICENCE)
-                .licenceConditions(List.of(licenceCondition1, licenceCondition2))
+            var convictionOnLicence = Conviction.builder()
+                .convictionId(CONVICTION_ID.toString())
+                .sentence(Sentence.builder().startDate(LocalDate.now()).build())
+                .active(Boolean.TRUE)
+                .custodialType(KeyValue.builder().code(CustodialStatus.RELEASED_ON_LICENCE.getCode()).description("On Licence").build())
                 .build();
-
-            mockForStandardClientCalls(expectedRequirements);
+            mockForStandardClientCalls(convictionOnLicence);
+            when(offenderRestClient.getConvictionRequirements(eq(CRN), any(Long.class))).thenReturn(Mono.just(List.of(requirement)));
+            when(offenderRestClient.getConvictionLicenceConditions(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(licenceCondition1, licenceCondition2)));
 
             var probationRecord = service.getProbationRecord(CRN, false);
 
@@ -243,6 +241,7 @@ class OffenderServiceTest {
         @Test
         public void whenGetOffender_returnOffenderWithConvictionsFilterDocuments() {
             mockForStandardClientCalls(singletonList(conviction), singletonList(assessment));
+            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(requirement)));
 
             var probationRecord = service.getProbationRecord(CRN, true);
 
@@ -266,6 +265,7 @@ class OffenderServiceTest {
             var conviction3 = Conviction.builder().convictionId("123").active(Boolean.FALSE).sentence(sentence3).build();
 
             mockForStandardClientCalls(List.of(conviction2, conviction3, conviction), singletonList(assessment));
+            when(offenderRestClient.getConvictionRequirements(CRN, 123L)).thenReturn(Mono.just(emptyList()));
 
             var probationRecord = service.getProbationRecord(CRN, true);
 
@@ -283,9 +283,6 @@ class OffenderServiceTest {
             when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
             when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
             when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
-            when(offenderRestClient.getConvictionPssRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
-            when(offenderRestClient.getConvictionLicenceConditions(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
-            when(convictionRestClient.getCustodialStatus(CRN, CONVICTION_ID)).thenReturn(Mono.just(POST_SENTENCE_SUPERVISION));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
             when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
             when(offenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
@@ -318,9 +315,6 @@ class OffenderServiceTest {
             when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
             when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
             when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
-            when(offenderRestClient.getConvictionPssRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
-            when(offenderRestClient.getConvictionLicenceConditions(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
-            when(convictionRestClient.getCustodialStatus(CRN, CONVICTION_ID)).thenReturn(Mono.just(POST_SENTENCE_SUPERVISION));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
             // throw OffenderNotFoundException to simulate a 404 returned by assessments api
             when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
@@ -351,9 +345,6 @@ class OffenderServiceTest {
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
             when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
             when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
-            when(offenderRestClient.getConvictionPssRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
-            when(offenderRestClient.getConvictionLicenceConditions(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
-            when(convictionRestClient.getCustodialStatus(CRN, CONVICTION_ID)).thenReturn(Mono.just(POST_SENTENCE_SUPERVISION));
             // throw ConnectException to simulate server side connection issues
             when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.error(new ConnectException("Connection refused")));
 
@@ -389,6 +380,7 @@ class OffenderServiceTest {
                 .build();
 
             mockForStandardClientCalls(List.of(conviction), List.of(assessmentPending, assessment, assessmentComplete));
+            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
 
             var probationRecord = service.getProbationRecord(CRN, false);
 
@@ -405,6 +397,7 @@ class OffenderServiceTest {
                 .build();
 
             mockForStandardClientCalls(List.of(conviction), List.of(assessmentPending));
+            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
 
             var probationRecord = service.getProbationRecord(CRN, false);
 
@@ -416,6 +409,7 @@ class OffenderServiceTest {
         void givenNoAssessments_whenGetOffender_thenFieldIsNull() {
 
             mockForStandardClientCalls(List.of(conviction), List.of());
+            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(emptyList()));
 
             var probationRecord = service.getProbationRecord(CRN, false);
 
@@ -431,6 +425,7 @@ class OffenderServiceTest {
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
             when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
             when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.empty());
+            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
 
             // OffenderNotFound returned on 404 from community api
             when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
@@ -459,33 +454,27 @@ class OffenderServiceTest {
         }
 
         private void mockForStandardClientCalls(List<Breach> breaches) {
-            mockForStandardClientCalls(singletonList(conviction), singletonList(assessment), breaches, expectedRequirements);
+            mockForStandardClientCalls(singletonList(conviction), singletonList(assessment), breaches);
         }
 
         private void mockForStandardClientCalls(List<Conviction> convictions, List<Assessment> assessments) {
 
-            mockForStandardClientCalls(convictions, assessments, singletonList(breach), expectedRequirements);
+            mockForStandardClientCalls(convictions, assessments, singletonList(breach));
         }
 
-        private void mockForStandardClientCalls(ExpectedRequirements expectedRequirements) {
-            mockForStandardClientCalls(singletonList(conviction), singletonList(assessment), singletonList(breach), expectedRequirements);
+        private void mockForStandardClientCalls(Conviction conviction) {
+            mockForStandardClientCalls(singletonList(conviction), singletonList(assessment), singletonList(breach));
         }
 
         private void mockForStandardClientCalls(List<Conviction> convictions,
                                                 List<Assessment> assessments,
-                                                List<Breach> breaches,
-                                                ExpectedRequirements expectedRequirements) {
+                                                List<Breach> breaches) {
             when(offenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
             when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(convictions));
             when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(breaches));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
             when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
             when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.just(assessments));
-
-            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(expectedRequirements.getRequirements()));
-            when(offenderRestClient.getConvictionPssRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(expectedRequirements.getPssRequirements()));
-            when(offenderRestClient.getConvictionLicenceConditions(CRN, CONVICTION_ID)).thenReturn(Mono.just(expectedRequirements.getLicenceConditions()));
-            when(convictionRestClient.getCustodialStatus(CRN, CONVICTION_ID)).thenReturn(Mono.just(expectedRequirements.getCustodialStatus()));
         }
     }
 
@@ -660,12 +649,4 @@ class OffenderServiceTest {
             .build();
     }
 
-    @Builder
-    @Getter
-    public static class ExpectedRequirements {
-        public CustodialStatus custodialStatus;
-        public List<Requirement> requirements;
-        public List<PssRequirement> pssRequirements;
-        public List<LicenceCondition> licenceConditions;
-    }
 }

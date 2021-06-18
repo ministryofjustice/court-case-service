@@ -75,6 +75,7 @@ public class ConvictionService {
                 .orElseThrow(() -> new CustodialStatusNotFoundException(crn));
     }
 
+    @Deprecated(forRemoval = true, since = "requirements only part of probation-record")
     public Mono<RequirementsResponse> getConvictionRequirements(String crn, Long convictionId) {
 
         return Mono.zip(offenderRestClient.getConvictionRequirements(crn, convictionId),
@@ -85,6 +86,7 @@ public class ConvictionService {
             .map(this::combineAndFilterRequirements);
     }
 
+    @Deprecated(forRemoval = true, since = "requirements only part of probation-record")
     RequirementsResponse combineAndFilterRequirements(
         Tuple4<List<Requirement>, CustodialStatus, List<PssRequirement>, List<LicenceCondition>> tuple4) {
 
@@ -113,6 +115,7 @@ public class ConvictionService {
         return builder.build();
     }
 
+    @Deprecated(forRemoval = true, since = "requirements only part of probation-record")
     private PssRequirement transform(PssRequirement pssRequirement) {
         if (pssRqmntDescriptionsKeepSubType.contains(pssRequirement.getDescription().toLowerCase())) {
             return pssRequirement;

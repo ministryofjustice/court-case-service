@@ -134,10 +134,29 @@
       "lengthInDays": 1826,
       "terminationDate": "2019-01-01",
       "terminationReason": "ICMS Miscellaneous Event"
-      },
+    },
     "latestCourtAppearanceOutcome": {
       "code": "303",
       "description": "CJA - Indeterminate Public Prot."
+    },
+    "custody": {
+      "institution": {
+        "institutionId": 157,
+        "isEstablishment": true,
+        "code": "UNKNOW",
+        "description": "Unknown",
+        "institutionName": "Unknown",
+        "establishmentType": {
+          "code": "E",
+          "description": "Prison"
+        }
+      },
+      "keyDates": {},
+      "status": {
+        "code": "B",
+        "description": "Released - On Licence"
+      },
+      "sentenceStartDate": "2021-03-01"
     }
   },
   {

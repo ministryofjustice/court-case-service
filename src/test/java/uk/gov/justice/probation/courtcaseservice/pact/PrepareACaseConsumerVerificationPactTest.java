@@ -27,6 +27,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
+import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.Offence;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderManager;
@@ -34,6 +35,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.OtherIds;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
+import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.Staff;
 import uk.gov.justice.probation.courtcaseservice.service.model.Team;
@@ -51,7 +53,6 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 @PactBroker
 @ActiveProfiles("unsecured")
 class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
-
 
     public static final String CRN = "D991494";
     @MockBean
@@ -164,6 +165,11 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
         var breachStartDate = LocalDate.of(2020, Month.OCTOBER, 20);
         var breachStatusDate = LocalDate.of(2020, Month.DECEMBER, 18);
 
+        var rqmnt1 = getRequirement(2500083652L, LocalDate.of(2017, 6, 1), false, false);
+        var rqmnt2 = getRequirement(2500007925L, LocalDate.of(2015, 7, 1), true, true);
+        var licenceCondition1 = getLicenceCondition("Curfew Arrangement");
+        var licenceCondition2 = getLicenceCondition("Participate or co-op with Programme or Activities");
+
         var conviction = Conviction.builder()
             .convictionId("2500295345")
             .active(true)
@@ -174,6 +180,10 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
             .endDate(LocalDate.of(2019, Month.JANUARY, 1))
             .documents(List.of(document))
             .breaches(List.of(getBreach(11131322L, breachStartDate, breachStatusDate), getBreach(11131321L, breachStartDate.minusYears(1), breachStatusDate.minusYears(1))))
+            .requirements(List.of(rqmnt1, rqmnt2))
+            .licenceConditions(List.of(licenceCondition1, licenceCondition2))
+            .pssRequirements(Collections.emptyList())
+            .custodialType(KeyValue.builder().code("D").description("In Custody").build())
             .build();
 
         var probationRecord = ProbationRecord.builder()
@@ -247,5 +257,39 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
             .started(startedDate)
             .statusDate(statusDate)
             .build();
+    }
+
+    private LicenceCondition getLicenceCondition(String description) {
+        return LicenceCondition.builder()
+            .description(description)
+            .startDate(LocalDate.of(2020, 2, 1))
+            .subTypeDescription("ETE - High intensity")
+            .notes("This is an example of licence condition notes")
+            .build();
+    }
+
+    private Requirement getRequirement(Long id, LocalDate startDate, boolean active, boolean ad) {
+        var builder = Requirement.builder()
+            .requirementId(id)
+            .startDate(startDate)
+            .active(active);
+        if (ad) {
+            builder
+                .commencementDate(LocalDate.of(2015, 6, 29))
+                .adRequirementTypeMainCategory(KeyValue.builder().code("7").description("Court - Accredited Programme").build())
+                .adRequirementTypeSubCategory(KeyValue.builder().code("P12").description("ASRO").build());
+        }
+        else {
+            builder
+                .terminationDate(LocalDate.of(2017, 12, 1))
+                .expectedStartDate(startDate)
+                .expectedEndDate(LocalDate.of(2017, 12, 1))
+                .requirementTypeSubCategory(KeyValue.builder().code("W01").description("Regular").build())
+                .requirementTypeMainCategory(KeyValue.builder().code("W").description("Unpaid Work").build())
+                .terminationReason(KeyValue.builder().code("74").description("Hours Completed Outside 12 months (UPW only)").build())
+                .length(60L)
+                .lengthUnit("Hours");
+        }
+        return builder.build();
     }
 }

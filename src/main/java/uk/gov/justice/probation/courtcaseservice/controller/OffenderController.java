@@ -132,6 +132,7 @@ public class OffenderController {
             @ApiResponse(code = 404, message = "Not Found. For example if the CRN can't be matched.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
         })
+    @Deprecated(forRemoval = true, since = "requirements only part of probation-record")
     @GetMapping(path="offender/{crn}/convictions/{convictionId}/requirements", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     Mono<RequirementsResponse> getRequirements(@UpperCasePathVariable("crn") String crn, @PathVariable Long convictionId) {

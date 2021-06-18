@@ -13,6 +13,7 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "body": "{\"licenceConditions\": [] }"
+//    "body": "{\"licenceConditions\": [] }",
+    "bodyFileName": "offender-requirements/GET_licence_conditions_X320741.json"
   }
 }

@@ -13,6 +13,6 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "body": "{\"requirements\": []}"
+    "bodyFileName": "offender-requirements/GET_requirements_X320741.json"
   }
 }

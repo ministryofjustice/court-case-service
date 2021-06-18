@@ -18,7 +18,12 @@
       "licenceConditionTypeMainCat": {
         "code": "NLC7",
         "description": "Curfew Arrangement"
-      }
+      },
+      "licenceConditionTypeSubCat": {
+        "description": "ETE - High intensity",
+        "code": "XXX"
+      },
+      "licenceConditionNotes": "This is an example of licence condition notes"
     },
     {
       "startDate": "2020-02-01",

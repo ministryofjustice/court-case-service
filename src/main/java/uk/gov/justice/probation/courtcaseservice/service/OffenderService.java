@@ -160,12 +160,13 @@ public class OffenderService {
             documentRestClient.getDocumentsByCrn(crn));
 
         return convictionMono.map(tuple3 -> {
-            final Conviction conviction = tuple3.getT1();
-            addBreachesToConviction(conviction, tuple3.getT2());
-            final ConcurrentMap<String, List<OffenderDocumentDetail>> allConvictionDocuments = groupFilteredDocuments(tuple3.getT3().getConvictions(), true);
-            conviction.setDocuments(allConvictionDocuments.getOrDefault(Long.toString(convictionId), Collections.emptyList()));
-            return conviction;
-        });
+                final Conviction conviction = tuple3.getT1();
+                addBreachesToConviction(conviction, tuple3.getT2());
+                final ConcurrentMap<String, List<OffenderDocumentDetail>> allConvictionDocuments = groupFilteredDocuments(tuple3.getT3().getConvictions(), true);
+                conviction.setDocuments(allConvictionDocuments.getOrDefault(Long.toString(convictionId), Collections.emptyList()));
+                return conviction;
+            })
+            .flatMap(conviction -> applyRequirementsToConviction(crn, conviction));
     }
 
     private Conviction addBreachesToConviction(Conviction conviction, List<Breach> breaches) {
@@ -210,6 +211,11 @@ public class OffenderService {
 
     public Mono<ProbationStatusDetail> getProbationStatus(String crn) {
         return offenderRestClient.getProbationStatusByCrn(crn);
+    }
+
+    private Mono<Conviction> applyRequirementsToConviction(String crn, Conviction conviction) {
+        return getConvictionRequirements(crn, conviction)
+            .map(rqmnts -> addRequirementsToConviction(conviction, rqmnts));
     }
 
     public Mono<RequirementsResponse> getConvictionRequirements(String crn, Conviction conviction) {

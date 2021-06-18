@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.is;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.DateHelper.standardDateOf;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
+@Deprecated(forRemoval = true, since = "requirements are now only needed via the conviction")
 class OffenderController_RqmntIntTest extends BaseIntTest {
 
     private static final String KNOWN_CRN = "X320741";
@@ -52,6 +53,9 @@ class OffenderController_RqmntIntTest extends BaseIntTest {
                     .body("pssRequirements.size()", is(0))
                     .body("licenceConditions.size()", is(2))
                     .body("licenceConditions[0].description", equalTo("Curfew Arrangement"))
+                    .body("licenceConditions[0].subTypeDescription", equalTo("ETE - High intensity"))
+                    .body("licenceConditions[0].startDate", equalTo(standardDateOf(2020, 2, 1)))
+                    .body("licenceConditions[0].notes", equalTo("This is an example of licence condition notes"))
                     .body("licenceConditions[1].description", equalTo("Participate or co-op with Programme or Activities"))
         ;
     }

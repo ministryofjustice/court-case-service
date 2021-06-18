@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
+import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,6 +80,8 @@ class OffenderControllerIntTest extends BaseIntTest {
                 .body("convictions[0].convictionId", equalTo("2500295345"))
                 .body("convictions[0].active", equalTo(true))
                 .body("convictions[0].inBreach", equalTo(true))
+                .body("convictions[0].custodialType.code", equalTo(CustodialStatus.RELEASED_ON_LICENCE.getCode()))
+                .body("convictions[0].custodialType.description", equalTo("Released - On Licence"))
                 .body("convictions[0].offences[0].description", equalTo("Arson - 05600"))
                 .body("convictions[0].offences[1].description", equalTo("Burglary (dwelling) with intent to commit, or the commission of an offence triable only on indictment - 02801"))
                 .body("convictions[0].sentence.sentenceId", equalTo("123457"))
@@ -94,7 +97,15 @@ class OffenderControllerIntTest extends BaseIntTest {
                 .body("convictions[0].breaches", hasSize(0))
                 .body("convictions[0].endDate", equalTo(standardDateOf(2019, 1,1)))
                 .body("convictions[0].sentence.endDate", equalTo(standardDateOf(2019, 1,1)))
-                .body("convictions[0].requirements", hasSize(0))
+                .body("convictions[0].requirements", hasSize(2))
+                .body("convictions[0].requirements[0].requirementId", equalTo(2500083652L))
+                .body("convictions[0].requirements[0].startDate", equalTo(standardDateOf(2017, 6,1)))
+                .body("convictions[0].requirements[0].terminationDate", equalTo(standardDateOf(2017, 12,1)))
+                .body("convictions[0].requirements[0].expectedStartDate", equalTo(standardDateOf(2017, 6,1)))
+                .body("convictions[0].requirements[0].expectedEndDate", equalTo(standardDateOf(2017, 12,1)))
+                .body("convictions[0].requirements[0].active", equalTo(false))
+                .body("convictions[0].requirements[0].length", equalTo(60))
+                .body("convictions[0].requirements[0].lengthUnit", equalTo("Hours"))
                 .body("convictions[0].pssRequirements", hasSize(0))
                 .body("convictions[0].licenceConditions", hasSize(2))
                 .body("convictions[0].licenceConditions[0].description", equalTo("Curfew Arrangement"))

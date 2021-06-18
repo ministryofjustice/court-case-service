@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple3;
-import reactor.util.function.Tuple4;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
@@ -42,6 +42,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("ALL")
 @Service
 @Slf4j
 @RequestScope
@@ -126,7 +127,7 @@ public class OffenderService {
         var convictionId = Long.valueOf(conviction.getConvictionId());
         var enrichedConvictionMono = Mono.zip(
             offenderRestClient.getBreaches(crn, convictionId),
-            getConvictionRequirements(crn, convictionId, conviction.getActive()));
+            getConvictionRequirements(crn, conviction));
 
         return enrichedConvictionMono.map(tuple2 -> {
             addBreachesToConviction(conviction, tuple2.getT1());
@@ -211,46 +212,55 @@ public class OffenderService {
         return offenderRestClient.getProbationStatusByCrn(crn);
     }
 
-    public Mono<RequirementsResponse> getConvictionRequirements(String crn, Long convictionId, boolean active) {
+    public Mono<RequirementsResponse> getConvictionRequirements(String crn, Conviction conviction) {
 
-        if (active) {
-            return Mono.zip(offenderRestClient.getConvictionRequirements(crn, convictionId),
-                convictionRestClient.getCustodialStatus(crn, convictionId),
-                offenderRestClient.getConvictionPssRequirements(crn, convictionId),
-                offenderRestClient.getConvictionLicenceConditions(crn, convictionId)
-                )
-                .map(this::combineAndFilterRequirements);
+        if (conviction.getActive()) {
+            final var convictionId = Long.valueOf(conviction.getConvictionId());
+            final var custodialStatus = Optional.ofNullable(conviction.getCustodialType())
+                .map(type -> CustodialStatus.fromString(type.getCode()))
+                .orElse(CustodialStatus.UNKNOWN);
+
+            final Mono<RequirementsResponse> res;
+            switch (custodialStatus) {
+                case POST_SENTENCE_SUPERVISION -> {
+                    res = Mono.zip(offenderRestClient.getConvictionRequirements(crn, convictionId),
+                        offenderRestClient.getConvictionPssRequirements(crn, convictionId))
+                        .map(this::buildPssRequirements);
+                }
+                case RELEASED_ON_LICENCE -> {
+                    res = Mono.zip(offenderRestClient.getConvictionRequirements(crn, convictionId),
+                        offenderRestClient.getConvictionLicenceConditions(crn, convictionId))
+                        .map(this::buildLicenceConditions);
+                }
+                default -> {
+                    res = offenderRestClient.getConvictionRequirements(crn, convictionId)
+                        .map(rqmnts -> RequirementsResponse.builder().requirements(rqmnts).build());
+                }
+            }
+            return res;
         }
-        else {
-            return Mono.just(RequirementsResponse.builder().build());
-        }
+        return Mono.just(RequirementsResponse.builder().build());
     }
 
-    RequirementsResponse combineAndFilterRequirements(Tuple4<List<Requirement>, CustodialStatus, List<PssRequirement>, List<LicenceCondition>> tuple4) {
+    RequirementsResponse buildPssRequirements(Tuple2<List<Requirement>, List<PssRequirement>> tuple) {
+        return RequirementsResponse.builder()
+            .requirements(tuple.getT1())
+            .pssRequirements(tuple.getT2()
+                .stream()
+                .filter(PssRequirement::isActive)
+                .map(this::transform)
+                .collect(Collectors.toList()))
+            .build();
+    }
 
-        var builder = RequirementsResponse.builder()
-            .requirements(tuple4.getT1())
-            .licenceConditions(Collections.emptyList())
-            .pssRequirements(Collections.emptyList());
-
-        switch (tuple4.getT2()) {
-            case POST_SENTENCE_SUPERVISION:
-                builder.pssRequirements(tuple4.getT3()
-                    .stream()
-                    .filter(PssRequirement::isActive)
-                    .map(this::transform)
-                    .collect(Collectors.toList()));
-                break;
-            case RELEASED_ON_LICENCE:
-                builder.licenceConditions(tuple4.getT4()
-                    .stream()
-                    .filter(LicenceCondition::isActive)
-                    .collect(Collectors.toList()));
-                break;
-            default:
-                break;
-        }
-        return builder.build();
+    RequirementsResponse buildLicenceConditions(Tuple2<List<Requirement>, List<LicenceCondition>> tuple) {
+        return RequirementsResponse.builder()
+            .requirements(tuple.getT1())
+            .licenceConditions(tuple.getT2()
+                .stream()
+                .filter(LicenceCondition::isActive)
+                .collect(Collectors.toList()))
+            .build();
     }
 
     PssRequirement transform(PssRequirement pssRequirement) {

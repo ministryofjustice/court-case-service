@@ -5,10 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple4;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceLinks;
 import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
@@ -18,16 +16,11 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.CustodialStatusNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
-import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
-import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
-import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
-import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ConvictionService {
@@ -73,57 +66,6 @@ public class ConvictionService {
         return convictionRestClient.getCurrentOrderHeader(crn, convictionId)
                 .blockOptional()
                 .orElseThrow(() -> new CustodialStatusNotFoundException(crn));
-    }
-
-    @Deprecated(forRemoval = true, since = "requirements only part of probation-record")
-    public Mono<RequirementsResponse> getConvictionRequirements(String crn, Long convictionId) {
-
-        return Mono.zip(offenderRestClient.getConvictionRequirements(crn, convictionId),
-            convictionRestClient.getCustodialStatus(crn, convictionId),
-            offenderRestClient.getConvictionPssRequirements(crn, convictionId),
-            offenderRestClient.getConvictionLicenceConditions(crn, convictionId)
-        )
-            .map(this::combineAndFilterRequirements);
-    }
-
-    @Deprecated(forRemoval = true, since = "requirements only part of probation-record")
-    RequirementsResponse combineAndFilterRequirements(
-        Tuple4<List<Requirement>, CustodialStatus, List<PssRequirement>, List<LicenceCondition>> tuple4) {
-
-        var builder = RequirementsResponse.builder()
-            .requirements(tuple4.getT1())
-            .pssRequirements(Collections.emptyList())
-            .licenceConditions(Collections.emptyList());
-
-        switch (tuple4.getT2()) {
-            case POST_SENTENCE_SUPERVISION:
-                builder.pssRequirements(tuple4.getT3()
-                    .stream()
-                    .filter(PssRequirement::isActive)
-                    .map(this::transform)
-                    .collect(Collectors.toList()));
-                break;
-            case RELEASED_ON_LICENCE:
-                builder.licenceConditions(tuple4.getT4()
-                    .stream()
-                    .filter(LicenceCondition::isActive)
-                    .collect(Collectors.toList()));
-                break;
-            default:
-                break;
-        }
-        return builder.build();
-    }
-
-    @Deprecated(forRemoval = true, since = "requirements only part of probation-record")
-    private PssRequirement transform(PssRequirement pssRequirement) {
-        if (pssRqmntDescriptionsKeepSubType.contains(pssRequirement.getDescription().toLowerCase())) {
-            return pssRequirement;
-        }
-        return PssRequirement.builder()
-            .description(pssRequirement.getDescription())
-            .active(pssRequirement.isActive())
-            .build();
     }
 
     private SentenceResponse combineOffenderAndConvictions(List<AttendanceResponse> attendanceResponses, Conviction conviction, CurrentOrderHeaderResponse currentOrderHeaderResponse, CommunityApiOffenderResponse offenderDetail) {

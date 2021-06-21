@@ -106,17 +106,6 @@ class OffenderControllerTest {
         verifyNoMoreInteractions(offenderService);
     }
 
-    @DisplayName("Ensures that the controller calls the service and returns the same list of requirements")
-    @Test
-    public void whenGetRequirements_thenReturnIt() {
-        when(convictionService.getConvictionRequirements(CRN, SOME_EVENT_ID)).thenReturn(Mono.just(expectedRequirements));
-
-        var requirementResponse = controller.getRequirements(CRN, SOME_EVENT_ID).block();
-
-        assertThat(requirementResponse).isSameAs(expectedRequirements);
-        verify(convictionService).getConvictionRequirements(CRN, SOME_EVENT_ID);
-    }
-
     @DisplayName("Ensures that the controller calls the service and returns the same breach")
     @Test
     public void whenGetBreach_thenReturnIt() {

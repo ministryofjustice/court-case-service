@@ -16,9 +16,6 @@ import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFa
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
-import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
-import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
-import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
@@ -157,67 +154,6 @@ class ConvictionServiceTest {
 
         assertThat(response).isEqualTo(currentOrderHeaderResponse);
         verify(convictionRestClient).getCurrentOrderHeader(CRN, SOME_CONVICTION_ID);
-    }
-
-    @DisplayName("Conviction requirements for offender on licence, do not return PSS, filter out inactive and remove subtype descriptions")
-    @Test
-    void givenStatusOnLicence_whenGetConvictionRequirements_returnRequirementsWithNoPss() {
-
-        var pssRqmnt1 = PssRequirement.builder()
-            .active(true)
-            .description(PSS_DESC_TO_KEEP)
-            .subTypeDescription("subType desc 1")
-            .build();
-
-        var licenceCondition1 = LicenceCondition.builder().description("Desc 1").active(false).build();
-        var licenceCondition2 = LicenceCondition.builder().description("Desc 2").active(true).build();
-
-        when(offenderRestClient.getConvictionRequirements(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(expectedRequirements));
-        when(offenderRestClient.getConvictionPssRequirements(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(List.of(pssRqmnt1)));
-        when(offenderRestClient.getConvictionLicenceConditions(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(List.of(licenceCondition1, licenceCondition2)));
-        when(convictionRestClient.getCustodialStatus(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(CustodialStatus.RELEASED_ON_LICENCE));
-
-        var requirements = service.getConvictionRequirements(CRN, SOME_CONVICTION_ID).block();
-
-        assertThat(requirements.getRequirements()).isSameAs(expectedRequirements);
-        assertThat(requirements.getPssRequirements()).isEmpty();
-        assertThat(requirements.getLicenceConditions()).hasSize(1);
-        assertThat(requirements.getLicenceConditions().get(0).getDescription()).isEqualTo("Desc 2");
-    }
-
-    @DisplayName("Conviction requirements for offender on PSS, do not return licence conditions, filter out inactive and remove subtype descriptions")
-    @Test
-    void givenStatusPSS_whenGetConvictionRequirements_returnRequirementsWithNoLicencePresent() {
-
-        var pssRqmnt1 = PssRequirement.builder()
-            .active(true)
-            .description(PSS_DESC_TO_KEEP)
-            .subTypeDescription("subType desc 1")
-            .build();
-        var pssRqmnt2 = PssRequirement.builder()
-            .active(false)
-            .description("Desc rqmnt 2")
-            .subTypeDescription("subType desc 2")
-            .build();
-        var pssRqmnt3 = PssRequirement.builder()
-            .active(true)
-            .description("Desc rqmnt 3")
-            .subTypeDescription("subType desc 3")
-            .build();
-
-        var licenceCondition1 = LicenceCondition.builder().description("Desc 2").active(true).build();
-
-        when(offenderRestClient.getConvictionRequirements(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(expectedRequirements));
-        when(offenderRestClient.getConvictionPssRequirements(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(List.of(pssRqmnt1, pssRqmnt2, pssRqmnt3)));
-        when(offenderRestClient.getConvictionLicenceConditions(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(List.of(licenceCondition1)));
-        when(convictionRestClient.getCustodialStatus(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(CustodialStatus.POST_SENTENCE_SUPERVISION));
-
-        var requirements = service.getConvictionRequirements(CRN, SOME_CONVICTION_ID).block();
-
-        assertThat(requirements.getRequirements()).isSameAs(expectedRequirements);
-        assertThat(requirements.getPssRequirements()).hasSize(2);
-        assertThat(requirements.getPssRequirements()).extracting("description").containsExactly(PSS_DESC_TO_KEEP, "Desc rqmnt 3");
-        assertThat(requirements.getLicenceConditions()).isEmpty();
     }
 
 }

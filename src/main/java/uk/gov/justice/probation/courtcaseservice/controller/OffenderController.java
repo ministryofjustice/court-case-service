@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
 import uk.gov.justice.probation.courtcaseservice.service.BreachService;
 import uk.gov.justice.probation.courtcaseservice.service.ConvictionService;
@@ -120,23 +119,6 @@ public class OffenderController {
     Mono<Conviction> getConviction(@ApiParam(name = "crn", value = "CRN for the offender", example = "X320741", required = true) @UpperCasePathVariable("crn") String crn,
         @ApiParam(name = "convictionId", value = "Conviction Id", example = "12312322", required = true) @NotNull @PathVariable Long convictionId) {
         return offenderService.getConviction(crn, convictionId);
-    }
-
-    @ApiOperation(value = "Gets the requirement data by CRN and conviction ID.")
-    @ApiResponses(
-        value = {
-            @ApiResponse(code = 200, message = "OK", response = RequirementsResponse.class),
-            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Not Found. For example if the CRN can't be matched.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-        })
-    @Deprecated(forRemoval = true, since = "requirements only part of probation-record")
-    @GetMapping(path="offender/{crn}/convictions/{convictionId}/requirements", produces = APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    Mono<RequirementsResponse> getRequirements(@UpperCasePathVariable("crn") String crn, @PathVariable Long convictionId) {
-        return convictionService.getConvictionRequirements(crn, convictionId);
     }
 
     @GetMapping(value = "/offender/{crn}/convictions/{convictionId}/sentences/{sentenceId}", produces = APPLICATION_JSON_VALUE)

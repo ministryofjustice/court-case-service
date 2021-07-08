@@ -1,4 +1,4 @@
-FROM nginx:1.21.0-alpine
+FROM nginx:1.21.1-alpine
 
 RUN chown -R nginx:nginx /etc/nginx
 RUN chown -R nginx:nginx /var/cache/nginx

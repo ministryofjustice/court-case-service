@@ -115,6 +115,8 @@ class OffenderControllerIntTest extends BaseIntTest {
                 .body("convictions[1].active", equalTo(false))
                 .body("convictions[1].inBreach", equalTo(true))
                 .body("convictions[1].offences[0].description", equalTo("Assault on Police Officer - 10400"))
+                .body("convictions[1].offences[0].main", equalTo(true))
+                .body("convictions[1].offences[0].offenceDate", equalTo(standardDateOf(2019, 9, 9)))
                 .body("convictions[1].sentence.sentenceId", equalTo("123456"))
                 .body("convictions[1].sentence.description", equalTo("Absolute/Conditional Discharge"))
                 .body("convictions[1].sentence.length", equalTo(0))

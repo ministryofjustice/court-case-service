@@ -38,7 +38,7 @@ nginx_proxy:
 env:
   JAVA_OPTS: "-Xmx512m"
   community_api:
-    base_url: https://community-api-secure.perf.delius.probation.hmpps.dsd.io
+    base_url: https://community-api-secure.pre-prod.delius.probation.hmpps.dsd.io
   nomis_oauth:
     base_url: https://sign-in-preprod.hmpps.service.justice.gov.uk
   offender_assessments_api:

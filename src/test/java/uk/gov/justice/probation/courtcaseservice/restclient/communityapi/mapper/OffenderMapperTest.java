@@ -145,6 +145,8 @@ class OffenderMapperTest {
 
             assertThat(conviction1.getOffences()).hasSize(1);
             assertThat(conviction1.getOffences().get(0).getDescription()).isEqualTo("Assault on Police Officer - 10400");
+            assertThat(conviction1.getOffences().get(0).isMain()).isTrue();
+            assertThat(conviction1.getOffences().get(0).getOffenceDate()).isEqualTo(LocalDate.of(2019, 9, 9));
 
             assertThat(conviction1.getSentence().getSentenceId()).isEqualTo("123456");
             assertThat(conviction1.getSentence().getDescription()).isEqualTo("Absolute/Conditional Discharge");

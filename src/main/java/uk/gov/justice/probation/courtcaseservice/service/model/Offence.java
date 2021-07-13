@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
+import java.time.LocalDate;
 import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,5 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class Offence {
-    private String description;
+    private final String description;
+    private final boolean main;
+    private final LocalDate offenceDate;
 }

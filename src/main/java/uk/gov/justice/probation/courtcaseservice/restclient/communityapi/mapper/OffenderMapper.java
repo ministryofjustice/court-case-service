@@ -11,6 +11,8 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustody;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffence;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenceDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentence;
@@ -133,12 +135,20 @@ public class OffenderMapper {
                 .convictionDate(conviction.getConvictionDate())
                 .custodialType(Optional.ofNullable(conviction.getCustody()).map(CommunityApiCustody::getStatus).orElse(null))
                 .offences(Optional.ofNullable(conviction.getOffences()).orElse(Collections.emptyList()).stream()
-                    .map(offence -> new Offence(offence.getDetail().getDescription()))
+                    .map(OffenderMapper::offenceFrom)
                     .collect(Collectors.toList())
                 )
                 .sentence(Optional.ofNullable(conviction.getSentence()).map(OffenderMapper::buildSentence).orElse(null))
                 .endDate(endDateCalculator(conviction.getSentence()))
                 .build();
+    }
+
+    private static Offence offenceFrom(CommunityApiOffence offence) {
+        return Offence.builder()
+            .offenceDate(offence.getOffenceDate())
+            .main(offence.isMainOffence())
+            .description(Optional.ofNullable(offence.getDetail()).map(CommunityApiOffenceDetail::getDescription).orElse(null))
+            .build();
     }
 
     public static CurrentOrderHeaderResponse buildCurrentOrderHeaderDetail(CommunityApiCustodialStatusResponse custodialStatusResponse) {

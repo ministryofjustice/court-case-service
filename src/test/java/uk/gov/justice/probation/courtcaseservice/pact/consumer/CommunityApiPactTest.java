@@ -23,18 +23,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 @PactDirectory(value = "build/pacts")
 class CommunityApiPactTest {
 
+    private static final PactDslJsonBody KEY_VALUE_TYPE = new PactDslJsonBody()
+        .stringType("code", "description");
+
     @Pact(provider="community-api", consumer="court-case-service")
     public RequestResponsePact getNsis(PactDslWithProvider builder) {
-
-        var keyValueType = new PactDslJsonBody()
-            .stringType("code", "description");
 
         var body = new PactDslJsonBody()
             .eachLike("nsis")
                 .numberType("nsiId")
-                .object("nsiType", keyValueType)
-                .object("nsiSubType", keyValueType)
-                .object("nsiStatus", keyValueType)
+                .object("nsiType", KEY_VALUE_TYPE)
+                .object("nsiSubType", KEY_VALUE_TYPE)
+                .object("nsiStatus", KEY_VALUE_TYPE)
                 .datetime("statusDateTime")
                 .date("actualStartDate","yyyy-MM-dd")
             .closeArray();
@@ -124,7 +124,6 @@ class CommunityApiPactTest {
         assertThat(httpResponse.getStatusLine().getStatusCode()).isEqualTo(200);
     }
 
-
     @Pact(provider="community-api", consumer="court-case-service")
     public RequestResponsePact getProbationStatus(PactDslWithProvider builder) {
 
@@ -158,4 +157,38 @@ class CommunityApiPactTest {
 
         assertThat(httpResponse.getStatusLine().getStatusCode()).isEqualTo(200);
     }
+
+    @Pact(provider="community-api", consumer="court-case-service")
+    public RequestResponsePact getCourtReportByReportId(PactDslWithProvider builder) {
+
+        var body = new PactDslJsonBody()
+            .datetime("requestedDate")
+            .datetime("requiredDate")
+            .datetime("completedDate")
+            .object("courtReportType", KEY_VALUE_TYPE)
+            .stringType("status");
+
+        return builder
+            .given("a court report with ID is available for CRN CRN40")
+            .uponReceiving("a request for a court report by CRN and report ID")
+            .path("/secure/offenders/crn/X320741/courtReports/1")
+            .method("GET")
+            .willRespondWith()
+            .headers(Map.of("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+            .body(body)
+            .status(200)
+            .toPact();
+    }
+
+    @PactTestFor(pactMethod = "getCourtReportByReportId")
+    @Test
+    void getCourtReportByReportId(MockServer mockServer) throws IOException {
+        var httpResponse = Request
+            .Get(mockServer.getUrl() + "/secure/offenders/crn/X320741/courtReports/1")
+            .execute()
+            .returnResponse();
+
+        assertThat(httpResponse.getStatusLine().getStatusCode()).isEqualTo(200);
+    }
+
 }

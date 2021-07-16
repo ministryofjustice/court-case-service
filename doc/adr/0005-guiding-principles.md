@@ -19,7 +19,7 @@ The implementation of [PIC-1135](https://dsdmoj.atlassian.net/browse/PIC-1135?fo
 
 ## Consequences
 
-In practice this means that points 2 and 3 apply to everything under `/offenders`. To cement this distinction we should aim over time to separate out these two APIs in the documentation and where appropriate in the codebase.
+In practice this means that points 2 and 3 apply to everything under `/offenders`. To cement this distinction we should aim over time to separate out these two APIs in the documentation by applying Swagger tags of 'General purpose' or 'prepare-a-case'.
 
 As it stands there are known exceptions to principle 2 where multiple API calls are made on a given page on `prepare-a-case` (e.g. at the time of writing convictions and sentences) which we should also aim to resolve where possible.
 

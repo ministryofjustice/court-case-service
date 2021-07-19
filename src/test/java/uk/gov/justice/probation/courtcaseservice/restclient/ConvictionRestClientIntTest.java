@@ -143,4 +143,26 @@ public class ConvictionRestClientIntTest extends BaseIntTest {
             webTestClient.getCustodialStatus(UNKNOWN_CRN, SOME_CONVICTION_ID).block()
         );
     }
+
+    @Test
+    void givenKnownValues_whenGetCourtReportsByCrnAndConvictionId_thenReturn() {
+        final var response = webTestClient.getCourtReports("X320741", 2500295345L).blockOptional();
+
+        assertThat(response).isPresent();
+        assertThat(response.get()).hasSize(2);
+    }
+
+    @Test
+    void givenServiceThrowsError_whenGetCourtReportsByCrnAndConvictionId_thenFailFastAndThrowException() {
+        assertThrows(WebClientResponseException.class, () ->
+            webTestClient.getCourtReports(SERVER_ERROR_CRN, SOME_CONVICTION_ID).block()
+        );
+    }
+
+    @Test
+    void givenUnknownCrn_whenGetCourtReportsByCrnAndConvictionId_thenReturn404() {
+        assertThrows(ConvictionNotFoundException.class, () ->
+            webTestClient.getCourtReports(UNKNOWN_CRN, SOME_CONVICTION_ID).block()
+        );
+    }
 }

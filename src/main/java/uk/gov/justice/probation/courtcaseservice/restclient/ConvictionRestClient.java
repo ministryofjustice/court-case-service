@@ -14,11 +14,14 @@ import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.AttendanceMapper;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.CourtReportMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiAttendances;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCourtReportsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.CourtReport;
 import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 
@@ -32,6 +35,9 @@ public class ConvictionRestClient {
 
     @Value("${community-api.attendances-by-crn-and-conviction-url-template}")
     private String convictionAttendanceUrlTemplate;
+
+    @Value("${community-api.court-reports-by-crn-and-conviction-url-template}")
+    private String courtReportsUrlTemplate;
 
     @Value("${community-api.conviction-by-crn-url-template}")
     private String convictionUrlTemplate;
@@ -68,7 +74,6 @@ public class ConvictionRestClient {
             .map(OffenderMapper::convictionFrom);
     }
 
-
     public Mono<CurrentOrderHeaderResponse> getCurrentOrderHeader(final String crn, final Long convictionId) {
         final String path = String.format(currentOrderUrlTemplate, crn, convictionId);
         return clientHelper.get(path)
@@ -101,4 +106,17 @@ public class ConvictionRestClient {
             ;
     }
 
+    public Mono<List<CourtReport>> getCourtReports(final String crn, final Long convictionId) {
+        final String path = String.format(courtReportsUrlTemplate, crn, convictionId);
+        return clientHelper.get(path)
+            .retrieve()
+            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
+            .bodyToMono(CommunityApiCourtReportsResponse.class)
+            .onErrorMap(e1 -> {
+                log.error(String.format(ERROR_MSG_FORMAT, "court reports ", crn, convictionId), e1);
+                return e1;
+            })
+            .map(CourtReportMapper::courtReportsFrom)
+            ;
+    }
 }

@@ -455,9 +455,9 @@ class  OffenderServiceTest {
                 .isThrownBy(() -> service.getProbationRecord(CRN, true));
         }
 
-        @DisplayName("An offender on licence has licence conditions and requirements but no PSS requirements")
+        @DisplayName("An offender which is awaiting PST will include PSR reports in the conviction")
         @Test
-        void givenaws() {
+        void givenConvictionAwaitsPsr_whenGetProbationRecord_thenReturnPsrCourtReports() {
 
             var psrCourtReport = CourtReport.builder()
                 .courtReportId(1L)

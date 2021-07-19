@@ -1,0 +1,61 @@
+[
+  {
+    "courtReportId": 200,
+    "offenderId": 100,
+    "requestedDate": "2012-10-16T10:16:38",
+    "requiredDate": "2012-10-23T10:16:38",
+    "allocationDate": "2012-10-16T10:16:38",
+    "completedDate": "2012-10-22T10:16:38",
+    "sentToCourtDate": "2012-10-16T10:16:38",
+    "receivedByCourtDate":"2012-10-22T10:16:38",
+    "courtReportType": {
+      "code": "CJF",
+      "description": "Pre-Sentence Report - Fast"
+    },
+    "reportManagers": [
+      {
+        "staff": {
+          "code": "N02UATU",
+          "forenames": "Unallocated Staff(N02)",
+          "surname": "Staff",
+          "unallocated": true
+        },
+        "active": true
+      },
+      {
+        "staff": {
+          "code": "SH0001",
+          "forenames": "SHEILA LINDA",
+          "surname": "HANCOCK",
+          "unallocated": false
+        },
+        "active": false
+      }
+    ]
+  },
+  {
+    "courtReportId": 201,
+    "offenderId": 100,
+    "requestedDate": "2012-10-16T10:16:38",
+    "requiredDate": "2012-10-16T10:16:38",
+    "allocationDate": "2012-10-16T10:16:38",
+    "completedDate":"2012-10-16T10:16:38",
+    "sentToCourtDate": "2012-10-16T10:16:38",
+    "receivedByCourtDate":"2012-10-16T10:16:38",
+    "courtReportType": {
+      "code": "XXX",
+      "description": "Pre-Sentence Report - Fast"
+    },
+    "reportManagers": [
+      {
+        "staff": {
+          "code": "N02UATU",
+          "forenames": "David",
+          "surname": "Bowie",
+          "unallocated": false
+        },
+        "active": true
+      }
+    ]
+  }
+]

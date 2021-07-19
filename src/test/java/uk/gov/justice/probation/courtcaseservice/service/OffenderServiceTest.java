@@ -20,6 +20,8 @@ import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNo
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.CourtReport;
+import uk.gov.justice.probation.courtcaseservice.service.model.CourtReport.ReportAuthor;
 import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
@@ -137,6 +139,7 @@ class  OffenderServiceTest {
             service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
             service.setAssessmentStatuses(List.of("COMPLETE"));
             service.setPssRqmntDescriptionsKeepSubType(List.of(PSS_DESC_TO_KEEP));
+            service.setPsrTypeCodes(List.of("CJF", "CJO", "CJS"));
         }
 
         @DisplayName("Getting offender also includes calls to get convictions and conviction documents and merges the results")
@@ -173,12 +176,13 @@ class  OffenderServiceTest {
             assertThat(conviction.getRequirements()).hasSize(1);
             assertThat(conviction.getPssRequirements()).isEmpty();
             assertThat(conviction.getLicenceConditions()).isEmpty();
+            assertThat(conviction.getPsrReports()).isEmpty();
             assertThat(probationRecord.getAssessment().getType()).isEqualTo("OLDER_COMPLETE_ASSESSMENT");
             verify(offenderRestClient).getOffenderManagers(CRN);
             verify(offenderRestClient).getConvictionsByCrn(CRN);
             verify(documentRestClient).getDocumentsByCrn(CRN);
             verify(assessmentsRestClient).getAssessmentsByCrn(CRN);
-            verifyNoMoreInteractions(offenderRestClient);
+            verifyNoMoreInteractions(offenderRestClient, convictionRestClient);
         }
 
         @DisplayName("An offender on post sentence supervision has PSS requirements with no subtype description and but no licence conditions")
@@ -449,6 +453,38 @@ class  OffenderServiceTest {
             // but i can't figure out how to test for that
             assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(() -> service.getProbationRecord(CRN, true));
+        }
+
+        @DisplayName("An offender which is awaiting PST will include PSR reports in the conviction")
+        @Test
+        void givenConvictionAwaitsPsr_whenGetProbationRecord_thenReturnPsrCourtReports() {
+
+            var psrCourtReport = CourtReport.builder()
+                .courtReportId(1L)
+                .courtReportType(KeyValue.builder().code("CJF").description("Pre-Sentence Report - Fast").build())
+                .author(ReportAuthor.builder().surname("Faulkner").forenames("Chris").build())
+                .build();
+            var nonPsrCourtReport = CourtReport.builder()
+                .courtReportId(2L)
+                .courtReportType(KeyValue.builder().code("XX").description("Some other report").build())
+                .author(ReportAuthor.builder().surname("Faulkner").forenames("Chris").build())
+                .build();
+            var convictionPsrAwaits = Conviction.builder()
+                .convictionId(CONVICTION_ID.toString())
+                .sentence(Sentence.builder().startDate(LocalDate.now()).build())
+                .active(Boolean.TRUE)
+                .awaitingPsr(true)
+                .build();
+            mockForStandardClientCalls(convictionPsrAwaits);
+            when(convictionRestClient.getCourtReports(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(nonPsrCourtReport, psrCourtReport)));
+            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(emptyList()));
+
+            var probationRecord = service.getProbationRecord(CRN, false);
+
+            var conviction = probationRecord.getConvictions().get(0);
+            assertThat(conviction.isAwaitingPsr()).isTrue();
+            assertThat(conviction.getPsrReports()).hasSize(1);
+            verify(convictionRestClient).getCourtReports(CRN, CONVICTION_ID);
         }
 
         private void mockForStandardClientCalls(List<Breach> breaches) {

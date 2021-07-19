@@ -25,11 +25,14 @@ public class Conviction implements Comparable<Conviction>{
     private final String convictionId;
     private final Boolean active;
     private final Boolean inBreach;
+    private final boolean awaitingPsr;
     private final LocalDate convictionDate;
     private final List<Offence> offences;
     private final Sentence sentence;
     private final LocalDate endDate;
     private final KeyValue custodialType;
+    @Setter
+    private List<CourtReport> psrReports;
     @Setter
     private List<OffenderDocumentDetail> documents;
     @Setter

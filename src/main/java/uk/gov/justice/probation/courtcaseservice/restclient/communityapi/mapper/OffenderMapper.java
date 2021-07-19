@@ -132,6 +132,7 @@ public class OffenderMapper {
                 .convictionId(conviction.getConvictionId())
                 .active(conviction.getActive())
                 .inBreach(conviction.getInBreach())
+                .awaitingPsr(Optional.ofNullable(conviction.getAwaitingPsr()).orElse(Boolean.FALSE))
                 .convictionDate(conviction.getConvictionDate())
                 .custodialType(Optional.ofNullable(conviction.getCustody()).map(CommunityApiCustody::getStatus).orElse(null))
                 .offences(Optional.ofNullable(conviction.getOffences()).orElse(Collections.emptyList()).stream()

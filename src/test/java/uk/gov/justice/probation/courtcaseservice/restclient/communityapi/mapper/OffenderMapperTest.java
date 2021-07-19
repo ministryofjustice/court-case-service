@@ -139,6 +139,7 @@ class OffenderMapperTest {
             assertThat(conviction1.getConvictionId()).isEqualTo("2500297061");
             assertThat(conviction1.getActive()).isEqualTo(false);
             assertThat(conviction1.getInBreach()).isTrue();
+            assertThat(conviction1.isAwaitingPsr()).isFalse();
             assertThat(conviction1.getConvictionDate()).isEqualTo(LocalDate.of(2019, 9, 16));
             assertThat(conviction1.getCustodialType().getCode()).isEqualTo("B");
             assertThat(conviction1.getCustodialType().getDescription()).isEqualTo("Released - On Licence");
@@ -170,6 +171,7 @@ class OffenderMapperTest {
             var conviction2 = convictions.get(1);
             assertThat(conviction2.getConvictionId()).isEqualTo("2500295345");
             assertThat(conviction2.getInBreach()).isTrue();
+            assertThat(conviction2.isAwaitingPsr()).isTrue();
             assertThat(conviction2.getCustodialType().getCode()).isEqualTo("B");
             assertThat(conviction2.getSentence().getSentenceId()).isEqualTo("123457");
             assertThat(conviction2.getSentence().getDescription()).isEqualTo("CJA - Indeterminate Public Prot.");
@@ -231,6 +233,7 @@ class OffenderMapperTest {
 
             var expectedConviction = Conviction.builder()
                 .active(null)
+                .awaitingPsr(false)
                 .convictionDate(null)
                 .sentence(null)
                 .endDate(null)

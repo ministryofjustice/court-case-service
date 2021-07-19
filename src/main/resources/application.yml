@@ -79,6 +79,7 @@ community-api:
   offender-managers-by-crn-url-template: /secure/offenders/crn/%s/allOffenderManagers
   convictions-by-crn-url-template: /secure/offenders/crn/%s/convictions
   conviction-by-crn-url-template: /secure/offenders/crn/%s/convictions/%s
+  court-reports-by-crn-and-conviction-url-template: /secure/offenders/crn/%s/convictions/%s/courtReports
   attendances-by-crn-and-conviction-url-template: /secure/offenders/crn/%s/convictions/%s/attendancesFilter
   requirements-by-crn-url-template: /secure/offenders/crn/%s/convictions/%s/requirements
   registrations-by-crn-url-template: /secure/offenders/crn/%s/registrations
@@ -128,4 +129,5 @@ offender-service:
   assessment:
     # Comma-separated, all upper case
     included-statuses: "COMPLETE"
+  psr-report-codes: "CJF,CJO,CJS,PSR"
 

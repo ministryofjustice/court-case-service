@@ -1,7 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,6 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsRe
 import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
 import uk.gov.justice.probation.courtcaseservice.service.BreachService;
 import uk.gov.justice.probation.courtcaseservice.service.ConvictionService;
+import uk.gov.justice.probation.courtcaseservice.service.CustodyService;
 import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
@@ -23,6 +22,9 @@ import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
+
+import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -51,6 +53,8 @@ class OffenderControllerTest {
     private ConvictionService convictionService;
     @Mock
     private BreachService breachService;
+    @Mock
+    private CustodyService custodyService;
 
     private FeatureFlags featureFlags;
 
@@ -61,7 +65,7 @@ class OffenderControllerTest {
     @BeforeEach
     void beforeEach() {
         featureFlags = new FeatureFlags();
-        controller = new OffenderController(offenderService, convictionService, breachService, featureFlags, documentService);
+        controller = new OffenderController(offenderService, convictionService, breachService, featureFlags, documentService, custodyService);
     }
 
     @DisplayName("Normal sentence service call returns response")

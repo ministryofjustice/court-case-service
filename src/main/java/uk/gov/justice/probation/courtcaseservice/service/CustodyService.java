@@ -3,12 +3,15 @@ package uk.gov.justice.probation.courtcaseservice.service;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.CustodyRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.OtherIds;
+import uk.gov.justice.probation.courtcaseservice.service.exceptions.ExpectedCustodyNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.service.exceptions.NomsNumberNotAvailableException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Custody;
 
@@ -26,16 +29,19 @@ public class CustodyService {
     }
 
     public Mono<Custody> getCustody(String crn, Long convictionId) {
-        if (convictionRestClient.getConviction(crn, convictionId)
-                .map(Conviction::getCustodialType)
-                .block() == null)
-            return Mono.empty();
 
+        final var inCustodyMono = convictionRestClient.getConviction(crn, convictionId)
+                .mapNotNull(Conviction::getCustodialType);
 
-        final var nomsNumber = offenderRestClient.getOffender(crn)
+        final var nomsMono = offenderRestClient.getOffender(crn)
                 .map(CommunityApiOffenderResponse::getOtherIds)
-                .map(OtherIds::getNomsNumber)
-                .block();
-        return custodyRestClient.getCustody(nomsNumber);
+                .mapNotNull(OtherIds::getNomsNumber)
+                .switchIfEmpty(Mono.error(new NomsNumberNotAvailableException(String.format("Could not get custody data as no NOMS number was returned from the community-api for crn '%s'", crn))));
+
+        return Mono.zip(inCustodyMono, nomsMono)
+                // We only care that T1 is not empty so can discard the value
+                .map(Tuple2::getT2)
+                .flatMap(nomsNumber -> custodyRestClient.getCustody(nomsNumber)
+                        .switchIfEmpty(Mono.error(new ExpectedCustodyNotFoundException(String.format("Expected custody data for nomsNumber '%s' was not found at prison-api", nomsNumber)))));
     }
 }

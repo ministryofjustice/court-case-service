@@ -1,6 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.pact.consumer;
 
 import au.com.dius.pact.consumer.MockServer;
+import au.com.dius.pact.consumer.dsl.DslPart;
+import au.com.dius.pact.consumer.dsl.PactDslJsonArray;
 import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
@@ -124,7 +126,6 @@ class CommunityApiPactTest {
         assertThat(httpResponse.getStatusLine().getStatusCode()).isEqualTo(200);
     }
 
-
     @Pact(provider="community-api", consumer="court-case-service")
     public RequestResponsePact getProbationStatus(PactDslWithProvider builder) {
 
@@ -155,6 +156,49 @@ class CommunityApiPactTest {
                 .Get(mockServer.getUrl() + "/secure/offenders/crn/X320741/probationStatus")
                 .execute()
                 .returnResponse();
+
+        assertThat(httpResponse.getStatusLine().getStatusCode()).isEqualTo(200);
+    }
+
+    @Pact(provider="community-api", consumer="court-case-service")
+    public RequestResponsePact getCourtReportsByCrnAndConvictionId(PactDslWithProvider builder) {
+
+        DslPart body = PactDslJsonArray.arrayMinLike(1)
+            .numberType("courtReportId", "offenderId")
+            .date("requestedDate", "yyyy-MM-dd'T'HH:mm:ss'Z'")
+            .date("requiredDate", "yyyy-MM-dd'T'HH:mm:ss'Z'")
+            .date("completedDate", "yyyy-MM-dd'T'HH:mm:ss'Z'")
+            .object("courtReportType")
+                .stringType("code")
+                .stringType("description")
+            .closeObject()
+            .eachLike("reportManagers")
+                .booleanType("active")
+                .object("staff")
+                    .stringType("code", "forenames", "surname")
+                    .booleanType("unallocated")
+                .closeObject()
+            .closeArray();
+
+        return builder
+            .given("an offender exists with CRN X320741 with conviction ID 2500295345")
+            .uponReceiving("a request for court reports for CRN and conviction ID")
+            .path("/secure/offenders/crn/X320741/convictions/2500295345/courtReports")
+            .method("GET")
+            .willRespondWith()
+            .headers(Map.of("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+            .body(body)
+            .status(200)
+            .toPact();
+    }
+
+    @PactTestFor(pactMethod = "getCourtReportsByCrnAndConvictionId")
+    @Test
+    void getCourtReportsByCrnAndConvictionId(MockServer mockServer) throws IOException {
+        var httpResponse = Request
+            .Get(mockServer.getUrl() + "/secure/offenders/crn/X320741/convictions/2500295345/courtReports")
+            .execute()
+            .returnResponse();
 
         assertThat(httpResponse.getStatusLine().getStatusCode()).isEqualTo(200);
     }

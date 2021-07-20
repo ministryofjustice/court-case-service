@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,8 +41,8 @@ class CustodyServiceTest {
 
     private static final Conviction CONVICTION_WITH_CUSTODY = Conviction.builder()
             .custodialType(KeyValue.builder()
-                    .code("ANY")
-                    .description("Owt will do")
+                    .code("LCK")
+                    .description("Locked up")
                     .build())
             .build();
 
@@ -75,14 +76,11 @@ class CustodyServiceTest {
         final var conviction = Conviction.builder()
                 .custodialType(null)
                 .build();
-
-        when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(OFFENDER_WITH_NOMS));
-
         when(convictionRestClient.getConviction(CRN, CONVICTION_ID)).thenReturn(Mono.just(conviction));
         final var actualMono = custodyService.getCustody(CRN, CONVICTION_ID);
 
         assertThat(actualMono.blockOptional()).isEqualTo(Optional.empty());
-
+        verifyNoInteractions(offenderRestClient);
     }
 
     @Test
@@ -111,7 +109,7 @@ class CustodyServiceTest {
         assertThatExceptionOfType(ExpectedCustodyNotFoundException.class)
                 .isThrownBy(
                         () -> custodyService.getCustody(CRN, CONVICTION_ID).block()
-                ).withMessage("Expected custody data for nomsNumber 'nomnomnom' was not found at prison-api");
+                ).withMessage("Expected custody data for nomsNumber 'nomnomnom' with custody type 'Locked up (LCK)' was not found at prison-api");
 
     }
 }

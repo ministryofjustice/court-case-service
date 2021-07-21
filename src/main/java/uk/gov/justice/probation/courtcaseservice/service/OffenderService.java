@@ -21,6 +21,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.ConvictionBySentenceComparator;
+import uk.gov.justice.probation.courtcaseservice.service.model.CourtReport;
 import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
 import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
@@ -34,13 +35,14 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Convicti
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyList;
 
 @SuppressWarnings("ALL")
 @Service
@@ -64,6 +66,10 @@ public class OffenderService {
     @Value("#{'${offender-service.pss-rqmnt.descriptions-to-keep-subtype}'.split(',')}")
     private List<String> pssRqmntDescriptionsKeepSubType;
 
+    @Setter
+    @Value("#{'${offender-service.psr-report-codes}'.split(',')}")
+    private List<String> psrTypeCodes;
+
     public OffenderService(final OffenderRestClientFactory offenderRestClientFactory,
                            final AssessmentsRestClient assessmentsClient,
                            final ConvictionRestClient convictionRestClient,
@@ -83,7 +89,7 @@ public class OffenderService {
         var convictions = offenderRestClient.getConvictionsByCrn(crn)
             .flatMapMany(Flux::fromIterable)
             .flatMap(conviction -> {
-                log.debug("getting breaches and requirements for crn {} and conviction id {}", crn, conviction.getConvictionId());
+                log.debug("getting breaches, requirements and PSR detail for crn {} and conviction id {}", crn, conviction.getConvictionId());
                 return enrichConviction(crn, conviction);
             })
             .collectSortedList(new ConvictionBySentenceComparator()
@@ -119,7 +125,7 @@ public class OffenderService {
                         e -> telemetryService.trackApplicationDegradationEvent("assessment data missing from probation record (CRN '" + crn + "' not found in oasys)", e, crn))
                 .doOnError(Exception.class,
                         e -> telemetryService.trackApplicationDegradationEvent("call failed to get assessment data for for CRN '" + crn + "'", e, crn))
-                .onErrorResume((e) -> Mono.just(Collections.emptyList()));
+                .onErrorResume((e) -> Mono.just(emptyList()));
     }
 
     private Mono<Conviction> enrichConviction(String crn, Conviction conviction) {
@@ -127,11 +133,13 @@ public class OffenderService {
         var convictionId = Long.valueOf(conviction.getConvictionId());
         var enrichedConvictionMono = Mono.zip(
             offenderRestClient.getBreaches(crn, convictionId),
-            getConvictionRequirements(crn, conviction));
+            getConvictionRequirements(crn, conviction),
+            getPsrDetail(crn, conviction));
 
-        return enrichedConvictionMono.map(tuple2 -> {
-            addBreachesToConviction(conviction, tuple2.getT1());
-            addRequirementsToConviction(conviction, tuple2.getT2());
+        return enrichedConvictionMono.map(tuple3 -> {
+            addBreachesToConviction(conviction, tuple3.getT1());
+            addRequirementsToConviction(conviction, tuple3.getT2());
+            addPsrCourtReportToConviction(conviction, tuple3.getT3());
             return conviction;
         });
     }
@@ -142,7 +150,7 @@ public class OffenderService {
         convictions
             .forEach((conviction) -> {
                 final String convictionId = conviction.getConvictionId();
-                conviction.setDocuments(allConvictionDocuments.getOrDefault(convictionId, Collections.emptyList()));
+                conviction.setDocuments(allConvictionDocuments.getOrDefault(convictionId, emptyList()));
             });
 
         return ProbationRecord.builder()
@@ -163,7 +171,7 @@ public class OffenderService {
                 final Conviction conviction = tuple3.getT1();
                 addBreachesToConviction(conviction, tuple3.getT2());
                 final ConcurrentMap<String, List<OffenderDocumentDetail>> allConvictionDocuments = groupFilteredDocuments(tuple3.getT3().getConvictions(), true);
-                conviction.setDocuments(allConvictionDocuments.getOrDefault(Long.toString(convictionId), Collections.emptyList()));
+                conviction.setDocuments(allConvictionDocuments.getOrDefault(Long.toString(convictionId), emptyList()));
                 return conviction;
             })
             .flatMap(conviction -> applyRequirementsToConviction(crn, conviction));
@@ -177,9 +185,14 @@ public class OffenderService {
     }
 
     private Conviction addRequirementsToConviction(Conviction conviction, RequirementsResponse requirements) {
-        conviction.setRequirements(Optional.ofNullable(requirements.getRequirements()).orElse(Collections.emptyList()));
-        conviction.setPssRequirements(Optional.ofNullable(requirements.getPssRequirements()).orElse(Collections.emptyList()));
-        conviction.setLicenceConditions(Optional.ofNullable(requirements.getLicenceConditions()).orElse(Collections.emptyList()));
+        conviction.setRequirements(Optional.ofNullable(requirements.getRequirements()).orElse(emptyList()));
+        conviction.setPssRequirements(Optional.ofNullable(requirements.getPssRequirements()).orElse(emptyList()));
+        conviction.setLicenceConditions(Optional.ofNullable(requirements.getLicenceConditions()).orElse(emptyList()));
+        return conviction;
+    }
+
+    private Conviction addPsrCourtReportToConviction(Conviction conviction, List<CourtReport> courtReports) {
+        conviction.setPsrReports(courtReports);
         return conviction;
     }
 
@@ -248,6 +261,23 @@ public class OffenderService {
         return Mono.just(RequirementsResponse.builder().build());
     }
 
+    public Mono<List<CourtReport>> getPsrDetail(String crn, Conviction conviction) {
+
+        if (conviction.isAwaitingPsr()) {
+            return convictionRestClient.getCourtReports(crn, Long.valueOf(conviction.getConvictionId()))
+                .map(this::buildCourtReports);
+        }
+        return Mono.just(emptyList());
+    }
+
+    List<CourtReport> buildCourtReports(List<CourtReport> courtReports) {
+
+        return Optional.ofNullable(courtReports).orElse(emptyList())
+            .stream()
+            .filter(report -> report.isTypeOneOf(psrTypeCodes))
+            .collect(Collectors.toList());
+    }
+
     RequirementsResponse buildPssRequirements(Tuple2<List<Requirement>, List<PssRequirement>> tuple) {
         return RequirementsResponse.builder()
             .requirements(tuple.getT1())
@@ -279,4 +309,5 @@ public class OffenderService {
             .active(pssRequirement.isActive())
             .build();
     }
+
 }

@@ -7,7 +7,6 @@ import org.springframework.http.MediaType;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.equalTo;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
@@ -32,7 +31,7 @@ class OffenderController_CustodyIntTest extends BaseIntTest {
                 .get(path)
         .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("homeDetentionCurfewDateActual", equalTo("2021-07-16"))
+                .body("homeDetentionCurfewActualDate", equalTo("2021-07-16"))
                 .body("homeDetentionCurfewEndDate", equalTo("2021-07-17"))
                 .body("licenceExpiryDate", equalTo("2021-07-18"))
                 .body("releaseDate", equalTo("2021-07-19"))
@@ -42,7 +41,7 @@ class OffenderController_CustodyIntTest extends BaseIntTest {
     }
 
     @Test
-    void whenCallMadeToGetCustody_andNoCustodyElement_thenReturnEmpty() {
+    void whenCallMadeToGetCustody_andNoCustodyElementInCommunityApi_thenReturnNotFound() {
 
         String path = String.format(GET_CUSTODY_PATH, CRN, CONVICTION_ID_NO_CUSTODY);
         given()
@@ -52,13 +51,7 @@ class OffenderController_CustodyIntTest extends BaseIntTest {
         .when()
                 .get(path)
         .then()
-                .statusCode(HttpStatus.OK.value())
-                .body("homeDetentionCurfewDateActual", emptyOrNullString())
-                .body("homeDetentionCurfewEndDate", emptyOrNullString())
-                .body("licenceExpiryDate", emptyOrNullString())
-                .body("releaseDate", emptyOrNullString())
-                .body("topupSupervisionStartDate", emptyOrNullString())
-                .body("topupSupervisionExpiryDate", emptyOrNullString())
+                .statusCode(HttpStatus.NOT_FOUND.value())
         ;
     }
 

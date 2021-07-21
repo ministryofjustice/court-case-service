@@ -11,17 +11,15 @@ import uk.gov.justice.probation.courtcaseservice.restclient.CustodyRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.OtherIds;
+import uk.gov.justice.probation.courtcaseservice.service.exceptions.CustodyNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.ExpectedCustodyNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.NomsNumberNotAvailableException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Custody;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 
-import java.util.Optional;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,15 +70,16 @@ class CustodyServiceTest {
     }
 
     @Test
-    public void whenGetCustody_andOffenderNotInCustody_thenReturnEmpty() {
+    public void whenGetCustody_andOffenderNotInCustody_thenThrowNotFoundException() {
         final var conviction = Conviction.builder()
                 .custodialType(null)
                 .build();
         when(convictionRestClient.getConviction(CRN, CONVICTION_ID)).thenReturn(Mono.just(conviction));
-        final var actualMono = custodyService.getCustody(CRN, CONVICTION_ID);
 
-        assertThat(actualMono.blockOptional()).isEqualTo(Optional.empty());
-        verifyNoInteractions(offenderRestClient);
+        assertThatExceptionOfType(CustodyNotFoundException.class)
+            .isThrownBy(() -> custodyService.getCustody(CRN, CONVICTION_ID).block())
+            .withMessage("Offender with crn 'CRN' is not in custody for conviction '12345'");
+
     }
 
     @Test

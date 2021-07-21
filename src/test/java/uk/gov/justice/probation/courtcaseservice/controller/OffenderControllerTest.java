@@ -10,13 +10,13 @@ import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
 import uk.gov.justice.probation.courtcaseservice.service.BreachService;
 import uk.gov.justice.probation.courtcaseservice.service.ConvictionService;
 import uk.gov.justice.probation.courtcaseservice.service.CustodyService;
 import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
+import uk.gov.justice.probation.courtcaseservice.service.model.Custody;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
@@ -45,8 +45,6 @@ class OffenderControllerTest {
     private OffenderService offenderService;
     @Mock
     private ProbationRecord expectedProbationRecord;
-    @Mock
-    private RequirementsResponse expectedRequirements;
     @Mock
     private BreachResponse expectedBreach;
     @Mock
@@ -175,5 +173,18 @@ class OffenderControllerTest {
         assertThat(probationStatusDetail).isSameAs(expectedDetail);
         verify(offenderService).getProbationStatus(CRN);
         verifyNoMoreInteractions(offenderService);
+    }
+
+    @DisplayName("Ensures that the controller calls the service and returns the same custody")
+    @Test
+    public void whenGetCustody_thenReturnIt() {
+        final var expectedCustody = Custody.builder().build();
+        when(custodyService.getCustody(CRN, 12345L)).thenReturn(Mono.just(expectedCustody));
+
+        var custody = controller.getCustody(CRN, 12345L).block();
+
+        assertThat(custody).isSameAs(expectedCustody);
+        verify(custodyService).getCustody(CRN, 12345L);
+        verifyNoMoreInteractions(custodyService);
     }
 }

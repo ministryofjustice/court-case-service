@@ -1,11 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.pact;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Month;
-import java.util.Collections;
-import java.util.List;
 import au.com.dius.pact.provider.junit5.HttpTestTarget;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
 import au.com.dius.pact.provider.junitsupport.Provider;
@@ -44,6 +38,13 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Document
 import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.ReportDocumentDates;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Month;
+import java.util.Collections;
+import java.util.List;
+
 import static org.mockito.Mockito.when;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
@@ -76,7 +77,8 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
         "the defendant has an existing conviction with sentence",
         "a defendant has an existing conviction",
         "will return the specific conviction breach details",
-        "a defendant has an existing conviction"})
+        "a defendant has an existing conviction",
+        "a defendant is serving a custodial sentence with dates"})
     @SuppressWarnings({"EmptyMethod"})
     void stateFromIntegrationTests() {
     }

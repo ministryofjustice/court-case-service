@@ -14,7 +14,7 @@ The implementation of [PIC-1135](https://dsdmoj.atlassian.net/browse/PIC-1135?fo
 
 1. All data stored by `court-case-service` is considered its own domain and should be treated as a general purpose api
 2. All endpoints composing data on behalf of `prepare-a-case` are not intended for consumption by other clients and should provide all data needed on a given `prepare-a-case` page as efficiently as possible
-3. The exception to point 2 is the case were errors in the retrieval of certain pieces of data are expected and need to be isolated. In this case data to be isolated should be served as a separate endpoint which will fail fast. `prepare-a-case` can then handle it simply as a failed HTTP call. See [PIC-1135](https://dsdmoj.atlassian.net/browse/PIC-1135?focusedCommentId=163988) for an example of this.
+3. The exception to point 2 is the case where errors in the retrieval of certain pieces of data are expected and need to be isolated. In this case data to be isolated should be served as a separate endpoint which will fail fast. `prepare-a-case` can then handle it simply as a failed HTTP call. See [PIC-1135](https://dsdmoj.atlassian.net/browse/PIC-1135?focusedCommentId=163988) for an example of this.
 
 
 ## Consequences

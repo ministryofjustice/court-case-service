@@ -16,11 +16,13 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.service.CustodyService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
+import uk.gov.justice.probation.courtcaseservice.service.model.Custody;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
 import uk.gov.justice.probation.courtcaseservice.service.model.Offence;
@@ -59,6 +61,8 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
     public static final String CRN = "D991494";
     @MockBean
     private OffenderService offenderService;
+    @MockBean
+    private CustodyService custodyService;
 
     @BeforeEach
     void setupTestTarget(PactVerificationContext context) {
@@ -77,8 +81,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
         "the defendant has an existing conviction with sentence",
         "a defendant has an existing conviction",
         "will return the specific conviction breach details",
-        "a defendant has an existing conviction",
-        "a defendant is serving a custodial sentence with dates"})
+        "a defendant has an existing conviction"})
     @SuppressWarnings({"EmptyMethod"})
     void stateFromIntegrationTests() {
     }
@@ -260,6 +263,20 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
             .build();
 
         when(offenderService.getConviction("X320741", 2500295343L)).thenReturn(Mono.just(conviction));
+    }
+
+    @State({"a defendant has an existing conviction in custody"})
+    void defendantHasAnExistingConvictionInCustody() {
+        var custody = Custody.builder()
+                .homeDetentionCurfewActualDate(LocalDate.of(2021, 8, 21))
+                .homeDetentionCurfewEndDate(LocalDate.of(2021, 10, 21))
+                .licenceExpiryDate(LocalDate.of(2022, 1, 21))
+                .releaseDate(LocalDate.of(2021, 1, 21))
+                .topupSupervisionStartDate(LocalDate.of(2021, 10, 21))
+                .topupSupervisionExpiryDate(LocalDate.of(2022, 1, 21))
+                .build();
+
+        when(custodyService.getCustody("E654321", 345464567L)).thenReturn(Mono.just(custody));
     }
 
     private Breach getBreach(Long id, LocalDate startedDate, LocalDate statusDate) {

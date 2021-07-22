@@ -41,6 +41,13 @@ spring:
             client-authentication-method: basic
             authorization-grant-type: client_credentials
             provider: nomis-oauth-service
+          prison-api-client:
+            client-name: prison-api-client
+            client-id: ${prison-api-client-id:prison-api-client}
+            client-secret: ${prison-api-client-secret:clientsecret}
+            client-authentication-method: basic
+            authorization-grant-type: client_credentials
+            provider: nomis-oauth-service
         provider:
           nomis-oauth-service:
             token-uri: ${nomis-oauth.base-url}/auth/oauth/token

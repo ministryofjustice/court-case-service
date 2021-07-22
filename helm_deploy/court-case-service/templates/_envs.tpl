@@ -76,6 +76,18 @@ env:
         name: court-case-service-secrets
         key: nomis-oauth-client-secret
 
+  - name: PRISON_API_CLIENT_ID
+    valueFrom:
+      secretKeyRef:
+        name: court-case-service-secrets
+        key: nomis-oauth-client-id
+
+  - name: PRISON_API_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: court-case-service-secrets
+        key: nomis-oauth-client-secret
+
   - name: APPINSIGHTS_INSTRUMENTATIONKEY
     valueFrom:
       secretKeyRef:

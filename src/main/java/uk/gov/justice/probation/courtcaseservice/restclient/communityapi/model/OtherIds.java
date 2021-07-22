@@ -14,4 +14,5 @@ public class OtherIds {
     private final String crn;
     private final String pncNumber;
     private final String croNumber;
+    private final String nomsNumber;
 }

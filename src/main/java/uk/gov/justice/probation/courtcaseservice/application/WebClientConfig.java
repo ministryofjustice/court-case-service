@@ -24,6 +24,9 @@ public class WebClientConfig {
     @Value("${offender-assessments-api.base-url}")
     private String assessmentsApiBaseUrl;
 
+    @Value("${prison-api.base-url}")
+    private String prisonApiBaseUrl;
+
     @Value("${nomis-oauth.base-url}")
     private String oauthApiBaseUrl;
 
@@ -46,6 +49,11 @@ public class WebClientConfig {
     }
 
     @Bean
+    public RestClientHelper prisonApiClient(WebClient prisonApiWebClient) {
+        return new RestClientHelper(prisonApiWebClient, "prison-api-client", disableAuthentication);
+    }
+
+    @Bean
     public WebClient documentWebClient(WebClientFactory webClientFactory) {
         return webClientFactory.buildWebClient(communityApiBaseUrl, documentBufferByteSize);
     }
@@ -58,6 +66,11 @@ public class WebClientConfig {
     @Bean
     public WebClient assessmentsWebClient(WebClientFactory webClientFactory) {
         return webClientFactory.buildWebClient(assessmentsApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE);
+    }
+
+    @Bean
+    public WebClient prisonApiWebClient(WebClientFactory webClientFactory) {
+        return webClientFactory.buildWebClient(prisonApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE);
     }
 
     @Bean

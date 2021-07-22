@@ -201,6 +201,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
             .licenceConditions(List.of(licenceCondition1, licenceCondition2))
             .pssRequirements(Collections.emptyList())
             .psrReports(List.of(CourtReport.builder()
+                        .courtReportId(1L)
                         .requestedDate(LocalDate.of(2019, 9, 3))
                         .requiredDate(LocalDate.of(2019, 9, 3))
                         .completedDate(LocalDate.of(2019, 9, 3))

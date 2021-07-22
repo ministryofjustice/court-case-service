@@ -21,9 +21,11 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.BreachResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
 import uk.gov.justice.probation.courtcaseservice.service.BreachService;
 import uk.gov.justice.probation.courtcaseservice.service.ConvictionService;
+import uk.gov.justice.probation.courtcaseservice.service.CustodyService;
 import uk.gov.justice.probation.courtcaseservice.service.DocumentService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.Custody;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
@@ -55,6 +57,9 @@ public class OffenderController {
 
     @Autowired
     private final DocumentService documentService;
+
+    @Autowired
+    private CustodyService custodyService;
 
     @ApiOperation(value = "Gets the offender probation record by CRN")
     @ApiResponses(
@@ -136,6 +141,20 @@ public class OffenderController {
             return convictionService.getConvictionOnly(crn, convictionId);
         }
         return convictionService.getSentence(crn, convictionId, sentenceId);
+    }
+
+    @GetMapping(value = "/offender/{crn}/convictions/{convictionId}/sentence/custody", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Return custody data for a sentence", tags = "prepare-a-case")
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Not found. For example if the CRN can't be matched.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+        })
+    public @ResponseBody Mono<Custody> getCustody(@UpperCasePathVariable("crn") String crn, @PathVariable Long convictionId) {
+        return custodyService.getCustody(crn, convictionId);
     }
 
     @ApiOperation(value = "Gets Breach data by CRN, conviction ID and breach id.")

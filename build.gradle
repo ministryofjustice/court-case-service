@@ -8,7 +8,7 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.39.0'
     id "org.flywaydb.flyway" version "7.11.3"
     id 'jacoco'
-    id "au.com.dius.pact" version "4.2.7"
+    id "au.com.dius.pact" version "4.2.8"
     id 'java-library'
 }
 
@@ -31,7 +31,7 @@ group = 'uk.gov.justice.probation'
 ext {
     swaggerVersion = '2.9.2'
     restAssuredVersion = '4.4.0'
-    pactVersion = '4.2.7'
+    pactVersion = '4.2.8'
 }
 
 def today = Instant.now()

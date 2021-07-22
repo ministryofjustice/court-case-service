@@ -1,0 +1,75 @@
+{
+  "convictionId": 2500295399,
+  "index": "1",
+  "active": true,
+  "inBreach": false,
+  "convictionDate": "2017-06-01",
+  "referralDate": "2017-06-01",
+  "offences": [
+    {
+      "offenceId": "M2500295341",
+      "mainOffence": true,
+      "detail": {
+        "code": "05600",
+        "description": "Arson - 05600",
+        "mainCategoryCode": "056",
+        "mainCategoryDescription": "Arson",
+        "mainCategoryAbbreviation": "Arson",
+        "ogrsOffenceCategory": "Criminal damage",
+        "subCategoryCode": "00",
+        "subCategoryDescription": "Arson",
+        "form20Code": "58"
+      },
+      "offenceDate": "2017-05-01T00:00:00",
+      "offenceCount": 1,
+      "offenderId": 2500343964,
+      "createdDatetime": "2019-09-04T00:00:00",
+      "lastUpdatedDatetime": "2019-09-04T00:00:00"
+    }
+  ],
+  "sentence": {
+    "description": "CJA - Community Order",
+    "originalLength": 12,
+    "originalLengthUnits": "Months",
+    "defaultLength": 12,
+    "lengthInDays": 364,
+    "unpaidWork": {
+      "minutesOrdered": 3600,
+      "minutesCompleted": 360,
+      "appointments": {
+        "total": 5,
+        "attended": 2,
+        "acceptableAbsences": 1,
+        "unacceptableAbsences": 1,
+        "noOutcomeRecorded": 1
+      },
+      "status": "Being worked"
+    },
+    "startDate": "2017-06-01",
+    "terminationDate": "2017-12-01",
+    "terminationReason": "Completed - early good progress"
+  },
+  "latestCourtAppearanceOutcome": {
+    "code": "201",
+    "description": "CJA - Community Order"
+  },
+  "custody": {
+    "institution": {
+      "institutionId": 156,
+      "isEstablishment": true,
+      "code": "COMMUN",
+      "description": "In the Community",
+      "institutionName": "In the Community",
+      "establishmentType": {
+        "code": "E",
+        "description": "Prison"
+      }
+    },
+    "keyDates": {},
+    "status": {
+      "code": "B",
+      "description": "Released - On Licence"
+    },
+    "sentenceStartDate": "2019-10-01"
+  }
+}

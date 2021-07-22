@@ -46,6 +46,8 @@ env:
     base_url: https://offender-prod.aks-live-1.studio-hosting.service.justice.gov.uk
   delius:
     base_url: https://ndelius.probation.service.justice.gov.uk
+  prison_api:
+    base_url: https://api.prison.service.justice.gov.uk
 
 spring:
   profile: instrumented,prod

@@ -9,7 +9,9 @@ offender-assessments-api:
 
 delius:
   base-url: https://ndelius.test.probation.service.justice.gov.uk
-  
+
+prison-api:
+  base-url: https://api-dev.prison.service.justice.gov.uk
   
 feature:
   flags:

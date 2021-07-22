@@ -104,6 +104,9 @@ community-api:
 offender-assessments-api:
   assessment-crn-url-template: /offenders/crn/%s/assessments/summary
 
+prison-api:
+  sentences-template: /api/offenders/%s/sentences
+
 delius:
   contact-list-url-template: ${delius.base-url}/NDelius-war/delius/JSP/deeplink.jsp?component=ContactList&offenderId=%s&eventId=%s
 

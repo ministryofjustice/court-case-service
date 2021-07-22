@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/secure/offenders/crn/X320741/convictions/2500295343",
+    "urlPath": "/api/offenders/G9542VP/sentences",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"
@@ -13,6 +13,6 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "offender-convictions/GET_conviction_X320741_2500295343.json"
+    "bodyFileName": "prison-api/offender-sentences/GET_offender_sentences_G9542VP.json"
   }
 }

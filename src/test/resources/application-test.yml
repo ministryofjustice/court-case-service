@@ -13,6 +13,9 @@ community-api:
 offender-assessments-api:
   base-url: http://localhost:8090
 
+prison-api:
+  base-url: http://localhost:8090
+
 nomis-oauth:
   base-url: http://localhost:8090
 

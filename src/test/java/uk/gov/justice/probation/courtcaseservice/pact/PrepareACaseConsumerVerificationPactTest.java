@@ -186,6 +186,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                                 .build(),
                             Offence.builder()
                                 .description("Burglary (dwelling) with intent to commit, or the commission of an offence triable only on indictment - 02801")
+                                .offenceDate(LocalDate.of(2017, 3, 8))
                                 .build()))
             .sentence(sentence)
             .endDate(LocalDate.of(2019, Month.JANUARY, 1))

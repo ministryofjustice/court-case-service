@@ -46,6 +46,9 @@ env:
   - name: OFFENDER_ASSESSMENTS_API_BASE_URL
     value: "{{ .Values.env.offender_assessments_api.base_url }}"
 
+  - name: PRISON_API_BASE_URL
+    value: "{{ .Values.env.prison_api.base_url }}"
+
   - name: DELIUS_BASE_URL
     value: "{{ .Values.env.delius.base_url }}"
 

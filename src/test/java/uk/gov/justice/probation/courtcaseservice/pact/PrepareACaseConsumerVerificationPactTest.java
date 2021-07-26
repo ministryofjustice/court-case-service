@@ -110,6 +110,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
             .status("CURRENT")
             .preSentenceActivity(true)
             .inBreach(true)
+            .awaitingPsr(true)
             .previouslyKnownTerminationDate(LocalDate.of(2021, Month.FEBRUARY, 25))
             .build();
 

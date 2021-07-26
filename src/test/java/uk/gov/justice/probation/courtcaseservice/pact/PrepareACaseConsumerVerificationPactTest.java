@@ -21,6 +21,8 @@ import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
+import uk.gov.justice.probation.courtcaseservice.service.model.CourtReport;
+import uk.gov.justice.probation.courtcaseservice.service.model.CourtReport.ReportAuthor;
 import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
 import uk.gov.justice.probation.courtcaseservice.service.model.Custody;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
@@ -108,6 +110,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
             .status("CURRENT")
             .preSentenceActivity(true)
             .inBreach(true)
+            .awaitingPsr(true)
             .previouslyKnownTerminationDate(LocalDate.of(2021, Month.FEBRUARY, 25))
             .build();
 
@@ -180,8 +183,17 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
             .convictionId("2500295345")
             .active(true)
             .inBreach(true)
+            .awaitingPsr(true)
             .convictionDate(LocalDate.of(2019, Month.SEPTEMBER, 3))
-            .offences(List.of(Offence.builder().description("Arson - 05600").build(), Offence.builder().description("Burglary (dwelling) with intent to commit, or the commission of an offence triable only on indictment - 02801").build()))
+            .offences(List.of(Offence.builder()
+                                .description("Arson - 05600")
+                                .main(true)
+                                .offenceDate(LocalDate.of(2017, 3, 8))
+                                .build(),
+                            Offence.builder()
+                                .description("Burglary (dwelling) with intent to commit, or the commission of an offence triable only on indictment - 02801")
+                                .offenceDate(LocalDate.of(2017, 3, 8))
+                                .build()))
             .sentence(sentence)
             .endDate(LocalDate.of(2019, Month.JANUARY, 1))
             .documents(List.of(document))
@@ -189,6 +201,21 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
             .requirements(List.of(rqmnt1, rqmnt2))
             .licenceConditions(List.of(licenceCondition1, licenceCondition2))
             .pssRequirements(Collections.emptyList())
+            .psrReports(List.of(CourtReport.builder()
+                        .courtReportId(1L)
+                        .requestedDate(LocalDate.of(2019, 9, 3))
+                        .requiredDate(LocalDate.of(2019, 9, 3))
+                        .completedDate(LocalDate.of(2019, 9, 3))
+                        .courtReportType(KeyValue.builder()
+                                            .description("Pre-Sentence Report - Fast")
+                                            .code("CJF")
+                                            .build())
+                        .author(ReportAuthor.builder()
+                                    .unallocated(false)
+                                    .forenames("Reginald Kenneth")
+                                    .surname("Dwight")
+                                    .build())
+                .build()))
             .custodialType(KeyValue.builder().code("D").description("In Custody").build())
             .build();
 

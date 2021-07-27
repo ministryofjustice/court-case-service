@@ -37,7 +37,6 @@ class OffenderControllerTest {
     private static final String CRN = "CRN";
     private static final String CONVICTION_ID = "CONVICTION_ID";
     static final Long SOME_EVENT_ID = 1234L;
-    static final Long SOME_SENTENCE_ID = 1234L;
 
     @Mock
     private DocumentService documentService;
@@ -70,13 +69,14 @@ class OffenderControllerTest {
     @Test
     void callReturnsResponse() {
         var attendancesResponse = SentenceResponse.builder().attendances(Collections.emptyList()).build();
-        when(convictionService.getSentence(CRN, SOME_EVENT_ID, SOME_SENTENCE_ID)).thenReturn(attendancesResponse);
+        when(convictionService.getSentence(CRN, SOME_EVENT_ID)).thenReturn(attendancesResponse);
 
-        assertThat(controller.getSentence(CRN, SOME_EVENT_ID, SOME_SENTENCE_ID)).isEqualTo(attendancesResponse);
+        assertThat(controller.getSentence(CRN, SOME_EVENT_ID)).isEqualTo(attendancesResponse);
 
-        verify(convictionService).getSentence(CRN, SOME_EVENT_ID, SOME_SENTENCE_ID);
+        verify(convictionService).getSentence(CRN, SOME_EVENT_ID);
         verifyNoMoreInteractions(convictionService);
     }
+
 
     @DisplayName("Feature toggle for sentence data is off")
     @Test
@@ -88,7 +88,7 @@ class OffenderControllerTest {
                 .build();
         when(convictionService.getConvictionOnly(CRN, SOME_EVENT_ID)).thenReturn(sentenceResponse);
 
-        assertThat(controller.getSentence(CRN, SOME_EVENT_ID, SOME_SENTENCE_ID)).usingRecursiveComparison().isEqualTo(sentenceResponse);
+        assertThat(controller.getSentence(CRN, SOME_EVENT_ID)).usingRecursiveComparison().isEqualTo(sentenceResponse);
         verify(convictionService).getConvictionOnly(CRN, SOME_EVENT_ID);
         verifyNoMoreInteractions(convictionService);
     }

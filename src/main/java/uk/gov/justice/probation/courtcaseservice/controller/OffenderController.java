@@ -140,7 +140,24 @@ public class OffenderController {
         if (!featureFlags.sentenceData()) {
             return convictionService.getConvictionOnly(crn, convictionId);
         }
-        return convictionService.getSentence(crn, convictionId, sentenceId);
+        return convictionService.getSentence(crn, convictionId);
+    }
+
+    @GetMapping(value = "/offender/{crn}/convictions/{convictionId}/sentence", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Return the Sentence detail with attendances, Unpaid Work and current order details for a CRN, conviction id and sentence id  where enforcement is flagged")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+                    @ApiResponse(code = 404, message = "Not found. For example if the CRN can't be matched.", response = ErrorResponse.class),
+                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+            })
+    public SentenceResponse getSentence(@UpperCasePathVariable("crn") String crn, @PathVariable Long convictionId) {
+        if (!featureFlags.sentenceData()) {
+            return convictionService.getConvictionOnly(crn, convictionId);
+        }
+        return convictionService.getSentence(crn, convictionId);
     }
 
     @GetMapping(value = "/offender/{crn}/convictions/{convictionId}/sentence/custody", produces = APPLICATION_JSON_VALUE)

@@ -49,7 +49,7 @@ public class ConvictionService {
                 .orElseThrow(() -> new OffenderNotFoundException(crn));
     }
 
-    public SentenceResponse getSentence(final String crn, final Long convictionId, final Long sentenceId) {
+    public SentenceResponse getSentence(final String crn, final Long convictionId) {
         var sentenceMono = Mono.zip(
                 convictionRestClient.getAttendances(crn, convictionId),
                 convictionRestClient.getConviction(crn, convictionId),
@@ -61,6 +61,19 @@ public class ConvictionService {
 
         return combineOffenderAndConvictions(tuple4.getT1(), tuple4.getT2(), tuple4.getT3(), tuple4.getT4());
     }
+
+//    public SentenceResponse getSentenceDetail(final String crn, final Long convictionId) {
+//        var sentenceMono = Mono.zip(
+//                convictionRestClient.getAttendances(crn, convictionId),
+//                convictionRestClient.getConviction(crn, convictionId),
+//                convictionRestClient.getCurrentOrderHeader(crn, convictionId),
+//                offenderRestClient.getOffender(crn)
+//        );
+//
+//        var tuple4 = sentenceMono.blockOptional().orElseThrow(() -> new OffenderNotFoundException(crn));
+//
+//        return combineOffenderAndConvictions(tuple4.getT1(), tuple4.getT2(), tuple4.getT3(), tuple4.getT4());
+//    }
 
     public CurrentOrderHeaderResponse getCurrentOrderHeader(final String crn, final Long convictionId) {
         return convictionRestClient.getCurrentOrderHeader(crn, convictionId)

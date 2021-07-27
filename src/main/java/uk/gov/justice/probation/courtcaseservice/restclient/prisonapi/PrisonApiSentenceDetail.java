@@ -6,17 +6,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class PrisonApiSentenceDetail {
-    private final ZonedDateTime homeDetentionCurfewActualDate;
-    private final ZonedDateTime homeDetentionCurfewEndDate;
-    private final ZonedDateTime licenceExpiryDate;
-    private final ZonedDateTime releaseDate;
-    private final ZonedDateTime topupSupervisionStartDate;
-    private final ZonedDateTime topupSupervisionExpiryDate;
+    private final LocalDate homeDetentionCurfewActualDate;
+    private final LocalDate homeDetentionCurfewEndDate;
+    private final LocalDate licenceExpiryDate;
+    private final LocalDate releaseDate;
+    private final LocalDate topupSupervisionStartDate;
+    private final LocalDate topupSupervisionExpiryDate;
 }

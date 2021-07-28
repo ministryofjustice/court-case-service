@@ -101,6 +101,17 @@ class OffenderController_ConvictionIntTest extends BaseIntTest {
                     .lengthUnits("Months")
                     .build());
 
+        assertThat(response.getSentenceId()).isEqualTo(2500298861L);
+        assertThat(response.getCustody().getCustodialType()).isEqualTo(KeyValue.builder().code("P").description("Post Sentence Supervision").build());
+        assertThat(response.getSentenceDescription()).isEqualTo("CJA - Intermediate Public Prot.");
+        assertThat(response.getMainOffenceDescription()).isEqualTo("Common assault and battery - 10501");
+        assertThat(response.getSentenceDate()).isEqualTo(LocalDate.of(2018, Month.DECEMBER, 3));
+        assertThat(response.getActualReleaseDate()).isEqualTo(LocalDate.of(2019, Month.JULY, 3));
+        assertThat(response.getCustody().getLicenceExpiryDate()).isEqualTo(LocalDate.of(2019, Month.NOVEMBER, 3));
+        assertThat(response.getCustody().getPssEndDate()).isEqualTo(LocalDate.of(2020, Month.JUNE, 3));
+        assertThat(response.getLength()).isEqualTo(11);
+        assertThat(response.getLengthUnits()).isEqualTo("Months");
+
         assertThat(response.getLinks().getDeliusContactList())
                 .isEqualTo("https://ndelius.test.probation.service.justice.gov.uk/NDelius-war/delius/JSP/deeplink.jsp?component=ContactList&offenderId=2500343964&eventId=2500295343");
     }

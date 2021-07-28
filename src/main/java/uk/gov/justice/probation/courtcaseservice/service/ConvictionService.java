@@ -49,7 +49,7 @@ public class ConvictionService {
                 .orElseThrow(() -> new OffenderNotFoundException(crn));
     }
 
-    public SentenceResponse getSentence(final String crn, final Long convictionId, final Long sentenceId) {
+    public SentenceResponse getSentence(final String crn, final Long convictionId) {
         var sentenceMono = Mono.zip(
                 convictionRestClient.getAttendances(crn, convictionId),
                 convictionRestClient.getConviction(crn, convictionId),

@@ -34,7 +34,6 @@ class ConvictionServiceTest {
 
     public static final String CRN = "X370652";
     public static final Long SOME_CONVICTION_ID = 1234L;
-    public static final Long SOME_SENTENCE_ID = 5467L;
     public static final Long SOME_OFFENDER_ID = 789456L;
     private static final String PSS_DESC_TO_KEEP = "specified activity";
     private static final CommunityApiOffenderResponse OFFENDER_DETAIL = CommunityApiOffenderResponse.builder()
@@ -81,7 +80,7 @@ class ConvictionServiceTest {
         when(convictionRestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
         when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(OFFENDER_DETAIL));
 
-        final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
+        final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID);
 
         assertThat(response.getLinks().getDeliusContactList()).isEqualTo(String.format(DELIUS_LINK_TEMPLATE, SOME_OFFENDER_ID, SOME_CONVICTION_ID));
         assertThat(response.getAttendances()).isSameAs(attendancesResponse);
@@ -101,7 +100,7 @@ class ConvictionServiceTest {
         when(convictionRestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
         when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(OFFENDER_DETAIL));
 
-        final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
+        final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID);
 
         assertThat(response.getLinks().getDeliusContactList()).isEqualTo(String.format(DELIUS_LINK_TEMPLATE, SOME_OFFENDER_ID, SOME_CONVICTION_ID));
         assertThat(response.getAttendances()).isSameAs(attendancesResponse);
@@ -120,7 +119,7 @@ class ConvictionServiceTest {
         when(convictionRestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
         when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(OFFENDER_DETAIL));
 
-        final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
+        final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID);
 
         assertThat(response.getLinks().getDeliusContactList()).isEqualTo(String.format(DELIUS_LINK_TEMPLATE, SOME_OFFENDER_ID, SOME_CONVICTION_ID));
         assertThat(response.getAttendances()).isEmpty();
@@ -140,7 +139,7 @@ class ConvictionServiceTest {
         when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
 
         assertThatExceptionOfType(OffenderNotFoundException.class)
-            .isThrownBy(() -> service.getSentence(CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID))
+            .isThrownBy(() -> service.getSentence(CRN, SOME_CONVICTION_ID))
             .withMessageContaining(CRN);
     }
 

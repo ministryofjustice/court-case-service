@@ -99,9 +99,9 @@ class ConvictionServiceTest {
         verifyNoMoreInteractions(convictionRestClient);
     }
 
-    @DisplayName("Normal retrieval of conviction with unpaid work")
+    @DisplayName("Normal retrieval of full sentence with attendances, links, unpaid work")
     @Test
-    void whenGetSentence_returnConviction() {
+    void whenGetSentence_returnSentence() {
 
         ReflectionTestUtils.setField(service, "useCurrentOrderHeaderDetail", false);
 

@@ -1,12 +1,12 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CustodyDetail;
 import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceLinks;
 import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
@@ -28,18 +28,17 @@ public class ConvictionService {
     private final ConvictionRestClient convictionRestClient;
     private final OffenderRestClient offenderRestClient;
     private final String deliusContactListUrlTemplate;
-
-    @Setter
-    @Value("#{'${offender-service.pss-rqmnt.descriptions-to-keep-subtype}'.split(',')}")
-    private List<String> pssRqmntDescriptionsKeepSubType;
+    private final boolean useCurrentOrderHeaderDetail;
 
     @Autowired
     public ConvictionService(final ConvictionRestClient client,
                              final OffenderRestClientFactory offenderRestClientFactory,
-                             @Value("${delius.contact-list-url-template}") final String deliusContactListUrlTemplate) {
+                             @Value("${delius.contact-list-url-template}") final String deliusContactListUrlTemplate,
+                             @Value("${feature.flags.use-current-order-header-detail:true}") final boolean useCurrentOrderHeaderDetail) {
         this.convictionRestClient = client;
         this.offenderRestClient = offenderRestClientFactory.build();
         this.deliusContactListUrlTemplate = deliusContactListUrlTemplate;
+        this.useCurrentOrderHeaderDetail = useCurrentOrderHeaderDetail;
     }
 
     public SentenceResponse getConvictionOnly(final String crn, final Long convictionId) {
@@ -69,14 +68,29 @@ public class ConvictionService {
     }
 
     private SentenceResponse combineOffenderAndConvictions(List<AttendanceResponse> attendanceResponses, Conviction conviction, CurrentOrderHeaderResponse currentOrderHeaderResponse, CommunityApiOffenderResponse offenderDetail) {
-        return SentenceResponse.builder()
+        var builder = SentenceResponse.builder()
                 .attendances(attendanceResponses)
                 .unpaidWork(Optional.ofNullable(conviction.getSentence()).map(Sentence::getUnpaidWork).orElse(null))
-                .currentOrderHeaderDetail(currentOrderHeaderResponse)
                 .links(SentenceLinks.builder()
                         .deliusContactList(String.format(deliusContactListUrlTemplate, offenderDetail.getOffenderId(), conviction.getConvictionId()))
                         .build())
-                .build();
+                .sentenceId(currentOrderHeaderResponse.getSentenceId())
+                .sentenceDescription(currentOrderHeaderResponse.getSentenceDescription())
+                .mainOffenceDescription(currentOrderHeaderResponse.getMainOffenceDescription())
+                .sentenceDate(currentOrderHeaderResponse.getSentenceDate())
+                .actualReleaseDate(currentOrderHeaderResponse.getActualReleaseDate())
+                .length(currentOrderHeaderResponse.getLength())
+                .lengthUnits(currentOrderHeaderResponse.getLengthUnits())
+                .custody(CustodyDetail.builder()
+                    .custodialType(currentOrderHeaderResponse.getCustodialType())
+                    .licenceExpiryDate(currentOrderHeaderResponse.getLicenceExpiryDate())
+                    .pssEndDate(currentOrderHeaderResponse.getPssEndDate())
+                    .build());
+
+        if (useCurrentOrderHeaderDetail) {
+            builder.currentOrderHeaderDetail(currentOrderHeaderResponse);
+        }
+        return builder.build();
     }
 
     private SentenceResponse combineAttendancesAndUnpaidwork(List<AttendanceResponse> attendanceResponses, Conviction conviction) {

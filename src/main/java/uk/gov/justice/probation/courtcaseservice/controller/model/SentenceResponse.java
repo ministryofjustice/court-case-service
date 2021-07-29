@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @ApiModel(description = "Sentence Response")
@@ -21,16 +22,27 @@ import java.util.List;
 @JsonInclude(Include.NON_NULL)
 public class SentenceResponse {
 
+        private final Long sentenceId;
+        private final String sentenceDescription;
+        private final String mainOffenceDescription;
+        private final LocalDate sentenceDate;
+        private final LocalDate actualReleaseDate;
+        private final Integer length;
+        private final String lengthUnits;
+
         @ApiModelProperty(value = "List of Attendances")
         private final List<AttendanceResponse> attendances;
 
         @ApiModelProperty(value = "UPW")
         private final UnpaidWork unpaidWork;
 
+        // The fields in here have been re-organised and will be removed after the front end. See flag for use-current-order-header-detail
+        @Deprecated(forRemoval = true)
         @ApiModelProperty(value = "Sentence with current order header info")
         private final CurrentOrderHeaderResponse currentOrderHeaderDetail;
 
         @ApiModelProperty(value = "Links relating to this sentence")
         private final SentenceLinks links;
 
+        private final CustodyDetail custody;
 }

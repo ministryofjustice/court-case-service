@@ -6,9 +6,9 @@ plugins {
     id 'org.springframework.boot' version '2.5.3'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'com.github.ben-manes.versions' version '0.39.0'
-    id "org.flywaydb.flyway" version "7.11.4"
+    id "org.flywaydb.flyway" version "7.12.0"
     id 'jacoco'
-    id "au.com.dius.pact" version "4.2.8"
+    id "au.com.dius.pact" version "4.2.9"
     id 'java-library'
 }
 
@@ -31,7 +31,7 @@ group = 'uk.gov.justice.probation'
 ext {
     swaggerVersion = '2.9.2'
     restAssuredVersion = '4.4.0'
-    pactVersion = '4.2.8'
+    pactVersion = '4.2.9'
 }
 
 def today = Instant.now()

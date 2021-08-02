@@ -19,7 +19,6 @@ public class ConvictionRestClientIntTest extends BaseIntTest {
 
     public static final String CRN = "X320741";
     public static final Long SOME_CONVICTION_ID = 2500295343L;
-    public static final Long SOME_SENTENCE_ID = 2500298861L;
     public static final Long UNKNOWN_CONVICTION_ID = 9999L;
     public static final String SERVER_ERROR_CRN = "X320500";
     public static final String UNKNOWN_CRN = "CRNXXX";

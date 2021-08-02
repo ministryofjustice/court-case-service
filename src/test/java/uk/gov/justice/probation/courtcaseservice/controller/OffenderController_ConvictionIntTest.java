@@ -24,7 +24,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.CRN;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.SOME_CONVICTION_ID;
-import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.SOME_SENTENCE_ID;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.UNKNOWN_CONVICTION_ID;
 import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClientIntTest.UNKNOWN_CRN;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.DateHelper.standardDateOf;
@@ -32,7 +31,6 @@ import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.get
 
 class OffenderController_ConvictionIntTest extends BaseIntTest {
 
-    private static final String PATH = "/offender/%s/convictions/%s/sentences/%s";
     private static final String SENTENCE_PATH = "/offender/%s/convictions/%s/sentence";
     private static final String CONVICTION_PATH = "/offender/%s/convictions/%s";
 
@@ -47,77 +45,6 @@ class OffenderController_ConvictionIntTest extends BaseIntTest {
 
     @Test
     void whenCallMadeToGetSentenceKnownCrnAndConvictionId() {
-
-        final String getPath = String.format(PATH, CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
-        var response = given()
-            .auth()
-            .oauth2(getToken())
-            .accept(MediaType.APPLICATION_JSON_VALUE)
-        .when()
-            .get(getPath)
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .body()
-            .as(SentenceResponse.class);
-
-        assertThat(response.getAttendances()).hasSize(2);
-
-        final AttendanceResponse expectedAttendance1 = AttendanceResponse.builder().contactId(1325L)
-            .attendanceDate(LocalDate.of(2019, Month.AUGUST, 24))
-            .attended(true).complied(true).outcome("Description of outcome")
-            .contactType(ContactTypeDetail.builder().description("Description of contact type").code("DSC01").build()).build();
-        final AttendanceResponse expectedAttendance2 = AttendanceResponse.builder().contactId(8888888L)
-            .attendanceDate(LocalDate.of(2020, Month.FEBRUARY, 29))
-            .attended(false).complied(false).outcome("8888888 Description of outcome")
-            .contactType(ContactTypeDetail.builder().description("8888888 Description of contact type").code("DSC02").build()).build();
-
-        assertThat(response.getAttendances()).containsExactlyInAnyOrder(expectedAttendance1, expectedAttendance2);
-
-        assertThat(response.getUnpaidWork())
-                .usingRecursiveComparison()
-                .isEqualTo(UnpaidWork.builder()
-                                    .minutesOffered(3600)
-                                    .minutesCompleted(360)
-                                    .appointmentsToDate(5)
-                                    .attended(2)
-                                    .acceptableAbsences(1)
-                                    .unacceptableAbsences(1)
-                                    .status("Being worked")
-                                    .build());
-
-        assertThat(response.getCurrentOrderHeaderDetail())
-                .usingRecursiveComparison()
-                .isEqualTo(CurrentOrderHeaderResponse.builder()
-                    .sentenceId(2500298861L)
-                    .custodialType(KeyValue.builder().code("P").description("Post Sentence Supervision").build())
-                    .sentenceDescription("CJA - Intermediate Public Prot.")
-                    .mainOffenceDescription("Common assault and battery - 10501")
-                    .sentenceDate(LocalDate.of(2018, Month.DECEMBER, 3))
-                    .actualReleaseDate(LocalDate.of(2019, Month.JULY, 3))
-                    .licenceExpiryDate(LocalDate.of(2019, Month.NOVEMBER, 3))
-                    .pssEndDate(LocalDate.of(2020, Month.JUNE, 3))
-                    .length(11)
-                    .lengthUnits("Months")
-                    .build());
-
-        assertThat(response.getSentenceId()).isEqualTo(2500298861L);
-        assertThat(response.getCustody().getCustodialType()).isEqualTo(KeyValue.builder().code("P").description("Post Sentence Supervision").build());
-        assertThat(response.getSentenceDescription()).isEqualTo("CJA - Intermediate Public Prot.");
-        assertThat(response.getMainOffenceDescription()).isEqualTo("Common assault and battery - 10501");
-        assertThat(response.getSentenceDate()).isEqualTo(LocalDate.of(2018, Month.DECEMBER, 3));
-        assertThat(response.getActualReleaseDate()).isEqualTo(LocalDate.of(2019, Month.JULY, 3));
-        assertThat(response.getCustody().getLicenceExpiryDate()).isEqualTo(LocalDate.of(2019, Month.NOVEMBER, 3));
-        assertThat(response.getCustody().getPssEndDate()).isEqualTo(LocalDate.of(2020, Month.JUNE, 3));
-        assertThat(response.getLength()).isEqualTo(11);
-        assertThat(response.getLengthUnits()).isEqualTo("Months");
-
-        assertThat(response.getLinks().getDeliusContactList())
-                .isEqualTo("https://ndelius.test.probation.service.justice.gov.uk/NDelius-war/delius/JSP/deeplink.jsp?component=ContactList&offenderId=2500343964&eventId=2500295343");
-    }
-
-    @Test
-    void whenCallMadeToGetSentenceDetailKnownCrnAndConvictionId() {
 
         final String getPath = String.format(SENTENCE_PATH, CRN, SOME_CONVICTION_ID);
         var response = given()
@@ -181,30 +108,6 @@ class OffenderController_ConvictionIntTest extends BaseIntTest {
 
         featureFlags.setFlagValue("fetch-sentence-data", false);
 
-        final String getPath = String.format(PATH, CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
-        final SentenceResponse response = given()
-            .auth()
-            .oauth2(getToken())
-            .accept(MediaType.APPLICATION_JSON_VALUE)
-        .when()
-            .get(getPath)
-            .then()
-                .statusCode(HttpStatus.OK.value())
-            .extract()
-            .body()
-            .as(SentenceResponse.class);
-
-        assertThat(response.getCurrentOrderHeaderDetail()).isNull();
-        assertThat(response.getAttendances()).isEmpty();
-        assertThat(response.getUnpaidWork()).isNotNull();
-        assertThat(response.getCurrentOrderHeaderDetail()).isNull();
-    }
-
-    @Test
-    void whenCallMadeToGetSentenceDetailAttendanceFlagFalseKnownCrnAndConvictionId() {
-
-        featureFlags.setFlagValue("fetch-sentence-data", false);
-
         final String getPath = String.format(SENTENCE_PATH, CRN, SOME_CONVICTION_ID);
         final SentenceResponse response = given()
                 .auth()
@@ -226,20 +129,6 @@ class OffenderController_ConvictionIntTest extends BaseIntTest {
 
     @Test
     void whenCallMadeToGetSentenceOnCommunityApiReturns404() {
-
-        final String getPath = String.format(PATH, UNKNOWN_CRN, SOME_CONVICTION_ID, SOME_SENTENCE_ID);
-        given()
-            .auth()
-            .oauth2(getToken())
-            .accept(MediaType.APPLICATION_JSON_VALUE)
-        .when()
-            .get(getPath)
-        .then()
-            .statusCode(404);
-    }
-
-    @Test
-    void whenCallMadeToGetSentenceDetailOnCommunityApiReturns404() {
 
         final String getPath = String.format(SENTENCE_PATH, UNKNOWN_CRN, SOME_CONVICTION_ID);
         given()

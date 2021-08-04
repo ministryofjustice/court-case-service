@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
@@ -14,11 +13,11 @@ import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentenceStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
+import uk.gov.justice.probation.courtcaseservice.service.model.SentenceStatus;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
 import java.time.LocalDate;
@@ -43,7 +42,7 @@ class ConvictionServiceTest {
     private static final String DELIUS_LINK_TEMPLATE = "http://test.url/foo/?bar=%s&baz=%s";
     private Conviction conviction;
 
-    private CommunityApiSentenceStatusResponse sentenceStatusResponse;
+    private SentenceStatus sentenceStatusResponse;
 
     @Mock
     private List<AttendanceResponse> attendancesResponse;
@@ -61,7 +60,7 @@ class ConvictionServiceTest {
 
     @BeforeEach
     void beforeEach() {
-        sentenceStatusResponse = CommunityApiSentenceStatusResponse.builder()
+        sentenceStatusResponse = SentenceStatus.builder()
             .custodialType(KeyValue.builder().code("P").description("PSS").build())
             .sentenceId(1L)
             .length(1)
@@ -76,7 +75,7 @@ class ConvictionServiceTest {
         conviction = Conviction.builder().convictionId(String.valueOf(SOME_CONVICTION_ID)).sentence(sentence).build();
 
         when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
-        service = new ConvictionService(convictionRestClient, offenderRestClientFactory, DELIUS_LINK_TEMPLATE, true);
+        service = new ConvictionService(convictionRestClient, offenderRestClientFactory, DELIUS_LINK_TEMPLATE);
     }
 
     @DisplayName("Normal retrieval of sentence with unpaid work, attendances and links")
@@ -102,9 +101,6 @@ class ConvictionServiceTest {
     @DisplayName("Normal retrieval of full sentence with attendances, links, unpaid work")
     @Test
     void whenGetSentence_returnSentence() {
-
-        ReflectionTestUtils.setField(service, "useCurrentOrderHeaderDetail", false);
-
         when(convictionRestClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(attendancesResponse));
         when(convictionRestClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(conviction));
         when(convictionRestClient.getSentenceStatus(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(sentenceStatusResponse));
@@ -191,7 +187,7 @@ class ConvictionServiceTest {
 
         when(convictionRestClient.getSentenceStatus(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(sentenceStatusResponse));
 
-        final CommunityApiSentenceStatusResponse response = service.getSentenceStatus(CRN, SOME_CONVICTION_ID);
+        final SentenceStatus response = service.getSentenceStatus(CRN, SOME_CONVICTION_ID);
 
         assertThat(response).isEqualTo(sentenceStatusResponse);
         verify(convictionRestClient).getSentenceStatus(CRN, SOME_CONVICTION_ID);

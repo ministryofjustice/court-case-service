@@ -8,7 +8,6 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatu
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiContactDetails;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustody;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffence;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenceDetail;
@@ -22,6 +21,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Offence;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
+import uk.gov.justice.probation.courtcaseservice.service.model.SentenceStatus;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
 import java.time.LocalDate;
@@ -152,8 +152,8 @@ public class OffenderMapper {
             .build();
     }
 
-    public static CommunityApiSentenceStatusResponse buildCurrentOrderHeaderDetail(CommunityApiCustodialStatusResponse custodialStatusResponse) {
-        return CommunityApiSentenceStatusResponse
+    public static SentenceStatus buildSentenceStatus(CommunityApiSentenceStatusResponse custodialStatusResponse) {
+        return SentenceStatus
                 .builder()
                 .sentenceId(custodialStatusResponse.getSentenceId())
                 .custodialType(custodialStatusResponse.getCustodialType())

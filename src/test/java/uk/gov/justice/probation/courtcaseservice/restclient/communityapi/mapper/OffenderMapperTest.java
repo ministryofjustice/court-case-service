@@ -11,7 +11,6 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchD
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustody;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiProbationStatusDetail;
@@ -21,6 +20,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
+import uk.gov.justice.probation.courtcaseservice.service.model.SentenceStatus;
 
 import java.io.File;
 import java.io.IOException;
@@ -287,7 +287,7 @@ class OffenderMapperTest {
             LocalDate licenceExpiryDate = LocalDate.of(2020, 8, 6);
             LocalDate pssEndDate = LocalDate.of(2020, 8, 7);
             LocalDate sentenceDate = LocalDate.of(2020, 8, 8);
-            CommunityApiCustodialStatusResponse response = CommunityApiCustodialStatusResponse.builder()
+            CommunityApiSentenceStatusResponse response = CommunityApiSentenceStatusResponse.builder()
                 .sentenceId(1234L)
                 .actualReleaseDate(actualReleaseDate)
                 .custodialType(KeyValue.builder().code("CODE").description("DESCRIPTION").build())
@@ -300,7 +300,7 @@ class OffenderMapperTest {
                 .sentence(KeyValue.builder().description("Sentence Description").build())
                 .build();
 
-            CommunityApiSentenceStatusResponse sentenceStatusResponse = OffenderMapper.buildCurrentOrderHeaderDetail(response);
+            var sentenceStatusResponse = OffenderMapper.buildSentenceStatus(response);
 
             assertThat(sentenceStatusResponse).isNotNull();
             assertThat(sentenceStatusResponse.getSentenceId()).isEqualTo(1234);
@@ -319,8 +319,8 @@ class OffenderMapperTest {
         @DisplayName("Test custodial status mapping of nulls")
         @Test
         void shouldMapEmptyCustodialStatus() {
-            CommunityApiCustodialStatusResponse response = CommunityApiCustodialStatusResponse.builder().build();
-            CommunityApiSentenceStatusResponse sentenceStatusResponse = OffenderMapper.buildCurrentOrderHeaderDetail(response);
+            CommunityApiSentenceStatusResponse response = CommunityApiSentenceStatusResponse.builder().build();
+            SentenceStatus sentenceStatusResponse = OffenderMapper.buildSentenceStatus(response);
             assertThat(sentenceStatusResponse).isNotNull();
         }
 

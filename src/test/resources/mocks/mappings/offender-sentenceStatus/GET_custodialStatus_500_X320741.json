@@ -13,6 +13,6 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "offender-currentOrderHeaderDetail/GET_currentOrderHeaderDetail_PSS_X320741.json"
+    "bodyFileName": "offender-sentenceStatus/GET_sentenceStatus_PSS_X320741.json"
   }
 }

@@ -13,6 +13,6 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "body": "{\"status\":404,\"userMessage\":\"CurrentOrderHeader with id '2500298833' not found for convictionId '2500295343' and crn 'X320741'\",\"developerMessage\":\"CurrentOrderHeader with id '2500298833' not found for convictionId '2500295343' and crn 'X320741\"}"
+    "body": "{\"status\":404,\"userMessage\":\"Sentence with id '2500298833' not found for convictionId '2500295343' and crn 'X320741'\",\"developerMessage\":\"SentenceStatus with id '2500298833' not found for convictionId '2500295343' and crn 'X320741\"}"
   }
 }

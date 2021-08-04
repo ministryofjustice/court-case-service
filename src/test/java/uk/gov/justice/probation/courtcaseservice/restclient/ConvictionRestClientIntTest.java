@@ -5,10 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentenceStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
+import uk.gov.justice.probation.courtcaseservice.service.model.SentenceStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +39,7 @@ public class ConvictionRestClientIntTest extends BaseIntTest {
     void whenCrnExistsButNoMatchToConvictionIdToCommunityApi() {
         final Optional<List<AttendanceResponse>> response = webTestClient.getAttendances(CRN, UNKNOWN_CONVICTION_ID).blockOptional();
 
-        assertThat(response).hasValueSatisfying(attendancesResponse -> assertThat(attendancesResponse.size() == 0));
+        assertThat(response).hasValueSatisfying(attendancesResponse -> assertThat(attendancesResponse.size()).isEqualTo(0));
     }
 
     @Test
@@ -94,21 +94,21 @@ public class ConvictionRestClientIntTest extends BaseIntTest {
 
     @Test
     void whenGetSentenceStatus_thenReturnIt() {
-        final Optional<CommunityApiSentenceStatusResponse> response = webTestClient.getSentenceStatus(CRN, SOME_CONVICTION_ID).blockOptional();
+        final Optional<SentenceStatus> response = webTestClient.getSentenceStatus(CRN, SOME_CONVICTION_ID).blockOptional();
 
         assertThat(response).isPresent();
         assertThat(response.get().getMainOffenceDescription()).isEqualTo("Common assault and battery - 10501");
     }
 
     @Test
-    void givenServiceThrowsError_whenGetCurrentOrderHeaderByCrnCalled_thenFailFastAndThrowException() {
+    void givenServiceThrowsError_whenGetSentenceStatusByCrnCalled_thenFailFastAndThrowException() {
         assertThrows(WebClientResponseException.class, () ->
             webTestClient.getSentenceStatus(SERVER_ERROR_CRN, SOME_CONVICTION_ID).block()
         );
     }
 
     @Test
-    void givenServiceReturns404_whenGetCurrentOrderHeaderByCrnCalled_thenReturnDefault() {
+    void givenServiceReturns404_whenGetSentenceStatusByCrnCalled_thenReturnDefault() {
         assertThrows(ConvictionNotFoundException.class, () ->
             webTestClient.getSentenceStatus(UNKNOWN_CRN, SOME_CONVICTION_ID).block()
         );

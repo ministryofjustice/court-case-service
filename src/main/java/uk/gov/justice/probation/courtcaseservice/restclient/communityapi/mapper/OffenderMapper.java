@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
 import uk.gov.justice.probation.courtcaseservice.controller.model.Address;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.Event;
 import uk.gov.justice.probation.courtcaseservice.controller.model.MatchIdentifiers;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
@@ -16,6 +15,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentence;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentenceStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiUnpaidWork;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Offence;
@@ -152,8 +152,9 @@ public class OffenderMapper {
             .build();
     }
 
-    public static CurrentOrderHeaderResponse buildCurrentOrderHeaderDetail(CommunityApiCustodialStatusResponse custodialStatusResponse) {
-        return CurrentOrderHeaderResponse.builder()
+    public static CommunityApiSentenceStatusResponse buildCurrentOrderHeaderDetail(CommunityApiCustodialStatusResponse custodialStatusResponse) {
+        return CommunityApiSentenceStatusResponse
+                .builder()
                 .sentenceId(custodialStatusResponse.getSentenceId())
                 .custodialType(custodialStatusResponse.getCustodialType())
                 .sentenceDescription(custodialStatusResponse.getSentence() != null ? custodialStatusResponse.getSentence().getDescription() : null)

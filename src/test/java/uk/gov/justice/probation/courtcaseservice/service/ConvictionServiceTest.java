@@ -1,8 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,17 +9,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentenceStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -42,7 +43,7 @@ class ConvictionServiceTest {
     private static final String DELIUS_LINK_TEMPLATE = "http://test.url/foo/?bar=%s&baz=%s";
     private Conviction conviction;
 
-    private CurrentOrderHeaderResponse currentOrderHeaderResponse;
+    private CommunityApiSentenceStatusResponse sentenceStatusResponse;
 
     @Mock
     private List<AttendanceResponse> attendancesResponse;
@@ -60,7 +61,7 @@ class ConvictionServiceTest {
 
     @BeforeEach
     void beforeEach() {
-        currentOrderHeaderResponse = CurrentOrderHeaderResponse.builder()
+        sentenceStatusResponse = CommunityApiSentenceStatusResponse.builder()
             .custodialType(KeyValue.builder().code("P").description("PSS").build())
             .sentenceId(1L)
             .length(1)
@@ -84,7 +85,7 @@ class ConvictionServiceTest {
 
         when(convictionRestClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(attendancesResponse));
         when(convictionRestClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(conviction));
-        when(convictionRestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
+        when(convictionRestClient.getSentenceStatus(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(sentenceStatusResponse));
         when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(OFFENDER_DETAIL));
 
         final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID);
@@ -92,7 +93,6 @@ class ConvictionServiceTest {
         assertThat(response.getLinks().getDeliusContactList()).isEqualTo(String.format(DELIUS_LINK_TEMPLATE, SOME_OFFENDER_ID, SOME_CONVICTION_ID));
         assertThat(response.getAttendances()).isSameAs(attendancesResponse);
         assertThat(response.getUnpaidWork().getAcceptableAbsences()).isEqualTo(100);
-        assertThat(response.getCurrentOrderHeaderDetail()).isNotNull();
 
         verify(convictionRestClient).getAttendances(CRN, SOME_CONVICTION_ID);
         verify(convictionRestClient).getConviction(CRN, SOME_CONVICTION_ID);
@@ -107,7 +107,7 @@ class ConvictionServiceTest {
 
         when(convictionRestClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(attendancesResponse));
         when(convictionRestClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(conviction));
-        when(convictionRestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
+        when(convictionRestClient.getSentenceStatus(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(sentenceStatusResponse));
         when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(OFFENDER_DETAIL));
 
         final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID);
@@ -139,7 +139,7 @@ class ConvictionServiceTest {
         conviction = Conviction.builder().convictionId(String.valueOf(SOME_CONVICTION_ID)).build();
         when(convictionRestClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(attendancesResponse));
         when(convictionRestClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(conviction));
-        when(convictionRestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
+        when(convictionRestClient.getSentenceStatus(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(sentenceStatusResponse));
         when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(OFFENDER_DETAIL));
 
         final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID);
@@ -158,7 +158,7 @@ class ConvictionServiceTest {
 
         when(convictionRestClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
         when(convictionRestClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(conviction));
-        when(convictionRestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
+        when(convictionRestClient.getSentenceStatus(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(sentenceStatusResponse));
         when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(OFFENDER_DETAIL));
 
         final SentenceResponse response = service.getSentence(CRN, SOME_CONVICTION_ID);
@@ -177,7 +177,7 @@ class ConvictionServiceTest {
 
         when(convictionRestClient.getAttendances(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
         when(convictionRestClient.getConviction(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
-        when(convictionRestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
+        when(convictionRestClient.getSentenceStatus(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
         when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
 
         assertThatExceptionOfType(OffenderNotFoundException.class)
@@ -187,14 +187,14 @@ class ConvictionServiceTest {
 
     @DisplayName("Successful retrieval of current order header detail")
     @Test
-    void givenCurrentOrderHeaderDetail_whenGetCurrentOrderHeaderDetail_returnCurrentOrderHeaderDetail() {
+    void whenGetSentenceStatus_returnIt() {
 
-        when(convictionRestClient.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(currentOrderHeaderResponse));
+        when(convictionRestClient.getSentenceStatus(CRN, SOME_CONVICTION_ID)).thenReturn(Mono.just(sentenceStatusResponse));
 
-        final CurrentOrderHeaderResponse response = service.getCurrentOrderHeader(CRN, SOME_CONVICTION_ID);
+        final CommunityApiSentenceStatusResponse response = service.getSentenceStatus(CRN, SOME_CONVICTION_ID);
 
-        assertThat(response).isEqualTo(currentOrderHeaderResponse);
-        verify(convictionRestClient).getCurrentOrderHeader(CRN, SOME_CONVICTION_ID);
+        assertThat(response).isEqualTo(sentenceStatusResponse);
+        verify(convictionRestClient).getSentenceStatus(CRN, SOME_CONVICTION_ID);
     }
 
 }

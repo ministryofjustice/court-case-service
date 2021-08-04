@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
@@ -17,6 +16,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.C
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentence;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentenceStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
@@ -300,28 +300,28 @@ class OffenderMapperTest {
                 .sentence(KeyValue.builder().description("Sentence Description").build())
                 .build();
 
-            CurrentOrderHeaderResponse orderHeaderResponse = OffenderMapper.buildCurrentOrderHeaderDetail(response);
+            CommunityApiSentenceStatusResponse sentenceStatusResponse = OffenderMapper.buildCurrentOrderHeaderDetail(response);
 
-            assertThat(orderHeaderResponse).isNotNull();
-            assertThat(orderHeaderResponse.getSentenceId()).isEqualTo(1234);
-            assertThat(orderHeaderResponse.getCustodialType().getCode()).isEqualTo("CODE");
-            assertThat(orderHeaderResponse.getCustodialType().getDescription()).isEqualTo("DESCRIPTION");
-            assertThat(orderHeaderResponse.getActualReleaseDate()).isEqualTo(actualReleaseDate);
-            assertThat(orderHeaderResponse.getLength()).isEqualTo(2);
-            assertThat(orderHeaderResponse.getLengthUnits()).isEqualTo("Months");
-            assertThat(orderHeaderResponse.getLicenceExpiryDate()).isEqualTo(licenceExpiryDate);
-            assertThat(orderHeaderResponse.getMainOffenceDescription()).isEqualTo("Main Offence");
-            assertThat(orderHeaderResponse.getPssEndDate()).isEqualTo(pssEndDate);
-            assertThat(orderHeaderResponse.getSentenceDate()).isEqualTo(sentenceDate);
-            assertThat(orderHeaderResponse.getSentenceDescription()).isEqualTo("Sentence Description");
+            assertThat(sentenceStatusResponse).isNotNull();
+            assertThat(sentenceStatusResponse.getSentenceId()).isEqualTo(1234);
+            assertThat(sentenceStatusResponse.getCustodialType().getCode()).isEqualTo("CODE");
+            assertThat(sentenceStatusResponse.getCustodialType().getDescription()).isEqualTo("DESCRIPTION");
+            assertThat(sentenceStatusResponse.getActualReleaseDate()).isEqualTo(actualReleaseDate);
+            assertThat(sentenceStatusResponse.getLength()).isEqualTo(2);
+            assertThat(sentenceStatusResponse.getLengthUnits()).isEqualTo("Months");
+            assertThat(sentenceStatusResponse.getLicenceExpiryDate()).isEqualTo(licenceExpiryDate);
+            assertThat(sentenceStatusResponse.getMainOffenceDescription()).isEqualTo("Main Offence");
+            assertThat(sentenceStatusResponse.getPssEndDate()).isEqualTo(pssEndDate);
+            assertThat(sentenceStatusResponse.getSentenceDate()).isEqualTo(sentenceDate);
+            assertThat(sentenceStatusResponse.getSentenceDescription()).isEqualTo("Sentence Description");
         }
 
         @DisplayName("Test custodial status mapping of nulls")
         @Test
         void shouldMapEmptyCustodialStatus() {
             CommunityApiCustodialStatusResponse response = CommunityApiCustodialStatusResponse.builder().build();
-            CurrentOrderHeaderResponse orderHeaderResponse = OffenderMapper.buildCurrentOrderHeaderDetail(response);
-            assertThat(orderHeaderResponse).isNotNull();
+            CommunityApiSentenceStatusResponse sentenceStatusResponse = OffenderMapper.buildCurrentOrderHeaderDetail(response);
+            assertThat(sentenceStatusResponse).isNotNull();
         }
 
     }

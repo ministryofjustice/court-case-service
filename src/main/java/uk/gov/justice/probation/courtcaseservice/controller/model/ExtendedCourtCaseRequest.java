@@ -17,7 +17,5 @@ public class ExtendedCourtCaseRequest {
     private final String courtCode;
     private final String courtRoom;
     private final List<HearingDay> hearingDays;
-    private final List<OffenceRequest> offences;
     private final List<Defendant> defendants;
-
 }

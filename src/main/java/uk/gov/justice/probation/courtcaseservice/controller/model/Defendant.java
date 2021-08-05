@@ -9,6 +9,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Builder
@@ -29,4 +30,5 @@ public class Defendant {
     private final Boolean breach;
     private final Boolean preSentenceActivity;
     private final Boolean awaitingPsr;
+    private final List<OffenceRequest> offences;
 }

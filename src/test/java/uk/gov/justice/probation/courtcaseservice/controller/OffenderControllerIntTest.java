@@ -104,6 +104,7 @@ class OffenderControllerIntTest extends BaseIntTest {
                 .body("convictions[0].psrReports[0].author.forenames", equalTo("Unallocated Staff(N02)"))
                 .body("convictions[0].psrReports[0].author.surname", equalTo("Staff"))
                 .body("convictions[0].documents[0].documentId", equalTo("1d842fce-ec2d-45dc-ac9a-748d3076ca6b"))
+                .body("convictions[0].documents[0].psr", equalTo(true))
                 .body("convictions[0].breaches", hasSize(0))
                 .body("convictions[0].endDate", equalTo(standardDateOf(2019, 1,1)))
                 .body("convictions[0].sentence.endDate", equalTo(standardDateOf(2019, 1,1)))

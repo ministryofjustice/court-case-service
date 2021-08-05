@@ -4,10 +4,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionDocuments;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiGroupedDocumentsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderDocumentDetail;
+import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.ConvictionDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.DocumentType;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
@@ -15,6 +18,10 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Offender
 
 @Component
 public class DocumentMapper {
+
+    @Setter
+    @Value("#{'${offender-service.psr-report-codes}'.split(',')}")
+    private List<String> psrTypeCodes;
 
     public GroupedDocuments documentsFrom(CommunityApiGroupedDocumentsResponse documentsResponse) {
         return GroupedDocuments.builder()
@@ -59,7 +66,14 @@ public class DocumentMapper {
             .reportDocumentDates(detail.getReportDocumentDates())
             .subType(detail.getSubType())
             .parentPrimaryKeyId(detail.getParentPrimaryKeyId())
+            .psr(isPsr(detail.getSubType()))
             .build();
+    }
+
+    private boolean isPsr(KeyValue keyValueSubType) {
+        return Optional.ofNullable(keyValueSubType)
+            .map(subType -> psrTypeCodes.contains(subType.getCode()))
+            .orElse(Boolean.FALSE);
     }
 
 }

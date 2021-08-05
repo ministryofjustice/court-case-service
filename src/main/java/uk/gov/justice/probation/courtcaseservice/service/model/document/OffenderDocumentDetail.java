@@ -27,11 +27,14 @@ public class OffenderDocumentDetail {
     private final DocumentType type;
     private final String extendedDescription;
     private final LocalDateTime createdAt;
+    public final boolean psr;
 
     @JsonIgnore
     private final Long parentPrimaryKeyId;
 
     private final KeyValue subType;
     private final ReportDocumentDates reportDocumentDates;
+
+
 }
 

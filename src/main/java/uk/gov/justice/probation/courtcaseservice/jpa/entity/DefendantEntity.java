@@ -75,7 +75,7 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     private final String cro;
 
     @Column(name = "DATE_OF_BIRTH")
-    private final LocalDate defendantDob;
+    private final LocalDate dateOfBirth;
 
     @Column(name = "SEX")
     private final String sex;

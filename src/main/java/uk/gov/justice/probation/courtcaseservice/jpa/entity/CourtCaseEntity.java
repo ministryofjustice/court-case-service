@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -84,6 +86,18 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @JsonManagedReference
     @OneToMany(mappedBy = "courtCase", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval=true)
     private final List<OffenceEntity> offences;
+
+    // If you have more than one collection with fetch = FetchType.EAGER then there is an exception
+    // org.hibernate.loader.MultipleBagFetchException: cannot simultaneously fetch multiple bags
+    // After CP integration, we will need to look at session boundaries @LazyCollection is one solution
+    @LazyCollection(value = LazyCollectionOption.FALSE)
+    @JsonIgnore
+    @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, orphanRemoval=true)
+    private final List<HearingEntity> hearings;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, orphanRemoval=true)
+    private final List<DefendantEntity> defendants;
 
     @Column(name = "DEFENDANT_NAME")
     private final String defendantName;

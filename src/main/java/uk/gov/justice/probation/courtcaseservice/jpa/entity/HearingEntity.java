@@ -1,7 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,8 +43,11 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     @Setter
     private CourtCaseEntity courtCase;
 
-    @Column(name = "SESSION_START_TIME", nullable = false)
-    private final LocalDateTime sessionStartTime;
+    @Column(name = "HEARING_DAY", nullable = false)
+    private final LocalDate hearingDay;
+
+    @Column(name = "HEARING_TIME", nullable = false)
+    private final LocalTime hearingTime;
 
     @Column(name = "COURT_CODE", nullable = false)
     private final String courtCode;
@@ -54,7 +59,7 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     private final String listNo;
 
     public CourtSession getSession() {
-        return CourtSession.from(sessionStartTime);
+        return CourtSession.from(hearingTime);
     }
 
 }

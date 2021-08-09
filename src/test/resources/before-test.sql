@@ -176,8 +176,8 @@ INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, M
 VALUES (false, false, 'X980123', 'CRO1', 'NAME_DOB', 'A/160000BA', 16000);
 
 
-INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, session_start_time, list_no)
-VALUES (1, 1700028913, 'B10JQ', 1, '2019-12-14 09:00', '1st');
+INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
+VALUES (1, 1700028913, 'B10JQ', 1, '2019-12-14', '09:00', '1st');
 
 INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, defendant_name, name, address, type, date_of_birth, crn, pnc, cro, sex, nationality_1, nationality_2)
 VALUES (1, 1700028913, 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', null, 'A/1234560BA', '311462/13E', 'M', 'British', 'Polish');

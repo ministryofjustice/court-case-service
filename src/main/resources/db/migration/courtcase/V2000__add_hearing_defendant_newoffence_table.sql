@@ -5,7 +5,8 @@ DROP TABLE IF EXISTS HEARING;
 CREATE TABLE HEARING (
 	ID                  SERIAL       PRIMARY KEY,
 	COURT_CASE_ID       INT8         NOT NULL,
-    SESSION_START_TIME  TIMESTAMP    NOT NULL,
+    HEARING_DAY         DATE         NOT NULL,
+    HEARING_TIME        TIME         NOT NULL,
     COURT_CODE          TEXT         NOT NULL,
     COURT_ROOM          TEXT         NOT NULL,
     LIST_NO             TEXT         NOT NULL,

@@ -28,7 +28,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @Getter
 @ToString(exclude = "defendant")
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = "defendant")
 public class DefendantOffenceEntity extends BaseImmutableEntity implements Serializable  {
 
     @Id

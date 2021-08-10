@@ -7,12 +7,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -56,13 +61,24 @@ public class CourtCaseRequest {
                 .mapToObj(i -> {
                     var offence = getOffences().get(i);
                     return OffenceEntity.builder()
-                            .sequenceNumber(i + 1)
-                            .offenceTitle(offence.getOffenceTitle())
-                            .offenceSummary(offence.getOffenceSummary())
-                            .act(offence.getAct())
-                            .build();
+                        .sequenceNumber(i + 1)
+                        .offenceTitle(offence.getOffenceTitle())
+                        .offenceSummary(offence.getOffenceSummary())
+                        .act(offence.getAct())
+                        .build();
                 })
                 .collect(Collectors.toList());
+
+        final List<HearingEntity> hearings = List.of(HearingEntity.builder()
+            .courtCode(courtCode)
+            .courtRoom(courtRoom)
+            .hearingDay(sessionStartTime.toLocalDate())
+            .hearingTime(sessionStartTime.toLocalTime())
+            .listNo(listNo)
+            .build());
+
+        final List<DefendantEntity> defendants = buildDefendants(offences);
+
         final CourtCaseEntity entity = CourtCaseEntity.builder()
                 .caseId(caseId)
                 .caseNo(caseNo)
@@ -94,6 +110,8 @@ public class CourtCaseRequest {
                 .nationality1(nationality1)
                 .nationality2(nationality2)
                 .offences(offences)
+                .hearings(hearings)
+                .defendants(defendants)
                 .defendantAddress(Optional.ofNullable(defendantAddress)
                         .map(addressRequest -> AddressPropertiesEntity.builder()
                                 .line1(defendantAddress.getLine1())
@@ -108,6 +126,53 @@ public class CourtCaseRequest {
                 .build();
 
         offences.forEach(offence -> offence.setCourtCase(entity));
+        hearings.forEach(hearingEntity -> hearingEntity.setCourtCase(entity));
+        defendants.forEach(defendantEntity -> defendantEntity.setCourtCase(entity));
         return entity;
     }
+
+    List<DefendantEntity> buildDefendants(final List<OffenceEntity> caseOffences) {
+
+        final List<DefendantOffenceEntity> defendantOffences = Optional.ofNullable(caseOffences).orElse(Collections.emptyList())
+                                                        .stream()
+                                                        .map(offence -> DefendantOffenceEntity.builder()
+                                                                            .sequence(offence.getSequenceNumber())
+                                                                            .title(offence.getOffenceTitle())
+                                                                            .summary(offence.getOffenceSummary())
+                                                                            .act(offence.getAct())
+                                                                            .build())
+                                                        .collect(Collectors.toList());
+
+        final var defendant = DefendantEntity.builder()
+            .address(Optional.ofNullable(defendantAddress)
+                    .map(this::buildAddress)
+                    .orElse(null))
+            .dateOfBirth(defendantDob)
+            .defendantName(defendantName)
+            .type(defendantType)
+            .nationality1(nationality1)
+            .nationality2(nationality2)
+            .name(name)
+            .sex(defendantSex)
+            .crn(crn)
+            .cro(cro)
+            .pnc(pnc)
+            .offences(defendantOffences)
+            .build();
+
+        defendantOffences.forEach(defendantOffence -> defendantOffence.setDefendant(defendant));
+        return Collections.singletonList(defendant);
+    }
+
+    AddressPropertiesEntity buildAddress(AddressRequest addressRequest) {
+        return AddressPropertiesEntity.builder()
+            .line1(addressRequest.getLine1())
+            .line2(addressRequest.getLine2())
+            .line3(addressRequest.getLine3())
+            .line4(addressRequest.getLine4())
+            .line5(addressRequest.getLine5())
+            .postcode(addressRequest.getPostcode())
+            .build();
+    }
+
 }

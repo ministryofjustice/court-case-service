@@ -33,7 +33,7 @@ import org.hibernate.annotations.Type;
 @SuperBuilder
 @Getter
 @ToString(exclude = "courtCase")
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = "courtCase")
 public class DefendantEntity extends BaseImmutableEntity implements Serializable {
 
     @Id

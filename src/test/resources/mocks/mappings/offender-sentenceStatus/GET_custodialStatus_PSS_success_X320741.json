@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/secure/offenders/crn/X320742/convictions/2500297061/sentenceStatus",
+    "urlPath": "/secure/offenders/crn/X320741/convictions/2500295343/sentenceStatus",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"
@@ -13,6 +13,6 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "offender-currentOrderHeaderDetail/GET_currentOrderHeaderDetail_PSS_X320741.json"
+    "bodyFileName": "offender-sentenceStatus/GET_sentenceStatus_PSS_X320741.json"
   }
 }

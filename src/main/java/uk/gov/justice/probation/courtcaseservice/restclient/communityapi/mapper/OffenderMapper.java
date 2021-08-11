@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper;
 
 import uk.gov.justice.probation.courtcaseservice.controller.model.Address;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.Event;
 import uk.gov.justice.probation.courtcaseservice.controller.model.MatchIdentifiers;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
@@ -9,19 +8,20 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatu
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiContactDetails;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustody;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffence;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenceDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentence;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentenceStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiUnpaidWork;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.Offence;
 import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
+import uk.gov.justice.probation.courtcaseservice.service.model.SentenceStatus;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
 import java.time.LocalDate;
@@ -152,8 +152,9 @@ public class OffenderMapper {
             .build();
     }
 
-    public static CurrentOrderHeaderResponse buildCurrentOrderHeaderDetail(CommunityApiCustodialStatusResponse custodialStatusResponse) {
-        return CurrentOrderHeaderResponse.builder()
+    public static SentenceStatus buildSentenceStatus(CommunityApiSentenceStatusResponse custodialStatusResponse) {
+        return SentenceStatus
+                .builder()
                 .sentenceId(custodialStatusResponse.getSentenceId())
                 .custodialType(custodialStatusResponse.getCustodialType())
                 .sentenceDescription(custodialStatusResponse.getSentence() != null ? custodialStatusResponse.getSentence().getDescription() : null)

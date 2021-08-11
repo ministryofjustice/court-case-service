@@ -1,7 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.restclient;
 
-import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,18 +10,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.AttendanceMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.CourtReportMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiAttendances;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCourtReportsResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustodialStatusResponse;
+import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiSentenceStatusResponse;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.CourtReport;
 import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
+import uk.gov.justice.probation.courtcaseservice.service.model.SentenceStatus;
+
+import java.util.List;
+import java.util.Optional;
 
 @Component
 @AllArgsConstructor
@@ -42,8 +43,8 @@ public class ConvictionRestClient {
     @Value("${community-api.conviction-by-crn-url-template}")
     private String convictionUrlTemplate;
 
-    @Value("${community-api.current-order-header-url-template}")
-    private String currentOrderUrlTemplate;
+    @Value("${community-api.sentence-status-url-template}")
+    private String sentenceStatusUrlTemplate;
 
     @Autowired
     @Qualifier("communityApiClient")
@@ -74,27 +75,27 @@ public class ConvictionRestClient {
             .map(OffenderMapper::convictionFrom);
     }
 
-    public Mono<CurrentOrderHeaderResponse> getCurrentOrderHeader(final String crn, final Long convictionId) {
-        final String path = String.format(currentOrderUrlTemplate, crn, convictionId);
+    public Mono<SentenceStatus> getSentenceStatus(final String crn, final Long convictionId) {
+        final String path = String.format(sentenceStatusUrlTemplate, crn, convictionId);
         return clientHelper.get(path)
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
-                .bodyToMono(CommunityApiCustodialStatusResponse.class)
+                .bodyToMono(CommunityApiSentenceStatusResponse.class)
                 .onErrorMap(e1 -> {
                     log.error(String.format(ERROR_MSG_FORMAT, "sentence current order header detail ", crn, convictionId), e1);
                     return e1;
                 })
-                .map(OffenderMapper::buildCurrentOrderHeaderDetail);
+                .map(OffenderMapper::buildSentenceStatus);
     }
 
     public Mono<CustodialStatus> getCustodialStatus(final String crn, final Long convictionId) {
-        final String path = String.format(currentOrderUrlTemplate, crn, convictionId);
+        final String path = String.format(sentenceStatusUrlTemplate, crn, convictionId);
         return clientHelper.get(path)
             .retrieve()
             .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
-            .bodyToMono(CommunityApiCustodialStatusResponse.class)
+            .bodyToMono(CommunityApiSentenceStatusResponse.class)
             .onErrorMap(e1 -> {
-                log.error(String.format(ERROR_MSG_FORMAT, "sentence current order header detail ", crn, convictionId), e1);
+                log.error(String.format(ERROR_MSG_FORMAT, "sentence status ", crn, convictionId), e1);
                 return e1;
             })
             .map(custodialStatusResponse -> {

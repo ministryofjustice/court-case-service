@@ -10,9 +10,7 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse.ContactTypeDetail;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CurrentOrderHeaderResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.SentenceResponse;
-import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
 import java.time.LocalDate;
@@ -84,21 +82,6 @@ class OffenderController_ConvictionIntTest extends BaseIntTest {
                         .status("Being worked")
                         .build());
 
-        assertThat(response.getCurrentOrderHeaderDetail())
-                .usingRecursiveComparison()
-                .isEqualTo(CurrentOrderHeaderResponse.builder()
-                        .sentenceId(2500298861L)
-                        .custodialType(KeyValue.builder().code("P").description("Post Sentence Supervision").build())
-                        .sentenceDescription("CJA - Intermediate Public Prot.")
-                        .mainOffenceDescription("Common assault and battery - 10501")
-                        .sentenceDate(LocalDate.of(2018, Month.DECEMBER, 3))
-                        .actualReleaseDate(LocalDate.of(2019, Month.JULY, 3))
-                        .licenceExpiryDate(LocalDate.of(2019, Month.NOVEMBER, 3))
-                        .pssEndDate(LocalDate.of(2020, Month.JUNE, 3))
-                        .length(11)
-                        .lengthUnits("Months")
-                        .build());
-
         assertThat(response.getLinks().getDeliusContactList())
                 .isEqualTo("https://ndelius.test.probation.service.justice.gov.uk/NDelius-war/delius/JSP/deeplink.jsp?component=ContactList&offenderId=2500343964&eventId=2500295343");
     }
@@ -121,10 +104,8 @@ class OffenderController_ConvictionIntTest extends BaseIntTest {
                 .body()
                 .as(SentenceResponse.class);
 
-        assertThat(response.getCurrentOrderHeaderDetail()).isNull();
         assertThat(response.getAttendances()).isEmpty();
         assertThat(response.getUnpaidWork()).isNotNull();
-        assertThat(response.getCurrentOrderHeaderDetail()).isNull();
     }
 
     @Test

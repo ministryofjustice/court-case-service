@@ -36,11 +36,6 @@ public class SentenceResponse {
         @ApiModelProperty(value = "UPW")
         private final UnpaidWork unpaidWork;
 
-        // The fields in here have been re-organised and will be removed after the front end. See flag for use-current-order-header-detail
-        @Deprecated(forRemoval = true)
-        @ApiModelProperty(value = "Sentence with current order header info")
-        private final CurrentOrderHeaderResponse currentOrderHeaderDetail;
-
         @ApiModelProperty(value = "Links relating to this sentence")
         private final SentenceLinks links;
 

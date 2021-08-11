@@ -7,11 +7,12 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.AWAITING_PSR;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.BREACH;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_DOB;
@@ -21,14 +22,14 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_1;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_2;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PNC;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PRE_SENTENCE_ACTIVITY;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SUSPENDED_SENTENCE;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.TERMINATION_DATE;
 
 class CourtCaseRequestTest {
 
     private static final LocalDateTime SESSION_START_TIME = LocalDateTime.of(2020, 10, 5, 9, 30);
-    private static final LocalDate PREVIOUS_TERMINATION_DATE = LocalDate.of(2020, 9, 5);
-    private static final boolean SUSPENDED_SENTENCE_ORDER = true;
-    private static final boolean BREACH = false;
-    private static final boolean PRE_SENTENCE_ACTIVITY = true;
 
     @Test
     void givenAllFieldsPresent_whenCallAsEntity_returnCourtCaseEntity() {
@@ -38,9 +39,9 @@ class CourtCaseRequestTest {
                                                             .courtCode("COURT_CODE")
                                                             .courtRoom("COURT_ROOM")
                                                             .sessionStartTime(SESSION_START_TIME)
-                                                            .probationStatus("PROBATION_STATUS")
-                                                            .previouslyKnownTerminationDate(PREVIOUS_TERMINATION_DATE)
-                                                            .suspendedSentenceOrder(SUSPENDED_SENTENCE_ORDER)
+                                                            .probationStatus(PROBATION_STATUS)
+                                                            .previouslyKnownTerminationDate(TERMINATION_DATE)
+                                                            .suspendedSentenceOrder(SUSPENDED_SENTENCE)
                                                             .breach(BREACH)
                                                             .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
                                                             .offences(Arrays.asList(
@@ -60,7 +61,7 @@ class CourtCaseRequestTest {
                                                             .listNo("LIST_NO")
                                                             .nationality1(NATIONALITY_1)
                                                             .nationality2(NATIONALITY_2)
-                                                            .awaitingPsr(false)
+                                                            .awaitingPsr(AWAITING_PSR)
                                                             .build();
 
         final var entity = request.asEntity();
@@ -70,9 +71,9 @@ class CourtCaseRequestTest {
         assertThat(entity.getCourtCode()).isEqualTo("COURT_CODE");
         assertThat(entity.getCourtRoom()).isEqualTo("COURT_ROOM");
         assertThat(entity.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
-        assertThat(entity.getProbationStatus()).isEqualTo("PROBATION_STATUS");
-        assertThat(entity.getPreviouslyKnownTerminationDate()).isEqualTo(PREVIOUS_TERMINATION_DATE);
-        assertThat(entity.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE_ORDER);
+        assertThat(entity.getProbationStatus()).isEqualTo(PROBATION_STATUS);
+        assertThat(entity.getPreviouslyKnownTerminationDate()).isEqualTo(TERMINATION_DATE);
+        assertThat(entity.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE);
         assertThat(entity.getBreach()).isEqualTo(BREACH);
         assertThat(entity.getPreSentenceActivity()).isEqualTo(PRE_SENTENCE_ACTIVITY);
         assertThat(entity.getName()).isEqualTo(NAME);
@@ -91,7 +92,7 @@ class CourtCaseRequestTest {
         assertThat(entity.getListNo()).isEqualTo("LIST_NO");
         assertThat(entity.getNationality1()).isEqualTo(NATIONALITY_1);
         assertThat(entity.getNationality2()).isEqualTo(NATIONALITY_2);
-        assertThat(entity.getAwaitingPsr()).isEqualTo(false);
+        assertThat(entity.getAwaitingPsr()).isEqualTo(AWAITING_PSR);
         var expectedOffenceEntity1 = OffenceEntity.builder()
                 .offenceSummary("OFFENCE_SUMMARY1")
                 .offenceTitle("OFFENCE_TITLE1")

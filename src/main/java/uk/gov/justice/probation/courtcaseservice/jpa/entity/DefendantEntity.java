@@ -86,4 +86,25 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "NATIONALITY_2")
     private final String nationality2;
 
+    @Column(name = "PREVIOUSLY_KNOWN_TERMINATION_DATE")
+    private final LocalDate previouslyKnownTerminationDate;
+
+    @Column(name = "SUSPENDED_SENTENCE_ORDER", nullable = false)
+    private final Boolean suspendedSentenceOrder;
+
+    @Column(name = "BREACH", nullable = false)
+    private final Boolean breach;
+
+    @Column(name = "PRE_SENTENCE_ACTIVITY", nullable = false)
+    private final Boolean preSentenceActivity;
+
+    @Column(name = "AWAITING_PSR")
+    private final Boolean awaitingPsr;
+
+    @Column(name = "PROBATION_STATUS", nullable = false)
+    private final String probationStatus;
+
+    @Column(name = "manual_update", nullable = false, updatable = false)
+    private boolean manualUpdate;
+
 }

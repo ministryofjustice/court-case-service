@@ -43,7 +43,7 @@ public class ConvictionRestClient {
     @Value("${community-api.conviction-by-crn-url-template}")
     private String convictionUrlTemplate;
 
-    @Value("${community-api.current-order-header-url-template}")
+    @Value("${community-api.sentence-status-url-template}")
     private String sentenceStatusUrlTemplate;
 
     @Autowired

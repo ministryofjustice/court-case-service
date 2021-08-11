@@ -16,7 +16,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -157,6 +156,12 @@ public class CourtCaseRequest {
             .crn(crn)
             .cro(cro)
             .pnc(pnc)
+            .awaitingPsr(awaitingPsr)
+            .probationStatus(probationStatus)
+            .preSentenceActivity(preSentenceActivity)
+            .previouslyKnownTerminationDate(previouslyKnownTerminationDate)
+            .breach(breach)
+            .suspendedSentenceOrder(suspendedSentenceOrder)
             .offences(defendantOffences)
             .build();
 

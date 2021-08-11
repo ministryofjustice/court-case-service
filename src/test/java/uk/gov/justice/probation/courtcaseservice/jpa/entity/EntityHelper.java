@@ -16,6 +16,7 @@ public class EntityHelper {
     public static final boolean SUSPENDED_SENTENCE = true;
     public static final boolean BREACH = true;
     public static final boolean PRE_SENTENCE_ACTIVITY = true;
+    public static final boolean AWAITING_PSR = false;
     public static final LocalDate TERMINATION_DATE = LocalDate.of(2020, 2, 27);
     public static final String LIST_NO = "1st";
 
@@ -85,6 +86,12 @@ public class EntityHelper {
             .sex(DEFENDANT_SEX)
             .nationality1(NATIONALITY_1)
             .nationality2(NATIONALITY_2)
+            .awaitingPsr(AWAITING_PSR)
+            .breach(BREACH)
+            .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
+            .previouslyKnownTerminationDate(TERMINATION_DATE)
+            .probationStatus(PROBATION_STATUS)
+            .suspendedSentenceOrder(SUSPENDED_SENTENCE)
             .build();
     }
 
@@ -110,7 +117,7 @@ public class EntityHelper {
             .listNo(LIST_NO)
             .nationality1(NATIONALITY_1)
             .nationality2(NATIONALITY_2)
-            .awaitingPsr(false)
+            .awaitingPsr(AWAITING_PSR)
             .deleted(false)
             .firstCreated(LocalDateTime.now())
             .offences(List.of(anOffence()));

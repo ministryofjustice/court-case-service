@@ -14,4 +14,4 @@ BEGIN;
 
     UPDATE DEFENDANT SET manual_update = true where CREATED_BY LIKE '%(prepare-a-case-for-court)';
 
-END;
+COMMIT;

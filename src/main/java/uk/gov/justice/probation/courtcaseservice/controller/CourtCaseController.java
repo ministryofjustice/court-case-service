@@ -105,9 +105,7 @@ public class CourtCaseController {
     Mono<ExtendedCourtCaseRequest> updateCourtCaseId(@PathVariable(value = "caseId") String caseId,
                                                      @Valid @RequestBody ExtendedCourtCaseRequest courtCaseRequest) {
         return courtCaseService.createCase(caseId, courtCaseRequest.asCourtCaseEntity())
-            .map(courtCaseEntity -> {
-                System.out.println(courtCaseEntity.getId() + " is DB ID");
-                return courtCaseRequest;});
+            .map(courtCaseEntity -> courtCaseRequest);
     }
 
     @ApiOperation(value = "Gets case data for a court on a date. ",

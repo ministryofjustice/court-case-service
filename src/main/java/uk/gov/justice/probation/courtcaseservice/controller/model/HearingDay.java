@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor
 public class HearingDay {
+    private final String courtCode;
+    private final String courtRoom;
     private final LocalDateTime sessionStartTime;
     private final String listNo;
 }

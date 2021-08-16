@@ -169,7 +169,7 @@ public class CourtCaseRequest {
         return Collections.singletonList(defendant);
     }
 
-    AddressPropertiesEntity buildAddress(AddressRequest addressRequest) {
+    private AddressPropertiesEntity buildAddress(AddressRequest addressRequest) {
         return AddressPropertiesEntity.builder()
             .line1(addressRequest.getLine1())
             .line2(addressRequest.getLine2())

@@ -6,7 +6,7 @@ import java.util.List;
 
 public class EntityHelper {
 
-    public static final String CASE_ID = "123";
+    public static final String CASE_ID = "ac24a1be-939b-49a4-a524-21a3d228f8bc";
     public static final String COURT_CODE = "B10JQ";
     public static final String CRN  = "X340906";
     public static final String CASE_NO = "1001";
@@ -92,6 +92,16 @@ public class EntityHelper {
             .previouslyKnownTerminationDate(TERMINATION_DATE)
             .probationStatus(PROBATION_STATUS)
             .suspendedSentenceOrder(SUSPENDED_SENTENCE)
+            .build();
+    }
+
+    public static HearingEntity aHearingEntity() {
+        return HearingEntity.builder()
+            .listNo(LIST_NO)
+            .hearingDay(SESSION_START_TIME.toLocalDate())
+            .hearingTime(SESSION_START_TIME.toLocalTime())
+            .courtRoom(COURT_ROOM)
+            .courtCode(COURT_CODE)
             .build();
     }
 

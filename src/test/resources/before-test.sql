@@ -68,7 +68,7 @@ INSERT INTO courtcaseservicetest.court_case (case_id, case_no, court_code, court
 -- See CourtCaseControllerPutIntTest.whenPurgeCases_ThenReturn204NoContent()
 -- These records are used to test edge cases when returning court case list for a given date (midnight to 1 second before midnight the next day)
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn)
-VALUES (1000000, 1000000, 1000000, 'B10JQ', '1', '2020-01-01 09:00:00', 'No record', 'X320741');
+VALUES (1000000, 1000000, 1000000, 'B10JQ', '1', '2100-01-01 09:00:00', 'No record', 'X320741');
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn)
 VALUES (1000001, 1000001, 1000001, 'B10JQ', '1', '2020-01-01 09:00:00', 'No record', 'X320741');
 

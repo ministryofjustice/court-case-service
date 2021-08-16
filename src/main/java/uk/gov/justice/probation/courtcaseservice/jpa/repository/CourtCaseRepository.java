@@ -12,17 +12,27 @@ import java.util.Optional;
 @Repository
 public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Long> {
 
-    @Query(value = "SELECT cc.*, null as first_created FROM court_case cc "
-        + "where case_id  = :caseId "
-        + "order by created desc",
+    @Query(value = "SELECT cc.*, null as first_created FROM court_case cc " +
+        "where case_id  = :caseId " +
+        "and deleted = false " +
+        "order by created desc",
         nativeQuery = true)
     List<CourtCaseEntity> findByCaseIdOrderByCreatedDesc(String caseId);
 
-    @Query(value = "SELECT cc.*, null as first_created FROM court_case cc "
-        + "where case_id  = :caseId "
-        + "order by id desc LIMIT 1",
+    @Query(value = "SELECT cc.*, null as first_created FROM court_case cc " +
+        "where case_id  = :caseId " +
+        "and deleted = false " +
+        "order by id desc LIMIT 1",
         nativeQuery = true)
     Optional<CourtCaseEntity> findFirstByCaseIdOrderByIdDesc(String caseId);
+
+    @Query(value = "SELECT cc.*, null as first_created FROM court_case cc " +
+        "where cc.case_no = :caseNo " +
+        "and cc.court_code = :courtCode " +
+        "and deleted = false " +
+        "order by created desc LIMIT 1",
+        nativeQuery = true)
+    Optional<CourtCaseEntity> findFirstByCaseNoOrderByCreatedDesc(String courtCode, String caseNo);
 
     @Query(value = "select cc.*, grouped_cases.min_created as first_created from court_case cc " +
             "inner join (select max(created) as max_created,  min(created) as min_created, case_no, court_code from court_case group_cc " +
@@ -80,8 +90,10 @@ public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Lon
     List<CourtCaseEntity> findOtherCurrentCasesByCrn(String crn, String caseNo);
 
     @Query(value = "SELECT cc.*, null as first_created FROM court_case cc "
-        + "where case_id  != :caseId "
-        + "and crn = :crn ",
+        + "where cc.case_id != :caseId "
+        + "and cc.session_start_time >= current_date "
+        + "and cc.crn = :crn "
+        + "and cc.deleted = false ",
         nativeQuery = true)
     List<CourtCaseEntity> findOtherCurrentCasesByCrnNotCaseId(String crn, String caseId);
 }

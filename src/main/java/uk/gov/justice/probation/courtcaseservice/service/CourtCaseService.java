@@ -13,6 +13,9 @@ import java.util.Optional;
 public interface CourtCaseService {
     CourtCaseEntity getCaseByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException;
 
+    Mono<CourtCaseEntity> createCase(String caseId, CourtCaseEntity updatedCase)
+        throws EntityNotFoundException, InputMismatchException;
+
     Mono<CourtCaseEntity> createCase(String courtCode, String caseNo, CourtCaseEntity updatedCase)
         throws EntityNotFoundException, InputMismatchException;
 

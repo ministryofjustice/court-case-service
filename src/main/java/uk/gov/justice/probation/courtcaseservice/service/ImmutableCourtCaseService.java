@@ -33,6 +33,25 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private final GroupedOffenderMatchRepository matchRepository;
 
     @Override
+    public Mono<CourtCaseEntity> createCase(String caseId, CourtCaseEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
+        validateEntity(caseId, updatedCase);
+        courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId)
+            .ifPresentOrElse(
+                (existingCase) -> {
+                    updateOffenderMatches(existingCase, updatedCase);
+                    trackUpdateEvents(updatedCase, existingCase);
+                },
+                () -> trackCreateEvents(updatedCase));
+
+        return Mono.just(updatedCase)
+            .map((courtCaseEntity) -> {
+                log.debug("Saving case ID {}", caseId);
+                return courtCaseRepository.save(courtCaseEntity);
+            })
+            .doAfterTerminate(() -> updateOtherProbationStatusForCrnByCaseId(updatedCase.getCrn(), updatedCase.getProbationStatus(), updatedCase.getCaseId()));
+    }
+
+    @Override
     public Mono<CourtCaseEntity> createCase(String courtCode, String caseNo, CourtCaseEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
         validateEntity(courtCode, caseNo, updatedCase);
         courtCaseRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
@@ -54,6 +73,21 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     void updateOtherProbationStatusForCrn(String crn, String probationStatus, String caseNo) {
         if (crn != null) {
             final var courtCases = courtCaseRepository.findOtherCurrentCasesByCrn(crn, caseNo)
+                .stream()
+                .filter(courtCaseEntity -> !courtCaseEntity.getProbationStatus().equalsIgnoreCase(probationStatus))
+                .map(courtCaseEntity -> CourtCaseMapper.create(courtCaseEntity, probationStatus))
+                .collect(Collectors.toList());
+
+            if (!courtCases.isEmpty()) {
+                log.debug("Updating {} cases for CRN {} with changed probation status to {}", courtCases.size(), crn, probationStatus);
+                courtCaseRepository.saveAll(courtCases);
+            }
+        }
+    }
+
+    void updateOtherProbationStatusForCrnByCaseId(String crn, String probationStatus, String caseId) {
+        if (crn != null) {
+            final var courtCases = courtCaseRepository.findOtherCurrentCasesByCrnNotCaseId(crn, caseId)
                 .stream()
                 .filter(courtCaseEntity -> !courtCaseEntity.getProbationStatus().equalsIgnoreCase(probationStatus))
                 .map(courtCaseEntity -> CourtCaseMapper.create(courtCaseEntity, probationStatus))
@@ -95,6 +129,18 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
         final var start = LocalDateTime.of(date, LocalTime.MIDNIGHT);
         return courtCaseRepository.findByCourtCodeAndSessionStartTime(court.getCourtCode(), start, start.plusDays(1), createdAfter, createdBefore);
+    }
+
+    private void validateEntity(String caseId, CourtCaseEntity updatedCase) {
+        checkCourtExists(updatedCase.getCourtCode());
+        checkEntityCaseIdAgree(caseId, updatedCase);
+    }
+
+    private void checkEntityCaseIdAgree(String caseId, CourtCaseEntity updatedCase) {
+        if (!caseId.equals(updatedCase.getCaseId())) {
+            throw new ConflictingInputException(String.format("Case Id %s does not match with value from body %s",
+                caseId, updatedCase.getCaseId()));
+        }
     }
 
     private void validateEntity(String courtCode, String caseNo, CourtCaseEntity updatedCase) {

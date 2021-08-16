@@ -99,13 +99,15 @@ public class CourtCaseController {
                     @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
                     @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
             })
-    @PutMapping(value = "/court/{courtCode}/case/{caseNo}/extended", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
+    @PutMapping(value = "/case/{caseId}/extended", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    Mono<ExtendedCourtCaseRequest> updateCourtCaseNo(@PathVariable(value = "courtCode") String courtCode,
-                                                     @PathVariable(value = "caseNo") String caseNo,
+    Mono<ExtendedCourtCaseRequest> updateCourtCaseId(@PathVariable(value = "caseId") String caseId,
                                                      @Valid @RequestBody ExtendedCourtCaseRequest courtCaseRequest) {
-        return Mono.just(ExtendedCourtCaseRequest.builder().build());
+        return courtCaseService.createCase(caseId, courtCaseRequest.asCourtCaseEntity())
+            .map(courtCaseEntity -> {
+                System.out.println(courtCaseEntity.getId() + " is DB ID");
+                return courtCaseRequest;});
     }
 
     @ApiOperation(value = "Gets case data for a court on a date. ",

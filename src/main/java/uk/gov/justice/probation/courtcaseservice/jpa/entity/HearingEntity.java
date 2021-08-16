@@ -62,4 +62,8 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
         return CourtSession.from(hearingTime);
     }
 
+    public LocalDateTime getSessionStartTime() {
+        return LocalDateTime.of(hearingDay, hearingTime);
+    }
+
 }

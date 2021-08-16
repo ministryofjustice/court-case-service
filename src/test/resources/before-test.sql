@@ -175,11 +175,22 @@ VALUES (16000, '16000','B10JQ');
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (false, false, 'X980123', 'CRO1', 'NAME_DOB', 'A/160000BA', 16000);
 
+--
+-- Section to populate an entirely new COURT CASE with separate HEARING, DEFENDANT, DEFENDANT_OFFENCE. Also a caseId which looks like a UUID which is what will be happening post CP integration
+INSERT INTO courtcaseservicetest.COURT_CASE (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, defendant_name, name, defendant_address, crn, pnc, cro, list_no, defendant_dob, defendant_sex, nationality_1, nationality_2, created, awaiting_psr)
+VALUES (1700030000, 'ac24a1be-939b-49a4-a524-21a3d228f8bc', '1700030000', 'B14LO', 1, '2019-12-14 09:00', null, '2010-01-01', true, true, true, 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}','{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', null, 'A/1234560BA', '311462/13E', '3rd', '1958-10-10', 'M', 'British', 'Polish' , now(), true);
+
+INSERT INTO courtcaseservicetest.COURT_CASE (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, defendant_name, name, defendant_address, crn, pnc, cro, list_no, defendant_dob, defendant_sex, nationality_1, nationality_2, created, awaiting_psr)
+VALUES (1700030001, 'ac24a1be-939b-49a4-a524-21a3d228f8bc', '1700030000', 'B14LO', 1, '2019-12-14 09:00', null, '2010-01-01', true, true, true, 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}','{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', null, 'A/1234560BA', '311462/13E', '3rd', '1958-10-10', 'M', 'British', 'Polish' , now(), true);
+
+INSERT INTO courtcaseservicetest.OFFENCE (ID, COURT_CASE_ID, OFFENCE_TITLE, OFFENCE_SUMMARY, ACT, SEQUENCE_NUMBER)
+VALUES (17000, 1700030001, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);
+
 INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (1000000, 1700028913, 'B10JQ', 1, '2019-12-14', '09:00', '1st');
+VALUES (1000000, 1700030001, 'B10JQ', 1, '2019-12-14', '09:00', '1st');
 
 INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, defendant_name, name, address, type, date_of_birth, crn, pnc, cro, sex, nationality_1, nationality_2)
-VALUES (1000000, 1700028913, 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', null, 'A/1234560BA', '311462/13E', 'M', 'British', 'Polish');
+VALUES (1000000, 1700030001, 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', null, 'A/1234560BA', '311462/13E', 'M', 'British', 'Polish');
 
 INSERT INTO courtcaseservicetest.DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (1000000, 1000000, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);

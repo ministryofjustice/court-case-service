@@ -54,7 +54,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     @Override
     public Mono<CourtCaseEntity> createCase(String courtCode, String caseNo, CourtCaseEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
         validateEntity(courtCode, caseNo, updatedCase);
-        courtCaseRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
+        courtCaseRepository.findFirstByCaseNoOrderByCreatedDesc(courtCode, caseNo)
                 .ifPresentOrElse(
                         (existingCase) -> {
                             updateOffenderMatches(existingCase, updatedCase);

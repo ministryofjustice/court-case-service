@@ -21,5 +21,9 @@ public interface CourtCaseService {
 
     List<CourtCaseEntity> filterCases(String courtCode, LocalDate date, LocalDateTime createdAfter, LocalDateTime createdBefore);
 
+    List<CourtCaseEntity> filterCasesByHearingDay(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore);
+
     Optional<LocalDateTime> filterCasesLastModified(String courtCode, LocalDate date);
+
+    Optional<LocalDateTime> findLastModifiedByHearingDay(String courtCode, LocalDate date);
 }

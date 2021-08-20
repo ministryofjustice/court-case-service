@@ -131,6 +131,14 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         return courtCaseRepository.findByCourtCodeAndSessionStartTime(court.getCourtCode(), start, start.plusDays(1), createdAfter, createdBefore);
     }
 
+    @Override
+    public List<CourtCaseEntity> filterCasesByHearingDay(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
+        final var court = courtRepository.findByCourtCode(courtCode)
+            .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
+
+        return courtCaseRepository.findByCourtCodeAndHearingDay(court.getCourtCode(), hearingDay, createdAfter, createdBefore);
+    }
+
     private void validateEntity(String caseId, CourtCaseEntity updatedCase) {
         checkCourtExists(updatedCase.getCourtCode());
         checkEntityCaseIdAgree(caseId, updatedCase);
@@ -192,5 +200,9 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     public Optional<LocalDateTime> filterCasesLastModified(String courtCode, LocalDate searchDate) {
         final var start = LocalDateTime.of(searchDate, LocalTime.MIDNIGHT);
         return courtCaseRepository.findLastModified(courtCode, start, start.plusDays(1));
+    }
+
+    public Optional<LocalDateTime> findLastModifiedByHearingDay(String courtCode, LocalDate searchDate) {
+        return courtCaseRepository.findLastModifiedByHearingDay(courtCode, searchDate);
     }
 }

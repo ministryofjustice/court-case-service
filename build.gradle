@@ -284,3 +284,4 @@ pact {
 
 assemble.dependsOn copyAgent
 assemble.dependsOn copyAgentConfig
+

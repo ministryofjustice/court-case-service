@@ -31,7 +31,7 @@ group = 'uk.gov.justice.probation'
 ext {
     swaggerVersion = '2.9.2'
     restAssuredVersion = '4.4.0'
-    pactVersion = '4.2.9'
+    pactVersion = '4.2.10'
 }
 
 def today = Instant.now()
@@ -284,3 +284,4 @@ pact {
 
 assemble.dependsOn copyAgent
 assemble.dependsOn copyAgentConfig
+

@@ -178,7 +178,7 @@ class CommunityApiPactTest {
             .eachLike("reportManagers")
                 .booleanType("active")
                 .object("staff")
-                    .stringType("code", "forenames", "surname")
+                    .stringTypes("code", "forenames", "surname")
                     .booleanType("unallocated")
                 .closeObject()
             .closeArray();

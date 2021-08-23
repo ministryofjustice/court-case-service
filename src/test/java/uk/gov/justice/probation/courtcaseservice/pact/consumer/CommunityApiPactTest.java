@@ -58,7 +58,9 @@ class CommunityApiPactTest {
     public RequestResponsePact getProbationStatusDetailCurrent(PactDslWithProvider builder) {
 
         var body = new PactDslJsonBody()
-            .booleanType("preSentenceActivity", "inBreach", "awaitingPsr")
+            .booleanType("preSentenceActivity")
+            .booleanType("inBreach")
+            .booleanType("awaitingPsr")
             .stringType("status");
 
         return builder
@@ -77,7 +79,8 @@ class CommunityApiPactTest {
     public RequestResponsePact getProbationStatusDetailPreviouslyKnown(PactDslWithProvider builder) {
 
         var body = new PactDslJsonBody()
-            .booleanType("preSentenceActivity", "awaitingPsr")
+            .booleanType("preSentenceActivity")
+            .booleanType("awaitingPsr")
             .date("previouslyKnownTerminationDate","yyyy-MM-dd")
             .stringType("status");
 
@@ -164,7 +167,7 @@ class CommunityApiPactTest {
     public RequestResponsePact getCourtReportsByCrnAndConvictionId(PactDslWithProvider builder) {
 
         DslPart body = PactDslJsonArray.arrayMinLike(1)
-            .numberType("courtReportId", "offenderId")
+            .numberTypes("courtReportId", "offenderId")
             .date("requestedDate", "yyyy-MM-dd'T'HH:mm:ss'Z'")
             .date("requiredDate", "yyyy-MM-dd'T'HH:mm:ss'Z'")
             .date("completedDate", "yyyy-MM-dd'T'HH:mm:ss'Z'")

@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.ToString.Exclude;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Type;
 
@@ -32,7 +33,7 @@ import org.hibernate.annotations.Type;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @SuperBuilder
 @Getter
-@ToString(exclude = "courtCase")
+@ToString
 @EqualsAndHashCode(callSuper = true, exclude = "courtCase")
 public class DefendantEntity extends BaseImmutableEntity implements Serializable {
 
@@ -42,11 +43,16 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @JsonIgnore
     private final Long id;
 
+    @ToString.Exclude
     @ManyToOne(optional = false)
     @JoinColumn(name = "COURT_CASE_ID", referencedColumnName = "id", nullable = false)
     @Setter
     private CourtCaseEntity courtCase;
 
+    @Column(name = "UUID", nullable = false)
+    private final String uuid;
+
+    @ToString.Exclude
     @OneToMany(mappedBy = "defendant", cascade = CascadeType.ALL, orphanRemoval=true)
     private final List<DefendantOffenceEntity> offences;
 

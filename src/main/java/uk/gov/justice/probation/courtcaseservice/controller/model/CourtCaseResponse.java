@@ -50,6 +50,7 @@ public class CourtCaseResponse {
     private final LocalDate defendantDob;
     private final String defendantSex;
     private final DefendantType defendantType;
+    private final String defendantUuid;
     private final String nationality1;
     private final String nationality2;
     private final boolean createdToday;

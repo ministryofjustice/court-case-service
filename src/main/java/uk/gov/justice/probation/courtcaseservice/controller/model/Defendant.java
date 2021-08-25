@@ -16,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor
 public class Defendant {
+    private final String uuid;
     private final NamePropertiesEntity name;
     private final LocalDate dateOfBirth;
     private final AddressRequest address;

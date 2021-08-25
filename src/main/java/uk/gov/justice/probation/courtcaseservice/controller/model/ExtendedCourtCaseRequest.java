@@ -77,6 +77,7 @@ public class ExtendedCourtCaseRequest {
             .sex(defendant.getSex())
             .suspendedSentenceOrder(defendant.getSuspendedSentenceOrder())
             .type(defendant.getType())
+            .uuid(defendant.getUuid())
             .build();
         offences.forEach(offence -> offence.setDefendant(defendantEntity));
         return defendantEntity;

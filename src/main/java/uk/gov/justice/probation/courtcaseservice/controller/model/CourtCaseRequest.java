@@ -45,7 +45,7 @@ public class CourtCaseRequest {
     private final LocalDate defendantDob;
     private final String defendantSex;
     private final DefendantType defendantType;
-    private final String defendantUuid;
+    private final String defendantId;
     private final String crn;
     private final String pnc;
     private final String cro;
@@ -155,7 +155,7 @@ public class CourtCaseRequest {
             .nationality2(nationality2)
             .name(name)
             .sex(defendantSex)
-            .uuid(Optional.ofNullable(defendantUuid).orElse(UUID.randomUUID().toString()))
+            .defendantId(Optional.ofNullable(defendantId).orElse(UUID.randomUUID().toString()))
             .crn(crn)
             .cro(cro)
             .pnc(pnc)

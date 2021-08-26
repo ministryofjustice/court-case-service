@@ -23,7 +23,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_UUID;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
@@ -284,7 +283,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("courtCode", equalTo(COURT_CODE))
                 .body("sessionStartTime", equalTo(startTime))
                 .body("defendantName", equalTo("Mr Johnny BALL"))
-                .body("defendantUuid", equalTo("40db17d6-04db-11ec-b2d8-0242ac130002"))
+                .body("defendantId", equalTo("40db17d6-04db-11ec-b2d8-0242ac130002"))
                 .body("name.title", equalTo("Mr"))
                 .body("name.forename1", equalTo("Johnny"))
                 .body("name.forename2", equalTo("John"))

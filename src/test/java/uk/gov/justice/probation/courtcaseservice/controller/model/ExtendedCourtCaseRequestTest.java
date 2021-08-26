@@ -15,7 +15,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_DOB;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_UUID;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NAME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PNC;
@@ -85,7 +85,7 @@ class ExtendedCourtCaseRequestTest {
             .sex("M")
             .suspendedSentenceOrder(Boolean.TRUE)
             .type(DefendantType.PERSON)
-            .uuid(DEFENDANT_UUID)
+            .defendantId(DEFENDANT_ID)
             .offences(List.of(OffenceRequest.builder()
                                 .offenceTitle("TITLE1")
                                 .offenceSummary("SUMMARY1")
@@ -146,7 +146,7 @@ class ExtendedCourtCaseRequestTest {
         assertThat(defendantEntity.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2021, Month.MARCH, 20));
         assertThat(defendantEntity.getProbationStatus()).isEqualTo("CURRENT");
         assertThat(defendantEntity.getSex()).isEqualTo("M");
-        assertThat(defendantEntity.getUuid()).isEqualTo(DEFENDANT_UUID);
+        assertThat(defendantEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
 
         final var offences = defendantEntity.getOffences();
         assertThat(offences).hasSize(2);

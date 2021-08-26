@@ -41,7 +41,7 @@ public class CourtCaseResponseMapper {
             .defendantDob(courtCaseEntity.getDefendantDob())
             .defendantSex(courtCaseEntity.getDefendantSex())
             .defendantType(courtCaseEntity.getDefendantType())
-            .defendantUuid(getDefendantUuid(courtCaseEntity.getDefendants()))
+            .defendantId(getDefendantId(courtCaseEntity.getDefendants()))
             .nationality1(courtCaseEntity.getNationality1())
             .nationality2(courtCaseEntity.getNationality2())
             .createdToday(LocalDate.now().isEqual(Optional.ofNullable(courtCaseEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()))
@@ -50,11 +50,11 @@ public class CourtCaseResponseMapper {
             .build();
     }
 
-    static String getDefendantUuid(List<DefendantEntity> defendantEntities) {
+    static String getDefendantId(List<DefendantEntity> defendantEntities) {
         return Optional.ofNullable(defendantEntities).orElse(Collections.emptyList())
             .stream()
             .findFirst()
-            .map(DefendantEntity::getUuid)
+            .map(DefendantEntity::getDefendantId)
             .orElse(null);
     }
 

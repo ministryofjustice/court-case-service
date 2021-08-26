@@ -49,8 +49,8 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Setter
     private CourtCaseEntity courtCase;
 
-    @Column(name = "UUID", nullable = false)
-    private final String uuid;
+    @Column(name = "DEFENDANT_ID", nullable = false)
+    private final String defendantId;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "defendant", cascade = CascadeType.ALL, orphanRemoval=true)

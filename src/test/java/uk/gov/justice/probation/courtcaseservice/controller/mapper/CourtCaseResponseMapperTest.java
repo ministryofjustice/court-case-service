@@ -43,7 +43,7 @@ class CourtCaseResponseMapperTest {
     private static final String ACT = "ACT";
     private static final String DEFENDANT_NAME = "DEFENDANT_NAME";
     private static final DefendantType DEFENDANT_TYPE = DefendantType.PERSON;
-    private static final String DEFENDANT_UUID = "81cdaec1-d197-4a70-b2a8-beeabdd05d21";
+    private static final String DEFENDANT_ID = "81cdaec1-d197-4a70-b2a8-beeabdd05d21";
     private static final String CRN = "CRN";
     private static final String PNC = "PNC";
     private static final String CRO = "CRO";
@@ -85,7 +85,8 @@ class CourtCaseResponseMapperTest {
                 .nationality2(NATIONALITY_2)
                 .dateOfBirth(DEFENDANT_DOB)
                 .pnc(PNC)
-                .uuid(DEFENDANT_UUID).build()
+                .defendantId(DEFENDANT_ID)
+                .build()
         );
         matchGroups = buildMatchGroups();
         courtCaseEntity = buildCourtCaseEntity(offences, defendants, FIRST_CREATED);
@@ -106,7 +107,7 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getPreSentenceActivity()).isEqualTo(PRE_SENTENCE_ACTIVITY);
         assertThat(courtCaseResponse.getDefendantName()).isEqualTo(DEFENDANT_NAME);
         assertThat(courtCaseResponse.getDefendantType()).isEqualTo(DEFENDANT_TYPE);
-        assertThat(courtCaseResponse.getDefendantUuid()).isEqualTo(DEFENDANT_UUID);
+        assertThat(courtCaseResponse.getDefendantId()).isEqualTo(DEFENDANT_ID);
         assertThat(courtCaseResponse.getDefendantAddress()).isEqualTo(addressPropertiesEntity);
         assertThat(courtCaseResponse.getName()).isEqualTo(namePropertiesEntity);
         assertThat(courtCaseResponse.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
@@ -169,9 +170,8 @@ class CourtCaseResponseMapperTest {
     }
 
     @Test
-    void whenNoDefendants_thenGetFirstUuid() {
-        var uuid = CourtCaseResponseMapper.getDefendantUuid(null);
-        assertThat(uuid).isNull();
+    void whenNoDefendants_thenGetFirstDefendantId() {
+        assertThat(CourtCaseResponseMapper.getDefendantId(null)).isNull();
     }
 
     private GroupedOffenderMatchesEntity buildMatchGroups() {

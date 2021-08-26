@@ -28,7 +28,7 @@ public class EntityHelper {
     public static final String DEFENDANT_NAME = NAME.getFullName();
     public static final AddressPropertiesEntity DEFENDANT_ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "AB21 3ES", "Bangor", null, null);
     public static final LocalDate DEFENDANT_DOB = LocalDate.of(1958, 12, 14);
-    public static final String DEFENDANT_UUID = "d1eefed2-04df-11ec-b2d8-0242ac130002";
+    public static final String DEFENDANT_ID = "d1eefed2-04df-11ec-b2d8-0242ac130002";
     public static final String PNC = "PNC";
     public static final String CRO = "CRO/12334";
     public static final String DEFENDANT_SEX = "M";
@@ -87,7 +87,7 @@ public class EntityHelper {
             .sex(DEFENDANT_SEX)
             .nationality1(NATIONALITY_1)
             .nationality2(NATIONALITY_2)
-            .uuid(DEFENDANT_UUID)
+            .defendantId(DEFENDANT_ID)
             .awaitingPsr(AWAITING_PSR)
             .breach(BREACH)
             .preSentenceActivity(PRE_SENTENCE_ACTIVITY)

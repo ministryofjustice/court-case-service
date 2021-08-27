@@ -4,6 +4,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRespo
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 
 import java.time.LocalDate;
@@ -40,12 +41,21 @@ public class CourtCaseResponseMapper {
             .defendantDob(courtCaseEntity.getDefendantDob())
             .defendantSex(courtCaseEntity.getDefendantSex())
             .defendantType(courtCaseEntity.getDefendantType())
+            .defendantId(getDefendantId(courtCaseEntity.getDefendants()))
             .nationality1(courtCaseEntity.getNationality1())
             .nationality2(courtCaseEntity.getNationality2())
             .createdToday(LocalDate.now().isEqual(Optional.ofNullable(courtCaseEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()))
             .numberOfPossibleMatches(matchCount)
             .awaitingPsr(courtCaseEntity.getAwaitingPsr())
             .build();
+    }
+
+    static String getDefendantId(List<DefendantEntity> defendantEntities) {
+        return Optional.ofNullable(defendantEntities).orElse(Collections.emptyList())
+            .stream()
+            .findFirst()
+            .map(DefendantEntity::getDefendantId)
+            .orElse(null);
     }
 
     private static List<OffenceResponse> mapOffencesFrom(CourtCaseEntity courtCaseEntity) {

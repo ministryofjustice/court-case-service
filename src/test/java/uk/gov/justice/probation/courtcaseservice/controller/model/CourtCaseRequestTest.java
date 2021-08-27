@@ -18,6 +18,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_DOB;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_NAME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_SEX;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NAME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_1;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_2;
@@ -50,6 +51,7 @@ class CourtCaseRequestTest {
                                                                 )
                                                             )
                                                             .defendantDob(DEFENDANT_DOB)
+                                                            .defendantId(DEFENDANT_ID)
                                                             .name(NAME)
                                                             .defendantName(NAME.getFullName())
                                                             .defendantAddress(new AddressRequest("LINE1", "LINE2", "LINE3", "LINE4", "LINE5", "POSTCODE"))
@@ -167,5 +169,9 @@ class CourtCaseRequestTest {
         assertThat(entity.getProbationStatus()).isEqualTo("PROBATION_STATUS");
 
         assertThat(entity.getHearings()).hasSize(1);
+        assertThat(entity.getDefendants()).hasSize(1);
+        assertThat(entity.getDefendants().get(0).getDefendantId()).isNotNull();
+        assertThat(entity.getDefendants().get(0).getDefendantName()).isEqualTo(DEFENDANT_NAME);
+        assertThat(entity.getDefendants().get(0).getDateOfBirth()).isEqualTo(DEFENDANT_DOB);
     }
 }

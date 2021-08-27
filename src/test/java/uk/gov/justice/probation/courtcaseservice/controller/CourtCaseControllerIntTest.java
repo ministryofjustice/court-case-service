@@ -283,6 +283,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("courtCode", equalTo(COURT_CODE))
                 .body("sessionStartTime", equalTo(startTime))
                 .body("defendantName", equalTo("Mr Johnny BALL"))
+                .body("defendantId", equalTo("40db17d6-04db-11ec-b2d8-0242ac130002"))
                 .body("name.title", equalTo("Mr"))
                 .body("name.forename1", equalTo("Johnny"))
                 .body("name.forename2", equalTo("John"))
@@ -303,7 +304,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("numberOfPossibleMatches", equalTo(3))
             ;
         }
-
 
         @Test
         void shouldReturnNotFoundForNonexistentCase() {
@@ -327,7 +327,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             assertThat(result.getUserMessage()).contains("Case " + NOT_FOUND_CASE_NO + " not found");
             assertThat(result.getStatus()).isEqualTo(404);
         }
-
 
         @Test
         void shouldReturnNotFoundForDeletedCase() {
@@ -372,7 +371,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             assertThat(result.getStatus()).isEqualTo(404);
         }
     }
-
 
     @Nested
     class GetCasesExtended {

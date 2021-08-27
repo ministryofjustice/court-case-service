@@ -6,6 +6,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatu
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
@@ -42,6 +43,7 @@ class CourtCaseResponseMapperTest {
     private static final String ACT = "ACT";
     private static final String DEFENDANT_NAME = "DEFENDANT_NAME";
     private static final DefendantType DEFENDANT_TYPE = DefendantType.PERSON;
+    private static final String DEFENDANT_ID = "81cdaec1-d197-4a70-b2a8-beeabdd05d21";
     private static final String CRN = "CRN";
     private static final String PNC = "PNC";
     private static final String CRO = "CRO";
@@ -54,6 +56,7 @@ class CourtCaseResponseMapperTest {
     private static final LocalDateTime FIRST_CREATED = LocalDateTime.of(2020, 1, 1, 1, 1);
     private CourtCaseEntity courtCaseEntity;
     private List<OffenceEntity> offences;
+    private List<DefendantEntity> defendants;
     private final AddressPropertiesEntity addressPropertiesEntity = AddressPropertiesEntity.builder()
         .line1("27")
         .line2("Elm Place")
@@ -74,8 +77,19 @@ class CourtCaseResponseMapperTest {
             OffenceEntity.builder().offenceTitle(OFFENCE_TITLE).offenceSummary(OFFENCE_SUMMARY).act(ACT).sequenceNumber(1).build(),
             OffenceEntity.builder().offenceTitle(OFFENCE_TITLE + "2").offenceSummary(OFFENCE_SUMMARY + "2").act(ACT + "2").sequenceNumber(2).build()
         );
+        defendants = Arrays.asList(
+            DefendantEntity.builder().defendantName(DEFENDANT_NAME)
+                .name(namePropertiesEntity)
+                .sex(DEFENDANT_SEX)
+                .nationality1(NATIONALITY_1)
+                .nationality2(NATIONALITY_2)
+                .dateOfBirth(DEFENDANT_DOB)
+                .pnc(PNC)
+                .defendantId(DEFENDANT_ID)
+                .build()
+        );
         matchGroups = buildMatchGroups();
-        courtCaseEntity = buildCourtCaseEntity(offences, FIRST_CREATED);
+        courtCaseEntity = buildCourtCaseEntity(offences, defendants, FIRST_CREATED);
     }
 
     @Test
@@ -93,6 +107,7 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getPreSentenceActivity()).isEqualTo(PRE_SENTENCE_ACTIVITY);
         assertThat(courtCaseResponse.getDefendantName()).isEqualTo(DEFENDANT_NAME);
         assertThat(courtCaseResponse.getDefendantType()).isEqualTo(DEFENDANT_TYPE);
+        assertThat(courtCaseResponse.getDefendantId()).isEqualTo(DEFENDANT_ID);
         assertThat(courtCaseResponse.getDefendantAddress()).isEqualTo(addressPropertiesEntity);
         assertThat(courtCaseResponse.getName()).isEqualTo(namePropertiesEntity);
         assertThat(courtCaseResponse.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
@@ -112,7 +127,7 @@ class CourtCaseResponseMapperTest {
 
     @Test
     void shouldSetCreatedTodayToTrueIfCreatedToday() {
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(buildCourtCaseEntity(offences, LocalDateTime.now()), 1);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(buildCourtCaseEntity(offences, defendants, LocalDateTime.now()), 1);
         assertThat(courtCaseResponse.isCreatedToday()).isTrue();
     }
 
@@ -143,7 +158,7 @@ class CourtCaseResponseMapperTest {
             .collect(Collectors.toList());
         Collections.reverse(reorderedOffences);
 
-        var reorderedCourtCaseEntity = buildCourtCaseEntity(reorderedOffences, FIRST_CREATED);
+        var reorderedCourtCaseEntity = buildCourtCaseEntity(reorderedOffences, defendants, FIRST_CREATED);
 
         var courtCaseResponse = CourtCaseResponseMapper.mapFrom(reorderedCourtCaseEntity, 1);
 
@@ -152,7 +167,11 @@ class CourtCaseResponseMapperTest {
 
         var secondOffence = courtCaseResponse.getOffences().get(1);
         assertThat(secondOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE + "2");
+    }
 
+    @Test
+    void whenNoDefendants_thenGetFirstDefendantId() {
+        assertThat(CourtCaseResponseMapper.getDefendantId(null)).isNull();
     }
 
     private GroupedOffenderMatchesEntity buildMatchGroups() {
@@ -168,7 +187,7 @@ class CourtCaseResponseMapperTest {
                         .build();
     }
 
-    private CourtCaseEntity buildCourtCaseEntity(List<OffenceEntity> offences, LocalDateTime firstCreated) {
+    private CourtCaseEntity buildCourtCaseEntity(List<OffenceEntity> offences, List<DefendantEntity> defendants, LocalDateTime firstCreated) {
         return CourtCaseEntity.builder()
             .id(ID)
             .pnc(PNC)
@@ -196,6 +215,7 @@ class CourtCaseResponseMapperTest {
             .created(CREATED)
             .offences(offences)
             .firstCreated(firstCreated)
+            .defendants(defendants)
             .awaitingPsr(true)
             .build();
     }

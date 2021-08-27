@@ -83,6 +83,7 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "PRE_SENTENCE_ACTIVITY", nullable = false)
     private final Boolean preSentenceActivity;
 
+    @ToString.Exclude
     @JsonManagedReference
     @OneToMany(mappedBy = "courtCase", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval=true)
     private final List<OffenceEntity> offences;
@@ -90,11 +91,14 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     // If you have more than one collection with fetch = FetchType.EAGER then there is an exception
     // org.hibernate.loader.MultipleBagFetchException: cannot simultaneously fetch multiple bags
     // After CP integration, we will need to look at session boundaries @LazyCollection is one solution
+    @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
     @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, orphanRemoval=true)
     private final List<HearingEntity> hearings;
 
+    @ToString.Exclude
+    @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
     @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, orphanRemoval=true)
     private final List<DefendantEntity> defendants;

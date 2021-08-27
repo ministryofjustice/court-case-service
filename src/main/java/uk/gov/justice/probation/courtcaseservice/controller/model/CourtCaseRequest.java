@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -44,6 +45,7 @@ public class CourtCaseRequest {
     private final LocalDate defendantDob;
     private final String defendantSex;
     private final DefendantType defendantType;
+    private final String defendantId;
     private final String crn;
     private final String pnc;
     private final String cro;
@@ -153,6 +155,7 @@ public class CourtCaseRequest {
             .nationality2(nationality2)
             .name(name)
             .sex(defendantSex)
+            .defendantId(Optional.ofNullable(defendantId).orElse(UUID.randomUUID().toString()))
             .crn(crn)
             .cro(cro)
             .pnc(pnc)

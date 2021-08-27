@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
@@ -123,11 +124,11 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .body("listNo", equalTo(LIST_NO))
                 .body("defendantDob", equalTo(LocalDate.of(1958, 12, 14).format(DateTimeFormatter.ISO_LOCAL_DATE)))
                 .body("defendantSex", equalTo(DEFENDANT_SEX))
+                .body("defendantId", notNullValue())
                 .body("nationality1", equalTo(NATIONALITY_1))
                 .body("nationality2", equalTo(NATIONALITY_2))
                 .body("awaitingPsr", equalTo(true))
             ;
-
         }
 
         @Test
@@ -154,6 +155,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .body("listNo", equalTo(LIST_NO))
                 .body("defendantDob", equalTo(LocalDate.of(1958, 12, 14).format(DateTimeFormatter.ISO_LOCAL_DATE)))
                 .body("defendantSex", equalTo(DEFENDANT_SEX))
+                .body("defendantId", notNullValue())
                 .body("nationality1", equalTo(NATIONALITY_1))
                 .body("nationality2", equalTo(NATIONALITY_2))
                 .body("courtRoom", equalTo("2"))

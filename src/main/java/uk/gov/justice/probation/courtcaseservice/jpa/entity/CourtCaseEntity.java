@@ -142,6 +142,10 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "NATIONALITY_2")
     private final String nationality2;
 
+    @Column(name = "SOURCE_TYPE")
+    @Enumerated(EnumType.STRING)
+    private final SourceType sourceType;
+
     @Column(name = "AWAITING_PSR")
     private final Boolean awaitingPsr;
 

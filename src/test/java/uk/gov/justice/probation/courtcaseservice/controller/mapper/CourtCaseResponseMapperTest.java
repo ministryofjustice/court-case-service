@@ -12,6 +12,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -69,7 +70,6 @@ class CourtCaseResponseMapperTest {
         .forename3("Stapp")
         .surname("Earp")
         .build();
-    private GroupedOffenderMatchesEntity matchGroups;
 
     @BeforeEach
     void setUp() {
@@ -88,7 +88,7 @@ class CourtCaseResponseMapperTest {
                 .defendantId(DEFENDANT_ID)
                 .build()
         );
-        matchGroups = buildMatchGroups();
+        GroupedOffenderMatchesEntity matchGroups = buildMatchGroups();
         courtCaseEntity = buildCourtCaseEntity(offences, defendants, FIRST_CREATED);
     }
 
@@ -116,6 +116,7 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getPnc()).isEqualTo(PNC);
         assertThat(courtCaseResponse.getCro()).isEqualTo(CRO);
         assertThat(courtCaseResponse.getListNo()).isEqualTo(LIST_NO);
+        assertThat(courtCaseResponse.getSource()).isEqualTo(SourceType.COMMON_PLATFORM.name());
         assertThat(courtCaseResponse.getDefendantDob()).isEqualTo(DEFENDANT_DOB);
         assertThat(courtCaseResponse.getDefendantSex()).isEqualTo(DEFENDANT_SEX);
         assertThat(courtCaseResponse.getNationality1()).isEqualTo(NATIONALITY_1);
@@ -196,6 +197,7 @@ class CourtCaseResponseMapperTest {
             .suspendedSentenceOrder(SUSPENDED_SENTENCE_ORDER)
             .sessionStartTime(SESSION_START_TIME)
             .probationStatus(PROBATION_STATUS_NOT_SENTENCED)
+            .sourceType(SourceType.COMMON_PLATFORM)
             .nationality2(NATIONALITY_2)
             .nationality1(NATIONALITY_1)
             .listNo(LIST_NO)

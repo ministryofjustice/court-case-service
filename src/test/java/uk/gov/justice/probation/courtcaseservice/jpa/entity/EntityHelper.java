@@ -35,6 +35,7 @@ public class EntityHelper {
     public static final String PROBATION_STATUS = "Previously known";
     public static final String NATIONALITY_1 = "British";
     public static final String NATIONALITY_2 = "Polish";
+    public static final SourceType SOURCE = SourceType.COMMON_PLATFORM;
 
     public static final String OFFENCE_TITLE = "OFFENCE TITLE";
     public static final String OFFENCE_SUMMARY = "OFFENCE SUMMARY";
@@ -130,6 +131,7 @@ public class EntityHelper {
             .nationality1(NATIONALITY_1)
             .nationality2(NATIONALITY_2)
             .awaitingPsr(AWAITING_PSR)
+            .sourceType(SOURCE)
             .deleted(false)
             .firstCreated(LocalDateTime.now())
             .offences(List.of(anOffence()));

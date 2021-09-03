@@ -24,6 +24,7 @@ public class CourtCaseResponseMapper {
             .crn(courtCaseEntity.getCrn())
             .pnc(courtCaseEntity.getPnc())
             .cro(courtCaseEntity.getCro())
+            .source(courtCaseEntity.getSourceType().name())
             .listNo(courtCaseEntity.getListNo())
             .courtRoom(courtCaseEntity.getCourtRoom())
             .courtCode(courtCaseEntity.getCourtCode())

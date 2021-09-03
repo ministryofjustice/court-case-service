@@ -30,6 +30,7 @@ public class CourtCaseMapper {
             .previouslyKnownTerminationDate(courtCaseEntity.getPreviouslyKnownTerminationDate())
             .probationStatus(updatedProbationStatus)
             .sessionStartTime(courtCaseEntity.getSessionStartTime())
+            .sourceType(courtCaseEntity.getSourceType())
             .suspendedSentenceOrder(courtCaseEntity.getSuspendedSentenceOrder())
             .offences(courtCaseEntity.getOffences()
                             .stream()

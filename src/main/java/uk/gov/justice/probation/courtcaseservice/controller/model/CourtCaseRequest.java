@@ -13,6 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,10 +29,12 @@ import java.util.stream.IntStream;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor
 public class CourtCaseRequest {
+    static final SourceType DEFAULT_SOURCE = SourceType.LIBRA;
     private final String caseId;
     private final String caseNo;
     private final String courtCode;
     private final String courtRoom;
+    private final String source;
     private final LocalDateTime sessionStartTime;
     private final String probationStatus;
     private final LocalDate previouslyKnownTerminationDate;
@@ -85,6 +88,7 @@ public class CourtCaseRequest {
                 .caseNo(caseNo)
                 .courtCode(courtCode)
                 .courtRoom(courtRoom)
+                .sourceType(SourceType.valueOf(Optional.ofNullable(source).orElse(DEFAULT_SOURCE.name())))
                 .sessionStartTime(sessionStartTime)
                 .probationStatus(probationStatus)
                 .previouslyKnownTerminationDate(previouslyKnownTerminationDate)

@@ -100,6 +100,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .body("crn", equalTo(CRN))
                 .body("courtCode", equalTo(COURT_CODE))
                 .body("courtRoom", equalTo(COURT_ROOM))
+                .body("source", equalTo("LIBRA"))
                 .body("probationStatus", equalTo(PROBATION_STATUS))
                 .body("sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2018, 6, 24).format(DateTimeFormatter.ISO_LOCAL_DATE)))

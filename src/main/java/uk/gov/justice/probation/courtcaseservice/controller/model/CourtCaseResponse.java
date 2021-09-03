@@ -36,6 +36,7 @@ public class CourtCaseResponse {
     private final String listNo;
     private final String courtCode;
     private final String courtRoom;
+    private final String source;
     private final LocalDateTime sessionStartTime;
     private final CourtSession session;
     private final ProbationStatus probationStatus;

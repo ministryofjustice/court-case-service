@@ -36,3 +36,12 @@ pactbroker:
   scheme: https
   consumerversionselectors:
     tags: main
+
+# This adds bind parameters to SQL trace
+#logging:
+#  level:
+#    org:
+#      hibernate:
+#        type:
+#          descriptor:
+#            sql: trace

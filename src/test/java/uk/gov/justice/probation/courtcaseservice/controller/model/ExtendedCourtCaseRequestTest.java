@@ -8,6 +8,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEnt
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequest.DEFAULT_SOURCE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
@@ -173,6 +174,7 @@ class ExtendedCourtCaseRequestTest {
         assertThat(courtCaseEntity.getDefendants()).hasSize(0);
         assertThat(courtCaseEntity.getCaseNo()).isEqualTo(CASE_NO);
         assertThat(courtCaseEntity.getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(courtCaseEntity.getSourceType()).isEqualTo(DEFAULT_SOURCE);
     }
 
 }

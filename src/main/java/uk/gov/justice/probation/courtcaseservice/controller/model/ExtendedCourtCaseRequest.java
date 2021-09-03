@@ -11,6 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,9 +24,11 @@ import java.util.stream.IntStream;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor
 public class ExtendedCourtCaseRequest {
+    static final SourceType DEFAULT_SOURCE = SourceType.COMMON_PLATFORM;
     private final String caseNo;
     private final String caseId;
     private final String courtCode;
+    private final String source;
     private final List<HearingDay> hearingDays;
     private final List<Defendant> defendants;
 
@@ -48,6 +51,7 @@ public class ExtendedCourtCaseRequest {
             .caseNo(caseNo)
             .courtCode(courtCode)
             .caseId(caseId)
+            .sourceType(SourceType.valueOf(Optional.ofNullable(source).orElse(DEFAULT_SOURCE.name())))
             .build();
 
         hearingDayEntities.forEach(hearingEntity -> hearingEntity.setCourtCase(courtCaseEntity));

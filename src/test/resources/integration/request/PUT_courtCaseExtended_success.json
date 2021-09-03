@@ -37,6 +37,7 @@
       "breach": true,
       "preSentenceActivity": true,
       "awaitingPsr": true,
+      "source": "COMMON_PLATFORM",
       "offences": [
         {
           "offenceTitle": "Theft from a shop",

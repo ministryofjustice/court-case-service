@@ -6,6 +6,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -39,6 +40,7 @@ class CourtCaseRequestTest {
                                                             .caseNo("CASE_NO")
                                                             .courtCode("COURT_CODE")
                                                             .courtRoom("COURT_ROOM")
+                                                            .source("LIBRA")
                                                             .sessionStartTime(SESSION_START_TIME)
                                                             .probationStatus(PROBATION_STATUS)
                                                             .previouslyKnownTerminationDate(TERMINATION_DATE)
@@ -72,6 +74,7 @@ class CourtCaseRequestTest {
         assertThat(entity.getCaseNo()).isEqualTo("CASE_NO");
         assertThat(entity.getCourtCode()).isEqualTo("COURT_CODE");
         assertThat(entity.getCourtRoom()).isEqualTo("COURT_ROOM");
+        assertThat(entity.getSourceType()).isSameAs(SourceType.LIBRA);
         assertThat(entity.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
         assertThat(entity.getProbationStatus()).isEqualTo(PROBATION_STATUS);
         assertThat(entity.getPreviouslyKnownTerminationDate()).isEqualTo(TERMINATION_DATE);
@@ -165,6 +168,7 @@ class CourtCaseRequestTest {
         assertThat(entity.getCaseNo()).isEqualTo("CASE_NO");
         assertThat(entity.getCourtCode()).isEqualTo("COURT_CODE");
         assertThat(entity.getCourtRoom()).isEqualTo("COURT_ROOM");
+        assertThat(entity.getSourceType()).isSameAs(SourceType.LIBRA);
         assertThat(entity.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
         assertThat(entity.getProbationStatus()).isEqualTo("PROBATION_STATUS");
 

@@ -1,16 +1,13 @@
 package uk.gov.justice.probation.courtcaseservice.pact;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
 import au.com.dius.pact.provider.junit5.HttpTestTarget;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
+import au.com.dius.pact.provider.junitsupport.loader.VersionSelector;
 import au.com.dius.pact.provider.spring.junit5.PactVerificationSpringProvider;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,16 +18,21 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffende
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @Provider("court-case-service")
-@PactBroker
-@Disabled
+@PactBroker(consumerVersionSelectors = @VersionSelector(consumer = "court-case-matcher"))
 @ActiveProfiles("unsecured")
 class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
 
@@ -77,7 +79,14 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
             .suspendedSentenceOrder(true)
             .sessionStartTime(LocalDateTime.now())
             .defendantSex("M")
+            .sourceType(SourceType.LIBRA)
             .build();
         when(courtCaseService.getCaseByCaseNumber("B10JQ", "1600028913")).thenReturn(courtCaseEntity);
+    }
+
+    @State({"a case will be PUT by id"})
+    void getMinimalCourtCaseById() {
+        final Mono<CourtCaseEntity> caseMono = Mono.just(EntityHelper.aCourtCaseEntity("X340741", "1600028914"));
+        when(courtCaseService.createCase(anyString() ,any(CourtCaseEntity.class))).thenReturn(caseMono);
     }
 }

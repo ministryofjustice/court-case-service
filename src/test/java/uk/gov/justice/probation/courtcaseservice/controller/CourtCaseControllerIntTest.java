@@ -1,14 +1,17 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Nested;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
+import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -38,12 +41,20 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
     @Autowired
     CourtCaseRepository courtCaseRepository;
 
+    @Autowired
+    CourtCaseService courtCaseService;
+
     private static final String CASE_NO = "1600028913";
     private static final String PROBATION_STATUS = "Possible NDelius record";
     private static final String NOT_FOUND_COURT_CODE = "LPL";
 
     @Nested
     class GetCasesCaseNo {
+
+        @BeforeEach
+        void beforeEach() {
+            ReflectionTestUtils.setField(courtCaseService, "caseListExtended", false);
+        }
 
         @Test
         void GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnAllCases() {
@@ -376,8 +387,12 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
     @Nested
     class GetCasesExtended {
 
-        private static final String BASE_PATH_WITH_DATE = "/court/%s/cases/extended?date=%s";
-        private static final String BASE_PATH = "/court/%s/cases/extended";
+        private static final String BASE_PATH_WITH_DATE = "/court/%s/cases?date=%s";
+
+        @BeforeEach
+        void beforeEach() {
+            ReflectionTestUtils.setField(courtCaseService, "caseListExtended", true);
+        }
 
         @Test
         void GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnAllCases() {
@@ -420,157 +435,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[5].createdToday", equalTo(false));
         }
 
-        @Test
-        void givenLastModifiedRecent_whenRequestCases_thenReturnLastModifiedHeader() {
-
-            given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .get("/court/{courtCode}/cases/extended?date={date}", LAST_MODIFIED_COURT_CODE, LocalDate.of(2021, 6, 1).format(DateTimeFormatter.ISO_DATE))
-                .then()
-                .assertThat()
-                .statusCode(200)
-                .header("Last-Modified", equalTo("Tue, 01 Jun 2021 16:59:59 GMT"))
-                .header("Cache-Control", equalTo("max-age=1"))
-            ;
-        }
-
-        @Test
-        void givenNoDataChange_whenGetCases_thenReturn304() {
-
-            given()
-                .auth()
-                .oauth2(getToken())
-                .header(HttpHeaders.IF_UNMODIFIED_SINCE, "Tue, 04 Feb 1970 19:57:25 GMT")
-                .when()
-                .get("/court/{courtCode}/cases/extended?date={date}", LAST_MODIFIED_COURT_CODE, LocalDate.of(2021, 6, 1).format(DateTimeFormatter.ISO_DATE))
-                .then()
-                .assertThat()
-                .statusCode(304)
-                .header("Cache-Control", equalTo("max-age=1"))
-            ;
-        }
-
-        @Test
-        void GET_cases_givenCreatedAfterFilterParam_whenGetCases_thenReturnCasesAfterSpecifiedTime() {
-
-            given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .get("/court/{courtCode}/cases/extended?date={date}&createdAfter=2020-10-01T16:59:58.999", COURT_CODE,
-                    LocalDate.of(2019, 12, 14).format(DateTimeFormatter.ISO_DATE))
-                .then()
-                .assertThat()
-                .statusCode(200)
-                .body("cases", hasSize(5))
-                .body("cases[0].caseNo", equalTo("1600028914"))
-                .body("cases[1].caseNo", equalTo("1600028913"))
-                .body("cases[2].caseNo", equalTo("1600028917"))
-                .body("cases[3].caseNo", equalTo("1600028915"))
-                .body("cases[4].caseNo", equalTo("1600028918"))
-            ;
-        }
-
-        @Test
-        void GET_cases_givenCreatedBeforeFilterParam_whenGetCases_thenReturnCasesCreatedUpTo8DaysBeforeListDate() {
-            given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .get("/court/{courtCode}/cases/extended?date={date}&createdBefore=2020-10-05T00:00:00", COURT_CODE,
-                    LocalDate.of(2020, 5, 01).format(DateTimeFormatter.ISO_DATE))
-                .then()
-                .assertThat()
-                .statusCode(200)
-                .body("cases", hasSize(1))
-                .body("cases[0].caseNo", equalTo("1600028930"))
-            ;
-        }
-
-        @Test
-        void GET_cases_givenCreatedBefore_andCreatedAfterFilterParams_whenGetCases_thenReturnCasesBetweenSpecifiedTimes() {
-
-            given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .get("/court/{courtCode}/cases/extended?date={date}&createdAfter=2020-09-01T16:59:59&createdBefore=2020-09-01T17:00:00",
-                    COURT_CODE, LocalDate.of(2019, 12, 14).format(DateTimeFormatter.ISO_DATE))
-                .then()
-                .assertThat()
-                .statusCode(200)
-                .body("cases", hasSize(1))
-                .body("cases[0].caseNo", equalTo("1600028916"))
-            ;
-        }
-
-        @Test
-        void GET_cases_givenCreatedBefore_andCreatedAfterFilterParams_andManualUpdatesHaveBeenMadeAfterTheseTimes_whenGetCases_thenReturnManualUpdates() {
-
-            given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .get("/court/B30NY/cases/extended?date={date}&createdAfter=2020-09-01T16:59:59&createdBefore=2020-09-01T17:00:00",
-                    LocalDate.of(2019, 12, 14).format(DateTimeFormatter.ISO_DATE))
-                .then()
-                .assertThat()
-                .statusCode(200)
-                .body("cases", hasSize(1))
-                .body("cases[0].caseNo", equalTo("1600028919"))
-                .body("cases[0].defendantName", equalTo("Hubert Farnsworth"))
-            ;
-        }
-
-        @Test
-        void GET_cases_shouldGetEmptyCaseListWhenNoCasesMatch() {
-            final var path = String.format(BASE_PATH_WITH_DATE, COURT_CODE, "2020-02-02");
-            given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .get(path)
-                .then()
-                .assertThat()
-                .statusCode(200)
-                .body("cases", empty());
-        }
-
-        @Test
-        void GET_cases_shouldReturn400BadRequestWhenNoDateProvided() {
-            final var path = String.format(BASE_PATH, COURT_CODE);
-            given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .get(path)
-                .then()
-                .assertThat()
-                .statusCode(400)
-                .body("developerMessage", equalTo("Required request parameter 'date' for method parameter type LocalDate is not present"));
-        }
-
-        @Test
-        void GET_cases_shouldReturn404NotFoundWhenCourtDoesNotExist() {
-            final var path = String.format(BASE_PATH_WITH_DATE, NOT_FOUND_COURT_CODE, "2020-02-02");
-            ErrorResponse result = given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .get(path)
-                .then()
-                .assertThat()
-                .statusCode(404)
-                .extract()
-                .body()
-                .as(ErrorResponse.class);
-
-            assertThat(result.getDeveloperMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
-            assertThat(result.getUserMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
-            assertThat(result.getStatus()).isEqualTo(404);
-        }
     }
 
 }

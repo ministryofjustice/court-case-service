@@ -36,13 +36,6 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private final GroupedOffenderMatchRepository matchRepository;
     private final boolean caseListExtended;
 
-    public ImmutableCourtCaseService(CourtRepository courtRepository,
-                                    CourtCaseRepository courtCaseRepository,
-                                    TelemetryService telemetryService,
-                                    GroupedOffenderMatchRepository matchRepository) {
-        this(courtRepository, courtCaseRepository, telemetryService, matchRepository, false);
-    }
-
     @Autowired
     public ImmutableCourtCaseService(CourtRepository courtRepository,
                                     CourtCaseRepository courtCaseRepository,

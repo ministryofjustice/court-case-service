@@ -114,7 +114,7 @@ task pactTestPublish(type: Test) {
     useJUnitPlatform ()
     filter {
         excludeTestsMatching '*IntTest'
-        includeTestsMatching '*PrepareACaseConsumerVerificationPactTest'
+        includeTestsMatching '*VerificationPactTest'
     }
 
     systemProperty("pact.provider.tag", System.getenv("PACT_PROVIDER_TAG"))

@@ -353,8 +353,8 @@ class ImmutableCourtCaseServiceTest {
 
     @ExtendWith(MockitoExtension.class)
     @Nested
-    @DisplayName("Tests for getCaseByCaseNumber")
-    class GetTest {
+    @DisplayName("Tests for getting case by case no or case id")
+    class GetCaseByCaseNoOrCaseIdTest {
 
         @Test
         void getCourtCaseShouldRetrieveCaseFromRepository() {
@@ -387,6 +387,28 @@ class ImmutableCourtCaseServiceTest {
             assertThat(exception).isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Court " + COURT_CODE + " not found");
         }
+
+        @Test
+        void givenExistingCaseId_getCourtCaseByCaseId_thenRetrieve() {
+            var caseEntityFromRepo = EntityHelper.aCourtCaseEntity(CRN);
+            when(courtCaseRepository.findByCaseId(CASE_ID)).thenReturn(Optional.of(caseEntityFromRepo));
+
+            var caseEntity = service.getCaseByCaseId(CASE_ID);
+            assertThat(caseEntity).isSameAs(caseEntityFromRepo);
+            verify(courtCaseRepository).findByCaseId(CASE_ID);
+        }
+
+        @Test
+        void givenNonExistentCaseId_whenGetCourtCaseByCaseId_thenThrow() {
+            when(courtCaseRepository.findByCaseId(CASE_ID)).thenReturn(Optional.empty());
+
+            var exception = catchThrowable(() ->
+                service.getCaseByCaseId(CASE_ID)
+            );
+            assertThat(exception).isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Case " + CASE_ID + " not found");
+        }
+
     }
 
     @ExtendWith(MockitoExtension.class)

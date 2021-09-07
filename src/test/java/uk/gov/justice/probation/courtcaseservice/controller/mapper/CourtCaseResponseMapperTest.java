@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
@@ -20,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,34 +98,14 @@ class CourtCaseResponseMapperTest {
     void shouldMapEntityToResponse() {
         var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 20);
 
-        assertThat(courtCaseResponse.getCaseId()).isEqualTo(CASE_ID);
-        assertThat(courtCaseResponse.getCaseNo()).isEqualTo(CASE_NO);
-        assertThat(courtCaseResponse.getCourtCode()).isEqualTo(COURT_CODE);
-        assertThat(courtCaseResponse.getCourtRoom()).isEqualTo(COURT_ROOM);
-        assertThat(courtCaseResponse.getPreviouslyKnownTerminationDate()).isEqualTo(PREVIOUSLY_KNOWN_TERMINATION_DATE);
-        assertThat(courtCaseResponse.getProbationStatus()).isSameAs(ProbationStatus.NOT_SENTENCED.getName());
-        assertThat(courtCaseResponse.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE_ORDER);
-        assertThat(courtCaseResponse.getBreach()).isEqualTo(BREACH);
-        assertThat(courtCaseResponse.getPreSentenceActivity()).isEqualTo(PRE_SENTENCE_ACTIVITY);
-        assertThat(courtCaseResponse.getDefendantName()).isEqualTo(DEFENDANT_NAME);
-        assertThat(courtCaseResponse.getDefendantType()).isEqualTo(DEFENDANT_TYPE);
-        assertThat(courtCaseResponse.getDefendantId()).isEqualTo(DEFENDANT_ID);
-        assertThat(courtCaseResponse.getDefendantAddress()).isEqualTo(addressPropertiesEntity);
-        assertThat(courtCaseResponse.getName()).isEqualTo(namePropertiesEntity);
-        assertThat(courtCaseResponse.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
-        assertThat(courtCaseResponse.getCrn()).isEqualTo(CRN);
-        assertThat(courtCaseResponse.getSession()).isEqualTo(SESSION);
-        assertThat(courtCaseResponse.getPnc()).isEqualTo(PNC);
-        assertThat(courtCaseResponse.getCro()).isEqualTo(CRO);
-        assertThat(courtCaseResponse.getListNo()).isEqualTo(LIST_NO);
-        assertThat(courtCaseResponse.getSource()).isEqualTo(SourceType.COMMON_PLATFORM.name());
-        assertThat(courtCaseResponse.getDefendantDob()).isEqualTo(DEFENDANT_DOB);
-        assertThat(courtCaseResponse.getDefendantSex()).isEqualTo(DEFENDANT_SEX);
-        assertThat(courtCaseResponse.getNationality1()).isEqualTo(NATIONALITY_1);
-        assertThat(courtCaseResponse.getNationality2()).isEqualTo(NATIONALITY_2);
-        assertThat(courtCaseResponse.isCreatedToday()).isFalse();
-        assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(20);
-        assertThat(courtCaseResponse.getAwaitingPsr()).isEqualTo(true);
+        assertCaseResponse(courtCaseResponse, CASE_NO);
+    }
+
+    @Test
+    void whenNoCaseNoRequired_shouldMapEntityToResponse() {
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 20, false);
+
+        assertCaseResponse(courtCaseResponse, null);
     }
 
     @Test
@@ -186,6 +168,39 @@ class CourtCaseResponseMapperTest {
                                         .build()
                         ))
                         .build();
+    }
+
+    private void assertCaseResponse(CourtCaseResponse courtCaseResponse, String caseNo) {
+        Optional.ofNullable(caseNo)
+            .ifPresentOrElse((c) -> assertThat(courtCaseResponse.getCaseNo()).isEqualTo(c), () -> assertThat(courtCaseResponse.getCaseNo()).isNull());
+
+        assertThat(courtCaseResponse.getCaseId()).isEqualTo(CASE_ID);
+        assertThat(courtCaseResponse.getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(courtCaseResponse.getCourtRoom()).isEqualTo(COURT_ROOM);
+        assertThat(courtCaseResponse.getPreviouslyKnownTerminationDate()).isEqualTo(PREVIOUSLY_KNOWN_TERMINATION_DATE);
+        assertThat(courtCaseResponse.getProbationStatus()).isSameAs(ProbationStatus.NOT_SENTENCED.getName());
+        assertThat(courtCaseResponse.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE_ORDER);
+        assertThat(courtCaseResponse.getBreach()).isEqualTo(BREACH);
+        assertThat(courtCaseResponse.getPreSentenceActivity()).isEqualTo(PRE_SENTENCE_ACTIVITY);
+        assertThat(courtCaseResponse.getDefendantName()).isEqualTo(DEFENDANT_NAME);
+        assertThat(courtCaseResponse.getDefendantType()).isEqualTo(DEFENDANT_TYPE);
+        assertThat(courtCaseResponse.getDefendantId()).isEqualTo(DEFENDANT_ID);
+        assertThat(courtCaseResponse.getDefendantAddress()).isEqualTo(addressPropertiesEntity);
+        assertThat(courtCaseResponse.getName()).isEqualTo(namePropertiesEntity);
+        assertThat(courtCaseResponse.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
+        assertThat(courtCaseResponse.getCrn()).isEqualTo(CRN);
+        assertThat(courtCaseResponse.getSession()).isEqualTo(SESSION);
+        assertThat(courtCaseResponse.getPnc()).isEqualTo(PNC);
+        assertThat(courtCaseResponse.getCro()).isEqualTo(CRO);
+        assertThat(courtCaseResponse.getListNo()).isEqualTo(LIST_NO);
+        assertThat(courtCaseResponse.getSource()).isEqualTo(SourceType.COMMON_PLATFORM.name());
+        assertThat(courtCaseResponse.getDefendantDob()).isEqualTo(DEFENDANT_DOB);
+        assertThat(courtCaseResponse.getDefendantSex()).isEqualTo(DEFENDANT_SEX);
+        assertThat(courtCaseResponse.getNationality1()).isEqualTo(NATIONALITY_1);
+        assertThat(courtCaseResponse.getNationality2()).isEqualTo(NATIONALITY_2);
+        assertThat(courtCaseResponse.isCreatedToday()).isFalse();
+        assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(20);
+        assertThat(courtCaseResponse.getAwaitingPsr()).isEqualTo(true);
     }
 
     private CourtCaseEntity buildCourtCaseEntity(List<OffenceEntity> offences, List<DefendantEntity> defendants, LocalDateTime firstCreated) {

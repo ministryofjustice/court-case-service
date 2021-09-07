@@ -17,10 +17,9 @@ import java.util.stream.Collectors;
 
 public class CourtCaseResponseMapper {
 
-    public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, int matchCount) {
-        return CourtCaseResponse.builder()
+    public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, int matchCount, boolean includeCaseNo) {
+        final var builder = CourtCaseResponse.builder()
             .caseId(courtCaseEntity.getCaseId())
-            .caseNo(courtCaseEntity.getCaseNo())
             .crn(courtCaseEntity.getCrn())
             .pnc(courtCaseEntity.getPnc())
             .cro(courtCaseEntity.getCro())
@@ -47,8 +46,15 @@ public class CourtCaseResponseMapper {
             .nationality2(courtCaseEntity.getNationality2())
             .createdToday(LocalDate.now().isEqual(Optional.ofNullable(courtCaseEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()))
             .numberOfPossibleMatches(matchCount)
-            .awaitingPsr(courtCaseEntity.getAwaitingPsr())
-            .build();
+            .awaitingPsr(courtCaseEntity.getAwaitingPsr());
+        if (includeCaseNo) {
+            builder.caseNo(courtCaseEntity.getCaseNo());
+        }
+        return builder.build();
+    }
+
+    public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, int matchCount) {
+        return mapFrom(courtCaseEntity, matchCount, true);
     }
 
     static String getDefendantId(List<DefendantEntity> defendantEntities) {

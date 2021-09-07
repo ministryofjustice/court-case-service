@@ -41,7 +41,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                                     CourtCaseRepository courtCaseRepository,
                                     TelemetryService telemetryService,
                                     GroupedOffenderMatchRepository matchRepository,
-                                    @Value("${feature.flags.case-list-extended}") boolean caseListExtended) {
+                                    @Value("${feature.flags.case-list-extended:false}") boolean caseListExtended) {
         this.courtRepository = courtRepository;
         this.courtCaseRepository = courtCaseRepository;
         this.telemetryService = telemetryService;

@@ -6,9 +6,9 @@ plugins {
     id 'org.springframework.boot' version '2.5.4'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'com.github.ben-manes.versions' version '0.39.0'
-    id "org.flywaydb.flyway" version "7.14.1"
+    id "org.flywaydb.flyway" version "7.15.0"
     id 'jacoco'
-    id "au.com.dius.pact" version "4.2.10"
+    id "au.com.dius.pact" version "4.2.11"
     id 'java-library'
 }
 
@@ -31,7 +31,7 @@ group = 'uk.gov.justice.probation'
 ext {
     swaggerVersion = '2.9.2'
     restAssuredVersion = '4.4.0'
-    pactVersion = '4.2.10'
+    pactVersion = '4.2.11'
 }
 
 def today = Instant.now()
@@ -114,7 +114,7 @@ task pactTestPublish(type: Test) {
     useJUnitPlatform ()
     filter {
         excludeTestsMatching '*IntTest'
-        includeTestsMatching '*PrepareACaseConsumerVerificationPactTest'
+        includeTestsMatching '*VerificationPactTest'
     }
 
     systemProperty("pact.provider.tag", System.getenv("PACT_PROVIDER_TAG"))
@@ -204,11 +204,11 @@ dependencies {
         because "Transitive dependency. Latest version of RestAssured incompatible with v2 of Groovy brought in by Spring"
     }
 
-    testImplementation("org.codehaus.groovy:groovy-json:3.0.8") {
+    testImplementation("org.codehaus.groovy:groovy-json:3.0.9") {
         because "Transitive dependency. Latest version of RestAssured incompatible with v2 of Groovy brought in by Spring"
     }
 
-    testImplementation("org.codehaus.groovy:groovy-xml:3.0.8") {
+    testImplementation("org.codehaus.groovy:groovy-xml:3.0.9") {
         because "Transitive dependency. Latest version of RestAssured incompatible with v2 of Groovy brought in by Spring"
     }
 

@@ -140,6 +140,13 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     @Override
+    public CourtCaseEntity getCaseByCaseId(String caseId) throws EntityNotFoundException {
+        log.info("Court case requested for case ID {}", caseId);
+        return courtCaseRepository.findByCaseId(caseId)
+            .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found", caseId)));
+    }
+
+    @Override
     public List<CourtCaseEntity> filterCases(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
         final var court = courtRepository.findByCourtCode(courtCode)
             .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));

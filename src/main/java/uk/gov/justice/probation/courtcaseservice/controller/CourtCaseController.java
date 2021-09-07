@@ -53,6 +53,21 @@ public class CourtCaseController {
     private final CourtCaseService courtCaseService;
     private final OffenderMatchService offenderMatchService;
 
+    @ApiOperation(value = "Gets the court case data by case id.")
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Not Found. For example if the court code or case number can't be matched.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+        })
+    @GetMapping(value = "/case/{caseId}", produces = APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    CourtCaseResponse getCourtCase(@PathVariable String caseId) {
+        return buildCourtCaseResponseNoCaseNo(courtCaseService.getCaseByCaseId(caseId), false);
+    }
+
     @ApiOperation(value = "Gets the court case data by case number.")
     @ApiResponses(
             value = {
@@ -105,7 +120,7 @@ public class CourtCaseController {
     Mono<ExtendedCourtCaseRequest> updateCourtCaseId(@PathVariable(value = "caseId") String caseId,
                                                      @Valid @RequestBody ExtendedCourtCaseRequest courtCaseRequest) {
         return courtCaseService.createCase(caseId, courtCaseRequest.asCourtCaseEntity())
-            .map(courtCaseEntity -> courtCaseRequest);
+            .thenReturn(courtCaseRequest);
     }
 
     @ApiOperation(value = "Gets case data for a court on a date. ",
@@ -166,9 +181,13 @@ public class CourtCaseController {
     }
 
     private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity) {
-        final var offenderMatchesCount = offenderMatchService.getMatchCount(courtCaseEntity.getCourtCode(), courtCaseEntity.getCaseNo())
-                .orElse(0);
+        return buildCourtCaseResponseNoCaseNo(courtCaseEntity, true);
+    }
 
-        return CourtCaseResponseMapper.mapFrom(courtCaseEntity, offenderMatchesCount);
+    private CourtCaseResponse buildCourtCaseResponseNoCaseNo(CourtCaseEntity courtCaseEntity, boolean includeCaseNo) {
+        final var offenderMatchesCount = offenderMatchService.getMatchCount(courtCaseEntity.getCourtCode(), courtCaseEntity.getCaseNo())
+            .orElse(0);
+
+        return CourtCaseResponseMapper.mapFrom(courtCaseEntity, offenderMatchesCount, includeCaseNo);
     }
 }

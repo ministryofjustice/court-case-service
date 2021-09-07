@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface CourtCaseService {
     CourtCaseEntity getCaseByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException;
 
+    CourtCaseEntity getCaseByCaseId(String caseId) throws EntityNotFoundException;
+
     Mono<CourtCaseEntity> createCase(String caseId, CourtCaseEntity updatedCase)
         throws EntityNotFoundException, InputMismatchException;
 
@@ -24,4 +26,5 @@ public interface CourtCaseService {
     Optional<LocalDateTime> filterCasesLastModified(String courtCode, LocalDate date);
 
     Optional<LocalDateTime> findLastModifiedByHearingDay(String courtCode, LocalDate date);
+
 }

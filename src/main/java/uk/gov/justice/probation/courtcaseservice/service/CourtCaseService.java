@@ -21,9 +21,7 @@ public interface CourtCaseService {
     Mono<CourtCaseEntity> createCase(String courtCode, String caseNo, CourtCaseEntity updatedCase)
         throws EntityNotFoundException, InputMismatchException;
 
-    List<CourtCaseEntity> filterCases(String courtCode, LocalDate date, LocalDateTime createdAfter, LocalDateTime createdBefore);
-
-    List<CourtCaseEntity> filterCasesByHearingDay(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore);
+    List<CourtCaseEntity> filterCases(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore);
 
     Optional<LocalDateTime> filterCasesLastModified(String courtCode, LocalDate date);
 

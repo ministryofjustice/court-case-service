@@ -1,7 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
@@ -24,13 +27,27 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class ImmutableCourtCaseService implements CourtCaseService {
 
     private final CourtRepository courtRepository;
     private final CourtCaseRepository courtCaseRepository;
     private final TelemetryService telemetryService;
     private final GroupedOffenderMatchRepository matchRepository;
+    private final boolean caseListExtended;
+
+    @Autowired
+    public ImmutableCourtCaseService(CourtRepository courtRepository,
+                                    CourtCaseRepository courtCaseRepository,
+                                    TelemetryService telemetryService,
+                                    GroupedOffenderMatchRepository matchRepository,
+                                    @Value("${feature.flags.case-list-extended}") boolean caseListExtended) {
+        this.courtRepository = courtRepository;
+        this.courtCaseRepository = courtCaseRepository;
+        this.telemetryService = telemetryService;
+        this.matchRepository = matchRepository;
+        this.caseListExtended = caseListExtended;
+    }
 
     @Override
     public Mono<CourtCaseEntity> createCase(String caseId, CourtCaseEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
@@ -130,20 +147,18 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     @Override
-    public List<CourtCaseEntity> filterCases(String courtCode, LocalDate date, LocalDateTime createdAfter, LocalDateTime createdBefore) {
+    public List<CourtCaseEntity> filterCases(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
         final var court = courtRepository.findByCourtCode(courtCode)
             .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
 
-        final var start = LocalDateTime.of(date, LocalTime.MIDNIGHT);
-        return courtCaseRepository.findByCourtCodeAndSessionStartTime(court.getCourtCode(), start, start.plusDays(1), createdAfter, createdBefore);
-    }
-
-    @Override
-    public List<CourtCaseEntity> filterCasesByHearingDay(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
-        final var court = courtRepository.findByCourtCode(courtCode)
-            .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
-
-        return courtCaseRepository.findByCourtCodeAndHearingDay(court.getCourtCode(), hearingDay, createdAfter, createdBefore);
+        if (caseListExtended) {
+            return courtCaseRepository.findByCourtCodeAndHearingDay(court.getCourtCode(), hearingDay, createdAfter, createdBefore);
+        }
+        else {
+            final var start = LocalDateTime.of(hearingDay, LocalTime.MIDNIGHT);
+            return courtCaseRepository.findByCourtCodeAndSessionStartTime(court.getCourtCode(), start, start.plusDays(1), createdAfter,
+                createdBefore);
+        }
     }
 
     private void validateEntity(String caseId, CourtCaseEntity updatedCase) {

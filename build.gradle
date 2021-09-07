@@ -204,11 +204,11 @@ dependencies {
         because "Transitive dependency. Latest version of RestAssured incompatible with v2 of Groovy brought in by Spring"
     }
 
-    testImplementation("org.codehaus.groovy:groovy-json:3.0.8") {
+    testImplementation("org.codehaus.groovy:groovy-json:3.0.9") {
         because "Transitive dependency. Latest version of RestAssured incompatible with v2 of Groovy brought in by Spring"
     }
 
-    testImplementation("org.codehaus.groovy:groovy-xml:3.0.8") {
+    testImplementation("org.codehaus.groovy:groovy-xml:3.0.9") {
         because "Transitive dependency. Latest version of RestAssured incompatible with v2 of Groovy brought in by Spring"
     }
 

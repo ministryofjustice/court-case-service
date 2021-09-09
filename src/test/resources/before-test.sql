@@ -30,10 +30,12 @@ VALUES (-1000001, -1000000, 'Theft from a different shop', 'On 01/01/2015 at own
 
 -- See CourtCaseControllerIntTest.GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnAllCases()
 -- These records are used to test edge cases when returning court case list for a given date (midnight to 1 second before midnight the next day)
-INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, source_type)
-VALUES (-1700028901, '1f93aa0a-7e46-4885-a1cb-f25a4be33a56', 1600028914, 'B10JQ', 1, '2019-12-14 00:00', 'NOT_SENTENCED', 'X320742','Mr Billy ZANE', now(), 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, source_type, list_no)
+VALUES (-1700029901, '1f93aa0a-7e46-4885-a1cb-f25a4be33a56', 1600028914, 'B10JQ', 1, '2019-12-14 07:00', 'NOT_SENTENCED', 'X320742','Mr Billy ZANE', now(), 'COMMON_PLATFORM', '3rd');
 INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-1700028901, -1700028901, 'B10JQ', 1, '2019-12-14', '00:00', '3rd');
+VALUES (-1700029901, -1700029901, 'B10JQ', 1, '2019-12-14', '07:00', '3rd');
+INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
+VALUES (-1700029902, -1700029901, 'B10JQ', 2, '2019-12-15', '13:00', '4th');
 
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, source_type)
 VALUES (-1700028902, '1f93aa0a-7e46-4885-a1cb-f25a4be33a57', 1600028915, 'B10JQ', 1, '2019-12-14 23:59:59', 'NO_RECORD', 'X320743', 'Mr Nicholas CAGE', now(), 'COMMON_PLATFORM');

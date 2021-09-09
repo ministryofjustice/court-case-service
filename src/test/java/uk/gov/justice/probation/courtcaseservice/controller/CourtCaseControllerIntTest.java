@@ -30,6 +30,7 @@ import static org.hamcrest.Matchers.not;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_ROOM;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
@@ -78,10 +79,11 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[0].caseNo", equalTo("1600028914"))
                 .body("cases[0].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
                 .body("cases[0].defendantType", equalTo("PERSON"))
-                .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(0, 0)).format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(7, 0)).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[0].createdToday", equalTo(true))
                 .body("cases[0].probationStatus", equalTo("Pre-sentence record"))
                 .body("cases[0].probationStatusActual", equalTo("NOT_SENTENCED"))
+                .body("cases[0].hearings", hasSize(2))
                 .body("cases[1].offences", hasSize(2))
                 .body("cases[1].caseNo", equalTo("1600028913"))
                 .body("cases[1].preSentenceActivity", equalTo(true))
@@ -492,10 +494,16 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[0].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
                 .body("cases[0].source", equalTo("COMMON_PLATFORM"))
                 .body("cases[0].defendantType", equalTo("PERSON"))
-                .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(0, 0)).format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(7, 0)).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[0].createdToday", equalTo(true))
                 .body("cases[0].probationStatus", equalTo("Pre-sentence record"))
                 .body("cases[0].probationStatusActual", equalTo("NOT_SENTENCED"))
+                .body("cases[0].hearings", hasSize(2))
+                .body("cases[0].hearings[0].courtCode", equalTo(COURT_CODE))
+                .body("cases[0].hearings[0].courtRoom", equalTo(COURT_ROOM))
+                .body("cases[0].hearings[0].listNo", equalTo("3rd"))
+                .body("cases[0].hearings[0].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(7, 0)).format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("cases[0].hearings[0].session", equalTo("MORNING"))
                 .body("cases[1].offences", hasSize(2))
                 .body("cases[1].caseNo", equalTo("1600028913"))
                 .body("cases[1].preSentenceActivity", equalTo(true))

@@ -10,6 +10,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
@@ -17,6 +18,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -39,7 +41,8 @@ class CourtCaseResponseMapperTest {
     private static final boolean BREACH = true;
     private static final boolean PRE_SENTENCE_ACTIVITY = true;
     private static final LocalDateTime CREATED = LocalDateTime.now();
-    private static final LocalDateTime SESSION_START_TIME = LocalDateTime.of(2020, 2, 25, 1, 0);
+    private static final LocalDate HEARING_DATE = LocalDate.of(2020, 2, 25);
+    private static final LocalDateTime SESSION_START_TIME = LocalDateTime.of(HEARING_DATE, LocalTime.of(9, 0));
     private static final LocalDate PREVIOUSLY_KNOWN_TERMINATION_DATE = LocalDate.of(2020, 2, 26);
     private static final String OFFENCE_TITLE = "OFFENCE_TITLE";
     private static final String OFFENCE_SUMMARY = "OFFENCE_SUMMARY";
@@ -60,6 +63,7 @@ class CourtCaseResponseMapperTest {
     private CourtCaseEntity courtCaseEntity;
     private List<OffenceEntity> offences;
     private List<DefendantEntity> defendants;
+    private List<HearingEntity> hearings;
     private final AddressPropertiesEntity addressPropertiesEntity = AddressPropertiesEntity.builder()
         .line1("27")
         .line2("Elm Place")
@@ -90,33 +94,51 @@ class CourtCaseResponseMapperTest {
                 .defendantId(DEFENDANT_ID)
                 .build()
         );
+
+        hearings = Arrays.asList(
+            HearingEntity.builder()
+                .hearingDay(HEARING_DATE)
+                .hearingTime(SESSION_START_TIME.toLocalTime())
+                .courtRoom(COURT_ROOM)
+                .courtCode(COURT_CODE)
+                .listNo(LIST_NO)
+                .build(),
+            HearingEntity.builder()
+                .hearingDay(HEARING_DATE.plusDays(1))
+                .hearingTime(SESSION_START_TIME.toLocalTime().plusHours(4))
+                .courtRoom("02")
+                .courtCode(COURT_CODE)
+                .listNo("91st")
+                .build()
+        );
+
         GroupedOffenderMatchesEntity matchGroups = buildMatchGroups();
-        courtCaseEntity = buildCourtCaseEntity(offences, defendants, FIRST_CREATED);
+        courtCaseEntity = buildCourtCaseEntity(offences, defendants, hearings, FIRST_CREATED);
     }
 
     @Test
     void shouldMapEntityToResponse() {
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 20);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 20, HEARING_DATE);
 
         assertCaseResponse(courtCaseResponse, CASE_NO);
     }
 
     @Test
     void whenNoCaseNoRequired_shouldMapEntityToResponse() {
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 20, false);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 20, false, HEARING_DATE);
 
         assertCaseResponse(courtCaseResponse, null);
     }
 
     @Test
     void shouldSetCreatedTodayToTrueIfCreatedToday() {
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(buildCourtCaseEntity(offences, defendants, LocalDateTime.now()), 1);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(buildCourtCaseEntity(offences, defendants, hearings, LocalDateTime.now()), 1, HEARING_DATE);
         assertThat(courtCaseResponse.isCreatedToday()).isTrue();
     }
 
     @Test
     void shouldMapOffencesToResponse() {
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 1);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 1, HEARING_DATE);
 
         assertThat(courtCaseResponse.getOffences().size()).isEqualTo(2);
 
@@ -125,7 +147,6 @@ class CourtCaseResponseMapperTest {
         assertThat(firstOffence.getAct()).isEqualTo(ACT);
         assertThat(firstOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE);
         assertThat(firstOffence.getOffenceSummary()).isEqualTo(OFFENCE_SUMMARY);
-
 
         var secondOffence = courtCaseResponse.getOffences().get(1);
 
@@ -141,9 +162,9 @@ class CourtCaseResponseMapperTest {
             .collect(Collectors.toList());
         Collections.reverse(reorderedOffences);
 
-        var reorderedCourtCaseEntity = buildCourtCaseEntity(reorderedOffences, defendants, FIRST_CREATED);
+        var reorderedCourtCaseEntity = buildCourtCaseEntity(reorderedOffences, defendants, hearings, FIRST_CREATED);
 
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(reorderedCourtCaseEntity, 1);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(reorderedCourtCaseEntity, 1, HEARING_DATE);
 
         var firstOffence = courtCaseResponse.getOffences().get(0);
         assertThat(firstOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE);
@@ -155,6 +176,33 @@ class CourtCaseResponseMapperTest {
     @Test
     void whenNoDefendants_thenGetFirstDefendantId() {
         assertThat(CourtCaseResponseMapper.getDefendantId(null)).isNull();
+    }
+
+    @Test
+    void givenRequestForAlternativeHearingDate_whenGetResponse_thenChooseHearingDetails() {
+
+        final var secondSessionStartTime = LocalDateTime.of(HEARING_DATE.plusDays(1), LocalTime.of(13, 0));
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 1, secondSessionStartTime.toLocalDate());
+
+        assertThat(courtCaseResponse.getHearings()).hasSize(2);
+        assertThat(courtCaseResponse.getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(courtCaseResponse.getCourtRoom()).isEqualTo("02");
+        assertThat(courtCaseResponse.getListNo()).isEqualTo("91st");
+        assertThat(courtCaseResponse.getSessionStartTime()).isEqualTo(secondSessionStartTime);
+        assertThat(courtCaseResponse.getSession()).isSameAs(CourtSession.AFTERNOON);
+    }
+
+    @Test
+    void givenRequestForNoHearingDate_whenGetResponse_thenChooseFirstHearingDetails() {
+
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 1, null);
+
+        assertThat(courtCaseResponse.getHearings()).hasSize(2);
+        assertThat(courtCaseResponse.getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(courtCaseResponse.getCourtRoom()).isEqualTo(COURT_ROOM);
+        assertThat(courtCaseResponse.getListNo()).isEqualTo(LIST_NO);
+        assertThat(courtCaseResponse.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
+        assertThat(courtCaseResponse.getSession()).isSameAs(CourtSession.MORNING);
     }
 
     private GroupedOffenderMatchesEntity buildMatchGroups() {
@@ -175,8 +223,13 @@ class CourtCaseResponseMapperTest {
             .ifPresentOrElse((c) -> assertThat(courtCaseResponse.getCaseNo()).isEqualTo(c), () -> assertThat(courtCaseResponse.getCaseNo()).isNull());
 
         assertThat(courtCaseResponse.getCaseId()).isEqualTo(CASE_ID);
+        // Hearing-based fields
         assertThat(courtCaseResponse.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCaseResponse.getCourtRoom()).isEqualTo(COURT_ROOM);
+        assertThat(courtCaseResponse.getListNo()).isEqualTo(LIST_NO);
+        assertThat(courtCaseResponse.getSession()).isEqualTo(SESSION);
+        assertThat(courtCaseResponse.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
+        assertThat(courtCaseResponse.getHearings()).hasSize(2);
         assertThat(courtCaseResponse.getPreviouslyKnownTerminationDate()).isEqualTo(PREVIOUSLY_KNOWN_TERMINATION_DATE);
         assertThat(courtCaseResponse.getProbationStatus()).isSameAs(ProbationStatus.NOT_SENTENCED.getName());
         assertThat(courtCaseResponse.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE_ORDER);
@@ -187,12 +240,9 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getDefendantId()).isEqualTo(DEFENDANT_ID);
         assertThat(courtCaseResponse.getDefendantAddress()).isEqualTo(addressPropertiesEntity);
         assertThat(courtCaseResponse.getName()).isEqualTo(namePropertiesEntity);
-        assertThat(courtCaseResponse.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
         assertThat(courtCaseResponse.getCrn()).isEqualTo(CRN);
-        assertThat(courtCaseResponse.getSession()).isEqualTo(SESSION);
         assertThat(courtCaseResponse.getPnc()).isEqualTo(PNC);
         assertThat(courtCaseResponse.getCro()).isEqualTo(CRO);
-        assertThat(courtCaseResponse.getListNo()).isEqualTo(LIST_NO);
         assertThat(courtCaseResponse.getSource()).isEqualTo(SourceType.COMMON_PLATFORM.name());
         assertThat(courtCaseResponse.getDefendantDob()).isEqualTo(DEFENDANT_DOB);
         assertThat(courtCaseResponse.getDefendantSex()).isEqualTo(DEFENDANT_SEX);
@@ -203,7 +253,9 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getAwaitingPsr()).isEqualTo(true);
     }
 
-    private CourtCaseEntity buildCourtCaseEntity(List<OffenceEntity> offences, List<DefendantEntity> defendants, LocalDateTime firstCreated) {
+    private CourtCaseEntity buildCourtCaseEntity(List<OffenceEntity> offences, List<DefendantEntity> defendants, List<HearingEntity> hearings, LocalDateTime firstCreated) {
+
+
         return CourtCaseEntity.builder()
             .id(ID)
             .pnc(PNC)
@@ -234,6 +286,7 @@ class CourtCaseResponseMapperTest {
             .firstCreated(firstCreated)
             .defendants(defendants)
             .awaitingPsr(true)
+            .hearings(hearings)
             .build();
     }
 }

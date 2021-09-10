@@ -65,7 +65,7 @@ public class CourtCaseController {
     @GetMapping(value = "/case/{caseId}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCase(@PathVariable String caseId) {
-        return buildCourtCaseResponseNoCaseNo(courtCaseService.getCaseByCaseId(caseId), false);
+        return this.buildCourtCaseResponse(courtCaseService.getCaseByCaseId(caseId), false);
     }
 
     @ApiOperation(value = "Gets the court case data by case number.")
@@ -171,7 +171,7 @@ public class CourtCaseController {
                 .sorted(Comparator.comparing(CourtCaseEntity::getCourtRoom)
                         .thenComparing(CourtCaseEntity::getSessionStartTime)
                         .thenComparing(CourtCaseEntity::getDefendantSurname))
-                .map(this::buildCourtCaseResponse)
+                .map(courtCaseEntity -> buildCourtCaseResponse(courtCaseEntity, date))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok()
@@ -181,13 +181,21 @@ public class CourtCaseController {
     }
 
     private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity) {
-        return buildCourtCaseResponseNoCaseNo(courtCaseEntity, true);
+        return buildCourtCaseResponse(courtCaseEntity, true, null);
     }
 
-    private CourtCaseResponse buildCourtCaseResponseNoCaseNo(CourtCaseEntity courtCaseEntity, boolean includeCaseNo) {
+    private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity, boolean includeCaseNo) {
+        return buildCourtCaseResponse(courtCaseEntity, false, null);
+    }
+
+    private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity, LocalDate hearingDate) {
+        return buildCourtCaseResponse(courtCaseEntity, true, hearingDate);
+    }
+
+    private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity, boolean includeCaseNo, LocalDate hearingDate) {
         final var offenderMatchesCount = offenderMatchService.getMatchCount(courtCaseEntity.getCourtCode(), courtCaseEntity.getCaseNo())
             .orElse(0);
 
-        return CourtCaseResponseMapper.mapFrom(courtCaseEntity, offenderMatchesCount, includeCaseNo);
+        return CourtCaseResponseMapper.mapFrom(courtCaseEntity, offenderMatchesCount, includeCaseNo, hearingDate);
     }
 }

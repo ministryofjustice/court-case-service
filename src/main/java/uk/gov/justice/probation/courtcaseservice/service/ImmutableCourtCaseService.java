@@ -1,5 +1,12 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,14 +23,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.CourtCaseMapper;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -156,8 +155,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         }
         else {
             final var start = LocalDateTime.of(hearingDay, LocalTime.MIDNIGHT);
-            return courtCaseRepository.findByCourtCodeAndSessionStartTime(court.getCourtCode(), start, start.plusDays(1), createdAfter,
-                createdBefore);
+            return courtCaseRepository.findByCourtCodeAndSessionStartTime(court.getCourtCode(), start, start.plusDays(1), createdAfter, createdBefore);
         }
     }
 
@@ -227,4 +225,5 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     public Optional<LocalDateTime> findLastModifiedByHearingDay(String courtCode, LocalDate searchDate) {
         return courtCaseRepository.findLastModifiedByHearingDay(courtCode, searchDate);
     }
+
 }

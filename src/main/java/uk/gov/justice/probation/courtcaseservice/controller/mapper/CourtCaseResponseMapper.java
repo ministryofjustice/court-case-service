@@ -65,7 +65,7 @@ public class CourtCaseResponseMapper {
 
         var targetHearing = hearings
             .stream()
-            .filter(hearingEntity -> hearingEntity.getHearingDay().isEqual(Optional.ofNullable(hearingDate).orElse(LocalDate.MIN)))
+            .filter(hearingEntity -> hearingDate == null ? true : hearingDate.isEqual(hearingEntity.getHearingDay()))
             .findFirst();
 
         // Populate the top level fields with the details from the single hearing

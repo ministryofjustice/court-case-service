@@ -172,6 +172,7 @@ jobs:
           name: Build docker image
           command: |
             docker build --rm=false <<parameters.dockerfile_path>> \
+               --no-cache \
                --pull \
                --tag "mojdigitalstudio/<<parameters.app_name>>:$APP_VERSION" \
                --label "maintainer=info@digital.justice.gov.uk" \

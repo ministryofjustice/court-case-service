@@ -48,8 +48,8 @@ configurations {
 jar {
     enabled = false
     manifest {
-        attributes (
-            'Implementation-Title': rootProject.name, 'Implementation-Version': archiveVersion
+        attributes(
+                'Implementation-Title': rootProject.name, 'Implementation-Version': archiveVersion
         )
     }
 }
@@ -81,7 +81,7 @@ springBoot {
 }
 
 test {
-    useJUnitPlatform ()
+    useJUnitPlatform()
     filter {
         excludeTestsMatching '*VerificationPactTest'
         excludeTestsMatching '*SmokeTest'
@@ -104,14 +104,14 @@ test {
 }
 
 task integrationTest(type: Test) {
-    useJUnitPlatform ()
+    useJUnitPlatform()
     filter {
         includeTestsMatching '*IntTest'
     }
 }
 
 task pactTestPublish(type: Test) {
-    useJUnitPlatform ()
+    useJUnitPlatform()
     filter {
         excludeTestsMatching '*IntTest'
         includeTestsMatching '*VerificationPactTest'
@@ -120,7 +120,7 @@ task pactTestPublish(type: Test) {
     systemProperty("pact.provider.tag", System.getenv("PACT_PROVIDER_TAG"))
     systemProperty("pact.provider.version", System.getenv("PACT_PROVIDER_VERSION"))
     systemProperty("pact.verifier.publishResults", true)
-    systemProperty("pactbroker.host",  System.getenv("PACTBROKER_HOST"))
+    systemProperty("pactbroker.host", System.getenv("PACTBROKER_HOST"))
 
     testLogging {
         events "started", "passed", "skipped", "failed", "standardError"
@@ -138,7 +138,7 @@ task pactTestPublish(type: Test) {
 }
 
 task unitTest(type: Test) {
-    useJUnitPlatform ()
+    useJUnitPlatform()
     filter {
         excludeTestsMatching '*IntTest'
         excludeTestsMatching '*SmokeTest'
@@ -163,13 +163,16 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql:42.2.23'
 
     implementation 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation ('org.springframework.boot:spring-boot-starter-webflux') {
+        exclude group:'io.netty', module:'netty-codec'
+        because 'Known vulnerability, not used'
+    }
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.boot:spring-boot-starter-validation"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
-    implementation ('org.springframework.security:spring-security-oauth2-client') {
+    implementation('org.springframework.security:spring-security-oauth2-client') {
         exclude group: 'com.nimbusds', module: 'oauth2-oidc-sdk'
         because 'Known vulnerability and library not used'
     }
@@ -194,9 +197,9 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.28.0'
-    testImplementation ("io.rest-assured:json-path:$restAssuredVersion")
-    testImplementation ("io.rest-assured:xml-path:$restAssuredVersion")
-    testImplementation ("io.rest-assured:rest-assured:$restAssuredVersion"){
+    testImplementation("io.rest-assured:json-path:$restAssuredVersion")
+    testImplementation("io.rest-assured:xml-path:$restAssuredVersion")
+    testImplementation("io.rest-assured:rest-assured:$restAssuredVersion") {
         exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
     }
 
@@ -212,10 +215,10 @@ dependencies {
         because "Transitive dependency. Latest version of RestAssured incompatible with v2 of Groovy brought in by Spring"
     }
 
-    testImplementation(platform("org.junit:junit-bom:5.7.2"))
+    testImplementation(platform("org.junit:junit-bom:5.8.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
-    testImplementation ("com.github.tomakehurst:wiremock-jre8:2.31.0")
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.31.0")
 
     testImplementation("au.com.dius.pact.provider:junit5spring:$pactVersion")
     testImplementation("au.com.dius.pact.provider:junit5:$pactVersion")

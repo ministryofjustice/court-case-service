@@ -215,7 +215,7 @@ dependencies {
         because "Transitive dependency. Latest version of RestAssured incompatible with v2 of Groovy brought in by Spring"
     }
 
-    testImplementation(platform("org.junit:junit-bom:5.8.0"))
+    testImplementation(platform("org.junit:junit-bom:5.7.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
     testImplementation("com.github.tomakehurst:wiremock-jre8:2.31.0")

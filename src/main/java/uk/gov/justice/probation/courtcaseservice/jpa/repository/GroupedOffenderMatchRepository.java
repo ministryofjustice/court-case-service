@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface GroupedOffenderMatchRepository extends CrudRepository<GroupedOffenderMatchesEntity, Long> {
     Optional<GroupedOffenderMatchesEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo);
 
+    Optional<GroupedOffenderMatchesEntity> findByCaseId(String caseId);
+
     @Query(value = "select count(om.id) from offender_match om "
         + "INNER join offender_match_group omg "
         + "on omg.id = om.group_id "

@@ -8,7 +8,6 @@ import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetailResponse;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
@@ -51,9 +50,21 @@ public class OffenderMatchService {
             .map(groupedOffenderMatchesEntity -> offenderMatchRepository.save(groupedOffenderMatchesEntity));
     }
 
+    public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatchesByDefendant(String caseId, String defendantId, GroupedOffenderMatchesRequest offenderMatches) {
+        return Mono.just(offenderMatchRepository.findByCaseId(caseId)
+            .map(existingGroup -> OffenderMatchMapper.update(caseId, defendantId, existingGroup, offenderMatches))
+            .orElseGet(() -> createForCaseAndDefendant(caseId, defendantId, offenderMatches)))
+            .map(groupedOffenderMatchesEntity -> offenderMatchRepository.save(groupedOffenderMatchesEntity));
+    }
+
     private GroupedOffenderMatchesEntity create(String courtCode, String caseNo, GroupedOffenderMatchesRequest offenderMatches) {
-        CourtCaseEntity courtCaseEntity = courtCaseService.getCaseByCaseNumber(courtCode, caseNo);
+        final var courtCaseEntity = courtCaseService.getCaseByCaseNumber(courtCode, caseNo);
         return OffenderMatchMapper.newGroupedMatchesOf(offenderMatches, courtCaseEntity);
+    }
+
+    private GroupedOffenderMatchesEntity createForCaseAndDefendant(String caseId, String defendantId, GroupedOffenderMatchesRequest offenderMatches) {
+        final var courtCaseEntity = courtCaseService.getCaseByCaseId(caseId);
+        return OffenderMatchMapper.newGroupedMatchesOf(defendantId, offenderMatches, courtCaseEntity);
     }
 
     public Mono<GroupedOffenderMatchesEntity> getGroupedMatches(String courtCode, String caseNo, Long groupId) {
@@ -64,6 +75,16 @@ public class OffenderMatchService {
                     }
                     return groupedOffenderMatchesEntity;
                 });
+    }
+
+    public Mono<GroupedOffenderMatchesEntity> getGroupedMatchesByCaseId(String caseId, String defendantId, Long groupId) {
+        return Mono.justOrEmpty(offenderMatchRepository.findById(groupId))
+            .map(groupedOffenderMatchesEntity -> {
+                if (!caseId.equals(groupedOffenderMatchesEntity.getCaseId())) {
+                    throw new EntityNotFoundException(String.format("Grouped Matches %s not found for caseId %s", groupId, caseId));
+                }
+                return groupedOffenderMatchesEntity;
+            });
     }
 
     public OffenderMatchDetailResponse getOffenderMatchDetails(String courtCode, String caseNo) {

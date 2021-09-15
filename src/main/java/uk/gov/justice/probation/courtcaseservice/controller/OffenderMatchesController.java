@@ -52,6 +52,27 @@ public class OffenderMatchesController {
                     .build());
     }
 
+    @ApiOperation(value = "Creates a new offender-match entity associated with a case and a defendant ID")
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 200, message = "OK", response = GroupedOffenderMatchesEntity.class),
+            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+        })
+    @PostMapping(value = "/case/{caseId}/defendant/{defendantId}/grouped-offender-matches", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public @ResponseBody
+    Mono<ResponseEntity<Object>> createGroupedOffenderMatchesByDefendant(@PathVariable(value = "caseId") String caseId,
+        @PathVariable(value = "defendantId") String defendantId,
+        @Valid @RequestBody GroupedOffenderMatchesRequest request) {
+        return offenderMatchService.createOrUpdateGroupedMatchesByDefendant(caseId, defendantId, request)
+            .map(match -> ResponseEntity.created(URI.create(String.format("/case/%s/defendant/%s/grouped-offender-matches/%s", caseId, defendantId, match.getId())))
+                .build());
+    }
+
     @ApiOperation(value = "Gets an existing offender-match entity associated with a case")
     @ApiResponses(
             value = {
@@ -69,6 +90,25 @@ public class OffenderMatchesController {
                                                           @PathVariable(value = "caseNo") String caseNo,
                                                           @PathVariable(value = "groupId") Long groupId) {
          return offenderMatchService.getGroupedMatches(courtCode, caseNo, groupId);
+    }
+
+    @ApiOperation(value = "Gets an existing offender-match entity associated with a case")
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 200, message = "OK", response = GroupedOffenderMatchesEntity.class),
+            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+        })
+    @GetMapping(value = "/case/{caseId}/defendant/{defendantId}/grouped-offender-matches/{groupId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    Mono<GroupedOffenderMatchesEntity> getOffenderMatchesByCaseId(@PathVariable(value = "caseId") String caseId,
+        @PathVariable(value = "defendantId") String defendantId,
+        @PathVariable(value = "groupId") Long groupId) {
+        return offenderMatchService.getGroupedMatchesByCaseId(caseId, defendantId, groupId);
     }
 
     @ApiOperation(value = "Returns all possible matches found for a given case")

@@ -7,6 +7,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -23,14 +25,18 @@ import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @ExtendWith(MockitoExtension.class)
-public class OffenderMatchesControllerTest {
+class OffenderMatchesControllerTest {
     public static final String COURT_CODE = "B01CX00";
     private static final String CASE_NO = "1234567890";
+    private static final String CASE_ID = "cb2199b0-5a3e-4fea-858d-af23c998ac3d";
+    private static final String DEFENDANT_ID = "1081ca4e-8aa4-42ec-8212-530dec781e56";
     private static final String GROUP_OFFENDER_MATCH_PATH = "/court/" + COURT_CODE + "/case/" + CASE_NO + "/grouped-offender-matches/";
+    private static final String CASE_ID_GROUP_OFFENDER_MATCH_PATH = "/case/" + CASE_ID + "/defendant/" + DEFENDANT_ID + "/grouped-offender-matches/";
     protected static final String OFFENDER_MATCHES_DETAIL_PATH = "/court/%s/case/%s/matchesDetail";
 
     private WebTestClient webTestClient;
@@ -41,15 +47,15 @@ public class OffenderMatchesControllerTest {
     private GroupedOffenderMatchesEntity entity;
 
     @BeforeEach
-    public void setUp() {
-        OffenderMatchesController controller = new OffenderMatchesController(offenderMatchService);
+    void setUp() {
+        var controller = new OffenderMatchesController(offenderMatchService);
         this.webTestClient = WebTestClient.bindToController(controller).build();
     }
 
     @Test
-    public void givenSuccessfulCreate_thenReturnLocationHeader() {
+    void givenSuccessfulCreate_thenReturnLocationHeader() {
         when(offenderMatchService.createOrUpdateGroupedMatches(eq(COURT_CODE), eq(CASE_NO), any())).thenReturn(Mono.just(entity));
-        Long expectedGroupId = 1111L;
+        var expectedGroupId = 1111L;
         when(entity.getId()).thenReturn(expectedGroupId);
         webTestClient.post()
                 .uri(GROUP_OFFENDER_MATCH_PATH)
@@ -73,13 +79,43 @@ public class OffenderMatchesControllerTest {
     }
 
     @Test
-    public void givenEmptyJsonBody_whenPostMadeToOffenderMatches_thenReturnBadRequest() {
-        String body = "{}";
-        assertBadRequestForBody(body);
+    void whenCreateByCaseId_thenReturnLocationHeader() {
+        when(offenderMatchService.createOrUpdateGroupedMatchesByDefendant(eq(CASE_ID), eq(DEFENDANT_ID), any())).thenReturn(Mono.just(entity));
+        Long expectedGroupId = 1111L;
+        when(entity.getId()).thenReturn(expectedGroupId);
+        webTestClient.post()
+            .uri(CASE_ID_GROUP_OFFENDER_MATCH_PATH)
+            .contentType(APPLICATION_JSON)
+            .accept(APPLICATION_JSON)
+            .bodyValue("{\n" +
+                "    \"matches\": [\n" +
+                "        {\n" +
+                "                \"matchIdentifiers\": {\n" +
+                "                \"crn\": \"X346204\"\n" +
+                "            },\n" +
+                "            \"matchType\": \"NAME_DOB\",\n" +
+                "            \"confirmed\": \"true\",\n" +
+                "            \"rejected\": \"false\"\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}")
+            .exchange()
+            .expectStatus().isCreated()
+            .expectHeader().value("Location", equalTo(CASE_ID_GROUP_OFFENDER_MATCH_PATH + expectedGroupId));
     }
 
-    @Test
-    public void givenMissingMatchIdentifiers_whenPostMadeToOffenderMatches_thenReturnBadRequest() {
+    @ParameterizedTest
+    @ValueSource(strings = {"/court/FOO/case/1234567890/grouped-offender-matches/",
+        "/case/f1e1867f-94a5-45a2-81cf-92780a51564d/defendant/f1e1867f-94a5-45a2-81cf-92780a31364d/grouped-offender-matches/"})
+    void givenEmptyJsonBody_whenPostMadeToOffenderMatches_thenReturnBadRequest(String path) {
+        String body = "{}";
+        assertBadRequestForBody(body, path);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/court/FOO/case/1234567890/grouped-offender-matches/",
+        "/case/f1e1867f-94a5-45a2-81cf-92780a51564d/defendant/f1e1867f-94a5-45a2-81cf-92780a31364d/grouped-offender-matches/"})
+    void givenMissingMatchIdentifiers_whenPostMadeToOffenderMatches_thenReturnBadRequest(String path) {
         assertBadRequestForBody("{\n" +
                 "    \"matches\": [\n" +
                 "        {\n" +
@@ -87,11 +123,13 @@ public class OffenderMatchesControllerTest {
                 "            \"confirmed\": \"true\"\n" +
                 "        }\n" +
                 "    ]\n" +
-                "}");
+                "}", path);
     }
 
-    @Test
-    public void givenMissingCrn_whenPostMadeToOffenderMatches_thenReturnBadRequest() {
+    @ParameterizedTest
+    @ValueSource(strings = {"/court/FOO/case/1234567890/grouped-offender-matches/",
+        "/case/f1e1867f-94a5-45a2-81cf-92780a51564d/defendant/f1e1867f-94a5-45a2-81cf-92780a31364d/grouped-offender-matches/"})
+    void givenMissingCrn_whenPostMadeToOffenderMatches_thenReturnBadRequest(String path) {
         assertBadRequestForBody("{\n" +
                         "    \"matches\": [\n" +
                         "        {\n" +
@@ -102,11 +140,13 @@ public class OffenderMatchesControllerTest {
                         "            \"confirmed\": \"true\"\n" +
                         "        }\n" +
                         "    ]\n" +
-                        "}");
+                        "}", path);
     }
 
-    @Test
-    public void givenMissingMatchType_whenPostMadeToOffenderMatches_thenReturnBadRequest() {
+    @ParameterizedTest
+    @ValueSource(strings = {"/court/FOO/case/1234567890/grouped-offender-matches/",
+        "/case/f1e1867f-94a5-45a2-81cf-92780a51564d/defendant/f1e1867f-94a5-45a2-81cf-92780a31364d/grouped-offender-matches/"})
+    void givenMissingMatchType_whenPostMadeToOffenderMatches_thenReturnBadRequest(String path) {
         assertBadRequestForBody("{\n" +
                         "    \"matches\": [\n" +
                         "        {\n" +
@@ -116,11 +156,13 @@ public class OffenderMatchesControllerTest {
                         "            \"confirmed\": \"true\"\n" +
                         "        }\n" +
                         "    ]\n" +
-                        "}");
+                        "}", path);
     }
 
-    @Test
-    public void givenMissingConfirmedFlag_whenPostMadeToOffenderMatches_thenReturnBadRequest() {
+    @ParameterizedTest
+    @ValueSource(strings = {"/court/FOO/case/1234567890/grouped-offender-matches/",
+        "/case/f1e1867f-94a5-45a2-81cf-92780a51564d/defendant/f1e1867f-94a5-45a2-81cf-92780a31364d/grouped-offender-matches/"})
+    void givenMissingConfirmedFlag_whenPostMadeToOffenderMatches_thenReturnBadRequest(String path) {
         assertBadRequestForBody("{\n" +
                         "    \"matches\": [\n" +
                         "        {\n" +
@@ -130,16 +172,16 @@ public class OffenderMatchesControllerTest {
                         "            \"matchType\": \"NAME_DOB\",\n" +
                         "        }\n" +
                         "    ]\n" +
-                        "}");
+                        "}", path);
     }
 
     @Test
-    public void givenMultipleMatches_whenGetOffenderMatchDetail_thenReturnMultiple() {
+    void givenMultipleMatches_whenGetOffenderMatchDetail_thenReturnMultiple() {
 
-        OffenderMatchDetail detail1 = buildOffenderMatchDetail("Christopher", ProbationStatus.PREVIOUSLY_KNOWN);
-        OffenderMatchDetail detail2 = buildOffenderMatchDetail("Christian", ProbationStatus.CURRENT);
+        var detail1 = buildOffenderMatchDetail("Christopher", ProbationStatus.PREVIOUSLY_KNOWN);
+        var detail2 = buildOffenderMatchDetail("Christian", ProbationStatus.CURRENT);
 
-        OffenderMatchDetailResponse response = OffenderMatchDetailResponse.builder()
+        var response = OffenderMatchDetailResponse.builder()
                                                                             .offenderMatchDetails(List.of(detail1, detail2))
                                                                             .build();
 
@@ -189,9 +231,9 @@ public class OffenderMatchesControllerTest {
                 .build();
     }
 
-    private void assertBadRequestForBody(String body) {
+    private void assertBadRequestForBody(String body, String path) {
         webTestClient.post()
-                .uri("/court/FOO/case/1234567890/grouped-offender-matches/")
+                .uri(path)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .bodyValue(body)

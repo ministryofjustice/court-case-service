@@ -42,11 +42,21 @@ public class GroupedOffenderMatchesEntity extends BaseEntity implements Serializ
     @OrderBy("crn ASC")
     private List<OffenderMatchEntity> offenderMatches;
 
+    @Deprecated
     @Column(name = "CASE_NO")
     private String caseNo;
 
+    @Deprecated
     @Column(name = "COURT_CODE")
     private String courtCode;
+
+    @Setter
+    @Column(name = "CASE_ID")
+    private String caseId;
+
+    @Setter
+    @Column(name = "DEFENDANT_ID")
+    private String defendantId;
 
     public void clearOffenderMatches() {
         if (this.offenderMatches != null) {

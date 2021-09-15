@@ -128,8 +128,8 @@ INSERT INTO courtcaseservicetest.OFFENCE (ID, COURT_CASE_ID, OFFENCE_TITLE, OFFE
 VALUES (1000002, 1000002, 'Title', 'Summary.', 'ACT.', 2);
 
 
-INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE)
-VALUES (9999991, '1600028913','B10JQ');
+INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE, CASE_ID, DEFENDANT_ID)
+VALUES (9999991, '1600028913','B10JQ', '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', '40db17d6-04db-11ec-b2d8-0242ac130002');
 INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE)
 VALUES (9999992, '1600028914','B10JQ');
 

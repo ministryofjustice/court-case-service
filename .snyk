@@ -1,9 +1,13 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
-  SNYK-ORACLE7-KRB5LIBS-1303151:
+  SNYK-JAVA-IONETTY-1584064:
     - '*':
-        reason: Kerberos not used. We will move to Java 16 base image
-        expires: 2021-06-30T00:00:00.000Z
+        reason: Third party version (netty-codec) with version out of our control, comes via spring boot
+        expires: 2021-09-21T00:00:00.000Z
+  SNYK-JAVA-IONETTY-1584063:
+    - '*':
+        reason: Third party library (netty-codec) with version out of our control, comes via spring boot
+        expires: 2021-09-21T00:00:00.000Z
 patch: {}
 version: v1.13.5

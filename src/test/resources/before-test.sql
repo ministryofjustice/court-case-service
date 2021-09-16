@@ -40,8 +40,8 @@ INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, def
 VALUES (-1700029902, -1700029901, '7a319a46-037c-481c-ab1e-dbfab62af4d6', 'Mr Billy ZANE', '{"title": "Mr", "surname": "ZANE", "forename1": "Billy"}', '{"line1": "Billy Place", "line2": "Zane Pla", "postcode": "z12 8gt 5dr"}', 'PERSON', '1987-10-10', 'A/1234560BA', '311462/13E', 'M', 'British', 'Polish');
 INSERT INTO courtcaseservicetest.DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-1700029902, -1700029902, 'Billy stole from a shop', 'On 01/01/2015 at own, Billy stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);
-INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, pnc, cro, sex, nationality_1, nationality_2)
-VALUES (-1700029903, -1700029901, '7a320a46-037c-481c-ab1e-dbfab62af4d6', 'Ms Emma Radical', '{"title": "Ms", "surname": "RADICAL", "forename1": "Emma"}', '{"line1": "Emma Place", "line2": "Radical Place", "postcode": "e12 8gt"}', 'PERSON', '1987-10-10', 'A/1234560CD', '311465/13F', 'F', 'Romanian', 'Chinese');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, pnc, cro, sex, nationality_1, nationality_2, PROBATION_STATUS)
+VALUES (-1700029903, -1700029901, '7a320a46-037c-481c-ab1e-dbfab62af4d6', 'Ms Emma Radical', '{"title": "Ms", "surname": "RADICAL", "forename1": "Emma"}', '{"line1": "Emma Place", "line2": "Radical Place", "postcode": "e12 8gt"}', 'PERSON', '1987-10-10', 'A/1234560CD', '311465/13F', 'F', 'Romanian', 'Chinese', 'CURRENT');
 INSERT INTO courtcaseservicetest.DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-1700029903, -1700029903, 'Emma stole 1st thing from a shop', 'On 01/01/2015 at own, Emma stole 1st article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);
 INSERT INTO courtcaseservicetest.DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
@@ -140,8 +140,8 @@ VALUES (1000002, 1000002, 'Title', 'Summary.', 'ACT.', 2);
 
 INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE, CASE_ID, DEFENDANT_ID)
 VALUES (9999991, '1600028913','B10JQ', '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', '40db17d6-04db-11ec-b2d8-0242ac130002');
-INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE)
-VALUES (9999992, '1600028914','B10JQ');
+INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE, CASE_ID, DEFENDANT_ID)
+VALUES (9999992, '1600028914','B10JQ', '1f93aa0a-7e46-4885-a1cb-f25a4be33a56', '7a320a46-037c-481c-ab1e-dbfab62af4d6');
 
 
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
@@ -153,6 +153,8 @@ VALUES (true, false, 'X6666', '78654', 'NAME_DOB', '323456', 9999991);
 
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (false, true, '3234', '32345', 'NAME_DOB', '323456', 9999992);
+INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
+VALUES (false, true, 'CRN123', '32345', 'NAME_DOB', 'PNC12/456', 9999992);
 
 INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE)
 VALUES (9999993, '1000002','B10JQ');

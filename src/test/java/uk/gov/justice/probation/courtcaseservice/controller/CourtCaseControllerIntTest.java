@@ -24,6 +24,7 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
@@ -82,8 +83,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[0].defendantName", equalTo("Ms Emma Radical"))
                 .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(7, 0)).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[0].createdToday", equalTo(true))
-                .body("cases[0].probationStatus", equalTo("No record"))
-                .body("cases[0].probationStatusActual", equalTo(null))
+                .body("cases[0].probationStatus", equalToIgnoringCase("CURRENT"))
                 .body("cases[0].hearings", hasSize(2))
                 .body("cases[0].offences", hasSize(2))
                 .body("cases[0].offences[0].offenceTitle", equalTo("Emma stole 1st thing from a shop"))
@@ -502,11 +502,11 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[0].defendantName", equalTo("Ms Emma Radical"))
                 .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(7, 0)).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[0].createdToday", equalTo(true))
-                .body("cases[0].probationStatus", equalTo("No record"))
-                .body("cases[0].probationStatusActual", equalTo(null))
+                .body("cases[0].probationStatus", equalToIgnoringCase("Current"))
                 .body("cases[0].hearings", hasSize(2))
                 .body("cases[0].offences", hasSize(2))
                 .body("cases[0].offences[0].offenceTitle", equalTo("Emma stole 1st thing from a shop"))
+                .body("cases[0].numberOfPossibleMatches", equalTo(2))
                 .body("cases[1].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
                 .body("cases[1].offences", hasSize(1))
                 .body("cases[1].offences[0].offenceTitle", equalTo("Billy stole from a shop"))

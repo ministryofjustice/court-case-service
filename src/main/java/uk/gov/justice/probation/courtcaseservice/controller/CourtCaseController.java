@@ -26,6 +26,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseReque
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
@@ -208,6 +209,7 @@ public class CourtCaseController {
 
         final var caseId = courtCaseEntity.getCaseId();
         return defendantEntities.stream()
+            .sorted(Comparator.comparing(DefendantEntity::getDefendantSurname))
             .map(defendantEntity ->  {
                 var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantEntity.getDefendantId()).orElse(0);
                 return CourtCaseResponseMapper.mapFrom(courtCaseEntity, defendantEntity, matchCount, hearingDate);

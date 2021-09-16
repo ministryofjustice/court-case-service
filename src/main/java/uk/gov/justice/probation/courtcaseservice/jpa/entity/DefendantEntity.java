@@ -115,4 +115,8 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "manual_update", nullable = false, updatable = false)
     private boolean manualUpdate;
 
+    public String getDefendantSurname() {
+        return defendantName == null ? "" : defendantName.substring(defendantName.lastIndexOf(" ")+1);
+    }
+
 }

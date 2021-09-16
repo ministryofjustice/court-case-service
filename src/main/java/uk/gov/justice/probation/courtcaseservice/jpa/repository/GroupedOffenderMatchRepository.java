@@ -20,4 +20,12 @@ public interface GroupedOffenderMatchRepository extends CrudRepository<GroupedOf
         + "and omg.court_code = :courtCode",
         nativeQuery = true)
     Optional<Integer> getMatchCount(String courtCode, String caseNo);
+
+    @Query(value = "select count(om.id) from offender_match om "
+        + "INNER join offender_match_group omg "
+        + "on omg.id = om.group_id "
+        + "where omg.case_id = :caseId "
+        + "and omg.defendant_id = :defendantId",
+        nativeQuery = true)
+    Optional<Integer> getMatchCountByCaseIdAndDefendant(String caseId, String defendantId);
 }

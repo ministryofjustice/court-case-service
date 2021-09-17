@@ -23,6 +23,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseReque
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
@@ -30,10 +32,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM;
 
 @ExtendWith(MockitoExtension.class)
-public class CourtCaseControllerTest {
+class CourtCaseControllerTest {
 
     private static final String COURT_CODE = "COURT_CODE";
     private static final String CASE_NO = "CASE_NO";
@@ -61,13 +64,13 @@ public class CourtCaseControllerTest {
     private CourtSession session;
 
     @BeforeEach
-    public void beforeEach() {
+    void beforeEach() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("a");
         session = formatter.format(now).equalsIgnoreCase("am") ? CourtSession.MORNING : CourtSession.AFTERNOON;
     }
 
     @Test
-    public void getCourtCase_shouldReturnCourtCaseResponse() {
+    void getCourtCase_shouldReturnCourtCaseResponse() {
         when(courtCaseService.getCaseByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(courtCaseEntity);
         var courtCase = courtCaseController.getCourtCase(COURT_CODE, CASE_NO);
         assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
@@ -77,19 +80,16 @@ public class CourtCaseControllerTest {
     }
 
     @Test
-    public void updateCaseByCourtAndCaseNo_shouldReturnCourtCaseResponse() {
+    void updateCaseByCourtAndCaseNo_shouldReturnCourtCaseResponse() {
         when(courtCaseUpdate.asEntity()).thenReturn(courtCaseEntity);
         when(courtCaseService.createCase(COURT_CODE, CASE_NO, courtCaseEntity)).thenReturn(Mono.just(courtCaseEntity));
         var courtCase = courtCaseController.updateCourtCaseNo(COURT_CODE, CASE_NO, courtCaseUpdate). block();
 
-        assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
-        assertThat(courtCase.getCaseNo()).isEqualTo(CASE_NO);
-        assertThat(courtCase.getSessionStartTime()).isNotNull();
-        assertThat(courtCase.getSession()).isSameAs(session);
+        assertCourtCase(courtCase);
     }
 
     @Test
-    public void getCaseList_shouldReturnCourtCaseResponse() {
+    void getCaseList_shouldReturnCourtCaseResponse() {
 
         var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
@@ -97,16 +97,41 @@ public class CourtCaseControllerTest {
         var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE, webRequest);
 
         assertThat(responseEntity.getBody().getCases()).hasSize(1);
-        assertThat(responseEntity.getBody().getCases().get(0).getCourtCode()).isEqualTo(COURT_CODE);
-        assertThat(responseEntity.getBody().getCases().get(0).getCaseNo()).isEqualTo(CASE_NO);
-        assertThat(responseEntity.getBody().getCases().get(0).getSessionStartTime()).isNotNull();
-        assertThat(responseEntity.getBody().getCases().get(0).getSession()).isSameAs(session);
-        assertThat(responseEntity.getBody().getCases().get(0).getSource()).isEqualTo(COMMON_PLATFORM.name());
+        assertCourtCase(responseEntity.getBody().getCases().get(0));
         assertThat(responseEntity.getHeaders().getFirst(HttpHeaders.LAST_MODIFIED)).isEqualTo("Wed, 21 Oct 2015 07:28:00 GMT");
     }
 
     @Test
-    public void getCaseList_sorted() {
+    void givenSingleCaseWithMultipleDefendants_whenGetCaseList_shouldReturnMultipleCourtCaseResponse() {
+
+        var defendantEntity1 = EntityHelper.aDefendantEntity();
+        var defendantEntity2 = EntityHelper.aDefendantEntity(NamePropertiesEntity.builder().title("HRH").forename1("Catherine").forename2("The").surname("GREAT").build());
+        var courtCaseEntity = CourtCaseEntity.builder()
+            .caseNo(CASE_NO)
+            .courtCode(COURT_CODE)
+            .sourceType(COMMON_PLATFORM)
+            .sessionStartTime(now)
+            .defendants(List.of(defendantEntity1, defendantEntity2))
+            .build();
+
+        var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
+        when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
+        when(courtCaseService.filterCases(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE)).thenReturn(Collections.singletonList(courtCaseEntity));
+
+        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE, webRequest);
+
+        assertThat(responseEntity.getBody().getCases()).hasSize(2);
+        // Top level fields for both are the same
+        assertCourtCase(responseEntity.getBody().getCases().get(0));
+        assertCourtCase(responseEntity.getBody().getCases().get(1));
+        assertThat(responseEntity.getBody().getCases().get(0).getCrn()).isEqualTo(CRN);
+        assertThat(responseEntity.getBody().getCases().get(0).getDefendantName()).isEqualTo("Mr Gordon BENNETT");
+        assertThat(responseEntity.getBody().getCases().get(1).getDefendantName()).isEqualTo("HRH Catherine The GREAT");
+        assertThat(responseEntity.getHeaders().getFirst(HttpHeaders.LAST_MODIFIED)).isEqualTo("Wed, 21 Oct 2015 07:28:00 GMT");
+    }
+
+    @Test
+    void getCaseList_sorted() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
 
@@ -137,7 +162,7 @@ public class CourtCaseControllerTest {
     }
 
     @Test
-    public void whenCreatedAfterIsNull_thenDefaultToTodayMinus8Days() {
+    void whenCreatedAfterIsNull_thenDefaultToTodayMinus8Days() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
         final var controller = new CourtCaseController(courtCaseService, offenderMatchService);
@@ -148,7 +173,7 @@ public class CourtCaseControllerTest {
     }
 
     @Test
-    public void whenCreatedBeforeIsNull_thenDefaultToMaxDate() {
+    void whenCreatedBeforeIsNull_thenDefaultToMaxDate() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
         final var controller = new CourtCaseController(courtCaseService, offenderMatchService);
@@ -159,7 +184,7 @@ public class CourtCaseControllerTest {
     }
 
     @Test
-    public void whenListIsNotModified_thenReturn() {
+    void whenListIsNotModified_thenReturn() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
         final var controller = new CourtCaseController(courtCaseService, offenderMatchService);
@@ -172,7 +197,7 @@ public class CourtCaseControllerTest {
     }
 
     @Test
-    public void whenListHasNeverBeenModified_thenReturnNeverModifiedDate() {
+    void whenListHasNeverBeenModified_thenReturnNeverModifiedDate() {
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(Optional.empty());
         when(webRequest.checkNotModified(any(Long.class))).thenReturn(false);
         final var controller = new CourtCaseController(courtCaseService, offenderMatchService);
@@ -187,5 +212,13 @@ public class CourtCaseControllerTest {
         assertThat(cases.get(position).getCourtRoom()).isEqualTo(courtRoom);
         assertThat(cases.get(position).getDefendantName()).isEqualTo(defendantName);
         assertThat(cases.get(position).getSessionStartTime()).isEqualTo(sessionTime);
+    }
+
+    private void assertCourtCase(CourtCaseResponse courtCase) {
+        assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(courtCase.getCaseNo()).isEqualTo(CASE_NO);
+        assertThat(courtCase.getSessionStartTime()).isNotNull();
+        assertThat(courtCase.getSession()).isSameAs(session);
+        assertThat(courtCase.getSource()).isEqualTo(COMMON_PLATFORM.name());
     }
 }

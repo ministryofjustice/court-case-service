@@ -26,6 +26,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseReque
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
@@ -33,7 +34,10 @@ import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -171,7 +175,7 @@ public class CourtCaseController {
                 .sorted(Comparator.comparing(CourtCaseEntity::getCourtRoom)
                         .thenComparing(CourtCaseEntity::getSessionStartTime)
                         .thenComparing(CourtCaseEntity::getDefendantSurname))
-                .map(courtCaseEntity -> buildCourtCaseResponse(courtCaseEntity, date))
+                .flatMap(courtCaseEntity -> buildCourtCaseResponses(courtCaseEntity, date).stream())
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok()
@@ -188,14 +192,30 @@ public class CourtCaseController {
         return buildCourtCaseResponse(courtCaseEntity, false, null);
     }
 
-    private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity, LocalDate hearingDate) {
-        return buildCourtCaseResponse(courtCaseEntity, true, hearingDate);
-    }
-
     private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity, boolean includeCaseNo, LocalDate hearingDate) {
         final var offenderMatchesCount = offenderMatchService.getMatchCount(courtCaseEntity.getCourtCode(), courtCaseEntity.getCaseNo())
             .orElse(0);
 
         return CourtCaseResponseMapper.mapFrom(courtCaseEntity, offenderMatchesCount, includeCaseNo, hearingDate);
     }
+
+    private List<CourtCaseResponse> buildCourtCaseResponses(CourtCaseEntity courtCaseEntity, LocalDate hearingDate) {
+
+        var defendantEntities = new ArrayList<>(Optional.ofNullable(courtCaseEntity.getDefendants()).orElse(Collections.emptyList()));
+        // Until we have CP on-line and we have removed court case defendant fields
+        if (defendantEntities.size() <= 1) {
+            return Collections.singletonList(buildCourtCaseResponse(courtCaseEntity, true, hearingDate));
+        }
+
+        final var caseId = courtCaseEntity.getCaseId();
+        return defendantEntities.stream()
+            .sorted(Comparator.comparing(DefendantEntity::getDefendantSurname))
+            .map(defendantEntity ->  {
+                var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantEntity.getDefendantId()).orElse(0);
+                return CourtCaseResponseMapper.mapFrom(courtCaseEntity, defendantEntity, matchCount, hearingDate);
+            })
+            .collect(Collectors.toList());
+    }
+
+
 }

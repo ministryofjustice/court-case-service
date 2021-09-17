@@ -23,8 +23,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.ToString.Exclude;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 
 @Entity
@@ -53,6 +54,7 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     private final String defendantId;
 
     @ToString.Exclude
+    @LazyCollection(value = LazyCollectionOption.FALSE)
     @OneToMany(mappedBy = "defendant", cascade = CascadeType.ALL, orphanRemoval=true)
     private final List<DefendantOffenceEntity> offences;
 
@@ -112,5 +114,9 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
 
     @Column(name = "manual_update", nullable = false, updatable = false)
     private boolean manualUpdate;
+
+    public String getDefendantSurname() {
+        return defendantName == null ? "" : defendantName.substring(defendantName.lastIndexOf(" ")+1);
+    }
 
 }

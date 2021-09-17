@@ -75,10 +75,14 @@ public class EntityHelper {
             .build();
     }
 
-    public static DefendantEntity aDefendantEntity(AddressPropertiesEntity address) {
+    public static DefendantEntity aDefendantEntity() {
+        return aDefendantEntity(DEFENDANT_ADDRESS, NAME);
+    }
+
+    public static DefendantEntity aDefendantEntity(AddressPropertiesEntity address, NamePropertiesEntity name) {
         return DefendantEntity.builder()
-            .name(NAME)
-            .defendantName(NAME.getFullName())
+            .name(name)
+            .defendantName(name.getFullName())
             .crn(CRN)
             .cro(CRO)
             .pnc(PNC)
@@ -96,6 +100,14 @@ public class EntityHelper {
             .probationStatus(PROBATION_STATUS)
             .suspendedSentenceOrder(SUSPENDED_SENTENCE)
             .build();
+    }
+
+    public static DefendantEntity aDefendantEntity(NamePropertiesEntity name) {
+        return aDefendantEntity(DEFENDANT_ADDRESS, name);
+    }
+
+    public static DefendantEntity aDefendantEntity(AddressPropertiesEntity address) {
+        return aDefendantEntity(address, NAME);
     }
 
     public static HearingEntity aHearingEntity() {

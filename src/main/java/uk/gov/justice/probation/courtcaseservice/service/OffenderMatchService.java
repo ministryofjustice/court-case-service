@@ -110,6 +110,10 @@ public class OffenderMatchService {
         return offenderMatchRepository.getMatchCount(courtCode, caseNo);
     }
 
+    public Optional<Integer> getMatchCountByCaseIdAndDefendant(String caseId, String defendantId) {
+        return offenderMatchRepository.getMatchCountByCaseIdAndDefendant(caseId, defendantId);
+    }
+
     OffenderMatchDetail getOffenderMatchDetail(String crn) {
         log.debug("Looking for offender detail for CRN :{}", crn);
         return Mono.zip(offenderRestClient.getOffenderMatchDetailByCrn(crn),

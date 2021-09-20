@@ -69,7 +69,22 @@ public class CourtCaseController {
     @GetMapping(value = "/case/{caseId}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCase(@PathVariable String caseId) {
-        return this.buildCourtCaseResponse(courtCaseService.getCaseByCaseId(caseId), false);
+        return this.buildCourtCaseResponse(courtCaseService.getCaseByCaseId(caseId));
+    }
+
+    @ApiOperation(value = "Gets the court case data by case id.")
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Not Found. For example if the court code or case number can't be matched.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+        })
+    @GetMapping(value = "/case/{caseId}/defendant/{defendantId}", produces = APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    CourtCaseResponse getCourtCaseByCaseIdAndDefendantId(@PathVariable String caseId, @PathVariable String defendantId) {
+        return this.buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseService.getCaseByCaseIdAndDefendantId(caseId, defendantId), defendantId);
     }
 
     @ApiOperation(value = "Gets the court case data by case number.")
@@ -85,7 +100,7 @@ public class CourtCaseController {
     @GetMapping(value = "/court/{courtCode}/case/{caseNo}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCase(@PathVariable String courtCode, @PathVariable String caseNo) {
-        return buildCourtCaseResponse(courtCaseService.getCaseByCaseNumber(courtCode, caseNo));
+        return buildCourtCaseResponse(courtCaseService.getCaseByCaseNumber(courtCode, caseNo), true);
     }
 
     @ApiOperation(value = "Saves and returns the court case entity data, by court and case number. ")
@@ -105,7 +120,7 @@ public class CourtCaseController {
                                               @PathVariable(value = "caseNo") String caseNo,
                                               @Valid @RequestBody CourtCaseRequest courtCaseRequest) {
         return courtCaseService.createCase(courtCode, caseNo, courtCaseRequest.asEntity())
-                .map(this::buildCourtCaseResponse);
+                .map(courtCaseEntity -> buildCourtCaseResponse(courtCaseEntity, true));
     }
 
     @ApiOperation(value = "Saves and returns the court case entity data, by court and case number. ")
@@ -184,11 +199,18 @@ public class CourtCaseController {
                 .body(CaseListResponse.builder().cases(courtCaseResponses).build());
     }
 
-    private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity) {
-        return buildCourtCaseResponse(courtCaseEntity, true, null);
+    private CourtCaseResponse buildCourtCaseResponseForCaseIdAndDefendantId(CourtCaseEntity courtCaseEntity, String defendantId) {
+        final var offenderMatchesCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(courtCaseEntity.getCaseId(), defendantId)
+            .orElse(0);
+
+        return CourtCaseResponseMapper.mapFrom(courtCaseEntity, offenderMatchesCount, false, null);
     }
 
     private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity, boolean includeCaseNo) {
+        return buildCourtCaseResponse(courtCaseEntity, includeCaseNo, null);
+    }
+
+    private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity) {
         return buildCourtCaseResponse(courtCaseEntity, false, null);
     }
 

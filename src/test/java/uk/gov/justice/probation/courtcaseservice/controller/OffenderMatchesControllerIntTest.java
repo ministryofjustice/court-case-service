@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
+import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -16,8 +17,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
+import static uk.gov.justice.probation.courtcaseservice.controller.OffenderMatchesControllerTest.OFFENDER_MATCHES_DEFENDANT_DETAIL_PATH;
 import static uk.gov.justice.probation.courtcaseservice.controller.OffenderMatchesControllerTest.OFFENDER_MATCHES_DETAIL_PATH;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
@@ -279,10 +280,47 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
     class MatchDetail {
 
         private static final String CASE_NO = "1600028913";
+        private static final String CASE_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
+        private static final String DEFENDANT_ID = "40db17d6-04db-11ec-b2d8-0242ac130002";
+
         @Test
-        void givenMultipleMatchesOneNotFound_whenGetOffenderDetailMatch_thenReturn200() {
+        void givenMultipleMatchesOneNotFound_whenGetOffenderDetailMatchByCourtCodeAndCaseNo_thenReturn200() {
 
             String path = String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, CASE_NO);
+            final var validatableResponse = given()
+                .auth()
+                .oauth2(getToken())
+                .accept(APPLICATION_JSON_VALUE)
+                .contentType(APPLICATION_JSON_VALUE)
+                .when()
+                .get(path)
+                .then()
+                .statusCode(200);
+
+            validateBody(validatableResponse);
+
+        }
+
+        @Test
+        void givenMatchWithNoConvictions_whenGetOffenderDetailMatchByCourtCodeAndCaseNo_thenReturn200WithNoMostRecentEvent() {
+
+            String path = String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, "1000002");
+            final var validatableResponse = given()
+                .auth()
+                .oauth2(getToken())
+                .accept(APPLICATION_JSON_VALUE)
+                .contentType(APPLICATION_JSON_VALUE)
+                .when()
+                .get(path)
+                .then()
+                .statusCode(200);
+
+            validate(validatableResponse);
+        }
+
+        @Test
+        void givenCaseDoesNotExist_whenGetOffenderDetailMatchByCourtAndCaseNo_thenReturnNotFound() {
+            String path = String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, "23456541141414");
             given()
                 .auth()
                 .oauth2(getToken())
@@ -291,8 +329,94 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                 .when()
                 .get(path)
                 .then()
-                .statusCode(200)
-                .body("offenderMatchDetails", hasSize(1))
+                .statusCode(404)
+                .body("userMessage", equalTo("Case 23456541141414 not found for court " + COURT_CODE))
+                .body("developerMessage", equalTo("Case 23456541141414 not found for court " + COURT_CODE));
+        }
+
+        @Test
+        void givenMultipleMatchesOneNotFound_whenGetOffenderDetailMatch_thenReturn200() {
+
+            String path = String.format(OFFENDER_MATCHES_DEFENDANT_DETAIL_PATH, CASE_ID, DEFENDANT_ID);
+            final var validatableResponse = given()
+                .auth()
+                .oauth2(getToken())
+                .accept(APPLICATION_JSON_VALUE)
+                .contentType(APPLICATION_JSON_VALUE)
+                .when()
+                .get(path)
+                .then()
+                .statusCode(200);
+
+            validateBody(validatableResponse);
+        }
+
+        @Test
+        void givenMatchWithNoConvictions_whenGetOffenderDetailMatch_thenReturn200WithNoMostRecentEvent() {
+
+            String path = String.format(OFFENDER_MATCHES_DEFENDANT_DETAIL_PATH, "1000002", DEFENDANT_ID);
+            final var validatableResponse = given()
+                .auth()
+                .oauth2(getToken())
+                .accept(APPLICATION_JSON_VALUE)
+                .contentType(APPLICATION_JSON_VALUE)
+                .when()
+                .get(path)
+                .then()
+                .statusCode(200);
+
+            validate(validatableResponse);
+        }
+
+        @Test
+        void givenCaseDoesNotExist_whenGetOffenderDetailMatch_thenReturnNotFound() {
+            String path = String.format(OFFENDER_MATCHES_DEFENDANT_DETAIL_PATH, "aeafb11c-a6be-4769-853a-0d54c30bbac1", DEFENDANT_ID);
+            given()
+                .auth()
+                .oauth2(getToken())
+                .accept(APPLICATION_JSON_VALUE)
+                .contentType(APPLICATION_JSON_VALUE)
+                .when()
+                .get(path)
+                .then()
+                .statusCode(404)
+                .body("userMessage", equalTo("Case aeafb11c-a6be-4769-853a-0d54c30bbac1 not found for defendant " + DEFENDANT_ID))
+                .body("developerMessage", equalTo("Case aeafb11c-a6be-4769-853a-0d54c30bbac1 not found for defendant " + DEFENDANT_ID));
+        }
+
+        @Test
+        void givenDefendantIdDoesNotExistForCaseId_whenGetOffenderDetailMatch_thenReturnNotFound() {
+            String path = String.format(OFFENDER_MATCHES_DEFENDANT_DETAIL_PATH, CASE_ID, "90db99d6-04db-11ec-b2d8-0242ac130002");
+            given()
+                .auth()
+                .oauth2(getToken())
+                .accept(APPLICATION_JSON_VALUE)
+                .contentType(APPLICATION_JSON_VALUE)
+                .when()
+                .get(path)
+                .then()
+                .statusCode(404)
+                .body("userMessage", equalTo("Case " + CASE_ID + " not found for defendant 90db99d6-04db-11ec-b2d8-0242ac130002"))
+                .body("developerMessage", equalTo("Case " + CASE_ID + " not found for defendant 90db99d6-04db-11ec-b2d8-0242ac130002"));
+        }
+
+        private void validate(ValidatableResponse validatableResponse) {
+            validatableResponse.body("offenderMatchDetails", hasSize(1))
+                .body("offenderMatchDetails[0].title", equalTo(null))
+                .body("offenderMatchDetails[0].forename", equalTo("Nic"))
+                .body("offenderMatchDetails[0].middleNames", hasSize(0))
+                .body("offenderMatchDetails[0].surname", equalTo("Cage"))
+                .body("offenderMatchDetails[0].dateOfBirth", equalTo("1965-07-19"))
+                .body("offenderMatchDetails[0].address", equalTo(null))
+                .body("offenderMatchDetails[0].matchIdentifiers.crn", equalTo("X980123"))
+                .body("offenderMatchDetails[0].probationStatus", equalTo("Previously known"))
+                .body("offenderMatchDetails[0].probationStatusActual", equalTo("PREVIOUSLY_KNOWN"))
+                .body("offenderMatchDetails[0].mostRecentEvent", equalTo(null))
+            ;
+        }
+
+        private void validateBody(ValidatableResponse validatableResponse) {
+            validatableResponse.body("offenderMatchDetails", hasSize(1))
                 .body("offenderMatchDetails[0].title", equalTo("Mr."))
                 .body("offenderMatchDetails[0].forename", equalTo("Aadland"))
                 .body("offenderMatchDetails[0].middleNames", hasSize(2))
@@ -316,49 +440,6 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                 .body("offenderMatchDetails[0].mostRecentEvent.lengthUnits", equalTo("Years"))
                 .body("offenderMatchDetails[0].mostRecentEvent.startDate", equalTo("2014-01-01"))
             ;
-        }
-
-        @Test
-        void givenMatchWithNoConvictions_whenGetOffenderDetailMatch_thenReturn200WithNoMostRecentEvent() {
-
-            String path = String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, "1000002");
-            given()
-                .auth()
-                .oauth2(getToken())
-                .accept(APPLICATION_JSON_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .when()
-                .get(path)
-                .then()
-                .statusCode(200)
-                .body("offenderMatchDetails", hasSize(1))
-                .body("offenderMatchDetails[0].title", equalTo(null))
-                .body("offenderMatchDetails[0].forename", equalTo("Nic"))
-                .body("offenderMatchDetails[0].middleNames", hasSize(0))
-                .body("offenderMatchDetails[0].surname", equalTo("Cage"))
-                .body("offenderMatchDetails[0].dateOfBirth", equalTo("1965-07-19"))
-                .body("offenderMatchDetails[0].address", equalTo(null))
-                .body("offenderMatchDetails[0].matchIdentifiers.crn", equalTo("X980123"))
-                .body("offenderMatchDetails[0].probationStatus", equalTo("Previously known"))
-                .body("offenderMatchDetails[0].probationStatusActual", equalTo("PREVIOUSLY_KNOWN"))
-                .body("offenderMatchDetails[0].mostRecentEvent", equalTo(null))
-            ;
-        }
-
-        @Test
-        void givenCaseDoesNotExist_whenGetOffenderDetailMatch_thenReturnNotFound() {
-            String path = String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, "23456541141414");
-            given()
-                .auth()
-                .oauth2(getToken())
-                .accept(APPLICATION_JSON_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .when()
-                .get(path)
-                .then()
-                .statusCode(404)
-                .body("userMessage", equalTo("Case 23456541141414 not found for court " + COURT_CODE))
-                .body("developerMessage", equalTo("Case 23456541141414 not found for court " + COURT_CODE));
         }
     }
 

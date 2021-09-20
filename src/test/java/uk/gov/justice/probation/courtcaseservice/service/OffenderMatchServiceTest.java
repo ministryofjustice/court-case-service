@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
-import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetailResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
@@ -68,6 +67,7 @@ class OffenderMatchServiceTest {
         service = new OffenderMatchService(courtCaseService, offenderMatchRepository, offenderRestClientFactory);
     }
 
+    @ExtendWith(MockitoExtension.class)
     @Nested
     class CreateOrUpdateByCourtAndCaseNo {
 
@@ -77,7 +77,7 @@ class OffenderMatchServiceTest {
             when(courtCaseService.getCaseByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(courtCaseEntity);
             when(offenderMatchRepository.save(any(GroupedOffenderMatchesEntity.class))).thenReturn(groupedOffenderMatchesEntity);
 
-            Optional<GroupedOffenderMatchesEntity> match = service.createOrUpdateGroupedMatches(COURT_CODE, CASE_NO, groupedOffenderMatchesRequest)
+            final var match = service.createOrUpdateGroupedMatches(COURT_CODE, CASE_NO, groupedOffenderMatchesRequest)
                 .blockOptional();
 
             assertThat(match).isPresent();
@@ -90,7 +90,7 @@ class OffenderMatchServiceTest {
             when(offenderMatchRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(groupedOffenderMatchesEntity));
             when(offenderMatchRepository.save(any(GroupedOffenderMatchesEntity.class))).thenReturn(groupedOffenderMatchesEntity);
 
-            Optional<GroupedOffenderMatchesEntity> match = service.createOrUpdateGroupedMatches(COURT_CODE, CASE_NO, groupedOffenderMatchesRequest)
+            final var match = service.createOrUpdateGroupedMatches(COURT_CODE, CASE_NO, groupedOffenderMatchesRequest)
                 .blockOptional();
 
             assertThat(match).isPresent();
@@ -98,6 +98,7 @@ class OffenderMatchServiceTest {
         }
     }
 
+    @ExtendWith(MockitoExtension.class)
     @Nested
     class CreateOrUpdateByCaseId {
 
@@ -149,6 +150,7 @@ class OffenderMatchServiceTest {
         }
     }
 
+    @ExtendWith(MockitoExtension.class)
     @Nested
     class GetGroupedMatchesByCourtAndCaseNo {
 
@@ -185,6 +187,7 @@ class OffenderMatchServiceTest {
         }
     }
 
+    @ExtendWith(MockitoExtension.class)
     @Nested
     class GetSentence {
 
@@ -216,17 +219,27 @@ class OffenderMatchServiceTest {
 
     }
 
+    @ExtendWith(MockitoExtension.class)
     @Nested
     class GetOffenderMatchDetail {
+        private static final String CASE_ID = "4d113429-e38c-4fbf-bd94-e1c3569319eb";
+        private static final String DEFENDANT_ID = "e19b2776-6646-4940-93af-6b86fa1b7416";
+        private Conviction activeConviction;
+        private Conviction inactiveConviction;
+
+        @BeforeEach
+        void beforeEach() {
+            this.activeConviction = buildConviction(true, "sentence1");
+            this.inactiveConviction = buildConviction(false, "sentence2");
+        }
 
         @Test
         void whenGetOffenderMatchDetail_thenReturn() {
-            Conviction conviction = buildConviction(true, "sentence1");
-            OffenderMatchDetail matchDetail = OffenderMatchDetail.builder().forename("Chris").build();
-            String crn = "X320741";
-            mockOffenderDetailMatch(crn, matchDetail, List.of(conviction));
+            final var matchDetail = OffenderMatchDetail.builder().forename("Chris").build();
+            final var crn = "X320741";
+            mockOffenderDetailMatch(crn, matchDetail, List.of(activeConviction));
 
-            OffenderMatchDetail offenderMatchDetail = service.getOffenderMatchDetail(crn);
+            final var offenderMatchDetail = service.getOffenderMatchDetail(crn);
 
             verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);
             verify(offenderRestClient).getConvictionsByCrn(crn);
@@ -237,11 +250,11 @@ class OffenderMatchServiceTest {
         @Test
         void givenNoConvictions_whenGetOffenderMatchDetail_thenReturn() {
 
-            OffenderMatchDetail matchDetail = OffenderMatchDetail.builder().forename("Chris").build();
-            String crn = "X320741";
+            final var matchDetail = OffenderMatchDetail.builder().forename("Chris").build();
+            final var crn = "X320741";
             mockOffenderDetailMatch(crn, matchDetail, Collections.emptyList());
 
-            OffenderMatchDetail offenderMatchDetail = service.getOffenderMatchDetail("X320741");
+            final var offenderMatchDetail = service.getOffenderMatchDetail("X320741");
 
             assertThat(offenderMatchDetail.getForename()).isEqualTo("Chris");
             verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);
@@ -252,13 +265,13 @@ class OffenderMatchServiceTest {
         @Test
         void given404OnConvictionsCall_whenGetOffenderMatchDetail_thenReturn() {
 
-            OffenderMatchDetail matchDetail = OffenderMatchDetail.builder().forename("Chris").build();
-            String crn = "X320741";
+            final var matchDetail = OffenderMatchDetail.builder().forename("Chris").build();
+            final var crn = "X320741";
             when(offenderRestClient.getOffenderMatchDetailByCrn(crn)).thenReturn(Mono.justOrEmpty(matchDetail));
             when(offenderRestClient.getConvictionsByCrn(crn)).thenReturn(Mono.error(new OffenderNotFoundException(crn)));
             when(offenderRestClient.getProbationStatusByCrn(crn)).thenReturn(Mono.just(ProbationStatusDetail.builder().status("CURRENT").build()));
 
-            OffenderMatchDetail offenderMatchDetail = service.getOffenderMatchDetail("X320741");
+            final var offenderMatchDetail = service.getOffenderMatchDetail("X320741");
 
             assertThat(offenderMatchDetail.getForename()).isEqualTo("Chris");
             assertThat(offenderMatchDetail.getProbationStatus()).isEqualTo(ProbationStatus.CURRENT);
@@ -268,10 +281,9 @@ class OffenderMatchServiceTest {
         void givenNoMatchDetail_whenGetOffenderMatchDetail_thenReturnNull() {
 
             String crn = "X320741";
-            Conviction conviction = buildConviction(true, "sentence1");
-            mockOffenderDetailMatch(crn, null, List.of(conviction));
+            mockOffenderDetailMatch(crn, null, List.of(activeConviction));
 
-            OffenderMatchDetail offenderMatchDetail = service.getOffenderMatchDetail("X320741");
+            final var offenderMatchDetail = service.getOffenderMatchDetail("X320741");
 
             assertThat(offenderMatchDetail).isNull();
             verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);
@@ -288,15 +300,34 @@ class OffenderMatchServiceTest {
             when(offenderMatchRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(
                 Optional.ofNullable(buildGroupedOffenderMatchesEntity(List.of(crn1, crn2))));
 
-            Conviction conviction1 = buildConviction(true, "sentence1");
-            Conviction conviction2 = buildConviction(false, "sentence2");
-            OffenderMatchDetail matchDetail1 = OffenderMatchDetail.builder().forename("Chris").build();
-            OffenderMatchDetail matchDetail2 = OffenderMatchDetail.builder().forename("Dave").build();
+            final var matchDetail1 = OffenderMatchDetail.builder().forename("Chris").build();
+            final var matchDetail2 = OffenderMatchDetail.builder().forename("Dave").build();
 
             mockOffenderDetailMatch(crn1, matchDetail1, Collections.emptyList());
-            mockOffenderDetailMatch(crn2, matchDetail2, List.of(conviction2, conviction1));
+            mockOffenderDetailMatch(crn2, matchDetail2, List.of(inactiveConviction, activeConviction));
 
-            OffenderMatchDetailResponse response = service.getOffenderMatchDetails(COURT_CODE, CASE_NO);
+            final var response = service.getOffenderMatchDetails(COURT_CODE, CASE_NO);
+
+            assertThat(response.getOffenderMatchDetails()).hasSize(2);
+            assertThat(response.getOffenderMatchDetails()).extracting("forename").containsExactlyInAnyOrder("Chris", "Dave");
+        }
+
+        @Test
+        void givenMultipleCrns_whenGetOffenderMatchDetailsByCaseAndDefendantId_thenReturn() {
+
+            String crn1 = "X320741";
+            String crn2 = "X320742";
+
+            when(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(
+                Optional.ofNullable(buildGroupedOffenderMatchesEntity(List.of(crn1, crn2))));
+
+            final var matchDetail1 = OffenderMatchDetail.builder().forename("Chris").build();
+            final var matchDetail2 = OffenderMatchDetail.builder().forename("Dave").build();
+
+            mockOffenderDetailMatch(crn1, matchDetail1, Collections.emptyList());
+            mockOffenderDetailMatch(crn2, matchDetail2, List.of(inactiveConviction, activeConviction));
+
+            final var response = service.getOffenderMatchDetailsByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
 
             assertThat(response.getOffenderMatchDetails()).hasSize(2);
             assertThat(response.getOffenderMatchDetails()).extracting("forename").containsExactlyInAnyOrder("Chris", "Dave");
@@ -328,13 +359,14 @@ class OffenderMatchServiceTest {
         }
     }
 
+    @ExtendWith(MockitoExtension.class)
     @Nested
     class MatchCount {
 
         @Test
         void whenGetOffenderMatchCount_thenReturn() {
 
-            when(offenderMatchRepository.getMatchCount(COURT_CODE, CASE_NO)).thenReturn(Optional.ofNullable(2));
+            when(offenderMatchRepository.getMatchCount(COURT_CODE, CASE_NO)).thenReturn(Optional.of(2));
 
             assertThat(service.getMatchCount(COURT_CODE, CASE_NO).get()).isEqualTo(2);
         }

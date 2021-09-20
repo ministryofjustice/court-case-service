@@ -102,8 +102,27 @@ public class OffenderMatchService {
         return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchDetails).build();
     }
 
-    public Optional<GroupedOffenderMatchesEntity> getOffenderMatches(String courtCode, String caseNo) {
+    public OffenderMatchDetailResponse getOffenderMatchDetailsByCaseIdAndDefendantId(String caseId, String defendantId) {
+        courtCaseService.getCaseByCaseIdAndDefendantId(caseId, defendantId);    // Throw EntityNotFound if case does not exist
+        List<OffenderMatchDetail> offenderMatchDetails = getOffenderMatchesByCaseIdAndDefendantId(caseId, defendantId)
+            .map(GroupedOffenderMatchesEntity::getOffenderMatches)
+            .map(offenderMatchEntities -> offenderMatchEntities
+                .stream()
+                .map(OffenderMatchEntity::getCrn)
+                .map(this::getOffenderMatchDetail)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList())
+            ).orElse(Collections.emptyList());
+
+        return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchDetails).build();
+    }
+
+    private Optional<GroupedOffenderMatchesEntity> getOffenderMatches(String courtCode, String caseNo) {
         return offenderMatchRepository.findByCourtCodeAndCaseNo(courtCode, caseNo);
+    }
+
+    private Optional<GroupedOffenderMatchesEntity> getOffenderMatchesByCaseIdAndDefendantId(String caseId, String defendantId) {
+        return offenderMatchRepository.findByCaseIdAndDefendantId(caseId, defendantId);
     }
 
     public Optional<Integer> getMatchCount(String courtCode, String caseNo) {

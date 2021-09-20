@@ -13,6 +13,8 @@ public interface GroupedOffenderMatchRepository extends CrudRepository<GroupedOf
 
     Optional<GroupedOffenderMatchesEntity> findByCaseId(String caseId);
 
+    Optional<GroupedOffenderMatchesEntity> findByCaseIdAndDefendantId(String caseId, String defendantId);
+
     @Query(value = "select count(om.id) from offender_match om "
         + "INNER join offender_match_group omg "
         + "on omg.id = om.group_id "

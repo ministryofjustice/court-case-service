@@ -12,6 +12,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.reactive.server.WebTestClient.BodyContentSpec;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.Address;
 import uk.gov.justice.probation.courtcaseservice.controller.model.Event;
@@ -26,6 +27,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
@@ -38,6 +40,7 @@ class OffenderMatchesControllerTest {
     private static final String GROUP_OFFENDER_MATCH_PATH = "/court/" + COURT_CODE + "/case/" + CASE_NO + "/grouped-offender-matches/";
     private static final String CASE_ID_GROUP_OFFENDER_MATCH_PATH = "/case/" + CASE_ID + "/defendant/" + DEFENDANT_ID + "/grouped-offender-matches/";
     protected static final String OFFENDER_MATCHES_DETAIL_PATH = "/court/%s/case/%s/matchesDetail";
+    protected static final String OFFENDER_MATCHES_DEFENDANT_DETAIL_PATH = "/case/%s/defendant/%s/matchesDetail";
 
     private WebTestClient webTestClient;
 
@@ -187,13 +190,44 @@ class OffenderMatchesControllerTest {
 
         when(offenderMatchService.getOffenderMatchDetails(COURT_CODE, CASE_NO)).thenReturn(response);
 
-        webTestClient.get()
+        final var body = webTestClient.get()
             .uri(String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, CASE_NO))
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk()
-            .expectBody()
-            .jsonPath("offenderMatchDetails[0].forename").isEqualTo("Christopher")
+            .expectBody();
+
+        verify(offenderMatchService).getOffenderMatchDetails(COURT_CODE, CASE_NO);
+        verifyNoMoreInteractions(offenderMatchService);
+        validateBody(body);
+    }
+
+    @Test
+    void givenMultipleMatches_whenGetOffenderMatchDetailByCaseAndDefendantId_thenReturnMultiple() {
+
+        var detail1 = buildOffenderMatchDetail("Christopher", ProbationStatus.PREVIOUSLY_KNOWN);
+        var detail2 = buildOffenderMatchDetail("Christian", ProbationStatus.CURRENT);
+
+        var response = OffenderMatchDetailResponse.builder()
+            .offenderMatchDetails(List.of(detail1, detail2))
+            .build();
+
+        when(offenderMatchService.getOffenderMatchDetailsByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(response);
+
+        final var body = webTestClient.get()
+            .uri(String.format(OFFENDER_MATCHES_DEFENDANT_DETAIL_PATH, CASE_ID, DEFENDANT_ID))
+            .accept(APPLICATION_JSON)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody();
+
+        verify(offenderMatchService).getOffenderMatchDetailsByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
+        verifyNoMoreInteractions(offenderMatchService);
+        validateBody(body);
+    }
+
+    private void validateBody(BodyContentSpec body) {
+        body.jsonPath("offenderMatchDetails[0].forename").isEqualTo("Christopher")
             .jsonPath("offenderMatchDetails[0].surname").isEqualTo("Bailey")
             .jsonPath("offenderMatchDetails[0].middleNames").isArray()
             .jsonPath("offenderMatchDetails[0].dateOfBirth").isEqualTo("1969-08-26")
@@ -209,8 +243,7 @@ class OffenderMatchesControllerTest {
             .jsonPath("offenderMatchDetails[0].mostRecentEvent.lengthUnits").isEqualTo("Months")
 
             .jsonPath("offenderMatchDetails[1].forename").isEqualTo("Christian")
-            .jsonPath("offenderMatchDetails[1].probationStatus").isEqualTo("Current")
-        ;
+            .jsonPath("offenderMatchDetails[1].probationStatus").isEqualTo("Current");
     }
 
     private OffenderMatchDetail buildOffenderMatchDetail(String forename, ProbationStatus probationStatus) {

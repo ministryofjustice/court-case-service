@@ -31,8 +31,11 @@ import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,6 +43,7 @@ class CourtCaseControllerTest {
 
     private static final String COURT_CODE = "COURT_CODE";
     private static final String CASE_NO = "CASE_NO";
+
     private static final LocalDate DATE = LocalDate.of(2020, 2, 24);
     private static final LocalDateTime CREATED_AFTER = LocalDateTime.of(2020, 2, 23, 0, 0);
     private static final LocalDateTime CREATED_BEFORE = LocalDateTime.of(2020, 3, 23, 0, 0);
@@ -57,6 +61,7 @@ class CourtCaseControllerTest {
     private final CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder()
         .caseNo(CASE_NO)
         .courtCode(COURT_CODE)
+        .caseId(CASE_ID)
         .sourceType(COMMON_PLATFORM)
         .sessionStartTime(now)
         .build();
@@ -72,11 +77,35 @@ class CourtCaseControllerTest {
     @Test
     void getCourtCase_shouldReturnCourtCaseResponse() {
         when(courtCaseService.getCaseByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(courtCaseEntity);
+        when(offenderMatchService.getMatchCount(COURT_CODE, CASE_NO)).thenReturn(Optional.of(3));
         var courtCase = courtCaseController.getCourtCase(COURT_CODE, CASE_NO);
         assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCase.getCaseNo()).isEqualTo(CASE_NO);
         assertThat(courtCase.getSessionStartTime()).isNotNull();
         assertThat(courtCase.getSession()).isSameAs(session);
+        assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(3);
+
+        verify(courtCaseService).getCaseByCaseNumber(COURT_CODE, CASE_NO);
+        verify(offenderMatchService).getMatchCount(COURT_CODE, CASE_NO);
+        verifyNoMoreInteractions(courtCaseService, offenderMatchService);
+    }
+
+    @Test
+    void getCourtCaseByCaseIdAndDefendantId_shouldReturnCourtCaseResponseNoCaseNo() {
+
+        when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(2));
+        when(courtCaseService.getCaseByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(courtCaseEntity);
+
+        var courtCase = courtCaseController.getCourtCaseByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
+        assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(courtCase.getCaseNo()).isNull();
+        assertThat(courtCase.getSessionStartTime()).isNotNull();
+        assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(2);
+        assertThat(courtCase.getSession()).isSameAs(session);
+
+        verify(courtCaseService).getCaseByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
+        verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
+        verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 
     @Test

@@ -40,6 +40,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
 
 @ExtendWith(MockitoExtension.class)
@@ -433,6 +434,29 @@ class ImmutableCourtCaseServiceTest {
             );
             assertThat(exception).isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Case " + CASE_ID + " not found");
+        }
+
+        @Test
+        void whenGetCourtCaseByIdAndDefendantId_shouldRetrieveCaseFromRepository() {
+            final var courtCaseEntity = EntityHelper.aCourtCaseEntity(CRN);
+            when(courtCaseRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(courtCaseEntity));
+
+            final var entity = service.getCaseByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
+
+            assertThat(entity).isSameAs(courtCaseEntity);
+            verify(courtCaseRepository).findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
+            verifyNoMoreInteractions(courtCaseRepository);
+        }
+
+        @Test
+        void givenNoMatch_whenGetCourtCaseByIdAndDefendantId_shouldThrowException() {
+            when(courtCaseRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.empty());
+
+            var exception = catchThrowable(() ->
+                service.getCaseByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)
+            );
+            assertThat(exception).isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Case " + CASE_ID + " not found for defendant " + DEFENDANT_ID);
         }
 
     }

@@ -4,10 +4,10 @@ ignore:
   SNYK-JAVA-IONETTY-1584064:
     - '*':
         reason: Third party version (netty-codec) with version out of our control, comes via spring boot
-        expires: 2021-09-21T00:00:00.000Z
+        expires: 2021-09-26T00:00:00.000Z
   SNYK-JAVA-IONETTY-1584063:
     - '*':
         reason: Third party library (netty-codec) with version out of our control, comes via spring boot
-        expires: 2021-09-21T00:00:00.000Z
+        expires: 2021-09-26T00:00:00.000Z
 patch: {}
 version: v1.13.5

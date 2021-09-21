@@ -116,6 +116,8 @@ VALUES (1000001, 1000001, 1000001, 'B10JQ', '1', '2020-01-01 09:00:00', 'No reco
 
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, source_type)
 VALUES (1000002, 1000002, 1000002, 'B10JQ', '3', '2020-01-02 09:00:00', 'No record', 'X320741', 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, crn, pnc, cro, sex, nationality_1, nationality_2)
+VALUES (-1000002, 1000002, '40db17d6-04db-11ec-b2d8-0242ac130002', 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', null, 'A/1234560BA', '311462/13E', 'M', 'British', 'Polish');
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, source_type)
 VALUES (1000003, 1000003, 1000003, 'B10JQ', '2', '2020-01-02 09:00:00', 'No record', 'X320741', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, source_type)
@@ -156,8 +158,8 @@ VALUES (false, true, '3234', '32345', 'NAME_DOB', '323456', 9999992);
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (false, true, 'CRN123', '32345', 'NAME_DOB', 'PNC12/456', 9999992);
 
-INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE)
-VALUES (9999993, '1000002','B10JQ');
+INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE, CASE_ID, DEFENDANT_ID)
+VALUES (9999993, '1000002', 'B10JQ', '1000002', '40db17d6-04db-11ec-b2d8-0242ac130002');
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (false, false, 'X980123', 'CRO1', 'NAME_DOB', '323456', 9999993);
 

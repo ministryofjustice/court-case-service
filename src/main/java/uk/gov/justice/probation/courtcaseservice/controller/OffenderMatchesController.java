@@ -127,4 +127,21 @@ public class OffenderMatchesController {
                                                         @PathVariable(value = "caseNo") String caseNo) {
         return offenderMatchService.getOffenderMatchDetails(courtCode, caseNo);
     }
+
+    @ApiOperation(value = "Returns all possible matches found for a given case and defendant ID")
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Not Found, if for example, the case or defendant IDs do not exist.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+        })
+    @GetMapping(value = "/case/{caseId}/defendant/{defendantId}/matchesDetail", produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    OffenderMatchDetailResponse getOffenderMatchesDetailByCaseAndDefendantId(@PathVariable(value = "caseId") String caseId,
+                                                                            @PathVariable(value = "defendantId") String defendantId) {
+        return offenderMatchService.getOffenderMatchDetailsByCaseIdAndDefendantId(caseId, defendantId);
+    }
 }

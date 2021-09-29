@@ -19,6 +19,9 @@ public interface CourtCaseService {
     Mono<CourtCaseEntity> createCase(String caseId, CourtCaseEntity updatedCase)
         throws EntityNotFoundException, InputMismatchException;
 
+    Mono<CourtCaseEntity> createUpdateCaseForSingleDefendantId(String caseId, String defendantId, CourtCaseEntity updatedCase)
+        throws EntityNotFoundException, InputMismatchException;
+
     Mono<CourtCaseEntity> createCase(String courtCode, String caseNo, CourtCaseEntity updatedCase)
         throws EntityNotFoundException, InputMismatchException;
 

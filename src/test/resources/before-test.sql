@@ -89,9 +89,12 @@ VALUES (-1700028908, -1700028908, 'B10JQ', 2, '2019-12-14', '13:00:00', '3rd', n
 
 -- See GET_cases_givenCreatedBefore_andCreatedAfterFilterParams_andManualUpdatesHaveBeenMadeAfterTheseTimes_whenGetCases_thenReturnManualUpdates
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, created_by, manual_update, source_type)
-VALUES (-1700028909, '1f93aa0a-7e46-4885-a1cb-f25a4be33a60', 1600028919, 'B30NY', 1, '2019-12-14 12:59:59', 'NO_RECORD', 'X320654', 'Hubert Farnsworth', '2020-10-01 16:59:59', 'TURANGALEE(prepare-a-case-for-court)', true, 'COMMON_PLATFORM');
+VALUES (-1700028909, 'e652eaae-1114-4593-8f56-659eb2baffcf', 1600028919, 'B30NY', 1, '2200-12-14 12:59:59', 'NO_RECORD', 'X320654', 'Hubert Farnsworth', '2020-10-01 16:59:59', 'TURANGALEE(prepare-a-case-for-court)', true, 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
-VALUES (-1700028909, -1700028909, 'B30NY', 1, '2019-12-14', '12:59:59', '3rd', '2020-10-01 16:59:59');
+VALUES (-1700028909, -1700028909, 'B30NY', 1, '2200-12-14', '12:59:59', '3rd', '2020-10-01 16:59:59');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, pnc, sex, probation_status, crn)
+VALUES (-1700028909, -1700028909, 'c15475ce-9748-4a60-b42b-02ce78523c95', 'Mr Roger HUNT', '{"title": "Mr", "surname": "HUNT", "forename1": "Roger"}', '{"line1": "Anfield", "line2": "Walton Breck Road", "postcode": "L5 2DE 5dr"}', 'PERSON', '1940-05-01', 'A/1234560BA', 'M', 'NO_RECORD', 'X320654');
+
 
 -- These records are used to test the Last-Modified header CHECKED
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, deleted, source_type)
@@ -219,3 +222,34 @@ VALUES (-2000000, -1700030001, 'd49323c0-04da-11ec-b2d8-0242ac130002', 'Mr Johnn
 
 INSERT INTO courtcaseservicetest.DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-2000000, -2000000, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);
+
+-- For Single case and defendant ID save (3db9d70b-10a2-49d1-b74d-379f2db74862)
+-- 2 hearings, 2 defendants
+-- 1263de26-4a81-42d3-a798-bad802433318 - John Peel
+-- 6f014c2e-8be3-4a12-a551-8377bd31a7b8 - Jessica Peel
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, defendant_name, name, defendant_address, crn, pnc, cro, list_no, defendant_dob, defendant_sex, nationality_1, nationality_2, created, awaiting_psr, source_type)
+VALUES (-1800028900, '3db9d70b-10a2-49d1-b74d-379f2db74862', 1800028900, 'B33HU', 1, '2019-12-14 09:00', null, '2010-01-01', true, true, true, 'Mr John PEEL', '{"title": "Mr", "surname": "PEEL", "forename1": "John", "forename2": "Jonny", "forename3": "Jon"}','{"line1": "10", "line2": "Margrave", "postcode": "SU11 1AA", "line3": "Suffolk", "line4": null, "line5": null}', null, 'A/1234560YY', '888888/13E', '3rd', '1939-10-10', 'M', 'British', 'Irish' , now(), true, 'COMMON_PLATFORM');
+
+INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
+VALUES (-3000000, -1800028900, 'B33HU', 1, '2019-12-14', '09:00', '3rd');
+INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
+VALUES (-3000001, -1800028900, 'B33HU', 1, '2019-12-15', '13:00', '3rd');
+
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, crn, pnc, cro, sex, nationality_1, nationality_2, awaiting_psr, probation_status)
+VALUES (-3000000, -1800028900, '1263de26-4a81-42d3-a798-bad802433318', 'Mr John PEEL', '{"title": "Mr", "surname": "PEEL", "forename1": "John", "forename2": "Jonny", "forename3": "Jon"}', '{"line1": "10", "line2": "Margrave", "postcode": "SU11 1AA", "line3": "Suffolk", "line4": null, "line5": null}', 'PERSON', '1939-10-10', null, 'A/1234560YY', '888888/13E', 'M', 'British', 'Irish', true, null);
+INSERT INTO courtcaseservicetest.DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
+VALUES (-3000000, -3000000, 'John PEEL Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);
+
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, crn, pnc, cro, sex, nationality_1, nationality_2, awaiting_psr)
+VALUES (-3000001, -1800028900, '6f014c2e-8be3-4a12-a551-8377bd31a7b8', 'Mrs Jessica PEEL', '{"title": "Mr", "surname": "PEEL", "forename1": "Jessica", "forename2": "Lisa", "forename3": "Julie"}', '{"line1": "11", "line2": "Margrave", "postcode": "SU11 1AA", "line3": "Suffolk", "line4": null, "line5": null}', 'PERSON', '1939-10-10', null, 'A/1234560ZZ', '999999/13E', 'F', 'British', 'Irish', true);
+INSERT INTO courtcaseservicetest.DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
+VALUES (-3000001, -3000001, 'Jessica PEEL Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);
+
+-- Two matches for Mr John PEEL
+INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE, CASE_ID, DEFENDANT_ID)
+VALUES (-1800028900, '1800028900', 'B33HU', '3db9d70b-10a2-49d1-b74d-379f2db74862', '1263de26-4a81-42d3-a798-bad802433318');
+INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, MATCH_TYPE, PNC, GROUP_ID)
+VALUES (false, false, 'X320654', 'NAME_DOB', 'A323456', -1800028900);
+INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, MATCH_TYPE, PNC, GROUP_ID)
+VALUES (false, false, 'X999999', 'NAME_DOB', 'B323456', -1800028900);
+--

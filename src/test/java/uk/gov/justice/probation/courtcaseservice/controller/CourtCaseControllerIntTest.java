@@ -199,12 +199,13 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
         @Test
         void GET_cases_givenCreatedBefore_andCreatedAfterFilterParams_andManualUpdatesHaveBeenMadeAfterTheseTimes_whenGetCases_thenReturnManualUpdates() {
 
+            var futureDecember14 = LocalDate.of(2200, Month.DECEMBER, 14).format(DateTimeFormatter.ISO_DATE);
+
             given()
                 .auth()
                 .oauth2(getToken())
                 .when()
-                .get("/court/B30NY/cases?date={date}&createdAfter=2020-09-01T16:59:59&createdBefore=2020-09-01T17:00:00",
-                    DECEMBER_14.format(DateTimeFormatter.ISO_DATE))
+                .get("/court/B30NY/cases?date={date}&createdAfter=2020-09-01T16:59:59&createdBefore=2020-09-01T17:00:00", futureDecember14)
                 .then()
                 .assertThat()
                 .statusCode(200)

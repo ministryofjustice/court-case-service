@@ -21,6 +21,7 @@ import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
@@ -30,6 +31,7 @@ import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -112,9 +114,13 @@ class CourtCaseControllerTest {
     void updateCaseByCourtAndCaseNo_shouldReturnCourtCaseResponse() {
         when(courtCaseUpdate.asEntity()).thenReturn(courtCaseEntity);
         when(courtCaseService.createCase(COURT_CODE, CASE_NO, courtCaseEntity)).thenReturn(Mono.just(courtCaseEntity));
+        when(offenderMatchService.getMatchCount(COURT_CODE, CASE_NO)).thenReturn(Optional.empty());
         var courtCase = courtCaseController.updateCourtCaseNo(COURT_CODE, CASE_NO, courtCaseUpdate). block();
 
         assertCourtCase(courtCase);
+        verify(courtCaseService).createCase(COURT_CODE, CASE_NO, courtCaseEntity);
+        verify(offenderMatchService).getMatchCount(COURT_CODE, CASE_NO);
+        verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 
     @Test
@@ -237,6 +243,34 @@ class CourtCaseControllerTest {
         assertThat(responseEntity.getHeaders().get("Cache-Control").get(0)).isEqualTo("max-age=1");
     }
 
+    @Test
+    void whenUpdateCaseByCaseIdAndDefendantId_shouldReturnCourtCaseResponse() {
+        when(courtCaseUpdate.asEntity()).thenReturn(courtCaseEntity);
+        when(courtCaseService.createUpdateCaseForSingleDefendantId(CASE_ID, DEFENDANT_ID, courtCaseEntity)).thenReturn(Mono.just(courtCaseEntity));
+        when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(3));
+
+        var courtCase = courtCaseController.updateCourtCaseByDefendantId(CASE_ID, DEFENDANT_ID, courtCaseUpdate). block();
+
+        assertCourtCase(courtCase, null, 3);
+        verify(courtCaseService).createUpdateCaseForSingleDefendantId(CASE_ID, DEFENDANT_ID, courtCaseEntity);
+        verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
+        verifyNoMoreInteractions(courtCaseService, offenderMatchService);
+    }
+
+    @Test
+    void whenUpdateWholeCaseByCaseId_shouldReturnCourtCaseResponse() {
+        var courtCaseRequest = mock(ExtendedCourtCaseRequest.class);
+        when(courtCaseRequest.asCourtCaseEntity()).thenReturn(courtCaseEntity);
+        when(courtCaseService.createCase(CASE_ID, courtCaseEntity)).thenReturn(Mono.just(courtCaseEntity));
+
+        var courtCase = courtCaseController.updateCourtCaseId(CASE_ID, courtCaseRequest). block();
+
+        assertThat(courtCase).isSameAs(courtCaseRequest);
+        verify(courtCaseRequest).asCourtCaseEntity();
+        verify(courtCaseService).createCase(CASE_ID, courtCaseEntity);
+        verifyNoMoreInteractions(courtCaseService, offenderMatchService);
+    }
+
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, String defendantName, LocalDateTime sessionTime) {
         assertThat(cases.get(position).getCourtRoom()).isEqualTo(courtRoom);
         assertThat(cases.get(position).getDefendantName()).isEqualTo(defendantName);
@@ -244,10 +278,15 @@ class CourtCaseControllerTest {
     }
 
     private void assertCourtCase(CourtCaseResponse courtCase) {
+        assertCourtCase(courtCase, CASE_NO, 0);
+    }
+
+    private void assertCourtCase(CourtCaseResponse courtCase, String caseNo, int possibleMatchCount) {
         assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
-        assertThat(courtCase.getCaseNo()).isEqualTo(CASE_NO);
+        assertThat(courtCase.getCaseNo()).isEqualTo(caseNo);
         assertThat(courtCase.getSessionStartTime()).isNotNull();
         assertThat(courtCase.getSession()).isSameAs(session);
         assertThat(courtCase.getSource()).isEqualTo(COMMON_PLATFORM.name());
+        assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(possibleMatchCount);
     }
 }

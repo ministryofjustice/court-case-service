@@ -1,7 +1,7 @@
 {
   "courtCode": "B10JQ",
   "caseNo": "1700028914",
-  "caseId": "654321",
+  "caseId": "571b7172-4cef-435c-9048-d071a43b9dbf",
   "crn": "X320741",
   "pnc": "A/1234560BA",
   "cro": "99999",
@@ -26,6 +26,7 @@
       "act": "Contrary to section 1(1) and 7 of the Theft Act 1968."
     }
   ],
+  "defendantId": "e0056894-e8f8-42c2-ba9a-e41250c3d1a3",
   "defendantName": "Mr Dylan Adam ARMSTRONG",
   "name": {
     "title": "Mr",

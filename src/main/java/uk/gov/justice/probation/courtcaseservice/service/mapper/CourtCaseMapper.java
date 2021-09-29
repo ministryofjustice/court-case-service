@@ -1,12 +1,21 @@
 package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 
 public class CourtCaseMapper {
 
-    public static CourtCaseEntity create(CourtCaseEntity courtCaseEntity, String updatedProbationStatus) {
+    public static CourtCaseEntity create(CourtCaseEntity courtCaseEntity, String crn, String updatedProbationStatus) {
 
         var newCourtCaseEntity = CourtCaseEntity.builder()
             .breach(courtCaseEntity.getBreach())
@@ -32,16 +41,129 @@ public class CourtCaseMapper {
             .sessionStartTime(courtCaseEntity.getSessionStartTime())
             .sourceType(courtCaseEntity.getSourceType())
             .suspendedSentenceOrder(courtCaseEntity.getSuspendedSentenceOrder())
+            .hearings(courtCaseEntity.getHearings()
+                            .stream()
+                            .map(CourtCaseMapper::createHearing)
+                            .collect(Collectors.toList()))
             .offences(courtCaseEntity.getOffences()
                             .stream()
                             .map(CourtCaseMapper::createOffence)
                             .collect(Collectors.toList()))
+            .defendants(Optional.ofNullable(courtCaseEntity.getDefendants()).orElse(Collections.emptyList())
+                .stream()
+                .map(defendant -> createDefendant(defendant, crn, updatedProbationStatus))
+                .collect(Collectors.toList()))
             .build();
 
         newCourtCaseEntity.getOffences().forEach(offenceEntity -> offenceEntity.setCourtCase(newCourtCaseEntity));
+        newCourtCaseEntity.getDefendants().forEach(defendantEntity -> defendantEntity.setCourtCase(courtCaseEntity));
+        newCourtCaseEntity.getHearings().forEach(hearingEntity -> hearingEntity.setCourtCase(courtCaseEntity));
         return newCourtCaseEntity;
     }
 
+    public static CourtCaseEntity mergeDefendantsOnCase(CourtCaseEntity existingCase, CourtCaseEntity updatedCase, String defendantId) {
+        final var existingDefendants = Optional.ofNullable(existingCase.getDefendants()).orElse(Collections.emptyList());
+        final var existingHearings = CourtCaseMapper.createHearings(existingCase.getHearings());
+        if (existingDefendants.size() <= 1) {
+            final var caseToSave = updatedCase.withHearings(existingHearings);
+            applyParentToCollections(caseToSave);
+            return caseToSave;
+        }
+
+        final var updatedDefendant = updatedCase.getDefendants().stream()
+            .filter(existingDef -> defendantId.equalsIgnoreCase(existingDef.getDefendantId()))
+            .findFirst()
+            .orElseThrow(() -> new ConflictingInputException(String.format("No defendant ID matching %s in updated case", defendantId)));
+
+        // Clone all OTHER defendants, removing the IDs
+        final var allDefendants = existingDefendants.stream()
+            .filter(existingDef -> !defendantId.equalsIgnoreCase(existingDef.getDefendantId()))
+            .map(otherDefendant -> CourtCaseMapper.createDefendant(otherDefendant, null))
+            .collect(Collectors.toCollection(() -> new ArrayList<>(Arrays.asList(updatedDefendant))));
+
+        // rebuild the case with new defendants and hearings
+        final var caseToSave = updatedCase.withDefendants(allDefendants)
+                                                        .withHearings(CourtCaseMapper.createHearings(existingCase.getHearings()));
+        applyParentToCollections(caseToSave);
+        return caseToSave;
+    }
+
+    private static void applyParentToCollections(final CourtCaseEntity caseToSave) {
+        Optional.ofNullable(caseToSave.getDefendants()).orElse(Collections.emptyList())
+            .forEach(defendantEntity -> defendantEntity.setCourtCase(caseToSave));
+        Optional.ofNullable(caseToSave.getHearings()).orElse(Collections.emptyList())
+            .forEach(hearingEntity -> hearingEntity.setCourtCase(caseToSave));
+        Optional.ofNullable(caseToSave.getOffences()).orElse(Collections.emptyList())
+            .forEach(offenceEntity -> offenceEntity.setCourtCase(caseToSave));
+    }
+
+    public static HearingEntity createHearing(HearingEntity hearing) {
+        return HearingEntity.builder()
+            .courtCode(hearing.getCourtCode())
+            .hearingTime(hearing.getHearingTime())
+            .hearingDay(hearing.getHearingDay())
+            .courtRoom(hearing.getCourtRoom())
+            .listNo(hearing.getListNo())
+            .build();
+    }
+
+    static List<HearingEntity> createHearings(List<HearingEntity> hearings) {
+        return Optional.ofNullable(hearings).orElse(Collections.emptyList())
+            .stream()
+            .map(CourtCaseMapper::createHearing)
+            .collect(Collectors.toList());
+    }
+
+    public static DefendantEntity createDefendant(DefendantEntity defendantEntity, String newProbationStatus) {
+
+        var newDefendantEntity = DefendantEntity.builder()
+            .probationStatus(Optional.ofNullable(newProbationStatus).orElse(defendantEntity.getProbationStatus()))
+            .defendantId(defendantEntity.getDefendantId())
+            .defendantName(defendantEntity.getDefendantName())
+            .name(defendantEntity.getName())
+            .type(defendantEntity.getType())
+            .address(defendantEntity.getAddress())
+            .crn(defendantEntity.getCrn())
+            .pnc(defendantEntity.getPnc())
+            .cro(defendantEntity.getCro())
+            .dateOfBirth(defendantEntity.getDateOfBirth())
+            .sex(defendantEntity.getSex())
+            .nationality1(defendantEntity.getNationality1())
+            .nationality2(defendantEntity.getNationality2())
+            .previouslyKnownTerminationDate(defendantEntity.getPreviouslyKnownTerminationDate())
+            .suspendedSentenceOrder(defendantEntity.getSuspendedSentenceOrder())
+            .breach(defendantEntity.getBreach())
+            .preSentenceActivity(defendantEntity.getPreSentenceActivity())
+            .awaitingPsr(defendantEntity.getAwaitingPsr())
+            .manualUpdate(defendantEntity.isManualUpdate())
+            .offences(Optional.ofNullable(defendantEntity.getOffences()).orElse(Collections.emptyList())
+                .stream()
+                .map(CourtCaseMapper::createDefendantOffence)
+                .collect(Collectors.toList()))
+            .build();
+
+        newDefendantEntity.getOffences().forEach(offenceEntity -> offenceEntity.setDefendant(newDefendantEntity));
+        return newDefendantEntity;
+    }
+
+    static DefendantEntity createDefendant(DefendantEntity defendantEntity, String crn, String updatedProbationStatus) {
+        var newProbationStatus = crn.equals(defendantEntity.getCrn()) ? updatedProbationStatus : defendantEntity.getProbationStatus();
+        return createDefendant(defendantEntity, newProbationStatus);
+    }
+
+    static DefendantOffenceEntity createDefendantOffence(DefendantOffenceEntity offenceEntity) {
+        return DefendantOffenceEntity.builder()
+            .act(offenceEntity.getAct())
+            .summary(offenceEntity.getSummary())
+            .title(offenceEntity.getTitle())
+            .sequence(offenceEntity.getSequence())
+            .build();
+    }
+
+    /**
+     * @deprecated offences directly on the court case will be retired in favour of DefendantOffenceEntity linked to DefendantEntity
+     */
+    @Deprecated(forRemoval = true)
     static OffenceEntity createOffence(OffenceEntity offenceEntity) {
         return OffenceEntity.builder()
             .act(offenceEntity.getAct())
@@ -50,4 +172,6 @@ public class CourtCaseMapper {
             .sequenceNumber(offenceEntity.getSequenceNumber())
             .build();
     }
+
+
 }

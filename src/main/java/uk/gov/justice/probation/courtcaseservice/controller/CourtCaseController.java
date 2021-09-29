@@ -123,10 +123,10 @@ public class CourtCaseController {
                 .map(courtCaseEntity -> buildCourtCaseResponse(courtCaseEntity, true));
     }
 
-    @ApiOperation(value = "Saves and returns the court case entity data, by court and case number. ")
+    @ApiOperation(value = "Saves and returns the court case data, by case id.")
     @ApiResponses(
             value = {
-                    @ApiResponse(code = 501, message = "Not Implemented (To be 201 Created)", response = ExtendedCourtCaseRequest.class),
+                    @ApiResponse(code = 201, message = "Created", response = ExtendedCourtCaseRequest.class),
                     @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
                     @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
                     @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
@@ -140,6 +140,26 @@ public class CourtCaseController {
                                                      @Valid @RequestBody ExtendedCourtCaseRequest courtCaseRequest) {
         return courtCaseService.createCase(caseId, courtCaseRequest.asCourtCaseEntity())
             .thenReturn(courtCaseRequest);
+    }
+
+    @ApiOperation(value = "Saves and returns the court case data, by case id.")
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 201, message = "Updated", response = ExtendedCourtCaseRequest.class),
+            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+        })
+    @PutMapping(value = "/case/{caseId}/defendant/{defendantId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public @ResponseBody
+    Mono<CourtCaseResponse> updateCourtCaseByDefendantId(@PathVariable(value = "caseId") String caseId,
+        @PathVariable(value = "defendantId") String defendantId,
+        @Valid @RequestBody CourtCaseRequest courtCaseRequest) {
+        return courtCaseService.createUpdateCaseForSingleDefendantId(caseId, defendantId, courtCaseRequest.asEntity())
+            .map(courtCaseEntity -> buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseEntity, defendantId));
     }
 
     @ApiOperation(value = "Gets case data for a court on a date. ",

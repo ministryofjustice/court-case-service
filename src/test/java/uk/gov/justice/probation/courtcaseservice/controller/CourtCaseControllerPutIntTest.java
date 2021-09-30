@@ -14,6 +14,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 
@@ -40,7 +41,6 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_1;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_2;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aCourtCaseEntityLinked;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
@@ -436,7 +436,6 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .ifPresentOrElse(entity -> {
                     assertThat(entity.getHearings()).hasSize(2);
                     assertThat(entity.getDefendants()).hasSize(2);
-                    assertThat(entity.getDefendants().get(0).getOffences()).hasSize(1);
                     assertThat(entity.getDefendants()).extracting("defendantId").containsExactlyInAnyOrder(defendantIdToUpdate, defendantIdToRetain);
                 }, () -> fail("COURT CASE does not exist for " + JSON_CASE_ID));
 
@@ -659,7 +658,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
     }
 
     private CourtCaseEntity createCaseDetails(String courtCode) {
-        return aCourtCaseEntityLinked(null, JSON_CASE_NO, LocalDateTime.now(), PROBATION_STATUS, JSON_CASE_ID, courtCode);
+        return EntityHelper.aCourtCase(null, JSON_CASE_NO, LocalDateTime.now(), PROBATION_STATUS, JSON_CASE_ID, courtCode);
     }
 
     private void createCase() {

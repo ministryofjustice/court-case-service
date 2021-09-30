@@ -11,6 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
@@ -272,6 +273,25 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getListNo()).isEqualTo(LIST_NO);
         assertThat(courtCaseResponse.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
         assertThat(courtCaseResponse.getSession()).isSameAs(CourtSession.MORNING);
+    }
+
+    @Test
+    void givenMultipleDefendants_whenMapByDefendantId_thenReturnCorrectDefendant() {
+
+        var newName = NamePropertiesEntity.builder().surname("PRESLEY").forename1("Elvis").build();
+        var defendant1 = EntityHelper.aDefendantEntity("bd1f71e5-939b-4580-8354-7d6061a58032")
+            .withName(newName)
+            .withCrn("D99999");
+        var defendant2 = EntityHelper.aDefendantEntity(DEFENDANT_ID);
+
+        var courtCase = courtCaseEntity.withDefendants(List.of(defendant1, defendant2));
+
+        var response = CourtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5);
+
+        assertCaseFields(response, null);
+        assertThat(response.getNumberOfPossibleMatches()).isEqualTo(5);
+        assertThat(response.getCrn()).isEqualTo("D99999");
+        assertThat(response.getName()).isEqualTo(newName);
     }
 
     private GroupedOffenderMatchesEntity buildMatchGroups() {

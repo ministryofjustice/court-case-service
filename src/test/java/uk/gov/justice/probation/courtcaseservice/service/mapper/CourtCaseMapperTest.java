@@ -178,6 +178,14 @@ class CourtCaseMapperTest {
                 assertThat(defendant.getName().getForename1()).isEqualTo("Una");
                 assertThat(defendant.getCourtCase()).isSameAs(newEntity);
             });
+        assertThat(newEntity.getDefendants()).filteredOn(d -> d.getCrn().equals("X340906"))
+            .allSatisfy(defendant -> {
+                assertThat(defendant.getName().getSurname()).isEqualTo("BENNETT");
+                assertThat(defendant.getName().getForename1()).isEqualTo("Gordon");
+                assertThat(defendant.getCourtCase()).isSameAs(newEntity);
+                var offences = defendant.getOffences();
+                assertThat(offences.get(0).getDefendant()).isSameAs(defendant);
+            });
     }
 
     @Test

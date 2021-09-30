@@ -223,7 +223,7 @@ public class CourtCaseController {
         final var offenderMatchesCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(courtCaseEntity.getCaseId(), defendantId)
             .orElse(0);
 
-        return CourtCaseResponseMapper.mapFrom(courtCaseEntity, offenderMatchesCount, false, null);
+        return CourtCaseResponseMapper.mapFrom(courtCaseEntity, defendantId, offenderMatchesCount);
     }
 
     private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity, boolean includeCaseNo) {

@@ -451,7 +451,47 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
 
             response.body("$", not(hasKey("caseNo")));
 
-            validateResponse(response, DECEMBER_14_9AM.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), CASE_ID);
+            response
+                .body("caseId", equalTo(CASE_ID))
+                .body("offences", hasSize(2))
+                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
+                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
+                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
+                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
+                .body("probationStatus", equalTo(PROBATION_STATUS))
+                .body("probationStatusActual", equalTo(null))
+                .body("previouslyKnownTerminationDate", equalTo(null))
+                .body("suspendedSentenceOrder", equalTo(false))
+                .body("breach", equalTo(false))
+                .body("source", equalTo("COMMON_PLATFORM"))
+                .body("preSentenceActivity", equalTo(false))
+                .body("crn", equalTo(null))
+                .body("pnc", equalTo("A/1234560BA"))
+                .body("cro", equalTo("311462/13E"))
+                .body("listNo", equalTo("3rd"))
+                .body("courtCode", equalTo(COURT_CODE))
+                .body("sessionStartTime", equalTo(DECEMBER_14_9AM.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                .body("defendantName", equalTo("Mr Johnny BALL"))
+                .body("defendantId", equalTo(DEFENDANT_ID))
+                .body("name.title", equalTo("Mr"))
+                .body("name.forename1", equalTo("Johnny"))
+                .body("name.forename2", equalTo("John"))
+                .body("name.forename3", equalTo("Jon"))
+                .body("name.surname", equalTo("BALL"))
+                .body("defendantAddress.line1", equalTo("27"))
+                .body("defendantAddress.line2", equalTo("Elm Place"))
+                .body("defendantAddress.postcode", equalTo("ad21 5dr"))
+                .body("defendantAddress.line3", equalTo("Bangor"))
+                .body("defendantAddress.line4", equalTo(null))
+                .body("defendantAddress.line5", equalTo(null))
+                .body("defendantDob", equalTo(LocalDate.of(1958, Month.OCTOBER, 10).format(DateTimeFormatter.ISO_LOCAL_DATE)))
+                .body("defendantSex", equalTo("M"))
+                .body("nationality1", equalTo("British"))
+                .body("nationality2", equalTo("Polish"))
+                .body("removed", equalTo(false))
+                .body("createdToday", equalTo(true))
+                .body("numberOfPossibleMatches", equalTo(3))
+            ;
         }
 
         @Test

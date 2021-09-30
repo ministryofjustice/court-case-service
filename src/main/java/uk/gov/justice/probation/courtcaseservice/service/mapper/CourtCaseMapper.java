@@ -1,18 +1,21 @@
 package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 
+/**
+ * This mapping class clones instances of the JPA entities, at all levels.
+ *
+ * It deliberately omits to clone the id value so that subsequent saves will create new records which is a key factor towards maintaining the immutable
+ * database records.
+ */
 public class CourtCaseMapper {
 
     public static CourtCaseEntity create(CourtCaseEntity courtCaseEntity, String crn, String updatedProbationStatus) {
@@ -70,16 +73,10 @@ public class CourtCaseMapper {
             return caseToSave;
         }
 
-        final var updatedDefendant = updatedCase.getDefendants().stream()
-            .filter(existingDef -> defendantId.equalsIgnoreCase(existingDef.getDefendantId()))
-            .findFirst()
-            .orElseThrow(() -> new ConflictingInputException(String.format("No defendant ID matching %s in updated case", defendantId)));
-
-        // Clone all OTHER defendants, removing the IDs
-        final var allDefendants = existingDefendants.stream()
-            .filter(existingDef -> !defendantId.equalsIgnoreCase(existingDef.getDefendantId()))
-            .map(otherDefendant -> CourtCaseMapper.createDefendant(otherDefendant, null))
-            .collect(Collectors.toCollection(() -> new ArrayList<>(Arrays.asList(updatedDefendant))));
+        final var allDefendants = existingCase.getDefendants().stream()
+            .map(existingDefendant -> defendantId.equalsIgnoreCase(existingDefendant.getDefendantId()) ?
+                                updatedCase.getDefendants().get(0) : CourtCaseMapper.createDefendant(existingDefendant, null))
+            .collect(Collectors.toList());
 
         // rebuild the case with new defendants and hearings
         final var caseToSave = updatedCase.withDefendants(allDefendants)

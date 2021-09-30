@@ -85,7 +85,7 @@ class ImmutableCourtCaseServiceTest {
         void givenNoExistingCase_whenCreateOrUpdateCaseCalledWithCrn_thenLogCreatedAndLinkedEvent() {
             when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             when(courtCaseRepository.findFirstByCaseNoOrderByCreatedDesc(COURT_CODE, CASE_NO)).thenReturn(Optional.empty());
-            var otherCourtCaseToUpdate = EntityHelper.aCourtCaseEntityLinked(CRN, "999", LocalDateTime.now().plusDays(1), "Current");
+            var otherCourtCaseToUpdate = EntityHelper.aCourtCaseEntity(CRN, "999", LocalDateTime.now().plusDays(1), "Current");
             when(courtCaseRepository.findOtherCurrentCasesByCrn(CRN, CASE_NO)).thenReturn(List.of(otherCourtCaseToUpdate));
             when(courtCaseRepository.save(courtCase)).thenReturn(courtCase);
 
@@ -95,7 +95,7 @@ class ImmutableCourtCaseServiceTest {
             verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, courtCase);
             verify(courtCaseRepository).save(courtCase);
             assertThat(savedCourtCase).isNotNull();
-            var otherCourtCaseUpdated = EntityHelper.aCourtCaseEntityLinked(CRN, "999", LocalDateTime.now().plusDays(1), PROBATION_STATUS);
+            var otherCourtCaseUpdated = EntityHelper.aCourtCaseEntity(CRN, "999", LocalDateTime.now().plusDays(1), PROBATION_STATUS);
             verify(courtCaseRepository, timeout(2000)).saveAll(List.of(otherCourtCaseUpdated));
             verifyNoMoreInteractions(courtCaseRepository, telemetryService);
         }
@@ -195,7 +195,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenCaseIdMismatch_whenCreateOrUpdateCase_thenThrowException() {
-            incomingCourtCase = EntityHelper.aCourtCaseEntityLinked(CRN);
+            incomingCourtCase = EntityHelper.aCourtCaseEntityWithCrn(CRN);
             Assertions.assertThrows(ConflictingInputException.class, () -> {
                 service.createUpdateCaseForSingleDefendantId("OTHER-CASE-ID", DEFENDANT_ID, incomingCourtCase).block();
             });
@@ -249,7 +249,7 @@ class ImmutableCourtCaseServiceTest {
         @Test
         void givenSingleExistingCaseLinkedCase_whenCreateOrUpdateCaseCalledWithoutCrnToUnlink_thenLogUpdatedEventAndSave() {
             var updatedCase = EntityHelper.aCourtCaseEntity(CASE_ID).withCourtRoom("02").withDefendants(List.of(defendant));
-            var existingCase = EntityHelper.aCourtCaseEntityLinked(CRN);
+            var existingCase = EntityHelper.aCourtCaseEntityWithCrn(CRN);
             when(courtCaseRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(existingCase));
             when(courtCaseRepository.save(updatedCase)).thenReturn(updatedCase);
 
@@ -353,7 +353,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         public void givenNoExistingCase_whenCreateOrUpdateCaseCalledWithCrn_thenLogCreatedAndLinkedEvent() {
-            var otherCourtCaseToUpdate = EntityHelper.aCourtCaseEntityLinked(CRN, "999", LocalDateTime.now().plusDays(1), "Current");
+            var otherCourtCaseToUpdate = EntityHelper.aCourtCaseEntity(CRN, "999", LocalDateTime.now().plusDays(1), "Current");
             when(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.empty());
             when(courtCaseRepository.findOtherCurrentCasesByCrnNotCaseId(CRN, CASE_ID)).thenReturn(List.of(otherCourtCaseToUpdate));
             when(courtCaseRepository.save(courtCase)).thenReturn(courtCase);
@@ -364,7 +364,7 @@ class ImmutableCourtCaseServiceTest {
             verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, courtCase);
             verify(courtCaseRepository).save(courtCase);
             assertThat(savedCourtCase).isNotNull();
-            var otherCourtCaseUpdated = EntityHelper.aCourtCaseEntityLinked(CRN, "999", LocalDateTime.now().plusDays(1), PROBATION_STATUS);
+            var otherCourtCaseUpdated = EntityHelper.aCourtCaseEntity(CRN, "999", LocalDateTime.now().plusDays(1), PROBATION_STATUS);
             verify(courtCaseRepository, timeout(2000)).saveAll(List.of(otherCourtCaseUpdated));
             verifyNoMoreInteractions(courtCaseRepository, telemetryService);
         }
@@ -598,7 +598,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenExistingCaseId_getCourtCaseByCaseId_thenRetrieve() {
-            var caseEntityFromRepo = EntityHelper.aCourtCaseEntityLinked(CRN);
+            var caseEntityFromRepo = EntityHelper.aCourtCaseEntityWithCrn(CRN);
             when(courtCaseRepository.findByCaseId(CASE_ID)).thenReturn(Optional.of(caseEntityFromRepo));
 
             var caseEntity = service.getCaseByCaseId(CASE_ID);
@@ -619,7 +619,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void whenGetCourtCaseByIdAndDefendantId_shouldRetrieveCaseFromRepository() {
-            final var courtCaseEntity = EntityHelper.aCourtCaseEntityLinked(CRN);
+            final var courtCaseEntity = EntityHelper.aCourtCaseEntityWithCrn(CRN);
             when(courtCaseRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(courtCaseEntity));
 
             final var entity = service.getCaseByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
@@ -816,14 +816,14 @@ class ImmutableCourtCaseServiceTest {
 
             var now = LocalDateTime.now();
             // One will be ignored because the status is the same
-            var courtCaseToIgnore = EntityHelper.aCourtCaseEntityLinked(CRN, "1235", now.plusDays(1), "Current");
-            var courtCaseToUpdate = EntityHelper.aCourtCaseEntityLinked(CRN, "1236", now.plusDays(1), "Previously known");
+            var courtCaseToIgnore = EntityHelper.aCourtCaseEntity(CRN, "1235", now.plusDays(1), "Current");
+            var courtCaseToUpdate = EntityHelper.aCourtCaseEntity(CRN, "1236", now.plusDays(1), "Previously known");
             when(courtCaseRepository.findOtherCurrentCasesByCrn(CRN, CASE_NO)).thenReturn(List.of(courtCaseToIgnore, courtCaseToUpdate));
 
             service.updateOtherProbationStatusForCrn(CRN, "Current", CASE_NO);
 
             // The case to be saved will be same as the updated with case no 1236 but with Current as the
-            var expectedCourtCaseToSave = EntityHelper.aCourtCaseEntityLinked(CRN, "1236", now.plusDays(1), "Current");
+            var expectedCourtCaseToSave = EntityHelper.aCourtCaseEntity(CRN, "1236", now.plusDays(1), "Current");
             verify(courtCaseRepository).saveAll(List.of(expectedCourtCaseToSave));
         }
 
@@ -840,14 +840,14 @@ class ImmutableCourtCaseServiceTest {
 
             var now = LocalDateTime.now();
             // One will be ignored because the status is the same
-            var courtCaseToIgnore = EntityHelper.aCourtCaseEntityLinked(CRN, "1235", now.plusDays(1), "Current");
-            var courtCaseToUpdate = EntityHelper.aCourtCaseEntityLinked(CRN, "1236", now.plusDays(1), "Previously known");
+            var courtCaseToIgnore = EntityHelper.aCourtCaseEntity(CRN, "1235", now.plusDays(1), "Current");
+            var courtCaseToUpdate = EntityHelper.aCourtCaseEntity(CRN, "1236", now.plusDays(1), "Previously known");
             when(courtCaseRepository.findOtherCurrentCasesByCrnNotCaseId(CRN, CASE_ID)).thenReturn(List.of(courtCaseToIgnore, courtCaseToUpdate));
 
             service.updateOtherProbationStatusForCrnByCaseId(CRN, "Current", CASE_ID);
 
             // The case to be saved will be same as the updated with case no 1236 but with Current as the
-            var expectedCourtCaseToSave = EntityHelper.aCourtCaseEntityLinked(CRN, "1236", now.plusDays(1), "Current");
+            var expectedCourtCaseToSave = EntityHelper.aCourtCaseEntity(CRN, "1236", now.plusDays(1), "Current");
             verify(courtCaseRepository).saveAll(List.of(expectedCourtCaseToSave));
         }
     }

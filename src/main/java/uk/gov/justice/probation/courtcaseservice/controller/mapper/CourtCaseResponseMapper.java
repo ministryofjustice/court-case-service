@@ -22,6 +22,25 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CourtCaseResponseMapper {
 
+    public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, String defendantId, int matchCount) {
+        // Core case-based
+        final var builder = CourtCaseResponse.builder();
+
+        buildCaseFields(builder, courtCaseEntity, false);
+        buildHearings(builder, courtCaseEntity, null);
+
+        Optional.ofNullable(courtCaseEntity.getDefendants()).orElse(Collections.emptyList())
+                    .stream()
+                    .filter(defendant -> defendantId.equalsIgnoreCase(defendant.getDefendantId()))
+                    .findFirst()
+                    .ifPresentOrElse((matchedDefendant) -> addDefendantFields(builder, matchedDefendant),
+                            () -> log.error("Couldn't find defendant ID {} for case ID {} when mapping response.", defendantId, courtCaseEntity.getCaseId()));
+
+        builder.numberOfPossibleMatches(matchCount);
+
+        return builder.build();
+    }
+
     public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, DefendantEntity defendantEntity, int matchCount, LocalDate hearingDate) {
         // Core case-based
         final var builder = CourtCaseResponse.builder();
@@ -30,28 +49,8 @@ public class CourtCaseResponseMapper {
         buildHearings(builder, courtCaseEntity, hearingDate);
 
         // Defendant-based fields
-        builder.awaitingPsr(defendantEntity.getAwaitingPsr())
-            .previouslyKnownTerminationDate(defendantEntity.getPreviouslyKnownTerminationDate())
-            .probationStatus(Optional.ofNullable(defendantEntity.getProbationStatus()).map(ProbationStatus::of).orElse(null))
-            .suspendedSentenceOrder(defendantEntity.getSuspendedSentenceOrder())
-            .breach(defendantEntity.getBreach())
-            .preSentenceActivity(defendantEntity.getPreSentenceActivity())
-            .defendantName(defendantEntity.getDefendantName())
-            .name(defendantEntity.getName())
-            .defendantAddress(defendantEntity.getAddress())
-            .defendantDob(defendantEntity.getDateOfBirth())
-            .defendantSex(defendantEntity.getSex())
-            .defendantType(defendantEntity.getType())
-            .defendantId(defendantEntity.getDefendantId())
-            .nationality1(defendantEntity.getNationality1())
-            .nationality2(defendantEntity.getNationality2())
-            .cro(defendantEntity.getCro())
-            .pnc(defendantEntity.getPnc())
-            .crn(defendantEntity.getCrn())
-            .numberOfPossibleMatches(matchCount);
-
-        // Offences
-        builder.offences(mapOffencesFromDefendantOffences(defendantEntity.getOffences()));
+        addDefendantFields(builder, defendantEntity);
+        builder.numberOfPossibleMatches(matchCount);
 
         return builder.build();
     }
@@ -197,4 +196,27 @@ public class CourtCaseResponseMapper {
             .build();
     }
 
+    private static void addDefendantFields(CourtCaseResponseBuilder builder, DefendantEntity defendantEntity) {
+        builder.awaitingPsr(defendantEntity.getAwaitingPsr())
+            .previouslyKnownTerminationDate(defendantEntity.getPreviouslyKnownTerminationDate())
+            .probationStatus(Optional.ofNullable(defendantEntity.getProbationStatus()).map(ProbationStatus::of).orElse(null))
+            .suspendedSentenceOrder(defendantEntity.getSuspendedSentenceOrder())
+            .breach(defendantEntity.getBreach())
+            .preSentenceActivity(defendantEntity.getPreSentenceActivity())
+            .defendantName(defendantEntity.getDefendantName())
+            .name(defendantEntity.getName())
+            .defendantAddress(defendantEntity.getAddress())
+            .defendantDob(defendantEntity.getDateOfBirth())
+            .defendantSex(defendantEntity.getSex())
+            .defendantType(defendantEntity.getType())
+            .defendantId(defendantEntity.getDefendantId())
+            .nationality1(defendantEntity.getNationality1())
+            .nationality2(defendantEntity.getNationality2())
+            .cro(defendantEntity.getCro())
+            .pnc(defendantEntity.getPnc())
+            .crn(defendantEntity.getCrn());
+
+        // Offences
+        builder.offences(mapOffencesFromDefendantOffences(defendantEntity.getOffences()));
+    }
 }

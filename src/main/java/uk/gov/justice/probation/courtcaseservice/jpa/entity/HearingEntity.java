@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.With;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -28,6 +29,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @SuperBuilder
 @Getter
+@With
 @ToString(exclude = "courtCase")
 @EqualsAndHashCode(callSuper = true)
 public class HearingEntity extends BaseImmutableEntity implements Serializable {

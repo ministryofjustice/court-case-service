@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.With;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -33,7 +34,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @ApiModel(description = "Court Case")
 @Entity
@@ -43,6 +43,7 @@ import java.util.Objects;
 @SuperBuilder
 @ToString(doNotUseGetters = true)
 @Getter
+@With
 @Table(name = "COURT_CASE")
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class CourtCaseEntity extends BaseImmutableEntity implements Serializable {
@@ -169,27 +170,6 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
 
     public String getDefendantSurname() {
         return defendantName == null ? "" : defendantName.substring(defendantName.lastIndexOf(" ")+1);
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (!(other instanceof CourtCaseEntity)) {
-            return false;
-        }
-
-        CourtCaseEntity that = (CourtCaseEntity) other;
-
-        return Objects.equals(this.caseNo, that.getCaseNo()) && Objects.equals(this.courtCode, that.getCourtCode());
-    }
-
-    @Override
-    public int hashCode() {
-        int result = getCaseNo() != null ? getCaseNo().hashCode() : 0;
-        result = 31 * result + (getCourtCode() != null ? getCourtCode().hashCode() : 0);
-        return result;
     }
 
 

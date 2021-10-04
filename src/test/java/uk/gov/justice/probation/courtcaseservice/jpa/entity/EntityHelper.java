@@ -41,22 +41,34 @@ public class EntityHelper {
     public static final String OFFENCE_SUMMARY = "OFFENCE SUMMARY";
     public static final String OFFENCE_ACT = "OFFENCE ACT";
 
-    public static CourtCaseEntity aCourtCaseEntity(String crn) {
+    public static CourtCaseEntity aCourtCaseEntity(String caseId) {
+        return populateBasics()
+            .caseId(caseId)
+            .caseNo(CASE_NO)
+            .build();
+    }
+
+    public static CourtCaseEntity aCourtCaseEntityWithCrn(String crn) {
         return populateBasics()
             .crn(crn)
+            .caseId(CASE_ID)
             .caseNo(CASE_NO)
             .build();
     }
 
     public static CourtCaseEntity aCourtCaseEntity(String crn, String caseNo) {
+
         return populateBasics()
             .crn(crn)
+            .caseId(CASE_ID)
             .caseNo(caseNo)
+            .defendants(List.of(aDefendantEntity()))
             .build();
     }
 
     public static CourtCaseEntity aCourtCaseEntity(String crn, String caseNo, LocalDateTime sessionStartTime, String probationStatus) {
         return populateBasics()
+            .caseId(CASE_ID)
             .crn(crn)
             .caseNo(caseNo)
             .sessionStartTime(sessionStartTime)
@@ -64,7 +76,7 @@ public class EntityHelper {
             .build();
     }
 
-    public static CourtCaseEntity aCourtCaseEntity(String crn, String caseNo, LocalDateTime sessionStartTime, String probationStatus, String caseId, String courtCode) {
+    public static CourtCaseEntity aCourtCase(String crn, String caseNo, LocalDateTime sessionStartTime, String probationStatus, String caseId, String courtCode) {
         return populateBasics()
             .crn(crn)
             .caseNo(caseNo)
@@ -80,26 +92,7 @@ public class EntityHelper {
     }
 
     public static DefendantEntity aDefendantEntity(AddressPropertiesEntity address, NamePropertiesEntity name) {
-        return DefendantEntity.builder()
-            .name(name)
-            .defendantName(name.getFullName())
-            .crn(CRN)
-            .cro(CRO)
-            .pnc(PNC)
-            .type(DefendantType.PERSON)
-            .address(address)
-            .dateOfBirth(DEFENDANT_DOB)
-            .sex(DEFENDANT_SEX)
-            .nationality1(NATIONALITY_1)
-            .nationality2(NATIONALITY_2)
-            .defendantId(DEFENDANT_ID)
-            .awaitingPsr(AWAITING_PSR)
-            .breach(BREACH)
-            .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
-            .previouslyKnownTerminationDate(TERMINATION_DATE)
-            .probationStatus(PROBATION_STATUS)
-            .suspendedSentenceOrder(SUSPENDED_SENTENCE)
-            .build();
+        return aDefendantEntity(address, name, DEFENDANT_ID);
     }
 
     public static DefendantEntity aDefendantEntity(NamePropertiesEntity name) {
@@ -110,19 +103,60 @@ public class EntityHelper {
         return aDefendantEntity(address, NAME);
     }
 
+    public static DefendantEntity aDefendantEntity(String defendantId) {
+        return aDefendantEntity(DEFENDANT_ADDRESS, NAME, defendantId);
+    }
+
+    private static DefendantEntity aDefendantEntity(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId) {
+        return DefendantEntity.builder()
+            .name(name)
+            .defendantName(name.getFullName())
+            .crn(CRN)
+            .cro(CRO)
+            .pnc(PNC)
+            .type(DefendantType.PERSON)
+            .address(defendantAddress)
+            .dateOfBirth(DEFENDANT_DOB)
+            .sex(DEFENDANT_SEX)
+            .nationality1(NATIONALITY_1)
+            .nationality2(NATIONALITY_2)
+            .defendantId(defendantId)
+            .awaitingPsr(AWAITING_PSR)
+            .breach(BREACH)
+            .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
+            .previouslyKnownTerminationDate(TERMINATION_DATE)
+            .probationStatus(PROBATION_STATUS)
+            .suspendedSentenceOrder(SUSPENDED_SENTENCE)
+            .offences(List.of(aDefendantOffence()))
+            .build();
+    }
+
     public static HearingEntity aHearingEntity() {
+        return aHearingEntity(SESSION_START_TIME);
+    }
+
+    public static HearingEntity aHearingEntity(LocalDateTime sessionStartTime) {
         return HearingEntity.builder()
             .listNo(LIST_NO)
-            .hearingDay(SESSION_START_TIME.toLocalDate())
-            .hearingTime(SESSION_START_TIME.toLocalTime())
+            .hearingDay(sessionStartTime.toLocalDate())
+            .hearingTime(sessionStartTime.toLocalTime())
             .courtRoom(COURT_ROOM)
             .courtCode(COURT_CODE)
             .build();
     }
 
+    public static OffenceEntity anOffence() {
+        return OffenceEntity.builder()
+            .offenceSummary(OFFENCE_SUMMARY)
+            .offenceTitle(OFFENCE_TITLE)
+            .act(OFFENCE_ACT)
+            .sequenceNumber(1)
+            .build();
+    }
+
     private static CourtCaseEntity.CourtCaseEntityBuilder populateBasics() {
+        var defendant = aDefendantEntity();
         return CourtCaseEntity.builder()
-            .caseId(CASE_ID)
             .courtCode(COURT_CODE)
             .courtRoom(COURT_ROOM)
             .sessionStartTime(SESSION_START_TIME)
@@ -146,17 +180,22 @@ public class EntityHelper {
             .sourceType(SOURCE)
             .deleted(false)
             .firstCreated(LocalDateTime.now())
-            .offences(List.of(anOffence()));
+            .defendants(List.of(defendant))
+            .offences(List.of(anOffence()))
+            .hearings(List.of(aHearingEntity()));
     }
 
-    private static OffenceEntity anOffence() {
-        return OffenceEntity.builder()
-            .offenceSummary(OFFENCE_SUMMARY)
-            .offenceTitle(OFFENCE_TITLE)
+    public static DefendantOffenceEntity aDefendantOffence() {
+        return aDefendantOffence(OFFENCE_TITLE, 1);
+    }
+
+    public static DefendantOffenceEntity aDefendantOffence(String title, Integer seq) {
+        return DefendantOffenceEntity.builder()
+            .summary(OFFENCE_SUMMARY)
+            .title(title)
             .act(OFFENCE_ACT)
-            .sequenceNumber(1)
+            .sequence(seq)
             .build();
     }
-
 
 }

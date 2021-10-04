@@ -11,6 +11,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 
@@ -460,11 +461,11 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
                 .body("probationStatus", equalTo(PROBATION_STATUS))
                 .body("probationStatusActual", equalTo(null))
-                .body("previouslyKnownTerminationDate", equalTo(null))
-                .body("suspendedSentenceOrder", equalTo(false))
-                .body("breach", equalTo(false))
-                .body("source", equalTo("COMMON_PLATFORM"))
-                .body("preSentenceActivity", equalTo(false))
+                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, Month.JANUARY, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)))
+                .body("suspendedSentenceOrder", equalTo(true))
+                .body("breach", equalTo(true))
+                .body("source", equalTo("LIBRA"))
+                .body("preSentenceActivity", equalTo(true))
                 .body("crn", equalTo(null))
                 .body("pnc", equalTo("A/1234560BA"))
                 .body("cro", equalTo("311462/13E"))
@@ -578,7 +579,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)))
             .body("suspendedSentenceOrder", equalTo(true))
             .body("breach", equalTo(true))
-            .body("source", equalTo("COMMON_PLATFORM"))
+            .body("source", equalTo("LIBRA"))
             .body("preSentenceActivity", equalTo(true))
             .body("crn", equalTo(null))
             .body("pnc", equalTo("A/1234560BA"))

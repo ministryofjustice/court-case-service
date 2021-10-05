@@ -1,15 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Month;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,13 +11,24 @@ import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -66,6 +67,9 @@ class CourtCaseControllerTest {
         .caseId(CASE_ID)
         .sourceType(COMMON_PLATFORM)
         .sessionStartTime(now)
+        .hearings(Collections.emptyList())
+        .defendants(Collections.emptyList())
+
         .build();
 
     private CourtSession session;
@@ -90,6 +94,18 @@ class CourtCaseControllerTest {
         verify(courtCaseService).getCaseByCaseNumber(COURT_CODE, CASE_NO);
         verify(offenderMatchService).getMatchCount(COURT_CODE, CASE_NO);
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
+    }
+
+    @Test
+    void getExtendedCourtCaseById_shouldReturnResponse() {
+        when(courtCaseService.getCaseByCaseId(CASE_ID)).thenReturn(courtCaseEntity);
+        var courtCase = courtCaseController.getExtendedCourtCase(CASE_ID);
+        assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(courtCase.getCaseNo()).isEqualTo(CASE_NO);
+        assertThat(courtCase.getCaseId()).isEqualTo(CASE_ID);
+
+        verify(courtCaseService).getCaseByCaseId(CASE_ID);
+        verifyNoMoreInteractions(courtCaseService);
     }
 
     @Test
@@ -259,7 +275,7 @@ class CourtCaseControllerTest {
 
     @Test
     void whenUpdateWholeCaseByCaseId_shouldReturnCourtCaseResponse() {
-        var courtCaseRequest = mock(ExtendedCourtCaseRequest.class);
+        var courtCaseRequest = mock(ExtendedCourtCaseRequestResponse.class);
         when(courtCaseRequest.asCourtCaseEntity()).thenReturn(courtCaseEntity);
         when(courtCaseService.createCase(CASE_ID, courtCaseEntity)).thenReturn(Mono.just(courtCaseEntity));
 

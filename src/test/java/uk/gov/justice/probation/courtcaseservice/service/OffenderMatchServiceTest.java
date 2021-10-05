@@ -111,7 +111,7 @@ class OffenderMatchServiceTest {
 
         @Test
         void givenNoExistingCase_whenCreateOrUpdate_thenCreate() {
-            when(offenderMatchRepository.findByCaseId(CASE_ID)).thenReturn(Optional.empty());
+            when(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.empty());
             when(courtCaseEntity.getCaseId()).thenReturn(CASE_ID);
             when(courtCaseService.getCaseByCaseId(CASE_ID)).thenReturn(courtCaseEntity);
             when(offenderMatchRepository.save(argThat(new EntityMatcher(DEFENDANT_ID, CASE_ID)))).thenReturn(groupedOffenderMatchesEntity);
@@ -127,7 +127,7 @@ class OffenderMatchServiceTest {
 
             // Group has no defendant ID to start with. Prove that the update has happened by asserting on it later
             var groupEntity = GroupedOffenderMatchesEntity.builder().caseId(CASE_ID).offenderMatches(Collections.emptyList()).build();
-            when(offenderMatchRepository.findByCaseId(CASE_ID)).thenReturn(Optional.of(groupEntity));
+            when(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(groupEntity));
             when(offenderMatchRepository.save(groupEntity)).thenReturn(groupEntity);
 
             var match = service.createOrUpdateGroupedMatchesByDefendant(CASE_ID, DEFENDANT_ID, request).blockOptional();

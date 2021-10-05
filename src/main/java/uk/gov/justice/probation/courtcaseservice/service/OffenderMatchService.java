@@ -51,7 +51,7 @@ public class OffenderMatchService {
     }
 
     public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatchesByDefendant(String caseId, String defendantId, GroupedOffenderMatchesRequest offenderMatches) {
-        return Mono.just(offenderMatchRepository.findByCaseId(caseId)
+        return Mono.just(offenderMatchRepository.findByCaseIdAndDefendantId(caseId, defendantId)
             .map(existingGroup -> OffenderMatchMapper.update(caseId, defendantId, existingGroup, offenderMatches))
             .orElseGet(() -> createForCaseAndDefendant(caseId, defendantId, offenderMatches)))
             .map(groupedOffenderMatchesEntity -> offenderMatchRepository.save(groupedOffenderMatchesEntity));

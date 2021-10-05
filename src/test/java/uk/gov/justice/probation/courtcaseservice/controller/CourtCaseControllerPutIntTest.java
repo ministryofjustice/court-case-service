@@ -374,7 +374,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .then()
                 .statusCode(201);
 
-            validateResponse(validatableResponse, caseId, null, null);
+            validateResponse(validatableResponse, caseId, null, JSON_CASE_NO);
 
             // All parts of the save are not in the response - so we check extra
             courtCaseRepository.findByCaseId(caseId)
@@ -422,7 +422,8 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .put(String.format(PUT_BY_CASEID_AND_DEFENDANTID_PATH, caseId, defendantIdToUpdate))
                 .then()
                 .statusCode(201)
-                .body("caseNo", equalTo(null))
+                .body("caseNo", equalTo("1800028900"))
+                .body("source", equalTo("LIBRA"))
                 .body("courtCode", equalTo(LEICESTER_COURT_CODE))
                 .body("crn", equalTo(crn))
                 .body("defendantId", equalTo(defendantIdToUpdate))

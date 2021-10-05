@@ -47,34 +47,42 @@ VALUES (-1700029903, -1700029903, 'Emma stole 1st thing from a shop', 'On 01/01/
 INSERT INTO courtcaseservicetest.DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-1700029904, -1700029903, 'Emma stole 2nd thing from a shop', 'On 01/01/2015 at own, Emma stole 2nd article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 2);
 
-INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, source_type)
-VALUES (-1700028902, '1f93aa0a-7e46-4885-a1cb-f25a4be33a57', 1600028915, 'B10JQ', 1, '2019-12-14 23:59:59', 'NO_RECORD', 'X320743', 'Mr Nicholas CAGE', now(), 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, created, source_type)
+VALUES (-1700028902, '1f93aa0a-7e46-4885-a1cb-f25a4be33a57', 1600028915, 'B10JQ', 1, '2019-12-14 23:59:59', now(), 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
 VALUES (-1700028902, -1700028902, 'B10JQ', 1, '2019-12-14', '23:59:59', '3rd');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, crn, type, sex, probation_status)
+VALUES (-1700028902, -1700028902, 'f15bd32c-119d-447e-bbb6-02b56c36f133', 'Mr Nicholas CAGE', '{"title": "Mr", "surname": "CAGE", "forename1": "Nicholas"}', 'X320743', 'PERSON', 'M', 'NO_RECORD');
 
 -- See CourtCaseControllerIntTest.GET_cases_givenCreatedAfterFilterParam_whenGetCases_thenReturnCasesAfterSpecifiedTime()
 -- These records are used to test the createdAfter filters
-INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, source_type)
-VALUES (-1700028903, '1f93aa0a-7e46-4885-a1cb-f25a4be33a58', 1600028916, 'B10JQ', 1, '2019-12-14 12:59:59', 'NO_RECORD', 'X320744', 'Mr Mads Mikkelsen', '2020-09-01 16:59:59', 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, created, source_type)
+VALUES (-1700028903, '1f93aa0a-7e46-4885-a1cb-f25a4be33a58', 1600028916, 'B10JQ', 1, '2019-12-14 12:59:59', '2020-09-01 16:59:59', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
 VALUES (-1700028903, -1700028903, 'B10JQ', 1, '2019-12-14', '12:59:59', '3rd');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, crn, type, sex, probation_status)
+VALUES (-1700028903, -1700028903, '44817de0-cc89-460a-8f07-0b06ef45982a', 'Mr Mads MIKKELSEN', '{"title": "Mr", "surname": "MIKKELSEN", "forename1": "Mads"}', 'X320744', 'PERSON', 'M', 'NO_RECORD');
 
 -- 2 versions for case id '1f93aa0a-7e46-4885-a1cb-f25a4be33a58'
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, source_type)
 VALUES (-1700028904, '1f93aa0a-7e46-4885-a1cb-f25a4be33a59', 1600028917, 'B10JQ', 1,'2019-12-14 12:59:59', 'CURRENT', 'X320745', 'Mr Hideo Kojima', '2020-10-01 16:59:59', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
 VALUES (-1700028904, -1700028904, 'B10JQ', 1, '2019-12-14', '12:59:59', '3rd');
-INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, source_type)
-VALUES (-1700028905, '1f93aa0a-7e46-4885-a1cb-f25a4be33a59', 1600028917, 'B10JQ', 1,'2019-12-14 12:59:59', 'NO_RECORD', 'X320745', 'Mr Hideo Kojima', '2020-10-01 18:59:59', 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, created, source_type)
+VALUES (-1700028905, '1f93aa0a-7e46-4885-a1cb-f25a4be33a59', 1600028917, 'B10JQ', 1,'2019-12-14 12:59:59', '2020-10-01 18:59:59', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
 VALUES (-1700028905, -1700028905, 'B10JQ', 1, '2019-12-14', '12:59:59', '3rd');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, crn, type, sex, probation_status)
+VALUES (-1700028905, -1700028905, '965c0391-8929-4fff-b88c-2f813cf16d43', 'Mr Hideo KOJIMA', '{"title": "Mr", "surname": "KOJIMA", "forename1": "Hideo"}', 'X320745', 'PERSON', 'M', 'NO_RECORD');
 
 -- See GET_cases_givenCreatedBeforeFilterParam_whenGetCases_thenReturnCasesCreatedUpTo8DaysBeforeListDate
 -- Used to test default createdBefore date
-INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, source_type)
-VALUES (-1700028906, '1f93aa0a-7e46-4885-a1cb-f25a4be33a30', 1600028930, 'B10JQ', 1,'2020-05-01 12:59:59', 'NO_RECORD', 'X320745', 'Mr Hideo Kojima', '2020-05-01 18:59:59', 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, created, source_type)
+VALUES (-1700028906, '1f93aa0a-7e46-4885-a1cb-f25a4be33a30', 1600028930, 'B10JQ', 1,'2020-05-01 12:59:59', '2020-05-01 18:59:59', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
 VALUES (-1700028906, -1700028906, 'B10JQ', 1, '2020-05-01', '12:59:59', '3rd');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, crn, type, sex, probation_status)
+VALUES (-1700028906, -1700028906, '965c0391-8929-4fff-b88c-2f813cf16d43', 'Mr Hideo KOJIMA', '{"title": "Mr", "surname": "KOJIMA", "forename1": "Hideo"}', 'X320745', 'PERSON', 'M', 'NO_RECORD');
 
 -- See CourtCaseControllerIntTest.GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnAllCases()
 -- These records are used to test that the createdToday field returns false if a new record was created today updating an existing one
@@ -82,19 +90,20 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, c
 VALUES (-1700028907, '1f93aa0a-7e46-4885-a1cb-f25a4be33a18', 1600028918, 'B10JQ', 2,'2019-12-14 13:00:00', 'NO_RECORD', 'X320746', 'Mr David Bowie', '2020-10-01 16:59:59', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
 VALUES (-1700028907, -1700028907, 'B10JQ', 2, '2019-12-14', '13:00:00', '3rd', '2020-10-01 16:59:59');
-INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, source_type)
-VALUES (-1700028908, '1f93aa0a-7e46-4885-a1cb-f25a4be33a18', 1600028918, 'B10JQ', 2,'2019-12-14 13:00:00', 'NO_RECORD', 'X320746', 'Mr David Bowie', now(), 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, created, source_type)
+VALUES (-1700028908, '1f93aa0a-7e46-4885-a1cb-f25a4be33a18', 1600028918, 'B10JQ', 2,'2019-12-14 13:00:00', now(), 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
 VALUES (-1700028908, -1700028908, 'B10JQ', 2, '2019-12-14', '13:00:00', '3rd', now());
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, crn, type, sex, probation_status)
+VALUES (-1700028908, -1700028908, '3bf70cd8-7e9d-4d29-b9b2-f8f7f898cb32', 'Mr David BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'X320746', 'PERSON', 'M', 'NO_RECORD');
 
 -- See GET_cases_givenCreatedBefore_andCreatedAfterFilterParams_andManualUpdatesHaveBeenMadeAfterTheseTimes_whenGetCases_thenReturnManualUpdates
-INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, created_by, manual_update, source_type)
-VALUES (-1700028909, 'e652eaae-1114-4593-8f56-659eb2baffcf', 1600028919, 'B30NY', 1, '2200-12-14 12:59:59', 'NO_RECORD', 'X320654', 'Hubert Farnsworth', '2020-10-01 16:59:59', 'TURANGALEE(prepare-a-case-for-court)', true, 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, created, created_by, manual_update, source_type, crn, probation_status)
+VALUES (-1700028909, 'e652eaae-1114-4593-8f56-659eb2baffcf', 1600028919, 'B30NY', 1, '2200-12-14 12:59:59', '2020-10-01 16:59:59', 'TURANGALEE(prepare-a-case-for-court)', true, 'COMMON_PLATFORM', 'X320654', 'NO_RECORD');
 INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
 VALUES (-1700028909, -1700028909, 'B30NY', 1, '2200-12-14', '12:59:59', '3rd', '2020-10-01 16:59:59');
 INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, pnc, sex, probation_status, crn)
-VALUES (-1700028909, -1700028909, 'c15475ce-9748-4a60-b42b-02ce78523c95', 'Mr Roger HUNT', '{"title": "Mr", "surname": "HUNT", "forename1": "Roger"}', '{"line1": "Anfield", "line2": "Walton Breck Road", "postcode": "L5 2DE 5dr"}', 'PERSON', '1940-05-01', 'A/1234560BA', 'M', 'NO_RECORD', 'X320654');
-
+VALUES (-1700028909, -1700028909, 'c15475ce-9748-4a60-b42b-02ce78523c95', 'Mr Hubert FARNSWORTH', '{"title": "Mr", "surname": "FARNSWORTH", "forename1": "Hubert"}', '{"line1": "Anfield", "line2": "Walton Breck Road", "postcode": "L5 2DE 5dr"}', 'PERSON', '1940-05-01', 'A/1234560BA', 'M', 'NO_RECORD', 'X320654');
 
 -- These records are used to test the Last-Modified header CHECKED
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, deleted, source_type)
@@ -105,10 +114,12 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, c
 VALUES (-1700028911, '1f93aa0a-7e46-4885-a1cb-f25a4be33a60', 1600128919, 'B14LO', 2,'2021-06-01 13:00:00', 'No record', 'X320746', 'Mr David Bowie', '2020-10-01 16:59:59', false, 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
 VALUES (-1700028911, -1700028911, 'B14LO', 2, '2021-06-01', '13:00:00', '3rd', '2020-10-01 16:59:59');
-INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, created, deleted, source_type)
-VALUES (-1700028912, '1f93aa0a-7e46-4885-a1cb-f25a4be33a20', 1600128920, 'B14LO', 2,'2021-06-01 13:00:00', 'No record', 'X320746', 'Mr David Bowie', '2021-06-01 16:59:59', false, 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, created, deleted, source_type)
+VALUES (-1700028912, '1f93aa0a-7e46-4885-a1cb-f25a4be33a20', 1600128920, 'B14LO', 2,'2021-06-01 13:00:00', '2021-06-01 16:59:59', false, 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
 VALUES (-1700028912, -1700028912, 'B14LO', 2, '2021-06-01', '13:00:00', '3rd', '2021-06-01 16:59:59');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, crn, type, sex, probation_status)
+VALUES (-1700028912, -1700028912, '03137ac2-8c92-471a-aed2-c92ea6e4963e', 'Mr George O''DOWD', '{"title": "Mr", "surname": "O''DOWD", "forename1": "George"}', 'X320746', 'PERSON', 'M', 'NO_RECORD');
 
 -- See CourtCaseControllerPutIntTest.whenPurgeCases_ThenReturn204NoContent() CHECKED
 -- These records are used to test edge cases when returning court case list for a given date (midnight to 1 second before midnight the next day)
@@ -244,7 +255,7 @@ VALUES (-2000000, -2000000, 'Theft from a shop', 'On 01/01/2015 at own, stole ar
 -- 1263de26-4a81-42d3-a798-bad802433318 - John Peel
 -- 6f014c2e-8be3-4a12-a551-8377bd31a7b8 - Jessica Peel
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, defendant_name, name, defendant_address, crn, pnc, cro, list_no, defendant_dob, defendant_sex, nationality_1, nationality_2, created, awaiting_psr, source_type)
-VALUES (-1800028900, '3db9d70b-10a2-49d1-b74d-379f2db74862', 1800028900, 'B33HU', 1, '2019-12-14 09:00', null, '2010-01-01', true, true, true, 'Mr John PEEL', '{"title": "Mr", "surname": "PEEL", "forename1": "John", "forename2": "Jonny", "forename3": "Jon"}','{"line1": "10", "line2": "Margrave", "postcode": "SU11 1AA", "line3": "Suffolk", "line4": null, "line5": null}', null, 'A/1234560YY', '888888/13E', '3rd', '1939-10-10', 'M', 'British', 'Irish' , now(), true, 'COMMON_PLATFORM');
+VALUES (-1800028900, '3db9d70b-10a2-49d1-b74d-379f2db74862', 1800028900, 'B33HU', 1, '2019-12-14 09:00', null, '2010-01-01', true, true, true, 'Mr John PEEL', '{"title": "Mr", "surname": "PEEL", "forename1": "John", "forename2": "Jonny", "forename3": "Jon"}','{"line1": "10", "line2": "Margrave", "postcode": "SU11 1AA", "line3": "Suffolk", "line4": null, "line5": null}', 'X320654', 'A/1234560YY', '888888/13E', '3rd', '1939-10-10', 'M', 'British', 'Irish' , now(), true, 'COMMON_PLATFORM');
 
 INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
 VALUES (-3000000, -1800028900, 'B33HU', 1, '2019-12-14', '09:00', '3rd');

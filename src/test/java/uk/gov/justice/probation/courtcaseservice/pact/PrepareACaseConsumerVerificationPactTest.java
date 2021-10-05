@@ -80,7 +80,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
 
     @State({"a list of cases exist for the given date",
         "a case exists with the given case number",
-        "a case exists with the given case id and defendant id",
+        "a case exists with the given case Id and defendant Id",
         "the defendant has possible matches with existing offender records",
         "the defendant has an existing conviction with sentence",
         "a defendant has an existing conviction",

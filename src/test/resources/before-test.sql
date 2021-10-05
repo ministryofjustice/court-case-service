@@ -185,19 +185,35 @@ VALUES (15002, 15001, 'Offence Title 15002', 'Offence Summary 15002', 'Offence A
 
 --
 -- These records are used to generate cases / offences / matches for the PACT verification tests
-INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, defendant_type, defendant_name, name, defendant_address, crn, pnc, cro, list_no, defendant_dob, defendant_sex, nationality_1, nationality_2, created, created_by, source_type) VALUES (16000, 16000, 16000, 'B10JQ', 1, '2020-02-29 09:00', 'NOT_SENTENCED', '2010-01-01', true, true, true, 'PERSON', 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}','{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": "line4", "line5": "line5"}', 'C16000', 'A/160000BA', '311462/13E', '3rd', '1958-10-10', 'M', 'British', 'Polish' , now(), 'ChrisFaulkner(manual-PIC-959)', 'COMMON_PLATFORM');
+-- We will have 3 case sections in the case ist but with 2 unique case IDs and 3 defendant IDs
+-- Case id 1 : 683bcde4-611f-4487-9833-f68090507b74, defendants 005ae89b-46e9-4fa5-bb5e-d117011cab32 and f2c83643-8ebd-4609-9183-cd8c34984e33
+-- Case id 2 : 2243231a-7810-496c-bd41-cb01ceb1fe0b, defendant bfd7df09-4177-475e-b16f-0ace34a5ef2f
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, created, created_by, source_type) VALUES
+(16000, '683bcde4-611f-4487-9833-f68090507b74', 16000, 'B10JQ', '1', '2020-02-29 09:00', now(), 'ChrisFaulkner(manual-PIC-959)', 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, created, created_by, source_type, defendant_type) VALUES
+(16001, '2243231a-7810-496c-bd41-cb01ceb1fe0b', 16001, 'B10JQ', '10', '2020-02-29 14:00', now(), 'ChrisFaulkner(manual-PIC-959)', 'LIBRA', 'ORGANISATION');
 
-INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, defendant_type, defendant_name, name, defendant_address, crn, pnc, cro, list_no, defendant_dob, defendant_sex, nationality_1, nationality_2, created, created_by, source_type) VALUES (16001, 16001, 16001, 'B10JQ', 1, '2020-02-29 14:00', null, null, false, null, false, 'PERSON', 'Mr Brian CANT', '{"title": "Mr", "surname": "CANT", "forename1": "Brian", "forename2": "Bryan", "forename3": "Eric"}','{"line1": "26", "line2": "Elms Road", "postcode": "LE2 3LU", "line3": "Leicester"}', 'D16000', 'D/160000BA', '311462/13D', '1st', '1939-10-10', 'M', 'British',null , now(), 'ChrisFaulkner(manual-PIC-959)', 'COMMON_PLATFORM');
+-- 683bcde4-611f-4487-9833-f68090507b74 - Hearing / defendants / defendant offences for case id
+INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
+VALUES (-16000, 16000, 'B10JQ', 1, '2020-02-29', '09:00:00', '3rd');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, crn, pnc, sex, nationality_1, nationality_2, probation_status, previously_known_termination_date)
+VALUES (-16000, 16000, '005ae89b-46e9-4fa5-bb5e-d117011cab32', 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": "line4", "line5": "line5"}', 'PERSON', '1958-10-10', 'C16000', 'A/160000BA', 'M', 'British', 'Polish', 'NOT_SENTENCED', '2010-01-01');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, crn, pnc, sex, nationality_1, probation_status)
+VALUES (-16001, 16000, 'f2c83643-8ebd-4609-9183-cd8c34984e33', 'Mr Brian CANT', '{"title": "Mr", "surname": "CANT", "forename1": "Brian", "forename2": "Bryan", "forename3": "Eric"}', '{"line1": "26", "line2": "Elms Road", "postcode": "LE2 3LU", "line3": "Leicester"}', 'PERSON', '1939-10-10', 'D16000', 'D/160000BA', 'M', 'British', 'NOT_SENTENCED');
 
-INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, defendant_type, defendant_name, name, defendant_address, crn, pnc, cro, list_no, defendant_dob, defendant_sex, nationality_1, nationality_2, created, created_by, source_type) VALUES (16002, 16002, 16002, 'B10JQ', 10, '2020-02-29 14:00', null, null, null, null, false, 'ORGANISATION', 'ACME MOTORS LTD', '{"surname": "ACME MOTORS LTD"}','{"line1": "Freemans Common", "line2": "Someplace", "postcode": "XX1 1XX", "line3": "Leicester"}', null, null, null, '1st', null, null, null, null , now(), '(court-case-matcher)', 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
+VALUES (-16000, -16000, 'Offence Title 16000', 'Offence Summary 16000', 'Offence ACT 16000', 1);
+INSERT INTO courtcaseservicetest.DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
+VALUES (-16001, -16001, 'Offence Title 16001', 'Offence Summary 16001', 'Offence ACT 16001', 1);
 
-INSERT INTO courtcaseservicetest.OFFENCE (ID, COURT_CASE_ID, OFFENCE_TITLE, OFFENCE_SUMMARY, ACT, SEQUENCE_NUMBER)
-VALUES (16000, 16000, 'Offence Title 16000', 'Offence Summary 16000', 'Offence ACT 16000', 1);
-INSERT INTO courtcaseservicetest.OFFENCE (ID, COURT_CASE_ID, OFFENCE_TITLE, OFFENCE_SUMMARY, ACT, SEQUENCE_NUMBER)
-VALUES (16001, 16001, 'Offence Title 16001', 'Offence Summary 16001', 'Offence ACT 16001', 1);
+-- 2243231a-7810-496c-bd41-cb01ceb1fe0b - Hearing / defendants / defendant offences for case id
+INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
+VALUES (-16001, 16001, 'B10JQ', 10, '2020-02-29', '14:00:00', '1st');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, address, type, probation_status)
+VALUES (-16002, 16001, 'bfd7df09-4177-475e-b16f-0ace34a5ef2f', 'ACME MOTORS LTD', '{"surname": "ACME MOTORS LTD"}', '{"line1": "Freemans Common", "line2": "Someplace", "postcode": "XX1 1XX", "line3": "Leicester"}', 'ORGANISATION', 'NO_RECORD');
 
-INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE)
-VALUES (16000, '16000','B10JQ');
+INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_ID, DEFENDANT_ID, CASE_NO, COURT_CODE)
+VALUES (16000, '683bcde4-611f-4487-9833-f68090507b74','005ae89b-46e9-4fa5-bb5e-d117011cab32', 16000, 'B10JQ');
 
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (false, false, 'X980123', 'CRO1', 'NAME_DOB', 'A/160000BA', 16000);

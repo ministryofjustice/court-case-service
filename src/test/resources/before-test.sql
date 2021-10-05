@@ -206,7 +206,7 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, c
 
 -- 683bcde4-611f-4487-9833-f68090507b74 - Hearing / defendants / defendant offences for case id
 INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-16000, 16000, 'B10JQ', 1, '2020-02-29', '09:00:00', '3rd');
+VALUES (-16000, 16000, 'B10JQ', 1, '2020-02-29', '14:00:00', '1st');
 INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, crn, pnc, sex, nationality_1, nationality_2, probation_status, previously_known_termination_date, breach, pre_sentence_activity, suspended_sentence_order)
 VALUES (-16000, 16000, '005ae89b-46e9-4fa5-bb5e-d117011cab32', 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": "line4", "line5": "line5"}', 'PERSON', '1958-10-10', 'C16000', 'A/160000BA', 'M', 'British', 'Polish', 'NO_RECORD', '2010-01-01', true, true, true);
 INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, crn, pnc, sex, nationality_1, probation_status)

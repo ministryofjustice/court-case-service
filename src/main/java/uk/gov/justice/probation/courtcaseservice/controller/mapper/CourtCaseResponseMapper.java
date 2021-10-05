@@ -109,10 +109,6 @@ public class CourtCaseResponseMapper {
         }
     }
 
-//    public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, int matchCount, LocalDate hearingDate) {
-//        return mapFrom(courtCaseEntity, matchCount, hearingDate);
-//    }
-
     static void buildHearings(CourtCaseResponseBuilder builder, CourtCaseEntity courtCaseEntity, LocalDate hearingDate) {
         var hearings = Optional.ofNullable(courtCaseEntity.getHearings())
             .orElse(Collections.emptyList());

@@ -58,6 +58,7 @@ public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Lon
         nativeQuery = true)
     Optional<CourtCaseEntity> findByCaseId(String caseId);
 
+    // TODO - need to get CourtCaseEntity values for CRN, etc, from defendant
     @Query(value = "select cc.*, grouped_cases.min_created as first_created " +
         "from court_case cc " +
         "   inner join " +

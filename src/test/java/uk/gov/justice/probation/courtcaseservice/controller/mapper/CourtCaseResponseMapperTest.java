@@ -123,9 +123,10 @@ class CourtCaseResponseMapperTest {
 
     @Test
     void shouldMapEntityToResponse() {
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 20, HEARING_DATE);
 
-        assertCaseResponse(courtCaseResponse, CASE_NO);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity.withCaseNo(CASE_NO).withSourceType(SourceType.LIBRA), 20, HEARING_DATE);
+
+        assertCaseResponse(courtCaseResponse, CASE_NO, SourceType.LIBRA);
     }
 
     @Test
@@ -163,7 +164,7 @@ class CourtCaseResponseMapperTest {
 
         var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, defendantEntity, 3, HEARING_DATE);
 
-        assertCaseFields(courtCaseResponse, CASE_NO);
+        assertCaseFields(courtCaseResponse, null, SourceType.COMMON_PLATFORM);
         assertHearingFields(courtCaseResponse);
         assertThat(courtCaseResponse.getOffences()).hasSize(1);
         assertOffenceFields(courtCaseResponse.getOffences().get(0));
@@ -195,7 +196,7 @@ class CourtCaseResponseMapperTest {
 
     @Test
     void whenNoCaseNoRequired_shouldMapEntityToResponse() {
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 20, false, HEARING_DATE);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 20, HEARING_DATE);
 
         assertCaseResponse(courtCaseResponse, null);
     }
@@ -307,9 +308,9 @@ class CourtCaseResponseMapperTest {
                         .build();
     }
 
-    private void assertCaseResponse(CourtCaseResponse courtCaseResponse, String caseNo) {
+    private void assertCaseResponse(CourtCaseResponse courtCaseResponse, String caseNo, SourceType sourceType) {
         // Case based fields
-        assertCaseFields(courtCaseResponse, caseNo);
+        assertCaseFields(courtCaseResponse, caseNo, sourceType);
 
         // Hearing-based fields
         assertHearingFields(courtCaseResponse);
@@ -339,6 +340,10 @@ class CourtCaseResponseMapperTest {
         assertOffenceFields(courtCaseResponse.getOffences().get(0));
     }
 
+    private void assertCaseResponse(CourtCaseResponse courtCaseResponse, String caseNo) {
+        assertCaseResponse(courtCaseResponse, caseNo, SourceType.COMMON_PLATFORM);
+    }
+
     private void assertOffenceFields(OffenceResponse offenceResponse) {
         assertThat(offenceResponse.getOffenceTitle()).isEqualTo(OFFENCE_TITLE);
         assertThat(offenceResponse.getOffenceSummary()).isEqualTo(OFFENCE_SUMMARY);
@@ -355,12 +360,16 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getHearings()).hasSize(2);
     }
 
-    private void assertCaseFields(CourtCaseResponse courtCaseResponse, String caseNo) {
+    private void assertCaseFields(CourtCaseResponse courtCaseResponse, String caseNo, SourceType sourceType) {
         Optional.ofNullable(caseNo)
             .ifPresentOrElse((c) -> assertThat(courtCaseResponse.getCaseNo()).isEqualTo(c), () -> assertThat(courtCaseResponse.getCaseNo()).isNull());
         assertThat(courtCaseResponse.getCaseId()).isEqualTo(CASE_ID);
-        assertThat(courtCaseResponse.getSource()).isEqualTo(SourceType.COMMON_PLATFORM.name());
+        assertThat(courtCaseResponse.getSource()).isEqualTo(sourceType.name());
         assertThat(courtCaseResponse.isCreatedToday()).isFalse();
+    }
+
+    private void assertCaseFields(CourtCaseResponse courtCaseResponse, String caseNo) {
+        assertCaseFields(courtCaseResponse, caseNo, SourceType.COMMON_PLATFORM);
     }
 
     private CourtCaseEntity buildCourtCaseEntity(List<OffenceEntity> offences, List<DefendantEntity> defendants, List<HearingEntity> hearings, LocalDateTime firstCreated) {

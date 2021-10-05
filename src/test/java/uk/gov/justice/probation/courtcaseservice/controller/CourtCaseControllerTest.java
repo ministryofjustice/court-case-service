@@ -10,6 +10,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +39,9 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aCourtCaseEntity;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aDefendantEntity;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingEntity;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM;
 
 @ExtendWith(MockitoExtension.class)
@@ -82,7 +86,8 @@ class CourtCaseControllerTest {
         when(offenderMatchService.getMatchCount(COURT_CODE, CASE_NO)).thenReturn(Optional.of(3));
         var courtCase = courtCaseController.getCourtCase(COURT_CODE, CASE_NO);
         assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
-        assertThat(courtCase.getCaseNo()).isEqualTo(CASE_NO);
+        assertThat(courtCase.getCaseNo()).isNull();
+        assertThat(courtCase.getSource()).isEqualTo("COMMON_PLATFORM");
         assertThat(courtCase.getSessionStartTime()).isNotNull();
         assertThat(courtCase.getSession()).isSameAs(session);
         assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(3);
@@ -117,7 +122,7 @@ class CourtCaseControllerTest {
         when(offenderMatchService.getMatchCount(COURT_CODE, CASE_NO)).thenReturn(Optional.empty());
         var courtCase = courtCaseController.updateCourtCaseNo(COURT_CODE, CASE_NO, courtCaseUpdate). block();
 
-        assertCourtCase(courtCase);
+        assertCourtCase(courtCase, null, 0);
         verify(courtCaseService).createCase(COURT_CODE, CASE_NO, courtCaseEntity);
         verify(offenderMatchService).getMatchCount(COURT_CODE, CASE_NO);
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
@@ -128,11 +133,13 @@ class CourtCaseControllerTest {
 
         var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
-        when(courtCaseService.filterCases(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE)).thenReturn(Collections.singletonList(courtCaseEntity));
+
+        when(courtCaseService.filterCases(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE))
+            .thenReturn(Collections.singletonList(courtCaseEntity.withDefendants(List.of(aDefendantEntity()))));
         var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE, webRequest);
 
         assertThat(responseEntity.getBody().getCases()).hasSize(1);
-        assertCourtCase(responseEntity.getBody().getCases().get(0));
+        assertCourtCase(responseEntity.getBody().getCases().get(0), null, 0);
         assertThat(responseEntity.getHeaders().getFirst(HttpHeaders.LAST_MODIFIED)).isEqualTo("Wed, 21 Oct 2015 07:28:00 GMT");
     }
 
@@ -157,8 +164,8 @@ class CourtCaseControllerTest {
 
         assertThat(responseEntity.getBody().getCases()).hasSize(2);
         // Top level fields for both are the same
-        assertCourtCase(responseEntity.getBody().getCases().get(0));
-        assertCourtCase(responseEntity.getBody().getCases().get(1));
+        assertCourtCase(responseEntity.getBody().getCases().get(0), null, 0);
+        assertCourtCase(responseEntity.getBody().getCases().get(1), null, 0);
         assertThat(responseEntity.getBody().getCases().get(0).getCrn()).isEqualTo(CRN);
         assertThat(responseEntity.getBody().getCases().get(0).getDefendantName()).isEqualTo("Mr Gordon BENNETT");
         assertThat(responseEntity.getBody().getCases().get(1).getDefendantName()).isEqualTo("HRH Catherine The GREAT");
@@ -174,11 +181,12 @@ class CourtCaseControllerTest {
 
         final var mornSession = LocalDateTime.of(DATE, LocalTime.of(9, 30));
         final var aftSession = LocalDateTime.of(DATE, LocalTime.of(14, 0));
-        final var entity1 = CourtCaseEntity.builder().courtRoom("1").sessionStartTime(mornSession).defendantName("Mr Nicholas CAGE").sourceType(COMMON_PLATFORM).build();
-        final var entity2 = CourtCaseEntity.builder().courtRoom("1").sessionStartTime(mornSession).defendantName("Mr Christopher PLUMMER").sourceType(COMMON_PLATFORM).build();
-        final var entity3 = CourtCaseEntity.builder().courtRoom("1").sessionStartTime(aftSession).defendantName("Mr Darren ARONOFSKY").sourceType(COMMON_PLATFORM).build();
-        final var entity4 = CourtCaseEntity.builder().courtRoom("3").sessionStartTime(mornSession).defendantName("Mrs Minnie DRIVER").sourceType(COMMON_PLATFORM).build();
-        final var entity5 = CourtCaseEntity.builder().courtRoom("3").sessionStartTime(aftSession).defendantName("Mrs Juliette BINOCHE").sourceType(COMMON_PLATFORM).build();
+
+        final var entity1 = buildCourtCaseEntity("Mr Nicholas CAGE", mornSession, "1");
+        final var entity2 = buildCourtCaseEntity("Mr Christopher PLUMMER", mornSession, "1");
+        final var entity3 = buildCourtCaseEntity("Mr Darren ARONOFSKY", aftSession, "1");
+        final var entity4 = buildCourtCaseEntity("Mrs Minnie DRIVER", mornSession, "3");
+        final var entity5 = buildCourtCaseEntity("Mrs Juliette BINOCHE", aftSession, "3");
 
         // Add in reverse order
         final var createdAfter = LocalDateTime.now().minus(1, ChronoUnit.DAYS);
@@ -288,5 +296,17 @@ class CourtCaseControllerTest {
         assertThat(courtCase.getSession()).isSameAs(session);
         assertThat(courtCase.getSource()).isEqualTo(COMMON_PLATFORM.name());
         assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(possibleMatchCount);
+    }
+
+    private CourtCaseEntity buildCourtCaseEntity(String name, LocalDateTime sessionStartTime, String courtRoom) {
+
+        // TODO - we have to build like this because the sorting relies on the fields in CourtCaseEntity
+        return aCourtCaseEntity(UUID.randomUUID().toString())
+            .withCourtRoom(courtRoom)
+            .withDefendantName(name)
+            .withSessionStartTime(sessionStartTime)
+            .withDefendants(List.of(aDefendantEntity(UUID.randomUUID().toString()).withDefendantName(name)))
+            .withHearings(List.of(aHearingEntity(sessionStartTime).withCourtRoom(courtRoom)));
+
     }
 }

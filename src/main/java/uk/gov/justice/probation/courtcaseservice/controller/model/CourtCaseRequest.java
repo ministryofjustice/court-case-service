@@ -41,10 +41,10 @@ public class CourtCaseRequest {
     private final Boolean suspendedSentenceOrder;
     private final Boolean breach;
     private final Boolean preSentenceActivity;
-    private final List<OffenceRequest> offences;
+    private final List<OffenceRequestResponse> offences;
     private final NamePropertiesEntity name;
     private final String defendantName;
-    private final AddressRequest defendantAddress;
+    private final AddressRequestResponse defendantAddress;
     private final LocalDate defendantDob;
     private final String defendantSex;
     private final DefendantType defendantType;
@@ -176,7 +176,7 @@ public class CourtCaseRequest {
         return Collections.singletonList(defendant);
     }
 
-    private AddressPropertiesEntity buildAddress(AddressRequest addressRequest) {
+    private AddressPropertiesEntity buildAddress(AddressRequestResponse addressRequest) {
         return AddressPropertiesEntity.builder()
             .line1(addressRequest.getLine1())
             .line2(addressRequest.getLine2())

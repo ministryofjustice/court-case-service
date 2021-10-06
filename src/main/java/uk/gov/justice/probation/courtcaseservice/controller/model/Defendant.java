@@ -19,7 +19,7 @@ public class Defendant {
     private final String defendantId;
     private final NamePropertiesEntity name;
     private final LocalDate dateOfBirth;
-    private final AddressRequest address;
+    private final AddressRequestResponse address;
     private final String probationStatus;
     private final DefendantType type;
     private final String sex;
@@ -31,5 +31,5 @@ public class Defendant {
     private final Boolean breach;
     private final Boolean preSentenceActivity;
     private final Boolean awaitingPsr;
-    private final List<OffenceRequest> offences;
+    private final List<OffenceRequestResponse> offences;
 }

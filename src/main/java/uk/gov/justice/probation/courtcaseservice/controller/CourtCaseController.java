@@ -24,7 +24,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResp
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
@@ -126,7 +126,7 @@ public class CourtCaseController {
     @ApiOperation(value = "Saves and returns the court case data, by case id.")
     @ApiResponses(
             value = {
-                    @ApiResponse(code = 201, message = "Created", response = ExtendedCourtCaseRequest.class),
+                    @ApiResponse(code = 201, message = "Created", response = ExtendedCourtCaseRequestResponse.class),
                     @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
                     @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
                     @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
@@ -136,16 +136,34 @@ public class CourtCaseController {
     @PutMapping(value = "/case/{caseId}/extended", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    Mono<ExtendedCourtCaseRequest> updateCourtCaseId(@PathVariable(value = "caseId") String caseId,
-                                                     @Valid @RequestBody ExtendedCourtCaseRequest courtCaseRequest) {
+    Mono<ExtendedCourtCaseRequestResponse> updateCourtCaseId(@PathVariable(value = "caseId") String caseId,
+                                                             @Valid @RequestBody ExtendedCourtCaseRequestResponse courtCaseRequest) {
         return courtCaseService.createCase(caseId, courtCaseRequest.asCourtCaseEntity())
             .thenReturn(courtCaseRequest);
+    }
+
+    @ApiOperation(value = "Returns extended court case data, by case id.")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(code = 200, message = "OK", response = ExtendedCourtCaseRequestResponse.class),
+                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+                    @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
+                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+            })
+    @GetMapping(value = "/case/{caseId}/extended", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    ExtendedCourtCaseRequestResponse getExtendedCourtCase(@PathVariable(value = "caseId") String caseId) {
+        final var courtCase = courtCaseService.getCaseByCaseId(caseId);
+        return ExtendedCourtCaseRequestResponse.of(courtCase);
     }
 
     @ApiOperation(value = "Saves and returns the court case data, by case id.")
     @ApiResponses(
         value = {
-            @ApiResponse(code = 201, message = "Updated", response = ExtendedCourtCaseRequest.class),
+            @ApiResponse(code = 201, message = "Updated", response = ExtendedCourtCaseRequestResponse.class),
             @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),

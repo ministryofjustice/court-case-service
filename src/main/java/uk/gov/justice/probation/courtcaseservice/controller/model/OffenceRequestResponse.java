@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor
-public class OffenceRequest {
+public class OffenceRequestResponse {
     private final String offenceTitle;
     private final String offenceSummary;
     private final String act;

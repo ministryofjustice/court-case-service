@@ -25,9 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
-import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.not;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
@@ -78,7 +76,8 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .statusCode(200)
                 .body("cases", hasSize(7))
                 .body("cases[0].courtCode", equalTo(COURT_CODE))
-                .body("cases[0].caseNo", equalTo("1600028914"))
+                .body("cases[0].caseNo", equalTo(null))
+                .body("cases[0].source", equalTo("COMMON_PLATFORM"))
                 .body("cases[0].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
                 .body("cases[0].defendantType", equalTo("PERSON"))
                 .body("cases[0].defendantName", equalTo("Ms Emma Radical"))
@@ -93,6 +92,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[1].offences[0].offenceTitle", equalTo("Billy stole from a shop"))
                 .body("cases[2].offences", hasSize(2))
                 .body("cases[2].caseNo", equalTo("1600028913"))
+                .body("cases[2].source", equalTo("LIBRA"))
                 .body("cases[2].preSentenceActivity", equalTo(true))
                 .body("cases[2].probationStatus", equalTo("Possible NDelius record"))
                 .body("cases[2].probationStatusActual", equalTo(null))
@@ -101,12 +101,16 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[2].numberOfPossibleMatches", equalTo(3))
                 .body("cases[2].sessionStartTime", equalTo(DECEMBER_14_9AM.format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[2].awaitingPsr", equalTo(true))
-                .body("cases[4].caseNo", equalTo("1600028916"))
-                .body("cases[5].caseNo", equalTo("1600028915"))
+                .body("cases[4].caseNo", equalTo(null))
+                .body("cases[4].source", equalTo("COMMON_PLATFORM"))
+                .body("cases[5].caseNo", equalTo(null))
+                .body("cases[5].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a57"))
+                .body("cases[5].source", equalTo("COMMON_PLATFORM"))
                 .body("cases[5].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[5].probationStatus", equalTo("No record"))
                 .body("cases[5].probationStatusActual", equalTo("NO_RECORD"))
-                .body("cases[6].caseNo", equalTo("1600028918"))
+                .body("cases[6].caseNo", equalTo(null))
+                .body("cases[6].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a18"))
                 .body("cases[6].createdToday", equalTo(false));
         }
 
@@ -154,12 +158,12 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .assertThat()
                 .statusCode(200)
                 .body("cases", hasSize(6))
-                .body("cases[0].caseNo", equalTo("1600028914"))
-                .body("cases[1].caseNo", equalTo("1600028914"))
-                .body("cases[2].caseNo", equalTo("1600028913"))
-                .body("cases[3].caseNo", equalTo("1600028917"))
-                .body("cases[4].caseNo", equalTo("1600028915"))
-                .body("cases[5].caseNo", equalTo("1600028918"))
+                .body("cases[0].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
+                .body("cases[1].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
+                .body("cases[2].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
+                .body("cases[3].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a59"))
+                .body("cases[4].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a57"))
+                .body("cases[5].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a18"))
             ;
         }
 
@@ -175,7 +179,9 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .assertThat()
                 .statusCode(200)
                 .body("cases", hasSize(1))
-                .body("cases[0].caseNo", equalTo("1600028930"))
+                .body("cases[0].caseNo", equalTo(null))
+                .body("cases[0].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a30"))
+                .body("cases[0].source", equalTo("COMMON_PLATFORM"))
             ;
         }
 
@@ -192,7 +198,9 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .assertThat()
                 .statusCode(200)
                 .body("cases", hasSize(1))
-                .body("cases[0].caseNo", equalTo("1600028916"))
+                .body("cases[0].caseNo", equalTo(null))
+                .body("cases[0].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a58"))
+                .body("cases[0].defendantId", equalTo("44817de0-cc89-460a-8f07-0b06ef45982a"))
             ;
         }
 
@@ -210,8 +218,10 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .assertThat()
                 .statusCode(200)
                 .body("cases", hasSize(1))
-                .body("cases[0].caseNo", equalTo("1600028919"))
-                .body("cases[0].defendantName", equalTo("Hubert Farnsworth"))
+                .body("cases[0].caseId", equalTo("e652eaae-1114-4593-8f56-659eb2baffcf"))
+                .body("cases[0].caseNo", equalTo(null))
+                .body("cases[0].source", equalTo("COMMON_PLATFORM"))
+                .body("cases[0].defendantName", equalTo("Mr Hubert FARNSWORTH"))
             ;
         }
 
@@ -291,7 +301,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .then()
                 .statusCode(200);
 
-            response.body("caseNo", equalTo(CASE_NO));
             validateResponse(response, startTime, "1f93aa0a-7e46-4885-a1cb-f25a4be33a00");
         }
 
@@ -378,8 +387,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .then()
                 .statusCode(200);
 
-            response.body("$", not(hasKey("caseNo")));
-
             validateResponse(response, DECEMBER_14_9AM.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), "1f93aa0a-7e46-4885-a1cb-f25a4be33a00");
         }
 
@@ -449,8 +456,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .then()
                 .statusCode(200);
 
-            response.body("$", not(hasKey("caseNo")));
-
             response
                 .body("caseId", equalTo(CASE_ID))
                 .body("offences", hasSize(2))
@@ -460,11 +465,12 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
                 .body("probationStatus", equalTo(PROBATION_STATUS))
                 .body("probationStatusActual", equalTo(null))
-                .body("previouslyKnownTerminationDate", equalTo(null))
-                .body("suspendedSentenceOrder", equalTo(false))
-                .body("breach", equalTo(false))
-                .body("source", equalTo("COMMON_PLATFORM"))
-                .body("preSentenceActivity", equalTo(false))
+                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, Month.JANUARY, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)))
+                .body("suspendedSentenceOrder", equalTo(true))
+                .body("breach", equalTo(true))
+                .body("source", equalTo("LIBRA"))
+                .body("caseNo", equalTo("1600028913"))
+                .body("preSentenceActivity", equalTo(true))
                 .body("crn", equalTo(null))
                 .body("pnc", equalTo("A/1234560BA"))
                 .body("cro", equalTo("311462/13E"))
@@ -567,6 +573,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
 
     private void validateResponse(ValidatableResponse validatableResponse, String startTime, String caseId) {
         validatableResponse
+            .body("caseNo", equalTo(CASE_NO))
             .body("caseId", equalTo(caseId))
             .body("offences", hasSize(2))
             .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
@@ -578,7 +585,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)))
             .body("suspendedSentenceOrder", equalTo(true))
             .body("breach", equalTo(true))
-            .body("source", equalTo("COMMON_PLATFORM"))
+            .body("source", equalTo("LIBRA"))
             .body("preSentenceActivity", equalTo(true))
             .body("crn", equalTo(null))
             .body("pnc", equalTo("A/1234560BA"))
@@ -631,7 +638,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                     .get("/case/{caseId}/extended", "1f93aa0a-7e46-4885-a1cb-f25a4be33a00")
                     .then()
                     .statusCode(200)
-                    .body("source", equalTo("COMMON_PLATFORM"))
+                    .body("source", equalTo("LIBRA"))
                     .body("courtCode", equalTo(COURT_CODE))
                     .body("caseNo", equalTo("1600028913"))
                     .body("caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
@@ -662,7 +669,8 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .assertThat()
                 .statusCode(200)
                 .body("cases[0].courtCode", equalTo(COURT_CODE))
-                .body("cases[0].caseNo", equalTo("1600028914"))
+                .body("cases[0].caseNo", equalTo(null))
+                .body("cases[0].source", equalTo("COMMON_PLATFORM"))
                 .body("cases[0].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
                 .body("cases[0].defendantType", equalTo("PERSON"))
                 .body("cases[0].defendantName", equalTo("Ms Emma Radical"))
@@ -684,6 +692,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[1].hearings[0].session", equalTo("MORNING"))
                 .body("cases[2].offences", hasSize(2))
                 .body("cases[2].caseNo", equalTo("1600028913"))
+                .body("cases[2].source", equalTo("LIBRA"))
                 .body("cases[2].preSentenceActivity", equalTo(true))
                 .body("cases[2].probationStatus", equalTo("Possible NDelius record"))
                 .body("cases[2].probationStatusActual", equalTo(null))
@@ -692,12 +701,12 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[2].numberOfPossibleMatches", equalTo(3))
                 .body("cases[2].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(9, 0)).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[2].awaitingPsr", equalTo(true))
-                .body("cases[4].caseNo", equalTo("1600028916"))
-                .body("cases[5].caseNo", equalTo("1600028915"))
+                .body("cases[4].caseNo", equalTo(null))
+                .body("cases[4].source", equalTo("COMMON_PLATFORM"))
                 .body("cases[5].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(23, 59, 59)).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[5].probationStatus", equalTo("No record"))
                 .body("cases[5].probationStatusActual", equalTo("NO_RECORD"))
-                .body("cases[6].caseNo", equalTo("1600028918"))
+                .body("cases[6].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a18"))
                 .body("cases[6].createdToday", equalTo(false));
         }
 

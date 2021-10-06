@@ -100,7 +100,7 @@ public class CourtCaseController {
     @GetMapping(value = "/court/{courtCode}/case/{caseNo}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCase(@PathVariable String courtCode, @PathVariable String caseNo) {
-        return buildCourtCaseResponse(courtCaseService.getCaseByCaseNumber(courtCode, caseNo), true);
+        return buildCourtCaseResponse(courtCaseService.getCaseByCaseNumber(courtCode, caseNo));
     }
 
     @ApiOperation(value = "Saves and returns the court case entity data, by court and case number. ")
@@ -120,7 +120,7 @@ public class CourtCaseController {
                                               @PathVariable(value = "caseNo") String caseNo,
                                               @Valid @RequestBody CourtCaseRequest courtCaseRequest) {
         return courtCaseService.createCase(courtCode, caseNo, courtCaseRequest.asEntity())
-                .map(courtCaseEntity -> buildCourtCaseResponse(courtCaseEntity, true));
+                .map(courtCaseEntity -> buildCourtCaseResponse(courtCaseEntity));
     }
 
     @ApiOperation(value = "Saves and returns the court case data, by case id.")
@@ -226,19 +226,15 @@ public class CourtCaseController {
         return CourtCaseResponseMapper.mapFrom(courtCaseEntity, defendantId, offenderMatchesCount);
     }
 
-    private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity, boolean includeCaseNo) {
-        return buildCourtCaseResponse(courtCaseEntity, includeCaseNo, null);
-    }
-
     private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity) {
-        return buildCourtCaseResponse(courtCaseEntity, false, null);
+        return buildCourtCaseResponse(courtCaseEntity, null);
     }
 
-    private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity, boolean includeCaseNo, LocalDate hearingDate) {
+    private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity,LocalDate hearingDate) {
         final var offenderMatchesCount = offenderMatchService.getMatchCount(courtCaseEntity.getCourtCode(), courtCaseEntity.getCaseNo())
             .orElse(0);
 
-        return CourtCaseResponseMapper.mapFrom(courtCaseEntity, offenderMatchesCount, includeCaseNo, hearingDate);
+        return CourtCaseResponseMapper.mapFrom(courtCaseEntity, offenderMatchesCount, hearingDate);
     }
 
     private List<CourtCaseResponse> buildCourtCaseResponses(CourtCaseEntity courtCaseEntity, LocalDate hearingDate) {
@@ -246,7 +242,7 @@ public class CourtCaseController {
         var defendantEntities = new ArrayList<>(Optional.ofNullable(courtCaseEntity.getDefendants()).orElse(Collections.emptyList()));
         // Until we have CP on-line and we have removed court case defendant fields
         if (defendantEntities.size() <= 1) {
-            return Collections.singletonList(buildCourtCaseResponse(courtCaseEntity, true, hearingDate));
+            return Collections.singletonList(buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseEntity, defendantEntities.get(0).getDefendantId()));
         }
 
         final var caseId = courtCaseEntity.getCaseId();

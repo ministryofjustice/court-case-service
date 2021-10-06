@@ -10,6 +10,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,7 +27,7 @@ public class CourtCaseResponseMapper {
         // Core case-based
         final var builder = CourtCaseResponse.builder();
 
-        buildCaseFields(builder, courtCaseEntity, false);
+        buildCaseFields(builder, courtCaseEntity);
         buildHearings(builder, courtCaseEntity, null);
 
         Optional.ofNullable(courtCaseEntity.getDefendants()).orElse(Collections.emptyList())
@@ -45,7 +46,7 @@ public class CourtCaseResponseMapper {
         // Core case-based
         final var builder = CourtCaseResponse.builder();
 
-        buildCaseFields(builder, courtCaseEntity, true);
+        buildCaseFields(builder, courtCaseEntity);
         buildHearings(builder, courtCaseEntity, hearingDate);
 
         // Defendant-based fields
@@ -60,11 +61,11 @@ public class CourtCaseResponseMapper {
      * This maps from defendant fields from the court case entity which will be retired
      */
     @Deprecated(forRemoval = true)
-    public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, int matchCount, boolean includeCaseNo, LocalDate hearingDate) {
+    public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, int matchCount, LocalDate hearingDate) {
         // Core case-based
         final var builder = CourtCaseResponse.builder();
 
-        buildCaseFields(builder, courtCaseEntity, includeCaseNo);
+        buildCaseFields(builder, courtCaseEntity);
         buildHearings(builder, courtCaseEntity, hearingDate);
 
         // Offences
@@ -92,24 +93,20 @@ public class CourtCaseResponseMapper {
             .numberOfPossibleMatches(matchCount)
             .awaitingPsr(courtCaseEntity.getAwaitingPsr());
 
-        if (includeCaseNo) {
+        if (SourceType.LIBRA == courtCaseEntity.getSourceType()) {
             builder.caseNo(courtCaseEntity.getCaseNo());
         }
         return builder.build();
     }
 
-    private static void buildCaseFields(CourtCaseResponseBuilder builder, CourtCaseEntity courtCaseEntity, boolean includeCaseNo) {
+    private static void buildCaseFields(CourtCaseResponseBuilder builder, CourtCaseEntity courtCaseEntity) {
         // Case-based fields
         builder.caseId(courtCaseEntity.getCaseId())
             .source(courtCaseEntity.getSourceType().name())
             .createdToday(LocalDate.now().isEqual(Optional.ofNullable(courtCaseEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()));
-        if (includeCaseNo) {
+        if (SourceType.LIBRA == courtCaseEntity.getSourceType()) {
             builder.caseNo(courtCaseEntity.getCaseNo());
         }
-    }
-
-    public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, int matchCount, LocalDate hearingDate) {
-        return mapFrom(courtCaseEntity, matchCount, true, hearingDate);
     }
 
     static void buildHearings(CourtCaseResponseBuilder builder, CourtCaseEntity courtCaseEntity, LocalDate hearingDate) {

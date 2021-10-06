@@ -17,9 +17,9 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_DOB;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_NAME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_SEX;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NAME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_1;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_2;
@@ -48,15 +48,15 @@ class CourtCaseRequestTest {
                                                             .breach(BREACH)
                                                             .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
                                                             .offences(Arrays.asList(
-                                                                    new OffenceRequest("OFFENCE_TITLE1", "OFFENCE_SUMMARY1","ACT1"),
-                                                                    new OffenceRequest("OFFENCE_TITLE2", "OFFENCE_SUMMARY2","ACT2")
+                                                                    new OffenceRequestResponse("OFFENCE_TITLE1", "OFFENCE_SUMMARY1","ACT1"),
+                                                                    new OffenceRequestResponse("OFFENCE_TITLE2", "OFFENCE_SUMMARY2","ACT2")
                                                                 )
                                                             )
                                                             .defendantDob(DEFENDANT_DOB)
                                                             .defendantId(DEFENDANT_ID)
                                                             .name(NAME)
                                                             .defendantName(NAME.getFullName())
-                                                            .defendantAddress(new AddressRequest("LINE1", "LINE2", "LINE3", "LINE4", "LINE5", "POSTCODE"))
+                                                            .defendantAddress(new AddressRequestResponse("LINE1", "LINE2", "LINE3", "LINE4", "LINE5", "POSTCODE"))
                                                             .defendantSex(DEFENDANT_SEX)
                                                             .defendantType(DefendantType.PERSON)
                                                             .crn(CRN)

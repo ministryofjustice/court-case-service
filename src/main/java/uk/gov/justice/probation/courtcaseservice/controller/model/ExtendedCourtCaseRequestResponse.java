@@ -13,6 +13,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +25,7 @@ import java.util.stream.IntStream;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor
-public class ExtendedCourtCaseRequest {
+public class ExtendedCourtCaseRequestResponse {
     static final SourceType DEFAULT_SOURCE = SourceType.COMMON_PLATFORM;
     private final String caseNo;
     private final String caseId;
@@ -31,6 +33,61 @@ public class ExtendedCourtCaseRequest {
     private final String source;
     private final List<HearingDay> hearingDays;
     private final List<Defendant> defendants;
+
+    public static ExtendedCourtCaseRequestResponse of(CourtCaseEntity courtCase) {
+        return ExtendedCourtCaseRequestResponse.builder()
+                .caseNo(courtCase.getCaseNo())
+                .caseId(courtCase.getCaseId())
+                .courtCode(courtCase.getCourtCode())
+                .source(courtCase.getSourceType().name())
+                .hearingDays(courtCase.getHearings().stream()
+                        .map(hearingEntity -> HearingDay.builder()
+                                .courtCode(hearingEntity.getCourtCode())
+                                .courtRoom(hearingEntity.getCourtRoom())
+                                .sessionStartTime(Optional.ofNullable(hearingEntity.getHearingDay())
+                                        .map(day -> LocalDateTime.of(day, Optional.ofNullable(hearingEntity.getHearingTime()).orElse(LocalTime.MIDNIGHT)))
+                                        .orElse(null))
+                                .listNo(hearingEntity.getListNo())
+                                .build())
+                        .collect(Collectors.toList()))
+                .defendants(courtCase.getDefendants().stream()
+                        .map(defendantEntity -> Defendant.builder()
+                                .defendantId(defendantEntity.getDefendantId())
+                                .name(defendantEntity.getName())
+                                .dateOfBirth(defendantEntity.getDateOfBirth())
+                                .address(Optional.ofNullable(defendantEntity.getAddress())
+                                        .map(address -> AddressRequestResponse.builder()
+                                                .line1(address.getLine1())
+                                                .line2(address.getLine2())
+                                                .line3(address.getLine3())
+                                                .line4(address.getLine4())
+                                                .line5(address.getLine5())
+                                                .postcode(address.getPostcode())
+                                                .build())
+                                        .orElse(null))
+                                .probationStatus(defendantEntity.getProbationStatus())
+                                .type(defendantEntity.getType())
+                                .sex(defendantEntity.getSex())
+                                .crn(defendantEntity.getCrn())
+                                .pnc(defendantEntity.getPnc())
+                                .cro(defendantEntity.getCro())
+                                .previouslyKnownTerminationDate(defendantEntity.getPreviouslyKnownTerminationDate())
+                                .suspendedSentenceOrder(defendantEntity.getSuspendedSentenceOrder())
+                                .breach(defendantEntity.getBreach())
+                                .preSentenceActivity(defendantEntity.getPreSentenceActivity())
+                                .awaitingPsr(defendantEntity.getAwaitingPsr())
+                                .offences(Optional.ofNullable(defendantEntity.getOffences())
+                                        .orElse(Collections.emptyList()).stream()
+                                        .map(offence ->  OffenceRequestResponse.builder()
+                                                .act(offence.getAct())
+                                                .offenceTitle(offence.getTitle())
+                                                .offenceSummary(offence.getSummary())
+                                                .build())
+                                        .collect(Collectors.toList()))
+                                .build())
+                        .collect(Collectors.toList()))
+                .build();
+    }
 
     public CourtCaseEntity asCourtCaseEntity() {
 
@@ -87,7 +144,7 @@ public class ExtendedCourtCaseRequest {
         return defendantEntity;
     }
 
-    private List<DefendantOffenceEntity> buildDefendantOffences(List<OffenceRequest> offences) {
+    private List<DefendantOffenceEntity> buildDefendantOffences(List<OffenceRequestResponse> offences) {
 
         return IntStream.range(0, Optional.ofNullable(offences)
                                     .map(List::size)
@@ -114,7 +171,7 @@ public class ExtendedCourtCaseRequest {
             .build();
     }
 
-    private AddressPropertiesEntity buildAddress(AddressRequest addressRequest) {
+    private AddressPropertiesEntity buildAddress(AddressRequestResponse addressRequest) {
         return Optional.ofNullable(addressRequest)
             .map(address -> AddressPropertiesEntity.builder()
                     .line1(address.getLine1())

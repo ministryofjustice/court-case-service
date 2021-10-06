@@ -1,10 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import io.restassured.response.ValidatableResponse;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
@@ -624,6 +624,36 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
         @BeforeEach
         void beforeEach() {
             ReflectionTestUtils.setField(courtCaseService, "caseListExtended", true);
+        }
+
+        @Test
+        void givenKnownCaseId_whenGetExtendedCaseById_thenReturn() {
+
+            var response = given()
+                    .given()
+                    .auth()
+                    .oauth2(getToken())
+                    .when()
+                    .header("Accept", "application/json")
+                    .get("/case/{caseId}/extended", "1f93aa0a-7e46-4885-a1cb-f25a4be33a00")
+                    .then()
+                    .statusCode(200)
+                    .body("source", equalTo("LIBRA"))
+                    .body("courtCode", equalTo(COURT_CODE))
+                    .body("caseNo", equalTo("1600028913"))
+                    .body("caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
+                    .body("defendants", hasSize(1))
+                    .body("defendants[0].type", equalTo("PERSON"))
+                    .body("defendants[0].name.title", equalTo("Mr"))
+                    .body("defendants[0].name.forename1", equalTo("Johnny"))
+                    .body("defendants[0].name.surname", equalTo("BALL"))
+                    .body("defendants[0].offences", hasSize(2))
+                    .body("defendants[0].offences[0].offenceTitle", equalTo("Theft from a shop"))
+                    .body("hearingDays", hasSize(1))
+                    .body("hearingDays[0].courtCode", equalTo(COURT_CODE))
+                    .body("hearingDays[0].courtRoom", equalTo(COURT_ROOM))
+                    .body("hearingDays[0].listNo", equalTo("3rd"))
+                    .body("hearingDays[0].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(9, 0)).format(DateTimeFormatter.ISO_DATE_TIME)));
         }
 
         @Test

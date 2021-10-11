@@ -123,8 +123,8 @@ VALUES (-1700028912, -1700028912, '03137ac2-8c92-471a-aed2-c92ea6e4963e', 'Mr Ge
 
 -- See CourtCaseControllerPutIntTest.whenPurgeCases_ThenReturn204NoContent() CHECKED
 -- These records are used to test edge cases when returning court case list for a given date (midnight to 1 second before midnight the next day)
-INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, source_type)
-VALUES (1000000, 1000000, 1000000, 'B10JQ', '1', '2100-01-01 09:00:00', 'No record', 'X320741', 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, source_type)
+VALUES (1000000, 1000000, 1000000, 'B10JQ', '1', '2100-01-01 09:00:00', 'No record', 'X320741', 'Mr Tom Cruise', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, source_type)
 VALUES (1000001, 1000001, 1000001, 'B10JQ', '1', '2020-01-01 09:00:00', 'No record', 'X320741', 'COMMON_PLATFORM');
 

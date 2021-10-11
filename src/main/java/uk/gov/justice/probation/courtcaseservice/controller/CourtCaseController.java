@@ -248,7 +248,7 @@ public class CourtCaseController {
         return buildCourtCaseResponse(courtCaseEntity, null);
     }
 
-    private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity,LocalDate hearingDate) {
+    private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity, LocalDate hearingDate) {
         final var offenderMatchesCount = offenderMatchService.getMatchCount(courtCaseEntity.getCourtCode(), courtCaseEntity.getCaseNo())
             .orElse(0);
 
@@ -259,8 +259,8 @@ public class CourtCaseController {
 
         var defendantEntities = new ArrayList<>(Optional.ofNullable(courtCaseEntity.getDefendants()).orElse(Collections.emptyList()));
         // Until we have CP on-line and we have removed court case defendant fields
-        if (defendantEntities.size() <= 1) {
-            return Collections.singletonList(buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseEntity, defendantEntities.get(0).getDefendantId()));
+        if (defendantEntities.isEmpty()) {
+            return Collections.singletonList(buildCourtCaseResponse(courtCaseEntity, hearingDate));
         }
 
         final var caseId = courtCaseEntity.getCaseId();

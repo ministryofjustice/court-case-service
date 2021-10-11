@@ -202,7 +202,7 @@ jobs:
 
   pact_check_and_publish:
     parameters:
-      consumer_tags:
+      pact_consumer_tags:
         type: string
     environment:
       PACTBROKER_HOST: "pact-broker-prod.apps.live-1.cloud-platform.service.justice.gov.uk"
@@ -217,7 +217,7 @@ jobs:
           command: |
             PACT_PROVIDER_VERSION="$CIRCLE_SHA1" \
               PACT_PROVIDER_TAG="$CIRCLE_BRANCH" \
-              PACTBROKER_CONSUMERVERSIONSELECTORS_TAGS="<< parameters.consumer_tags >>" \
+              PACTBROKER_CONSUMERVERSIONSELECTORS_TAGS="<< parameters.pact_consumer_tags >>" \
               PACT_PUBLISH_RESULTS="true" \
               SPRING_PROFILES_ACTIVE="unsecured" \
               ./gradlew pactTestPublish
@@ -407,4 +407,4 @@ workflows:
   pact:
     jobs:
       - pact_check_and_publish:
-          consumer_tags: << pipeline.parameters.pact_consumer_tags >>
+          pact_consumer_tags: << pipeline.parameters.pact_consumer_tags >>

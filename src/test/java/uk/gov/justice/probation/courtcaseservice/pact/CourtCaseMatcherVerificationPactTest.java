@@ -115,7 +115,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                         .crn("X346204")
                         .cro("ACRO")
                         .dateOfBirth(LocalDate.of(1975, 4, 3))
-                        .defendantId("8E07B58D-3ED3-440E-9CC2-2BC94EDBC5AF")
+                        .defendantId("0ab7c3e5-eb4c-4e3f-b9e6-b9e78d3ea199")
                         .name(NamePropertiesEntity.builder()
                                 .forename1("Arthur")
                                 .forename2("Ponsonby")

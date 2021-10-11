@@ -115,7 +115,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
         }
 
         @Test
-        void GET_cases_givenSeparateDefendants_whenGetCases_thenReturnAllCases() {
+        void GET_cases_givenNoSeparateDefendants_whenGetCases_thenReturnAllCases() {
 
             final String hearingDate = LocalDate.of(2100, Month.JANUARY, 1).format(DateTimeFormatter.ISO_DATE);
             final String createdAfter = LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);

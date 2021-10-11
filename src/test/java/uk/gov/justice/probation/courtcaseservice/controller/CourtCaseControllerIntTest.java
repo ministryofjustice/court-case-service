@@ -115,6 +115,30 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
         }
 
         @Test
+        void GET_cases_givenSeparateDefendants_whenGetCases_thenReturnAllCases() {
+
+            final String hearingDate = LocalDate.of(2100, Month.JANUARY, 1).format(DateTimeFormatter.ISO_DATE);
+            final String createdAfter = LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+            given()
+                .auth()
+                .oauth2(getToken())
+                .when()
+                .get("/court/{courtCode}/cases?date={date}&createdAfter={createdAfter}", COURT_CODE, hearingDate, createdAfter)
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .body("cases", hasSize(1))
+                .body("cases[0].courtCode", equalTo(COURT_CODE))
+                .body("cases[0].caseNo", equalTo(null))
+                .body("cases[0].source", equalTo("COMMON_PLATFORM"))
+                .body("cases[0].caseId", equalTo("1000000"))
+                .body("cases[0].defendantName", equalTo("Mr Tom Cruise"))
+                .body("cases[0].defendantType", equalTo("PERSON"))
+                ;
+        }
+
+        @Test
         void givenLastModifiedRecent_whenRequestCases_thenReturnLastModifiedHeader() {
 
             given()

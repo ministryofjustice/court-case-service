@@ -1,13 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.Data;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +25,15 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
@@ -40,6 +41,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -48,6 +50,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aDefendantEntity;
 
 @ExtendWith(MockitoExtension.class)
 class ImmutableCourtCaseServiceTest {
@@ -687,6 +690,40 @@ class ImmutableCourtCaseServiceTest {
             service.createCase(COURT_CODE, CASE_NO, caseToUpdate).block();
 
             verify(groupedOffenderMatchRepository).save(matchesCaptor.capture());
+
+            final var groupedOffenderMatches = matchesCaptor.getValue();
+
+            var correctMatch = groupedOffenderMatches.getOffenderMatches().get(0);
+            assertThat(correctMatch.getCrn()).isEqualTo(CRN);
+            assertThat(correctMatch.getConfirmed()).isEqualTo(true);
+            assertThat(correctMatch.getRejected()).isEqualTo(false);
+
+            var rejectedMatch1 = groupedOffenderMatches.getOffenderMatches().get(1);
+            assertThat(rejectedMatch1.getCrn()).isEqualTo("Rejected CRN 1");
+            assertThat(rejectedMatch1.getConfirmed()).isEqualTo(false);
+            assertThat(rejectedMatch1.getRejected()).isEqualTo(true);
+        }
+
+        @Test
+        void givenOffenderMatchesExistForCaseWithMultipleDefendants_whenCrnUpdated_thenUpdateMatches() {
+            when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+            var existingCase = EntityHelper.aCourtCaseEntity(CRN, CASE_NO, List.of(
+                    aDefendantEntity("defendant1"),
+                    aDefendantEntity("defendant2")
+                    ));
+            when(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.of(existingCase));
+            when(groupedOffenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, "defendant1")).thenReturn(buildOffenderMatches());
+            when(groupedOffenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, "defendant2")).thenReturn(buildOffenderMatches());
+            var caseToUpdate = EntityHelper.aCourtCaseEntity(CRN, CASE_NO, List.of(
+                    aDefendantEntity("defendant1"),
+                    aDefendantEntity("defendant2")
+            ));
+
+            when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
+
+            service.createCase(CASE_ID, caseToUpdate).block();
+
+            verify(groupedOffenderMatchRepository, times(2)).save(matchesCaptor.capture());
 
             final var groupedOffenderMatches = matchesCaptor.getValue();
 

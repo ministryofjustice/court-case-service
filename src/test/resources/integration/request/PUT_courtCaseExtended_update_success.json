@@ -1,0 +1,93 @@
+{
+  "courtCode": "B33HU",
+  "caseNo": "1800028900",
+  "caseId": "3db9d70b-10a2-49d1-b74d-379f2db74862",
+  "hearingDays": [
+    {
+      "courtCode": "B33HU",
+      "courtRoom": "1",
+      "sessionStartTime": "2019-12-14T09:00:00",
+      "listNo": "1st"
+    }
+  ],
+  "defendants": [
+    {
+      "name": {
+        "title": "Mr",
+        "forename1": "John",
+        "surname": "Peel"
+      },
+      "dateOfBirth": "1958-12-14",
+      "address": {
+        "line1": "27",
+        "line2": "Elm Place",
+        "postcode": "ad21 5dr",
+        "line3": "Bangor"
+      },
+      "probationStatus": "PREVIOUSLY_KNOWN",
+      "type": "PERSON",
+      "sex": "M",
+      "crn": "X320741",
+      "pnc": "A/1234560BA",
+      "cro": "99999",
+      "defendantId": "1263de26-4a81-42d3-a798-bad802433318",
+      "previouslyKnownTerminationDate": "2018-06-24",
+      "suspendedSentenceOrder": true,
+      "breach": true,
+      "preSentenceActivity": true,
+      "awaitingPsr": true,
+      "source": "COMMON_PLATFORM",
+      "offences": [
+        {
+          "offenceTitle": "Theft from a shop",
+          "offenceSummary": "On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.",
+          "act": "Contrary to section 1(1) and 7 of the Theft Act 1968."
+        },
+        {
+          "offenceTitle": "Theft from a different shop",
+          "offenceSummary": "On 02/01/2015 at own, stole article, to the value of £123.00, belonging to person.",
+          "act": "Contrary to section 1(1) and 7 of the Theft Act 1968."
+        }
+      ]
+    },
+    {
+      "name": {
+        "title": "Mrs",
+        "forename1": "Jessica",
+        "surname": "Peel"
+      },
+      "dateOfBirth": "1979-12-14",
+      "address": {
+        "line1": "27",
+        "line2": "Elm Place",
+        "postcode": "ad21 5dr",
+        "line3": "Bangor"
+      },
+      "probationStatus": "PREVIOUSLY_KNOWN",
+      "type": "PERSON",
+      "sex": "M",
+      "crn": "X320742",
+      "pnc": "A/1234560BB",
+      "cro": "100000",
+      "defendantId": "6f014c2e-8be3-4a12-a551-8377bd31a7b8",
+      "previouslyKnownTerminationDate": "2019-06-24",
+      "suspendedSentenceOrder": false,
+      "breach": false,
+      "preSentenceActivity": false,
+      "awaitingPsr": false,
+      "source": "COMMON_PLATFORM",
+      "offences": [
+        {
+          "offenceTitle": "Theft from a shop",
+          "offenceSummary": "On 01/02/2015 at own, stole article, to the value of £988.00, belonging to person.",
+          "act": "Contrary to section 1(1) and 7 of the Theft Act 1968."
+        },
+        {
+          "offenceTitle": "Theft from a different shop",
+          "offenceSummary": "On 02/02/2015 at own, stole article, to the value of £124.00, belonging to person.",
+          "act": "Contrary to section 1(1) and 7 of the Theft Act 1968."
+        }
+      ]
+    }
+  ]
+}

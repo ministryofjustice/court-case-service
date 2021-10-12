@@ -1,13 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Collections;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +17,15 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderM
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.CourtCaseMapper;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Collections;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
@@ -38,10 +39,10 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     @Autowired
     public ImmutableCourtCaseService(CourtRepository courtRepository,
-                                    CourtCaseRepository courtCaseRepository,
-                                    TelemetryService telemetryService,
-                                    GroupedOffenderMatchRepository matchRepository,
-                                    @Value("${feature.flags.case-list-extended:false}") boolean caseListExtended) {
+                                     CourtCaseRepository courtCaseRepository,
+                                     TelemetryService telemetryService,
+                                     GroupedOffenderMatchRepository matchRepository,
+                                     @Value("${feature.flags.case-list-extended:false}") boolean caseListExtended) {
         this.courtRepository = courtRepository;
         this.courtCaseRepository = courtCaseRepository;
         this.telemetryService = telemetryService;
@@ -53,49 +54,53 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     public Mono<CourtCaseEntity> createCase(String caseId, CourtCaseEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
         validateEntity(caseId, updatedCase);
         courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId)
-            .ifPresentOrElse(
-                (existingCase) -> {
-                    updateOffenderMatches(existingCase, updatedCase);
-                    trackUpdateEvents(updatedCase, existingCase);
-                },
-                () -> trackCreateEvents(updatedCase));
+                .ifPresentOrElse(
+                        (existingCase) -> {
+                            updatedCase.getDefendants()
+                                    .forEach(defendantEntity ->
+                                            updateOffenderMatches(existingCase, updatedCase, defendantEntity.getDefendantId())
+                                    );
+                            trackUpdateEvents(updatedCase, existingCase);
+                        },
+                        () -> trackCreateEvents(updatedCase));
 
         return Mono.just(updatedCase)
-            .map((courtCaseEntity) -> {
-                log.debug("Saving case ID {}", caseId);
-                return courtCaseRepository.save(courtCaseEntity);
-            })
-            .doAfterTerminate(() -> updateOtherProbationStatusForCrnByCaseId(updatedCase.getCrn(), updatedCase.getProbationStatus(), updatedCase.getCaseId()));
+                .map((courtCaseEntity) -> {
+                    log.debug("Saving case ID {}", caseId);
+                    return courtCaseRepository.save(courtCaseEntity);
+                })
+                .doAfterTerminate(() -> updateOtherProbationStatusForCrnByCaseId(updatedCase.getCrn(), updatedCase.getProbationStatus(), updatedCase.getCaseId()));
     }
 
     @Override
     public Mono<CourtCaseEntity> createUpdateCaseForSingleDefendantId(String caseId, String defendantId, CourtCaseEntity updatedCase)
-        throws EntityNotFoundException, InputMismatchException {
+            throws EntityNotFoundException, InputMismatchException {
         validateEntityByDefendantId(caseId, defendantId, updatedCase);
         // The case to be saved might change from the one passed in, through the addition of defendants
         var caseToSave = courtCaseRepository.findByCaseIdAndDefendantId(caseId, defendantId)
-            .map((existingCase) -> {
+                .map((existingCase) -> {
                     // Copy existing case defendants to updated case
                     updateOffenderMatches(existingCase, updatedCase, defendantId);
                     trackUpdateEvents(updatedCase, existingCase);
                     return CourtCaseMapper.mergeDefendantsOnCase(existingCase, updatedCase, defendantId);
                 })
-            .orElseGet(() -> {
-                trackCreateEvents(updatedCase);
-                return updatedCase;
-            });
+                .orElseGet(() -> {
+                    trackCreateEvents(updatedCase);
+                    return updatedCase;
+                });
 
         return Mono.just(caseToSave)
-            .map((courtCaseEntity) -> {
-                log.debug("Saving case ID {} with updates applied for defendant ID {}", caseId, defendantId);
-                return courtCaseRepository.save(courtCaseEntity);
-            })
-            .doAfterTerminate(() -> updateOtherProbationStatusForCrnByCaseId(updatedCase.getCrn(), updatedCase.getProbationStatus(), updatedCase.getCaseId()));
+                .map((courtCaseEntity) -> {
+                    log.debug("Saving case ID {} with updates applied for defendant ID {}", caseId, defendantId);
+                    return courtCaseRepository.save(courtCaseEntity);
+                })
+                .doAfterTerminate(() -> updateOtherProbationStatusForCrnByCaseId(updatedCase.getCrn(), updatedCase.getProbationStatus(), updatedCase.getCaseId()));
     }
 
     /**
      * This method is only for saving LIBRA cases where the primary key is based on courtCode and caseNo and where there is only one defendant in each
      * CourtCaseEntity.
+     *
      * @deprecated future LIBRA cases will be saved by caseId
      */
     @Deprecated(forRemoval = true)
@@ -111,20 +116,20 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                         () -> trackCreateEvents(updatedCase));
 
         return Mono.just(updatedCase)
-            .map((courtCaseEntity) -> {
-                log.debug("Saving case {} for court {}", caseNo, courtCode);
-                return courtCaseRepository.save(courtCaseEntity);
-            })
-            .doAfterTerminate(() -> updateOtherProbationStatusForCrn(updatedCase.getCrn(), updatedCase.getProbationStatus(), updatedCase.getCaseNo()));
+                .map((courtCaseEntity) -> {
+                    log.debug("Saving case {} for court {}", caseNo, courtCode);
+                    return courtCaseRepository.save(courtCaseEntity);
+                })
+                .doAfterTerminate(() -> updateOtherProbationStatusForCrn(updatedCase.getCrn(), updatedCase.getProbationStatus(), updatedCase.getCaseNo()));
     }
 
     void updateOtherProbationStatusForCrn(String crn, String probationStatus, String caseNo) {
         if (crn != null) {
             final var courtCases = courtCaseRepository.findOtherCurrentCasesByCrn(crn, caseNo)
-                .stream()
-                .filter(courtCaseEntity -> !courtCaseEntity.getProbationStatus().equalsIgnoreCase(probationStatus))
-                .map(courtCaseEntity -> CourtCaseMapper.create(courtCaseEntity, crn, probationStatus))
-                .collect(Collectors.toList());
+                    .stream()
+                    .filter(courtCaseEntity -> !courtCaseEntity.getProbationStatus().equalsIgnoreCase(probationStatus))
+                    .map(courtCaseEntity -> CourtCaseMapper.create(courtCaseEntity, crn, probationStatus))
+                    .collect(Collectors.toList());
 
             if (!courtCases.isEmpty()) {
                 log.debug("Updating {} cases for CRN {} with changed probation status to {}", courtCases.size(), crn, probationStatus);
@@ -136,10 +141,10 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     void updateOtherProbationStatusForCrnByCaseId(String crn, String probationStatus, String caseId) {
         if (crn != null) {
             final var courtCases = courtCaseRepository.findOtherCurrentCasesByCrnNotCaseId(crn, caseId)
-                .stream()
-                .filter(courtCaseEntity -> !courtCaseEntity.getProbationStatus().equalsIgnoreCase(probationStatus))
-                .map(courtCaseEntity -> CourtCaseMapper.create(courtCaseEntity, crn, probationStatus))
-                .collect(Collectors.toList());
+                    .stream()
+                    .filter(courtCaseEntity -> !courtCaseEntity.getProbationStatus().equalsIgnoreCase(probationStatus))
+                    .map(courtCaseEntity -> CourtCaseMapper.create(courtCaseEntity, crn, probationStatus))
+                    .collect(Collectors.toList());
 
             if (!courtCases.isEmpty()) {
                 log.debug("Updating {} cases for CRN {} with changed probation status to {}", courtCases.size(), crn, probationStatus);
@@ -167,32 +172,31 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         checkCourtExists(courtCode);
         log.info("Court case requested for court {} for case {}", courtCode, caseNo);
         return courtCaseRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
-            .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found for court %s", caseNo, courtCode)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found for court %s", caseNo, courtCode)));
     }
 
     @Override
     public CourtCaseEntity getCaseByCaseId(String caseId) throws EntityNotFoundException {
         log.info("Court case requested for case ID {}", caseId);
         return courtCaseRepository.findByCaseId(caseId)
-            .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found", caseId)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found", caseId)));
     }
 
     @Override
     public CourtCaseEntity getCaseByCaseIdAndDefendantId(String caseId, String defendantId) throws EntityNotFoundException {
         log.info("Court case requested for case ID {} and defendant ID {}", caseId, defendantId);
         return courtCaseRepository.findByCaseIdAndDefendantId(caseId, defendantId)
-            .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found for defendant %s", caseId, defendantId)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found for defendant %s", caseId, defendantId)));
     }
 
     @Override
     public List<CourtCaseEntity> filterCases(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
         final var court = courtRepository.findByCourtCode(courtCode)
-            .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
+                .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
 
         if (caseListExtended) {
             return courtCaseRepository.findByCourtCodeAndHearingDay(court.getCourtCode(), hearingDay, createdAfter, createdBefore);
-        }
-        else {
+        } else {
             final var start = LocalDateTime.of(hearingDay, LocalTime.MIDNIGHT);
             return courtCaseRepository.findByCourtCodeAndSessionStartTime(court.getCourtCode(), start, start.plusDays(1), createdAfter, createdBefore);
         }
@@ -212,7 +216,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private void checkEntityCaseIdAgree(String caseId, CourtCaseEntity updatedCase) {
         if (!caseId.equals(updatedCase.getCaseId())) {
             throw new ConflictingInputException(String.format("Case Id %s does not match with value from body %s",
-                caseId, updatedCase.getCaseId()));
+                    caseId, updatedCase.getCaseId()));
         }
     }
 
@@ -225,7 +229,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         final var entityDefendantId = defendants.get(0).getDefendantId();
         if (!defendantId.equalsIgnoreCase(entityDefendantId)) {
             throw new ConflictingInputException(String.format("Defendant Id %s does not match the one in the CourtCaseEntity body as submitted %s",
-                defendantId, entityDefendantId));
+                    defendantId, entityDefendantId));
         }
     }
 
@@ -249,9 +253,9 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private void updateOffenderMatches(CourtCaseEntity existingCase, CourtCaseEntity updatedCase, String defendantId) {
         final var groupedMatches = matchRepository.findByCaseIdAndDefendantId(updatedCase.getCaseId(), defendantId);
         groupedMatches
-            .map(GroupedOffenderMatchesEntity::getOffenderMatches)
-            .ifPresent(matches -> matches
-                .forEach(match -> confirmAndRejectMatches(existingCase, updatedCase, match)));
+                .map(GroupedOffenderMatchesEntity::getOffenderMatches)
+                .ifPresent(matches -> matches
+                        .forEach(match -> confirmAndRejectMatches(existingCase, updatedCase, match)));
         groupedMatches.ifPresent(matchRepository::save);
     }
 
@@ -268,7 +272,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         boolean crnMatches = match.getCrn().equals(updatedCase.getCrn());
         match.setConfirmed(crnMatches);
         match.setRejected(!crnMatches);
-        if (crnMatches){
+        if (crnMatches) {
             telemetryService.trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, match, updatedCase);
         } else {
             telemetryService.trackMatchEvent(TelemetryEventType.MATCH_REJECTED, match, updatedCase);

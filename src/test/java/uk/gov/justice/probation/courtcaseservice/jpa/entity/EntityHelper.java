@@ -57,12 +57,16 @@ public class EntityHelper {
     }
 
     public static CourtCaseEntity aCourtCaseEntity(String crn, String caseNo) {
+        return aCourtCaseEntity(crn, caseNo, List.of(aDefendantEntity()));
+    }
+
+    public static CourtCaseEntity aCourtCaseEntity(String crn, String caseNo, List<DefendantEntity> defendants) {
 
         return populateBasics()
             .crn(crn)
             .caseId(CASE_ID)
             .caseNo(caseNo)
-            .defendants(List.of(aDefendantEntity()))
+            .defendants(defendants)
             .build();
     }
 

@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microsoft.applicationinsights.boot.dependencies.apachecommons.io.FileUtils;
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +19,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -73,6 +76,24 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
 
     @Value("classpath:integration/request/PUT_courtCaseExtended_success.json")
     private Resource caseDetailsExtendedResource;
+
+    // Note: There's a bizarre stack overflow bug happening when using the same Resource pattern as above which is why
+    // this file is being read in a different way. There's an urgent fix required so committing as is to fix later.
+    // TODO: tidy this up
+    // BEGIN
+//    @Value("classpath:integration/request/PUT_courtCaseExtended_update_success.json")
+//    private Resource caseDetailsExtendedUpdateResource;
+    private final File file = new File(getClass().getClassLoader().getResource("integration/request/PUT_courtCaseExtended_update_success.json").getFile());
+    private String caseDetailsExtendedUpdateResource;
+
+    {
+        try {
+            caseDetailsExtendedUpdateResource = FileUtils.readFileToString(file, "UTF-8");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    // END
 
     private String caseDetailsJson;
     private String caseDetailsExtendedJson;
@@ -301,6 +322,22 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             assertThat(otherCaseWithSameCrn)
                 .map(CourtCaseEntity::getProbationStatus)
                 .hasValue("PREVIOUSLY_KNOWN");
+        }
+
+        @Test
+        void givenExistingCase_whenCreateCaseExtendedByCaseId_thenCreateNewRecord() {
+            given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(caseDetailsExtendedUpdateResource)
+                .when()
+                .put(String.format("/case/%s/extended", "3db9d70b-10a2-49d1-b74d-379f2db74862"))
+                .then()
+                .statusCode(201)
+                .body("caseId", equalTo("3db9d70b-10a2-49d1-b74d-379f2db74862"))
+            ;
         }
 
         @Test

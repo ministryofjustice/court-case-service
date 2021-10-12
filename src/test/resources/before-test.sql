@@ -280,3 +280,10 @@ VALUES (false, false, 'X320654', 'NAME_DOB', 'A323456', -1800028900);
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (false, false, 'X999999', 'NAME_DOB', 'B323456', -1800028900);
 --
+
+-- One match for Jessica PEEL
+INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE, CASE_ID, DEFENDANT_ID)
+VALUES (-1800028901, '1800028900', 'B33HU', '3db9d70b-10a2-49d1-b74d-379f2db74862', '6f014c2e-8be3-4a12-a551-8377bd31a7b8');
+INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, MATCH_TYPE, PNC, GROUP_ID)
+VALUES (false, false, 'X320654', 'NAME_DOB', 'A323456', -1800028901);
+--

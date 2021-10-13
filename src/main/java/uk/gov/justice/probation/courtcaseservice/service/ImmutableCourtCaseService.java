@@ -102,32 +102,6 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                 .doAfterTerminate(() -> updateOtherProbationStatusForCrnByCaseId(updatedCase.getCrn(), updatedCase.getProbationStatus(), updatedCase.getCaseId()));
     }
 
-    // TODO: Delete me
-    /**
-     * This method is only for saving LIBRA cases where the primary key is based on courtCode and caseNo and where there is only one defendant in each
-     * CourtCaseEntity.
-     *
-     * @deprecated future LIBRA cases will be saved by caseId
-     */
-    @Deprecated(forRemoval = true)
-    @Override
-    public Mono<CourtCaseEntity> createCase(String courtCode, String caseNo, CourtCaseEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
-        validateEntity(courtCode, caseNo, updatedCase);
-        courtCaseRepository.findFirstByCaseNoOrderByCreatedDesc(courtCode, caseNo)
-                .ifPresentOrElse(
-                        (existingCase) -> {
-                            updateOffenderMatches(existingCase, updatedCase);
-                            trackUpdateEvents(updatedCase, existingCase);
-                        },
-                        () -> trackCreateEvents(updatedCase));
-
-        return Mono.just(updatedCase)
-                .map((courtCaseEntity) -> {
-                    log.debug("Saving case {} for court {}", caseNo, courtCode);
-                    return courtCaseRepository.save(courtCaseEntity);
-                })
-                .doAfterTerminate(() -> updateOtherProbationStatusForCrn(updatedCase.getCrn(), updatedCase.getProbationStatus(), updatedCase.getCaseNo()));
-    }
 
     void updateOtherProbationStatusForCrn(String crn, String probationStatus, String caseNo) {
         if (crn != null) {

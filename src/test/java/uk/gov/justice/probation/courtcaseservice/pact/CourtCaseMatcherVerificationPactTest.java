@@ -61,11 +61,6 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
         context.verifyInteraction();
     }
 
-    @State({"a case does not exist for court B10JQ and case number 1600028914"})
-    void putCase() {
-        var courtCaseEntity = EntityHelper.aCourtCaseEntity("X340741", "1600028914");
-        when(courtCaseService.createCase(eq("B10JQ"), eq("1600028914"), any(CourtCaseEntity.class))).thenReturn(Mono.just(courtCaseEntity));
-    }
 
     @State({"a case does not exist with grouped offender matches"})
     void postGroupedOffenderMatches() {

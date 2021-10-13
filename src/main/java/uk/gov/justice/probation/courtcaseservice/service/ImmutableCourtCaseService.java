@@ -222,18 +222,6 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         }
     }
 
-    private void validateEntity(String courtCode, String caseNo, CourtCaseEntity updatedCase) {
-        checkCourtExists(updatedCase.getCourtCode());
-        checkEntityCaseNoAndCourtAgree(courtCode, caseNo, updatedCase);
-    }
-
-    private void checkEntityCaseNoAndCourtAgree(String courtCode, String caseNo, CourtCaseEntity updatedCase) {
-        if (!caseNo.equals(updatedCase.getCaseNo()) || !courtCode.equals(updatedCase.getCourtCode())) {
-            throw new ConflictingInputException(String.format("Case No %s and Court Code %s do not match with values from body %s and %s",
-                    caseNo, courtCode, updatedCase.getCaseNo(), updatedCase.getCourtCode()));
-        }
-    }
-
     private void checkCourtExists(String courtCode) throws EntityNotFoundException {
         courtRepository.findByCourtCode(courtCode)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Court %s not found", courtCode)));
@@ -241,15 +229,6 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     private void updateOffenderMatches(CourtCaseEntity existingCase, CourtCaseEntity updatedCase, String defendantId) {
         final var groupedMatches = matchRepository.findByCaseIdAndDefendantId(updatedCase.getCaseId(), defendantId);
-        groupedMatches
-                .map(GroupedOffenderMatchesEntity::getOffenderMatches)
-                .ifPresent(matches -> matches
-                        .forEach(match -> confirmAndRejectMatches(existingCase, updatedCase, match)));
-        groupedMatches.ifPresent(matchRepository::save);
-    }
-
-    private void updateOffenderMatches(CourtCaseEntity existingCase, CourtCaseEntity updatedCase) {
-        final var groupedMatches = matchRepository.findByCourtCodeAndCaseNo(updatedCase.getCourtCode(), updatedCase.getCaseNo());
         groupedMatches
                 .map(GroupedOffenderMatchesEntity::getOffenderMatches)
                 .ifPresent(matches -> matches

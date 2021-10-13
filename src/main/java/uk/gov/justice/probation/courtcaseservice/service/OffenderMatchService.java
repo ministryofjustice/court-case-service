@@ -86,10 +86,6 @@ public class OffenderMatchService {
         return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchDetails).build();
     }
 
-    private Optional<GroupedOffenderMatchesEntity> getOffenderMatches(String courtCode, String caseNo) {
-        return offenderMatchRepository.findByCourtCodeAndCaseNo(courtCode, caseNo);
-    }
-
     private Optional<GroupedOffenderMatchesEntity> getOffenderMatchesByCaseIdAndDefendantId(String caseId, String defendantId) {
         return offenderMatchRepository.findByCaseIdAndDefendantId(caseId, defendantId);
     }

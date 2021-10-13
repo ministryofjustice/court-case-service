@@ -9,11 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface GroupedOffenderMatchRepository extends CrudRepository<GroupedOffenderMatchesEntity, Long> {
-    // TODO: Delete me
-    Optional<GroupedOffenderMatchesEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo);
-
-    Optional<GroupedOffenderMatchesEntity> findByCaseId(String caseId);
-
     Optional<GroupedOffenderMatchesEntity> findByCaseIdAndDefendantId(String caseId, String defendantId);
 
     @Query(value = "select count(om.id) from offender_match om "

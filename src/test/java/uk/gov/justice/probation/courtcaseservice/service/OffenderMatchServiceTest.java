@@ -20,7 +20,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderM
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
-import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
@@ -33,8 +32,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -65,37 +62,6 @@ class OffenderMatchServiceTest {
     void setUp() {
         when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
         service = new OffenderMatchService(courtCaseService, offenderMatchRepository, offenderRestClientFactory);
-    }
-
-    @ExtendWith(MockitoExtension.class)
-    @Nested
-    class CreateOrUpdateByCourtAndCaseNo {
-
-        @Test
-        void givenValidRequest_whenCreateGroupedMatchesCalled_thenCreateAndReturnMatch() {
-            when(offenderMatchRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.empty());
-            when(courtCaseService.getCaseByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(courtCaseEntity);
-            when(offenderMatchRepository.save(any(GroupedOffenderMatchesEntity.class))).thenReturn(groupedOffenderMatchesEntity);
-
-            final var match = service.createOrUpdateGroupedMatches(COURT_CODE, CASE_NO, groupedOffenderMatchesRequest)
-                .blockOptional();
-
-            assertThat(match).isPresent();
-            assertThat(match.get()).isEqualTo(groupedOffenderMatchesEntity);
-        }
-
-        @Test
-        void givenValidRequest_whenUpdateGroupedMatchesCalled_thenCreateAndReturnMatch() {
-
-            when(offenderMatchRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(groupedOffenderMatchesEntity));
-            when(offenderMatchRepository.save(any(GroupedOffenderMatchesEntity.class))).thenReturn(groupedOffenderMatchesEntity);
-
-            final var match = service.createOrUpdateGroupedMatches(COURT_CODE, CASE_NO, groupedOffenderMatchesRequest)
-                .blockOptional();
-
-            assertThat(match).isPresent();
-            assertThat(match.get()).isEqualTo(groupedOffenderMatchesEntity);
-        }
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -147,43 +113,6 @@ class OffenderMatchServiceTest {
             public boolean matches(GroupedOffenderMatchesEntity argument) {
                 return defendantId.equals(argument.getDefendantId()) && caseId.equals(argument.getCaseId());
             }
-        }
-    }
-
-    @ExtendWith(MockitoExtension.class)
-    @Nested
-    class GetGroupedMatchesByCourtAndCaseNo {
-
-        public static final long ID = 1234L;
-
-        @Test
-        void givenValidRequest_whenGetGroupedMatches_thenReturnValidMatch() {
-            when(groupedOffenderMatchesEntity.getCourtCode()).thenReturn(COURT_CODE);
-            when(groupedOffenderMatchesEntity.getCaseNo()).thenReturn(CASE_NO);
-            when(offenderMatchRepository.findById(ID)).thenReturn(Optional.of(groupedOffenderMatchesEntity));
-
-            var entity = service.getGroupedMatches(COURT_CODE, CASE_NO, ID).blockOptional();
-            assertThat(entity).isPresent();
-            assertThat(entity.get()).isEqualTo(groupedOffenderMatchesEntity);
-        }
-
-        @Test
-        void givenCourtCodeDoesNotMatch_whenGetGroupedMatches_thenThrowEntityNotFound() {
-            when(groupedOffenderMatchesEntity.getCourtCode()).thenReturn(COURT_CODE);
-            when(groupedOffenderMatchesEntity.getCaseNo()).thenReturn(CASE_NO);
-            when(offenderMatchRepository.findById(ID)).thenReturn(Optional.of(groupedOffenderMatchesEntity));
-
-            assertThatExceptionOfType(EntityNotFoundException.class)
-                .isThrownBy(() -> service.getGroupedMatches("BAD_CODE", CASE_NO, ID).blockOptional());
-        }
-
-        @Test
-        void givenCaseNoDoesNotMatch_whenGetGroupedMatches_thenThrowEntityNotFound() {
-            when(groupedOffenderMatchesEntity.getCaseNo()).thenReturn(CASE_NO);
-            when(offenderMatchRepository.findById(ID)).thenReturn(Optional.of(groupedOffenderMatchesEntity));
-
-            assertThatExceptionOfType(EntityNotFoundException.class)
-                .isThrownBy(() -> service.getGroupedMatches(COURT_CODE, "99999", ID).blockOptional());
         }
     }
 
@@ -289,27 +218,6 @@ class OffenderMatchServiceTest {
             verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);
             verify(offenderRestClient).getConvictionsByCrn(crn);
             verify(offenderRestClient).getProbationStatusByCrn(crn);
-        }
-
-        @Test
-        void givenMultipleCrns_whenGetOffenderMatchDetails_thenReturn() {
-
-            String crn1 = "X320741";
-            String crn2 = "X320742";
-
-            when(offenderMatchRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(
-                Optional.ofNullable(buildGroupedOffenderMatchesEntity(List.of(crn1, crn2))));
-
-            final var matchDetail1 = OffenderMatchDetail.builder().forename("Chris").build();
-            final var matchDetail2 = OffenderMatchDetail.builder().forename("Dave").build();
-
-            mockOffenderDetailMatch(crn1, matchDetail1, Collections.emptyList());
-            mockOffenderDetailMatch(crn2, matchDetail2, List.of(inactiveConviction, activeConviction));
-
-            final var response = service.getOffenderMatchDetails(COURT_CODE, CASE_NO);
-
-            assertThat(response.getOffenderMatchDetails()).hasSize(2);
-            assertThat(response.getOffenderMatchDetails()).extracting("forename").containsExactlyInAnyOrder("Chris", "Dave");
         }
 
         @Test

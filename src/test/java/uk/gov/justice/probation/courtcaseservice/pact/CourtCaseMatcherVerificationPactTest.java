@@ -14,14 +14,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
-import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
@@ -36,7 +34,6 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @Provider("court-case-service")
@@ -61,12 +58,6 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
         context.verifyInteraction();
     }
 
-
-    @State({"a case does not exist with grouped offender matches"})
-    void postGroupedOffenderMatches() {
-        when(offenderMatchService.createOrUpdateGroupedMatches(eq("B10JQ"), eq("1600028913"), any(GroupedOffenderMatchesRequest.class)))
-            .thenReturn(Mono.just(GroupedOffenderMatchesEntity.builder().id(1234L).build()));
-    }
 
     @State({"a case exists for court B10JQ and case number 1600028913"})
     void getCourtCase() {

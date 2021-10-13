@@ -26,8 +26,11 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseReque
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+<<<<<<< HEAD
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
+=======
+>>>>>>> 🔥 PIC-1692: Remove POST offender-matches by caseNo and courtCode endpoint
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 
@@ -67,9 +70,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
     @Autowired
     GroupedOffenderMatchRepository matchRepository;
 
-    private static final String PUT_CASE_BY_CASENO_PATH = "/court/%s/case/%s";
     private static final String PUT_BY_CASEID_AND_DEFENDANTID_PATH = "/case/%s/defendant/%s";
-    private static final String CRN = "X320741";
     private static final String PNC = "A/1234560BA";
     private static final String COURT_ROOM = "1";
     private static final AddressPropertiesEntity ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "Bangor", null, null, "ad21 5dr");
@@ -506,49 +507,4 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             .body("awaitingPsr", equalTo(true))
         ;
     }
-
-    private CourtCaseEntity createCaseDetails(String courtCode) {
-        return EntityHelper.aCourtCase(null, JSON_CASE_NO, LocalDateTime.now(), PROBATION_STATUS, JSON_CASE_ID, courtCode);
-    }
-
-    private void createCase() {
-
-        given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(caseDetailsJson)
-            .when()
-            .put(String.format(PUT_CASE_BY_CASENO_PATH, COURT_CODE, JSON_CASE_NO))
-            .then()
-            .statusCode(201)
-            .body("caseNo", equalTo(JSON_CASE_NO))
-            .body("crn", equalTo(CRN))
-            .body("courtCode", equalTo(COURT_CODE))
-        ;
-    }
-
-    private void createCase(String caseId, String defendantId) {
-        var updatedJson = caseDetailsJson
-            .replace("\"caseId\": \"571b7172-4cef-435c-9048-d071a43b9dbf\"", "\"caseId\": \"" + caseId + "\"")
-            .replace("\"defendantId\": \"e0056894-e8f8-42c2-ba9a-e41250c3d1a3\"", "\"defendantId\": \"" + defendantId + "\"")
-            ;
-
-        given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(updatedJson)
-            .when()
-            .put(String.format(PUT_BY_CASEID_AND_DEFENDANTID_PATH, caseId, defendantId))
-            .then()
-            .statusCode(201)
-            .body("caseNo", equalTo(JSON_CASE_NO))
-            .body("crn", equalTo(CRN))
-            .body("courtCode", equalTo(COURT_CODE))
-        ;
-    }
-
 }

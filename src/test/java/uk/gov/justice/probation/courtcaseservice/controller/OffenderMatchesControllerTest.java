@@ -1,14 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -22,6 +17,10 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchD
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.List;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,7 +36,6 @@ class OffenderMatchesControllerTest {
     private static final String CASE_NO = "1234567890";
     private static final String CASE_ID = "cb2199b0-5a3e-4fea-858d-af23c998ac3d";
     private static final String DEFENDANT_ID = "1081ca4e-8aa4-42ec-8212-530dec781e56";
-    private static final String GROUP_OFFENDER_MATCH_PATH = "/court/" + COURT_CODE + "/case/" + CASE_NO + "/grouped-offender-matches/";
     private static final String CASE_ID_GROUP_OFFENDER_MATCH_PATH = "/case/" + CASE_ID + "/defendant/" + DEFENDANT_ID + "/grouped-offender-matches/";
     protected static final String OFFENDER_MATCHES_DETAIL_PATH = "/court/%s/case/%s/matchesDetail";
     protected static final String OFFENDER_MATCHES_DEFENDANT_DETAIL_PATH = "/case/%s/defendant/%s/matchesDetail";
@@ -53,32 +51,6 @@ class OffenderMatchesControllerTest {
     void setUp() {
         var controller = new OffenderMatchesController(offenderMatchService);
         this.webTestClient = WebTestClient.bindToController(controller).build();
-    }
-
-    @Test
-    void givenSuccessfulCreate_thenReturnLocationHeader() {
-        when(offenderMatchService.createOrUpdateGroupedMatches(eq(COURT_CODE), eq(CASE_NO), any())).thenReturn(Mono.just(entity));
-        var expectedGroupId = 1111L;
-        when(entity.getId()).thenReturn(expectedGroupId);
-        webTestClient.post()
-                .uri(GROUP_OFFENDER_MATCH_PATH)
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .bodyValue("{\n" +
-                "    \"matches\": [\n" +
-                "        {\n" +
-                "                \"matchIdentifiers\": {\n" +
-                "                \"crn\": \"X346204\"\n" +
-                "            },\n" +
-                "            \"matchType\": \"NAME_DOB\",\n" +
-                "            \"confirmed\": \"true\",\n" +
-                "            \"rejected\": \"false\"\n" +
-                "        }\n" +
-                "    ]\n" +
-                "}")
-                .exchange()
-                .expectStatus().isCreated()
-                .expectHeader().value("Location", equalTo(GROUP_OFFENDER_MATCH_PATH + expectedGroupId));
     }
 
     @Test
@@ -105,77 +77,6 @@ class OffenderMatchesControllerTest {
             .exchange()
             .expectStatus().isCreated()
             .expectHeader().value("Location", equalTo(CASE_ID_GROUP_OFFENDER_MATCH_PATH + expectedGroupId));
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"/court/FOO/case/1234567890/grouped-offender-matches/",
-        "/case/f1e1867f-94a5-45a2-81cf-92780a51564d/defendant/f1e1867f-94a5-45a2-81cf-92780a31364d/grouped-offender-matches/"})
-    void givenEmptyJsonBody_whenPostMadeToOffenderMatches_thenReturnBadRequest(String path) {
-        String body = "{}";
-        assertBadRequestForBody(body, path);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"/court/FOO/case/1234567890/grouped-offender-matches/",
-        "/case/f1e1867f-94a5-45a2-81cf-92780a51564d/defendant/f1e1867f-94a5-45a2-81cf-92780a31364d/grouped-offender-matches/"})
-    void givenMissingMatchIdentifiers_whenPostMadeToOffenderMatches_thenReturnBadRequest(String path) {
-        assertBadRequestForBody("{\n" +
-                "    \"matches\": [\n" +
-                "        {\n" +
-                "            \"matchType\": \"NAME_DOB\",\n" +
-                "            \"confirmed\": \"true\"\n" +
-                "        }\n" +
-                "    ]\n" +
-                "}", path);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"/court/FOO/case/1234567890/grouped-offender-matches/",
-        "/case/f1e1867f-94a5-45a2-81cf-92780a51564d/defendant/f1e1867f-94a5-45a2-81cf-92780a31364d/grouped-offender-matches/"})
-    void givenMissingCrn_whenPostMadeToOffenderMatches_thenReturnBadRequest(String path) {
-        assertBadRequestForBody("{\n" +
-                        "    \"matches\": [\n" +
-                        "        {\n" +
-                        "                \"matchIdentifiers\": {\n" +
-                        "                \"pnc\": \"pnc123\"\n" +
-                        "            },\n" +
-                        "            \"matchType\": \"NAME_DOB\",\n" +
-                        "            \"confirmed\": \"true\"\n" +
-                        "        }\n" +
-                        "    ]\n" +
-                        "}", path);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"/court/FOO/case/1234567890/grouped-offender-matches/",
-        "/case/f1e1867f-94a5-45a2-81cf-92780a51564d/defendant/f1e1867f-94a5-45a2-81cf-92780a31364d/grouped-offender-matches/"})
-    void givenMissingMatchType_whenPostMadeToOffenderMatches_thenReturnBadRequest(String path) {
-        assertBadRequestForBody("{\n" +
-                        "    \"matches\": [\n" +
-                        "        {\n" +
-                        "                \"matchIdentifiers\": {\n" +
-                        "                \"crn\": \"X346204\"\n" +
-                        "            },\n" +
-                        "            \"confirmed\": \"true\"\n" +
-                        "        }\n" +
-                        "    ]\n" +
-                        "}", path);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"/court/FOO/case/1234567890/grouped-offender-matches/",
-        "/case/f1e1867f-94a5-45a2-81cf-92780a51564d/defendant/f1e1867f-94a5-45a2-81cf-92780a31364d/grouped-offender-matches/"})
-    void givenMissingConfirmedFlag_whenPostMadeToOffenderMatches_thenReturnBadRequest(String path) {
-        assertBadRequestForBody("{\n" +
-                        "    \"matches\": [\n" +
-                        "        {\n" +
-                        "                \"matchIdentifiers\": {\n" +
-                        "                \"crn\": \"X346204\"\n" +
-                        "            },\n" +
-                        "            \"matchType\": \"NAME_DOB\",\n" +
-                        "        }\n" +
-                        "    ]\n" +
-                        "}", path);
     }
 
     @Test

@@ -17,7 +17,6 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.controller.OffenderMatchesControllerTest.OFFENDER_MATCHES_DEFENDANT_DETAIL_PATH;
-import static uk.gov.justice.probation.courtcaseservice.controller.OffenderMatchesControllerTest.OFFENDER_MATCHES_DETAIL_PATH;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
@@ -172,57 +171,6 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
         private static final String CASE_NO = "1600028913";
         private static final String CASE_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
         private static final String DEFENDANT_ID = "40db17d6-04db-11ec-b2d8-0242ac130002";
-
-        @Test
-        void givenMultipleMatchesOneNotFound_whenGetOffenderDetailMatchByCourtCodeAndCaseNo_thenReturn200() {
-
-            String path = String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, CASE_NO);
-            final var validatableResponse = given()
-                .auth()
-                .oauth2(getToken())
-                .accept(APPLICATION_JSON_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .when()
-                .get(path)
-                .then()
-                .statusCode(200);
-
-            validateBody(validatableResponse);
-
-        }
-
-        @Test
-        void givenMatchWithNoConvictions_whenGetOffenderDetailMatchByCourtCodeAndCaseNo_thenReturn200WithNoMostRecentEvent() {
-
-            String path = String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, "1000002");
-            final var validatableResponse = given()
-                .auth()
-                .oauth2(getToken())
-                .accept(APPLICATION_JSON_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .when()
-                .get(path)
-                .then()
-                .statusCode(200);
-
-            validate(validatableResponse);
-        }
-
-        @Test
-        void givenCaseDoesNotExist_whenGetOffenderDetailMatchByCourtAndCaseNo_thenReturnNotFound() {
-            String path = String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, "23456541141414");
-            given()
-                .auth()
-                .oauth2(getToken())
-                .accept(APPLICATION_JSON_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .when()
-                .get(path)
-                .then()
-                .statusCode(404)
-                .body("userMessage", equalTo("Case 23456541141414 not found for court " + COURT_CODE))
-                .body("developerMessage", equalTo("Case 23456541141414 not found for court " + COURT_CODE));
-        }
 
         @Test
         void givenMultipleMatchesOneNotFound_whenGetOffenderDetailMatch_thenReturn200() {

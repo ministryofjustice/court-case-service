@@ -37,7 +37,6 @@ class OffenderMatchesControllerTest {
     private static final String CASE_ID = "cb2199b0-5a3e-4fea-858d-af23c998ac3d";
     private static final String DEFENDANT_ID = "1081ca4e-8aa4-42ec-8212-530dec781e56";
     private static final String CASE_ID_GROUP_OFFENDER_MATCH_PATH = "/case/" + CASE_ID + "/defendant/" + DEFENDANT_ID + "/grouped-offender-matches/";
-    protected static final String OFFENDER_MATCHES_DETAIL_PATH = "/court/%s/case/%s/matchesDetail";
     protected static final String OFFENDER_MATCHES_DEFENDANT_DETAIL_PATH = "/case/%s/defendant/%s/matchesDetail";
 
     private WebTestClient webTestClient;
@@ -77,30 +76,6 @@ class OffenderMatchesControllerTest {
             .exchange()
             .expectStatus().isCreated()
             .expectHeader().value("Location", equalTo(CASE_ID_GROUP_OFFENDER_MATCH_PATH + expectedGroupId));
-    }
-
-    @Test
-    void givenMultipleMatches_whenGetOffenderMatchDetail_thenReturnMultiple() {
-
-        var detail1 = buildOffenderMatchDetail("Christopher", ProbationStatus.PREVIOUSLY_KNOWN);
-        var detail2 = buildOffenderMatchDetail("Christian", ProbationStatus.CURRENT);
-
-        var response = OffenderMatchDetailResponse.builder()
-                                                                            .offenderMatchDetails(List.of(detail1, detail2))
-                                                                            .build();
-
-        when(offenderMatchService.getOffenderMatchDetails(COURT_CODE, CASE_NO)).thenReturn(response);
-
-        final var body = webTestClient.get()
-            .uri(String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, CASE_NO))
-            .accept(APPLICATION_JSON)
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody();
-
-        verify(offenderMatchService).getOffenderMatchDetails(COURT_CODE, CASE_NO);
-        verifyNoMoreInteractions(offenderMatchService);
-        validateBody(body);
     }
 
     @Test

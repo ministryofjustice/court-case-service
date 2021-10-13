@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.lang.NonNull;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -322,22 +323,6 @@ class ImmutableCourtCaseServiceTest {
             verifyNoMoreInteractions(courtCaseRepository, telemetryService);
         }
 
-        @Data
-        class CourtCaseEntityMatcher implements ArgumentMatcher<CourtCaseEntity> {
-
-            private final String caseId;
-            private final List<String> defendantIds;
-
-            @Override
-            public boolean matches(CourtCaseEntity arg) {
-                final var argDefendantIds = Optional.ofNullable(arg.getDefendants()).orElse(Collections.emptyList())
-                    .stream()
-                    .map(DefendantEntity::getDefendantId)
-                    .collect(Collectors.toList());
-                return caseId.equals(arg.getCaseId()) && defendantIds.equals(argDefendantIds);
-            }
-        }
-
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -355,8 +340,9 @@ class ImmutableCourtCaseServiceTest {
         }
 
         @Test
-        public void givenNoExistingCase_whenCreateOrUpdateCaseCalledWithCrn_thenLogCreatedAndLinkedEvent() {
-            var otherCourtCaseToUpdate = EntityHelper.aCourtCaseEntity(CRN, "999", LocalDateTime.now().plusDays(1), "Current");
+        void givenNoExistingCase_whenCreateOrUpdateCaseCalledWithCrn_thenLogCreatedAndLinkedEvent() {
+            var defendantToUpdate = EntityHelper.aDefendantEntity(DEFENDANT_ID).withProbationStatus("CURRENT");
+            var otherCourtCaseToUpdate = EntityHelper.aCourtCaseEntity(CASE_ID).withDefendants(List.of(defendantToUpdate));
             when(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.empty());
             when(courtCaseRepository.findOtherCurrentCasesByCrnNotCaseId(CRN, CASE_ID)).thenReturn(List.of(otherCourtCaseToUpdate));
             when(courtCaseRepository.save(courtCase)).thenReturn(courtCase);
@@ -367,13 +353,15 @@ class ImmutableCourtCaseServiceTest {
             verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, courtCase);
             verify(courtCaseRepository).save(courtCase);
             assertThat(savedCourtCase).isNotNull();
-            var otherCourtCaseUpdated = EntityHelper.aCourtCaseEntity(CRN, "999", LocalDateTime.now().plusDays(1), PROBATION_STATUS);
-            verify(courtCaseRepository, timeout(2000)).saveAll(List.of(otherCourtCaseUpdated));
+
+            var expectedCourtCaseToSave = new CourtCaseEntityListMatcher(CASE_ID, List.of(DEFENDANT_ID));
+            verify(courtCaseRepository, timeout(2000)).saveAll(argThat(expectedCourtCaseToSave));
+
             verifyNoMoreInteractions(courtCaseRepository, telemetryService);
         }
 
         @Test
-        public void givenNoExistingCase_whenCreateCaseCalledWithoutCrn_thenLogOnlyCreatedEvent() {
+        void givenNoExistingCase_whenCreateCaseCalledWithoutCrn_thenLogOnlyCreatedEvent() {
 
             courtCase = EntityHelper.aCourtCaseEntity(null, CASE_NO);
             when(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.empty());
@@ -387,7 +375,7 @@ class ImmutableCourtCaseServiceTest {
         }
 
         @Test
-        public void givenExistingCase_whenCreateOrUpdateCaseCalled_thenLogUpdatedEvent() {
+        void givenExistingCase_whenCreateOrUpdateCaseCalled_thenLogUpdatedEvent() {
             when(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.of(courtCase));
             when(courtCaseRepository.save(courtCase)).thenReturn(courtCase);
 
@@ -400,7 +388,7 @@ class ImmutableCourtCaseServiceTest {
         }
 
         @Test
-        public void givenExistingCaseWithNullCrn_whenCreateOrUpdateCaseCalledWithCrn_thenLogLinkedEvent() {
+        void givenExistingCaseWithNullCrn_whenCreateOrUpdateCaseCalledWithCrn_thenLogLinkedEvent() {
             var existingCase = EntityHelper.aCourtCaseEntity(null, CASE_NO);
             when(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.of(existingCase));
             when(courtCaseRepository.save(existingCase)).thenReturn(existingCase);
@@ -415,7 +403,7 @@ class ImmutableCourtCaseServiceTest {
         }
 
         @Test
-        public void givenExistingCaseWithCrn_whenCreateOrUpdateCaseCalledWithNullCrn_thenLogUnLinkedEvent() {
+        void givenExistingCaseWithCrn_whenCreateOrUpdateCaseCalledWithNullCrn_thenLogUnLinkedEvent() {
             when(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.of(courtCase));
             when(courtCaseRepository.save(courtCase)).thenReturn(courtCase);
 
@@ -431,7 +419,7 @@ class ImmutableCourtCaseServiceTest {
         }
 
         @Test
-        public void givenUnknownCourtCode_whenCreateOrUpdateCase_thenThrowException() {
+        void givenUnknownCourtCode_whenCreateOrUpdateCase_thenThrowException() {
             when(courtRepository.findByCourtCode("XXX")).thenThrow(new EntityNotFoundException("not found court"));
             courtCase = CourtCaseEntity.builder()
                     .courtCode("XXX")
@@ -446,7 +434,7 @@ class ImmutableCourtCaseServiceTest {
         }
 
         @Test
-        public void givenCaseIdMismatch_whenCreateOrUpdateCase_thenThrowException() {
+        void givenCaseIdMismatch_whenCreateOrUpdateCase_thenThrowException() {
             courtCase = CourtCaseEntity.builder()
                 .courtCode(COURT_CODE)
                 .caseId("xcx")
@@ -841,7 +829,7 @@ class ImmutableCourtCaseServiceTest {
         }
 
         @Test
-        public void givenNullCrn_whenUpdateOtherProbationStatusForCrn_thenDoNothing() {
+        void givenNullCrn_whenUpdateOtherProbationStatusForCrn_thenDoNothing() {
 
             service.updateOtherProbationStatusForCrn(null, "Current", CASE_NO);
 
@@ -849,7 +837,7 @@ class ImmutableCourtCaseServiceTest {
         }
 
         @Test
-        public void givenNoExistingCase_whenUpdateOtherProbationStatusForCrnWithCrn_thenUpdateAndSaveAll() {
+        void givenNoExistingCase_whenUpdateOtherProbationStatusForCrnWithCrn_thenUpdateAndSaveAll() {
 
             var now = LocalDateTime.now();
             // One will be ignored because the status is the same
@@ -865,7 +853,7 @@ class ImmutableCourtCaseServiceTest {
         }
 
         @Test
-        public void givenNullCrn_whenUpdateOtherProbationStatusForCaseId_thenDoNothing() {
+        void givenNullCrn_whenUpdateOtherProbationStatusForCaseId_thenDoNothing() {
 
             service.updateOtherProbationStatusForCrnByCaseId(null, "Current", CASE_NO);
 
@@ -873,19 +861,108 @@ class ImmutableCourtCaseServiceTest {
         }
 
         @Test
-        public void givenNoExistingCase_whenUpdateOtherProbationStatusForCaseIdWithCrn_thenUpdateAndSaveAll() {
+        void givenNoExistingCase_whenUpdateOtherProbationStatusForCaseIdWithCrn_thenUpdateAndSaveAll() {
 
-            var now = LocalDateTime.now();
-            // One will be ignored because the status is the same
-            var courtCaseToIgnore = EntityHelper.aCourtCaseEntity(CRN, "1235", now.plusDays(1), "Current");
-            var courtCaseToUpdate = EntityHelper.aCourtCaseEntity(CRN, "1236", now.plusDays(1), "Previously known");
+            final var newProbationStatus = ProbationStatus.CURRENT.getName();
+            // One will be ignored because the status is the same, other ignored because different CRN
+            final var defendant1 = EntityHelper.aDefendantEntity("7c011992-edc8-49ae-bb82-251d7da4a067")
+                .withCrn("X456765");
+            final var defendant2 = EntityHelper.aDefendantEntity("3bf36240-f629-44d4-b563-4a11042e4c5e")
+                .withCrn(CRN).withProbationStatus(newProbationStatus);
+            final var courtCaseToIgnore = EntityHelper.aCourtCaseEntity("733c63c8-5c0a-42bd-82cd-70c95d563a04")
+                .withDefendants(List.of(defendant1, defendant2));
+
+            // This has same CRN but different probation status so will be updated
+            final var caseIdToUpdate = "0f04dd95-e257-4a96-9417-a3d6c73bb53c";
+            final var courtCaseToUpdate = EntityHelper.aCourtCaseEntity(caseIdToUpdate);
+            assertThat(courtCaseToUpdate.getProbationStatus()).isNotEqualTo(newProbationStatus);
+
             when(courtCaseRepository.findOtherCurrentCasesByCrnNotCaseId(CRN, CASE_ID)).thenReturn(List.of(courtCaseToIgnore, courtCaseToUpdate));
 
-            service.updateOtherProbationStatusForCrnByCaseId(CRN, "Current", CASE_ID);
+            service.updateOtherProbationStatusForCrnByCaseId(CRN, newProbationStatus, CASE_ID);
 
-            // The case to be saved will be same as the updated with case no 1236 but with Current as the
-            var expectedCourtCaseToSave = EntityHelper.aCourtCaseEntity(CRN, "1236", now.plusDays(1), "Current");
-            verify(courtCaseRepository).saveAll(List.of(expectedCourtCaseToSave));
+            // Only 1 case to save
+            var expectedCourtCaseToSave = new CourtCaseEntityListMatcher(caseIdToUpdate, List.of(DEFENDANT_ID));
+            verify(courtCaseRepository).saveAll(argThat(expectedCourtCaseToSave));
+            verify(courtCaseRepository).findOtherCurrentCasesByCrnNotCaseId(CRN, CASE_ID);
+            verifyNoMoreInteractions(courtCaseRepository);
+        }
+
+        @Test
+        void givenNullOrEmptyDefendants_whenCheck_thenReturnFalse() {
+            assertThat(service.hasAnyDefendantsSameCrnDifferentProbationStatus(null, CRN, ProbationStatus.CURRENT.getName())).isFalse();
+            assertThat(service.hasAnyDefendantsSameCrnDifferentProbationStatus(Collections.emptyList(), CRN, ProbationStatus.CURRENT.getName())).isFalse();
+        }
+
+        @Test
+        void givenDefendantsWithSameCrnAndStatus_whenCheck_thenReturnFalse() {
+            var probationStatus = ProbationStatus.CURRENT.getName();
+            var defendant = EntityHelper.aDefendantEntity().withCrn(CRN).withProbationStatus(probationStatus);
+
+            assertThat(service.hasAnyDefendantsSameCrnDifferentProbationStatus(List.of(defendant), CRN, probationStatus)).isFalse();
+        }
+
+        @Test
+        void givenDefendantsWithSameCrnAndDifferentStatus_whenCheck_thenReturnTrue() {
+            var probationStatus = ProbationStatus.CURRENT.getName();
+            var defendant = EntityHelper.aDefendantEntity().withCrn(CRN).withProbationStatus(null);
+
+            assertThat(service.hasAnyDefendantsSameCrnDifferentProbationStatus(List.of(defendant), CRN, probationStatus)).isTrue();
+        }
+
+        @Test
+        void givenDefendantsWithDifferentCrnAndSameStatus_whenCheck_thenReturnFalse() {
+            var probationStatus = ProbationStatus.CURRENT.getName();
+            var defendant = EntityHelper.aDefendantEntity().withCrn(null).withProbationStatus(probationStatus);
+
+            assertThat(service.hasAnyDefendantsSameCrnDifferentProbationStatus(List.of(defendant), CRN, probationStatus)).isFalse();
+        }
+
+        @Data
+        class EntityMatcher implements ArgumentMatcher<GroupedOffenderMatchesEntity> {
+
+            private final String defendantId;
+            private final String caseId;
+
+            @Override
+            public boolean matches(GroupedOffenderMatchesEntity argument) {
+                return defendantId.equals(argument.getDefendantId()) && caseId.equals(argument.getCaseId());
+            }
+        }
+    }
+
+    @Data
+    static class CourtCaseEntityMatcher implements ArgumentMatcher<CourtCaseEntity> {
+
+        private final String caseId;
+        private final List<String> defendantIds;
+
+        @Override
+        public boolean matches(CourtCaseEntity arg) {
+            final var argDefendantIds = Optional.ofNullable(arg.getDefendants()).orElse(Collections.emptyList())
+                .stream()
+                .map(DefendantEntity::getDefendantId)
+                .collect(Collectors.toList());
+            return caseId.equals(arg.getCaseId()) && defendantIds.equals(argDefendantIds);
+        }
+    }
+
+    @Data
+    static class CourtCaseEntityListMatcher implements ArgumentMatcher<List<CourtCaseEntity>> {
+
+        private final String caseId;
+        private final List<String> defendantIds;
+
+        @Override
+        public boolean matches(List<CourtCaseEntity> arg) {
+            if (arg.size() != 1) {
+                return false;
+            }
+            final var argDefendantIds = Optional.ofNullable(arg.get(0).getDefendants()).orElse(Collections.emptyList())
+                .stream()
+                .map(DefendantEntity::getDefendantId)
+                .collect(Collectors.toList());
+            return caseId.equals(arg.get(0).getCaseId()) && defendantIds.equals(argDefendantIds);
         }
     }
 

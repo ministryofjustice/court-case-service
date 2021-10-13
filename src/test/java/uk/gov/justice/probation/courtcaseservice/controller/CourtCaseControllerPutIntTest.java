@@ -293,15 +293,10 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
         @Test
         void whenCreateCaseExtendedByCaseId_thenCreateNewRecord() {
 
-            final var caseWithSameCrn = courtCaseRepository.findByCaseIdOrderByCreatedDesc("1000000")
-                .stream()
-                .findFirst();
-            assertThat(caseWithSameCrn)
-                .map(CourtCaseEntity::getProbationStatus)
-                .hasValue("No record");
-
-            courtCaseRepository.findFirstByCaseIdOrderByIdDesc("1000000")
-                .map(aCase -> assertThat(aCase.getProbationStatus()).isEqualTo("No record"));
+            final var othersSameCrnPreUpdate = courtCaseRepository.findByCaseIdOrderByCreatedDesc("ce84bb2d-e44a-4554-a1a8-795accaac4d8");
+            assertThat(othersSameCrnPreUpdate).hasSize(2);
+            assertThat(othersSameCrnPreUpdate.get(0).getDefendants().get(0).getProbationStatus()).isEqualTo("CURRENT");
+            assertThat(othersSameCrnPreUpdate.get(1).getDefendants().get(0).getProbationStatus()).isEqualTo("CURRENT");
 
             given()
                 .auth()
@@ -316,12 +311,17 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .body("caseId", equalTo(JSON_CASE_ID))
             ;
 
-            final var otherCaseWithSameCrn = courtCaseRepository.findByCaseIdOrderByCreatedDesc("1000000")
-                .stream()
-                .findFirst();
-            assertThat(otherCaseWithSameCrn)
-                .map(CourtCaseEntity::getProbationStatus)
-                .hasValue("PREVIOUSLY_KNOWN");
+            final var othersSameCrnUpdated = courtCaseRepository.findByCaseIdOrderByCreatedDesc("ce84bb2d-e44a-4554-a1a8-795accaac4d8");
+
+            // There will be one new version of the other case and only that newest one has the updated status
+            assertThat(othersSameCrnUpdated).hasSize(3);
+            assertThat(othersSameCrnUpdated.get(0).getDefendants().stream().filter(en -> en.getCrn().equals(CRN)).findFirst().orElseThrow())
+                .hasFieldOrPropertyWithValue("probationStatus", "PREVIOUSLY_KNOWN");
+            // The non-matched remains with CURRENT
+            assertThat(othersSameCrnUpdated.get(0).getDefendants().stream().filter(en -> !en.getCrn().equals(CRN)).findFirst().orElseThrow())
+                .hasFieldOrPropertyWithValue("probationStatus", "CURRENT");
+            assertThat(othersSameCrnUpdated.get(1).getDefendants()).extracting("probationStatus").containsExactly("CURRENT", "CURRENT");
+            assertThat(othersSameCrnUpdated.get(2).getDefendants()).extracting("probationStatus").containsExactly("CURRENT", "CURRENT");
         }
 
         @Test

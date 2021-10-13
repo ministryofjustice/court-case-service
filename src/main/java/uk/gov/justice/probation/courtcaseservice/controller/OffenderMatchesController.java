@@ -31,6 +31,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class OffenderMatchesController {
     private final OffenderMatchService offenderMatchService;
 
+    // TODO: Delete me
     @ApiOperation(value = "Creates a new offender-match entity associated with a case")
     @ApiResponses(
             value = {
@@ -73,6 +74,7 @@ public class OffenderMatchesController {
                 .build());
     }
 
+    // TODO: Delete me
     @ApiOperation(value = "Gets an existing offender-match entity associated with a case")
     @ApiResponses(
             value = {
@@ -111,6 +113,7 @@ public class OffenderMatchesController {
         return offenderMatchService.getGroupedMatchesByCaseId(caseId, defendantId, groupId);
     }
 
+    // TODO: Delete me
     @ApiOperation(value = "Returns all possible matches found for a given case")
     @ApiResponses(
         value = {

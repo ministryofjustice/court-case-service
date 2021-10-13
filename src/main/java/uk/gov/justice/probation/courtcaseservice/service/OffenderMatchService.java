@@ -43,6 +43,7 @@ public class OffenderMatchService {
         this.offenderRestClient = offenderRestClientFactory.build();
     }
 
+    // TODO: Delete me
     public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatches(String courtCode, String caseNo, GroupedOffenderMatchesRequest offenderMatches) {
         return Mono.just(offenderMatchRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
             .map(existingGroup -> OffenderMatchMapper.update(existingGroup, offenderMatches))
@@ -67,6 +68,7 @@ public class OffenderMatchService {
         return OffenderMatchMapper.newGroupedMatchesOf(defendantId, offenderMatches, courtCaseEntity);
     }
 
+    // TODO: Delete me
     public Mono<GroupedOffenderMatchesEntity> getGroupedMatches(String courtCode, String caseNo, Long groupId) {
         return Mono.justOrEmpty(offenderMatchRepository.findById(groupId))
                 .map(groupedOffenderMatchesEntity -> {
@@ -77,6 +79,7 @@ public class OffenderMatchService {
                 });
     }
 
+    // TODO: Do something with this defendantId?
     public Mono<GroupedOffenderMatchesEntity> getGroupedMatchesByCaseId(String caseId, String defendantId, Long groupId) {
         return Mono.justOrEmpty(offenderMatchRepository.findById(groupId))
             .map(groupedOffenderMatchesEntity -> {
@@ -87,6 +90,7 @@ public class OffenderMatchService {
             });
     }
 
+    // TODO: Delete me
     public OffenderMatchDetailResponse getOffenderMatchDetails(String courtCode, String caseNo) {
         courtCaseService.getCaseByCaseNumber(courtCode, caseNo);    // Throw EntityNotFound if case does not exist
         List<OffenderMatchDetail> offenderMatchDetails = getOffenderMatches(courtCode, caseNo)

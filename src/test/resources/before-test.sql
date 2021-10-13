@@ -124,7 +124,7 @@ VALUES (-1700028912, -1700028912, '03137ac2-8c92-471a-aed2-c92ea6e4963e', 'Mr Ge
 -- See CourtCaseControllerPutIntTest.whenPurgeCases_ThenReturn204NoContent() CHECKED
 -- These records are used to test edge cases when returning court case list for a given date (midnight to 1 second before midnight the next day)
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, defendant_name, source_type)
-VALUES (1000000, 1000000, 1000000, 'B10JQ', '1', '2100-01-01 09:00:00', 'No record', 'X320741', 'Mr Tom Cruise', 'COMMON_PLATFORM');
+VALUES (1000000, 1000000, 1000000, 'B10JQ', '1', '2100-01-01 09:00:00', 'No record', 'X320799', 'Mr Tom Cruise', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, crn, source_type)
 VALUES (1000001, 1000001, 1000001, 'B10JQ', '1', '2020-01-01 09:00:00', 'No record', 'X320741', 'COMMON_PLATFORM');
 
@@ -287,3 +287,23 @@ VALUES (-1800028901, '1800028900', 'B33HU', '3db9d70b-10a2-49d1-b74d-379f2db7486
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (false, false, 'X320654', 'NAME_DOB', 'A323456', -1800028901);
 --
+
+-- See CourtCaseControllerPutIntTest.whenCreateCaseExtendedByCaseId_thenCreateNewRecord() CHECKED
+-- These records are used to test other cases with the same CRN getting updates on probation status. This is a different case with 2 versions, only the most recent will be updated
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, court_code, court_room, session_start_time, source_type, created)
+VALUES (4000000, 'ce84bb2d-e44a-4554-a1a8-795accaac4d8', 4000000, 'B63AD', '1', '2100-01-01 09:00:00', 'COMMON_PLATFORM', NOW() - INTERVAL '3 day');
+INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
+VALUES (-4000000, 4000000, 'B63AD', 1, '2100-12-15', '13:00', '3rd');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, type, crn, sex, probation_status, created)
+VALUES (-4000000, 4000000, '27457a3e-fc49-49d3-af22-bf980df4a805', 'Ms Nicole KIDMAN', '{"title": "Ms", "surname": "KIDMAN", "forename1": "Nicole"}', 'PERSON', 'X320741', 'F', 'CURRENT', NOW() - INTERVAL '3 day');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, type, crn, sex, probation_status, created)
+VALUES (-4000001, 4000000, '81adf9ee-76ab-42cc-998d-fb6ae80a4cc9', 'Mr Tom CRUISE', '{"title": "Mr", "surname": "CRUISE", "forename1": "Tom"}', 'PERSON', 'DX12345', 'M', 'CURRENT', NOW() - INTERVAL '3 day');
+
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, session_start_time, source_type, created)
+VALUES (4000001, 'ce84bb2d-e44a-4554-a1a8-795accaac4d8', 4000001, '2100-01-01 09:00:00', 'COMMON_PLATFORM', NOW() - INTERVAL '1 day');
+INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
+VALUES (-4000001, 4000001, 'B63AD', 1, '2100-12-15', '13:00', '3rd');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, type, crn, sex, probation_status, created)
+VALUES (-4000002, 4000001, '27457a3e-fc49-49d3-af22-bf980df4a805', 'Miss Nicole KIDMAN', '{"title": "Miss", "surname": "KIDMAN", "forename1": "Nicole"}', 'PERSON', 'X320741', 'F', 'CURRENT', NOW() - INTERVAL '1 day');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, type, crn, sex, probation_status, created)
+VALUES (-4000003, 4000001, '81adf9ee-76ab-42cc-998d-fb6ae80a4cc9', 'Mr Tom CRUISE', '{"title": "Mr", "surname": "CRUISE", "forename1": "Tom"}', 'PERSON', 'DX12345', 'M', 'CURRENT', NOW() - INTERVAL '3 day');

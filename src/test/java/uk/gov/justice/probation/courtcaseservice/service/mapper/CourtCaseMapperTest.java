@@ -56,7 +56,10 @@ class CourtCaseMapperTest {
             .stream()
             .filter(defendantEntity -> defendantEntity.getCrn().equals(CRN))
             .findFirst()
-            .ifPresentOrElse((entity) -> assertThat(entity.getProbationStatus()).isEqualTo("CURRENT"), Assertions::fail);
+            .ifPresentOrElse((entity) -> {
+                assertThat(entity.getProbationStatus()).isEqualTo("CURRENT");
+                assertThat(entity.getCourtCase()).isSameAs(newEntity);
+            }, Assertions::fail);
         // The other defendant is untouched
         newEntity.getDefendants()
             .stream()

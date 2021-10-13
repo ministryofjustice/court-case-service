@@ -20,7 +20,7 @@ public class CourtCaseMapper {
 
     public static CourtCaseEntity create(CourtCaseEntity courtCaseEntity, String crn, String updatedProbationStatus) {
 
-        var newCourtCaseEntity = CourtCaseEntity.builder()
+        final var newCourtCaseEntity = CourtCaseEntity.builder()
             .breach(courtCaseEntity.getBreach())
             .caseId(courtCaseEntity.getCaseId())
             .caseNo(courtCaseEntity.getCaseNo())
@@ -59,8 +59,8 @@ public class CourtCaseMapper {
             .build();
 
         newCourtCaseEntity.getOffences().forEach(offenceEntity -> offenceEntity.setCourtCase(newCourtCaseEntity));
-        newCourtCaseEntity.getDefendants().forEach(defendantEntity -> defendantEntity.setCourtCase(courtCaseEntity));
-        newCourtCaseEntity.getHearings().forEach(hearingEntity -> hearingEntity.setCourtCase(courtCaseEntity));
+        newCourtCaseEntity.getDefendants().forEach(defendantEntity -> defendantEntity.setCourtCase(newCourtCaseEntity));
+        newCourtCaseEntity.getHearings().forEach(hearingEntity -> hearingEntity.setCourtCase(newCourtCaseEntity));
         return newCourtCaseEntity;
     }
 

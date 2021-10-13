@@ -149,11 +149,20 @@ public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Lon
             nativeQuery= true)
     List<CourtCaseEntity> findOtherCurrentCasesByCrn(String crn, String caseNo);
 
-    @Query(value = "SELECT cc.*, null as first_created FROM court_case cc "
-        + "where cc.case_id != :caseId "
-        + "and cc.session_start_time >= current_date "
-        + "and cc.crn = :crn "
-        + "and cc.deleted = false ",
+    @Query(value = "select cc.*, grouped_cases.min_created as first_created "
+        + "        from court_case cc "
+        + "           inner join "
+        + "               (select min(group_cc.created) as min_created, max(group_cc.created) as max_created, group_cc.case_id from court_case group_cc "
+        + "                   inner join hearing on hearing.court_case_id = group_cc.id  "
+        + "                   group by group_cc.case_id) grouped_cases "
+        + "               on cc.case_id = grouped_cases.case_id "
+        + "           inner join hearing h on h.court_case_id = cc.id "
+        + "           inner join defendant d on d.court_case_id = cc.id "
+        + "        where h.hearing_day >= CURRENT_DATE"
+        + "        and d.crn = :crn"
+        + "        and cc.case_id != :caseId"
+        + "        and cc.created = grouped_cases.max_created "
+        + "        and cc.deleted = false",
         nativeQuery = true)
     List<CourtCaseEntity> findOtherCurrentCasesByCrnNotCaseId(String crn, String caseId);
 }

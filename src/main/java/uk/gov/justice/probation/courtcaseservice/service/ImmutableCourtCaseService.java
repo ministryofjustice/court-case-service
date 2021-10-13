@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
@@ -23,8 +24,11 @@ import java.time.LocalTime;
 import java.util.Collections;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.lang.Boolean.FALSE;
 
 @Service
 @Slf4j
@@ -142,7 +146,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         if (crn != null) {
             final var courtCases = courtCaseRepository.findOtherCurrentCasesByCrnNotCaseId(crn, caseId)
                     .stream()
-                    .filter(courtCaseEntity -> !courtCaseEntity.getProbationStatus().equalsIgnoreCase(probationStatus))
+                    .filter(courtCaseEntity -> hasAnyDefendantsSameCrnDifferentProbationStatus(courtCaseEntity.getDefendants(), crn, probationStatus))
                     .map(courtCaseEntity -> CourtCaseMapper.create(courtCaseEntity, crn, probationStatus))
                     .collect(Collectors.toList());
 
@@ -151,6 +155,12 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                 courtCaseRepository.saveAll(courtCases);
             }
         }
+    }
+
+    boolean hasAnyDefendantsSameCrnDifferentProbationStatus(List<DefendantEntity> defendants, String crn, String probationStatus) {
+        return Optional.ofNullable(defendants).orElse(Collections.emptyList())
+            .stream()
+            .anyMatch(defendant -> Objects.equals(defendant.getCrn(), crn) && !Objects.equals(defendant.getProbationStatus(), probationStatus));
     }
 
     private void trackCreateEvents(CourtCaseEntity createdCase) {

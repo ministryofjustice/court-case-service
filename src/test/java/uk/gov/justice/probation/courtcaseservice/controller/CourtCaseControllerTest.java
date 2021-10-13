@@ -1,16 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Month;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +18,18 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -128,19 +129,6 @@ class CourtCaseControllerTest {
 
         verify(courtCaseService).getCaseByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
         verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
-        verifyNoMoreInteractions(courtCaseService, offenderMatchService);
-    }
-
-    @Test
-    void updateCaseByCourtAndCaseNo_shouldReturnCourtCaseResponse() {
-        when(courtCaseUpdate.asEntity()).thenReturn(courtCaseEntity);
-        when(courtCaseService.createCase(COURT_CODE, CASE_NO, courtCaseEntity)).thenReturn(Mono.just(courtCaseEntity));
-        when(offenderMatchService.getMatchCount(COURT_CODE, CASE_NO)).thenReturn(Optional.empty());
-        var courtCase = courtCaseController.updateCourtCaseNo(COURT_CODE, CASE_NO, courtCaseUpdate). block();
-
-        assertCourtCase(courtCase, null, 0);
-        verify(courtCaseService).createCase(COURT_CODE, CASE_NO, courtCaseEntity);
-        verify(offenderMatchService).getMatchCount(COURT_CODE, CASE_NO);
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 

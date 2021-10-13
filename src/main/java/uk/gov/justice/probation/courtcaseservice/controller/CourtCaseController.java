@@ -103,27 +103,6 @@ public class CourtCaseController {
         return buildCourtCaseResponse(courtCaseService.getCaseByCaseNumber(courtCode, caseNo));
     }
 
-    // TODO: Delete me
-    @ApiOperation(value = "Saves and returns the court case entity data, by court and case number. ")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(code = 201, message = "Created", response = CourtCaseResponse.class),
-                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-                    @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
-                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-            })
-    @PutMapping(value = "/court/{courtCode}/case/{caseNo}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
-    public @ResponseBody
-    Mono<CourtCaseResponse> updateCourtCaseNo(@PathVariable(value = "courtCode") String courtCode,
-                                              @PathVariable(value = "caseNo") String caseNo,
-                                              @Valid @RequestBody CourtCaseRequest courtCaseRequest) {
-        return courtCaseService.createCase(courtCode, caseNo, courtCaseRequest.asEntity())
-                .map(courtCaseEntity -> buildCourtCaseResponse(courtCaseEntity));
-    }
-
     @ApiOperation(value = "Saves and returns the court case data, by case id.")
     @ApiResponses(
             value = {

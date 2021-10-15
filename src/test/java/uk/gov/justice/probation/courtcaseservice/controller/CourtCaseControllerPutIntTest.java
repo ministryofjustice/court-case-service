@@ -275,6 +275,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
 
         // Note: There's a bizarre stack overflow bug happening when using the same Resource pattern as above which is why
         // this file is being read in a different way. There's an urgent fix required so committing as is to fix later.
+        // CF - tried this again after moving resources into the nested classes and exactly the same thing happens
         // TODO: tidy this up
         // BEGIN
         // @Value("classpath:integration/request/PUT_courtCaseExtended_update_success.json")
@@ -385,14 +386,14 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
         @Test
         void givenInvalidRequestBody_whenCreateCourtCase_ThenRaise400() throws IOException {
 
-            final var inv = Files.readString(invalidExtendedCaseResource.getFile().toPath());
+            final var invalidJson = Files.readString(invalidExtendedCaseResource.getFile().toPath());
 
             given()
                 .auth()
                 .oauth2(getToken())
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(inv)
+                .body(invalidJson)
                 .when()
                 .put(String.format("/case/%s/extended", "1db2c76c-31a5-4b53-a46a-00681809515e"))
                 .then()

@@ -346,7 +346,7 @@ workflows:
 #          env: dev
 #          chart_name: court-case-service
       - hmpps/helm_lint:
-          name: helm_lint
+          name: helm_lint_dev
       - build_docker:
           app_name: court-case-service
           requires:

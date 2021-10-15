@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.applicationinsights.boot.dependencies.apachecommons.io.FileUtils;
@@ -21,8 +22,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
@@ -39,11 +43,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_SEX;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NAME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_1;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_2;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SESSION_START_TIME;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
@@ -222,14 +229,31 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
         @Test
         void whenCreateCourtCaseByCourtAndCaseWithUnknownCourt_ThenRaise404() {
 
-            final var courtCaseEntity = createCaseDetails(NOT_FOUND_COURT_CODE);
+            final var request = CourtCaseRequest.builder()
+                .caseId("CASE_ID")
+                .caseNo(JSON_CASE_NO)
+                .courtCode(NOT_FOUND_COURT_CODE)
+                .courtRoom("COURT_ROOM")
+                .source("LIBRA")
+                .sessionStartTime(SESSION_START_TIME)
+                .offences(Arrays.asList(
+                        new OffenceRequestResponse("OFFENCE_TITLE1", "OFFENCE_SUMMARY1", null),
+                        new OffenceRequestResponse("OFFENCE_TITLE2", "OFFENCE_SUMMARY2", null)
+                    )
+                )
+                .defendantId(DEFENDANT_ID)
+                .name(NAME)
+                .defendantName(NAME.getFullName())
+                .defendantType(DefendantType.PERSON)
+                .listNo("LIST_NO")
+                .build();
 
             ErrorResponse result = given()
                 .auth()
                 .oauth2(getToken())
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(courtCaseEntity)
+                .body(request)
                 .when()
                 .put(String.format(PUT_CASE_BY_CASENO_PATH, NOT_FOUND_COURT_CODE, JSON_CASE_NO))
                 .then()
@@ -246,14 +270,31 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
         @Test
         void whenCreateCourtCaseByCourtAndCaseWithMismatchCourt_ThenRaise400() {
 
-            final var courtCaseEntity = createCaseDetails(COURT_CODE);
+            final var request = CourtCaseRequest.builder()
+                .caseId("CASE_ID")
+                .caseNo(JSON_CASE_NO)
+                .courtCode(COURT_CODE)
+                .courtRoom("COURT_ROOM")
+                .source("LIBRA")
+                .sessionStartTime(SESSION_START_TIME)
+                .offences(Arrays.asList(
+                        new OffenceRequestResponse("OFFENCE_TITLE1", "OFFENCE_SUMMARY1", null),
+                        new OffenceRequestResponse("OFFENCE_TITLE2", "OFFENCE_SUMMARY2", null)
+                    )
+                )
+                .defendantId(DEFENDANT_ID)
+                .name(NAME)
+                .defendantName(NAME.getFullName())
+                .defendantType(DefendantType.PERSON)
+                .listNo("LIST_NO")
+                .build();
 
             given()
                 .auth()
                 .oauth2(getToken())
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(courtCaseEntity)
+                .body(request)
                 .when()
                 .put(String.format(PUT_CASE_BY_CASENO_PATH, "NWS", "99999"))
                 .then()
@@ -615,6 +656,30 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .body("developerMessage", equalTo("Court " + unknownCourt + " not found"))
             ;
         }
+
+        @Test
+        void givenInvalidRequest_whenUpdateCaseDataByCaseIdAndDefendantId_thenRaise400() {
+
+            final var caseId = "3db9d70b-10a2-49d1-b74d-379f2db74862";
+            final var defendantIdToUpdate = "1263de26-4a81-42d3-a798-bad802433318";
+
+            var updatedJson = caseDetailsJson
+                .replace("\"courtCode\": \"" + COURT_CODE + "\"", "\"courtCode\": \"  \"")
+                ;
+
+            given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(updatedJson)
+                .when()
+                .put(String.format(PUT_BY_CASEID_AND_DEFENDANTID_PATH, caseId, defendantIdToUpdate))
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+            ;
+        }
+
     }
 
     @Nested

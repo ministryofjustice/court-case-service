@@ -33,6 +33,7 @@ public class EntityHelper {
     public static final String CRO = "CRO/12334";
     public static final String DEFENDANT_SEX = "M";
     public static final String PROBATION_STATUS = "Previously known";
+    public static final String NO_RECORD_DESCRIPTION = "No record";
     public static final String NATIONALITY_1 = "British";
     public static final String NATIONALITY_2 = "Polish";
     public static final SourceType SOURCE = SourceType.COMMON_PLATFORM;

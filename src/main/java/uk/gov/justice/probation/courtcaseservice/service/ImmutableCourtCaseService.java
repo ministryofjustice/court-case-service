@@ -28,8 +28,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static java.lang.Boolean.FALSE;
-
 @Service
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
@@ -144,16 +142,17 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     void updateOtherProbationStatusForCrnByCaseId(String crn, String probationStatus, String caseId) {
         if (crn != null) {
-            final var courtCases = courtCaseRepository.findOtherCurrentCasesByCrnNotCaseId(crn, caseId)
-                    .stream()
-                    .filter(courtCaseEntity -> hasAnyDefendantsSameCrnDifferentProbationStatus(courtCaseEntity.getDefendants(), crn, probationStatus))
-                    .map(courtCaseEntity -> CourtCaseMapper.create(courtCaseEntity, crn, probationStatus))
-                    .collect(Collectors.toList());
+            // Temporary hotfix - This code is killing DB performance so skipping until performance issue is resolved
+//            final var courtCases = courtCaseRepository.findOtherCurrentCasesByCrnNotCaseId(crn, caseId)
+//                    .stream()
+//                    .filter(courtCaseEntity -> hasAnyDefendantsSameCrnDifferentProbationStatus(courtCaseEntity.getDefendants(), crn, probationStatus))
+//                    .map(courtCaseEntity -> CourtCaseMapper.create(courtCaseEntity, crn, probationStatus))
+//                    .collect(Collectors.toList());
 
-            if (!courtCases.isEmpty()) {
-                log.debug("Updating {} cases for CRN {} with changed probation status to {}", courtCases.size(), crn, probationStatus);
-                courtCaseRepository.saveAll(courtCases);
-            }
+//            if (!courtCases.isEmpty()) {
+//                log.debug("Updating {} cases for CRN {} with changed probation status to {}", courtCases.size(), crn, probationStatus);
+//                courtCaseRepository.saveAll(courtCases);
+//            }
         }
     }
 

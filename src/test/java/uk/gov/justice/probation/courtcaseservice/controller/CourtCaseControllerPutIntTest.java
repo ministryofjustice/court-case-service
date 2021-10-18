@@ -5,6 +5,7 @@ import com.microsoft.applicationinsights.boot.dependencies.apachecommons.io.File
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -291,6 +292,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
     class PutByCaseIdExtended {
         private static final String JSON_CASE_ID = "ac24a1be-939b-49a4-a524-21a3d228f8bc";
         @Test
+        @Disabled
         void whenCreateCaseExtendedByCaseId_thenCreateNewRecord() {
 
             final var othersSameCrnPreUpdate = courtCaseRepository.findByCaseIdOrderByCreatedDesc("ce84bb2d-e44a-4554-a1a8-795accaac4d8");
@@ -423,6 +425,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
         }
 
         @Test
+        @Disabled
         void givenExistingCase_whenUpdateCaseDataByCaseIdAndDefendantId_thenUpdateAllCrns() {
 
             final var crn = "X320654";

@@ -3,7 +3,6 @@ package uk.gov.justice.probation.courtcaseservice.service;
 import lombok.Data;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -42,6 +41,7 @@ import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -82,7 +82,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, false);
+            service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, false, true);
             courtCase = EntityHelper.aCourtCaseEntity(CRN, CASE_NO);
         }
 
@@ -177,7 +177,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, false);
+            service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, false, true);
             lenient().when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             incomingCourtCase = EntityHelper.aCourtCaseEntity(CRN, CASE_NO);
             defendant = DefendantEntity.builder().defendantId(DEFENDANT_ID).build();
@@ -218,7 +218,6 @@ class ImmutableCourtCaseServiceTest {
         }
 
         @Test
-        @Disabled
         void givenSingleNewLinkedCase_whenCreateOrUpdateCaseCalledWithCrn_thenLogUpdatedEventAndSave() {
             when(courtCaseRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.empty());
             when(courtCaseRepository.save(incomingCourtCase)).thenReturn(incomingCourtCase);
@@ -270,7 +269,6 @@ class ImmutableCourtCaseServiceTest {
         }
 
         @Test
-        @Disabled
         void givenSingleExistingLinkedCase_whenCreateOrUpdateCaseCalledWithoutCrn_thenLogUpdatedEventAndSave() {
             var updatedCase = EntityHelper.aCourtCaseEntity(CASE_ID).withCourtRoom("02").withDefendants(List.of(defendant)).withCrn(CRN);
             var existingCase = EntityHelper.aCourtCaseEntity(CASE_ID);
@@ -337,13 +335,12 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, false);
+            service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, false, true);
             lenient().when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             courtCase = EntityHelper.aCourtCaseEntity(CRN, CASE_NO);
         }
 
         @Test
-        @Disabled
         void givenNoExistingCase_whenCreateOrUpdateCaseCalledWithCrn_thenLogCreatedAndLinkedEvent() {
             var defendantToUpdate = EntityHelper.aDefendantEntity(DEFENDANT_ID).withProbationStatus("CURRENT");
             var otherCourtCaseToUpdate = EntityHelper.aCourtCaseEntity(CASE_ID).withDefendants(List.of(defendantToUpdate));
@@ -361,6 +358,23 @@ class ImmutableCourtCaseServiceTest {
             var expectedCourtCaseToSave = new CourtCaseEntityListMatcher(CASE_ID, List.of(DEFENDANT_ID));
             verify(courtCaseRepository, timeout(2000)).saveAll(argThat(expectedCourtCaseToSave));
 
+            verifyNoMoreInteractions(courtCaseRepository, telemetryService);
+        }
+
+        @Test
+        void givenGlobalUpdateDisabled_whenCreateOrUpdateCaseCalledWithCrn_thenDontMakeCallToFindOtherCasesByCrn() {
+            var noGlobalUpdateService = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, false, false);
+            when(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.empty());
+            when(courtCaseRepository.save(courtCase)).thenReturn(courtCase);
+
+            var savedCourtCase = noGlobalUpdateService.createCase(CASE_ID, courtCase).block();
+
+            verify(courtCaseRepository, never()).findOtherCurrentCasesByCrnNotCaseId(CRN, CASE_ID);
+            assertThat(savedCourtCase).isNotNull();
+
+            verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCase);
+            verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, courtCase);
+            verify(courtCaseRepository).save(courtCase);
             verifyNoMoreInteractions(courtCaseRepository, telemetryService);
         }
 
@@ -463,7 +477,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, false);
+            service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, false, true);
         }
 
         @Test
@@ -484,7 +498,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenUseExtendedCases_filterByHearingDayShouldRetrieveCourtCasesFromRepository() {
-            service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, true);
+            service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, true, true);
             when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             when(courtEntity.getCourtCode()).thenReturn(COURT_CODE);
             when(courtCaseRepository.findByCourtCodeAndHearingDay(COURT_CODE, SEARCH_DATE, CREATED_AFTER, CREATED_BEFORE))
@@ -556,7 +570,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, false);
+            service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, false, true);
         }
 
         @Test
@@ -646,7 +660,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, false);
+            service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, false, true);
         }
 
         @Test
@@ -829,7 +843,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, false);
+            service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, false, true);
         }
 
         @Test
@@ -865,7 +879,6 @@ class ImmutableCourtCaseServiceTest {
         }
 
         @Test
-        @Disabled
         void givenNoExistingCase_whenUpdateOtherProbationStatusForCaseIdWithCrn_thenUpdateAndSaveAll() {
 
             final var newProbationStatus = ProbationStatus.CURRENT.getName();

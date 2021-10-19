@@ -267,17 +267,4 @@ class OffenderMatchServiceTest {
         }
     }
 
-    @ExtendWith(MockitoExtension.class)
-    @Nested
-    class MatchCount {
-
-        @Test
-        void whenGetOffenderMatchCount_thenReturn() {
-
-            when(offenderMatchRepository.getMatchCount(COURT_CODE, CASE_NO)).thenReturn(Optional.of(2));
-
-            assertThat(service.getMatchCount(COURT_CODE, CASE_NO).get()).isEqualTo(2);
-        }
-    }
-
 }

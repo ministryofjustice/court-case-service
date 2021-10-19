@@ -17,7 +17,6 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.controller.OffenderMatchesControllerTest.OFFENDER_MATCHES_DEFENDANT_DETAIL_PATH;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = BEFORE_TEST_METHOD)
@@ -91,8 +90,6 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                 .get(location)
                 .then()
                 .statusCode(200)
-                .body("courtCode", equalTo(COURT_CODE))
-                .body("caseNo", equalTo("1600028918"))
                 .body("offenderMatches", hasSize(1))
                 .body("offenderMatches[0].crn", equalTo("X346204"))
                 .body("offenderMatches[0].pnc", equalTo("pnc123"))
@@ -130,8 +127,6 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                 .get(location)
                 .then()
                 .statusCode(200)
-                .body("courtCode", equalTo(COURT_CODE))
-                .body("caseNo", equalTo("1600028913"))
                 .body("offenderMatches", hasSize(2))
                 .body("offenderMatches[0].crn", equalTo("X12345"))
                 .body("offenderMatches[0].pnc", equalTo(null))

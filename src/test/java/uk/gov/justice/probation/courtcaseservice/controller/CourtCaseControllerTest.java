@@ -14,6 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRespo
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
@@ -44,7 +45,6 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aDefendantEntity;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingEntity;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.LIBRA;
 
 @ExtendWith(MockitoExtension.class)
 class CourtCaseControllerTest {
@@ -73,7 +73,11 @@ class CourtCaseControllerTest {
         .sourceType(COMMON_PLATFORM)
         .sessionStartTime(now)
         .hearings(Collections.emptyList())
-        .defendants(Collections.emptyList())
+        .defendants(Collections.singletonList(
+                DefendantEntity.builder()
+                        .defendantId(DEFENDANT_ID)
+                        .build()
+        ))
 
         .build();
 
@@ -88,7 +92,7 @@ class CourtCaseControllerTest {
     @Test
     void getCourtCase_shouldReturnCourtCaseResponse() {
         when(courtCaseService.getCaseByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(courtCaseEntity);
-        when(offenderMatchService.getMatchCount(COURT_CODE, CASE_NO)).thenReturn(Optional.of(3));
+        when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(3));
         var courtCase = courtCaseController.getCourtCase(COURT_CODE, CASE_NO);
         assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCase.getCaseNo()).isNull();
@@ -98,7 +102,7 @@ class CourtCaseControllerTest {
         assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(3);
 
         verify(courtCaseService).getCaseByCaseNumber(COURT_CODE, CASE_NO);
-        verify(offenderMatchService).getMatchCount(COURT_CODE, CASE_NO);
+        verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 
@@ -174,32 +178,6 @@ class CourtCaseControllerTest {
         assertThat(responseEntity.getBody().getCases().get(0).getDefendantName()).isEqualTo("Mr Gordon BENNETT");
         assertThat(responseEntity.getBody().getCases().get(1).getDefendantName()).isEqualTo("HRH Catherine The GREAT");
         assertThat(responseEntity.getHeaders().getFirst(HttpHeaders.LAST_MODIFIED)).isEqualTo("Wed, 21 Oct 2015 07:28:00 GMT");
-    }
-
-    @Test
-    void givenSingleLibraCaseWithNoDefendants_whenGetCaseList_shouldReturn() {
-
-        var courtCaseEntity = CourtCaseEntity.builder()
-            .caseNo(CASE_NO)
-            .courtCode(COURT_CODE)
-            .sourceType(LIBRA)
-            .sessionStartTime(now)
-            .crn(CRN)
-            .defendantName("Mr Clark KENT")
-            .build();
-
-        var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
-        when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
-        when(courtCaseService.filterCases(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE)).thenReturn(Collections.singletonList(courtCaseEntity));
-        when(offenderMatchService.getMatchCount(COURT_CODE, CASE_NO)).thenReturn(Optional.of(2));
-
-        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE, webRequest);
-
-        assertThat(responseEntity.getBody().getCases()).hasSize(1);
-        // Top level fields for both are the same
-        assertCourtCase(responseEntity.getBody().getCases().get(0), CASE_NO, 2, LIBRA.name());
-        assertThat(responseEntity.getBody().getCases().get(0).getCrn()).isEqualTo(CRN);
-        assertThat(responseEntity.getBody().getCases().get(0).getDefendantName()).isEqualTo("Mr Clark KENT");
     }
 
     @Test

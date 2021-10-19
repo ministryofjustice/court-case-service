@@ -90,10 +90,6 @@ public class OffenderMatchService {
         return offenderMatchRepository.findByCaseIdAndDefendantId(caseId, defendantId);
     }
 
-    public Optional<Integer> getMatchCount(String courtCode, String caseNo) {
-        return offenderMatchRepository.getMatchCount(courtCode, caseNo);
-    }
-
     public Optional<Integer> getMatchCountByCaseIdAndDefendant(String caseId, String defendantId) {
         return offenderMatchRepository.getMatchCountByCaseIdAndDefendant(caseId, defendantId);
     }

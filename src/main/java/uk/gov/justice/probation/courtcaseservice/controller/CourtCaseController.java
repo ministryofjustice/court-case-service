@@ -66,21 +66,6 @@ public class CourtCaseController {
             @ApiResponse(code = 404, message = "Not Found. For example if the court code or case number can't be matched.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
         })
-    @GetMapping(value = "/case/{caseId}", produces = APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    CourtCaseResponse getCourtCase(@PathVariable String caseId) {
-        return this.buildCourtCaseResponse(courtCaseService.getCaseByCaseId(caseId));
-    }
-
-    @ApiOperation(value = "Gets the court case data by case id.")
-    @ApiResponses(
-        value = {
-            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Not Found. For example if the court code or case number can't be matched.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-        })
     @GetMapping(value = "/case/{caseId}/defendant/{defendantId}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCaseByCaseIdAndDefendantId(@PathVariable String caseId, @PathVariable String defendantId) {
@@ -225,23 +210,17 @@ public class CourtCaseController {
     }
 
     private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity) {
-        return buildCourtCaseResponse(courtCaseEntity, null);
-    }
+        final var defendantId = Optional.ofNullable(courtCaseEntity.getDefendants())
+                .map(defs -> defs.get(0))
+                .map(DefendantEntity::getDefendantId)
+                .orElseThrow(() -> new IllegalStateException("Court case expected to have at least 1 defendant did not have any defendants."));
 
-    private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity, LocalDate hearingDate) {
-        final var offenderMatchesCount = offenderMatchService.getMatchCount(courtCaseEntity.getCourtCode(), courtCaseEntity.getCaseNo())
-            .orElse(0);
-
-        return CourtCaseResponseMapper.mapFrom(courtCaseEntity, offenderMatchesCount, hearingDate);
+        return buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseEntity, defendantId);
     }
 
     private List<CourtCaseResponse> buildCourtCaseResponses(CourtCaseEntity courtCaseEntity, LocalDate hearingDate) {
 
         var defendantEntities = new ArrayList<>(Optional.ofNullable(courtCaseEntity.getDefendants()).orElse(Collections.emptyList()));
-        // Until we have CP on-line and we have removed court case defendant fields
-        if (defendantEntities.isEmpty()) {
-            return Collections.singletonList(buildCourtCaseResponse(courtCaseEntity, hearingDate));
-        }
 
         final var caseId = courtCaseEntity.getCaseId();
         return defendantEntities.stream()

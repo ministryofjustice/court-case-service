@@ -115,30 +115,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
         }
 
         @Test
-        void GET_cases_givenNoSeparateDefendants_whenGetCases_thenReturnAllCases() {
-
-            final String hearingDate = LocalDate.of(2100, Month.JANUARY, 1).format(DateTimeFormatter.ISO_DATE);
-            final String createdAfter = LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-
-            given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .get("/court/{courtCode}/cases?date={date}&createdAfter={createdAfter}", COURT_CODE, hearingDate, createdAfter)
-                .then()
-                .assertThat()
-                .statusCode(200)
-                .body("cases", hasSize(1))
-                .body("cases[0].courtCode", equalTo(COURT_CODE))
-                .body("cases[0].caseNo", equalTo(null))
-                .body("cases[0].source", equalTo("COMMON_PLATFORM"))
-                .body("cases[0].caseId", equalTo("1000000"))
-                .body("cases[0].defendantName", equalTo("Mr Tom Cruise"))
-                .body("cases[0].defendantType", equalTo("PERSON"))
-                ;
-        }
-
-        @Test
         void givenLastModifiedRecent_whenRequestCases_thenReturnLastModifiedHeader() {
 
             given()
@@ -393,73 +369,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             assertThat(result.getUserMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
             assertThat(result.getStatus()).isEqualTo(404);
         }
-    }
-
-    @Nested
-    class GetCaseByCaseId {
-
-        @Test
-        void givenKnownCaseId_whenGetCase_thenReturn() {
-
-            var response = given()
-                .given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .header("Accept", "application/json")
-                .get("/case/{caseId}", "1f93aa0a-7e46-4885-a1cb-f25a4be33a00")
-                .then()
-                .statusCode(200);
-
-            validateResponse(response, DECEMBER_14_9AM.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), "1f93aa0a-7e46-4885-a1cb-f25a4be33a00");
-        }
-
-        @Test
-        void givenUnknownCaseId_whenGetCase_thenReturn404() {
-
-            final var NOT_FOUND_CASE_ID = "1f93bbcc-7e46-4885-a1cb-f25a4be33a56";
-
-            ErrorResponse result = given()
-                .given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .header("Accept", "application/json")
-                .get("/case/{caseId}", NOT_FOUND_CASE_ID)
-                .then()
-                .statusCode(404)
-                .extract()
-                .body()
-                .as(ErrorResponse.class);
-
-            assertThat(result.getDeveloperMessage()).contains("Case " + NOT_FOUND_CASE_ID + " not found");
-            assertThat(result.getUserMessage()).contains("Case " + NOT_FOUND_CASE_ID + " not found");
-            assertThat(result.getStatus()).isEqualTo(404);
-        }
-
-        @Test
-        void shouldReturnNotFoundForDeletedCase() {
-
-            final var DELETED_CASE_ID = "5555559";
-
-            ErrorResponse result = given()
-                .given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .header("Accept", "application/json")
-                .get("/case/{caseId}", DELETED_CASE_ID)
-                .then()
-                .statusCode(404)
-                .extract()
-                .body()
-                .as(ErrorResponse.class);
-
-            assertThat(result.getDeveloperMessage()).contains("Case " + DELETED_CASE_ID + " not found");
-            assertThat(result.getUserMessage()).contains("Case " + DELETED_CASE_ID + " not found");
-            assertThat(result.getStatus()).isEqualTo(404);
-        }
-
     }
 
     @Nested

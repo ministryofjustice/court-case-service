@@ -605,8 +605,6 @@ class ImmutableCourtCaseServiceTest {
         @NonNull
         private Optional<GroupedOffenderMatchesEntity> buildOffenderMatches() {
             return Optional.ofNullable(GroupedOffenderMatchesEntity.builder()
-                .courtCode(COURT_CODE)
-                .caseNo(CASE_NO)
                 .offenderMatches(Arrays.asList(OffenderMatchEntity.builder()
                         .crn(CRN)
                         .confirmed(false)

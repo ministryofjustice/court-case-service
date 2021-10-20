@@ -28,8 +28,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static java.lang.Boolean.FALSE;
-
 @Service
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
@@ -40,18 +38,21 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private final TelemetryService telemetryService;
     private final GroupedOffenderMatchRepository matchRepository;
     private final boolean caseListExtended;
+    private final boolean globalProbationStatusUpdate;
 
     @Autowired
     public ImmutableCourtCaseService(CourtRepository courtRepository,
                                      CourtCaseRepository courtCaseRepository,
                                      TelemetryService telemetryService,
                                      GroupedOffenderMatchRepository matchRepository,
-                                     @Value("${feature.flags.case-list-extended:false}") boolean caseListExtended) {
+                                     @Value("${feature.flags.case-list-extended:false}") boolean caseListExtended,
+                                     @Value("${feature.flags.global-probation-status-update:true}") boolean globalProbationStatusUpdate) {
         this.courtRepository = courtRepository;
         this.courtCaseRepository = courtCaseRepository;
         this.telemetryService = telemetryService;
         this.matchRepository = matchRepository;
         this.caseListExtended = caseListExtended;
+        this.globalProbationStatusUpdate = globalProbationStatusUpdate;
     }
 
     @Override
@@ -143,17 +144,20 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     void updateOtherProbationStatusForCrnByCaseId(String crn, String probationStatus, String caseId) {
-        if (crn != null) {
-            final var courtCases = courtCaseRepository.findOtherCurrentCasesByCrnNotCaseId(crn, caseId)
-                    .stream()
-                    .filter(courtCaseEntity -> hasAnyDefendantsSameCrnDifferentProbationStatus(courtCaseEntity.getDefendants(), crn, probationStatus))
-                    .map(courtCaseEntity -> CourtCaseMapper.create(courtCaseEntity, crn, probationStatus))
-                    .collect(Collectors.toList());
+        // Temporary hotfix - This code is killing DB performance so optionally skipping until performance issue is resolved
+        if (crn == null || !globalProbationStatusUpdate) {
+            return;
+        }
 
-            if (!courtCases.isEmpty()) {
-                log.debug("Updating {} cases for CRN {} with changed probation status to {}", courtCases.size(), crn, probationStatus);
-                courtCaseRepository.saveAll(courtCases);
-            }
+        final var courtCases = courtCaseRepository.findOtherCurrentCasesByCrnNotCaseId(crn, caseId)
+                .stream()
+                .filter(courtCaseEntity -> hasAnyDefendantsSameCrnDifferentProbationStatus(courtCaseEntity.getDefendants(), crn, probationStatus))
+                .map(courtCaseEntity -> CourtCaseMapper.create(courtCaseEntity, crn, probationStatus))
+                .collect(Collectors.toList());
+
+        if (!courtCases.isEmpty()) {
+            log.debug("Updating {} cases for CRN {} with changed probation status to {}", courtCases.size(), crn, probationStatus);
+            courtCaseRepository.saveAll(courtCases);
         }
     }
 
@@ -301,10 +305,6 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     public Optional<LocalDateTime> filterCasesLastModified(String courtCode, LocalDate searchDate) {
         final var start = LocalDateTime.of(searchDate, LocalTime.MIDNIGHT);
         return courtCaseRepository.findLastModified(courtCode, start, start.plusDays(1));
-    }
-
-    public Optional<LocalDateTime> findLastModifiedByHearingDay(String courtCode, LocalDate searchDate) {
-        return courtCaseRepository.findLastModifiedByHearingDay(courtCode, searchDate);
     }
 
 }

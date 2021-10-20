@@ -14,6 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -29,7 +30,7 @@ import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.Month;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -63,17 +64,20 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
     void getCourtCase() {
         var courtCaseEntity = CourtCaseEntity.builder()
             .courtCode("B10JQ")
-            .breach(true)
             .caseNo("1600028913")
-            .crn("X340741")
-            .pnc("A/1234560BA")
-            .preSentenceActivity(true)
-            .previouslyKnownTerminationDate(LocalDate.of(2010, Month.JANUARY, 1))
-            .probationStatus("Current")
-            .suspendedSentenceOrder(true)
             .sessionStartTime(LocalDateTime.now())
             .defendantSex("M")
             .sourceType(SourceType.LIBRA)
+            .defendants(Collections.singletonList(DefendantEntity.builder()
+                    .defendantId("51354F3C-9625-404D-B820-C74724D23484")
+                    .breach(true)
+                    .crn("X340741")
+                    .pnc("A/1234560BA")
+                    .preSentenceActivity(true)
+                    .previouslyKnownTerminationDate(LocalDate.of(2010, 01, 01))
+                    .probationStatus(ProbationStatus.CURRENT.getName())
+                    .suspendedSentenceOrder(true)
+                    .build()))
             .build();
         when(courtCaseService.getCaseByCaseNumber("B10JQ", "1600028913")).thenReturn(courtCaseEntity);
     }

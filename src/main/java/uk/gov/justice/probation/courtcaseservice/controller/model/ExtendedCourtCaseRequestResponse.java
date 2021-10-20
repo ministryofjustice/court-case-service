@@ -1,5 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,10 +31,18 @@ import java.util.stream.IntStream;
 public class ExtendedCourtCaseRequestResponse {
     static final SourceType DEFAULT_SOURCE = SourceType.COMMON_PLATFORM;
     private final String caseNo;
+    @NotBlank
     private final String caseId;
+    // This should only be held in the hearings
+    @Deprecated(forRemoval = true)
+    @NotBlank
     private final String courtCode;
     private final String source;
+    @Valid
+    @NotEmpty
     private final List<HearingDay> hearingDays;
+    @Valid
+    @NotEmpty
     private final List<Defendant> defendants;
 
     public static ExtendedCourtCaseRequestResponse of(CourtCaseEntity courtCase) {

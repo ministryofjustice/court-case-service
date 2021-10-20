@@ -1,5 +1,13 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.applicationinsights.boot.dependencies.apachecommons.io.FileUtils;
 import io.restassured.http.ContentType;
@@ -10,22 +18,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,11 +43,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_SEX;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NAME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_1;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_2;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SESSION_START_TIME;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
@@ -74,29 +81,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
     @Value("classpath:integration/request/PUT_courtCase_success.json")
     private Resource caseDetailsResource;
 
-    @Value("classpath:integration/request/PUT_courtCaseExtended_success.json")
-    private Resource caseDetailsExtendedResource;
-
-    // Note: There's a bizarre stack overflow bug happening when using the same Resource pattern as above which is why
-    // this file is being read in a different way. There's an urgent fix required so committing as is to fix later.
-    // TODO: tidy this up
-    // BEGIN
-//    @Value("classpath:integration/request/PUT_courtCaseExtended_update_success.json")
-//    private Resource caseDetailsExtendedUpdateResource;
-    private final File file = new File(getClass().getClassLoader().getResource("integration/request/PUT_courtCaseExtended_update_success.json").getFile());
-    private String caseDetailsExtendedUpdateResource;
-
-    {
-        try {
-            caseDetailsExtendedUpdateResource = FileUtils.readFileToString(file, "UTF-8");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    // END
-
     private String caseDetailsJson;
-    private String caseDetailsExtendedJson;
 
     /** NEW values match those from JSON file incoming. */
     private static final String JSON_CASE_NO = "1700028914";
@@ -105,8 +90,6 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
     @BeforeEach
     void beforeEach() throws Exception {
         caseDetailsJson = Files.readString(caseDetailsResource.getFile().toPath());
-        caseDetailsExtendedJson = Files.readString(caseDetailsExtendedResource.getFile().toPath());
-        super.setup();
     }
 
     @Nested
@@ -246,14 +229,31 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
         @Test
         void whenCreateCourtCaseByCourtAndCaseWithUnknownCourt_ThenRaise404() {
 
-            final var courtCaseEntity = createCaseDetails(NOT_FOUND_COURT_CODE);
+            final var request = CourtCaseRequest.builder()
+                .caseId("CASE_ID")
+                .caseNo(JSON_CASE_NO)
+                .courtCode(NOT_FOUND_COURT_CODE)
+                .courtRoom("COURT_ROOM")
+                .source("LIBRA")
+                .sessionStartTime(SESSION_START_TIME)
+                .offences(Arrays.asList(
+                        new OffenceRequestResponse("OFFENCE_TITLE1", "OFFENCE_SUMMARY1", null),
+                        new OffenceRequestResponse("OFFENCE_TITLE2", "OFFENCE_SUMMARY2", null)
+                    )
+                )
+                .defendantId(DEFENDANT_ID)
+                .name(NAME)
+                .defendantName(NAME.getFullName())
+                .defendantType(DefendantType.PERSON)
+                .listNo("LIST_NO")
+                .build();
 
             ErrorResponse result = given()
                 .auth()
                 .oauth2(getToken())
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(courtCaseEntity)
+                .body(request)
                 .when()
                 .put(String.format(PUT_CASE_BY_CASENO_PATH, NOT_FOUND_COURT_CODE, JSON_CASE_NO))
                 .then()
@@ -270,14 +270,31 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
         @Test
         void whenCreateCourtCaseByCourtAndCaseWithMismatchCourt_ThenRaise400() {
 
-            final var courtCaseEntity = createCaseDetails(COURT_CODE);
+            final var request = CourtCaseRequest.builder()
+                .caseId("CASE_ID")
+                .caseNo(JSON_CASE_NO)
+                .courtCode(COURT_CODE)
+                .courtRoom("COURT_ROOM")
+                .source("LIBRA")
+                .sessionStartTime(SESSION_START_TIME)
+                .offences(Arrays.asList(
+                        new OffenceRequestResponse("OFFENCE_TITLE1", "OFFENCE_SUMMARY1", null),
+                        new OffenceRequestResponse("OFFENCE_TITLE2", "OFFENCE_SUMMARY2", null)
+                    )
+                )
+                .defendantId(DEFENDANT_ID)
+                .name(NAME)
+                .defendantName(NAME.getFullName())
+                .defendantType(DefendantType.PERSON)
+                .listNo("LIST_NO")
+                .build();
 
             given()
                 .auth()
                 .oauth2(getToken())
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(courtCaseEntity)
+                .body(request)
                 .when()
                 .put(String.format(PUT_CASE_BY_CASENO_PATH, "NWS", "99999"))
                 .then()
@@ -290,6 +307,30 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
     @Nested
     class PutByCaseIdExtended {
         private static final String JSON_CASE_ID = "ac24a1be-939b-49a4-a524-21a3d228f8bc";
+
+        @Value("classpath:integration/request/PUT_courtCaseExtended_update_invalid.json")
+        private Resource invalidExtendedCaseResource;
+
+        @Value("classpath:integration/request/PUT_courtCaseExtended_success.json")
+        private Resource caseDetailsExtendedResource;
+
+        // Note: There's a bizarre stack overflow bug happening when using the same Resource pattern as above which is why
+        // this file is being read in a different way. There's an urgent fix required so committing as is to fix later.
+        // CF - tried this again after moving resources into the nested classes and exactly the same thing happens
+        // TODO: tidy this up
+        // BEGIN
+        // @Value("classpath:integration/request/PUT_courtCaseExtended_update_success.json")
+        // private Resource caseDetailsExtendedUpdateResource;
+        private final File caseDetailsExtendedUpdate = new File(getClass().getClassLoader().getResource("integration/request/PUT_courtCaseExtended_update_success.json").getFile());
+        // END
+
+        private String caseDetailsExtendedJson;
+
+        @BeforeEach
+        void beforeEach() throws Exception {
+            caseDetailsExtendedJson = Files.readString(caseDetailsExtendedResource.getFile().toPath());
+        }
+
         @Test
         void whenCreateCaseExtendedByCaseId_thenCreateNewRecord() {
 
@@ -325,13 +366,14 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
         }
 
         @Test
-        void givenExistingCase_whenCreateCaseExtendedByCaseId_thenCreateNewRecord() {
+        void givenExistingCase_whenCreateCaseExtendedByCaseId_thenCreateNewRecord() throws IOException {
+            final var caseDetailsExtendedUpdateJson = FileUtils.readFileToString(caseDetailsExtendedUpdate, "UTF-8");
             given()
                 .auth()
                 .oauth2(getToken())
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(caseDetailsExtendedUpdateResource)
+                .body(caseDetailsExtendedUpdateJson)
                 .when()
                 .put(String.format("/case/%s/extended", "3db9d70b-10a2-49d1-b74d-379f2db74862"))
                 .then()
@@ -380,6 +422,23 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .then()
                 .statusCode(400)
                 .body("developerMessage", equalTo("Case Id " + ALTERNATIVE_CASE_ID + " does not match with value from body " + JSON_CASE_ID))
+            ;
+        }
+        @Test
+        void givenInvalidRequestBody_whenCreateCourtCase_ThenRaise400() throws IOException {
+
+            final var invalidJson = Files.readString(invalidExtendedCaseResource.getFile().toPath());
+
+            given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(invalidJson)
+                .when()
+                .put(String.format("/case/%s/extended", "1db2c76c-31a5-4b53-a46a-00681809515e"))
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
             ;
         }
     }
@@ -597,6 +656,30 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .body("developerMessage", equalTo("Court " + unknownCourt + " not found"))
             ;
         }
+
+        @Test
+        void givenInvalidRequest_whenUpdateCaseDataByCaseIdAndDefendantId_thenRaise400() {
+
+            final var caseId = "3db9d70b-10a2-49d1-b74d-379f2db74862";
+            final var defendantIdToUpdate = "1263de26-4a81-42d3-a798-bad802433318";
+
+            var updatedJson = caseDetailsJson
+                .replace("\"courtCode\": \"" + COURT_CODE + "\"", "\"courtCode\": \"  \"")
+                ;
+
+            given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(updatedJson)
+                .when()
+                .put(String.format(PUT_BY_CASEID_AND_DEFENDANTID_PATH, caseId, defendantIdToUpdate))
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+            ;
+        }
+
     }
 
     @Nested

@@ -23,9 +23,9 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NAME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_1;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_2;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NO_RECORD_DESCRIPTION;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PNC;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PRE_SENTENCE_ACTIVITY;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SUSPENDED_SENTENCE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.TERMINATION_DATE;
 
@@ -42,7 +42,7 @@ class CourtCaseRequestTest {
                                                             .courtRoom("COURT_ROOM")
                                                             .source("LIBRA")
                                                             .sessionStartTime(SESSION_START_TIME)
-                                                            .probationStatus(PROBATION_STATUS)
+                                                            .probationStatus(NO_RECORD_DESCRIPTION)
                                                             .previouslyKnownTerminationDate(TERMINATION_DATE)
                                                             .suspendedSentenceOrder(SUSPENDED_SENTENCE)
                                                             .breach(BREACH)
@@ -76,7 +76,7 @@ class CourtCaseRequestTest {
         assertThat(entity.getCourtRoom()).isEqualTo("COURT_ROOM");
         assertThat(entity.getSourceType()).isSameAs(SourceType.LIBRA);
         assertThat(entity.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
-        assertThat(entity.getProbationStatus()).isEqualTo(PROBATION_STATUS);
+        assertThat(entity.getProbationStatus()).isEqualTo(ProbationStatus.NO_RECORD.getName());
         assertThat(entity.getPreviouslyKnownTerminationDate()).isEqualTo(TERMINATION_DATE);
         assertThat(entity.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE);
         assertThat(entity.getBreach()).isEqualTo(BREACH);
@@ -128,7 +128,7 @@ class CourtCaseRequestTest {
             .line5("LINE5")
             .postcode("POSTCODE")
             .build();
-        final var expectedDefendant = EntityHelper.aDefendantEntity(address);
+        final var expectedDefendant = EntityHelper.aDefendantEntity(address).withProbationStatus(ProbationStatus.NO_RECORD.name());
         assertThat(entity.getDefendants().get(0))
             .usingRecursiveComparison()
             .ignoringFields("id", "courtCase", "offences")

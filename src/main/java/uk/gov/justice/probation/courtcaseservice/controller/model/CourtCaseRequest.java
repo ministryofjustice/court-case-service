@@ -1,5 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,24 +34,34 @@ import java.util.stream.IntStream;
 @AllArgsConstructor
 public class CourtCaseRequest {
     static final SourceType DEFAULT_SOURCE = SourceType.LIBRA;
+    @NotBlank
     private final String caseId;
     private final String caseNo;
+    @NotBlank
     private final String courtCode;
+    @NotBlank
     private final String courtRoom;
     private final String source;
+    @NotNull
     private final LocalDateTime sessionStartTime;
     private final String probationStatus;
     private final LocalDate previouslyKnownTerminationDate;
     private final Boolean suspendedSentenceOrder;
     private final Boolean breach;
     private final Boolean preSentenceActivity;
+    @Valid
+    @NotEmpty
     private final List<OffenceRequestResponse> offences;
+    @NotNull
     private final NamePropertiesEntity name;
+    @NotBlank
     private final String defendantName;
     private final AddressRequestResponse defendantAddress;
     private final LocalDate defendantDob;
     private final String defendantSex;
+    @NotNull
     private final DefendantType defendantType;
+    // This may be null in the CourtCaseRequest because it is assigned when null before saving
     private final String defendantId;
     private final String crn;
     private final String pnc;
@@ -164,7 +178,7 @@ public class CourtCaseRequest {
             .cro(cro)
             .pnc(pnc)
             .awaitingPsr(awaitingPsr)
-            .probationStatus(probationStatus)
+            .probationStatus(ProbationStatus.of(probationStatus).name())
             .preSentenceActivity(preSentenceActivity)
             .previouslyKnownTerminationDate(previouslyKnownTerminationDate)
             .breach(breach)

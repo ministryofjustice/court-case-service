@@ -16,10 +16,10 @@ public enum ProbationStatus {
         this.name = name;
     }
 
-    public static ProbationStatus of(String probationStatus) {
-        probationStatus = probationStatus == null ? DEFAULT.name() : probationStatus.toUpperCase();
+    public static ProbationStatus of(String status) {
+        final var probationStatus = status == null ? DEFAULT.name() : status.trim().toUpperCase();
         try {
-            return ProbationStatus.valueOf(probationStatus);
+            return ProbationStatus.valueOf(probationStatus.replaceAll(" ", "_"));
         }
         catch (RuntimeException ex) {
             return ProbationStatus.DEFAULT;

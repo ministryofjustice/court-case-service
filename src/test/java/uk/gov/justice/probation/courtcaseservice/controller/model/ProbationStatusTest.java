@@ -25,4 +25,12 @@ class ProbationStatusTest {
         assertThat(ProbationStatus.of("")).isSameAs(ProbationStatus.NO_RECORD);
         assertThat(ProbationStatus.of(null)).isSameAs(ProbationStatus.NO_RECORD);
     }
+
+    @Test
+    void whenStringValuesWithSpaces_thenReturnEnumValue() {
+        assertThat(ProbationStatus.of("current")).isSameAs(ProbationStatus.CURRENT);
+        assertThat(ProbationStatus.of("not sentenced")).isSameAs(ProbationStatus.NOT_SENTENCED);
+        assertThat(ProbationStatus.of("previously known")).isSameAs(ProbationStatus.PREVIOUSLY_KNOWN);
+        assertThat(ProbationStatus.of("No Record")).isSameAs(ProbationStatus.NO_RECORD);
+    }
 }

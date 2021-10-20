@@ -1,11 +1,10 @@
 {
-  "courtCode": "B14LO",
-  "caseNo": "1700030000",
-  "caseId": "ac24a1be-939b-49a4-a524-21a3d228f8bc",
+  "courtCode": "B33HU",
+  "caseNo": "1800028900",
+  "caseId": "1db2c76c-31a5-4b53-a46a-00681809515e",
   "source": "COMMON_PLATFORM",
   "hearingDays": [
     {
-      "courtCode": "B14LO",
       "courtRoom": "1",
       "sessionStartTime": "2019-12-14T09:00:00",
       "listNo": "1st"
@@ -15,33 +14,18 @@
     {
       "name": {
         "title": "Mr",
-        "forename1": "Dylan",
-        "forename2": "Adam",
-        "surname": "ARMSTRONG"
+        "forename1": "John",
+        "surname": "Peel"
       },
-      "dateOfBirth": "1958-12-14",
       "address": {
         "line1": "27",
         "line2": "Elm Place",
         "postcode": "ad21 5dr",
         "line3": "Bangor"
       },
-      "probationStatus": "PREVIOUSLY_KNOWN",
       "type": "PERSON",
-      "sex": "M",
-      "crn": "X320741",
-      "pnc": "A/1234560BA",
-      "cro": "99999",
-      "defendantId": "d1eefed2-04df-11ec-b2d8-0242ac130002",
-      "previouslyKnownTerminationDate": "2018-06-24",
-      "suspendedSentenceOrder": true,
-      "breach": true,
-      "preSentenceActivity": true,
-      "awaitingPsr": true,
       "offences": [
         {
-          "offenceTitle": "Theft from a shop",
-          "offenceSummary": "On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.",
           "act": "Contrary to section 1(1) and 7 of the Theft Act 1968."
         },
         {

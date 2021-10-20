@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.application;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -62,6 +63,11 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<ErrorResponse> handle(ForbiddenException e) {
         return responseEntityFrom(e, FORBIDDEN);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handle(MethodArgumentNotValidException e) {
+        return responseEntityFrom(e, BAD_REQUEST);
     }
 
     public ResponseEntity<ErrorResponse> responseEntityFrom(Exception exception, HttpStatus status) {

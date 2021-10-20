@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.application;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.probation.courtcaseservice.controller.ErrorResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
@@ -81,6 +82,15 @@ class ApplicationExceptionHandlerTest {
         ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(new ForbiddenException(THE_MESSAGE));
 
         assertGoodErrorResponse(response, HttpStatus.FORBIDDEN, THE_MESSAGE);
+    }
+
+    @Test
+    void whenMethodArgumentNotValidException_thenReturnAppropriateErrorResponse() {
+        final var exception = mock(MethodArgumentNotValidException.class);
+        when(exception.getMessage()).thenReturn(THE_MESSAGE);
+        ResponseEntity<ErrorResponse> response = applicationExceptionHandler.handle(exception);
+
+        assertGoodErrorResponse(response, HttpStatus.BAD_REQUEST, THE_MESSAGE);
     }
 
     private void assertGoodErrorResponse(ResponseEntity<ErrorResponse> response, HttpStatus httpStatus, String message) {

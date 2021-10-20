@@ -1,5 +1,4 @@
 BEGIN;
-    drop  extension IF exists "uuid-ossp";
     CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
     alter table DEFENDANT add column DEFENDANT_ID UUID;
 

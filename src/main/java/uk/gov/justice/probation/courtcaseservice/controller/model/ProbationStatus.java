@@ -24,7 +24,7 @@ public enum ProbationStatus {
             return ProbationStatus.valueOf(probationStatus.replaceAll(" ", "_"));
         }
         catch (RuntimeException ex) {
-            log.error("Unable to map value of {} to a known ProbationStatus enum value", status);
+            log.error("Unable to map {} to a known ProbationStatus enum value", status, ex);
             return ProbationStatus.DEFAULT;
         }
     }

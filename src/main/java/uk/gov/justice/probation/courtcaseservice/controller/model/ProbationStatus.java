@@ -1,7 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public enum ProbationStatus {
     CURRENT("Current"),
     PREVIOUSLY_KNOWN("Previously known"),
@@ -22,6 +24,7 @@ public enum ProbationStatus {
             return ProbationStatus.valueOf(probationStatus.replaceAll(" ", "_"));
         }
         catch (RuntimeException ex) {
+            log.error("Unable to map value of {} to a known ProbationStatus enum value", status);
             return ProbationStatus.DEFAULT;
         }
     }

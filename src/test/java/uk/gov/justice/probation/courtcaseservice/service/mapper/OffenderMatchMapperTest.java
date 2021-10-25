@@ -1,8 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.MatchIdentifiers;
@@ -12,10 +9,13 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.service.model.MatchType;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 
@@ -46,8 +46,6 @@ class OffenderMatchMapperTest {
         var matchesEntity = OffenderMatchMapper.newGroupedMatchesOf(groupedOffenderMatchesRequest, courtCaseEntity);
 
         assertThat(matchesEntity.getId()).isNull();
-        assertThat(matchesEntity.getCourtCode()).isEqualTo(COURT_CODE);
-        assertThat(matchesEntity.getCaseNo()).isEqualTo(CASE_NO);
 
         assertThat(matchesEntity.getOffenderMatches()).hasSize(2);
         checkMatches(matchesEntity.getOffenderMatches().get(0), matchesEntity.getOffenderMatches().get(1), matchesEntity);
@@ -62,8 +60,6 @@ class OffenderMatchMapperTest {
         var matchesEntity = OffenderMatchMapper.newGroupedMatchesOf(DEFENDANT_ID, groupedOffenderMatchesRequest, courtCaseEntity);
 
         assertThat(matchesEntity.getId()).isNull();
-        assertThat(matchesEntity.getCourtCode()).isEqualTo(COURT_CODE);
-        assertThat(matchesEntity.getCaseNo()).isEqualTo(CASE_NO);
         assertThat(matchesEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
         assertThat(matchesEntity.getCaseId()).isEqualTo(CASE_ID);
 
@@ -94,8 +90,6 @@ class OffenderMatchMapperTest {
             .pnc("PNC2")
             .build();
         var existingEntity = GroupedOffenderMatchesEntity.builder()
-            .courtCode(COURT_CODE)
-            .caseNo(CASE_NO)
             .id(99L)
             .offenderMatches(new ArrayList<>() {{ add(offenderMatchEntity); }})
             .build();
@@ -107,8 +101,6 @@ class OffenderMatchMapperTest {
 
         assertThat(matchesEntity.getOffenderMatches()).hasSize(1);
         assertThat(matchesEntity).isSameAs(existingEntity);
-        assertThat(matchesEntity.getCourtCode()).isSameAs(COURT_CODE);
-        assertThat(matchesEntity.getCaseNo()).isSameAs(CASE_NO);
 
         var first = matchesEntity.getOffenderMatches().get(0);
         assertThat(first.getGroup()).isEqualTo(matchesEntity);
@@ -131,8 +123,6 @@ class OffenderMatchMapperTest {
             .pnc("PNC2")
             .build();
         var existingEntity = GroupedOffenderMatchesEntity.builder()
-            .courtCode(COURT_CODE)
-            .caseNo(CASE_NO)
             .id(99L)
             .offenderMatches(new ArrayList<>() {{ add(offenderMatchEntity); }})
             .build();
@@ -144,8 +134,6 @@ class OffenderMatchMapperTest {
 
         assertThat(matchesEntity.getOffenderMatches()).hasSize(1);
         assertThat(matchesEntity).isSameAs(existingEntity);
-        assertThat(matchesEntity.getCourtCode()).isSameAs(COURT_CODE);
-        assertThat(matchesEntity.getCaseNo()).isSameAs(CASE_NO);
         assertThat(matchesEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
         assertThat(matchesEntity.getCaseId()).isEqualTo(CASE_ID);
 

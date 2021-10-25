@@ -43,13 +43,6 @@ public class OffenderMatchService {
         this.offenderRestClient = offenderRestClientFactory.build();
     }
 
-    public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatches(String courtCode, String caseNo, GroupedOffenderMatchesRequest offenderMatches) {
-        return Mono.just(offenderMatchRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
-            .map(existingGroup -> OffenderMatchMapper.update(existingGroup, offenderMatches))
-            .orElseGet(() -> create(courtCode, caseNo, offenderMatches)))
-            .map(groupedOffenderMatchesEntity -> offenderMatchRepository.save(groupedOffenderMatchesEntity));
-    }
-
     public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatchesByDefendant(String caseId, String defendantId, GroupedOffenderMatchesRequest offenderMatches) {
         return Mono.just(offenderMatchRepository.findByCaseIdAndDefendantId(caseId, defendantId)
             .map(existingGroup -> OffenderMatchMapper.update(caseId, defendantId, existingGroup, offenderMatches))
@@ -67,16 +60,7 @@ public class OffenderMatchService {
         return OffenderMatchMapper.newGroupedMatchesOf(defendantId, offenderMatches, courtCaseEntity);
     }
 
-    public Mono<GroupedOffenderMatchesEntity> getGroupedMatches(String courtCode, String caseNo, Long groupId) {
-        return Mono.justOrEmpty(offenderMatchRepository.findById(groupId))
-                .map(groupedOffenderMatchesEntity -> {
-                    if (!caseNo.equals(groupedOffenderMatchesEntity.getCaseNo()) || !courtCode.equals(groupedOffenderMatchesEntity.getCourtCode())) {
-                        throw new EntityNotFoundException(String.format("Grouped Matches %s not found for court %s and caseNo %s", groupId, courtCode, caseNo));
-                    }
-                    return groupedOffenderMatchesEntity;
-                });
-    }
-
+    // TODO: Do something with this defendantId?
     public Mono<GroupedOffenderMatchesEntity> getGroupedMatchesByCaseId(String caseId, String defendantId, Long groupId) {
         return Mono.justOrEmpty(offenderMatchRepository.findById(groupId))
             .map(groupedOffenderMatchesEntity -> {
@@ -85,21 +69,6 @@ public class OffenderMatchService {
                 }
                 return groupedOffenderMatchesEntity;
             });
-    }
-
-    public OffenderMatchDetailResponse getOffenderMatchDetails(String courtCode, String caseNo) {
-        courtCaseService.getCaseByCaseNumber(courtCode, caseNo);    // Throw EntityNotFound if case does not exist
-        List<OffenderMatchDetail> offenderMatchDetails = getOffenderMatches(courtCode, caseNo)
-            .map(GroupedOffenderMatchesEntity::getOffenderMatches)
-            .map(offenderMatchEntities -> offenderMatchEntities
-                    .stream()
-                    .map(OffenderMatchEntity::getCrn)
-                    .map(this::getOffenderMatchDetail)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList())
-            ).orElse(Collections.emptyList());
-
-        return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchDetails).build();
     }
 
     public OffenderMatchDetailResponse getOffenderMatchDetailsByCaseIdAndDefendantId(String caseId, String defendantId) {
@@ -117,16 +86,8 @@ public class OffenderMatchService {
         return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchDetails).build();
     }
 
-    private Optional<GroupedOffenderMatchesEntity> getOffenderMatches(String courtCode, String caseNo) {
-        return offenderMatchRepository.findByCourtCodeAndCaseNo(courtCode, caseNo);
-    }
-
     private Optional<GroupedOffenderMatchesEntity> getOffenderMatchesByCaseIdAndDefendantId(String caseId, String defendantId) {
         return offenderMatchRepository.findByCaseIdAndDefendantId(caseId, defendantId);
-    }
-
-    public Optional<Integer> getMatchCount(String courtCode, String caseNo) {
-        return offenderMatchRepository.getMatchCount(courtCode, caseNo);
     }
 
     public Optional<Integer> getMatchCountByCaseIdAndDefendant(String caseId, String defendantId) {

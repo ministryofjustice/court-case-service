@@ -1,13 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.applicationinsights.boot.dependencies.apachecommons.io.FileUtils;
 import io.restassured.http.ContentType;
@@ -22,14 +14,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
-import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,18 +34,14 @@ import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_SEX;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NAME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_1;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_2;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SESSION_START_TIME;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
@@ -68,10 +59,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
     @Autowired
     GroupedOffenderMatchRepository matchRepository;
 
-    private static final String PUT_CASE_BY_CASENO_PATH = "/court/%s/case/%s";
     private static final String PUT_BY_CASEID_AND_DEFENDANTID_PATH = "/case/%s/defendant/%s";
-    private static final String CRN = "X320741";
     private static final String PNC = "A/1234560BA";
+    private static final String CRN = "X320741";
     private static final String COURT_ROOM = "1";
     private static final AddressPropertiesEntity ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "Bangor", null, null, "ad21 5dr");
     private static final String NOT_FOUND_COURT_CODE = "LPL";
@@ -90,218 +80,6 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
     @BeforeEach
     void beforeEach() throws Exception {
         caseDetailsJson = Files.readString(caseDetailsResource.getFile().toPath());
-    }
-
-    @Nested
-    class PutByCourtAndCaseNo {
-
-        @Test
-        void whenCreateCaseDataByCourtAndCaseNo_ThenCreateNewRecord() {
-
-            var validatableResponse = given()
-                .auth()
-                .oauth2(getToken())
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(caseDetailsJson)
-                .when()
-                .put(String.format(PUT_CASE_BY_CASENO_PATH, COURT_CODE, JSON_CASE_NO))
-                .then()
-                .statusCode(201)
-            ;
-
-            validateResponse(validatableResponse, JSON_CASE_ID, CRN, JSON_CASE_NO);
-        }
-
-        @Test
-        void whenUpdateCaseDataByCourtAndCaseNo_ThenUpdate() {
-
-            createCase();
-
-            final var updatedJson = caseDetailsJson.replace("\"courtRoom\": \"1\"", "\"courtRoom\": \"2\"");
-
-            given()
-                .auth()
-                .oauth2(getToken())
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(updatedJson)
-                .when()
-                .put(String.format(PUT_CASE_BY_CASENO_PATH, COURT_CODE, JSON_CASE_NO))
-                .then()
-                .statusCode(201)
-                .body("caseNo", equalTo(JSON_CASE_NO))
-                .body("courtCode", equalTo(COURT_CODE))
-                .body("crn", equalTo(CRN))
-                .body("pnc", equalTo(PNC))
-                .body("listNo", equalTo(LIST_NO))
-                .body("defendantDob", equalTo(LocalDate.of(1958, 12, 14).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-                .body("defendantSex", equalTo(DEFENDANT_SEX))
-                .body("defendantId", notNullValue())
-                .body("nationality1", equalTo(NATIONALITY_1))
-                .body("nationality2", equalTo(NATIONALITY_2))
-                .body("courtRoom", equalTo("2"))
-                .body("probationStatus", equalTo(PROBATION_STATUS))
-                .body("sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2018, 6, 24).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-                .body("suspendedSentenceOrder", equalTo(true))
-                .body("breach", equalTo(true))
-                .body("preSentenceActivity", equalTo(true))
-                .body("defendantName", equalTo(DEFENDANT_NAME))
-                .body("defendantAddress.line1", equalTo(ADDRESS.getLine1()))
-                .body("defendantAddress.line2", equalTo(ADDRESS.getLine2()))
-                .body("defendantAddress.line3", equalTo(ADDRESS.getLine3()))
-                .body("defendantAddress.line4", equalTo(null))
-                .body("defendantAddress.line5", equalTo(null))
-                .body("defendantAddress.postcode", equalTo(ADDRESS.getPostcode()))
-                .body("offences", hasSize(2))
-                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
-                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
-                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
-                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
-            ;
-
-        }
-
-        @Test
-        void whenUpdateCaseDataByCourtAndCaseNo_ThenUpdateProbationStatusOnCurrentCasesWithSameCrn() {
-
-            var existingCaseNo = "15000";
-            var newCaseNo = "15005";
-            var crn = "X320747";
-            var updatedJson = caseDetailsJson
-                .replace("\"caseNo\": \"1700028914\"", "\"caseNo\": \"" + newCaseNo + "\"")
-                .replace("\"crn\": \"X320741\"", "\"crn\": \"" + crn + "\"")
-                ;
-
-            final var preUpdateCourtCase = courtCaseRepository.findByCourtCodeAndCaseNo("B10JQ", existingCaseNo);
-            assertThat(preUpdateCourtCase)
-                .map(CourtCaseEntity::getProbationStatus)
-                .hasValue("No record");
-
-            // Create
-            given()
-                .auth()
-                .oauth2(getToken())
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(updatedJson)
-                .when()
-                .put(String.format(PUT_CASE_BY_CASENO_PATH, COURT_CODE, newCaseNo))
-                .then()
-                .statusCode(201)
-                .body("caseNo", equalTo(newCaseNo))
-                .body("crn", equalTo(crn))
-                .body("probationStatus", equalTo("Previously known"))
-            ;
-
-            final var courtCaseEntity = courtCaseRepository.findByCourtCodeAndCaseNo("B10JQ", existingCaseNo);
-            assertThat(courtCaseEntity)
-                .map(CourtCaseEntity::getProbationStatus)
-                .hasValue("PREVIOUSLY_KNOWN");
-        }
-
-        @Test
-        void givenNullCrn_whenUpdateCaseDataByCourtAndCaseNo_ThenDoNotUpdateOtherStatuses() {
-
-            var newCaseNo = "15005";
-            var updatedJson = caseDetailsJson
-                .replace("\"caseNo\": \"1700028914\"", "\"caseNo\": \"" + newCaseNo + "\"")
-                .replace("\"crn\": \"X320741\",", "")
-                ;
-
-            // Create
-            given()
-                .auth()
-                .oauth2(getToken())
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(updatedJson)
-                .when()
-                .put(String.format(PUT_CASE_BY_CASENO_PATH, COURT_CODE, newCaseNo))
-                .then()
-                .statusCode(201)
-                .body("caseNo", equalTo(newCaseNo))
-                .body("probationStatus", equalTo("Previously known"))
-            ;
-        }
-
-        @Test
-        void whenCreateCourtCaseByCourtAndCaseWithUnknownCourt_ThenRaise404() {
-
-            final var request = CourtCaseRequest.builder()
-                .caseId("CASE_ID")
-                .caseNo(JSON_CASE_NO)
-                .courtCode(NOT_FOUND_COURT_CODE)
-                .courtRoom("COURT_ROOM")
-                .source("LIBRA")
-                .sessionStartTime(SESSION_START_TIME)
-                .offences(Arrays.asList(
-                        new OffenceRequestResponse("OFFENCE_TITLE1", "OFFENCE_SUMMARY1", null),
-                        new OffenceRequestResponse("OFFENCE_TITLE2", "OFFENCE_SUMMARY2", null)
-                    )
-                )
-                .defendantId(DEFENDANT_ID)
-                .name(NAME)
-                .defendantName(NAME.getFullName())
-                .defendantType(DefendantType.PERSON)
-                .listNo("LIST_NO")
-                .build();
-
-            ErrorResponse result = given()
-                .auth()
-                .oauth2(getToken())
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(request)
-                .when()
-                .put(String.format(PUT_CASE_BY_CASENO_PATH, NOT_FOUND_COURT_CODE, JSON_CASE_NO))
-                .then()
-                .statusCode(404)
-                .extract()
-                .body()
-                .as(ErrorResponse.class);
-
-            assertThat(result.getDeveloperMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
-            assertThat(result.getUserMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
-            assertThat(result.getStatus()).isEqualTo(404);
-        }
-
-        @Test
-        void whenCreateCourtCaseByCourtAndCaseWithMismatchCourt_ThenRaise400() {
-
-            final var request = CourtCaseRequest.builder()
-                .caseId("CASE_ID")
-                .caseNo(JSON_CASE_NO)
-                .courtCode(COURT_CODE)
-                .courtRoom("COURT_ROOM")
-                .source("LIBRA")
-                .sessionStartTime(SESSION_START_TIME)
-                .offences(Arrays.asList(
-                        new OffenceRequestResponse("OFFENCE_TITLE1", "OFFENCE_SUMMARY1", null),
-                        new OffenceRequestResponse("OFFENCE_TITLE2", "OFFENCE_SUMMARY2", null)
-                    )
-                )
-                .defendantId(DEFENDANT_ID)
-                .name(NAME)
-                .defendantName(NAME.getFullName())
-                .defendantType(DefendantType.PERSON)
-                .listNo("LIST_NO")
-                .build();
-
-            given()
-                .auth()
-                .oauth2(getToken())
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(request)
-                .when()
-                .put(String.format(PUT_CASE_BY_CASENO_PATH, "NWS", "99999"))
-                .then()
-                .statusCode(400)
-                .body("developerMessage", equalTo("Case No 99999 and Court Code NWS do not match with values from body 1700028914 and B10JQ"))
-            ;
-        }
     }
 
     @Nested
@@ -682,64 +460,6 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
 
     }
 
-    @Nested
-    class OffenderMatches {
-
-        @Test
-        void whenUpdateCaseDataByCourtAndCaseNo_ThenUpdateOffenderMatchesConfirmedRejectedFlags() {
-
-            final var updatedJson = caseDetailsJson
-                .replace("\"caseNo\": \"1700028914\"", "\"caseNo\": \"1600028913\"")
-                .replace("\"crn\": \"X320741\"", "\"crn\": \"2234\"")
-                .replace("\"pnc\": \"A/1234560BA\"", "\"pnc\": \"223456\"")
-                .replace("\"cro\": \"99999\"", "\"cro\": \"22345\"");
-
-            given()
-                .auth()
-                .oauth2(getToken())
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(updatedJson)
-                .when()
-                .put(String.format(PUT_CASE_BY_CASENO_PATH, COURT_CODE, "1600028913"))
-                .then()
-                .statusCode(201)
-                .body("caseNo", equalTo("1600028913"))
-                .body("crn", equalTo("2234"))
-                .body("pnc", equalTo("223456"))
-            ;
-
-            given()
-                .auth()
-                .oauth2(getToken())
-                .accept(APPLICATION_JSON_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .when()
-                .get("/court/" + COURT_CODE + "/case/1600028913/grouped-offender-matches/9999991")
-                .then()
-                .statusCode(200)
-                .body("offenderMatches", hasSize(3))
-                .body("offenderMatches[1].crn", equalTo("X320741"))
-                .body("offenderMatches[1].confirmed", equalTo(false))
-                .body("offenderMatches[1].rejected", equalTo(true))
-            ;
-
-            given()
-                .auth()
-                .oauth2(getToken())
-                .accept(APPLICATION_JSON_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .when()
-                .get("/court/" + COURT_CODE + "/case/1600028914/grouped-offender-matches/9999992")
-                .then()
-                .statusCode(200)
-                .body("offenderMatches[0].crn", equalTo("3234"))
-                .body("offenderMatches[0].confirmed", equalTo(false))
-                .body("offenderMatches[0].rejected", equalTo(true))
-            ;
-        }
-    }
-
     private void validateResponse(ValidatableResponse validatableResponse, String caseId, String crn, String caseNo) {
         validatableResponse.body("caseNo", equalTo(caseNo))
             .body("caseId", equalTo(caseId))
@@ -777,49 +497,4 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             .body("awaitingPsr", equalTo(true))
         ;
     }
-
-    private CourtCaseEntity createCaseDetails(String courtCode) {
-        return EntityHelper.aCourtCase(null, JSON_CASE_NO, LocalDateTime.now(), PROBATION_STATUS, JSON_CASE_ID, courtCode);
-    }
-
-    private void createCase() {
-
-        given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(caseDetailsJson)
-            .when()
-            .put(String.format(PUT_CASE_BY_CASENO_PATH, COURT_CODE, JSON_CASE_NO))
-            .then()
-            .statusCode(201)
-            .body("caseNo", equalTo(JSON_CASE_NO))
-            .body("crn", equalTo(CRN))
-            .body("courtCode", equalTo(COURT_CODE))
-        ;
-    }
-
-    private void createCase(String caseId, String defendantId) {
-        var updatedJson = caseDetailsJson
-            .replace("\"caseId\": \"571b7172-4cef-435c-9048-d071a43b9dbf\"", "\"caseId\": \"" + caseId + "\"")
-            .replace("\"defendantId\": \"e0056894-e8f8-42c2-ba9a-e41250c3d1a3\"", "\"defendantId\": \"" + defendantId + "\"")
-            ;
-
-        given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(updatedJson)
-            .when()
-            .put(String.format(PUT_BY_CASEID_AND_DEFENDANTID_PATH, caseId, defendantId))
-            .then()
-            .statusCode(201)
-            .body("caseNo", equalTo(JSON_CASE_NO))
-            .body("crn", equalTo(CRN))
-            .body("courtCode", equalTo(COURT_CODE))
-        ;
-    }
-
 }

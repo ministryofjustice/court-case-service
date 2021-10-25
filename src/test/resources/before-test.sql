@@ -154,10 +154,10 @@ INSERT INTO courtcaseservicetest.OFFENCE (ID, COURT_CASE_ID, OFFENCE_TITLE, OFFE
 VALUES (1000002, 1000002, 'Title', 'Summary.', 'ACT.', 2);
 
 
-INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE, CASE_ID, DEFENDANT_ID)
-VALUES (9999991, '1600028913','B10JQ', '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', '40db17d6-04db-11ec-b2d8-0242ac130002');
-INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE, CASE_ID, DEFENDANT_ID)
-VALUES (9999992, '1600028914','B10JQ', '1f93aa0a-7e46-4885-a1cb-f25a4be33a56', '7a320a46-037c-481c-ab1e-dbfab62af4d6');
+INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_ID, DEFENDANT_ID)
+VALUES (9999991, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', '40db17d6-04db-11ec-b2d8-0242ac130002');
+INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_ID, DEFENDANT_ID)
+VALUES (9999992, '1f93aa0a-7e46-4885-a1cb-f25a4be33a56', '7a320a46-037c-481c-ab1e-dbfab62af4d6');
 
 
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
@@ -172,8 +172,8 @@ VALUES (false, true, '3234', '32345', 'NAME_DOB', '323456', 9999992);
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (false, true, 'CRN123', '32345', 'NAME_DOB', 'PNC12/456', 9999992);
 
-INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE, CASE_ID, DEFENDANT_ID)
-VALUES (9999993, '1000002', 'B10JQ', '1000002', '40db17d6-04db-11ec-b2d8-0242ac130002');
+INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_ID, DEFENDANT_ID)
+VALUES (9999993, '1000002', '40db17d6-04db-11ec-b2d8-0242ac130002');
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (false, false, 'X980123', 'CRO1', 'NAME_DOB', '323456', 9999993);
 
@@ -223,8 +223,8 @@ VALUES (-16001, 16001, 'B10JQ', 10, '2020-02-29', '14:00:00', '1st');
 INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, address, type, probation_status)
 VALUES (-16002, 16001, 'bfd7df09-4177-475e-b16f-0ace34a5ef2f', 'ACME MOTORS LTD', '{"surname": "ACME MOTORS LTD"}', '{"line1": "Freemans Common", "line2": "Someplace", "postcode": "XX1 1XX", "line3": "Leicester"}', 'ORGANISATION', 'NO_RECORD');
 
-INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_ID, DEFENDANT_ID, CASE_NO, COURT_CODE)
-VALUES (16000, '683bcde4-611f-4487-9833-f68090507b74','005ae89b-46e9-4fa5-bb5e-d117011cab32', 16000, 'B10JQ');
+INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_ID, DEFENDANT_ID)
+VALUES (16000, '683bcde4-611f-4487-9833-f68090507b74','005ae89b-46e9-4fa5-bb5e-d117011cab32');
 
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (false, false, 'X980123', 'CRO1', 'NAME_DOB', 'A/160000BA', 16000);
@@ -273,8 +273,8 @@ INSERT INTO courtcaseservicetest.DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUM
 VALUES (-3000001, -3000001, 'Jessica PEEL Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);
 
 -- Two matches for Mr John PEEL
-INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE, CASE_ID, DEFENDANT_ID)
-VALUES (-1800028900, '1800028900', 'B33HU', '3db9d70b-10a2-49d1-b74d-379f2db74862', '1263de26-4a81-42d3-a798-bad802433318');
+INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_ID, DEFENDANT_ID)
+VALUES (-1800028900, '3db9d70b-10a2-49d1-b74d-379f2db74862', '1263de26-4a81-42d3-a798-bad802433318');
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (false, false, 'X320654', 'NAME_DOB', 'A323456', -1800028900);
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, MATCH_TYPE, PNC, GROUP_ID)
@@ -282,8 +282,8 @@ VALUES (false, false, 'X999999', 'NAME_DOB', 'B323456', -1800028900);
 --
 
 -- One match for Jessica PEEL
-INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_NO, COURT_CODE, CASE_ID, DEFENDANT_ID)
-VALUES (-1800028901, '1800028900', 'B33HU', '3db9d70b-10a2-49d1-b74d-379f2db74862', '6f014c2e-8be3-4a12-a551-8377bd31a7b8');
+INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_ID, DEFENDANT_ID)
+VALUES (-1800028901, '3db9d70b-10a2-49d1-b74d-379f2db74862', '6f014c2e-8be3-4a12-a551-8377bd31a7b8');
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (false, false, 'X320654', 'NAME_DOB', 'A323456', -1800028901);
 --

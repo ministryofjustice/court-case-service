@@ -23,12 +23,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -122,14 +119,6 @@ class CourtCaseResponseMapperTest {
     }
 
     @Test
-    void shouldMapEntityToResponse() {
-
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity.withCaseNo(CASE_NO).withSourceType(SourceType.LIBRA), 20, HEARING_DATE);
-
-        assertCaseResponse(courtCaseResponse, CASE_NO, SourceType.LIBRA);
-    }
-
-    @Test
     void givenSeparateDefendant_whenMap_thenReturnMultipleResponses() {
         // Build defendant with deliberately different values from the defaults
         var defendantOffence = DefendantOffenceEntity.builder()
@@ -195,85 +184,8 @@ class CourtCaseResponseMapperTest {
     }
 
     @Test
-    void whenNoCaseNoRequired_shouldMapEntityToResponse() {
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 20, HEARING_DATE);
-
-        assertCaseResponse(courtCaseResponse, null);
-    }
-
-    @Test
-    void shouldSetCreatedTodayToTrueIfCreatedToday() {
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(buildCourtCaseEntity(offences, defendants, hearings, LocalDateTime.now()), 1, HEARING_DATE);
-        assertThat(courtCaseResponse.isCreatedToday()).isTrue();
-    }
-
-    @Test
-    void shouldMapOffencesToResponse() {
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 1, HEARING_DATE);
-
-        assertThat(courtCaseResponse.getOffences().size()).isEqualTo(2);
-
-        var firstOffence = courtCaseResponse.getOffences().get(0);
-
-        assertThat(firstOffence.getAct()).isEqualTo(ACT);
-        assertThat(firstOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE);
-        assertThat(firstOffence.getOffenceSummary()).isEqualTo(OFFENCE_SUMMARY);
-
-        var secondOffence = courtCaseResponse.getOffences().get(1);
-
-        assertThat(secondOffence.getAct()).isEqualTo(ACT + "2");
-        assertThat(secondOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE + "2");
-        assertThat(secondOffence.getOffenceSummary()).isEqualTo(OFFENCE_SUMMARY + "2");
-    }
-
-    @Test
-    void shouldReflectOffenceSequenceNumberInResponseOrdering() {
-        var reorderedOffences = offences.stream()
-            .sorted(Comparator.comparing(OffenceEntity::getSequenceNumber))
-            .collect(Collectors.toList());
-        Collections.reverse(reorderedOffences);
-
-        var reorderedCourtCaseEntity = buildCourtCaseEntity(reorderedOffences, defendants, hearings, FIRST_CREATED);
-
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(reorderedCourtCaseEntity, 1, HEARING_DATE);
-
-        var firstOffence = courtCaseResponse.getOffences().get(0);
-        assertThat(firstOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE);
-
-        var secondOffence = courtCaseResponse.getOffences().get(1);
-        assertThat(secondOffence.getOffenceTitle()).isEqualTo(OFFENCE_TITLE + "2");
-    }
-
-    @Test
     void whenNoDefendants_thenGetFirstDefendantId() {
         assertThat(CourtCaseResponseMapper.getDefendantId(null)).isNull();
-    }
-
-    @Test
-    void givenRequestForAlternativeHearingDate_whenGetResponse_thenChooseHearingDetails() {
-
-        final var secondSessionStartTime = LocalDateTime.of(HEARING_DATE.plusDays(1), LocalTime.of(13, 0));
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 1, secondSessionStartTime.toLocalDate());
-
-        assertThat(courtCaseResponse.getHearings()).hasSize(2);
-        assertThat(courtCaseResponse.getCourtCode()).isEqualTo(COURT_CODE);
-        assertThat(courtCaseResponse.getCourtRoom()).isEqualTo("02");
-        assertThat(courtCaseResponse.getListNo()).isEqualTo("91st");
-        assertThat(courtCaseResponse.getSessionStartTime()).isEqualTo(secondSessionStartTime);
-        assertThat(courtCaseResponse.getSession()).isSameAs(CourtSession.AFTERNOON);
-    }
-
-    @Test
-    void givenRequestForNoHearingDate_whenGetResponse_thenChooseFirstHearingDetails() {
-
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, 1, null);
-
-        assertThat(courtCaseResponse.getHearings()).hasSize(2);
-        assertThat(courtCaseResponse.getCourtCode()).isEqualTo(COURT_CODE);
-        assertThat(courtCaseResponse.getCourtRoom()).isEqualTo(COURT_ROOM);
-        assertThat(courtCaseResponse.getListNo()).isEqualTo(LIST_NO);
-        assertThat(courtCaseResponse.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
-        assertThat(courtCaseResponse.getSession()).isSameAs(CourtSession.MORNING);
     }
 
     @Test

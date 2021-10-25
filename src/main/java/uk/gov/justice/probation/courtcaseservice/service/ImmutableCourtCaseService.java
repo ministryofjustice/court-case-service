@@ -102,31 +102,6 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                 .doAfterTerminate(() -> updateOtherProbationStatusForCrnByCaseId(updatedCase.getCrn(), updatedCase.getProbationStatus(), updatedCase.getCaseId()));
     }
 
-    /**
-     * This method is only for saving LIBRA cases where the primary key is based on courtCode and caseNo and where there is only one defendant in each
-     * CourtCaseEntity.
-     *
-     * @deprecated future LIBRA cases will be saved by caseId
-     */
-    @Deprecated(forRemoval = true)
-    @Override
-    public Mono<CourtCaseEntity> createCase(String courtCode, String caseNo, CourtCaseEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
-        validateEntity(courtCode, caseNo, updatedCase);
-        courtCaseRepository.findFirstByCaseNoOrderByCreatedDesc(courtCode, caseNo)
-                .ifPresentOrElse(
-                        (existingCase) -> {
-                            updateOffenderMatches(existingCase, updatedCase);
-                            trackUpdateEvents(updatedCase, existingCase);
-                        },
-                        () -> trackCreateEvents(updatedCase));
-
-        return Mono.just(updatedCase)
-                .map((courtCaseEntity) -> {
-                    log.debug("Saving case {} for court {}", caseNo, courtCode);
-                    return courtCaseRepository.save(courtCaseEntity);
-                })
-                .doAfterTerminate(() -> updateOtherProbationStatusForCrn(updatedCase.getCrn(), updatedCase.getProbationStatus(), updatedCase.getCaseNo()));
-    }
 
     void updateOtherProbationStatusForCrn(String crn, String probationStatus, String caseNo) {
         if (crn != null) {
@@ -247,18 +222,6 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         }
     }
 
-    private void validateEntity(String courtCode, String caseNo, CourtCaseEntity updatedCase) {
-        checkCourtExists(updatedCase.getCourtCode());
-        checkEntityCaseNoAndCourtAgree(courtCode, caseNo, updatedCase);
-    }
-
-    private void checkEntityCaseNoAndCourtAgree(String courtCode, String caseNo, CourtCaseEntity updatedCase) {
-        if (!caseNo.equals(updatedCase.getCaseNo()) || !courtCode.equals(updatedCase.getCourtCode())) {
-            throw new ConflictingInputException(String.format("Case No %s and Court Code %s do not match with values from body %s and %s",
-                    caseNo, courtCode, updatedCase.getCaseNo(), updatedCase.getCourtCode()));
-        }
-    }
-
     private void checkCourtExists(String courtCode) throws EntityNotFoundException {
         courtRepository.findByCourtCode(courtCode)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Court %s not found", courtCode)));
@@ -266,15 +229,6 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     private void updateOffenderMatches(CourtCaseEntity existingCase, CourtCaseEntity updatedCase, String defendantId) {
         final var groupedMatches = matchRepository.findByCaseIdAndDefendantId(updatedCase.getCaseId(), defendantId);
-        groupedMatches
-                .map(GroupedOffenderMatchesEntity::getOffenderMatches)
-                .ifPresent(matches -> matches
-                        .forEach(match -> confirmAndRejectMatches(existingCase, updatedCase, match)));
-        groupedMatches.ifPresent(matchRepository::save);
-    }
-
-    private void updateOffenderMatches(CourtCaseEntity existingCase, CourtCaseEntity updatedCase) {
-        final var groupedMatches = matchRepository.findByCourtCodeAndCaseNo(updatedCase.getCourtCode(), updatedCase.getCaseNo());
         groupedMatches
                 .map(GroupedOffenderMatchesEntity::getOffenderMatches)
                 .ifPresent(matches -> matches

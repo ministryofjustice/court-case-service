@@ -1,21 +1,20 @@
 package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 public class OffenderMatchMapper {
 
     public static GroupedOffenderMatchesEntity newGroupedMatchesOf(GroupedOffenderMatchesRequest offenderMatches, CourtCaseEntity courtCase) {
         var group = GroupedOffenderMatchesEntity.builder()
-            .courtCode(courtCase.getCourtCode())
-            .caseNo(courtCase.getCaseNo())
             .build();
         group.setOffenderMatches(buildOffenderMatchEntities(offenderMatches.getMatches(), group));
         return group;
@@ -23,8 +22,6 @@ public class OffenderMatchMapper {
 
     public static GroupedOffenderMatchesEntity newGroupedMatchesOf(String defendantId, GroupedOffenderMatchesRequest offenderMatches, CourtCaseEntity courtCase) {
         var group = GroupedOffenderMatchesEntity.builder()
-                .courtCode(courtCase.getCourtCode())
-                .caseNo(courtCase.getCaseNo())
                 .defendantId(defendantId)
                 .caseId(courtCase.getCaseId())
                 .build();
@@ -78,6 +75,6 @@ public class OffenderMatchMapper {
                         .cro(offenderMatchRequest.getMatchIdentifiers().getCro())
                         .build()
             )
-            .forEach(newMatch -> {group.getOffenderMatches().add(newMatch);});
+            .forEach(newMatch -> group.getOffenderMatches().add(newMatch));
     }
 }

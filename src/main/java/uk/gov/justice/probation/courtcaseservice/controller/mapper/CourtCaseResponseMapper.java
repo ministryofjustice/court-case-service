@@ -56,49 +56,6 @@ public class CourtCaseResponseMapper {
         return builder.build();
     }
 
-    /**
-     * @deprecated
-     * This maps from defendant fields from the court case entity which will be retired
-     */
-    @Deprecated(forRemoval = true)
-    public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, int matchCount, LocalDate hearingDate) {
-        // Core case-based
-        final var builder = CourtCaseResponse.builder();
-
-        buildCaseFields(builder, courtCaseEntity);
-        buildHearings(builder, courtCaseEntity, hearingDate);
-
-        // Offences
-        builder.offences(mapOffencesFrom(courtCaseEntity.getOffences()));
-
-        // Defendant-based fields
-        builder.crn(courtCaseEntity.getCrn())
-            .pnc(courtCaseEntity.getPnc())
-            .cro(courtCaseEntity.getCro())
-            .previouslyKnownTerminationDate(courtCaseEntity.getPreviouslyKnownTerminationDate())
-            .probationStatus(Optional.ofNullable(courtCaseEntity.getProbationStatus()).map(ProbationStatus::of).orElse(null))
-            .suspendedSentenceOrder(courtCaseEntity.getSuspendedSentenceOrder())
-            .breach(courtCaseEntity.getBreach())
-            .preSentenceActivity(courtCaseEntity.getPreSentenceActivity())
-            .defendantName(courtCaseEntity.getDefendantName())
-            .name(courtCaseEntity.getName())
-            .defendantAddress(courtCaseEntity.getDefendantAddress())
-            .defendantDob(courtCaseEntity.getDefendantDob())
-            .defendantSex(courtCaseEntity.getDefendantSex())
-            .defendantType(courtCaseEntity.getDefendantType())
-            .defendantId(getDefendantId(courtCaseEntity.getDefendants()))
-            .nationality1(courtCaseEntity.getNationality1())
-            .nationality2(courtCaseEntity.getNationality2())
-            .createdToday(LocalDate.now().isEqual(Optional.ofNullable(courtCaseEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()))
-            .numberOfPossibleMatches(matchCount)
-            .awaitingPsr(courtCaseEntity.getAwaitingPsr());
-
-        if (SourceType.LIBRA == courtCaseEntity.getSourceType()) {
-            builder.caseNo(courtCaseEntity.getCaseNo());
-        }
-        return builder.build();
-    }
-
     private static void buildCaseFields(CourtCaseResponseBuilder builder, CourtCaseEntity courtCaseEntity) {
         // Case-based fields
         builder.caseId(courtCaseEntity.getCaseId())
@@ -115,7 +72,7 @@ public class CourtCaseResponseMapper {
 
         var targetHearing = hearings
             .stream()
-            .filter(hearingEntity -> hearingDate == null ? true : hearingDate.isEqual(hearingEntity.getHearingDay()))
+            .filter(hearingEntity -> hearingDate == null || hearingDate.isEqual(hearingEntity.getHearingDay()))
             .findFirst();
 
         // Populate the top level fields with the details from the single hearing

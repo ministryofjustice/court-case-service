@@ -4,7 +4,6 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
@@ -18,8 +17,6 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.controller.OffenderMatchesControllerTest.OFFENDER_MATCHES_DEFENDANT_DETAIL_PATH;
-import static uk.gov.justice.probation.courtcaseservice.controller.OffenderMatchesControllerTest.OFFENDER_MATCHES_DETAIL_PATH;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = BEFORE_TEST_METHOD)
@@ -62,115 +59,6 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
         "    ]\n" +
         "}";
 
-    @Nested
-    class PostMatchRequestCourtCodeAndCaseNo {
-
-        @Test
-        void givenCaseExists_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {
-            String location = given()
-                .auth()
-                .oauth2(getToken())
-                .accept(APPLICATION_JSON_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .body(SINGLE_EXACT_MATCH_BODY)
-                .when()
-                .post("/court/" + COURT_CODE + "/case/1600028913/grouped-offender-matches")
-                .then()
-                .statusCode(201)
-                .header("Location", matchesPattern("/court/" + COURT_CODE + "/case/1600028913/grouped-offender-matches/[0-9]+"))
-                .extract()
-                .header("Location");
-
-            given()
-                .auth()
-                .oauth2(getToken())
-                .accept(APPLICATION_JSON_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .when()
-                .get(location)
-                .then()
-                .statusCode(200)
-                .body("courtCode", equalTo(COURT_CODE))
-                .body("caseNo", equalTo("1600028913"))
-                .body("offenderMatches", hasSize(1))
-                .body("offenderMatches[0].crn", equalTo("X346204"))
-                .body("offenderMatches[0].pnc", equalTo("pnc123"))
-                .body("offenderMatches[0].cro", equalTo("cro456"))
-                .body("offenderMatches[0].matchType", equalTo("NAME_DOB"))
-                .body("offenderMatches[0].confirmed", equalTo(true));
-        }
-
-        @Test
-        void givenNewCase_whenPostMadeToOffenderMatchesWithMultipleMatches_thenReturn201CreatedWithValidLocation() {
-
-            String location = given()
-                .auth()
-                .oauth2(getToken())
-                .accept(APPLICATION_JSON_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .body(MULTIPLE_NON_EXACT_MATCH_BODY)
-                .when()
-                .post("/court/" + COURT_CODE + "/case/1600028913/grouped-offender-matches")
-                .then()
-                .statusCode(201)
-                .header("Location", matchesPattern("/court/" + COURT_CODE + "/case/1600028913/grouped-offender-matches/[0-9]+"))
-                .extract()
-                .header("Location");
-
-            given()
-                .auth()
-                .oauth2(getToken())
-                .accept(APPLICATION_JSON_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .when()
-                .get(location)
-                .then()
-                .statusCode(200)
-                .body("courtCode", equalTo(COURT_CODE))
-                .body("caseNo", equalTo("1600028913"))
-                .body("offenderMatches", hasSize(2))
-                .body("offenderMatches[0].crn", equalTo("X12345"))
-                .body("offenderMatches[0].pnc", equalTo(null))
-                .body("offenderMatches[0].cro", equalTo(null))
-                .body("offenderMatches[0].matchType", equalTo("PARTIAL_NAME"))
-                .body("offenderMatches[0].confirmed", equalTo(false))
-                .body("offenderMatches[0].rejected", equalTo(false))
-                .body("offenderMatches[1].matchType", equalTo("NAME_DOB_ALIAS"))
-            ;
-        }
-
-        @Test
-        void givenCourtDoesNotExist_whenPostMadeToOffenderMatches_thenReturnNotFound() {
-            given()
-                .auth()
-                .oauth2(getToken())
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .body(SINGLE_EXACT_MATCH_BODY)
-                .when()
-                .post("/court/FOO/case/1234567890/grouped-offender-matches")
-                .then()
-                .statusCode(404)
-                .body("userMessage", equalTo("Court FOO not found"))
-                .body("developerMessage", equalTo("Court FOO not found"));
-        }
-
-        @Test
-        void givenCaseDoesNotExist_whenPostMadeToOffenderMatches_thenReturnNotFound() {
-            given()
-                .auth()
-                .oauth2(getToken())
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .body(SINGLE_EXACT_MATCH_BODY)
-                .when()
-                .post("/court/" + COURT_CODE + "/case/1234567890/grouped-offender-matches")
-                .then()
-                .statusCode(404)
-                .body("userMessage", equalTo("Case 1234567890 not found for court " + COURT_CODE))
-                .body("developerMessage", equalTo("Case 1234567890 not found for court " + COURT_CODE));
-        }
-    }
 
     @Nested
     class PostMatchRequestCaseId {
@@ -202,8 +90,6 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                 .get(location)
                 .then()
                 .statusCode(200)
-                .body("courtCode", equalTo(COURT_CODE))
-                .body("caseNo", equalTo("1600028918"))
                 .body("offenderMatches", hasSize(1))
                 .body("offenderMatches[0].crn", equalTo("X346204"))
                 .body("offenderMatches[0].pnc", equalTo("pnc123"))
@@ -241,8 +127,6 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                 .get(location)
                 .then()
                 .statusCode(200)
-                .body("courtCode", equalTo(COURT_CODE))
-                .body("caseNo", equalTo("1600028913"))
                 .body("offenderMatches", hasSize(2))
                 .body("offenderMatches[0].crn", equalTo("X12345"))
                 .body("offenderMatches[0].pnc", equalTo(null))
@@ -282,57 +166,6 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
         private static final String CASE_NO = "1600028913";
         private static final String CASE_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
         private static final String DEFENDANT_ID = "40db17d6-04db-11ec-b2d8-0242ac130002";
-
-        @Test
-        void givenMultipleMatchesOneNotFound_whenGetOffenderDetailMatchByCourtCodeAndCaseNo_thenReturn200() {
-
-            String path = String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, CASE_NO);
-            final var validatableResponse = given()
-                .auth()
-                .oauth2(getToken())
-                .accept(APPLICATION_JSON_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .when()
-                .get(path)
-                .then()
-                .statusCode(200);
-
-            validateBody(validatableResponse);
-
-        }
-
-        @Test
-        void givenMatchWithNoConvictions_whenGetOffenderDetailMatchByCourtCodeAndCaseNo_thenReturn200WithNoMostRecentEvent() {
-
-            String path = String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, "1000002");
-            final var validatableResponse = given()
-                .auth()
-                .oauth2(getToken())
-                .accept(APPLICATION_JSON_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .when()
-                .get(path)
-                .then()
-                .statusCode(200);
-
-            validate(validatableResponse);
-        }
-
-        @Test
-        void givenCaseDoesNotExist_whenGetOffenderDetailMatchByCourtAndCaseNo_thenReturnNotFound() {
-            String path = String.format(OFFENDER_MATCHES_DETAIL_PATH, COURT_CODE, "23456541141414");
-            given()
-                .auth()
-                .oauth2(getToken())
-                .accept(APPLICATION_JSON_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .when()
-                .get(path)
-                .then()
-                .statusCode(404)
-                .body("userMessage", equalTo("Case 23456541141414 not found for court " + COURT_CODE))
-                .body("developerMessage", equalTo("Case 23456541141414 not found for court " + COURT_CODE));
-        }
 
         @Test
         void givenMultipleMatchesOneNotFound_whenGetOffenderDetailMatch_thenReturn200() {

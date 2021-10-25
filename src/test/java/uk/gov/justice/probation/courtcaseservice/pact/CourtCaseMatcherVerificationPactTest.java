@@ -14,14 +14,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
-import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
@@ -31,12 +30,11 @@ import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.Month;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @Provider("court-case-service")
@@ -61,33 +59,25 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
         context.verifyInteraction();
     }
 
-    @State({"a case does not exist for court B10JQ and case number 1600028914"})
-    void putCase() {
-        var courtCaseEntity = EntityHelper.aCourtCaseEntity("X340741", "1600028914");
-        when(courtCaseService.createCase(eq("B10JQ"), eq("1600028914"), any(CourtCaseEntity.class))).thenReturn(Mono.just(courtCaseEntity));
-    }
-
-    @State({"a case does not exist with grouped offender matches"})
-    void postGroupedOffenderMatches() {
-        when(offenderMatchService.createOrUpdateGroupedMatches(eq("B10JQ"), eq("1600028913"), any(GroupedOffenderMatchesRequest.class)))
-            .thenReturn(Mono.just(GroupedOffenderMatchesEntity.builder().id(1234L).build()));
-    }
 
     @State({"a case exists for court B10JQ and case number 1600028913"})
     void getCourtCase() {
         var courtCaseEntity = CourtCaseEntity.builder()
             .courtCode("B10JQ")
-            .breach(true)
             .caseNo("1600028913")
-            .crn("X340741")
-            .pnc("A/1234560BA")
-            .preSentenceActivity(true)
-            .previouslyKnownTerminationDate(LocalDate.of(2010, Month.JANUARY, 1))
-            .probationStatus("Current")
-            .suspendedSentenceOrder(true)
             .sessionStartTime(LocalDateTime.now())
             .defendantSex("M")
             .sourceType(SourceType.LIBRA)
+            .defendants(Collections.singletonList(DefendantEntity.builder()
+                    .defendantId("51354F3C-9625-404D-B820-C74724D23484")
+                    .breach(true)
+                    .crn("X340741")
+                    .pnc("A/1234560BA")
+                    .preSentenceActivity(true)
+                    .previouslyKnownTerminationDate(LocalDate.of(2010, 01, 01))
+                    .probationStatus(ProbationStatus.CURRENT.getName())
+                    .suspendedSentenceOrder(true)
+                    .build()))
             .build();
         when(courtCaseService.getCaseByCaseNumber("B10JQ", "1600028913")).thenReturn(courtCaseEntity);
     }

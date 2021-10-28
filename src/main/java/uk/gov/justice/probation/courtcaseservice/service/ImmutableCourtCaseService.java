@@ -37,7 +37,6 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private final CourtCaseRepository courtCaseRepository;
     private final TelemetryService telemetryService;
     private final GroupedOffenderMatchRepository matchRepository;
-    private final boolean caseListExtended;
     private final boolean globalProbationStatusUpdate;
 
     @Autowired
@@ -45,13 +44,11 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                                      CourtCaseRepository courtCaseRepository,
                                      TelemetryService telemetryService,
                                      GroupedOffenderMatchRepository matchRepository,
-                                     @Value("${feature.flags.case-list-extended:false}") boolean caseListExtended,
                                      @Value("${feature.flags.global-probation-status-update:true}") boolean globalProbationStatusUpdate) {
         this.courtRepository = courtRepository;
         this.courtCaseRepository = courtCaseRepository;
         this.telemetryService = telemetryService;
         this.matchRepository = matchRepository;
-        this.caseListExtended = caseListExtended;
         this.globalProbationStatusUpdate = globalProbationStatusUpdate;
     }
 
@@ -183,12 +180,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         final var court = courtRepository.findByCourtCode(courtCode)
                 .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
 
-        if (caseListExtended) {
-            return courtCaseRepository.findByCourtCodeAndHearingDay(court.getCourtCode(), hearingDay, createdAfter, createdBefore);
-        } else {
-            final var start = LocalDateTime.of(hearingDay, LocalTime.MIDNIGHT);
-            return courtCaseRepository.findByCourtCodeAndSessionStartTime(court.getCourtCode(), start, start.plusDays(1), createdAfter, createdBefore);
-        }
+        return courtCaseRepository.findByCourtCodeAndHearingDay(court.getCourtCode(), hearingDay, createdAfter, createdBefore);
     }
 
     private void validateEntity(String caseId, CourtCaseEntity updatedCase) {

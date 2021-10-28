@@ -1,0 +1,5 @@
+BEGIN;
+
+ALTER TABLE court_case ALTER COLUMN case_no DROP NOT NULL;
+
+COMMIT;

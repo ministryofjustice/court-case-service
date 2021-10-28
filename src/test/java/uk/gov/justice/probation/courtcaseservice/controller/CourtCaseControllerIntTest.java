@@ -2,14 +2,12 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.response.ValidatableResponse;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
@@ -57,12 +55,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
 
     @Nested
     class GetCasesCaseNo {
-
-        @BeforeEach
-        void beforeEach() {
-            ReflectionTestUtils.setField(courtCaseService, "caseListExtended", false);
-        }
-
         @Test
         void GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnAllCases() {
 
@@ -554,10 +546,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
 
         private static final String BASE_PATH_WITH_DATE = "/court/%s/cases?date=%s";
 
-        @BeforeEach
-        void beforeEach() {
-            ReflectionTestUtils.setField(courtCaseService, "caseListExtended", true);
-        }
 
         @Test
         void givenKnownCaseId_whenGetExtendedCaseById_thenReturn() {

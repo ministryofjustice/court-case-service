@@ -2,7 +2,6 @@ feature:
   flags:
     disable-auth: true
     fetch-sentence-data: true
-    case-list-extended: false
 
 database:
   schema:

@@ -31,38 +31,12 @@ INSERT INTO court_case
 VALUES
     (5, 1248278, 1600029021, 'SHF', 1, '2020-01-13 09:00', 'No record', null, false, false, 'Mr Ureet JMBALERNAEU', '{"line1": "56", "line2":"Henderson Walk", "postcode":"S2 6GA","line3":"Sheffield"}', 'X320741', 'D/2134650CA', '766412/20R', '3rd', '1966-03-03', 'M', 'British', null, 'LIBRA');
 
-
-INSERT INTO OFFENCE (
-    COURT_CASE_ID,
-	OFFENCE_TITLE,
-    OFFENCE_SUMMARY,
-    ACT,
-	SEQUENCE_NUMBER
-	) VALUES (
-	    1,
-        'Theft from a shop',
-        'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.',
-        'Contrary to section 1(1) and 7 of the Theft Act 1968.',
-        1
-	);
-
-INSERT INTO OFFENCE (
-    COURT_CASE_ID,
-	OFFENCE_TITLE,
-    OFFENCE_SUMMARY,
-    ACT,
-	SEQUENCE_NUMBER
-	) VALUES (
-        1,
-        'Theft from a different shop',
-        'On 02/01/2015 at own, stole article, to the value of £987.00, belonging to person.',
-        'Contrary to section 1(1) and 7 of the Theft Act 1968.',
-        2
-	);
+INSERT INTO DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, crn, pnc, cro, type, sex, probation_status, address, date_of_birth)
+VALUES (-5, 5, 'e10762d4-b874-43e1-9b51-0997b888d134', 'Mr Ureet JMBALERNAEU', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'X320741', 'D/2134650CA', '766412/20R', 'PERSON', 'M', 'NO_RECORD', '{"line1": "56", "line2":"Henderson Walk", "postcode":"S2 6GA","line3":"Sheffield"}', '1966-03-03');
 
 INSERT INTO offender_match_group
-( id, case_no, court_code, created, last_updated, created_by, last_updated_by, deleted, "version")
-VALUES( 1, '1600029021', 'SHF', now(), now(), 'R_seed_data', '', false, 0);
+( id, case_id, defendant_id, created, last_updated, created_by, last_updated_by, deleted, "version")
+VALUES( 1, '1248278', 'e10762d4-b874-43e1-9b51-0997b888d134' , now(), now(), 'R_seed_data', '', false, 0);
 
 INSERT INTO offender_match
 (confirmed, crn, cro, match_type, pnc, group_id, created, last_updated, created_by, last_updated_by, deleted, "version", rejected)

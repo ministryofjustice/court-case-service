@@ -29,13 +29,14 @@ VALUES
 INSERT INTO court_case
     (id, case_id, case_no, court_code, court_room, session_start_time, probation_status, previously_known_termination_date, suspended_sentence_order, breach, defendant_name, defendant_address, crn, pnc, cro, list_no, defendant_dob, defendant_sex, nationality_1, nationality_2, source_type)
 VALUES
-    (-5, 1248278, 1600029021, 'SHF', 1, '2020-01-13 09:00', 'No record', null, false, false, 'Mr Ureet JMBALERNAEU', '{"line1": "56", "line2":"Henderson Walk", "postcode":"S2 6GA","line3":"Sheffield"}', 'X320741', 'D/2134650CA', '766412/20R', '3rd', '1966-03-03', 'M', 'British', null, 'COMMON_PLATFORM');
-
-INSERT INTO DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, crn, pnc, cro, type, sex, probation_status, date_of_birth)
-VALUES (-1, -5, '183b84fb-7142-4f41-8a9b-6f3c9905df97', 'Mr David BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'X320741', 'E/2134650CA', '888888/20R', 'PERSON', 'M', 'NO_RECORD', '1969-03-03');
+    (-5, '8f1f74be-7c63-4226-abbe-a4292d3d2592', 1600029021, 'SHF', 1, '2020-01-13 09:00', 'No record', null, false, false, 'Mr Ureet JMBALERNAEU', '{"line1": "56", "line2":"Henderson Walk", "postcode":"S2 6GA","line3":"Sheffield"}', 'X320741', 'D/2134650CA', '766412/20R', '3rd', '1966-03-03', 'M', 'British', null, 'COMMON_PLATFORM');
 
 INSERT INTO DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, crn, pnc, cro, type, sex, probation_status, date_of_birth)
 VALUES (-2, -5, 'e10762d4-b874-43e1-9b51-0997b888d134', 'Mr Ureet JMBALERNAEU', '{"title": "Mr", "surname": "JMBALERNAEU", "forename1": "Ureet"}', 'X320741', 'D/2134650CA', '999999/20R', 'PERSON', 'M', 'NO_RECORD', '1966-03-03');
+
+INSERT INTO DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, pnc, cro, type, sex, probation_status, date_of_birth)
+VALUES (-1, -5, '183b84fb-7142-4f41-8a9b-6f3c9905df97', 'Mr David BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'E/2134650CA', '888888/20R', 'PERSON', 'M', 'NO_RECORD', '1969-03-03');
+
 
 INSERT INTO offender_match_group
 ( id, case_id, defendant_id, created, last_updated, created_by, last_updated_by, deleted, "version")

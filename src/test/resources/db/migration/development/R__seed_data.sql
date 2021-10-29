@@ -37,10 +37,9 @@ VALUES (-2, -5, 'e10762d4-b874-43e1-9b51-0997b888d134', 'Mr Ureet JMBALERNAEU', 
 INSERT INTO DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, pnc, cro, type, sex, probation_status, date_of_birth)
 VALUES (-1, -5, '183b84fb-7142-4f41-8a9b-6f3c9905df97', 'Mr David BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'E/2134650CA', '888888/20R', 'PERSON', 'M', 'NO_RECORD', '1969-03-03');
 
-
 INSERT INTO offender_match_group
 ( id, case_id, defendant_id, created, last_updated, created_by, last_updated_by, deleted, "version")
-VALUES( 1, '1248278', 'e10762d4-b874-43e1-9b51-0997b888d134' , now(), now(), 'R_seed_data', '', false, 0);
+VALUES( 1, '8f1f74be-7c63-4226-abbe-a4292d3d2592', 'e10762d4-b874-43e1-9b51-0997b888d134' , now(), now(), 'R_seed_data', '', false, 0);
 
 INSERT INTO offender_match
 (confirmed, crn, cro, match_type, pnc, group_id, created, last_updated, created_by, last_updated_by, deleted, "version", rejected)

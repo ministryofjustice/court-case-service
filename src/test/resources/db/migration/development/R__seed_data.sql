@@ -84,7 +84,7 @@ VALUES (-9, 'd0d6d6db-1b52-49d3-bd8a-5f290c2621eb', '9600000000', 'LIBRA', NOW()
 INSERT INTO HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
 VALUES (-9, -9, 'B14LO', '1', CURRENT_DATE + INTERVAL '2 day', '09:00:00', '1st');
 INSERT INTO DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, type, sex, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr)
-VALUES (-9, -9, '9f451171-92f7-4c48-a831-ffc630709819', 'Mrs Josephine BAKER', '{"title": "Mrs", "surname": "BAKER", "forename1": "Josephine"}', 'PERSON', 'F', 'X320741', 'PREVIOUSLY_KNOWN', '2019-08-19', true, false, true, false);
+VALUES (-9, -9, '9f451171-92f7-4c48-a831-ffc630709819', 'Mrs Josephine BAKER', '{"title": "Mrs", "surname": "BAKER", "forename1": "Josephine"}', 'PERSON', 'F', 'X630852', 'PREVIOUSLY_KNOWN', '2019-08-19', true, false, true, false);
 INSERT INTO DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-9, -9, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);
 

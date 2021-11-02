@@ -22,7 +22,7 @@ VALUES (-2, '1c6bdbfc-5889-4011-94f6-89eb32b2a0b7', 1600028974, 'LIBRA', NOW() +
 INSERT INTO HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
 VALUES (-2, -2, 'B14LO', 2, CURRENT_DATE + INTERVAL '1 day', '09:00:00', '1st');
 INSERT INTO DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, type, sex, date_of_birth, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr)
-VALUES (-2, -2, 'e4d515f0-e0a0-4ea8-8dda-a9de7c5f1a4d', 'Mr Single LINKED', '{"title": "Mr", "surname": "Single", "forename1": "LINKED"}', 'PERSON', 'M', '1969-08-26', 'CRN-ALL-FIELDS', 'CURRENT', '2019-08-19', true, true, true, true);
+VALUES (-2, -2, '543b3d56-02ef-4ea8-8303-182d610699b1', 'Mr Single LINKED', '{"title": "Mr", "surname": "Single", "forename1": "LINKED"}', 'PERSON', 'M', '1969-08-26', 'CRN-ALL-FIELDS', 'CURRENT', '2019-08-19', true, true, true, true);
 INSERT INTO DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-2, -2, 'SINGLE-LINKED: Theft from a shop', 'SINGLE-LINKED: On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);
 INSERT INTO DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, type, sex, date_of_birth, crn)

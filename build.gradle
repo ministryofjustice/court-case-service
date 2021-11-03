@@ -10,7 +10,7 @@ plugins {
     id 'jacoco'
     id "au.com.dius.pact" version "4.2.14"
     id 'java-library'
-    id 'org.jetbrains.kotlin.jvm' version '1.6.0-RC'
+    id 'org.jetbrains.kotlin.jvm' version '1.6.0-RC2'
 }
 
 repositories {

@@ -60,7 +60,7 @@ public class ExtendedCourtCaseRequestResponse {
                                         .orElse(null))
                                 .listNo(hearingEntity.getListNo())
                                 .build())
-                        .collect(Collectors.toList()))
+                        .toList())
                 .defendants(courtCase.getDefendants().stream()
                         .map(defendantEntity -> Defendant.builder()
                                 .defendantId(defendantEntity.getDefendantId())
@@ -94,9 +94,9 @@ public class ExtendedCourtCaseRequestResponse {
                                                 .offenceTitle(offence.getTitle())
                                                 .offenceSummary(offence.getSummary())
                                                 .build())
-                                        .collect(Collectors.toList()))
+                                        .toList())
                                 .build())
-                        .collect(Collectors.toList()))
+                        .toList())
                 .build();
     }
 

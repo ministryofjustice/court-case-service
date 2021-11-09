@@ -23,6 +23,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
@@ -66,7 +67,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
             .courtCode("B10JQ")
             .caseNo("1600028913")
             .sessionStartTime(LocalDateTime.now())
-            .defendantSex("M")
+            .defendantSex(Sex.MALE)
             .sourceType(SourceType.LIBRA)
             .defendants(Collections.singletonList(DefendantEntity.builder()
                     .defendantId("51354F3C-9625-404D-B820-C74724D23484")
@@ -122,7 +123,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                         .preSentenceActivity(true)
                         .previouslyKnownTerminationDate(LocalDate.of(2019, 5, 3))
                         .probationStatus("PREVIOUSLY_KNOWN")
-                        .sex("M")
+                        .sex(Sex.MALE)
                         .suspendedSentenceOrder(true)
                         .type(DefendantType.PERSON)
                         .build(),
@@ -155,7 +156,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                 .preSentenceActivity(true)
                                 .previouslyKnownTerminationDate(LocalDate.of(2019, 5, 3))
                                 .probationStatus("PREVIOUSLY_KNOWN")
-                                .sex("M")
+                                .sex(Sex.MALE)
                                 .suspendedSentenceOrder(true)
                                 .type(DefendantType.PERSON)
                                 .build()))

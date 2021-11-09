@@ -28,7 +28,7 @@
       },
       "probationStatus": "PREVIOUSLY_KNOWN",
       "type": "PERSON",
-      "sex": "M",
+      "sex": "MALE",
       "crn": "X320741",
       "pnc": "A/1234560BA",
       "cro": "99999",

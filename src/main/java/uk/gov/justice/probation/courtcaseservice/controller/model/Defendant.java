@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,7 +30,7 @@ public class Defendant {
     private final String probationStatus;
     @NotNull
     private final DefendantType type;
-    private final String sex;
+    private final Sex sex;
     private final String crn;
     private final String pnc;
     private final String cro;

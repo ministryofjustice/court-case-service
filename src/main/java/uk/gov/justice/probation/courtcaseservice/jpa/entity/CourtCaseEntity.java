@@ -119,7 +119,8 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     private final LocalDate defendantDob;
 
     @Column(name = "DEFENDANT_SEX")
-    private final String defendantSex;
+    @Enumerated(EnumType.STRING)
+    private final Sex defendantSex;
 
     @Column(name = "DEFENDANT_TYPE", nullable = false)
     @Enumerated(EnumType.STRING)

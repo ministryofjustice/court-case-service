@@ -6,6 +6,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import java.time.LocalDateTime;
@@ -90,7 +91,7 @@ class CourtCaseRequestTest {
         assertThat(entity.getDefendantAddress().getLine5()).isEqualTo("LINE5");
         assertThat(entity.getDefendantAddress().getPostcode()).isEqualTo("POSTCODE");
         assertThat(entity.getDefendantDob()).isEqualTo(DEFENDANT_DOB);
-        assertThat(entity.getDefendantSex()).isEqualTo(DEFENDANT_SEX);
+        assertThat(entity.getDefendantSex()).isEqualTo(Sex.MALE);
         assertThat(entity.getCrn()).isEqualTo(CRN);
         assertThat(entity.getPnc()).isEqualTo(PNC);
         assertThat(entity.getCro()).isEqualTo(CRO);

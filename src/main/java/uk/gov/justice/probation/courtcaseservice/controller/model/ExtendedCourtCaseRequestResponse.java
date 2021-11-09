@@ -14,6 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import java.time.LocalDateTime;
@@ -146,7 +147,7 @@ public class ExtendedCourtCaseRequestResponse {
             .preSentenceActivity(defendant.getPreSentenceActivity())
             .previouslyKnownTerminationDate(defendant.getPreviouslyKnownTerminationDate())
             .probationStatus(defendant.getProbationStatus())
-            .sex(defendant.getSex())
+            .sex(Sex.fromString(defendant.getSex()))
             .suspendedSentenceOrder(defendant.getSuspendedSentenceOrder())
             .type(defendant.getType())
             .defendantId(defendant.getDefendantId())

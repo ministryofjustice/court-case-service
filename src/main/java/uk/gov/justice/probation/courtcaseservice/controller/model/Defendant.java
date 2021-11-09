@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -15,6 +16,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @Builder
@@ -39,6 +41,13 @@ public class Defendant {
     private final Boolean breach;
     private final Boolean preSentenceActivity;
     private final Boolean awaitingPsr;
+
+    @JsonProperty
+    public String getSex() {
+        return Optional.ofNullable(sex)
+            .orElse(Sex.NOT_KNOWN)
+            .getName();
+    }
 
     @Valid
     @NotEmpty

@@ -44,6 +44,9 @@ import static org.mockito.Mockito.when;
 class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
 
     @MockBean
+    private OffenderMatchService offenderMatchService;
+
+    @MockBean
     private CourtCaseService courtCaseService;
 
     @BeforeEach
@@ -64,6 +67,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
             .courtCode("B10JQ")
             .caseNo("1600028913")
             .sessionStartTime(LocalDateTime.now())
+            .defendantSex(Sex.MALE)
             .sourceType(SourceType.LIBRA)
             .defendants(Collections.singletonList(DefendantEntity.builder()
                     .defendantId("51354F3C-9625-404D-B820-C74724D23484")
@@ -74,7 +78,6 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                     .previouslyKnownTerminationDate(LocalDate.of(2010, 01, 01))
                     .probationStatus(ProbationStatus.CURRENT.getName())
                     .suspendedSentenceOrder(true)
-                    .sex(Sex.MALE)
                     .build()))
             .build();
         when(courtCaseService.getCaseByCaseNumber("B10JQ", "1600028913")).thenReturn(courtCaseEntity);

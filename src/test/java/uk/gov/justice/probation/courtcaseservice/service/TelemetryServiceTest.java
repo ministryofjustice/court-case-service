@@ -29,9 +29,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class TelemetryServiceTest {
     public static final String COURT_CODE = "SHF";
-    public static final String CASE_NO = "1234567890";
+    public static final String CASE_ID = "1234567890";
     private static final String CRN = "CRN";
     private static final String PNC = "PNC";
+    private static final String DEFENDANT_ID = "DEFENDANT_ID";
 
     @Mock
     private TelemetryClient telemetryClient;
@@ -66,13 +67,14 @@ class TelemetryServiceTest {
                 .crn(CRN)
                 .build();
 
-        service.trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, match, buildCourtCase());
+        service.trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, match, buildCourtCase(), DEFENDANT_ID);
 
         verify(telemetryClient).trackEvent(eq("PiCMatchConfirmed"), properties.capture(), metricsCaptor.capture());
 
         var properties = this.properties.getValue();
-        assertThat(properties.size()).isEqualTo(6);
-        assertThat(properties.get("caseNo")).isEqualTo(CASE_NO);
+        assertThat(properties.size()).isEqualTo(7);
+        assertThat(properties.get("defendantId")).isEqualTo(DEFENDANT_ID);
+        assertThat(properties.get("caseId")).isEqualTo(CASE_ID);
         assertThat(properties.get("pnc")).isEqualTo(PNC);
         assertThat(properties.get("crn")).isEqualTo(CRN);
         assertThat(properties.get("matches")).isEqualTo("3");
@@ -97,7 +99,7 @@ class TelemetryServiceTest {
 
         var properties = this.properties.getValue();
         assertThat(properties.size()).isEqualTo(6);
-        assertThat(properties.get("caseNo")).isEqualTo(CASE_NO);
+        assertThat(properties.get("caseId")).isEqualTo(CASE_ID);
         assertThat(properties.get("crn")).isEqualTo(CRN);
         assertThat(properties.get("pnc")).isEqualTo(PNC);
         assertThat(properties.get("hearings")).isEqualTo("first-hearing-description,second-hearing-description");
@@ -117,7 +119,7 @@ class TelemetryServiceTest {
 
         var properties = this.properties.getValue();
         assertThat(properties.size()).isEqualTo(4);
-        assertThat(properties.get("caseNo")).isEqualTo(CASE_NO);
+        assertThat(properties.get("caseId")).isEqualTo(CASE_ID);
         assertThat(properties.get("crn")).isEqualTo(CRN);
         assertThat(properties.get("pnc")).isEqualTo(PNC);
 
@@ -153,7 +155,7 @@ class TelemetryServiceTest {
 
     private CourtCaseEntity buildCourtCase() {
         return CourtCaseEntity.builder()
-                .caseNo(CASE_NO)
+                .caseId(CASE_ID)
                 .hearings(List.of(
                         firstHearing,
                         secondHearing

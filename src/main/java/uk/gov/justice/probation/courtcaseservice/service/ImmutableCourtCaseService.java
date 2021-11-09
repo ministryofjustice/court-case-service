@@ -223,18 +223,18 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         groupedMatches
                 .map(GroupedOffenderMatchesEntity::getOffenderMatches)
                 .ifPresent(matches -> matches
-                        .forEach(match -> confirmAndRejectMatches(existingCase, updatedCase, match)));
+                        .forEach(match -> confirmAndRejectMatches(existingCase, updatedCase, match, defendantId)));
         groupedMatches.ifPresent(matchRepository::save);
     }
 
-    private void confirmAndRejectMatches(CourtCaseEntity existingCase, CourtCaseEntity updatedCase, OffenderMatchEntity match) {
+    private void confirmAndRejectMatches(CourtCaseEntity existingCase, CourtCaseEntity updatedCase, OffenderMatchEntity match, String defendantId) {
         boolean crnMatches = match.getCrn().equals(updatedCase.getCrn());
         match.setConfirmed(crnMatches);
         match.setRejected(!crnMatches);
         if (crnMatches) {
-            telemetryService.trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, match, updatedCase);
+            telemetryService.trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, match, updatedCase, defendantId);
         } else {
-            telemetryService.trackMatchEvent(TelemetryEventType.MATCH_REJECTED, match, updatedCase);
+            telemetryService.trackMatchEvent(TelemetryEventType.MATCH_REJECTED, match, updatedCase, defendantId);
         }
 
         if (crnMatches && updatedCase.getPnc() != null && !updatedCase.getPnc().equals(match.getPnc())) {

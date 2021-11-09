@@ -38,13 +38,12 @@ public class TelemetryService {
 
         Map<String, String> properties = new HashMap<>();
 
-        // TODO: Track caseId
         ofNullable(courtCaseEntity.getCrn())
                 .ifPresent((crn) -> properties.put("crn", crn));
         ofNullable(courtCaseEntity.getPnc())
                 .ifPresent((pnc) -> properties.put("pnc", pnc));
-        ofNullable(courtCaseEntity.getCaseNo())
-                .ifPresent((caseNo) -> properties.put("caseNo", caseNo));
+        ofNullable(courtCaseEntity.getCaseId())
+                .ifPresent((caseId) -> properties.put("caseId", caseId));
 
         ofNullable(courtCaseEntity.getHearings())
                 .ifPresent(hearings -> {
@@ -59,14 +58,14 @@ public class TelemetryService {
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }
 
-    public void trackMatchEvent(TelemetryEventType eventType, OffenderMatchEntity matchEntity, CourtCaseEntity courtCaseEntity) {
+    public void trackMatchEvent(TelemetryEventType eventType, OffenderMatchEntity matchEntity, CourtCaseEntity courtCaseEntity, String defendantId) {
 
         Map<String, String> properties = new HashMap<>();
 
-        // TODO: Track defendantId
+        properties.put("defendantId", defendantId);
         ofNullable(courtCaseEntity)
-                .map(CourtCaseEntity::getCaseNo)
-                .ifPresent((caseNo) -> properties.put("caseNo", caseNo));
+                .map(CourtCaseEntity::getCaseId)
+                .ifPresent((caseId) -> properties.put("caseId", caseId));
         ofNullable(matchEntity)
                 .map(OffenderMatchEntity::getPnc)
                 .ifPresent((pnc) -> properties.put("pnc", pnc));

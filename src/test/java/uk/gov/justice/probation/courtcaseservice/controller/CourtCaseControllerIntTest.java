@@ -550,7 +550,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
         @Test
         void givenKnownCaseId_whenGetExtendedCaseById_thenReturn() {
 
-            var response = given()
+            given()
                     .given()
                     .auth()
                     .oauth2(getToken())

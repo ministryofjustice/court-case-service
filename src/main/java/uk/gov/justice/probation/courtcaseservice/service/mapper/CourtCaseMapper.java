@@ -1,14 +1,15 @@
 package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * This mapping class clones instances of the JPA entities, at all levels.
@@ -24,8 +25,6 @@ public class CourtCaseMapper {
             .breach(courtCaseEntity.getBreach())
             .caseId(courtCaseEntity.getCaseId())
             .caseNo(courtCaseEntity.getCaseNo())
-            .courtCode(courtCaseEntity.getCourtCode())
-            .courtRoom(courtCaseEntity.getCourtRoom())
             .crn(courtCaseEntity.getCrn())
             .cro(courtCaseEntity.getCro())
             .defendantAddress(courtCaseEntity.getDefendantAddress())
@@ -34,14 +33,12 @@ public class CourtCaseMapper {
             .defendantSex(courtCaseEntity.getDefendantSex())
             .defendantType(courtCaseEntity.getDefendantType())
             .firstCreated(courtCaseEntity.getFirstCreated())
-            .listNo(courtCaseEntity.getListNo())
             .name(courtCaseEntity.getName())
             .nationality1(courtCaseEntity.getNationality1())
             .nationality2(courtCaseEntity.getNationality2())
             .pnc(courtCaseEntity.getPnc())
             .previouslyKnownTerminationDate(courtCaseEntity.getPreviouslyKnownTerminationDate())
             .probationStatus(updatedProbationStatus)
-            .sessionStartTime(courtCaseEntity.getSessionStartTime())
             .sourceType(courtCaseEntity.getSourceType())
             .suspendedSentenceOrder(courtCaseEntity.getSuspendedSentenceOrder())
             .hearings(courtCaseEntity.getHearings()

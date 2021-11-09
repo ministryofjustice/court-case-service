@@ -60,15 +60,6 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "CASE_NO", nullable = false)
     private final String caseNo;
 
-    @Column(name = "COURT_CODE", nullable = false)
-    private final String courtCode;
-
-    @Column(name = "COURT_ROOM")
-    private final String courtRoom;
-
-    @Column(name = "SESSION_START_TIME", nullable = false)
-    private final LocalDateTime sessionStartTime;
-
     @Column(name = "PROBATION_STATUS")
     private final String probationStatus;
 
@@ -134,9 +125,6 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "CRO")
     private final String cro;
 
-    @Column(name = "LIST_NO")
-    private final String listNo;
-
     @Column(name = "NATIONALITY_1")
     private final String nationality1;
 
@@ -163,14 +151,4 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     public void isManualUpdate(){
         manualUpdate = "prepare-a-case-for-court".equals(new ClientDetails().getClientId());
     }
-
-    public CourtSession getSession() {
-        return CourtSession.from(sessionStartTime);
-    }
-
-    public String getDefendantSurname() {
-        return defendantName == null ? "" : defendantName.substring(defendantName.lastIndexOf(" ")+1);
-    }
-
-
 }

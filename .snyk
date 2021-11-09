@@ -1,13 +1,9 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
-  SNYK-JAVA-IONETTY-1584064:
+  SNYK-ORACLE7-OPENSSLLIBS-1769087:
     - '*':
-        reason: Third party version (netty-codec) with version out of our control, comes via spring boot
-        expires: 2021-09-26T00:00:00.000Z
-  SNYK-JAVA-IONETTY-1584063:
-    - '*':
-        reason: Third party library (netty-codec) with version out of our control, comes via spring boot
-        expires: 2021-09-26T00:00:00.000Z
+        reason: Believed we don't used the open SSL libraries. Will revisit
+        expires: 2021-11-10T00:00:00.000Z
 patch: {}
 version: v1.13.5

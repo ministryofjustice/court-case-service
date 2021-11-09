@@ -31,6 +31,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -97,6 +98,17 @@ class CourtCaseControllerTest {
 
         verify(courtCaseService).getCaseByCaseNumber(COURT_CODE, CASE_NO);
         verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
+        verifyNoMoreInteractions(courtCaseService, offenderMatchService);
+    }
+
+    @Test
+    void givenNoDefendants_whenGetCourtCase_thenShouldThrowExceptionWithCaseId() {
+        when(courtCaseService.getCaseByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(courtCaseEntity.withDefendants(Collections.emptyList()));
+
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> courtCaseController.getCourtCase(COURT_CODE, CASE_NO))
+                .withMessageContaining(courtCaseEntity.getCaseId());
+
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 

@@ -222,9 +222,9 @@ public class CourtCaseController {
 
     private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity) {
         final var defendantId = Optional.ofNullable(courtCaseEntity.getDefendants())
-                .map(defs -> defs.get(0))
+                .flatMap(defs -> defs.stream().findFirst())
                 .map(DefendantEntity::getDefendantId)
-                .orElseThrow(() -> new IllegalStateException("Court case expected to have at least 1 defendant did not have any defendants."));
+                .orElseThrow(() -> new IllegalStateException(String.format("Court case with id %s does not have any defendants.", courtCaseEntity.getCaseId())));
 
         return buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseEntity, defendantId);
     }

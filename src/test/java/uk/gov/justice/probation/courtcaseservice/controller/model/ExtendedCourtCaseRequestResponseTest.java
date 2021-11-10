@@ -123,7 +123,7 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(defendantEntity.getPreSentenceActivity()).isEqualTo(Boolean.TRUE);
         assertThat(defendantEntity.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2021, Month.MARCH, 20));
         assertThat(defendantEntity.getProbationStatus()).isEqualTo("CURRENT");
-        assertThat(defendantEntity.getSex().getName()).isEqualTo("M");
+        assertThat(defendantEntity.getSex()).isEqualTo("M");
         assertThat(defendantEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
 
         final var offences = defendantEntity.getOffences();

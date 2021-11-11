@@ -5,8 +5,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -58,14 +56,6 @@ public class CourtCaseController {
     private static final LocalDateTime NEVER_MODIFIED_DATE = LocalDateTime.of(2020, MAX_AGE, MAX_AGE, 0, 0);
     private final CourtCaseService courtCaseService;
     private final OffenderMatchService offenderMatchService;
-    @Value("${feature.flags.extended-court-case.throw-multiple-courts-exception:true}")
-    private boolean throwMultipleCourtsException;
-
-    @Autowired
-    public CourtCaseController(CourtCaseService courtCaseService, OffenderMatchService offenderMatchService) {
-        this.courtCaseService = courtCaseService;
-        this.offenderMatchService = offenderMatchService;
-    }
 
     @ApiOperation(value = "Gets the court case data by case id.")
     @ApiResponses(
@@ -132,7 +122,7 @@ public class CourtCaseController {
     public @ResponseBody
     ExtendedCourtCaseRequestResponse getExtendedCourtCase(@PathVariable(value = "caseId") String caseId) {
         final var courtCase = courtCaseService.getCaseByCaseId(caseId);
-        return ExtendedCourtCaseRequestResponse.of(courtCase, throwMultipleCourtsException);
+        return ExtendedCourtCaseRequestResponse.of(courtCase);
     }
 
     @ApiOperation(value = "Saves and returns the court case data, by case id.")

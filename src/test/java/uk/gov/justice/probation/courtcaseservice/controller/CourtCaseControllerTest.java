@@ -1,8 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
@@ -62,6 +62,7 @@ class CourtCaseControllerTest {
     private CourtCaseRequest courtCaseUpdate;
     @Mock
     private OffenderMatchService offenderMatchService;
+    @InjectMocks
     private CourtCaseController courtCaseController;
     private final CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder()
             .caseNo(CASE_NO)
@@ -78,11 +79,6 @@ class CourtCaseControllerTest {
             .build();
 
     private final CourtSession session = CourtSession.MORNING;
-
-    @BeforeEach
-    public void setUp() {
-        courtCaseController = new CourtCaseController(courtCaseService, offenderMatchService, true);
-    }
 
     @Test
     void getCourtCase_shouldReturnCourtCaseResponse() {
@@ -116,7 +112,6 @@ class CourtCaseControllerTest {
     void getExtendedCourtCaseById_shouldReturnResponse() {
         when(courtCaseService.getCaseByCaseId(CASE_ID)).thenReturn(courtCaseEntity);
         var courtCase = courtCaseController.getExtendedCourtCase(CASE_ID);
-        assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCase.getCaseNo()).isEqualTo(CASE_NO);
         assertThat(courtCase.getCaseId()).isEqualTo(CASE_ID);
 
@@ -199,8 +194,6 @@ class CourtCaseControllerTest {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
 
-        final var controller = new CourtCaseController(courtCaseService, offenderMatchService, true);
-
         final var mornSession = LocalDateTime.of(DATE, LocalTime.of(9, 30));
         final var aftSession = LocalDateTime.of(DATE, LocalTime.of(14, 0));
 
@@ -238,7 +231,7 @@ class CourtCaseControllerTest {
         // Add in reverse order
         final var createdAfter = LocalDateTime.now().minus(1, ChronoUnit.DAYS);
         when(courtCaseService.filterCases(COURT_CODE, DATE, createdAfter, CREATED_BEFORE)).thenReturn(List.of(entity5, entity4, entity3, entity2, entity1));
-        var responseEntity = controller.getCaseList(COURT_CODE, DATE, createdAfter, CREATED_BEFORE, webRequest);
+        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, createdAfter, CREATED_BEFORE, webRequest);
 
         final var cases = responseEntity.getBody().getCases();
         assertThat(cases).hasSize(5);
@@ -255,9 +248,8 @@ class CourtCaseControllerTest {
     void whenCreatedAfterIsNull_thenDefaultToTodayMinus8Days() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
-        final var controller = new CourtCaseController(courtCaseService, offenderMatchService, true);
         final LocalDateTime createdAfter = LocalDateTime.of(DATE, LocalTime.MIDNIGHT).minusDays(8);
-        controller.getCaseList(COURT_CODE, DATE, null, CREATED_BEFORE, webRequest);
+        courtCaseController.getCaseList(COURT_CODE, DATE, null, CREATED_BEFORE, webRequest);
 
         verify(courtCaseService).filterCases(COURT_CODE, DATE, createdAfter, CREATED_BEFORE);
     }
@@ -266,9 +258,8 @@ class CourtCaseControllerTest {
     void whenCreatedBeforeIsNull_thenDefaultToMaxDate() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
-        final var controller = new CourtCaseController(courtCaseService, offenderMatchService, true);
         final LocalDateTime createdBefore = LocalDateTime.of(294276, 12, 31, 23, 59);
-        controller.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
+        courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
 
         verify(courtCaseService).filterCases(COURT_CODE, DATE, CREATED_AFTER, createdBefore);
     }
@@ -277,10 +268,9 @@ class CourtCaseControllerTest {
     void whenListIsNotModified_thenReturn() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
-        final var controller = new CourtCaseController(courtCaseService, offenderMatchService, true);
         when(webRequest.checkNotModified(lastModified.get().toInstant(ZoneOffset.UTC).toEpochMilli())).thenReturn(true);
 
-        var responseEntity = controller.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
+        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
 
         assertThat(responseEntity.getStatusCode().value()).isEqualTo(304);
         assertThat(responseEntity.getHeaders().get("Cache-Control").get(0)).isEqualTo("max-age=1");
@@ -290,9 +280,8 @@ class CourtCaseControllerTest {
     void whenListHasNeverBeenModified_thenReturnNeverModifiedDate() {
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(Optional.empty());
         when(webRequest.checkNotModified(any(Long.class))).thenReturn(false);
-        final var controller = new CourtCaseController(courtCaseService, offenderMatchService, true);
 
-        var responseEntity = controller.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
+        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
 
         assertThat(responseEntity.getHeaders().get("Last-Modified").get(0)).isEqualTo("Wed, 01 Jan 2020 00:00:00 GMT");
         assertThat(responseEntity.getHeaders().get("Cache-Control").get(0)).isEqualTo("max-age=1");

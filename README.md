@@ -51,6 +51,7 @@ The following actuator endpoints are available:
 The application uses a Postgres 11 database which is managed by Flyway. The SpringBoot integration will automatically manage migrations, so we only need these commands for debugging or if the local database has become corrupted. 
 * *Clean schema* : `$ ./gradlew flywayClean`
 * *View details and status information about all migrations* : `$ ./gradlew flywayInfo`
+* *Fix `ERROR: function uuid_generate_v4() does not exist`*: Run `DROP EXTENSION "uuid-ossp";` in the database. This shouldn't happen given the `IF NOT EXISTS` in the offending migration but unfortunately there appears to be an issue with Postgres.
 
 ---
 

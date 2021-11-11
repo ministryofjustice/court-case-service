@@ -1,5 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.pact;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Collections;
+import java.util.List;
 import au.com.dius.pact.provider.junit5.HttpTestTarget;
 import au.com.dius.pact.provider.junit5.PactVerificationContext;
 import au.com.dius.pact.provider.junitsupport.Provider;
@@ -28,14 +33,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Collections;
-import java.util.List;
-
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @Provider("court-case-service")
@@ -181,8 +180,8 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
     }
 
     @State({"a case will be PUT by id"})
-    void getMinimalCourtCaseById() {
+    void mockPutCourtCaseExtended() {
         final Mono<CourtCaseEntity> caseMono = Mono.just(EntityHelper.aCourtCaseEntity("X340741", "1600028914"));
-        when(courtCaseService.createCase(anyString(), any(CourtCaseEntity.class))).thenReturn(caseMono);
+        when(courtCaseService.createCase(eq("D517D32D-3C80-41E8-846E-D274DC2B94A5"), any(CourtCaseEntity.class))).thenReturn(caseMono);
     }
 }

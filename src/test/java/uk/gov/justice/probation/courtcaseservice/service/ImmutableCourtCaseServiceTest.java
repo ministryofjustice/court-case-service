@@ -343,9 +343,13 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenUnknownCourtCode_whenCreateOrUpdateCase_thenThrowException() {
-            when(courtRepository.findByCourtCode("XXX")).thenThrow(new EntityNotFoundException("not found court"));
+            when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
+            when(courtRepository.findByCourtCode("XXX")).thenReturn(Optional.empty());
             courtCase = CourtCaseEntity.builder()
                     .hearings(List.of(
+                            HearingEntity.builder()
+                                    .courtCode(COURT_CODE)
+                                    .build(),
                             HearingEntity.builder()
                                     .courtCode("XXX")
                                     .build()

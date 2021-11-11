@@ -76,21 +76,13 @@ public class CourtCaseResponseMapper {
             .findFirst();
 
         // Populate the top level fields with the details from the single hearing
-        targetHearing.ifPresentOrElse((hearing) ->
+        targetHearing.map((hearing) ->
                                     builder.courtCode(hearing.getCourtCode())
                                             .courtRoom(hearing.getCourtRoom())
                                             .sessionStartTime(hearing.getSessionStartTime())
                                             .session(hearing.getSession())
-                                            .listNo(hearing.getListNo()),
-                                () -> {
-                                    // This should not happen and will not be possible when we retire COURT_CASE entity fields for hearing-based fields
-                                    builder.courtCode(courtCaseEntity.getCourtCode())
-                                        .courtRoom(courtCaseEntity.getCourtRoom())
-                                        .sessionStartTime(courtCaseEntity.getSessionStartTime())
-                                        .session(courtCaseEntity.getSession())
-                                        .listNo(courtCaseEntity.getListNo());
-                                    log.error("No hearings associated to court case {} ", courtCaseEntity.getCaseId());
-                                });
+                                            .listNo(hearing.getListNo()))
+                .orElseThrow();
 
         builder.hearings(
             hearings.stream()

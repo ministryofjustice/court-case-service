@@ -41,9 +41,6 @@ public class ExtendedCourtCaseRequestResponse {
     private final String caseNo;
     @NotBlank
     private final String caseId;
-    // This should only be held in the hearings
-    @Deprecated(forRemoval = true)
-    private final String courtCode;
     private final String source;
     @Valid
     @NotEmpty
@@ -52,26 +49,10 @@ public class ExtendedCourtCaseRequestResponse {
     @NotEmpty
     private final List<Defendant> defendants;
 
-    public static ExtendedCourtCaseRequestResponse of(CourtCaseEntity courtCase, boolean throwMultipleCourtsException) {
+    public static ExtendedCourtCaseRequestResponse of(CourtCaseEntity courtCase) {
         return ExtendedCourtCaseRequestResponse.builder()
                 .caseNo(courtCase.getCaseNo())
                 .caseId(courtCase.getCaseId())
-                .courtCode(Optional.ofNullable(courtCase.getHearings())
-                        .map(hearings -> hearings.stream()
-                                .map(HearingEntity::getCourtCode)
-                                .distinct()
-                                .collect(Collectors.toList()))
-                        .flatMap(distinctCodes -> {
-                            if (distinctCodes.size() > 1) {
-                                final var message = String.format("ExtendedCourtCaseResponse.courtCode could have multiple possible values %s", String.join(",", distinctCodes));
-                                if (throwMultipleCourtsException)
-                                    throw new IllegalStateException(message);
-                                else
-                                    log.error(message);
-                            }
-                            return distinctCodes.stream().findFirst();
-                        })
-                        .orElseThrow())
                 .source(courtCase.getSourceType().name())
                 .hearingDays(courtCase.getHearings().stream()
                         .map(hearingEntity -> HearingDay.builder()

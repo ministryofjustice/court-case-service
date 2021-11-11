@@ -17,6 +17,7 @@ import java.time.Month;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse.DEFAULT_SOURCE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_NO;
@@ -53,11 +54,6 @@ class ExtendedCourtCaseRequestResponseTest {
                 .build();
 
         final var courtCaseEntity = request.asCourtCaseEntity();
-
-        // top level field checks (hearing based) to be retired
-        assertThat(courtCaseEntity.getCourtRoom()).isEqualTo(COURT_ROOM);
-        assertThat(courtCaseEntity.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
-        assertThat(courtCaseEntity.getListNo()).isEqualTo(LIST_NO);
 
         assertThat(courtCaseEntity.getHearings()).hasSize(2);
         assertThat(courtCaseEntity.getHearings()).extracting("listNo").contains("1st", "2nd");
@@ -182,7 +178,6 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(courtCaseEntity.getHearings()).hasSize(0);
         assertThat(courtCaseEntity.getDefendants()).hasSize(0);
         assertThat(courtCaseEntity.getCaseNo()).isEqualTo(CASE_NO);
-        assertThat(courtCaseEntity.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCaseEntity.getSourceType()).isEqualTo(DEFAULT_SOURCE);
     }
 
@@ -191,7 +186,7 @@ class ExtendedCourtCaseRequestResponseTest {
 
         final var courtCaseEntity = buildEntity();
 
-        final var actual = ExtendedCourtCaseRequestResponse.of(courtCaseEntity);
+        final var actual = ExtendedCourtCaseRequestResponse.of(courtCaseEntity, true);
 
         assertThat(actual.getSource()).isEqualTo("LIBRA");
         assertThat(actual.getCaseId()).isEqualTo(CASE_ID);
@@ -199,6 +194,7 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(actual.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(actual.getHearingDays().get(0)).isEqualTo(HearingDay.builder()
                 .courtRoom(COURT_ROOM)
+                        .courtCode(COURT_CODE)
                 .sessionStartTime(LocalDateTime.of(2021, 10, 5, 15, 15, 15))
                 .listNo("1")
                 .build());
@@ -241,19 +237,65 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(actual.getDefendants().get(1).getDefendantId()).isEqualTo("DEFENDANT_ID_2");
     }
 
-    private CourtCaseEntity buildEntity() {
-        return CourtCaseEntity.builder()
-                .sourceType(SourceType.LIBRA)
-                .caseId(CASE_ID)
-                .caseNo(CASE_NO)
-                .courtCode(COURT_CODE)
-                .hearings(List.of(HearingEntity.builder()
+    @Test
+    void givenHearingsWithDifferingCourtCodes_whenOf_thenThrow() {
+
+        final var courtCaseEntity = buildEntity()
+                .withHearings(List.of(
+                        HearingEntity.builder()
+                                .courtCode(COURT_CODE)
                                 .courtRoom(COURT_ROOM)
                                 .hearingDay(LocalDate.of(2021, 10, 5))
                                 .hearingTime(LocalTime.of(15, 15, 15))
                                 .listNo("1")
                                 .build(),
                         HearingEntity.builder()
+                                .courtCode("ANOTHER_COURT_CODE")
+                                .listNo("2")
+                                .build()
+                ));
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> ExtendedCourtCaseRequestResponse.of(courtCaseEntity, true))
+                .withMessageContaining(COURT_CODE)
+                .withMessageContaining("ANOTHER_COURT_CODE");
+    }
+
+    @Test
+    void givenHearingsWithDifferingCourtCodesAndThrowIsFalse_whenOf_thenReturnFirstCourtCode() {
+
+        final var courtCaseEntity = buildEntity()
+                .withHearings(List.of(HearingEntity.builder()
+                                .courtCode(COURT_CODE)
+                                .courtRoom(COURT_ROOM)
+                                .hearingDay(LocalDate.of(2021, 10, 5))
+                                .hearingTime(LocalTime.of(15, 15, 15))
+                                .listNo("1")
+                                .build(),
+                        HearingEntity.builder()
+                                .courtCode("ANOTHER_COURT_CODE")
+                                .listNo("2")
+                                .build()
+                ));
+
+        final var actual = ExtendedCourtCaseRequestResponse.of(courtCaseEntity, false);
+
+        assertThat(actual.getCourtCode()).isEqualTo(COURT_CODE);
+    }
+
+    private CourtCaseEntity buildEntity() {
+        return CourtCaseEntity.builder()
+                .sourceType(SourceType.LIBRA)
+                .caseId(CASE_ID)
+                .caseNo(CASE_NO)
+                .hearings(List.of(HearingEntity.builder()
+                                .courtCode(COURT_CODE)
+                                .courtRoom(COURT_ROOM)
+                                .hearingDay(LocalDate.of(2021, 10, 5))
+                                .hearingTime(LocalTime.of(15, 15, 15))
+                                .listNo("1")
+                                .build(),
+                        HearingEntity.builder()
+                                .courtCode(COURT_CODE)
                                 .listNo("2")
                                 .build()
                 ))

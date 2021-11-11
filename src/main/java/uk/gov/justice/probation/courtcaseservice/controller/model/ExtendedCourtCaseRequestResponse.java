@@ -1,13 +1,11 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -16,6 +14,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
@@ -28,6 +29,7 @@ import java.util.stream.IntStream;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor
+@Slf4j
 public class ExtendedCourtCaseRequestResponse {
     static final SourceType DEFAULT_SOURCE = SourceType.COMMON_PLATFORM;
     private final String caseNo;
@@ -35,7 +37,6 @@ public class ExtendedCourtCaseRequestResponse {
     private final String caseId;
     // This should only be held in the hearings
     @Deprecated(forRemoval = true)
-    @NotBlank
     private final String courtCode;
     private final String source;
     @Valid
@@ -45,11 +46,26 @@ public class ExtendedCourtCaseRequestResponse {
     @NotEmpty
     private final List<Defendant> defendants;
 
-    public static ExtendedCourtCaseRequestResponse of(CourtCaseEntity courtCase) {
+    public static ExtendedCourtCaseRequestResponse of(CourtCaseEntity courtCase, boolean throwMultipleCourtsException) {
         return ExtendedCourtCaseRequestResponse.builder()
                 .caseNo(courtCase.getCaseNo())
                 .caseId(courtCase.getCaseId())
-                .courtCode(courtCase.getCourtCode())
+                .courtCode(Optional.ofNullable(courtCase.getHearings())
+                        .map(hearings -> hearings.stream()
+                                .map(HearingEntity::getCourtCode)
+                                .distinct()
+                                .collect(Collectors.toList()))
+                        .flatMap(distinctCodes -> {
+                            if (distinctCodes.size() > 1) {
+                                final var message = String.format("ExtendedCourtCaseResponse.courtCode could have multiple possible values %s", String.join(",", distinctCodes));
+                                if (throwMultipleCourtsException)
+                                    throw new IllegalStateException(message);
+                                else
+                                    log.error(message);
+                            }
+                            return distinctCodes.stream().findFirst();
+                        })
+                        .orElseThrow())
                 .source(courtCase.getSourceType().name())
                 .hearingDays(courtCase.getHearings().stream()
                         .map(hearingEntity -> HearingDay.builder()
@@ -117,7 +133,6 @@ public class ExtendedCourtCaseRequestResponse {
             .hearings(hearingDayEntities)
             .defendants(defendantEntities)
             .caseNo(caseNo)
-            .courtCode(courtCode)
             .caseId(caseId)
             .sourceType(SourceType.valueOf(Optional.ofNullable(source).orElse(DEFAULT_SOURCE.name())))
             .build();
@@ -218,12 +233,7 @@ public class ExtendedCourtCaseRequestResponse {
             .suspendedSentenceOrder(firstDefendant.map(DefendantEntity::getSuspendedSentenceOrder).orElse(null))
             .breach(firstDefendant.map(DefendantEntity::getBreach).orElse(null))
             .preSentenceActivity(firstDefendant.map(DefendantEntity::getPreSentenceActivity).orElse(null))
-            .probationStatus(firstDefendant.map(DefendantEntity::getProbationStatus).orElse(null))
-
-            // Top level fields to be retired into the Hearing
-            .courtRoom(firstHearingDay.map(HearingEntity::getCourtRoom).orElse(null))
-            .sessionStartTime(firstHearingDay.map(HearingEntity::getSessionStartTime).orElse(null))
-            .listNo(firstHearingDay.map(HearingEntity::getListNo).orElse(null));
+            .probationStatus(firstDefendant.map(DefendantEntity::getProbationStatus).orElse(null));
     }
 
     // Top level offence will be moved to the defendant

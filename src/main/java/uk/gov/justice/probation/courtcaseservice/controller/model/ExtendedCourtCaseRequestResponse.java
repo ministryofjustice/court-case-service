@@ -81,7 +81,7 @@ public class ExtendedCourtCaseRequestResponse {
                                         .orElse(null))
                                 .probationStatus(defendantEntity.getProbationStatus())
                                 .type(defendantEntity.getType())
-                                .sex(defendantEntity.getSex())
+                                .sex(Optional.ofNullable(defendantEntity.getSex()).map(Enum::name).orElse(null))
                                 .crn(defendantEntity.getCrn())
                                 .pnc(defendantEntity.getPnc())
                                 .cro(defendantEntity.getCro())

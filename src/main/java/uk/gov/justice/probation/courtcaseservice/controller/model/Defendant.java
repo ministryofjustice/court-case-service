@@ -34,7 +34,9 @@ public class Defendant {
     private final String probationStatus;
     @NotNull
     private final DefendantType type;
-    private final Sex sex;
+    // Until CCM sends 'MALE' instead of 'M' we have to use a String here because this is a request and response object
+    @NotNull
+    private final String sex;
     private final String crn;
     private final String pnc;
     private final String cro;
@@ -46,9 +48,7 @@ public class Defendant {
 
     @JsonProperty
     public String getSex() {
-        return Optional.ofNullable(sex)
-            .orElse(Sex.NOT_KNOWN)
-            .getName();
+        return Optional.ofNullable(sex).map(s -> Sex.fromString(s).getName()).orElse(Sex.NOT_KNOWN.getName());
     }
 
     @Valid

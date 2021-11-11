@@ -220,8 +220,8 @@ VALUES (-16001, -16001, 'Offence Title 16001', 'Offence Summary 16001', 'Offence
 -- 2243231a-7810-496c-bd41-cb01ceb1fe0b - Hearing / defendants / defendant offences for case id
 INSERT INTO courtcaseservicetest.HEARING (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no)
 VALUES (-16001, 16001, 'B10JQ', 10, '2020-02-29', '14:00:00', '1st');
-INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, address, type, probation_status)
-VALUES (-16002, 16001, 'bfd7df09-4177-475e-b16f-0ace34a5ef2f', 'ACME MOTORS LTD', '{"surname": "ACME MOTORS LTD"}', '{"line1": "Freemans Common", "line2": "Someplace", "postcode": "XX1 1XX", "line3": "Leicester"}', 'ORGANISATION', 'NO_RECORD');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, address, sex, type, probation_status)
+VALUES (-16002, 16001, 'bfd7df09-4177-475e-b16f-0ace34a5ef2f', 'ACME MOTORS LTD', '{"surname": "ACME MOTORS LTD"}', '{"line1": "Freemans Common", "line2": "Someplace", "postcode": "XX1 1XX", "line3": "Leicester"}', 'NOT_KNOWN', 'ORGANISATION', 'NO_RECORD');
 
 INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_ID, DEFENDANT_ID)
 VALUES (16000, '683bcde4-611f-4487-9833-f68090507b74','005ae89b-46e9-4fa5-bb5e-d117011cab32');

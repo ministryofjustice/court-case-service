@@ -560,7 +560,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                     .then()
                     .statusCode(200)
                     .body("source", equalTo("LIBRA"))
-                    .body("courtCode", equalTo(COURT_CODE))
                     .body("caseNo", equalTo("1600028913"))
                     .body("caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
                     .body("defendants", hasSize(1))

@@ -42,6 +42,7 @@ public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Lon
             nativeQuery = true)
     Optional<CourtCaseEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo);
 
+
     @Query(value = "select cc.*, grouped_cases.min_created as first_created from court_case cc " +
                     "inner join " +
                     "   (select max(created) as max_created,  min(created) as min_created, case_id from court_case group_cc " +

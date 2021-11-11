@@ -64,7 +64,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
     void getCourtCase() {
         var courtCaseEntity = CourtCaseEntity.builder()
                 .caseNo("1600028913")
-                .defendantSex("M")
+                .defendantSex(Sex.MALE)
                 .sourceType(SourceType.LIBRA)
                 .defendants(Collections.singletonList(DefendantEntity.builder()
                         .defendantId("51354F3C-9625-404D-B820-C74724D23484")
@@ -124,7 +124,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                 .preSentenceActivity(true)
                                 .previouslyKnownTerminationDate(LocalDate.of(2019, 5, 3))
                                 .probationStatus("PREVIOUSLY_KNOWN")
-                                .sex("M")
+                                .sex(Sex.MALE)
                                 .suspendedSentenceOrder(true)
                                 .type(DefendantType.PERSON)
                                 .build(),

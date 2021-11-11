@@ -73,10 +73,7 @@ class CourtCaseRequestTest {
 
         assertThat(entity.getCaseId()).isEqualTo("CASE_ID");
         assertThat(entity.getCaseNo()).isEqualTo("CASE_NO");
-        assertThat(entity.getCourtCode()).isEqualTo("COURT_CODE");
-        assertThat(entity.getCourtRoom()).isEqualTo("COURT_ROOM");
         assertThat(entity.getSourceType()).isSameAs(SourceType.LIBRA);
-        assertThat(entity.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
         assertThat(entity.getProbationStatus()).isEqualTo(ProbationStatus.NO_RECORD.getName());
         assertThat(entity.getPreviouslyKnownTerminationDate()).isEqualTo(TERMINATION_DATE);
         assertThat(entity.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE);
@@ -95,7 +92,6 @@ class CourtCaseRequestTest {
         assertThat(entity.getCrn()).isEqualTo(CRN);
         assertThat(entity.getPnc()).isEqualTo(PNC);
         assertThat(entity.getCro()).isEqualTo(CRO);
-        assertThat(entity.getListNo()).isEqualTo("LIST_NO");
         assertThat(entity.getNationality1()).isEqualTo(NATIONALITY_1);
         assertThat(entity.getNationality2()).isEqualTo(NATIONALITY_2);
         assertThat(entity.getAwaitingPsr()).isEqualTo(AWAITING_PSR);
@@ -167,10 +163,7 @@ class CourtCaseRequestTest {
 
         assertThat(entity.getCaseId()).isEqualTo("CASE_ID");
         assertThat(entity.getCaseNo()).isEqualTo("CASE_NO");
-        assertThat(entity.getCourtCode()).isEqualTo("COURT_CODE");
-        assertThat(entity.getCourtRoom()).isEqualTo("COURT_ROOM");
         assertThat(entity.getSourceType()).isSameAs(SourceType.LIBRA);
-        assertThat(entity.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
         assertThat(entity.getProbationStatus()).isEqualTo("PROBATION_STATUS");
 
         assertThat(entity.getHearings()).hasSize(1);

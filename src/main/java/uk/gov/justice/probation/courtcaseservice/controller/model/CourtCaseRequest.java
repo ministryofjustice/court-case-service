@@ -1,9 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +16,10 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -101,10 +101,7 @@ public class CourtCaseRequest {
         final CourtCaseEntity entity = CourtCaseEntity.builder()
                 .caseId(caseId)
                 .caseNo(caseNo)
-                .courtCode(courtCode)
-                .courtRoom(courtRoom)
                 .sourceType(SourceType.valueOf(Optional.ofNullable(source).orElse(DEFAULT_SOURCE.name())))
-                .sessionStartTime(sessionStartTime)
                 .probationStatus(probationStatus)
                 .previouslyKnownTerminationDate(previouslyKnownTerminationDate)
                 .suspendedSentenceOrder(suspendedSentenceOrder)
@@ -126,7 +123,6 @@ public class CourtCaseRequest {
                 .crn(crn)
                 .pnc(pnc)
                 .cro(cro)
-                .listNo(listNo)
                 .nationality1(nationality1)
                 .nationality2(nationality2)
                 .offences(offences)

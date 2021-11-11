@@ -250,10 +250,6 @@ class CourtCaseResponseMapperTest {
         assertOffenceFields(courtCaseResponse.getOffences().get(0));
     }
 
-    private void assertCaseResponse(CourtCaseResponse courtCaseResponse, String caseNo) {
-        assertCaseResponse(courtCaseResponse, caseNo, SourceType.COMMON_PLATFORM);
-    }
-
     private void assertOffenceFields(OffenceResponse offenceResponse) {
         assertThat(offenceResponse.getOffenceTitle()).isEqualTo(OFFENCE_TITLE);
         assertThat(offenceResponse.getOffenceSummary()).isEqualTo(OFFENCE_SUMMARY);
@@ -290,12 +286,10 @@ class CourtCaseResponseMapperTest {
             .cro(CRO)
             .previouslyKnownTerminationDate(PREVIOUSLY_KNOWN_TERMINATION_DATE)
             .suspendedSentenceOrder(SUSPENDED_SENTENCE_ORDER)
-            .sessionStartTime(SESSION_START_TIME)
             .probationStatus(PROBATION_STATUS_NOT_SENTENCED)
             .sourceType(SourceType.COMMON_PLATFORM)
             .nationality2(NATIONALITY_2)
             .nationality1(NATIONALITY_1)
-            .listNo(LIST_NO)
             .crn(CRN)
             .defendantSex(DEFENDANT_SEX)
             .defendantDob(DEFENDANT_DOB)
@@ -303,8 +297,6 @@ class CourtCaseResponseMapperTest {
             .defendantAddress(addressPropertiesEntity)
             .name(namePropertiesEntity)
             .defendantType(DEFENDANT_TYPE)
-            .courtRoom(COURT_ROOM)
-            .courtCode(COURT_CODE)
             .caseNo(CASE_NO)
             .breach(BREACH)
             .preSentenceActivity(PRE_SENTENCE_ACTIVITY)

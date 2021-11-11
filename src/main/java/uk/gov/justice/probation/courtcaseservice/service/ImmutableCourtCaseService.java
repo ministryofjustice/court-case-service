@@ -20,7 +20,6 @@ import uk.gov.justice.probation.courtcaseservice.service.mapper.CourtCaseMapper;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Collections;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -184,7 +183,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     private void validateEntity(String caseId, CourtCaseEntity updatedCase) {
-        checkCourtExists(updatedCase.getCourtCode());
+        checkCourtExists(updatedCase.getHearings().get(0).getCourtCode());
         checkEntityCaseIdAgree(caseId, updatedCase);
     }
 
@@ -224,18 +223,18 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         groupedMatches
                 .map(GroupedOffenderMatchesEntity::getOffenderMatches)
                 .ifPresent(matches -> matches
-                        .forEach(match -> confirmAndRejectMatches(existingCase, updatedCase, match)));
+                        .forEach(match -> confirmAndRejectMatches(existingCase, updatedCase, match, defendantId)));
         groupedMatches.ifPresent(matchRepository::save);
     }
 
-    private void confirmAndRejectMatches(CourtCaseEntity existingCase, CourtCaseEntity updatedCase, OffenderMatchEntity match) {
+    private void confirmAndRejectMatches(CourtCaseEntity existingCase, CourtCaseEntity updatedCase, OffenderMatchEntity match, String defendantId) {
         boolean crnMatches = match.getCrn().equals(updatedCase.getCrn());
         match.setConfirmed(crnMatches);
         match.setRejected(!crnMatches);
         if (crnMatches) {
-            telemetryService.trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, match, updatedCase);
+            telemetryService.trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, match, updatedCase, defendantId);
         } else {
-            telemetryService.trackMatchEvent(TelemetryEventType.MATCH_REJECTED, match, updatedCase);
+            telemetryService.trackMatchEvent(TelemetryEventType.MATCH_REJECTED, match, updatedCase, defendantId);
         }
 
         if (crnMatches && updatedCase.getPnc() != null && !updatedCase.getPnc().equals(match.getPnc())) {
@@ -249,8 +248,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     public Optional<LocalDateTime> filterCasesLastModified(String courtCode, LocalDate searchDate) {
-        final var start = LocalDateTime.of(searchDate, LocalTime.MIDNIGHT);
-        return courtCaseRepository.findLastModified(courtCode, start, start.plusDays(1));
+        return courtCaseRepository.findLastModifiedByHearingDay(courtCode, searchDate);
     }
 
 }

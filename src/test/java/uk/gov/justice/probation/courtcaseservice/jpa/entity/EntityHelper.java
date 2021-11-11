@@ -71,24 +71,12 @@ public class EntityHelper {
             .build();
     }
 
-    public static CourtCaseEntity aCourtCaseEntity(String crn, String caseNo, LocalDateTime sessionStartTime, String probationStatus) {
+    public static CourtCaseEntity aCourtCaseEntity(String crn, String caseNo, String probationStatus) {
         return populateBasics()
             .caseId(CASE_ID)
             .crn(crn)
             .caseNo(caseNo)
-            .sessionStartTime(sessionStartTime)
             .probationStatus(probationStatus)
-            .build();
-    }
-
-    public static CourtCaseEntity aCourtCase(String crn, String caseNo, LocalDateTime sessionStartTime, String probationStatus, String caseId, String courtCode) {
-        return populateBasics()
-            .crn(crn)
-            .caseNo(caseNo)
-            .sessionStartTime(sessionStartTime)
-            .probationStatus(probationStatus)
-            .caseId(caseId)
-            .courtCode(courtCode)
             .build();
     }
 
@@ -162,9 +150,6 @@ public class EntityHelper {
     private static CourtCaseEntity.CourtCaseEntityBuilder populateBasics() {
         var defendant = aDefendantEntity();
         return CourtCaseEntity.builder()
-            .courtCode(COURT_CODE)
-            .courtRoom(COURT_ROOM)
-            .sessionStartTime(SESSION_START_TIME)
             .probationStatus(PROBATION_STATUS)
             .previouslyKnownTerminationDate(TERMINATION_DATE)
             .suspendedSentenceOrder(SUSPENDED_SENTENCE)
@@ -178,7 +163,6 @@ public class EntityHelper {
             .defendantType(DefendantType.PERSON)
             .pnc(PNC)
             .cro(CRO)
-            .listNo(LIST_NO)
             .nationality1(NATIONALITY_1)
             .nationality2(NATIONALITY_2)
             .awaitingPsr(AWAITING_PSR)

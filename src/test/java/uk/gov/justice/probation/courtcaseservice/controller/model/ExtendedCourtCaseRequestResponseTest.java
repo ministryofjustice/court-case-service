@@ -151,7 +151,6 @@ class ExtendedCourtCaseRequestResponseTest {
     void givenVerboseSex_whenAsEntity_thenReturn() {
 
         final var request = ExtendedCourtCaseRequestResponse.builder()
-            .courtCode(COURT_CODE)
             .caseNo(CASE_NO)
             .caseId(CASE_ID)
             .defendants(List.of(buildDefendant("male")))

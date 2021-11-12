@@ -187,7 +187,7 @@ dependencies {
     implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.3'
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.3'
     implementation 'net.logstash.logback:logstash-logback-encoder:6.6'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.5'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0'
 
     testAnnotationProcessor 'org.projectlombok:lombok'
     testRuntimeOnly("org.junit.platform:junit-platform-launcher") {

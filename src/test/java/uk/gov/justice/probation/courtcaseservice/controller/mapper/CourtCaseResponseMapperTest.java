@@ -17,6 +17,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import java.time.LocalDate;
@@ -57,15 +58,12 @@ class CourtCaseResponseMapperTest {
     private static final String CRO = "CRO";
     private static final String LIST_NO = "LIST_NO";
     private static final LocalDate DEFENDANT_DOB = LocalDate.of(1958, 2, 26);
-    private static final String DEFENDANT_SEX = "DEFENDANT_SEX";
+    private static final Sex DEFENDANT_SEX = Sex.NOT_KNOWN;
     private static final String NATIONALITY_1 = "NATIONALITY_1";
     private static final String NATIONALITY_2 = "NATIONALITY_2";
     private static final CourtSession SESSION = CourtSession.MORNING;
     private static final LocalDateTime FIRST_CREATED = LocalDateTime.of(2020, 1, 1, 1, 1);
     private CourtCaseEntity courtCaseEntity;
-    private List<OffenceEntity> offences;
-    private List<DefendantEntity> defendants;
-    private List<HearingEntity> hearings;
     private final AddressPropertiesEntity addressPropertiesEntity = AddressPropertiesEntity.builder()
         .line1("27")
         .line2("Elm Place")
@@ -81,11 +79,11 @@ class CourtCaseResponseMapperTest {
 
     @BeforeEach
     void setUp() {
-        offences = Arrays.asList(
+        var offences = Arrays.asList(
             OffenceEntity.builder().offenceTitle(OFFENCE_TITLE).offenceSummary(OFFENCE_SUMMARY).act(ACT).sequenceNumber(1).build(),
             OffenceEntity.builder().offenceTitle(OFFENCE_TITLE + "2").offenceSummary(OFFENCE_SUMMARY + "2").act(ACT + "2").sequenceNumber(2).build()
         );
-        defendants = Arrays.asList(
+        List<DefendantEntity> defendants = Arrays.asList(
             DefendantEntity.builder().defendantName(DEFENDANT_NAME)
                 .name(namePropertiesEntity)
                 .sex(DEFENDANT_SEX)
@@ -97,7 +95,7 @@ class CourtCaseResponseMapperTest {
                 .build()
         );
 
-        hearings = Arrays.asList(
+        var hearings = Arrays.asList(
             HearingEntity.builder()
                 .hearingDay(HEARING_DATE)
                 .hearingTime(SESSION_START_TIME.toLocalTime())
@@ -114,7 +112,7 @@ class CourtCaseResponseMapperTest {
                 .build()
         );
 
-        GroupedOffenderMatchesEntity matchGroups = buildMatchGroups();
+        var matchGroups = buildMatchGroups();
         courtCaseEntity = buildCourtCaseEntity(offences, defendants, hearings, FIRST_CREATED);
     }
 
@@ -133,7 +131,7 @@ class CourtCaseResponseMapperTest {
             .defendantName(defendantName.getFullName())
             .name(defendantName)
             .address(AddressPropertiesEntity.builder().postcode("WN8 0PZ").build())
-            .sex("F")
+            .sex(Sex.FEMALE)
             .nationality1("Romanian")
             .dateOfBirth(DEFENDANT_DOB.plusDays(2))
             .crn("CRN123")
@@ -242,7 +240,7 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getPnc()).isEqualTo(PNC);
         assertThat(courtCaseResponse.getCro()).isEqualTo(CRO);
         assertThat(courtCaseResponse.getDefendantDob()).isEqualTo(DEFENDANT_DOB);
-        assertThat(courtCaseResponse.getDefendantSex()).isEqualTo(DEFENDANT_SEX);
+        assertThat(courtCaseResponse.getDefendantSex()).isEqualTo(DEFENDANT_SEX.getName());
         assertThat(courtCaseResponse.getNationality1()).isEqualTo(NATIONALITY_1);
         assertThat(courtCaseResponse.getNationality2()).isEqualTo(NATIONALITY_2);
         assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(20);

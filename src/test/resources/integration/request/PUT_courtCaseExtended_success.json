@@ -1,6 +1,5 @@
 {
   "courtCode": "B14LO",
-  "caseNo": "1700030000",
   "caseId": "ac24a1be-939b-49a4-a524-21a3d228f8bc",
   "source": "COMMON_PLATFORM",
   "hearingDays": [
@@ -28,7 +27,7 @@
       },
       "probationStatus": "PREVIOUSLY_KNOWN",
       "type": "PERSON",
-      "sex": "M",
+      "sex": "MALE",
       "crn": "X320741",
       "pnc": "A/1234560BA",
       "cro": "99999",

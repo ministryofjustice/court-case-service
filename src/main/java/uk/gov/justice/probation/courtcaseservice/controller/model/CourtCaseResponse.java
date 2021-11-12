@@ -12,6 +12,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEnt
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -49,7 +50,7 @@ public class CourtCaseResponse {
     private final NamePropertiesEntity name;
     private final AddressPropertiesEntity defendantAddress;
     private final LocalDate defendantDob;
-    private final String defendantSex;
+    private final Sex defendantSex;
     private final DefendantType defendantType;
     private final String defendantId;
     private final String nationality1;
@@ -65,6 +66,13 @@ public class CourtCaseResponse {
         return Optional.ofNullable(probationStatus)
                 .map(ProbationStatus::getName)
                 .orElse(crn == null && numberOfPossibleMatches >= 1 ? POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS : ProbationStatus.NO_RECORD.getName());
+    }
+
+    @JsonProperty
+    public String getDefendantSex() {
+        return Optional.ofNullable(defendantSex)
+            .orElse(Sex.NOT_KNOWN)
+            .getName();
     }
 
     @JsonProperty

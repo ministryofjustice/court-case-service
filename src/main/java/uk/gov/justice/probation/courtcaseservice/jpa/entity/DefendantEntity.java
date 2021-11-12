@@ -87,8 +87,9 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "DATE_OF_BIRTH")
     private final LocalDate dateOfBirth;
 
-    @Column(name = "SEX")
-    private final String sex;
+    @Column(name = "SEX", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private final Sex sex;
 
     @Column(name = "NATIONALITY_1")
     private final String nationality1;

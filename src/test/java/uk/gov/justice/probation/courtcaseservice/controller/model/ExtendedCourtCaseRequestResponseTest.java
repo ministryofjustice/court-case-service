@@ -8,6 +8,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import java.time.LocalDate;
@@ -68,40 +69,7 @@ class ExtendedCourtCaseRequestResponseTest {
     @Test
     void givenDefendantsWithOffences_whenAsEntity_thenReturn() {
 
-        final var defendant = Defendant.builder()
-                .awaitingPsr(Boolean.TRUE)
-                .address(AddressRequestResponse.builder()
-                        .line1("PIC TEAM")
-                        .line2("Digital Studio")
-                        .line3("32 Scotland Street")
-                        .line4("Sheffield")
-                        .line5("South Yorkshire")
-                        .postcode("S3 7DQ")
-                        .build())
-                .breach(Boolean.TRUE)
-                .crn(CRN)
-                .cro(CRO)
-                .dateOfBirth(DEFENDANT_DOB)
-                .name(NAME)
-                .pnc(PNC)
-                .preSentenceActivity(Boolean.TRUE)
-                .previouslyKnownTerminationDate(LocalDate.of(2021, Month.MARCH, 20))
-                .probationStatus("CURRENT")
-                .sex("M")
-                .suspendedSentenceOrder(Boolean.TRUE)
-                .type(DefendantType.PERSON)
-                .defendantId(DEFENDANT_ID)
-                .offences(List.of(OffenceRequestResponse.builder()
-                                .offenceTitle("TITLE1")
-                                .offenceSummary("SUMMARY1")
-                                .act("ACT1")
-                                .build(),
-                        OffenceRequestResponse.builder()
-                                .offenceTitle("TITLE2")
-                                .offenceSummary("SUMMARY2")
-                                .act("ACT2")
-                                .build()))
-                .build();
+        final var defendant = buildDefendant();
 
         final var request = ExtendedCourtCaseRequestResponse.builder()
                 .defendants(List.of(defendant))
@@ -127,7 +95,7 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(courtCaseEntity.getPnc()).isEqualTo(PNC);
         assertThat(courtCaseEntity.getCro()).isEqualTo(CRO);
         assertThat(courtCaseEntity.getDefendantDob()).isEqualTo(DEFENDANT_DOB);
-        assertThat(courtCaseEntity.getDefendantSex()).isEqualTo("M");
+        assertThat(courtCaseEntity.getDefendantSex().getName()).isEqualTo("M");
         assertThat(courtCaseEntity.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2021, Month.MARCH, 20));
         assertThat(courtCaseEntity.getPreSentenceActivity()).isEqualTo(Boolean.TRUE);
         assertThat(courtCaseEntity.getBreach()).isEqualTo(Boolean.TRUE);
@@ -150,7 +118,7 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(defendantEntity.getPreSentenceActivity()).isEqualTo(Boolean.TRUE);
         assertThat(defendantEntity.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2021, Month.MARCH, 20));
         assertThat(defendantEntity.getProbationStatus()).isEqualTo("CURRENT");
-        assertThat(defendantEntity.getSex()).isEqualTo("M");
+        assertThat(defendantEntity.getSex()).isSameAs(Sex.MALE);
         assertThat(defendantEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
 
         final var offences = defendantEntity.getOffences();
@@ -173,14 +141,30 @@ class ExtendedCourtCaseRequestResponseTest {
 
         final var courtCaseEntity = request.asCourtCaseEntity();
 
-        assertThat(courtCaseEntity.getHearings()).hasSize(0);
-        assertThat(courtCaseEntity.getDefendants()).hasSize(0);
+        assertThat(courtCaseEntity.getHearings()).isEmpty();
+        assertThat(courtCaseEntity.getDefendants()).isEmpty();
         assertThat(courtCaseEntity.getCaseNo()).isEqualTo(CASE_NO);
         assertThat(courtCaseEntity.getSourceType()).isEqualTo(DEFAULT_SOURCE);
     }
 
     @Test
-    public void whenOfCourtCase_thenReturn() {
+    void givenVerboseSex_whenAsEntity_thenReturn() {
+
+        final var request = ExtendedCourtCaseRequestResponse.builder()
+            .caseNo(CASE_NO)
+            .caseId(CASE_ID)
+            .defendants(List.of(buildDefendant("male")))
+            .build();
+
+        final var courtCaseEntity = request.asCourtCaseEntity();
+
+        assertThat(courtCaseEntity.getHearings()).isEmpty();
+        assertThat(courtCaseEntity.getDefendants()).hasSize(1);
+        assertThat(courtCaseEntity.getDefendants().get(0).getSex()).isEqualTo(Sex.MALE);
+    }
+
+    @Test
+    void whenOfCourtCase_thenReturn() {
 
         final var courtCaseEntity = buildEntity();
 
@@ -220,7 +204,7 @@ class ExtendedCourtCaseRequestResponseTest {
                         .preSentenceActivity(true)
                         .previouslyKnownTerminationDate(LocalDate.of(2001, 1, 1))
                         .probationStatus("ProbationStatus")
-                        .sex("sex")
+                        .sex(Sex.MALE.name())
                         .suspendedSentenceOrder(true)
                         .offences(List.of(OffenceRequestResponse.builder()
                                         .act("act")
@@ -275,7 +259,7 @@ class ExtendedCourtCaseRequestResponseTest {
                                 .preSentenceActivity(true)
                                 .previouslyKnownTerminationDate(LocalDate.of(2001, 1, 1))
                                 .probationStatus("ProbationStatus")
-                                .sex("sex")
+                                .sex(Sex.MALE)
                                 .suspendedSentenceOrder(true)
                                 .offences(List.of(DefendantOffenceEntity.builder()
                                                 .act("act")
@@ -294,4 +278,44 @@ class ExtendedCourtCaseRequestResponseTest {
                 .build();
     }
 
+    private Defendant buildDefendant(String sex) {
+        return Defendant.builder()
+            .awaitingPsr(Boolean.TRUE)
+            .address(AddressRequestResponse.builder()
+                .line1("PIC TEAM")
+                .line2("Digital Studio")
+                .line3("32 Scotland Street")
+                .line4("Sheffield")
+                .line5("South Yorkshire")
+                .postcode("S3 7DQ")
+                .build())
+            .breach(Boolean.TRUE)
+            .crn(CRN)
+            .cro(CRO)
+            .dateOfBirth(DEFENDANT_DOB)
+            .name(NAME)
+            .pnc(PNC)
+            .preSentenceActivity(Boolean.TRUE)
+            .previouslyKnownTerminationDate(LocalDate.of(2021, Month.MARCH, 20))
+            .probationStatus("CURRENT")
+            .sex(Sex.fromString(sex).name())
+            .suspendedSentenceOrder(Boolean.TRUE)
+            .type(DefendantType.PERSON)
+            .defendantId(DEFENDANT_ID)
+            .offences(List.of(OffenceRequestResponse.builder()
+                    .offenceTitle("TITLE1")
+                    .offenceSummary("SUMMARY1")
+                    .act("ACT1")
+                    .build(),
+                OffenceRequestResponse.builder()
+                    .offenceTitle("TITLE2")
+                    .offenceSummary("SUMMARY2")
+                    .act("ACT2")
+                    .build()))
+            .build();
+    }
+
+    private Defendant buildDefendant() {
+        return buildDefendant("M");
+    }
 }

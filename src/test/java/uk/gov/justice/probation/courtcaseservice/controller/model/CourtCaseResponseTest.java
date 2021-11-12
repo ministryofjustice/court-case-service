@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
 import org.junit.jupiter.api.Test;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,5 +61,22 @@ class CourtCaseResponseTest {
 
         assertThat(response.getProbationStatus()).isEqualTo("Previously known");
         assertThat(response.getProbationStatusActual()).isEqualTo("PREVIOUSLY_KNOWN");
+    }
+
+    @Test
+    void givenNullSex_whenGet_thenReturnNotKnown() {
+        CourtCaseResponse response = CourtCaseResponse.builder()
+            .build();
+
+        assertThat(response.getDefendantSex()).isEqualTo("N");
+    }
+
+    @Test
+    void givenFemaleSex_whenGet_thenReturnAsString() {
+        CourtCaseResponse response = CourtCaseResponse.builder()
+            .defendantSex(Sex.FEMALE)
+            .build();
+
+        assertThat(response.getDefendantSex()).isEqualTo("F");
     }
 }

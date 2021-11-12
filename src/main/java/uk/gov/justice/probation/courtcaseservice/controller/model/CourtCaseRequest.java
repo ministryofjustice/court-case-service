@@ -13,6 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import javax.validation.Valid;
@@ -108,7 +109,7 @@ public class CourtCaseRequest {
                 .preSentenceActivity(preSentenceActivity)
                 .defendantName(defendantName)
                 .defendantDob(defendantDob)
-                .defendantSex(defendantSex)
+                .defendantSex(Sex.fromString(defendantSex))
                 .defendantType(defendantType)
                 .name(Optional.ofNullable(name)
                         .map(nameRequest -> NamePropertiesEntity.builder()
@@ -168,7 +169,7 @@ public class CourtCaseRequest {
             .nationality1(nationality1)
             .nationality2(nationality2)
             .name(name)
-            .sex(defendantSex)
+            .sex(Sex.fromString(defendantSex))
             .defendantId(Optional.ofNullable(defendantId).orElse(UUID.randomUUID().toString()))
             .crn(crn)
             .cro(cro)

@@ -128,6 +128,20 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .then()
                 .statusCode(201)
                 .body("caseId", equalTo(JSON_CASE_ID))
+                .body("source", equalTo("COMMON_PLATFORM"))
+                .body("defendants", hasSize(1))
+                .body("defendants[0].offences",  hasSize(2))
+                .body("defendants[0].type",  equalTo("PERSON"))
+                .body("defendants[0].defendantId",  equalTo("d1eefed2-04df-11ec-b2d8-0242ac130002"))
+                .body("defendants[0].probationStatus", equalTo("PREVIOUSLY_KNOWN"))
+                .body("defendants[0].sex", equalTo("M"))
+                .body("defendants[0].name.forename1", equalTo("Dylan"))
+                .body("hearingDays", hasSize(1))
+                .body("hearingDays[0].courtCode", equalTo("B14LO"))
+                .body("hearingDays[0].courtRoom", equalTo("1"))
+                .body("hearingDays[0].sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("hearingDays", hasSize(1))
+                .body("hearingDays", hasSize(1))
             ;
 
             final var othersSameCrnUpdated = courtCaseRepository.findByCaseIdOrderByCreatedDesc("ce84bb2d-e44a-4554-a1a8-795accaac4d8");
@@ -248,7 +262,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .then()
                 .statusCode(201);
 
-            validateResponse(validatableResponse, caseId, null, JSON_CASE_NO);
+            validateResponse(validatableResponse, caseId, null, null);
 
             // All parts of the save are not in the response - so we check extra
             courtCaseRepository.findByCaseId(caseId)
@@ -264,7 +278,6 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
 
             final var crn = "X320654";
 
-            final var caseNo = "1800028900";
             final var caseId = "3db9d70b-10a2-49d1-b74d-379f2db74862";
             final var defendantIdToUpdate = "1263de26-4a81-42d3-a798-bad802433318";
             final var defendantIdToRetain = "6f014c2e-8be3-4a12-a551-8377bd31a7b8";
@@ -272,7 +285,6 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
 
             // Updated JSON will update the name
             var updatedJson = caseDetailsJson
-                .replace("\"caseNo\": \"1700028914\"", "\"caseNo\": \"" + caseNo + "\"")
                 .replace("\"courtCode\": \"B10JQ\"", "\"courtCode\": \"" + LEICESTER_COURT_CODE + "\"")
                 .replace("\"caseId\": \"571b7172-4cef-435c-9048-d071a43b9dbf\"", "\"caseId\": \"" + caseId + "\"")
                 .replace("\"defendantId\": \"e0056894-e8f8-42c2-ba9a-e41250c3d1a3\"", "\"defendantId\": \"" + defendantIdToUpdate + "\"")
@@ -296,11 +308,11 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .put(String.format(PUT_BY_CASEID_AND_DEFENDANTID_PATH, caseId, defendantIdToUpdate))
                 .then()
                 .statusCode(201)
-                .body("caseNo", equalTo("1800028900"))
                 .body("source", equalTo("LIBRA"))
                 .body("courtCode", equalTo(LEICESTER_COURT_CODE))
                 .body("crn", equalTo(crn))
                 .body("defendantId", equalTo(defendantIdToUpdate))
+                .body("defendantSex", equalTo("M"))
                 .body("offences", hasSize(2))
                 .body("hearings", hasSize(2))
                 .body("probationStatusActual", equalTo("PREVIOUSLY_KNOWN"))

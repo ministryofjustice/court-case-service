@@ -34,8 +34,7 @@ public class Defendant {
     private final String probationStatus;
     @NotNull
     private final DefendantType type;
-    // Until CCM sends 'MALE' instead of 'M' we have to use a String here because this is a request and response object
-    @NotNull
+    // Until CCM sends 'MALE' instead of 'M' we have to use a String here because this is a request and response object. May be null from LIBRA.
     private final String sex;
     private final String crn;
     private final String pnc;

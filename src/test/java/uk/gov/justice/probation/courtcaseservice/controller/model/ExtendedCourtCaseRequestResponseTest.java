@@ -69,7 +69,7 @@ class ExtendedCourtCaseRequestResponseTest {
     @Test
     void givenDefendantsWithOffences_whenAsEntity_thenReturn() {
 
-        final var defendant = buildDefendant();
+        final var defendant = buildDefendant("M");
 
         final var request = ExtendedCourtCaseRequestResponse.builder()
                 .defendants(List.of(defendant))
@@ -161,6 +161,22 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(courtCaseEntity.getHearings()).isEmpty();
         assertThat(courtCaseEntity.getDefendants()).hasSize(1);
         assertThat(courtCaseEntity.getDefendants().get(0).getSex()).isEqualTo(Sex.MALE);
+    }
+
+    @Test
+    void givenNullSex_whenAsEntity_thenReturnAsNotKnown() {
+
+        final var request = ExtendedCourtCaseRequestResponse.builder()
+            .caseNo(CASE_NO)
+            .caseId(CASE_ID)
+            .defendants(List.of(buildDefendant(null)))
+            .build();
+
+        final var courtCaseEntity = request.asCourtCaseEntity();
+
+        assertThat(courtCaseEntity.getHearings()).isEmpty();
+        assertThat(courtCaseEntity.getDefendants()).hasSize(1);
+        assertThat(courtCaseEntity.getDefendants().get(0).getSex()).isEqualTo(Sex.NOT_KNOWN);
     }
 
     @Test

@@ -1,5 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +16,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import javax.validation.Valid;
@@ -30,6 +35,7 @@ import java.util.stream.IntStream;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor
 @Slf4j
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExtendedCourtCaseRequestResponse {
     static final SourceType DEFAULT_SOURCE = SourceType.COMMON_PLATFORM;
     private final String caseNo;
@@ -57,7 +63,7 @@ public class ExtendedCourtCaseRequestResponse {
                                         .orElse(null))
                                 .listNo(hearingEntity.getListNo())
                                 .build())
-                        .collect(Collectors.toList()))
+                        .toList())
                 .defendants(courtCase.getDefendants().stream()
                         .map(defendantEntity -> Defendant.builder()
                                 .defendantId(defendantEntity.getDefendantId())
@@ -75,7 +81,7 @@ public class ExtendedCourtCaseRequestResponse {
                                         .orElse(null))
                                 .probationStatus(defendantEntity.getProbationStatus())
                                 .type(defendantEntity.getType())
-                                .sex(defendantEntity.getSex())
+                                .sex(Optional.ofNullable(defendantEntity.getSex()).map(Enum::name).orElse(null))
                                 .crn(defendantEntity.getCrn())
                                 .pnc(defendantEntity.getPnc())
                                 .cro(defendantEntity.getCro())
@@ -91,9 +97,9 @@ public class ExtendedCourtCaseRequestResponse {
                                                 .offenceTitle(offence.getTitle())
                                                 .offenceSummary(offence.getSummary())
                                                 .build())
-                                        .collect(Collectors.toList()))
+                                        .toList())
                                 .build())
-                        .collect(Collectors.toList()))
+                        .toList())
                 .build();
     }
 
@@ -142,7 +148,7 @@ public class ExtendedCourtCaseRequestResponse {
             .preSentenceActivity(defendant.getPreSentenceActivity())
             .previouslyKnownTerminationDate(defendant.getPreviouslyKnownTerminationDate())
             .probationStatus(defendant.getProbationStatus())
-            .sex(defendant.getSex())
+            .sex(Sex.fromString(defendant.getSex()))
             .suspendedSentenceOrder(defendant.getSuspendedSentenceOrder())
             .type(defendant.getType())
             .defendantId(defendant.getDefendantId())

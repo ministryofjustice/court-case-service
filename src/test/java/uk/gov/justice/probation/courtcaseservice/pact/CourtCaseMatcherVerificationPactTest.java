@@ -23,6 +23,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
@@ -33,7 +34,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @Provider("court-case-service")
@@ -63,7 +64,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
     void getCourtCase() {
         var courtCaseEntity = CourtCaseEntity.builder()
                 .caseNo("1600028913")
-                .defendantSex("M")
+                .defendantSex(Sex.MALE)
                 .sourceType(SourceType.LIBRA)
                 .defendants(Collections.singletonList(DefendantEntity.builder()
                         .defendantId("51354F3C-9625-404D-B820-C74724D23484")
@@ -123,7 +124,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                 .preSentenceActivity(true)
                                 .previouslyKnownTerminationDate(LocalDate.of(2019, 5, 3))
                                 .probationStatus("PREVIOUSLY_KNOWN")
-                                .sex("M")
+                                .sex(Sex.MALE)
                                 .suspendedSentenceOrder(true)
                                 .type(DefendantType.PERSON)
                                 .build(),
@@ -156,7 +157,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                 .preSentenceActivity(true)
                                 .previouslyKnownTerminationDate(LocalDate.of(2019, 5, 3))
                                 .probationStatus("PREVIOUSLY_KNOWN")
-                                .sex("M")
+                                .sex(Sex.MALE)
                                 .suspendedSentenceOrder(true)
                                 .type(DefendantType.PERSON)
                                 .build()))
@@ -181,8 +182,8 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
     }
 
     @State({"a case will be PUT by id"})
-    void getMinimalCourtCaseById() {
+    void mockPutCourtCaseExtended() {
         final Mono<CourtCaseEntity> caseMono = Mono.just(EntityHelper.aCourtCaseEntity("X340741", "1600028914"));
-        when(courtCaseService.createCase(anyString(), any(CourtCaseEntity.class))).thenReturn(caseMono);
+        when(courtCaseService.createCase(eq("D517D32D-3C80-41E8-846E-D274DC2B94A5"), any(CourtCaseEntity.class))).thenReturn(caseMono);
     }
 }

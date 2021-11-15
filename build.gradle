@@ -8,7 +8,7 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.39.0'
     id "org.flywaydb.flyway" version "8.0.4"
     id 'jacoco'
-    id "au.com.dius.pact" version "4.2.14"
+    id "au.com.dius.pact" version "4.3.0"
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm' version '1.6.0-RC2'
 }

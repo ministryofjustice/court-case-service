@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CommunityApiPactTest {
 
     @Pact(provider="community-api", consumer="court-case-service")
-    public RequestResponsePact getNsis(PactDslWithProvider builder) {
+    public V4Pact getNsis(PactDslWithProvider builder) {
 
         var keyValueType = new PactDslJsonBody()
             .stringType("code", "description");
@@ -52,7 +52,7 @@ class CommunityApiPactTest {
             .headers(Map.of("Content-Type", MediaType.APPLICATION_JSON_VALUE))
             .body(body)
             .status(200)
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
     @Pact(provider="community-api", consumer="court-case-service")

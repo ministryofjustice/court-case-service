@@ -8,6 +8,7 @@ import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
 import au.com.dius.pact.core.model.RequestResponsePact;
+import au.com.dius.pact.core.model.V4Pact;
 import au.com.dius.pact.core.model.annotations.Pact;
 import au.com.dius.pact.core.model.annotations.PactDirectory;
 import org.apache.http.client.fluent.Request;
@@ -55,7 +56,7 @@ class CommunityApiPactTest {
     }
 
     @Pact(provider="community-api", consumer="court-case-service")
-    public RequestResponsePact getProbationStatusDetailCurrent(PactDslWithProvider builder) {
+    public V4Pact getProbationStatusDetailCurrent(PactDslWithProvider builder) {
 
         var body = new PactDslJsonBody()
             .booleanType("preSentenceActivity")
@@ -72,11 +73,11 @@ class CommunityApiPactTest {
             .headers(Map.of("Content-Type", MediaType.APPLICATION_JSON_VALUE))
             .body(body)
             .status(200)
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
     @Pact(provider="community-api", consumer="court-case-service")
-    public RequestResponsePact getProbationStatusDetailPreviouslyKnown(PactDslWithProvider builder) {
+    public V4Pact getProbationStatusDetailPreviouslyKnown(PactDslWithProvider builder) {
 
         var body = new PactDslJsonBody()
             .booleanType("preSentenceActivity")
@@ -93,7 +94,7 @@ class CommunityApiPactTest {
             .headers(Map.of("Content-Type", MediaType.APPLICATION_JSON_VALUE))
             .body(body)
             .status(200)
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
     @PactTestFor(pactMethod = "getNsis")
@@ -130,7 +131,7 @@ class CommunityApiPactTest {
     }
 
     @Pact(provider="community-api", consumer="court-case-service")
-    public RequestResponsePact getProbationStatus(PactDslWithProvider builder) {
+    public V4Pact getProbationStatus(PactDslWithProvider builder) {
 
         var body = new PactDslJsonBody()
                 .booleanType("awaitingPsr")
@@ -149,7 +150,7 @@ class CommunityApiPactTest {
                 .headers(Map.of("Content-Type", MediaType.APPLICATION_JSON_VALUE))
                 .body(body)
                 .status(200)
-                .toPact();
+                .toPact(V4Pact.class);
     }
 
     @PactTestFor(pactMethod = "getProbationStatus")
@@ -164,7 +165,7 @@ class CommunityApiPactTest {
     }
 
     @Pact(provider="community-api", consumer="court-case-service")
-    public RequestResponsePact getCourtReportsByCrnAndConvictionId(PactDslWithProvider builder) {
+    public V4Pact getCourtReportsByCrnAndConvictionId(PactDslWithProvider builder) {
 
         DslPart body = PactDslJsonArray.arrayMinLike(1)
             .numberTypes("courtReportId", "offenderId")
@@ -192,7 +193,7 @@ class CommunityApiPactTest {
             .headers(Map.of("Content-Type", MediaType.APPLICATION_JSON_VALUE))
             .body(body)
             .status(200)
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
     @PactTestFor(pactMethod = "getCourtReportsByCrnAndConvictionId")

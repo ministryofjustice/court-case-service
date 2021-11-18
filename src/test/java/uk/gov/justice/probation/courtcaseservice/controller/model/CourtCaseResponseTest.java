@@ -9,7 +9,7 @@ class CourtCaseResponseTest {
 
     @Test
     void givenUnmatchedCaseWithMatches_whenGetProbationStatus_thenReturnPossible() {
-        CourtCaseResponse response = CourtCaseResponse.builder()
+        var response = CourtCaseResponse.builder()
             .numberOfPossibleMatches(3)
             .build();
 
@@ -19,7 +19,7 @@ class CourtCaseResponseTest {
 
     @Test
     void givenMatchedCaseWithMatches_whenGetProbationStatus_thenReturnNoRecord() {
-        CourtCaseResponse response = CourtCaseResponse.builder()
+        var response = CourtCaseResponse.builder()
             .crn("X340741")
             .numberOfPossibleMatches(3)
             .build();
@@ -30,7 +30,7 @@ class CourtCaseResponseTest {
 
     @Test
     void givenMatchedCase_whenGetProbationStatus_thenReturnName() {
-        CourtCaseResponse response = CourtCaseResponse.builder()
+        var response = CourtCaseResponse.builder()
             .crn("X340741")
             .probationStatus(ProbationStatus.NOT_SENTENCED)
             .numberOfPossibleMatches(3)
@@ -42,7 +42,7 @@ class CourtCaseResponseTest {
 
     @Test
     void givenMatchedCase_whenGetProbationStatusCurrent_thenReturnName() {
-        CourtCaseResponse response = CourtCaseResponse.builder()
+        var response = CourtCaseResponse.builder()
             .crn("X340741")
             .probationStatus(ProbationStatus.CURRENT)
             .numberOfPossibleMatches(3)
@@ -54,7 +54,7 @@ class CourtCaseResponseTest {
 
     @Test
     void givenMatchedCase_whenGetProbationStatusPreviouslyKnown_thenReturn() {
-        CourtCaseResponse response = CourtCaseResponse.builder()
+        var response = CourtCaseResponse.builder()
             .crn("X340741")
             .probationStatus(ProbationStatus.PREVIOUSLY_KNOWN)
             .build();
@@ -65,7 +65,7 @@ class CourtCaseResponseTest {
 
     @Test
     void givenNullSex_whenGet_thenReturnNotKnown() {
-        CourtCaseResponse response = CourtCaseResponse.builder()
+        var response = CourtCaseResponse.builder()
             .build();
 
         assertThat(response.getDefendantSex()).isEqualTo("N");
@@ -73,7 +73,7 @@ class CourtCaseResponseTest {
 
     @Test
     void givenFemaleSex_whenGet_thenReturnAsString() {
-        CourtCaseResponse response = CourtCaseResponse.builder()
+        var response = CourtCaseResponse.builder()
             .defendantSex(Sex.FEMALE)
             .build();
 

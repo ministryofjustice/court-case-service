@@ -1,9 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import javax.validation.Valid;
@@ -79,17 +77,17 @@ public class ExtendedCourtCaseRequestResponse {
                                                 .postcode(address.getPostcode())
                                                 .build())
                                         .orElse(null))
-                                .probationStatus(defendantEntity.getProbationStatus())
                                 .type(defendantEntity.getType())
                                 .sex(Optional.ofNullable(defendantEntity.getSex()).map(Enum::name).orElse(null))
-                                .crn(defendantEntity.getCrn())
                                 .pnc(defendantEntity.getPnc())
                                 .cro(defendantEntity.getCro())
-                                .previouslyKnownTerminationDate(defendantEntity.getPreviouslyKnownTerminationDate())
-                                .suspendedSentenceOrder(defendantEntity.getSuspendedSentenceOrder())
-                                .breach(defendantEntity.getBreach())
-                                .preSentenceActivity(defendantEntity.getPreSentenceActivity())
-                                .awaitingPsr(defendantEntity.getAwaitingPsr())
+                                .crn(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getCrn).orElse(null))
+                                .probationStatus(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getProbationStatus).orElse(null))
+                                .awaitingPsr(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getAwaitingPsr).orElse(null))
+                                .breach(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getBreach).orElse(null))
+                                .preSentenceActivity(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getPreSentenceActivity).orElse(null))
+                                .suspendedSentenceOrder(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getSuspendedSentenceOrder).orElse(null))
+                                .previouslyKnownTerminationDate(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getPreviouslyKnownTerminationDate).orElse(null))
                                 .offences(Optional.ofNullable(defendantEntity.getOffences())
                                         .orElse(Collections.emptyList()).stream()
                                         .map(offence ->  OffenceRequestResponse.builder()
@@ -108,14 +106,14 @@ public class ExtendedCourtCaseRequestResponse {
         final var hearingDayEntities = Optional.ofNullable(hearingDays).orElse(Collections.emptyList())
             .stream()
             .map(this::buildHearing)
-            .collect(Collectors.toList());
+            .toList();
         final var defendantEntities = Optional.ofNullable(defendants).orElse(Collections.emptyList())
             .stream()
             .map(this::buildDefendant)
-            .collect(Collectors.toList());
+            .toList();
         final var offenceEntities = buildOffences(defendantEntities);
 
-        final var courtCaseEntity = buildLegacyFields(defendantEntities, hearingDayEntities)
+        final var courtCaseEntity = buildLegacyFields(defendantEntities)
             .offences(offenceEntities)
             .hearings(hearingDayEntities)
             .defendants(defendantEntities)
@@ -133,17 +131,18 @@ public class ExtendedCourtCaseRequestResponse {
     private DefendantEntity buildDefendant(Defendant defendant) {
 
         final var offences = buildDefendantOffences(defendant.getOffences());
+        final var offender = buildOffender(defendant);
 
         final var defendantEntity = DefendantEntity.builder()
             .address(buildAddress(defendant.getAddress()))
             .awaitingPsr(defendant.getAwaitingPsr())
             .breach(defendant.getBreach())
-            .crn(defendant.getCrn())
             .cro(defendant.getCro())
             .dateOfBirth(defendant.getDateOfBirth())
             .defendantName(defendant.getName().getFullName())
             .name(defendant.getName())
             .offences(offences)
+            .offender(offender)
             .pnc(defendant.getPnc())
             .preSentenceActivity(defendant.getPreSentenceActivity())
             .previouslyKnownTerminationDate(defendant.getPreviouslyKnownTerminationDate())
@@ -155,6 +154,21 @@ public class ExtendedCourtCaseRequestResponse {
             .build();
         offences.forEach(offence -> offence.setDefendant(defendantEntity));
         return defendantEntity;
+    }
+
+    private OffenderEntity buildOffender(Defendant defendant) {
+        return Optional.ofNullable(defendant.getCrn())
+                .map((crn) ->
+                    OffenderEntity.builder()
+                                .crn(crn)
+                                .previouslyKnownTerminationDate(defendant.getPreviouslyKnownTerminationDate())
+                                .probationStatus(defendant.getProbationStatus())
+                                .awaitingPsr(defendant.getAwaitingPsr())
+                                .breach(defendant.getBreach())
+                                .preSentenceActivity(defendant.getPreSentenceActivity())
+                                .suspendedSentenceOrder(defendant.getSuspendedSentenceOrder())
+                                .build())
+                    .orElse(null);
     }
 
     private List<DefendantOffenceEntity> buildDefendantOffences(List<OffenceRequestResponse> offences) {
@@ -199,10 +213,9 @@ public class ExtendedCourtCaseRequestResponse {
 
     // All these fields will be removed into the defendant and hearings
     @Deprecated(forRemoval = true)
-    private CourtCaseEntity.CourtCaseEntityBuilder buildLegacyFields(List<DefendantEntity> defendantEntities, List<HearingEntity> hearingEntities) {
+    private CourtCaseEntity.CourtCaseEntityBuilder buildLegacyFields(List<DefendantEntity> defendantEntities) {
 
         final var firstDefendant = defendantEntities.stream().findFirst();
-        final var firstHearingDay = hearingEntities.stream().findFirst();
 
         return CourtCaseEntity.builder()
             // Top level fields to be retired into the Defendant

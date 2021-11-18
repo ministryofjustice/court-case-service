@@ -19,48 +19,6 @@ import java.util.stream.Collectors;
  */
 public class CourtCaseMapper {
 
-    public static CourtCaseEntity create(CourtCaseEntity courtCaseEntity, String crn, String updatedProbationStatus) {
-
-        final var newCourtCaseEntity = CourtCaseEntity.builder()
-            .breach(courtCaseEntity.getBreach())
-            .caseId(courtCaseEntity.getCaseId())
-            .caseNo(courtCaseEntity.getCaseNo())
-            .crn(courtCaseEntity.getCrn())
-            .cro(courtCaseEntity.getCro())
-            .defendantAddress(courtCaseEntity.getDefendantAddress())
-            .defendantDob(courtCaseEntity.getDefendantDob())
-            .defendantName(courtCaseEntity.getDefendantName())
-            .defendantSex(courtCaseEntity.getDefendantSex())
-            .defendantType(courtCaseEntity.getDefendantType())
-            .firstCreated(courtCaseEntity.getFirstCreated())
-            .name(courtCaseEntity.getName())
-            .nationality1(courtCaseEntity.getNationality1())
-            .nationality2(courtCaseEntity.getNationality2())
-            .pnc(courtCaseEntity.getPnc())
-            .previouslyKnownTerminationDate(courtCaseEntity.getPreviouslyKnownTerminationDate())
-            .probationStatus(updatedProbationStatus)
-            .sourceType(courtCaseEntity.getSourceType())
-            .suspendedSentenceOrder(courtCaseEntity.getSuspendedSentenceOrder())
-            .hearings(courtCaseEntity.getHearings()
-                            .stream()
-                            .map(CourtCaseMapper::createHearing)
-                            .collect(Collectors.toList()))
-            .offences(courtCaseEntity.getOffences()
-                            .stream()
-                            .map(CourtCaseMapper::createOffence)
-                            .collect(Collectors.toList()))
-            .defendants(Optional.ofNullable(courtCaseEntity.getDefendants()).orElse(Collections.emptyList())
-                .stream()
-                .map(defendant -> createDefendant(defendant, crn, updatedProbationStatus))
-                .collect(Collectors.toList()))
-            .build();
-
-        newCourtCaseEntity.getOffences().forEach(offenceEntity -> offenceEntity.setCourtCase(newCourtCaseEntity));
-        newCourtCaseEntity.getDefendants().forEach(defendantEntity -> defendantEntity.setCourtCase(newCourtCaseEntity));
-        newCourtCaseEntity.getHearings().forEach(hearingEntity -> hearingEntity.setCourtCase(newCourtCaseEntity));
-        return newCourtCaseEntity;
-    }
-
     public static CourtCaseEntity mergeDefendantsOnCase(CourtCaseEntity existingCase, CourtCaseEntity updatedCase, String defendantId) {
         final var existingDefendants = Optional.ofNullable(existingCase.getDefendants()).orElse(Collections.emptyList());
         final var existingHearings = CourtCaseMapper.createHearings(existingCase.getHearings());
@@ -117,7 +75,7 @@ public class CourtCaseMapper {
             .name(defendantEntity.getName())
             .type(defendantEntity.getType())
             .address(defendantEntity.getAddress())
-            .crn(defendantEntity.getCrn())
+            .offender(defendantEntity.getOffender())
             .pnc(defendantEntity.getPnc())
             .cro(defendantEntity.getCro())
             .dateOfBirth(defendantEntity.getDateOfBirth())

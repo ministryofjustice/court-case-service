@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
@@ -25,10 +26,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.anOffender;
 
 @ExtendWith(MockitoExtension.class)
 class TelemetryServiceTest {
-    public static final String COURT_CODE = "SHF";
     public static final String CASE_ID = "1234567890";
     private static final String CRN = "CRN";
     private static final String PNC = "PNC";
@@ -52,11 +53,11 @@ class TelemetryServiceTest {
     private TelemetryService service;
 
     @Test
-    public void givenUserDetailsAvailable_whenTrackMatchEvent_thenAddAllProperties() {
+    void givenUserDetailsAvailable_whenTrackMatchEvent_thenAddAllProperties() {
         when(clientDetails.getUsername()).thenReturn("Arthur");
         when(clientDetails.getClientId()).thenReturn("Van der Linde");
 
-        OffenderMatchEntity match = OffenderMatchEntity.builder()
+        var match = OffenderMatchEntity.builder()
                 .group(GroupedOffenderMatchesEntity.builder()
                         .offenderMatches(Arrays.asList(
                                 OffenderMatchEntity.builder().build(),
@@ -85,23 +86,21 @@ class TelemetryServiceTest {
     }
 
     @Test
-    public void givenUserDetailsAvailable_whenTrackCourtCaseEvent_thenAddAllProperties() {
+    void givenUserDetailsAvailable_whenTrackCourtCaseEvent_thenAddAllProperties() {
         when(clientDetails.getUsername()).thenReturn("Arthur");
         when(clientDetails.getClientId()).thenReturn("Van der Linde");
         when(firstHearing.loggableString()).thenReturn("first-hearing-description");
         when(secondHearing.loggableString()).thenReturn("second-hearing-description");
 
-        CourtCaseEntity courtCase = buildCourtCase();
+        var courtCase = buildCourtCase();
 
         service.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCase);
 
         verify(telemetryClient).trackEvent(eq("PiCCourtCaseCreated"), properties.capture(), metricsCaptor.capture());
 
         var properties = this.properties.getValue();
-        assertThat(properties.size()).isEqualTo(6);
+        assertThat(properties).hasSize(4);
         assertThat(properties.get("caseId")).isEqualTo(CASE_ID);
-        assertThat(properties.get("crn")).isEqualTo(CRN);
-        assertThat(properties.get("pnc")).isEqualTo(PNC);
         assertThat(properties.get("hearings")).isEqualTo("first-hearing-description,second-hearing-description");
         assertThat(properties.get("username")).isEqualTo("Arthur");
         assertThat(properties.get("clientId")).isEqualTo("Van der Linde");
@@ -110,25 +109,26 @@ class TelemetryServiceTest {
     }
 
     @Test
-    public void givenNullProperties_whenTrackCourtCaseEvent_thenExcludeUserProperties() {
-        CourtCaseEntity courtCase = buildCourtCase();
+    void givenNullProperties_whenTrackCourtCaseEvent_thenExcludeUserProperties() {
+        var courtCase = buildCourtCase();
+        when(firstHearing.loggableString()).thenReturn("first-hearing-description");
+        when(secondHearing.loggableString()).thenReturn("second-hearing-description");
 
         service.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCase);
 
         verify(telemetryClient).trackEvent(eq("PiCCourtCaseCreated"), properties.capture(), metricsCaptor.capture());
 
         var properties = this.properties.getValue();
-        assertThat(properties.size()).isEqualTo(4);
+        assertThat(properties).hasSize(2);
         assertThat(properties.get("caseId")).isEqualTo(CASE_ID);
-        assertThat(properties.get("crn")).isEqualTo(CRN);
-        assertThat(properties.get("pnc")).isEqualTo(PNC);
+        assertThat(properties.get("hearings")).isEqualTo("first-hearing-description,second-hearing-description");
 
         assertThat(metricsCaptor.getValue()).isEmpty();
     }
 
     @Test
-    public void givenAllValuesAreNull_whenTrackCourtCaseEvent_thenNoPropertiesReturned() {
-        CourtCaseEntity courtCase = CourtCaseEntity.builder()
+    void givenAllValuesAreNull_whenTrackCourtCaseEvent_thenNoPropertiesReturned() {
+        var courtCase = CourtCaseEntity.builder()
                 .build();
 
         service.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCase);
@@ -142,7 +142,7 @@ class TelemetryServiceTest {
     }
 
     @Test
-    public void whenTrackApplicationDegradationEvent_thenCallService() {
+    void whenTrackApplicationDegradationEvent_thenCallService() {
 
         var e = new OffenderNotFoundException(CRN);
 
@@ -153,6 +153,37 @@ class TelemetryServiceTest {
         verify(telemetryClient).trackEvent(TelemetryEventType.GRACEFUL_DEGRADE.eventName, properties, Collections.emptyMap());
     }
 
+    @Test
+    void whenTrackDefendantEvent_thenCallService() {
+
+        var defendant = DefendantEntity.builder()
+            .pnc(PNC)
+            .defendantId(DEFENDANT_ID)
+            .offender(anOffender(CRN))
+            .build();
+
+        service.trackCourtCaseDefendantEvent(TelemetryEventType.DEFENDANT_LINKED, defendant, "caseId");
+
+        var properties = Map.of("crn", CRN,"pnc", PNC, "caseId", "caseId", "defendantId", DEFENDANT_ID);
+
+        verify(telemetryClient).trackEvent(TelemetryEventType.DEFENDANT_LINKED.eventName, properties, Collections.emptyMap());
+    }
+
+    @Test
+    void givenNoOffender_whenTrackDefendantEvent_thenCallService() {
+
+        var defendant = DefendantEntity.builder()
+            .defendantId(DEFENDANT_ID)
+            .pnc(PNC)
+            .build();
+
+        service.trackCourtCaseDefendantEvent(TelemetryEventType.DEFENDANT_UNLINKED, defendant, "caseId");
+
+        var properties = Map.of("caseId", "caseId", "defendantId", DEFENDANT_ID, "pnc", PNC);
+
+        verify(telemetryClient).trackEvent(TelemetryEventType.DEFENDANT_UNLINKED.eventName, properties, Collections.emptyMap());
+    }
+
     private CourtCaseEntity buildCourtCase() {
         return CourtCaseEntity.builder()
                 .caseId(CASE_ID)
@@ -161,8 +192,6 @@ class TelemetryServiceTest {
                         secondHearing
                 ))
                 .offences(emptyList())
-                .crn(CRN)
-                .pnc(PNC)
                 .build();
     }
 }

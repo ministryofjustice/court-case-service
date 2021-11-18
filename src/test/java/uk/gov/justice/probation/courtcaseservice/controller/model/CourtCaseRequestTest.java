@@ -116,6 +116,7 @@ class CourtCaseRequestTest {
 
         assertThat(entity.getHearings()).hasSize(1);
         assertThat(entity.getDefendants()).hasSize(1);
+        final var defendant = entity.getDefendants().get(0);
 
         final var address = AddressPropertiesEntity.builder()
             .line1("LINE1")
@@ -126,24 +127,32 @@ class CourtCaseRequestTest {
             .postcode("POSTCODE")
             .build();
         final var expectedDefendant = EntityHelper.aDefendantEntity(address).withProbationStatus(ProbationStatus.NO_RECORD.name());
-        assertThat(entity.getDefendants().get(0))
+        assertThat(defendant)
             .usingRecursiveComparison()
-            .ignoringFields("id", "courtCase", "offences")
+            .ignoringFields("id", "courtCase", "offences", "offender")
             .isEqualTo(expectedDefendant);
-        assertThat(entity.getDefendants().get(0).getCourtCase()).isNotNull();
+        assertThat(defendant.getCourtCase()).isNotNull();
 
-        assertThat(entity.getDefendants().get(0).getOffences()).hasSize(2);
+        assertThat(defendant.getOffences()).hasSize(2);
         var expectedDefendantOffenceEntity1 = DefendantOffenceEntity.builder()
             .summary("OFFENCE_SUMMARY1")
             .title("OFFENCE_TITLE1")
             .act("ACT1")
             .sequence(1)
             .build();
-        assertThat(entity.getDefendants().get(0).getOffences().get(0))
+        assertThat(defendant.getOffences().get(0))
             .usingRecursiveComparison()
             .ignoringFields("id", "defendant")
             .isEqualTo(expectedDefendantOffenceEntity1);
-        assertThat(entity.getDefendants().get(0).getOffences().get(0).getDefendant()).isNotNull();
+        assertThat(defendant.getOffences().get(0).getDefendant()).isNotNull();
+
+        assertThat(defendant.getOffender().getCrn()).isEqualTo(CRN);
+        assertThat(defendant.getOffender().getProbationStatus()).isEqualTo(NO_RECORD_DESCRIPTION);
+        assertThat(defendant.getOffender().getPreviouslyKnownTerminationDate()).isEqualTo(TERMINATION_DATE);
+        assertThat(defendant.getOffender().getAwaitingPsr()).isEqualTo(AWAITING_PSR);
+        assertThat(defendant.getOffender().getBreach()).isEqualTo(BREACH);
+        assertThat(defendant.getOffender().getPreSentenceActivity()).isEqualTo(PRE_SENTENCE_ACTIVITY);
+        assertThat(defendant.getOffender().getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE);
     }
 
     @Test
@@ -171,5 +180,6 @@ class CourtCaseRequestTest {
         assertThat(entity.getDefendants().get(0).getDefendantId()).isNotNull();
         assertThat(entity.getDefendants().get(0).getDefendantName()).isEqualTo(DEFENDANT_NAME);
         assertThat(entity.getDefendants().get(0).getDateOfBirth()).isEqualTo(DEFENDANT_DOB);
+//        assertThat(entity.getDefendants().get(0).getOffender()).isNull();
     }
 }

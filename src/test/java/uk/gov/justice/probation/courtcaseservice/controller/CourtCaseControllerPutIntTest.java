@@ -15,14 +15,17 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
@@ -41,7 +44,6 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_1;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_2;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
@@ -55,6 +57,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
 
     @Autowired
     CourtCaseRepository courtCaseRepository;
+
+    @Autowired
+    OffenderRepository offenderRepository;
 
     @Autowired
     GroupedOffenderMatchRepository matchRepository;
@@ -74,9 +79,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
     private String caseDetailsJson;
 
     /** NEW values match those from JSON file incoming. */
-    private static final String JSON_CASE_NO = "1700028914";
     private static final String JSON_CASE_ID = "571b7172-4cef-435c-9048-d071a43b9dbf";
     private static final String JSON_DEFENDANT_ID = "e0056894-e8f8-42c2-ba9a-e41250c3d1a3";
+
     @BeforeEach
     void beforeEach() throws Exception {
         caseDetailsJson = Files.readString(caseDetailsResource.getFile().toPath());
@@ -112,10 +117,16 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
         @Test
         void whenCreateCaseExtendedByCaseId_thenCreateNewRecord() {
 
-            final var othersSameCrnPreUpdate = courtCaseRepository.findByCaseIdOrderByCreatedDesc("ce84bb2d-e44a-4554-a1a8-795accaac4d8");
-            assertThat(othersSameCrnPreUpdate).hasSize(2);
-            assertThat(othersSameCrnPreUpdate.get(0).getDefendants().get(0).getProbationStatus()).isEqualTo("CURRENT");
-            assertThat(othersSameCrnPreUpdate.get(1).getDefendants().get(0).getProbationStatus()).isEqualTo("CURRENT");
+            final var offenderEntity = offenderRepository.findByCrn(CRN);
+            offenderEntity.ifPresentOrElse(off -> {
+                assertThat(off.getCrn()).isEqualTo(CRN);
+                assertThat(off.getProbationStatus()).isEqualTo("CURRENT");
+                assertThat(off.getAwaitingPsr()).isNull();
+                assertThat(off.getBreach()).isFalse();
+                assertThat(off.getPreSentenceActivity()).isFalse();
+                assertThat(off.getSuspendedSentenceOrder()).isFalse();
+                assertThat(off.getPreviouslyKnownTerminationDate()).isNull();
+            }, () -> fail("Initial offender values unexpected"));
 
             given()
                 .auth()
@@ -144,34 +155,162 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .body("hearingDays", hasSize(1))
             ;
 
-            final var othersSameCrnUpdated = courtCaseRepository.findByCaseIdOrderByCreatedDesc("ce84bb2d-e44a-4554-a1a8-795accaac4d8");
+            offenderRepository.findByCrn(CRN).ifPresentOrElse(off -> {
+                assertThat(off.getCrn()).isEqualTo(CRN);
+                assertThat(off.getProbationStatus()).isEqualTo("PREVIOUSLY_KNOWN");
+                assertThat(off.getAwaitingPsr()).isTrue();
+                assertThat(off.getBreach()).isTrue();
+                assertThat(off.getPreSentenceActivity()).isTrue();
+                assertThat(off.getSuspendedSentenceOrder()).isTrue();
+                assertThat(off.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2018, Month.JUNE, 24));
+            }, () -> fail("Offender values not updated as expected"));
 
-            // There will be one new version of the other case and only that newest one has the updated status
-            assertThat(othersSameCrnUpdated).hasSize(3);
-            assertThat(othersSameCrnUpdated.get(0).getDefendants().stream().filter(en -> en.getCrn().equals(CRN)).findFirst().orElseThrow())
-                .hasFieldOrPropertyWithValue("probationStatus", "PREVIOUSLY_KNOWN");
-            // The non-matched remains with CURRENT
-            assertThat(othersSameCrnUpdated.get(0).getDefendants().stream().filter(en -> !en.getCrn().equals(CRN)).findFirst().orElseThrow())
-                .hasFieldOrPropertyWithValue("probationStatus", "CURRENT");
-            assertThat(othersSameCrnUpdated.get(1).getDefendants()).extracting("probationStatus").containsExactly("CURRENT", "CURRENT");
-            assertThat(othersSameCrnUpdated.get(2).getDefendants()).extracting("probationStatus").containsExactly("CURRENT", "CURRENT");
         }
 
         @Test
-        void givenExistingCase_whenCreateCaseExtendedByCaseId_thenCreateNewRecord() throws IOException {
-            final var caseDetailsExtendedUpdateJson = FileUtils.readFileToString(caseDetailsExtendedUpdate, "UTF-8");
+        void givenExistingCase_whenCreateCaseExtendedByCaseIdUpdateCrn_thenCreateNewRecordUpdateCreateNewOffender() throws IOException {
+            final var crn = "X721999";
+            final var updatedJson = FileUtils.readFileToString(caseDetailsExtendedUpdate, "UTF-8")
+                .replace("\"crn\": \"X320741\"", "\"crn\": \"" + crn + "\"")
+                ;
+
+            assertThat(offenderRepository.findByCrn(crn)).isNotPresent();
+
             given()
                 .auth()
                 .oauth2(getToken())
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(caseDetailsExtendedUpdateJson)
+                .body(updatedJson)
                 .when()
                 .put(String.format("/case/%s/extended", "3db9d70b-10a2-49d1-b74d-379f2db74862"))
                 .then()
                 .statusCode(201)
                 .body("caseId", equalTo("3db9d70b-10a2-49d1-b74d-379f2db74862"))
             ;
+
+            offenderRepository.findByCrn(crn).ifPresentOrElse(off -> {
+                assertThat(off.getProbationStatus()).isEqualTo("PREVIOUSLY_KNOWN");
+                assertThat(off.getAwaitingPsr()).isTrue();
+                assertThat(off.getBreach()).isTrue();
+                assertThat(off.getPreSentenceActivity()).isTrue();
+                assertThat(off.getSuspendedSentenceOrder()).isTrue();
+                assertThat(off.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2018, Month.JUNE, 24));
+            }, () -> fail("Offender values not updated as expected for crn " + crn));
+        }
+
+        @Test
+        void givenExistingCaseWithOffenders_whenRemoveOffender_thenDetachOffenders() throws IOException {
+            final var updatedJson = FileUtils.readFileToString(caseDetailsExtendedUpdate, "UTF-8")
+                .replace("\"crn\": \"X320741\"", "\"crn\": null")
+                .replace("\"crn\": \"X320742\"", "\"crn\": null")
+                ;
+
+            given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(updatedJson)
+                .when()
+                .put(String.format("/case/%s/extended", "3db9d70b-10a2-49d1-b74d-379f2db74862"))
+                .then()
+                .statusCode(201)
+                .body("caseId", equalTo("3db9d70b-10a2-49d1-b74d-379f2db74862"))
+            ;
+
+            // No offenders associated with the defendants
+            courtCaseRepository.findByCaseId("3db9d70b-10a2-49d1-b74d-379f2db74862")
+                .ifPresentOrElse(theCase -> {
+                        assertThat(theCase.getDefendants()
+                                            .stream()
+                                            .filter(defendantEntity -> defendantEntity.getOffender() != null)
+                                            .toList()).isEmpty();
+                    }, () -> fail("Case should exist"));
+
+        }
+
+        @Test
+        void givenExistingCaseWithNoOffenderAttached_whenAddExistingOffender_thenAdd() {
+            final var caseId = "ac24a1be-939b-49a4-a524-21a3d2230000";
+            final var defendantId = "d49323c0-04da-11ec-b2d8-0242ac130002";
+            final var updatedJson = caseDetailsExtendedJson
+                .replace("\"caseId\": \"ac24a1be-939b-49a4-a524-21a3d228f8bc\"", "\"caseId\": \"" + caseId + "\"")
+                .replace("\"defendantId\": \"e0056894-e8f8-42c2-ba9a-e41250c3d1a3\"", "\"defendantId\": \"" + defendantId + "\"")
+                ;
+
+            // No offenders associated with the defendants
+            courtCaseRepository.findByCaseId(caseId)
+                .ifPresentOrElse(theCase -> {
+                    var defendants = theCase.getDefendants();
+                    assertThat(defendants).hasSize(1);
+                    assertThat(defendants.get(0).getOffender()).isNull();
+                }, () -> fail("Case should exist"));
+
+            given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(updatedJson)
+                .when()
+                .put(String.format("/case/%s/extended", caseId))
+                .then()
+                .statusCode(201)
+                .body("caseId", equalTo(caseId))
+            ;
+
+            // The correct offender is now associated
+            courtCaseRepository.findByCaseId(caseId)
+                .ifPresentOrElse(theCase -> {
+                    var defendants = theCase.getDefendants();
+                    assertThat(defendants).hasSize(1);
+                    assertThat(defendants.get(0).getOffender().getCrn()).isEqualTo(CRN);
+                }, () -> fail("Case should exist"));
+        }
+
+        @Test
+        void givenExistingCaseWithNoOffenderAttached_whenAddNewOffender_thenAddAndCreateOffender() {
+            final var caseId = "ac24a1be-939b-49a4-a524-21a3d2230000";
+            final var defendantId = "d49323c0-04da-11ec-b2d8-0242ac130002";
+            final var newCrn = "X212786";
+            final var updatedJson = caseDetailsExtendedJson
+                .replace("\"caseId\": \"ac24a1be-939b-49a4-a524-21a3d228f8bc\"", "\"caseId\": \"" + caseId + "\"")
+                .replace("\"defendantId\": \"e0056894-e8f8-42c2-ba9a-e41250c3d1a3\"", "\"defendantId\": \"" + defendantId + "\"")
+                .replace("\"crn\": \"X320741\"", "\"crn\": \""+ newCrn + "\"")
+                ;
+
+            assertThat(offenderRepository.findByCrn(newCrn)).isNotPresent();
+
+            given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(updatedJson)
+                .when()
+                .put(String.format("/case/%s/extended", caseId))
+                .then()
+                .statusCode(201)
+                .body("caseId", equalTo(caseId))
+            ;
+
+            // The correct offender is now associated
+            courtCaseRepository.findByCaseId(caseId)
+                .ifPresentOrElse(theCase -> {
+                    var defendants = theCase.getDefendants();
+                    assertThat(defendants).hasSize(1);
+                    assertThat(defendants.get(0).getOffender().getCrn()).isEqualTo(newCrn);
+                }, () -> fail("Case should exist"));
+
+            offenderRepository.findByCrn(newCrn).ifPresentOrElse(off -> {
+                assertThat(off.getProbationStatus()).isEqualTo("PREVIOUSLY_KNOWN");
+                assertThat(off.getAwaitingPsr()).isTrue();
+                assertThat(off.getBreach()).isTrue();
+                assertThat(off.getPreSentenceActivity()).isTrue();
+                assertThat(off.getSuspendedSentenceOrder()).isTrue();
+                assertThat(off.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2018, Month.JUNE, 24));
+            }, () -> fail("Offender values not updated as expected for crn " + newCrn));
         }
 
         @Test
@@ -235,7 +374,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
         }
     }
 
-    @Nested
+     @Nested
     class PutByCaseIdAndSingleDefendantId {
 
         private static final String LEICESTER_COURT_CODE = "B33HU";
@@ -262,7 +401,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .then()
                 .statusCode(201);
 
-            validateResponse(validatableResponse, caseId, null, null);
+            validateResponse(validatableResponse);
 
             // All parts of the save are not in the response - so we check extra
             courtCaseRepository.findByCaseId(caseId)
@@ -270,18 +409,18 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                     assertThat(entity.getHearings()).hasSize(1);
                     assertThat(entity.getDefendants()).hasSize(1);
                     assertThat(entity.getDefendants().get(0).getOffences()).hasSize(2);
-                }, () -> fail("COURT CASE does not exist for " + JSON_CASE_ID));
+                    assertThat(entity.getDefendants().get(0).getOffender()).isNull();
+                }, () -> fail("COURT CASE does not exist for " + caseId));
         }
 
         @Test
-        void givenExistingCase_whenUpdateCaseDataByCaseIdAndDefendantId_thenUpdateAllCrns() {
+        void givenExistingCaseWithMultipleDefendants_whenUpdateCaseDataByCaseIdAndDefendantIdAddOffender_thenUpdate() {
 
             final var crn = "X320654";
 
             final var caseId = "3db9d70b-10a2-49d1-b74d-379f2db74862";
             final var defendantIdToUpdate = "1263de26-4a81-42d3-a798-bad802433318";
             final var defendantIdToRetain = "6f014c2e-8be3-4a12-a551-8377bd31a7b8";
-            final var caseIdForSameCrn = "e652eaae-1114-4593-8f56-659eb2baffcf";
 
             // Updated JSON will update the name
             var updatedJson = caseDetailsJson
@@ -291,12 +430,12 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .replace("\"crn\": \"X320741\"", "\"crn\": \"" + crn + "\"")
                 ;
 
-            // This case ID is for the same CRN and will be updated from NO_RECORD to PREVIOUSLY_KNOWN
-            courtCaseRepository.findByCaseId(caseIdForSameCrn)
+            // All parts of the save are not in the response - so we check extra
+            courtCaseRepository.findByCaseId(caseId)
                 .ifPresentOrElse(entity -> {
-                    assertThat(entity.getCrn()).isEqualTo(crn);
-                    assertThat(entity.getProbationStatus()).isEqualTo("NO_RECORD");
-                }, () -> fail("COURT CASE does not exist for e652eaae-1114-4593-8f56-659eb2baffcf"));
+                    assertThat(entity.getDefendants()).hasSize(2);
+                    assertThat(entity.getDefendants()).extracting("offender").containsOnlyNulls();
+                }, () -> fail("COURT CASE does not exist for " + caseId));
 
             given()
                 .auth()
@@ -324,14 +463,12 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                     assertThat(entity.getHearings()).hasSize(2);
                     assertThat(entity.getDefendants()).hasSize(2);
                     assertThat(entity.getDefendants()).extracting("defendantId").containsExactlyInAnyOrder(defendantIdToUpdate, defendantIdToRetain);
-                }, () -> fail("COURT CASE does not exist for " + JSON_CASE_ID));
-
-            // Other case for same CRN has been updated to PREVIOUSLY_KNOWN
-            courtCaseRepository.findByCaseId(caseIdForSameCrn)
-                .ifPresentOrElse(entity -> {
-                    assertThat(entity.getCrn()).isEqualTo(crn);
-                    assertThat(entity.getProbationStatus()).isEqualTo("PREVIOUSLY_KNOWN");
-                }, () -> fail("COURT CASE does not exist for e652eaae-1114-4593-8f56-659eb2baffcf"));
+                    assertThat(entity.getDefendants().stream()
+                                        .filter(d -> d.getDefendantId().equalsIgnoreCase(defendantIdToUpdate))
+                                        .map(d -> d.getOffender().getCrn())
+                                        .findFirst().get())
+                        .isEqualTo(crn);
+                }, () -> fail("COURT CASE does not exist for " + caseId));
         }
 
         @Test
@@ -381,6 +518,55 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 assertThat(otherMatches).extracting("rejected").containsOnly(Boolean.TRUE);
             }, () -> fail("COURT CASE does not exist for e652eaae-1114-4593-8f56-659eb2baffcf"));
 
+        }
+
+        @Test
+        void givenExistingCaseWithDefendantAndOffender_whenRemoveOffender_ThenRemoveButKeepOffenderRecord() {
+            final var caseId = "683bcde4-611f-4487-9833-f68090507b74";
+            final var defendantId = "f2c83643-8ebd-4609-9183-cd8c34984e33";
+            var updatedJson = caseDetailsJson
+                .replace("\"caseId\": \"571b7172-4cef-435c-9048-d071a43b9dbf\"", "\"caseId\": \"" + caseId + "\"")
+                .replace("\"defendantId\": \"e0056894-e8f8-42c2-ba9a-e41250c3d1a3\"", "\"defendantId\": \"" + defendantId + "\"")
+                .replace("\"crn\": \"X320741\"", "\"crn\": null")
+                ;
+
+            courtCaseRepository.findByCaseIdAndDefendantId(caseId, defendantId)
+                    .ifPresentOrElse(courtCase -> {
+                        var offender = courtCase.getDefendants().stream()
+                            .filter(defendantEntity -> defendantEntity.getDefendantId().equalsIgnoreCase(defendantId))
+                            .findFirst()
+                            .map(DefendantEntity::getOffender)
+                            .orElse(null);
+                        assertThat(offender).isNotNull();
+                    }, () -> fail("COURT CASE does not exist for " + caseId));
+
+            given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(updatedJson)
+                .when()
+                .put(String.format(PUT_BY_CASEID_AND_DEFENDANTID_PATH, caseId, defendantId))
+                .then()
+                .statusCode(201)
+                .body("$", not(hasKey("crn")))
+                .body("$", not(hasKey("awaitingPsr")))
+                .body("$", not(hasKey("breach")))
+                .body("$", not(hasKey("preSentenceActivity")))
+                .body("$", not(hasKey("suspendedSentenceOrder")))
+                .body("$", not(hasKey("previouslyKnownTerminationDate")))
+                .body("probationStatus", equalTo("No record"))
+            ;
+
+            courtCaseRepository.findByCaseIdAndDefendantId(caseId, defendantId)
+                .ifPresentOrElse(courtCase -> {
+                    var defendant = courtCase.getDefendants().stream()
+                        .filter(defendantEntity -> defendantEntity.getDefendantId().equalsIgnoreCase(defendantId))
+                        .findFirst()
+                        .orElse(null);
+                    assertThat(defendant.getOffender()).isNull();
+                }, () -> fail("COURT CASE does not exist for " + caseId));
         }
 
         @Test
@@ -472,19 +658,15 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
 
     }
 
-    private void validateResponse(ValidatableResponse validatableResponse, String caseId, String crn, String caseNo) {
-        validatableResponse.body("caseNo", equalTo(caseNo))
-            .body("caseId", equalTo(caseId))
-            .body("crn", equalTo(crn))
+    private void validateResponse(ValidatableResponse validatableResponse) {
+
+        validatableResponse.body("caseNo", equalTo((String) null))
+            .body("caseId", equalTo("aca6e1f4-e9fe-4ac4-b38e-5322bf770fd0"))
             .body("courtCode", equalTo(COURT_CODE))
             .body("courtRoom", equalTo(COURT_ROOM))
             .body("source", equalTo("LIBRA"))
-            .body("probationStatus", equalTo(PROBATION_STATUS))
+            .body("probationStatus", equalTo("No record"))
             .body("sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
-            .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2018, 6, 24).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-            .body("suspendedSentenceOrder", equalTo(true))
-            .body("preSentenceActivity", equalTo(true))
-            .body("breach", equalTo(true))
             .body("defendantType", equalTo("PERSON"))
             .body("defendantName", equalTo(DEFENDANT_NAME))
             .body("defendantAddress.line1", equalTo(ADDRESS.getLine1()))
@@ -506,7 +688,14 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             .body("defendantId", notNullValue())
             .body("nationality1", equalTo(NATIONALITY_1))
             .body("nationality2", equalTo(NATIONALITY_2))
-            .body("awaitingPsr", equalTo(true))
         ;
+        validatableResponse
+            .body("$", not(hasKey("crn")))
+            .body("$", not(hasKey("awaitingPsr")))
+            .body("$", not(hasKey("breach")))
+            .body("$", not(hasKey("preSentenceActivity")))
+            .body("$", not(hasKey("suspendedSentenceOrder")))
+            .body("$", not(hasKey("previouslyKnownTerminationDate")))
+            ;
     }
 }

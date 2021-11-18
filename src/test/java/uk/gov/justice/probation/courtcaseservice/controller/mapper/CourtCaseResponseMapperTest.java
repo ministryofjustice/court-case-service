@@ -16,6 +16,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
@@ -134,16 +135,18 @@ class CourtCaseResponseMapperTest {
             .sex(Sex.FEMALE)
             .nationality1("Romanian")
             .dateOfBirth(DEFENDANT_DOB.plusDays(2))
-            .crn("CRN123")
+            .offender(OffenderEntity.builder()
+                .crn("CRN123")
+                .preSentenceActivity(true)
+                .awaitingPsr(true)
+                .suspendedSentenceOrder(true)
+                .breach(true)
+                .probationStatus("CURRENT")
+                .previouslyKnownTerminationDate(LocalDate.now())
+                .build())
             .pnc("PNC123")
             .cro("CRO123")
             .defendantId(defendantUuid)
-            .preSentenceActivity(true)
-            .awaitingPsr(true)
-            .suspendedSentenceOrder(true)
-            .breach(true)
-            .probationStatus("CURRENT")
-            .previouslyKnownTerminationDate(LocalDate.now())
             .type(DefendantType.PERSON)
             .nationality1("Romanian")
             .offences(singletonList(defendantOffence))
@@ -182,17 +185,12 @@ class CourtCaseResponseMapperTest {
     }
 
     @Test
-    void whenNoDefendants_thenGetFirstDefendantId() {
-        assertThat(CourtCaseResponseMapper.getDefendantId(null)).isNull();
-    }
-
-    @Test
     void givenMultipleDefendants_whenMapByDefendantId_thenReturnCorrectDefendant() {
 
         var newName = NamePropertiesEntity.builder().surname("PRESLEY").forename1("Elvis").build();
         var defendant1 = EntityHelper.aDefendantEntity("bd1f71e5-939b-4580-8354-7d6061a58032")
             .withName(newName)
-            .withCrn("D99999");
+            .withOffender(OffenderEntity.builder().crn("D99999").build());
         var defendant2 = EntityHelper.aDefendantEntity(DEFENDANT_ID);
 
         var courtCase = courtCaseEntity.withDefendants(List.of(defendant1, defendant2));
@@ -203,6 +201,35 @@ class CourtCaseResponseMapperTest {
         assertThat(response.getNumberOfPossibleMatches()).isEqualTo(5);
         assertThat(response.getCrn()).isEqualTo("D99999");
         assertThat(response.getName()).isEqualTo(newName);
+    }
+
+    @Test
+    void givenDefendantWithOffender_whenMapByDefendantId_thenReturnFieldsFromOffender() {
+
+        var newName = NamePropertiesEntity.builder().surname("TICKELL").forename1("Katherine").build();
+        var defendant = EntityHelper.aDefendantEntity("bd1f71e5-939b-4580-8354-7d6061a58032")
+            .withName(newName)
+            .withOffender(OffenderEntity.builder().crn("W99999")
+                .probationStatus("PREVIOUSLY_KNOWN")
+                .previouslyKnownTerminationDate(LocalDate.now())
+                .awaitingPsr(false)
+                .breach(true)
+                .preSentenceActivity(false)
+                .suspendedSentenceOrder(true)
+                .build());
+
+        var courtCase = courtCaseEntity.withDefendants(List.of(defendant))
+            .withAwaitingPsr(true);
+
+        var response = CourtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5);
+
+        assertThat(response.getProbationStatus()).isEqualTo("Previously known");
+        assertThat(response.getCrn()).isEqualTo("W99999");
+        assertThat(response.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.now());
+        assertThat(response.getAwaitingPsr()).isFalse();
+        assertThat(response.getBreach()).isTrue();
+        assertThat(response.getPreSentenceActivity()).isFalse();
+        assertThat(response.getSuspendedSentenceOrder()).isTrue();
     }
 
     private GroupedOffenderMatchesEntity buildMatchGroups() {

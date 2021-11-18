@@ -48,9 +48,9 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
     CourtCaseService courtCaseService;
 
     private static final LocalDate DECEMBER_14 = LocalDate.of(2019, Month.DECEMBER, 14);
+    private static final LocalDate JAN_1_2010 = LocalDate.of(2010, 1, 1);
     private static final LocalDateTime DECEMBER_14_9AM = LocalDateTime.of(2019, Month.DECEMBER, 14, 9, 0);
     private static final String CASE_NO = "1600028913";
-    private static final String PROBATION_STATUS = "Possible NDelius record";
     private static final String NOT_FOUND_COURT_CODE = "LPL";
 
     @Nested
@@ -75,7 +75,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[0].defendantName", equalTo("Ms Emma Radical"))
                 .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(7, 0)).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[0].createdToday", equalTo(true))
-                .body("cases[0].probationStatus", equalToIgnoringCase("CURRENT"))
+                .body("cases[0].probationStatus", equalToIgnoringCase("Possible NDelius record"))
                 .body("cases[0].hearings", hasSize(2))
                 .body("cases[0].offences", hasSize(2))
                 .body("cases[0].offences[0].offenceTitle", equalTo("Emma stole 1st thing from a shop"))
@@ -85,14 +85,11 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[2].offences", hasSize(2))
                 .body("cases[2].caseNo", equalTo("1600028913"))
                 .body("cases[2].source", equalTo("LIBRA"))
-                .body("cases[2].preSentenceActivity", equalTo(true))
-                .body("cases[2].probationStatus", equalTo("Possible NDelius record"))
-                .body("cases[2].probationStatusActual", equalTo(null))
+                .body("cases[2].probationStatus", equalToIgnoringCase("Possible NDelius record"))
                 .body("cases[2].offences[0].sequenceNumber", equalTo(1))
                 .body("cases[2].offences[1].sequenceNumber", equalTo(2))
                 .body("cases[2].numberOfPossibleMatches", equalTo(3))
                 .body("cases[2].sessionStartTime", equalTo(DECEMBER_14_9AM.format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("cases[2].awaitingPsr", equalTo(true))
                 .body("cases[4].caseNo", equalTo(null))
                 .body("cases[4].source", equalTo("COMMON_PLATFORM"))
                 .body("cases[5].caseNo", equalTo(null))
@@ -369,7 +366,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
         private static final String CASE_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
 
         @Test
-        void givenKnownCaseId_whenGetCase_thenReturn() {
+        void givenKnownCaseIdWithNoOffender_whenGetCase_thenReturn() {
 
             var response = given()
                 .given()
@@ -388,14 +385,9 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
                 .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
                 .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
-                .body("probationStatus", equalTo(PROBATION_STATUS))
-                .body("probationStatusActual", equalTo(null))
-                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, Month.JANUARY, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-                .body("suspendedSentenceOrder", equalTo(true))
-                .body("breach", equalTo(true))
+                .body("probationStatus", equalToIgnoringCase("Possible NDelius record"))
                 .body("source", equalTo("LIBRA"))
                 .body("caseNo", equalTo("1600028913"))
-                .body("preSentenceActivity", equalTo(true))
                 .body("crn", equalTo(null))
                 .body("pnc", equalTo("A/1234560BA"))
                 .body("cro", equalTo("311462/13E"))
@@ -422,6 +414,32 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("removed", equalTo(false))
                 .body("createdToday", equalTo(true))
                 .body("numberOfPossibleMatches", equalTo(3))
+            ;
+        }
+
+        @Test
+        void givenKnownCaseIdWithOffender_whenGetCase_thenReturn() {
+
+            var response = given()
+                .given()
+                .auth()
+                .oauth2(getToken())
+                .when()
+                .header("Accept", "application/json")
+                .get(PATH, "683bcde4-611f-4487-9833-f68090507b74", "005ae89b-46e9-4fa5-bb5e-d117011cab32")
+                .then()
+                .statusCode(200);
+
+            response
+                .body("caseId", equalTo("683bcde4-611f-4487-9833-f68090507b74"))
+                .body("defendantId", equalTo("005ae89b-46e9-4fa5-bb5e-d117011cab32"))
+                .body("probationStatus", equalToIgnoringCase("Previously known"))
+                .body("probationStatusActual", equalTo("PREVIOUSLY_KNOWN"))
+                .body("crn", equalTo("C16000"))
+                .body("breach", equalTo(true))
+                .body("preSentenceActivity", equalTo(true))
+                .body("suspendedSentenceOrder", equalTo(true))
+                .body("previouslyKnownTerminationDate", equalTo(JAN_1_2010.format(DateTimeFormatter.ISO_LOCAL_DATE)))
             ;
         }
 
@@ -505,14 +523,14 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
             .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
             .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
-            .body("probationStatus", equalTo(PROBATION_STATUS))
-            .body("probationStatusActual", equalTo(null))
-            .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, 1, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)))
-            .body("suspendedSentenceOrder", equalTo(true))
-            .body("breach", equalTo(true))
+            .body("probationStatus", equalTo("Possible NDelius record"))
+//            .body("probationStatusActual", equalTo("CURRENT"))
+//            .body("previouslyKnownTerminationDate", equalTo(JAN_1_2010.format(DateTimeFormatter.ISO_LOCAL_DATE)))
+//            .body("suspendedSentenceOrder", equalTo(true))
+//            .body("breach", equalTo(true))
             .body("source", equalTo("LIBRA"))
-            .body("preSentenceActivity", equalTo(true))
-            .body("crn", equalTo(null))
+//            .body("preSentenceActivity", equalTo(true))
+//            .body("crn", equalTo("X781345"))
             .body("pnc", equalTo("A/1234560BA"))
             .body("cro", equalTo("311462/13E"))
             .body("listNo", equalTo("3rd"))
@@ -592,11 +610,13 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[0].caseNo", equalTo(null))
                 .body("cases[0].source", equalTo("COMMON_PLATFORM"))
                 .body("cases[0].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
+                .body("cases[0].courtRoom", equalTo(COURT_ROOM))
                 .body("cases[0].defendantType", equalTo("PERSON"))
                 .body("cases[0].defendantName", equalTo("Ms Emma Radical"))
                 .body("cases[0].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(7, 0)).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[0].createdToday", equalTo(true))
-                .body("cases[0].probationStatus", equalToIgnoringCase("Current"))
+                .body("cases[0].crn", equalTo(null))
+                .body("cases[0].probationStatus", equalToIgnoringCase("Possible NDelius record"))
                 .body("cases[0].hearings", hasSize(2))
                 .body("cases[0].offences", hasSize(2))
                 .body("cases[0].offences[0].offenceTitle", equalTo("Emma stole 1st thing from a shop"))
@@ -613,14 +633,11 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[2].offences", hasSize(2))
                 .body("cases[2].caseNo", equalTo("1600028913"))
                 .body("cases[2].source", equalTo("LIBRA"))
-                .body("cases[2].preSentenceActivity", equalTo(true))
-                .body("cases[2].probationStatus", equalTo("Possible NDelius record"))
-                .body("cases[2].probationStatusActual", equalTo(null))
+                .body("cases[2].probationStatus", equalToIgnoringCase("Possible NDelius record"))
+                .body("cases[2].numberOfPossibleMatches", equalTo(3))
                 .body("cases[2].offences[0].sequenceNumber", equalTo(1))
                 .body("cases[2].offences[1].sequenceNumber", equalTo(2))
-                .body("cases[2].numberOfPossibleMatches", equalTo(3))
                 .body("cases[2].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(9, 0)).format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("cases[2].awaitingPsr", equalTo(true))
                 .body("cases[4].caseNo", equalTo(null))
                 .body("cases[4].source", equalTo("COMMON_PLATFORM"))
                 .body("cases[5].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(23, 59, 59)).format(DateTimeFormatter.ISO_DATE_TIME)))
@@ -629,7 +646,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[6].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a18"))
                 .body("cases[6].createdToday", equalTo(false));
         }
-
     }
 
 }

@@ -13,6 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
@@ -163,6 +164,9 @@ public class CourtCaseRequest {
             .address(Optional.ofNullable(defendantAddress)
                     .map(this::buildAddress)
                     .orElse(null))
+            .offender(Optional.ofNullable(crn)
+                .map(this::buildOffender)
+                .orElse(null))
             .dateOfBirth(defendantDob)
             .defendantName(defendantName)
             .type(defendantType)
@@ -171,7 +175,6 @@ public class CourtCaseRequest {
             .name(name)
             .sex(Sex.fromString(defendantSex))
             .defendantId(Optional.ofNullable(defendantId).orElse(UUID.randomUUID().toString()))
-            .crn(crn)
             .cro(cro)
             .pnc(pnc)
             .awaitingPsr(awaitingPsr)
@@ -196,6 +199,18 @@ public class CourtCaseRequest {
             .line5(addressRequest.getLine5())
             .postcode(addressRequest.getPostcode())
             .build();
+    }
+
+    private OffenderEntity buildOffender(String crn) {
+        return OffenderEntity.builder()
+                .crn(crn)
+                .probationStatus(probationStatus)
+                .previouslyKnownTerminationDate(previouslyKnownTerminationDate)
+                .awaitingPsr(awaitingPsr)
+                .breach(breach)
+                .preSentenceActivity(preSentenceActivity)
+                .suspendedSentenceOrder(suspendedSentenceOrder)
+                .build();
     }
 
 }

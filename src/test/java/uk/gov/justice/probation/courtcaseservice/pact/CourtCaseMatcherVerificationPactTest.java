@@ -5,6 +5,7 @@ import au.com.dius.pact.provider.junit5.PactVerificationContext;
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
+import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
 import au.com.dius.pact.provider.junitsupport.loader.VersionSelector;
 import au.com.dius.pact.provider.spring.junit5.PactVerificationSpringProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +41,7 @@ import static org.mockito.Mockito.when;
 
 @Provider("court-case-service")
 @PactBroker(consumerVersionSelectors = @VersionSelector(consumer = "court-case-matcher"))
+@PactFolder("src/test/resources/pact")
 @ActiveProfiles("unsecured")
 class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
 
@@ -66,6 +68,11 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
         var courtCaseEntity = CourtCaseEntity.builder()
             .caseNo("1600028913")
             .sourceType(SourceType.LIBRA)
+            .hearings(Collections.singletonList(HearingEntity.builder()
+                .courtCode("B10JQ")
+                .hearingDay(LocalDate.of(2021, 9, 11))
+                .hearingTime(LocalTime.of(9, 0))
+                .build()))
             .defendants(Collections.singletonList(DefendantEntity.builder()
                     .defendantId("51354F3C-9625-404D-B820-C74724D23484")
                     .breach(true)
@@ -73,15 +80,14 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                     .offender(OffenderEntity.builder()
                         .crn("X340741")
                         .preSentenceActivity(true)
-                        .previouslyKnownTerminationDate(LocalDate.of(2010, 01, 01))
+                        .previouslyKnownTerminationDate(LocalDate.of(2010, 1, 1))
                         .probationStatus(ProbationStatus.CURRENT.getName())
                         .suspendedSentenceOrder(true)
                         .breach(true)
                         .build())
-//                    .crn("X340741")
                     .pnc("A/1234560BA")
                     .preSentenceActivity(true)
-                    .previouslyKnownTerminationDate(LocalDate.of(2010, 01, 01))
+                    .previouslyKnownTerminationDate(LocalDate.of(2010, 1, 1))
                     .probationStatus(ProbationStatus.CURRENT.getName())
                     .suspendedSentenceOrder(true)
                     .build()))

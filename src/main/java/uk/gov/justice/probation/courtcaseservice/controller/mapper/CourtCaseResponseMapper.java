@@ -9,7 +9,6 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatu
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
@@ -117,14 +116,8 @@ public class CourtCaseResponseMapper {
     }
 
     private static void addDefendantFields(CourtCaseResponseBuilder builder, DefendantEntity defendantEntity) {
+        addOffenderFields(builder, defendantEntity, defendantEntity.getOffender());
         builder
-            .awaitingPsr(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getAwaitingPsr).orElse(null))
-            .breach(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getBreach).orElse(null))
-            .preSentenceActivity(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getPreSentenceActivity).orElse(null))
-            .suspendedSentenceOrder(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getSuspendedSentenceOrder).orElse(null))
-            .previouslyKnownTerminationDate(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getPreviouslyKnownTerminationDate).orElse(null))
-            .probationStatus(Optional.ofNullable(defendantEntity.getOffender()).map(off -> ProbationStatus.of(off.getProbationStatus())).orElse(null))
-
             .defendantName(defendantEntity.getDefendantName())
             .name(defendantEntity.getName())
             .defendantAddress(defendantEntity.getAddress())
@@ -140,5 +133,28 @@ public class CourtCaseResponseMapper {
 
         // Offences
         builder.offences(mapOffencesFromDefendantOffences(defendantEntity.getOffences()));
+    }
+
+    private static void addOffenderFields(CourtCaseResponseBuilder builder, DefendantEntity defendant, OffenderEntity offender) {
+        builder
+            .awaitingPsr(Optional.ofNullable(offender)
+                                    .map(OffenderEntity::getAwaitingPsr)
+                                    .orElse(defendant.getAwaitingPsr()))
+            .breach(Optional.ofNullable(offender)
+                                    .map(OffenderEntity::getBreach)
+                                    .orElse(defendant.getBreach()))
+            .preSentenceActivity(Optional.ofNullable(offender)
+                                    .map(OffenderEntity::getPreSentenceActivity)
+                                    .orElse(defendant.getPreSentenceActivity()))
+            .suspendedSentenceOrder(Optional.ofNullable(offender)
+                                    .map(OffenderEntity::getSuspendedSentenceOrder)
+                                    .orElse(defendant.getSuspendedSentenceOrder()))
+            .previouslyKnownTerminationDate(Optional.ofNullable(offender)
+                                    .map(OffenderEntity::getPreviouslyKnownTerminationDate)
+                                    .orElse(defendant.getPreviouslyKnownTerminationDate()))
+            .probationStatus(Optional.ofNullable(offender)
+                                    .map(off -> ProbationStatus.of(off.getProbationStatus()))
+                                    .orElse(null))
+        ;
     }
 }

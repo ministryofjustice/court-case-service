@@ -5,7 +5,6 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRespo
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse.CourtCaseResponseBuilder;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
@@ -153,7 +152,7 @@ public class CourtCaseResponseMapper {
                                     .map(OffenderEntity::getPreviouslyKnownTerminationDate)
                                     .orElse(defendant.getPreviouslyKnownTerminationDate()))
             .probationStatus(Optional.ofNullable(offender)
-                                    .map(off -> ProbationStatus.of(off.getProbationStatus()))
+                                    .map(OffenderEntity::getProbationStatus)
                                     .orElse(null))
         ;
     }

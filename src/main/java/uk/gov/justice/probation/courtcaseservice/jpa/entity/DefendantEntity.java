@@ -16,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
+import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 
 @Entity
 @Table(name = "DEFENDANT")
@@ -127,6 +129,11 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
 
     @Column(name = "manual_update", nullable = false, updatable = false)
     private boolean manualUpdate;
+
+    @PrePersist
+    public void prePersistManualUpdate(){
+        manualUpdate = "prepare-a-case-for-court".equals(new ClientDetails().getClientId());
+    }
 
     public String getDefendantSurname() {
         return defendantName == null ? "" : defendantName.substring(defendantName.lastIndexOf(" ")+1);

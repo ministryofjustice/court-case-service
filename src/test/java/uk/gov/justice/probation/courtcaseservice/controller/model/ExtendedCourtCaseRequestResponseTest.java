@@ -134,7 +134,7 @@ class ExtendedCourtCaseRequestResponseTest {
 
         final var offender = defendantEntity.getOffender();
         assertThat(offender.getCrn()).isEqualTo(CRN);
-        assertThat(offender.getProbationStatus()).isEqualTo("CURRENT");
+        assertThat(offender.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
         assertThat(offender.getAwaitingPsr()).isEqualTo(Boolean.TRUE);
         assertThat(offender.getBreach()).isEqualTo(Boolean.TRUE);
         assertThat(offender.getPreSentenceActivity()).isEqualTo(Boolean.TRUE);
@@ -301,7 +301,7 @@ class ExtendedCourtCaseRequestResponseTest {
                                     .suspendedSentenceOrder(true)
                                     .awaitingPsr(true)
                                     .breach(true)
-                                    .probationStatus("CURRENT")
+                                    .probationStatus(ProbationStatus.CURRENT)
                                     .build())
                                 .pnc("pnc")
                                 .cro("cro")

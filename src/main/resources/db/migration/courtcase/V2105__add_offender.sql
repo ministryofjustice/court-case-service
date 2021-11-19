@@ -18,8 +18,13 @@ BEGIN;
     );
 
     insert into OFFENDER ( CRN, PREVIOUSLY_KNOWN_TERMINATION_DATE, PROBATION_STATUS, SUSPENDED_SENTENCE_ORDER, BREACH, PRE_SENTENCE_ACTIVITY, AWAITING_PSR, CREATED_BY)
-        select distinct crn, PREVIOUSLY_KNOWN_TERMINATION_DATE, PROBATION_STATUS, coalesce(SUSPENDED_SENTENCE_ORDER, false), coalesce(BREACH, false), coalesce(PRE_SENTENCE_ACTIVITY, FALSE), AWAITING_PSR, '(migration)'
-        from DEFENDANT d ;
+        SELECT d.crn, d.PREVIOUSLY_KNOWN_TERMINATION_DATE, d.PROBATION_STATUS, d.SUSPENDED_SENTENCE_ORDER, d.BREACH, d.PRE_SENTENCE_ACTIVITY, d.AWAITING_PSR
+        FROM defendant d
+            INNER JOIN
+                ( SELECT d2.crn, MAX(d2.created) AS latest FROM defendant d2 where d2.crn is not null GROUP BY d2.crn )
+                AS grouped_defendant
+            ON  grouped_defendant.crn = d.crn
+            AND grouped_defendant.latest = d.created ;
 
     ALTER TABLE DEFENDANT ADD CONSTRAINT fk_defendant_offender
                     FOREIGN KEY (CRN)

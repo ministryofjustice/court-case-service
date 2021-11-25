@@ -180,6 +180,6 @@ class CourtCaseRequestTest {
         assertThat(entity.getDefendants().get(0).getDefendantId()).isNotNull();
         assertThat(entity.getDefendants().get(0).getDefendantName()).isEqualTo(DEFENDANT_NAME);
         assertThat(entity.getDefendants().get(0).getDateOfBirth()).isEqualTo(DEFENDANT_DOB);
-//        assertThat(entity.getDefendants().get(0).getOffender()).isNull();
+        assertThat(entity.getDefendants().get(0).getOffender()).isNull();
     }
 }

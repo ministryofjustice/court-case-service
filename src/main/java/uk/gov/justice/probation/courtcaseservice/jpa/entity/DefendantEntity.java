@@ -9,6 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -52,6 +53,12 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Setter
     private CourtCaseEntity courtCase;
 
+    @ToString.Exclude
+    @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "CRN", referencedColumnName = "CRN")
+    @Setter
+    private OffenderEntity offender;
+
     @Column(name = "DEFENDANT_ID", nullable = false)
     private final String defendantId;
 
@@ -75,9 +82,6 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Column(columnDefinition = "jsonb", name = "ADDRESS")
     private final AddressPropertiesEntity address;
 
-    @Column(name = "CRN")
-    private final String crn;
-
     @Column(name = "PNC")
     private final String pnc;
 
@@ -97,21 +101,27 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "NATIONALITY_2")
     private final String nationality2;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "PREVIOUSLY_KNOWN_TERMINATION_DATE")
     private final LocalDate previouslyKnownTerminationDate;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "SUSPENDED_SENTENCE_ORDER", nullable = false)
     private final Boolean suspendedSentenceOrder;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "BREACH", nullable = false)
     private final Boolean breach;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "PRE_SENTENCE_ACTIVITY", nullable = false)
     private final Boolean preSentenceActivity;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "AWAITING_PSR")
     private final Boolean awaitingPsr;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "PROBATION_STATUS", nullable = false)
     private final String probationStatus;
 
@@ -120,6 +130,10 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
 
     public String getDefendantSurname() {
         return defendantName == null ? "" : defendantName.substring(defendantName.lastIndexOf(" ")+1);
+    }
+
+    public String getCrn() {
+        return offender != null ? offender.getCrn() : null;
     }
 
 }

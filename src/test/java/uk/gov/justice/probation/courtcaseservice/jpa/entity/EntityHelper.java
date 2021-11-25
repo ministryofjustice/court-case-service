@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public class EntityHelper {
 
@@ -41,30 +42,28 @@ public class EntityHelper {
     public static final String OFFENCE_TITLE = "OFFENCE TITLE";
     public static final String OFFENCE_SUMMARY = "OFFENCE SUMMARY";
     public static final String OFFENCE_ACT = "OFFENCE ACT";
+    public static final Long OFFENDER_ID = 199L;
 
     public static CourtCaseEntity aCourtCaseEntity(String caseId) {
-        return populateBasics()
+        return populateBasics(CRN)
             .caseId(caseId)
             .caseNo(CASE_NO)
             .build();
     }
 
     public static CourtCaseEntity aCourtCaseEntityWithCrn(String crn) {
-        return populateBasics()
-            .crn(crn)
+        return populateBasics(crn)
             .caseId(CASE_ID)
             .caseNo(CASE_NO)
             .build();
     }
 
     public static CourtCaseEntity aCourtCaseEntity(String crn, String caseNo) {
-        return aCourtCaseEntity(crn, caseNo, List.of(aDefendantEntity()));
+        return aCourtCaseEntity(crn, caseNo, List.of(aDefendantEntity(DEFENDANT_ID, crn)));
     }
 
     public static CourtCaseEntity aCourtCaseEntity(String crn, String caseNo, List<DefendantEntity> defendants) {
-
-        return populateBasics()
-            .crn(crn)
+        return populateBasics(crn)
             .caseId(CASE_ID)
             .caseNo(caseNo)
             .defendants(defendants)
@@ -72,9 +71,8 @@ public class EntityHelper {
     }
 
     public static CourtCaseEntity aCourtCaseEntity(String crn, String caseNo, String probationStatus) {
-        return populateBasics()
+        return populateBasics(crn)
             .caseId(CASE_ID)
-            .crn(crn)
             .caseNo(caseNo)
             .probationStatus(probationStatus)
             .build();
@@ -85,7 +83,7 @@ public class EntityHelper {
     }
 
     public static DefendantEntity aDefendantEntity(AddressPropertiesEntity address, NamePropertiesEntity name) {
-        return aDefendantEntity(address, name, DEFENDANT_ID);
+        return aDefendantEntity(address, name, DEFENDANT_ID, CRN);
     }
 
     public static DefendantEntity aDefendantEntity(NamePropertiesEntity name) {
@@ -97,14 +95,18 @@ public class EntityHelper {
     }
 
     public static DefendantEntity aDefendantEntity(String defendantId) {
-        return aDefendantEntity(DEFENDANT_ADDRESS, NAME, defendantId);
+        return aDefendantEntity(DEFENDANT_ADDRESS, NAME, defendantId, CRN);
     }
 
-    private static DefendantEntity aDefendantEntity(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId) {
+    public static DefendantEntity aDefendantEntity(String defendantId, String crn) {
+        return aDefendantEntity(DEFENDANT_ADDRESS, NAME, defendantId, crn);
+    }
+
+    private static DefendantEntity aDefendantEntity(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId, String crn) {
         return DefendantEntity.builder()
             .name(name)
             .defendantName(name.getFullName())
-            .crn(CRN)
+            .offender(anOffender(crn))
             .cro(CRO)
             .pnc(PNC)
             .type(DefendantType.PERSON)
@@ -122,6 +124,21 @@ public class EntityHelper {
             .suspendedSentenceOrder(SUSPENDED_SENTENCE)
             .offences(List.of(aDefendantOffence()))
             .build();
+    }
+
+    public static OffenderEntity anOffender(String crn) {
+        return Optional.ofNullable(crn)
+            .map(str -> OffenderEntity.builder()
+                    .crn(str)
+                    .awaitingPsr(AWAITING_PSR)
+                    .breach(BREACH)
+                    .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
+                    .previouslyKnownTerminationDate(TERMINATION_DATE)
+                    .probationStatus(PROBATION_STATUS)
+                    .suspendedSentenceOrder(SUSPENDED_SENTENCE)
+                    .id(OFFENDER_ID)
+                    .build())
+            .orElse(null);
     }
 
     public static HearingEntity aHearingEntity() {
@@ -147,8 +164,8 @@ public class EntityHelper {
             .build();
     }
 
-    private static CourtCaseEntity.CourtCaseEntityBuilder populateBasics() {
-        var defendant = aDefendantEntity();
+    private static CourtCaseEntity.CourtCaseEntityBuilder populateBasics(String crn) {
+        var defendant = aDefendantEntity(DEFENDANT_ID, crn);
         return CourtCaseEntity.builder()
             .probationStatus(PROBATION_STATUS)
             .previouslyKnownTerminationDate(TERMINATION_DATE)

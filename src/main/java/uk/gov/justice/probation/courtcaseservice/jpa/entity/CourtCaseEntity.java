@@ -33,7 +33,9 @@ import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @ApiModel(description = "Court Case")
 @Entity
@@ -60,18 +62,23 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "CASE_NO", nullable = false)
     private final String caseNo;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "PROBATION_STATUS")
     private final String probationStatus;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "PREVIOUSLY_KNOWN_TERMINATION_DATE")
     private final LocalDate previouslyKnownTerminationDate;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "SUSPENDED_SENTENCE_ORDER", nullable = false)
     private final Boolean suspendedSentenceOrder;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "BREACH", nullable = false)
     private final Boolean breach;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "PRE_SENTENCE_ACTIVITY", nullable = false)
     private final Boolean preSentenceActivity;
 
@@ -117,6 +124,7 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Enumerated(EnumType.STRING)
     private final DefendantType defendantType;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "CRN")
     private final String crn;
 
@@ -136,6 +144,7 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Enumerated(EnumType.STRING)
     private final SourceType sourceType;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "AWAITING_PSR")
     private final Boolean awaitingPsr;
 
@@ -151,5 +160,13 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @PrePersist
     public void isManualUpdate(){
         manualUpdate = "prepare-a-case-for-court".equals(new ClientDetails().getClientId());
+    }
+
+    public DefendantEntity getDefendant(String defendantId) {
+        return Optional.ofNullable(getDefendants()).orElse(Collections.emptyList())
+            .stream()
+            .filter(defendantEntity -> defendantId.equalsIgnoreCase(defendantEntity.getDefendantId()))
+            .findFirst()
+            .orElse(null);
     }
 }

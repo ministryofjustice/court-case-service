@@ -9,7 +9,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatu
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import java.time.LocalDate;
@@ -96,33 +96,6 @@ public class CourtCaseResponseMapper {
             .collect(Collectors.toList()));
     }
 
-    static String getDefendantId(List<DefendantEntity> defendantEntities) {
-        return Optional.ofNullable(defendantEntities).orElse(Collections.emptyList())
-            .stream()
-            .findFirst()
-            .map(DefendantEntity::getDefendantId)
-            .orElse(null);
-    }
-
-    private static List<OffenceResponse> mapOffencesFrom(List<OffenceEntity> offenceEntities) {
-        return Optional.ofNullable(offenceEntities).orElse(Collections.emptyList())
-                .stream()
-                .sorted(Comparator.comparing(offenceEntity ->
-                        // Default to very high number so that unordered items are last
-                        (offenceEntity.getSequenceNumber() != null ? offenceEntity.getSequenceNumber() : Integer.MAX_VALUE)))
-                .map(CourtCaseResponseMapper::mapFrom)
-                .collect(Collectors.toList());
-    }
-
-    private static OffenceResponse mapFrom(OffenceEntity offenceEntity) {
-        return OffenceResponse.builder()
-                .offenceTitle(offenceEntity.getOffenceTitle())
-                .offenceSummary(offenceEntity.getOffenceSummary())
-                .act(offenceEntity.getAct())
-                .sequenceNumber(offenceEntity.getSequenceNumber())
-                .build();
-    }
-
     private static List<OffenceResponse> mapOffencesFromDefendantOffences(List<DefendantOffenceEntity> offenceEntities) {
         return Optional.ofNullable(offenceEntities).orElse(Collections.emptyList())
             .stream()
@@ -143,12 +116,8 @@ public class CourtCaseResponseMapper {
     }
 
     private static void addDefendantFields(CourtCaseResponseBuilder builder, DefendantEntity defendantEntity) {
-        builder.awaitingPsr(defendantEntity.getAwaitingPsr())
-            .previouslyKnownTerminationDate(defendantEntity.getPreviouslyKnownTerminationDate())
-            .probationStatus(Optional.ofNullable(defendantEntity.getProbationStatus()).map(ProbationStatus::of).orElse(null))
-            .suspendedSentenceOrder(defendantEntity.getSuspendedSentenceOrder())
-            .breach(defendantEntity.getBreach())
-            .preSentenceActivity(defendantEntity.getPreSentenceActivity())
+        addOffenderFields(builder, defendantEntity, defendantEntity.getOffender());
+        builder
             .defendantName(defendantEntity.getDefendantName())
             .name(defendantEntity.getName())
             .defendantAddress(defendantEntity.getAddress())
@@ -164,5 +133,28 @@ public class CourtCaseResponseMapper {
 
         // Offences
         builder.offences(mapOffencesFromDefendantOffences(defendantEntity.getOffences()));
+    }
+
+    private static void addOffenderFields(CourtCaseResponseBuilder builder, DefendantEntity defendant, OffenderEntity offender) {
+        builder
+            .awaitingPsr(Optional.ofNullable(offender)
+                                    .map(OffenderEntity::getAwaitingPsr)
+                                    .orElse(defendant.getAwaitingPsr()))
+            .breach(Optional.ofNullable(offender)
+                                    .map(OffenderEntity::getBreach)
+                                    .orElse(defendant.getBreach()))
+            .preSentenceActivity(Optional.ofNullable(offender)
+                                    .map(OffenderEntity::getPreSentenceActivity)
+                                    .orElse(defendant.getPreSentenceActivity()))
+            .suspendedSentenceOrder(Optional.ofNullable(offender)
+                                    .map(OffenderEntity::getSuspendedSentenceOrder)
+                                    .orElse(defendant.getSuspendedSentenceOrder()))
+            .previouslyKnownTerminationDate(Optional.ofNullable(offender)
+                                    .map(OffenderEntity::getPreviouslyKnownTerminationDate)
+                                    .orElse(defendant.getPreviouslyKnownTerminationDate()))
+            .probationStatus(Optional.ofNullable(offender)
+                                    .map(off -> ProbationStatus.of(off.getProbationStatus()))
+                                    .orElse(null))
+        ;
     }
 }

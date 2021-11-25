@@ -1,20 +1,17 @@
 package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.BaseImmutableEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 
 import java.util.List;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_ROOM;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ADDRESS;
@@ -22,49 +19,10 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.OFFENCE_SUMMARY;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.OFFENCE_TITLE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SESSION_START_TIME;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SOURCE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingEntity;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.anOffence;
 
 class CourtCaseMapperTest {
-
-    @Test
-    void givenUpdateForSameCrn_whenCreateNewCourtCase_thenChangeProbationStatus() {
-
-        var defendantEntity1 = EntityHelper.aDefendantEntity();
-        var defendantEntity2 = DefendantEntity.builder().crn("X99999").probationStatus(null).build();
-        var existingCourtCase = CourtCaseEntity.builder().caseId(CASE_ID)
-            .caseNo(CASE_NO)
-            .sourceType(SOURCE)
-            .defendants(List.of(defendantEntity1, defendantEntity2))
-            .offences(List.of(EntityHelper.anOffence()))
-            .hearings(List.of(EntityHelper.aHearingEntity(), EntityHelper.aHearingEntity(SESSION_START_TIME.plusMinutes(120))))
-            .build();
-
-        var newEntity = CourtCaseMapper.create(existingCourtCase, CRN, "CURRENT");
-
-        assertNotSame(newEntity, existingCourtCase);
-        assertThat(newEntity.getDefendants()).hasSize(2);
-        assertThat(newEntity.getProbationStatus()).isEqualTo("CURRENT");
-        assertThat(newEntity.getSourceType()).isEqualTo(SOURCE);
-        assertThat(newEntity.getOffences()).hasSize(1);
-        assertThat(newEntity.getHearings()).hasSize(2);
-
-        newEntity.getDefendants()
-            .stream()
-            .filter(defendantEntity -> defendantEntity.getCrn().equals(CRN))
-            .findFirst()
-            .ifPresentOrElse((entity) -> {
-                assertThat(entity.getProbationStatus()).isEqualTo("CURRENT");
-                assertThat(entity.getCourtCase()).isSameAs(newEntity);
-            }, Assertions::fail);
-        // The other defendant is untouched
-        newEntity.getDefendants()
-            .stream()
-            .filter(defendantEntity -> defendantEntity.getCrn().equals("X99999"))
-            .findFirst()
-            .ifPresentOrElse((entity) -> assertThat(entity.getProbationStatus()).isNull(), Assertions::fail);
-    }
 
     @Test
     void givenUpdateForOtherCrn_whenCreateDefendant_thenPopulateAllFieldsLeaveCrn() {
@@ -150,7 +108,7 @@ class CourtCaseMapperTest {
         // Update comes in with a new CRN and name
         var newName = NamePropertiesEntity.builder().surname("STUBBS").forename1("Una").build();
         var updatedDefendant = EntityHelper.aDefendantEntity(DEFENDANT_ADDRESS, newName)
-            .withCrn("D99999");
+            .withOffender(OffenderEntity.builder().crn("D99999").build());
         var updatedEntity = CourtCaseEntity.builder()
             .defendants(List.of(updatedDefendant))
             .hearings(hearings)
@@ -197,8 +155,7 @@ class CourtCaseMapperTest {
 
         // Update comes in with a new CRN and name and one hearing
         var newName = NamePropertiesEntity.builder().surname("STUBBS").forename1("Una").build();
-        var updatedDefendant = EntityHelper.aDefendantEntity(DEFENDANT_ADDRESS, newName)
-            .withCrn("D99999");
+        var updatedDefendant = EntityHelper.aDefendantEntity(DEFENDANT_ADDRESS, newName);
         var updatedEntity = CourtCaseEntity.builder()
             .defendants(List.of(updatedDefendant))
             .offences(List.of(anOffence(), anOffence()))
@@ -218,7 +175,7 @@ class CourtCaseMapperTest {
         checkCollection(newEntity.getOffences(), newEntity);
 
         assertThat(newEntity.getDefendants()).hasSize(1);
-        assertThat(newEntity.getDefendants()).extracting("crn").containsExactly("D99999");
+        assertThat(newEntity.getDefendants()).extracting("crn").containsExactly(CRN);
         assertThat(newEntity.getDefendants().get(0).getName().getForename1()).isEqualTo("Una");
         assertThat(newEntity.getDefendants().get(0).getName().getSurname()).isEqualTo("STUBBS");
         assertThat(newEntity.getDefendants().get(0).getCourtCase()).isSameAs(newEntity);

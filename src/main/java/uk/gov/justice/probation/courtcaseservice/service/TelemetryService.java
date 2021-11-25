@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
@@ -38,10 +39,6 @@ public class TelemetryService {
 
         Map<String, String> properties = new HashMap<>();
 
-        ofNullable(courtCaseEntity.getCrn())
-                .ifPresent((crn) -> properties.put("crn", crn));
-        ofNullable(courtCaseEntity.getPnc())
-                .ifPresent((pnc) -> properties.put("pnc", pnc));
         ofNullable(courtCaseEntity.getCaseId())
                 .ifPresent((caseId) -> properties.put("caseId", caseId));
 
@@ -52,6 +49,24 @@ public class TelemetryService {
                             .collect(Collectors.joining(","));
                     properties.put("hearings", hearingsString);
                 });
+
+        addRequestProperties(properties);
+
+        telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
+    }
+
+    void trackCourtCaseDefendantEvent(TelemetryEventType eventType, DefendantEntity defendantEntity, String caseId) {
+
+        Map<String, String> properties = new HashMap<>();
+
+        ofNullable(defendantEntity.getDefendantId())
+            .ifPresent(id -> properties.put("defendantId", id));
+        ofNullable(defendantEntity.getOffender())
+            .ifPresent(offender -> properties.put("crn", offender.getCrn()));
+        ofNullable(defendantEntity.getPnc())
+            .ifPresent(pnc -> properties.put("pnc", pnc));
+        ofNullable(caseId)
+            .ifPresent(id -> properties.put("caseId", id));
 
         addRequestProperties(properties);
 

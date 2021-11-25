@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
@@ -12,10 +11,12 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.CourtCaseMapper;
 
@@ -26,7 +27,7 @@ import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
 @Service
 @Slf4j
@@ -37,53 +38,55 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private final CourtCaseRepository courtCaseRepository;
     private final TelemetryService telemetryService;
     private final GroupedOffenderMatchRepository matchRepository;
-    private final boolean globalProbationStatusUpdate;
+    private final OffenderRepository offenderRepository;
 
     @Autowired
     public ImmutableCourtCaseService(CourtRepository courtRepository,
                                      CourtCaseRepository courtCaseRepository,
                                      TelemetryService telemetryService,
                                      GroupedOffenderMatchRepository matchRepository,
-                                     @Value("${feature.flags.global-probation-status-update:true}") boolean globalProbationStatusUpdate) {
+                                     OffenderRepository offenderRepository) {
         this.courtRepository = courtRepository;
         this.courtCaseRepository = courtCaseRepository;
         this.telemetryService = telemetryService;
         this.matchRepository = matchRepository;
-        this.globalProbationStatusUpdate = globalProbationStatusUpdate;
+        this.offenderRepository = offenderRepository;
     }
 
     @Override
     public Mono<CourtCaseEntity> createCase(String caseId, CourtCaseEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
         validateEntity(caseId, updatedCase);
+
+        updateOffenders(updatedCase, defendantEntity -> true);
         courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId)
                 .ifPresentOrElse(
-                        (existingCase) -> {
+                        existingCase -> {
                             updatedCase.getDefendants()
-                                    .forEach(defendantEntity ->
-                                            updateOffenderMatches(existingCase, updatedCase, defendantEntity.getDefendantId())
-                                    );
-                            trackUpdateEvents(updatedCase, existingCase);
+                                    .forEach(defendantEntity -> updateOffenderMatches(existingCase, updatedCase, defendantEntity.getDefendantId()));
+                            trackUpdateEvents(existingCase, updatedCase);
                         },
                         () -> trackCreateEvents(updatedCase));
 
         return Mono.just(updatedCase)
-                .map((courtCaseEntity) -> {
+                .map(courtCaseEntity -> {
                     log.debug("Saving case ID {}", caseId);
                     return courtCaseRepository.save(courtCaseEntity);
-                })
-                .doAfterTerminate(() -> updateOtherProbationStatusForCrnByCaseId(updatedCase.getCrn(), updatedCase.getProbationStatus(), updatedCase.getCaseId()));
+                });
     }
 
     @Override
     public Mono<CourtCaseEntity> createUpdateCaseForSingleDefendantId(String caseId, String defendantId, CourtCaseEntity updatedCase)
             throws EntityNotFoundException, InputMismatchException {
         validateEntityByDefendantId(caseId, defendantId, updatedCase);
+
+        updateOffenders(updatedCase, (defendantEntity) -> defendantEntity.getDefendantId().equalsIgnoreCase(defendantId));
+
         // The case to be saved might change from the one passed in, through the addition of defendants
         var caseToSave = courtCaseRepository.findByCaseIdAndDefendantId(caseId, defendantId)
                 .map((existingCase) -> {
-                    // Copy existing case defendants to updated case
+                    // Ned to update matches, send some telemetry and copy the defendants on the existing case to this one
                     updateOffenderMatches(existingCase, updatedCase, defendantId);
-                    trackUpdateEvents(updatedCase, existingCase);
+                    trackUpdateEvents(existingCase, updatedCase);
                     return CourtCaseMapper.mergeDefendantsOnCase(existingCase, updatedCase, defendantId);
                 })
                 .orElseGet(() -> {
@@ -95,62 +98,55 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                 .map((courtCaseEntity) -> {
                     log.debug("Saving case ID {} with updates applied for defendant ID {}", caseId, defendantId);
                     return courtCaseRepository.save(courtCaseEntity);
-                })
-                .doAfterTerminate(() -> updateOtherProbationStatusForCrnByCaseId(updatedCase.getCrn(), updatedCase.getProbationStatus(), updatedCase.getCaseId()));
+                });
     }
 
-
-    void updateOtherProbationStatusForCrn(String crn, String probationStatus, String caseNo) {
-        if (crn != null) {
-            final var courtCases = courtCaseRepository.findOtherCurrentCasesByCrn(crn, caseNo)
-                    .stream()
-                    .filter(courtCaseEntity -> !courtCaseEntity.getProbationStatus().equalsIgnoreCase(probationStatus))
-                    .map(courtCaseEntity -> CourtCaseMapper.create(courtCaseEntity, crn, probationStatus))
-                    .collect(Collectors.toList());
-
-            if (!courtCases.isEmpty()) {
-                log.debug("Updating {} cases for CRN {} with changed probation status to {}", courtCases.size(), crn, probationStatus);
-                courtCaseRepository.saveAll(courtCases);
-            }
-        }
-    }
-
-    void updateOtherProbationStatusForCrnByCaseId(String crn, String probationStatus, String caseId) {
-        // Temporary hotfix - This code is killing DB performance so optionally skipping until performance issue is resolved
-        if (crn == null || !globalProbationStatusUpdate) {
-            return;
-        }
-
-        final var courtCases = courtCaseRepository.findOtherCurrentCasesByCrnNotCaseId(crn, caseId)
-                .stream()
-                .filter(courtCaseEntity -> hasAnyDefendantsSameCrnDifferentProbationStatus(courtCaseEntity.getDefendants(), crn, probationStatus))
-                .map(courtCaseEntity -> CourtCaseMapper.create(courtCaseEntity, crn, probationStatus))
-                .collect(Collectors.toList());
-
-        if (!courtCases.isEmpty()) {
-            log.debug("Updating {} cases for CRN {} with changed probation status to {}", courtCases.size(), crn, probationStatus);
-            courtCaseRepository.saveAll(courtCases);
-        }
-    }
-
-    boolean hasAnyDefendantsSameCrnDifferentProbationStatus(List<DefendantEntity> defendants, String crn, String probationStatus) {
-        return Optional.ofNullable(defendants).orElse(Collections.emptyList())
+    void updateOffenders(CourtCaseEntity courtCase, Predicate<DefendantEntity> defendantPredicate) {
+        Optional.ofNullable(courtCase.getDefendants()).orElse(Collections.emptyList())
             .stream()
-            .anyMatch(defendant -> Objects.equals(defendant.getCrn(), crn) && !Objects.equals(defendant.getProbationStatus(), probationStatus));
+            .filter(defendantPredicate)
+            .map(DefendantEntity::getOffender)
+            .filter(Objects::nonNull)
+            .forEach(existingOffender -> {
+                final var offenderEntity = offenderRepository.findByCrn(existingOffender.getCrn());
+                offenderEntity.ifPresentOrElse(offender -> {
+                    existingOffender.setId(offender.getId());
+                    offender.setProbationStatus(existingOffender.getProbationStatus());
+                    offender.setAwaitingPsr(existingOffender.getAwaitingPsr());
+                    offender.setBreach(existingOffender.getBreach());
+                    offender.setPreSentenceActivity(existingOffender.getPreSentenceActivity());
+                    offender.setSuspendedSentenceOrder(existingOffender.getSuspendedSentenceOrder());
+                    offender.setPreviouslyKnownTerminationDate(existingOffender.getPreviouslyKnownTerminationDate());
+                    offenderRepository.save(offender);
+                    },
+                    () -> offenderRepository.save(existingOffender));
+            });
     }
 
     private void trackCreateEvents(CourtCaseEntity createdCase) {
         telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, createdCase);
-        if (createdCase.getCrn() != null)
-            telemetryService.trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, createdCase);
+        Optional.ofNullable(createdCase.getDefendants()).orElse(Collections.emptyList()).forEach((defendantEntity -> {
+            if (defendantEntity.getOffender() != null) {
+                telemetryService.trackCourtCaseDefendantEvent(TelemetryEventType.DEFENDANT_LINKED, defendantEntity, createdCase.getCaseId());
+            }
+        }));
     }
 
-    private void trackUpdateEvents(CourtCaseEntity updatedCase, CourtCaseEntity existingCase) {
+    private void trackUpdateEvents(CourtCaseEntity existingCase, CourtCaseEntity updatedCase) {
         telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_UPDATED, updatedCase);
-        if (existingCase.getCrn() == null && updatedCase.getCrn() != null)
-            telemetryService.trackCourtCaseEvent(TelemetryEventType.DEFENDANT_LINKED, updatedCase);
-        else if (existingCase.getCrn() != null & updatedCase.getCrn() == null)
-            telemetryService.trackCourtCaseEvent(TelemetryEventType.DEFENDANT_UNLINKED, existingCase);
+        Optional.ofNullable(updatedCase.getDefendants()).orElse(Collections.emptyList()).forEach(defendantEntity -> {
+            trackUpdateDefendantEvents(existingCase, defendantEntity, updatedCase.getCaseId());
+        });
+    }
+
+    private void trackUpdateDefendantEvents(CourtCaseEntity existingCase, DefendantEntity defendant, String caseId) {
+        final var existingDefendant = existingCase.getDefendant(defendant.getDefendantId());
+        final var wasLinked = Optional.ofNullable(existingDefendant).map(def -> def.getOffender() != null).orElse(false);
+        final var isLinked = defendant.getOffender() != null;
+        if (!wasLinked && isLinked)
+            telemetryService.trackCourtCaseDefendantEvent(TelemetryEventType.DEFENDANT_LINKED, defendant, caseId);
+        else if (wasLinked && !isLinked)
+            telemetryService.trackCourtCaseDefendantEvent(TelemetryEventType.DEFENDANT_UNLINKED, existingDefendant, caseId);
     }
 
     @Override
@@ -232,7 +228,10 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     private void confirmAndRejectMatches(CourtCaseEntity existingCase, CourtCaseEntity updatedCase, OffenderMatchEntity match, String defendantId) {
-        boolean crnMatches = match.getCrn().equals(updatedCase.getCrn());
+        var defendant = updatedCase.getDefendant(defendantId);
+        var offender = Optional.ofNullable(defendant).map(DefendantEntity::getOffender);
+        boolean crnMatches = match.getCrn().equals(offender.map(OffenderEntity::getCrn).orElse(null));
+
         match.setConfirmed(crnMatches);
         match.setRejected(!crnMatches);
         if (crnMatches) {
@@ -241,13 +240,13 @@ public class ImmutableCourtCaseService implements CourtCaseService {
             telemetryService.trackMatchEvent(TelemetryEventType.MATCH_REJECTED, match, updatedCase, defendantId);
         }
 
-        if (crnMatches && updatedCase.getPnc() != null && !updatedCase.getPnc().equals(match.getPnc())) {
-            log.warn(String.format("Unexpected PNC mismatch when updating offender match - matchId: '%s', crn: '%s', matchPnc: %s, updatePnc: %s",
-                    match.getId(), existingCase.getCrn(), match.getPnc(), existingCase.getPnc()));
+        if (crnMatches && defendant.getPnc() != null && !defendant.getPnc().equals(match.getPnc())) {
+            log.warn(String.format("Unexpected PNC mismatch when updating offender match - matchId: '%s', defendant ID: '%s', matchPnc: %s, updatePnc: %s",
+                    match.getId(), defendantId, match.getPnc(), existingCase.getPnc()));
         }
-        if (crnMatches && updatedCase.getCro() != null && !updatedCase.getCro().equals(match.getCro())) {
-            log.warn(String.format("Unexpected CRO mismatch when updating offender match - matchId: '%s', crn: '%s', matchCro: %s, updateCro: %s",
-                    match.getId(), existingCase.getCrn(), match.getCro(), existingCase.getCro()));
+        if (crnMatches && defendant.getCro() != null && !defendant.getCro().equals(match.getCro())) {
+            log.warn(String.format("Unexpected CRO mismatch when updating offender match - matchId: '%s', defendant ID: '%s', matchCro: %s, updateCro: %s",
+                    match.getId(), defendantId, match.getCro(), existingCase.getCro()));
         }
     }
 

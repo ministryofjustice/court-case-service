@@ -230,7 +230,7 @@ public class CourtCaseController {
                 var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantEntity.getDefendantId()).orElse(0);
                 return CourtCaseResponseMapper.mapFrom(courtCaseEntity, defendantEntity, matchCount, hearingDate);
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
 

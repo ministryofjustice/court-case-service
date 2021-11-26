@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.lang.NonNull;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -86,7 +87,7 @@ class ImmutableCourtCaseServiceTest {
             service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, telemetryService, groupedOffenderMatchRepository, offenderRepository);
             lenient().when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             incomingCourtCase = EntityHelper.aCourtCaseEntity(CRN, CASE_NO);
-            offender = OffenderEntity.builder().crn("X99999").probationStatus(PROBATION_STATUS).build();
+            offender = OffenderEntity.builder().crn("X99999").probationStatus(ProbationStatus.of(PROBATION_STATUS)).build();
             defendant = DefendantEntity.builder().defendantId(DEFENDANT_ID).offender(offender).build();
         }
 
@@ -128,7 +129,7 @@ class ImmutableCourtCaseServiceTest {
         void givenSingleNewLinkedCase_whenCreateOrUpdateCaseCalledWithCrn_thenLogCreatedEventAndSave() {
             when(courtCaseRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.empty());
             when(courtCaseRepository.save(incomingCourtCase)).thenReturn(incomingCourtCase);
-            final var existingOffender = OffenderEntity.builder().crn(CRN).id(199L).probationStatus("CURRENT").build();
+            final var existingOffender = OffenderEntity.builder().crn(CRN).id(199L).probationStatus(ProbationStatus.CURRENT).build();
             when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(existingOffender));
 
             var savedCourtCase = service.createUpdateCaseForSingleDefendantId(CASE_ID, DEFENDANT_ID, incomingCourtCase).block();
@@ -294,7 +295,7 @@ class ImmutableCourtCaseServiceTest {
         void givenExistingCase_whenCreateOrUpdateCaseCalled_thenLogUpdatedEvent() {
             when(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.of(courtCase));
             when(courtCaseRepository.save(courtCase)).thenReturn(courtCase);
-            var existingOffender = OffenderEntity.builder().crn(CRN).probationStatus("CURRENT").id(201L).build();
+            var existingOffender = OffenderEntity.builder().crn(CRN).probationStatus(ProbationStatus.CURRENT).id(201L).build();
             when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(existingOffender));
             var updateOffender = courtCase.getDefendants().get(0).getOffender();
 
@@ -306,7 +307,7 @@ class ImmutableCourtCaseServiceTest {
             verify(offenderRepository).save(existingOffender);
             assertThat(savedCourtCase).isNotNull();
             // The existing one has been updated based on values from the one passed in.
-            assertThat(existingOffender.getProbationStatus()).isEqualTo("Previously known");
+            assertThat(existingOffender.getProbationStatus()).isSameAs(ProbationStatus.PREVIOUSLY_KNOWN);
             assertThat(updateOffender.getId()).isEqualTo(201);
             verifyNoMoreInteractions(telemetryService, courtCaseRepository, offenderRepository);
         }

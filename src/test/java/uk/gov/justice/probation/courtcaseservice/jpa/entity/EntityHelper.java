@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 
 public class EntityHelper {
 
@@ -134,7 +135,7 @@ public class EntityHelper {
                     .breach(BREACH)
                     .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
                     .previouslyKnownTerminationDate(TERMINATION_DATE)
-                    .probationStatus(PROBATION_STATUS)
+                    .probationStatus(ProbationStatus.of(PROBATION_STATUS))
                     .suspendedSentenceOrder(SUSPENDED_SENTENCE)
                     .id(OFFENDER_ID)
                     .build())

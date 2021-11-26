@@ -87,7 +87,6 @@ public class CourtCaseMapper {
             .breach(defendantEntity.getBreach())
             .preSentenceActivity(defendantEntity.getPreSentenceActivity())
             .awaitingPsr(defendantEntity.getAwaitingPsr())
-            .manualUpdate(defendantEntity.isManualUpdate())
             .offences(Optional.ofNullable(defendantEntity.getOffences()).orElse(Collections.emptyList())
                 .stream()
                 .map(CourtCaseMapper::createDefendantOffence)

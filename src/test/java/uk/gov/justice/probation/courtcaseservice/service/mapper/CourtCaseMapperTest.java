@@ -53,7 +53,6 @@ class CourtCaseMapperTest {
         assertThat(newEntity.getBreach()).isEqualTo(defendant.getBreach());
         assertThat(newEntity.getPreSentenceActivity()).isEqualTo(defendant.getPreSentenceActivity());
         assertThat(newEntity.getAwaitingPsr()).isEqualTo(defendant.getAwaitingPsr());
-        assertThat(newEntity.isManualUpdate()).isEqualTo(defendant.isManualUpdate());
     }
 
     @Test

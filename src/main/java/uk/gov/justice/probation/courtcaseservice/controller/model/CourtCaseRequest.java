@@ -204,7 +204,7 @@ public class CourtCaseRequest {
     private OffenderEntity buildOffender(String crn) {
         return OffenderEntity.builder()
                 .crn(crn)
-                .probationStatus(probationStatus)
+                .probationStatus(ProbationStatus.of(probationStatus))
                 .previouslyKnownTerminationDate(previouslyKnownTerminationDate)
                 .awaitingPsr(awaitingPsr)
                 .breach(breach)

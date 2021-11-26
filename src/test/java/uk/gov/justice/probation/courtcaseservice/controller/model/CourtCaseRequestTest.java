@@ -147,7 +147,7 @@ class CourtCaseRequestTest {
         assertThat(defendant.getOffences().get(0).getDefendant()).isNotNull();
 
         assertThat(defendant.getOffender().getCrn()).isEqualTo(CRN);
-        assertThat(defendant.getOffender().getProbationStatus()).isEqualTo(NO_RECORD_DESCRIPTION);
+        assertThat(defendant.getOffender().getProbationStatus()).isSameAs(ProbationStatus.NO_RECORD);
         assertThat(defendant.getOffender().getPreviouslyKnownTerminationDate()).isEqualTo(TERMINATION_DATE);
         assertThat(defendant.getOffender().getAwaitingPsr()).isEqualTo(AWAITING_PSR);
         assertThat(defendant.getOffender().getBreach()).isEqualTo(BREACH);

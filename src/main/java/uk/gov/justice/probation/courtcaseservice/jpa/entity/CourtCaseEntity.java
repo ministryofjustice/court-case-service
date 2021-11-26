@@ -154,9 +154,11 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "first_created", insertable = false, updatable = false)
     private final LocalDateTime firstCreated;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "manual_update", nullable = false, updatable = false)
     private boolean manualUpdate;
 
+    @Deprecated(forRemoval = true)
     @PrePersist
     public void isManualUpdate(){
         manualUpdate = "prepare-a-case-for-court".equals(new ClientDetails().getClientId());

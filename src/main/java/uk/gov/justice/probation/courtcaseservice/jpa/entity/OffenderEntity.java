@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -18,6 +20,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 
 @Entity
 @Table(name = "OFFENDER")
@@ -42,7 +45,8 @@ public class OffenderEntity extends BaseEntity implements Serializable {
     private String crn;
 
     @Column(name = "PROBATION_STATUS")
-    private String probationStatus;
+    @Enumerated(EnumType.STRING)
+    private ProbationStatus probationStatus;
 
     @Column(name = "AWAITING_PSR")
     private Boolean awaitingPsr;

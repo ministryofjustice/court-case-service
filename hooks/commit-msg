@@ -1,0 +1,12 @@
+#!/bin/bash
+
+message_file=$1
+grep PIC- $message_file
+
+if [ $? -eq 0  ]
+then
+  echo "Commit message is ok"
+else
+  echo "⚠️  No PIC- number in commit message ⚠️"
+  exit 1
+fi

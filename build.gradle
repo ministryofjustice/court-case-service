@@ -275,6 +275,11 @@ task copyAgentConfig(type: Copy) {
     into "$buildDir/libs"
 }
 
+task installGitHooks(type: Copy) {
+    from new File(rootProject.rootDir, 'hooks/')
+    into { new File(rootProject.rootDir, '.git/hooks') }
+}
+
 pact {
     publish {
         pactBrokerUrl = System.getenv("PACTBROKER_URL")

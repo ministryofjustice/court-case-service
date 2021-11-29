@@ -8,8 +8,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import java.time.LocalDate;
@@ -136,9 +136,9 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(offender.getCrn()).isEqualTo(CRN);
         assertThat(offender.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
         assertThat(offender.getAwaitingPsr()).isEqualTo(Boolean.TRUE);
-        assertThat(offender.getBreach()).isEqualTo(Boolean.TRUE);
-        assertThat(offender.getPreSentenceActivity()).isEqualTo(Boolean.TRUE);
-        assertThat(offender.getSuspendedSentenceOrder()).isEqualTo(Boolean.TRUE);
+        assertThat(offender.isBreach()).isEqualTo(Boolean.TRUE);
+        assertThat(offender.isPreSentenceActivity()).isEqualTo(Boolean.TRUE);
+        assertThat(offender.isSuspendedSentenceOrder()).isEqualTo(Boolean.TRUE);
         assertThat(offender.getPreviouslyKnownTerminationDate()).isEqualTo(previouslyKnownTerminationDate);
     }
 
@@ -161,6 +161,29 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(courtCaseEntity.getDefendants()).hasSize(1);
         assertThat(courtCaseEntity.getDefendants().get(0).getOffences()).isEmpty();
         assertThat(courtCaseEntity.getDefendants().get(0).getOffender()).isNull();
+    }
+
+    @Test
+    void givenDefendantWitCrnAndWithoutNonNullableFields_whenAsEntity_thenReturnWithDefaults() {
+
+        final var defendant = Defendant.builder()
+            .name(NAME)
+            .pnc(PNC)
+            .sex("M")
+            .type(DefendantType.PERSON)
+            .defendantId(DEFENDANT_ID)
+            .crn("CRN")
+            .build();
+        final var request = ExtendedCourtCaseRequestResponse.builder()
+            .defendants(List.of(defendant))
+            .build();
+
+        final var courtCaseEntity = request.asCourtCaseEntity();
+        final var offender = courtCaseEntity.getDefendants().get(0).getOffender();
+        assertThat(offender).isNotNull();
+        assertThat(offender.isBreach()).isEqualTo(false);
+        assertThat(offender.isPreSentenceActivity()).isEqualTo(false);
+        assertThat(offender.isSuspendedSentenceOrder()).isEqualTo(false);
     }
 
     @Test
@@ -368,9 +391,5 @@ class ExtendedCourtCaseRequestResponseTest {
                     .act("ACT2")
                     .build()))
             .build();
-    }
-
-    private Defendant buildDefendant() {
-        return buildDefendant("M");
     }
 }

@@ -113,9 +113,9 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                     existingOffender.setId(offender.getId());
                     offender.setProbationStatus(existingOffender.getProbationStatus());
                     offender.setAwaitingPsr(existingOffender.getAwaitingPsr());
-                    offender.setBreach(existingOffender.getBreach());
-                    offender.setPreSentenceActivity(existingOffender.getPreSentenceActivity());
-                    offender.setSuspendedSentenceOrder(existingOffender.getSuspendedSentenceOrder());
+                    offender.setBreach(existingOffender.isBreach());
+                    offender.setPreSentenceActivity(existingOffender.isPreSentenceActivity());
+                    offender.setSuspendedSentenceOrder(existingOffender.isSuspendedSentenceOrder());
                     offender.setPreviouslyKnownTerminationDate(existingOffender.getPreviouslyKnownTerminationDate());
                     offenderRepository.save(offender);
                     },

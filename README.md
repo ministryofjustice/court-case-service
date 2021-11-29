@@ -21,7 +21,7 @@ This section contains the bare minimum you need to do to get the app running aga
        OFFENDER_ASSESSMENTS_API_CLIENT_SECRET=<?> \
        ./gradlew bootRun`
 - Application will now be [running on port 8080](http://localhost:8080/health)
-     
+- Optional: Run `./gradlew installGitHooks` to install Git hooks from `./hooks` directory. Note these require postgres to be running to pass.     
 ---
        
 ## Prerequisites

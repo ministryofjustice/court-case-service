@@ -207,9 +207,9 @@ public class CourtCaseRequest {
                 .probationStatus(ProbationStatus.of(probationStatus))
                 .previouslyKnownTerminationDate(previouslyKnownTerminationDate)
                 .awaitingPsr(awaitingPsr)
-                .breach(breach)
-                .preSentenceActivity(preSentenceActivity)
-                .suspendedSentenceOrder(suspendedSentenceOrder)
+                .breach(Optional.ofNullable(breach).orElse(false))
+                .preSentenceActivity(Optional.ofNullable(preSentenceActivity).orElse(false))
+                .suspendedSentenceOrder(Optional.ofNullable(suspendedSentenceOrder).orElse(false))
                 .build();
     }
 

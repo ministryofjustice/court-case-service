@@ -53,13 +53,13 @@ public class OffenderEntity extends BaseEntity implements Serializable {
     private Boolean awaitingPsr;
 
     @Column(name = "BREACH", nullable = false)
-    private Boolean breach = false;
+    private boolean breach = false;
 
     @Column(name = "PRE_SENTENCE_ACTIVITY", nullable = false)
-    private Boolean preSentenceActivity = false;
+    private boolean preSentenceActivity = false;
 
     @Column(name = "SUSPENDED_SENTENCE_ORDER", nullable = false)
-    private Boolean suspendedSentenceOrder = false;
+    private boolean suspendedSentenceOrder = false;
 
     @Column(name = "PREVIOUSLY_KNOWN_TERMINATION_DATE")
     private LocalDate previouslyKnownTerminationDate;

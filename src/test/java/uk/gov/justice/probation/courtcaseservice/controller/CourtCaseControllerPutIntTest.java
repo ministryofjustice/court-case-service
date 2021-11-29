@@ -123,9 +123,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 assertThat(off.getCrn()).isEqualTo(CRN);
                 assertThat(off.getProbationStatus()).isEqualTo(ProbationStatus.CURRENT);
                 assertThat(off.getAwaitingPsr()).isNull();
-                assertThat(off.getBreach()).isFalse();
-                assertThat(off.getPreSentenceActivity()).isFalse();
-                assertThat(off.getSuspendedSentenceOrder()).isFalse();
+                assertThat(off.isBreach()).isFalse();
+                assertThat(off.isPreSentenceActivity()).isFalse();
+                assertThat(off.isSuspendedSentenceOrder()).isFalse();
                 assertThat(off.getPreviouslyKnownTerminationDate()).isNull();
             }, () -> fail("Initial offender values unexpected"));
 
@@ -162,12 +162,42 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 assertThat(off.getCrn()).isEqualTo(CRN);
                 assertThat(off.getProbationStatus()).isEqualTo(ProbationStatus.PREVIOUSLY_KNOWN);
                 assertThat(off.getAwaitingPsr()).isTrue();
-                assertThat(off.getBreach()).isTrue();
-                assertThat(off.getPreSentenceActivity()).isTrue();
-                assertThat(off.getSuspendedSentenceOrder()).isTrue();
+                assertThat(off.isBreach()).isTrue();
+                assertThat(off.isPreSentenceActivity()).isTrue();
+                assertThat(off.isSuspendedSentenceOrder()).isTrue();
                 assertThat(off.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2018, Month.JUNE, 24));
             }, () -> fail("Offender values not updated as expected"));
 
+        }
+
+        @Test
+        void whenCreateCaseExtendedByCaseId_andNonNullableOffenderFieldsAreNull_thenCreateNewRecordWithDefaults() throws IOException {
+
+            final var crn = "X723999";
+            final var updatedJson = FileUtils.readFileToString(caseDetailsExtendedUpdate, "UTF-8")
+                    .replace("\"crn\": \"X320741\"", "\"crn\": \"" + crn + "\"")
+                    .replace("\"breach\": true,\n", "")
+                    .replace("\"preSentenceActivity\": true,\n", "")
+                    .replace("\"suspendedSentenceOrder\": true,\n", "")
+                    ;
+
+            given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(updatedJson)
+                .when()
+                .put(String.format("/case/%s/extended", "3db9d70b-10a2-49d1-b74d-379f2db74862"))
+                .then()
+                .statusCode(201)
+            ;
+
+            offenderRepository.findByCrn(crn).ifPresentOrElse(off -> {
+                assertThat(off.isBreach()).isFalse();
+                assertThat(off.isPreSentenceActivity()).isFalse();
+                assertThat(off.isSuspendedSentenceOrder()).isFalse();
+            }, () -> fail("Offender values not updated as expected"));
         }
 
         @Test
@@ -195,9 +225,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             offenderRepository.findByCrn(crn).ifPresentOrElse(off -> {
                 assertThat(off.getProbationStatus()).isEqualTo(ProbationStatus.PREVIOUSLY_KNOWN);
                 assertThat(off.getAwaitingPsr()).isTrue();
-                assertThat(off.getBreach()).isTrue();
-                assertThat(off.getPreSentenceActivity()).isTrue();
-                assertThat(off.getSuspendedSentenceOrder()).isTrue();
+                assertThat(off.isBreach()).isTrue();
+                assertThat(off.isPreSentenceActivity()).isTrue();
+                assertThat(off.isSuspendedSentenceOrder()).isTrue();
                 assertThat(off.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2018, Month.JUNE, 24));
             }, () -> fail("Offender values not updated as expected for crn " + crn));
         }
@@ -309,9 +339,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             offenderRepository.findByCrn(newCrn).ifPresentOrElse(off -> {
                 assertThat(off.getProbationStatus()).isEqualTo(ProbationStatus.PREVIOUSLY_KNOWN);
                 assertThat(off.getAwaitingPsr()).isTrue();
-                assertThat(off.getBreach()).isTrue();
-                assertThat(off.getPreSentenceActivity()).isTrue();
-                assertThat(off.getSuspendedSentenceOrder()).isTrue();
+                assertThat(off.isBreach()).isTrue();
+                assertThat(off.isPreSentenceActivity()).isTrue();
+                assertThat(off.isSuspendedSentenceOrder()).isTrue();
                 assertThat(off.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2018, Month.JUNE, 24));
             }, () -> fail("Offender values not updated as expected for crn " + newCrn));
         }

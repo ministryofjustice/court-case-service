@@ -9,6 +9,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
@@ -150,9 +151,9 @@ class CourtCaseRequestTest {
         assertThat(defendant.getOffender().getProbationStatus()).isSameAs(ProbationStatus.NO_RECORD);
         assertThat(defendant.getOffender().getPreviouslyKnownTerminationDate()).isEqualTo(TERMINATION_DATE);
         assertThat(defendant.getOffender().getAwaitingPsr()).isEqualTo(AWAITING_PSR);
-        assertThat(defendant.getOffender().getBreach()).isEqualTo(BREACH);
-        assertThat(defendant.getOffender().getPreSentenceActivity()).isEqualTo(PRE_SENTENCE_ACTIVITY);
-        assertThat(defendant.getOffender().getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE);
+        assertThat(defendant.getOffender().isBreach()).isEqualTo(BREACH);
+        assertThat(defendant.getOffender().isPreSentenceActivity()).isEqualTo(PRE_SENTENCE_ACTIVITY);
+        assertThat(defendant.getOffender().isSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE);
     }
 
     @Test
@@ -181,5 +182,29 @@ class CourtCaseRequestTest {
         assertThat(entity.getDefendants().get(0).getDefendantName()).isEqualTo(DEFENDANT_NAME);
         assertThat(entity.getDefendants().get(0).getDateOfBirth()).isEqualTo(DEFENDANT_DOB);
         assertThat(entity.getDefendants().get(0).getOffender()).isNull();
+    }
+
+    @Test
+    void givenOptionalOffenderFieldsNotPresent_whenCallAsEntity_returnCourtCaseEntityWithOffenderDefaults() {
+        final var request = CourtCaseRequest.builder()
+            .caseId("CASE_ID")
+            .caseNo("CASE_NO")
+            .courtCode("COURT_CODE")
+            .courtRoom("COURT_ROOM")
+            .sessionStartTime(SESSION_START_TIME)
+            .probationStatus("PROBATION_STATUS")
+            .defendantName(DEFENDANT_NAME)
+            .defendantDob(DEFENDANT_DOB)
+            .crn("CRN")
+                .previouslyKnownTerminationDate(LocalDate.of(2021, 1, 1))
+            .build();
+
+        final var entity = request.asEntity();
+
+        final var offender = entity.getDefendants().get(0).getOffender();
+        assertThat(offender).isNotNull();
+        assertThat(offender.isBreach()).isFalse();
+        assertThat(offender.isPreSentenceActivity()).isFalse();
+        assertThat(offender.isSuspendedSentenceOrder()).isFalse();
     }
 }

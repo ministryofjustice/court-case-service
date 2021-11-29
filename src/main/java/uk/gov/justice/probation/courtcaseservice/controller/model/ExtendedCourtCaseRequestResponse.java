@@ -13,8 +13,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import javax.validation.Valid;
@@ -84,9 +84,9 @@ public class ExtendedCourtCaseRequestResponse {
                                 .crn(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getCrn).orElse(null))
                                 .probationStatus(Optional.ofNullable(defendantEntity.getOffender()).map(offender -> offender.getProbationStatus().name()).orElse(null))
                                 .awaitingPsr(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getAwaitingPsr).orElse(null))
-                                .breach(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getBreach).orElse(null))
-                                .preSentenceActivity(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getPreSentenceActivity).orElse(null))
-                                .suspendedSentenceOrder(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getSuspendedSentenceOrder).orElse(null))
+                                .breach(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::isBreach).orElse(null))
+                                .preSentenceActivity(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::isPreSentenceActivity).orElse(null))
+                                .suspendedSentenceOrder(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::isSuspendedSentenceOrder).orElse(null))
                                 .previouslyKnownTerminationDate(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getPreviouslyKnownTerminationDate).orElse(null))
                                 .offences(Optional.ofNullable(defendantEntity.getOffences())
                                         .orElse(Collections.emptyList()).stream()
@@ -164,9 +164,9 @@ public class ExtendedCourtCaseRequestResponse {
                                 .previouslyKnownTerminationDate(defendant.getPreviouslyKnownTerminationDate())
                                 .probationStatus(ProbationStatus.of(defendant.getProbationStatus()))
                                 .awaitingPsr(defendant.getAwaitingPsr())
-                                .breach(defendant.getBreach())
-                                .preSentenceActivity(defendant.getPreSentenceActivity())
-                                .suspendedSentenceOrder(defendant.getSuspendedSentenceOrder())
+                                .breach(Optional.ofNullable(defendant.getBreach()).orElse(false))
+                                .preSentenceActivity(Optional.ofNullable(defendant.getPreSentenceActivity()).orElse(false))
+                                .suspendedSentenceOrder(Optional.ofNullable(defendant.getSuspendedSentenceOrder()).orElse(false))
                                 .build())
                     .orElse(null);
     }

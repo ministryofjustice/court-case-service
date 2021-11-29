@@ -1,16 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
-import java.io.Serializable;
-import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -21,6 +11,17 @@ import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.io.Serializable;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "OFFENDER")
@@ -52,13 +53,13 @@ public class OffenderEntity extends BaseEntity implements Serializable {
     private Boolean awaitingPsr;
 
     @Column(name = "BREACH", nullable = false)
-    private Boolean breach;
+    private Boolean breach = false;
 
     @Column(name = "PRE_SENTENCE_ACTIVITY", nullable = false)
-    private Boolean preSentenceActivity;
+    private Boolean preSentenceActivity = false;
 
     @Column(name = "SUSPENDED_SENTENCE_ORDER", nullable = false)
-    private Boolean suspendedSentenceOrder;
+    private Boolean suspendedSentenceOrder = false;
 
     @Column(name = "PREVIOUSLY_KNOWN_TERMINATION_DATE")
     private LocalDate previouslyKnownTerminationDate;

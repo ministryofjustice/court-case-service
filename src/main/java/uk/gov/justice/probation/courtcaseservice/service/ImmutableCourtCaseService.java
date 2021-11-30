@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
@@ -75,6 +77,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public Mono<CourtCaseEntity> createUpdateCaseForSingleDefendantId(String caseId, String defendantId, CourtCaseEntity updatedCase)
             throws EntityNotFoundException, InputMismatchException {
         validateEntityByDefendantId(caseId, defendantId, updatedCase);

@@ -56,6 +56,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public Mono<CourtCaseEntity> createCase(String caseId, CourtCaseEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
         validateEntity(caseId, updatedCase);
 

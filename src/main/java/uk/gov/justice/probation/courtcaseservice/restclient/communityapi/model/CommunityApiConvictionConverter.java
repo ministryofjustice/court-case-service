@@ -1,9 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.StdConverter;
-
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,8 +14,9 @@ public class CommunityApiConvictionConverter extends StdConverter<List<Map<Strin
     private final ObjectMapper objectMapper;
 
     public CommunityApiConvictionConverter() {
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.registerModule(new JavaTimeModule());
+        this.objectMapper = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .registerModule(new JavaTimeModule());
     }
 
     @Override

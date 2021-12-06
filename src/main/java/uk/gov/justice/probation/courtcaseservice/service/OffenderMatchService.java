@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -48,7 +49,7 @@ public class OffenderMatchService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    @Retryable(value = CannotAcquireLockException.class)
+    @Retryable(value = {CannotAcquireLockException.class, DataIntegrityViolationException.class})
     public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatchesByDefendant(String caseId, String defendantId, GroupedOffenderMatchesRequest offenderMatches) {
         return Mono.just(offenderMatchRepository.findByCaseIdAndDefendantId(caseId, defendantId)
             .map(existingGroup -> OffenderMatchMapper.update(caseId, defendantId, existingGroup, offenderMatches))

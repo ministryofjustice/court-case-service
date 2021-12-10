@@ -1,8 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
-import java.util.List;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +9,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@ApiModel("Probation Record")
+import java.util.List;
+
+@Schema(description = "Probation Record")
 @Data
 @Builder
 @AllArgsConstructor

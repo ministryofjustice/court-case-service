@@ -1,16 +1,17 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@ApiModel("Court Report")
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+@Schema(description = "Court Report")
 @Data
 @Builder
 @AllArgsConstructor

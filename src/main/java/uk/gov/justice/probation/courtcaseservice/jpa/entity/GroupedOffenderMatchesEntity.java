@@ -1,7 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,7 +22,7 @@ import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.List;
 
-@ApiModel(description = "Grouped Offender Matches")
+@Schema(description = "Grouped Offender Matches")
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @AllArgsConstructor

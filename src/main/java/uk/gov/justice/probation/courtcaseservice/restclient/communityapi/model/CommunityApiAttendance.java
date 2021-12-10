@@ -1,11 +1,12 @@
 package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model;
 
-import io.swagger.annotations.ApiModelProperty;
-import java.time.LocalDate;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -13,21 +14,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CommunityApiAttendance {
 
-    @ApiModelProperty(required = true)
+    @Schema(required = true)
     private Long contactId;
 
-    @ApiModelProperty(required = true)
+    @Schema(required = true)
     private LocalDate attendanceDate;
 
-    @ApiModelProperty(required = true)
+    @Schema(required = true)
     private boolean attended;
 
-    @ApiModelProperty(required = true )
+    @Schema(required = true )
     private boolean complied;
 
     private String outcome;
 
-    @ApiModelProperty(required = true)
+    @Schema(required = true)
     private CommunityApiContactTypeDetail contactType;
 
     @Data
@@ -36,10 +37,10 @@ public class CommunityApiAttendance {
     @NoArgsConstructor
     public static class CommunityApiContactTypeDetail {
 
-        @ApiModelProperty(required = true)
+        @Schema(required = true)
         private String description;
 
-        @ApiModelProperty(required = true)
+        @Schema(required = true)
         private String code;
 
     }

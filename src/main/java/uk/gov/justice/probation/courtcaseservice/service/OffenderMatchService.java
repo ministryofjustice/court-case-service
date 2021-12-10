@@ -57,11 +57,6 @@ public class OffenderMatchService {
             .map(groupedOffenderMatchesEntity -> offenderMatchRepository.save(groupedOffenderMatchesEntity));
     }
 
-    private GroupedOffenderMatchesEntity create(String courtCode, String caseNo, GroupedOffenderMatchesRequest offenderMatches) {
-        final var courtCaseEntity = courtCaseService.getCaseByCaseNumber(courtCode, caseNo);
-        return OffenderMatchMapper.newGroupedMatchesOf(offenderMatches, courtCaseEntity);
-    }
-
     private GroupedOffenderMatchesEntity createForCaseAndDefendant(String caseId, String defendantId, GroupedOffenderMatchesRequest offenderMatches) {
         final var courtCaseEntity = courtCaseService.getCaseByCaseId(caseId);
         return OffenderMatchMapper.newGroupedMatchesOf(defendantId, offenderMatches, courtCaseEntity);

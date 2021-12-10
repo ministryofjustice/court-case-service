@@ -1,15 +1,16 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
-import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@ApiModel("Registration")
+import java.time.LocalDateTime;
+
+@Schema(description = "Registration")
 @Data
 @Builder
 @AllArgsConstructor

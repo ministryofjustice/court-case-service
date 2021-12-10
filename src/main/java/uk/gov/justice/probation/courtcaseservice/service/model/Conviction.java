@@ -2,7 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.service.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-@ApiModel("Conviction")
+@Schema(description = "Conviction")
 @Data
 @Builder
 @AllArgsConstructor

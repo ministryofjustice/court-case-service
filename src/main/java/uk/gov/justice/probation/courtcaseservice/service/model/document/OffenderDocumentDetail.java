@@ -2,9 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.service.model.document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import java.time.LocalDateTime;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +10,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 
-@ApiModel("Offender Document Details")
+import java.time.LocalDateTime;
+
+@Schema(description = "Offender Document Details")
 @Data
 @Builder
 @AllArgsConstructor
@@ -20,7 +20,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OffenderDocumentDetail {
 
-    @ApiModelProperty(required = true)
+    @Schema(required = true)
     private final String documentId;
     private final String documentName;
     private final String author;

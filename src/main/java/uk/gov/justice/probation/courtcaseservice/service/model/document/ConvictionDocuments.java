@@ -1,14 +1,15 @@
 package uk.gov.justice.probation.courtcaseservice.service.model.document;
 
-import io.swagger.annotations.ApiModel;
-import java.util.List;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@ApiModel(value = "Collects documents by a conviction ID")
+import java.util.List;
+
+@Schema(description =  "Collects documents by a conviction ID")
 @Data
 @Builder
 @AllArgsConstructor

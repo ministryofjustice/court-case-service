@@ -1,8 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.service.model.document;
 
-import io.swagger.annotations.ApiModel;
 
-@ApiModel(value = "Types of documents")
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description =  "Types of documents")
 public enum DocumentType {
     OFFENDER_DOCUMENT("Offender related"),
     CONVICTION_DOCUMENT("Sentence related"),

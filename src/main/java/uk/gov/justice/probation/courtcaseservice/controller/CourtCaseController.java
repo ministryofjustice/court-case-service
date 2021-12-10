@@ -1,9 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
@@ -45,7 +43,7 @@ import java.util.stream.Collectors;
 import static java.time.LocalTime.MIDNIGHT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@Api(tags = "Court and Cases Resources")
+@Tag(name = "Court and Cases Resources")
 @RestController
 @AllArgsConstructor
 public class CourtCaseController {
@@ -57,47 +55,47 @@ public class CourtCaseController {
     private final CourtCaseService courtCaseService;
     private final OffenderMatchService offenderMatchService;
 
-    @ApiOperation(value = "Gets the court case data by case id.")
-    @ApiResponses(
-        value = {
-            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Not Found. For example if the court code or case number can't be matched.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-        })
+    @Operation(description = "Gets the court case data by case id.")
+//    @ApiResponses(
+//        value = {
+//            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+//            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+//            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+//            @ApiResponse(code = 404, message = "Not Found. For example if the court code or case number can't be matched.", response = ErrorResponse.class),
+//            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+//        })
     @GetMapping(value = "/case/{caseId}/defendant/{defendantId}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCaseByCaseIdAndDefendantId(@PathVariable String caseId, @PathVariable String defendantId) {
         return this.buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseService.getCaseByCaseIdAndDefendantId(caseId, defendantId), defendantId);
     }
 
-    @ApiOperation(value = "Gets the court case data by case number.")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(code = 200, message = "OK", response = CourtCaseResponse.class),
-                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-                    @ApiResponse(code = 404, message = "Not Found. For example if the court code or case number can't be matched.", response = ErrorResponse.class),
-                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-            })
+    @Operation(description = "Gets the court case data by case number.")
+//    @ApiResponses(
+//            value = {
+//                    @ApiResponse(code = 200, message = "OK", response = CourtCaseResponse.class),
+//                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+//                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+//                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+//                    @ApiResponse(code = 404, message = "Not Found. For example if the court code or case number can't be matched.", response = ErrorResponse.class),
+//                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+//            })
     @GetMapping(value = "/court/{courtCode}/case/{caseNo}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCase(@PathVariable String courtCode, @PathVariable String caseNo) {
         return buildCourtCaseResponse(courtCaseService.getCaseByCaseNumber(courtCode, caseNo));
     }
 
-    @ApiOperation(value = "Saves and returns the court case data, by case id.")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(code = 201, message = "Created", response = ExtendedCourtCaseRequestResponse.class),
-                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-                    @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
-                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-            })
+    @Operation(description = "Saves and returns the court case data, by case id.")
+//    @ApiResponses(
+//            value = {
+//                    @ApiResponse(code = 201, message = "Created", response = ExtendedCourtCaseRequestResponse.class),
+//                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+//                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+//                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+//                    @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
+//                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+//            })
     @PutMapping(value = "/case/{caseId}/extended", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
@@ -107,16 +105,16 @@ public class CourtCaseController {
             .thenReturn(courtCaseRequest);
     }
 
-    @ApiOperation(value = "Returns extended court case data, by case id.")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(code = 200, message = "OK", response = ExtendedCourtCaseRequestResponse.class),
-                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-                    @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
-                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-            })
+    @Operation(description = "Returns extended court case data, by case id.")
+//    @ApiResponses(
+//            value = {
+//                    @ApiResponse(code = 200, message = "OK", response = ExtendedCourtCaseRequestResponse.class),
+//                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+//                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+//                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+//                    @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
+//                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+//            })
     @GetMapping(value = "/case/{caseId}/extended", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
@@ -125,16 +123,16 @@ public class CourtCaseController {
         return ExtendedCourtCaseRequestResponse.of(courtCase);
     }
 
-    @ApiOperation(value = "Saves and returns the court case data, by case id.")
-    @ApiResponses(
-        value = {
-            @ApiResponse(code = 201, message = "Updated", response = ExtendedCourtCaseRequestResponse.class),
-            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-        })
+    @Operation(description = "Saves and returns the court case data, by case id.")
+//    @ApiResponses(
+//        value = {
+//            @ApiResponse(code = 201, message = "Updated", response = ExtendedCourtCaseRequestResponse.class),
+//            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+//            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+//            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+//            @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
+//            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+//        })
     @PutMapping(value = "/case/{caseId}/defendant/{defendantId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
@@ -145,21 +143,21 @@ public class CourtCaseController {
             .map(courtCaseEntity -> buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseEntity, defendantId));
     }
 
-    @ApiOperation(value = "Gets case data for a court on a date. ",
-            notes = "Response is sorted by court room, session start time and by defendant surname. The createdAfter and " +
+    @Operation(summary = "Gets case data for a court on a date. ",
+            description = "Response is sorted by court room, session start time and by defendant surname. The createdAfter and " +
                     "createdBefore filters will not filter out updates originating from prepare-a-case, these manual updates" +
                     " are always assumed to be correct as they have been deliberately made by authorised users rather than " +
                     "automated systems.")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(code = 200, message = "OK", response = CaseListResponse.class),
-                    @ApiResponse(code = 304, message = "Not modified"),
-                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-                    @ApiResponse(code = 404, message = "If the court is not found by the code passed."),
-                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-            })
+//    @ApiResponses(
+//            value = {
+//                    @ApiResponse(code = 200, message = "OK", response = CaseListResponse.class),
+//                    @ApiResponse(code = 304, message = "Not modified"),
+//                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
+//                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+//                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+//                    @ApiResponse(code = 404, message = "If the court is not found by the code passed."),
+//                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+//            })
     @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<CaseListResponse> getCaseList(
             @PathVariable String courtCode,

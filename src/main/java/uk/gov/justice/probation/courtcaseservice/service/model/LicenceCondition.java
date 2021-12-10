@@ -1,9 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
-import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +10,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@ApiModel("Licence Condition")
+import java.time.LocalDate;
+
+@Schema(description = "Licence Condition")
 @Getter
 @EqualsAndHashCode
 @Builder

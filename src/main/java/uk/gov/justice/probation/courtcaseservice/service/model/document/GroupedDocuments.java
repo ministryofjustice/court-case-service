@@ -1,16 +1,16 @@
 package uk.gov.justice.probation.courtcaseservice.service.model.document;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@ApiModel(value = "Groupings of documents")
+import java.util.List;
+
+@Schema(description =  "Groupings of documents")
 @Data
 @Builder
 @AllArgsConstructor
@@ -18,9 +18,9 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GroupedDocuments {
 
-    @ApiModelProperty(value = "Documents relevant to the Offender generally")
+    @Schema(description = "Documents relevant to the Offender generally")
     private final List<OffenderDocumentDetail> documents;
-    @ApiModelProperty(value = "Documents specific relevant to each of the convictions")
+    @Schema(description = "Documents specific relevant to each of the convictions")
     private final List<ConvictionDocuments> convictions;
 
 }

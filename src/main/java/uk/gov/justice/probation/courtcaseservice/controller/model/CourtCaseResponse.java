@@ -2,7 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-@ApiModel(description = "Case Information")
+@Schema(description = "Case Information")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)

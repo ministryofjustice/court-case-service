@@ -2,8 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 import java.time.LocalDate;
 import java.util.List;
 
-@ApiModel(description = "Sentence Response")
+@Schema(description = "Sentence Response")
 @Data
 @AllArgsConstructor
 @Builder
@@ -30,13 +29,13 @@ public class SentenceResponse {
         private final Integer length;
         private final String lengthUnits;
 
-        @ApiModelProperty(value = "List of Attendances")
+        @Schema(description = "List of Attendances")
         private final List<AttendanceResponse> attendances;
 
-        @ApiModelProperty(value = "UPW")
+        @Schema(description = "UPW")
         private final UnpaidWork unpaidWork;
 
-        @ApiModelProperty(value = "Links relating to this sentence")
+        @Schema(description = "Links relating to this sentence")
         private final SentenceLinks links;
 
         private final CustodyDetail custody;

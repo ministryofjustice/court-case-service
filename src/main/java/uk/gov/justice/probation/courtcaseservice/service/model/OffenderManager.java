@@ -1,15 +1,16 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
-import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@ApiModel("Offender Manager")
+import java.time.LocalDate;
+
+@Schema(description = "Offender Manager")
 @Data
 @Builder
 @AllArgsConstructor

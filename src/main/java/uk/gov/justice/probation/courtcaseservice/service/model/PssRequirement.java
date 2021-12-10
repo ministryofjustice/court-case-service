@@ -2,7 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.service.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@ApiModel("Requirement" )
+@Schema(description = "Requirement" )
 @Getter
 @EqualsAndHashCode
 @Builder

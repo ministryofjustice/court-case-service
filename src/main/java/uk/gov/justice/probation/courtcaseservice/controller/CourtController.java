@@ -1,15 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.springframework.http.HttpStatus.*;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -28,8 +20,13 @@ import uk.gov.justice.probation.courtcaseservice.service.CourtService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
+import java.util.stream.Collectors;
 
-@Api(tags = "Court Resources")
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+@Tag(name = "Court Resources")
 @RestController
 @Slf4j
 public class CourtController {
@@ -41,17 +38,17 @@ public class CourtController {
         this.courtService = courtService;
     }
 
-    @ApiOperation(value = "Creates the court entity data. Will not overwrite a record with the same court code.")
-    @ApiResponses(
-        value = {
-            @ApiResponse(code = 201, message = "Created", response = CourtEntity.class),
-            @ApiResponse(code = 400, message = "Invalid request. For example, court code parameter does not match one in RequestBody"
-                + "or court code already exists.",
-                response = ErrorResponse.class),
-            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-        })
+    @Operation(description = "Creates the court entity data. Will not overwrite a record with the same court code.")
+//    @ApiResponses(
+//        value = {
+//            @ApiResponse(code = 201, message = "Created", response = CourtEntity.class),
+//            @ApiResponse(code = 400, message = "Invalid request. For example, court code parameter does not match one in RequestBody"
+//                + "or court code already exists.",
+//                response = ErrorResponse.class),
+//            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+//            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+//            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+//        })
     @PutMapping(value = "/court/{courtCode}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(CREATED)
     public @ResponseBody
@@ -62,13 +59,13 @@ public class CourtController {
         return courtService.updateCourt(courtEntity);
     }
 
-    @ApiOperation(value = "Gets a list of all courts with code and names.")
-    @ApiResponses(
-        value = {
-            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-        })
+    @Operation(description = "Gets a list of all courts with code and names.")
+//    @ApiResponses(
+//        value = {
+//            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
+//            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+//            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
+//        })
     @GetMapping(value = "/courts", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtListResponse getCourts() {

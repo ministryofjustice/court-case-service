@@ -31,10 +31,10 @@ public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Lon
             "on cc.case_no = grouped_cases.case_no " +
             "and h.court_code = grouped_cases.court_code " +
             "where cc.created = grouped_cases.max_created " +
-            "and cc.deleted = false",
+            "and cc.deleted = false " +
+            "order by cc.id desc limit 1",
             nativeQuery = true)
     Optional<CourtCaseEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo);
-
 
     @Query(value = "select cc.*, grouped_cases.min_created as first_created from court_case cc " +
                     "inner join " +
@@ -43,7 +43,8 @@ public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Lon
                     "   group by case_id) grouped_cases " +
                     "on cc.case_id = grouped_cases.case_id " +
                     "where cc.created = grouped_cases.max_created " +
-                    "and cc.deleted = false",
+                    "and cc.deleted = false " +
+                    "order by cc.id desc  limit 1",
         nativeQuery = true)
     Optional<CourtCaseEntity> findByCaseId(String caseId);
 
@@ -59,7 +60,8 @@ public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Lon
         "       on cc.case_id = grouped_cases.case_id " +
         "and cc.case_id = :caseId " +
         "and cc.created = grouped_cases.max_created " +
-        "and cc.deleted = false",
+        "and cc.deleted = false " +
+        "order by cc.id desc  limit 1",
         nativeQuery = true)
     Optional<CourtCaseEntity> findByCaseIdAndDefendantId(String caseId, String defendantId);
 

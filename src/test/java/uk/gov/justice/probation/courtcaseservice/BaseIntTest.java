@@ -16,7 +16,7 @@ import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @EnableRetry
-public class BaseIntTest {
+public abstract class BaseIntTest {
 
     private static final WiremockMockServer MOCK_SERVER = new WiremockMockServer(WIREMOCK_PORT);
 

@@ -22,7 +22,7 @@ class ApplicationRetryListener : RetryListener {
         callback: RetryCallback<T, E>?,
         throwable: Throwable?
     ) {
-        log.warn("Retry attempt {} failed with error", context?.retryCount, context?.lastThrowable)
+        log.warn("Retry attempt {} failed with error", context?.retryCount, throwable)
     }
 
     override fun <T : Any?, E : Throwable?> close(
@@ -30,6 +30,6 @@ class ApplicationRetryListener : RetryListener {
         callback: RetryCallback<T, E>?,
         throwable: Throwable?
     ) {
-        log.warn("Retried {} times. Last attempt failed with error", context?.retryCount, context?.lastThrowable)
+        log.warn("Retried {} times. Last attempt failed with error", context?.retryCount, throwable)
     }
 }

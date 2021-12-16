@@ -30,6 +30,6 @@ class ApplicationRetryListener : RetryListener {
         callback: RetryCallback<T, E>?,
         throwable: Throwable?
     ) {
-        log.warn("Retried {} times. Last attempt failed with error", context?.retryCount, throwable)
+        log.warn("Retried {} times", context?.retryCount, throwable)
     }
 }

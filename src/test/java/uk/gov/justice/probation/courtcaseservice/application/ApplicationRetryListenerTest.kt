@@ -34,7 +34,7 @@ class ApplicationRetryListenerTest {
             "Retry attempt 1 failed with error",
             "Retry attempt 2 failed with error",
             "Retry attempt 3 failed with error",
-            "Retried 3 times. Last attempt failed with error"
+            "Retried 3 times"
         )
     }
 }

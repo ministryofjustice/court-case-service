@@ -73,7 +73,7 @@ commands:
               --description="${APP_VERSION} - ${CIRCLE_BUILD_URL}" \
               --values ~/git/helm_deploy/values-<< parameters.env >>.yaml \
               --values - \
-              --values ~/git/helm_deploy/court-case-service/values-live.yaml
+              --values ~/git/helm_deploy/court-case-service/values-live.yaml \
               --set image.tag="${APP_VERSION}" \
               --set nginx_proxy.deployment.image.tag="${APP_VERSION}"
 executors:

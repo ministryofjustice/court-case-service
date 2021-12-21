@@ -97,6 +97,7 @@ commands:
               --description="${APP_VERSION} - ${CIRCLE_BUILD_URL}" \
               --values ~/git/helm_deploy/values-<< parameters.env >>.yaml \
               --values - \
+              --values ~/git/helm_deploy/court-case-service/values-live1.yaml \
               --set image.tag="${APP_VERSION}" \
               --set nginx_proxy.deployment.image.tag="${APP_VERSION}"
   deploy_to_live_env:
@@ -460,9 +461,9 @@ workflows:
             - helm_lint_dev
             - build_docker_main
             - build_docker_nginx_main
-          filters:
-            branches:
-              only: main
+#          filters:
+#            branches:
+#              only: main
       - deploy_live_dev:
           name: deploy_live_dev
           context: court-probation-live-dev

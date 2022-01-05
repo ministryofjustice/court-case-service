@@ -9,30 +9,6 @@ parameters:
     default: main
 
 commands:
-  setup:
-    description: "Install tools and configure kubectl"
-    steps:
-      - aws-cli/install
-      - kubernetes/install
-      - helm/install-helm-client:
-          version: v3.2.4
-      - run:
-          name: Setup kubectl
-          command: |
-            echo -n "${KUBE_ENV_CACERT}" | base64 -d > /tmp/cluster_ca.crt
-            kubectl config set-cluster "${KUBE_ENV_NAME}" \
-              --certificate-authority="/tmp/cluster_ca.crt" \
-              --server="https://api.${KUBE_ENV_NAME}"
-            kubectl config set-credentials circleci \
-              --token="${KUBE_ENV_TOKEN}"
-            kubectl config set-context circleci \
-              --cluster="${KUBE_ENV_NAME}" \
-              --user="circleci" \
-              --namespace="${KUBE_ENV_NAMESPACE}"
-            # confirm setup is ok
-            kubectl config use-context circleci
-            kubectl -n "${KUBE_ENV_NAMESPACE}" get pods
-
   setup-live:
     description: "Install tools and configure kubectl"
     steps:
@@ -75,31 +51,6 @@ commands:
       - mem/remember:
           env_var: APP_VERSION
           value: "${APP_VERSION}"
-
-  deploy_to_env:
-    parameters:
-      env:
-        type: string
-    steps:
-      - setup
-      - checkout:
-          path: ~/git
-      - attach_workspace:
-          at: ~/app
-      - mem/recall:
-          env_var: APP_VERSION
-      - deploy:
-          name: Deploy to << parameters.env >>
-          command: |
-            helm upgrade court-case-service ~/git/helm_deploy/court-case-service/. \
-              --install --wait --reset-values --timeout 360s \
-              --namespace=${KUBE_ENV_NAMESPACE} \
-              --description="${APP_VERSION} - ${CIRCLE_BUILD_URL}" \
-              --values ~/git/helm_deploy/values-<< parameters.env >>.yaml \
-              --values - \
-              --values ~/git/helm_deploy/court-case-service/values-live1.yaml \
-              --set image.tag="${APP_VERSION}" \
-              --set nginx_proxy.deployment.image.tag="${APP_VERSION}"
   deploy_to_live_env:
     parameters:
       env:
@@ -314,16 +265,6 @@ jobs:
   deploy_dev:
     executor: deployer
     steps:
-      - deploy_to_env:
-          env: "dev"
-      - jira/notify:
-          environment: dev
-          environment_type: development
-          token_name: JIRA_CIRCLE_TOKEN
-          job_type: deployment
-  deploy_live_dev:
-    executor: deployer
-    steps:
       - deploy_to_live_env:
           env: "dev"
       - jira/notify:
@@ -334,16 +275,6 @@ jobs:
   deploy_preprod:
     executor: deployer
     steps:
-      - deploy_to_env:
-          env: "preprod"
-      - jira/notify:
-          environment: preprod
-          environment_type: testing
-          token_name: JIRA_CIRCLE_TOKEN
-          job_type: deployment
-  deploy_live_preprod:
-    executor: deployer
-    steps:
       - deploy_to_live_env:
           env: "preprod"
       - jira/notify:
@@ -352,16 +283,6 @@ jobs:
           token_name: JIRA_CIRCLE_TOKEN
           job_type: deployment
   deploy_prod:
-    executor: deployer
-    steps:
-      - deploy_to_env:
-          env: "prod"
-      - jira/notify:
-          environment: prod
-          environment_type: production
-          token_name: JIRA_CIRCLE_TOKEN
-          job_type: deployment
-  deploy_live_prod:
     executor: deployer
     steps:
       - deploy_to_live_env:
@@ -457,15 +378,6 @@ workflows:
             branches:
               only: main
       - deploy_dev:
-          requires:
-            - helm_lint_dev
-            - build_docker_main
-            - build_docker_nginx_main
-          filters:
-            branches:
-              only: main
-      - deploy_live_dev:
-          name: deploy_live_dev
           context: court-probation-live-dev
           requires:
             - helm_lint_dev
@@ -478,30 +390,18 @@ workflows:
           type: approval
           requires:
             - deploy_dev
-      - request_live_preprod_approval:
-          type: approval
-          requires:
-            - deploy_live_dev
       - deploy_preprod:
-          context: court-probation-preprod
-          requires:
-            - request_preprod_approval
-      - deploy_live_preprod:
           context: court-probation-live-preprod
           requires:
-            - request_live_preprod_approval
+            - request_preprod_approval
       - request_prod_approval:
           type: approval
           requires:
             - deploy_preprod
-      - request_live_prod_approval:
-          type: approval
-          requires:
-            - deploy_live_preprod
-      - deploy_live_prod:
+      - deploy_prod:
           context: court-probation-live-prod
           requires:
-            - request_live_prod_approval
+            - request_prod_approval
 
   pact:
     jobs:

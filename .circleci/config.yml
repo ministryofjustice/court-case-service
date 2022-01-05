@@ -342,21 +342,21 @@ workflows:
               only: main
       - hmpps/helm_lint:
           name: helm_lint_dev
-      - build_docker:
-          app_name: court-case-service
-          requires:
-            - build
-          filters:
-            branches:
-              ignore: main
+      # - build_docker:
+      #     app_name: court-case-service
+      #     requires:
+      #       - build
+      #     filters:
+      #       branches:
+      #         ignore: main
       - build_docker:
           name: build_docker_main
           app_name: court-case-service
           requires:
             - build
-          filters:
-            branches:
-              only: main
+          # filters:
+          #   branches:
+          #     only: main
           main: true
       # - build_docker:
       #     name: build_docker_nginx

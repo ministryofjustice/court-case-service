@@ -32,6 +32,8 @@ group = 'uk.gov.justice.probation'
 ext {
     restAssuredVersion = '4.4.0'
     pactVersion = '4.3.3'
+    testContainersVersion = '1.16.2'
+    junitJupiterVersion = '5.4.2'
 }
 
 def today = Instant.now()
@@ -226,6 +228,13 @@ dependencies {
     testImplementation("au.com.dius.pact.consumer:junit5:$pactVersion")
 
     testImplementation("org.apache.httpcomponents:fluent-hc:4.5.13")
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
+    testImplementation("org.testcontainers:testcontainers:$testContainersVersion")
+    testImplementation("org.testcontainers:junit-jupiter:$testContainersVersion")
+    testImplementation "org.testcontainers:postgresql:$testContainersVersion"
 
     agentDeps 'com.microsoft.azure:applicationinsights-agent:3.2.4'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"

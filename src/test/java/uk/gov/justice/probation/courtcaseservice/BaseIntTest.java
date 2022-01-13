@@ -8,6 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.context.ActiveProfiles;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.utility.DockerImageName;
 import uk.gov.justice.probation.courtcaseservice.wiremock.WiremockExtension;
 import uk.gov.justice.probation.courtcaseservice.wiremock.WiremockMockServer;
 
@@ -16,7 +19,7 @@ import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @EnableRetry
-public abstract class BaseIntTest {
+public abstract class BaseIntTest extends BaseDbTest {
 
     private static final WiremockMockServer MOCK_SERVER = new WiremockMockServer(WIREMOCK_PORT);
 
@@ -25,6 +28,12 @@ public abstract class BaseIntTest {
 
     @LocalServerPort
     protected int port;
+
+    @Container
+    public GenericContainer postgres = new GenericContainer(DockerImageName.parse("circleci/postgres:11.6-alpine-ram"))
+            .withEnv("POSTGRES_USER", "root")
+            .withEnv("POSTGRES_PASSWORD", "dev")
+            .withExposedPorts(5432);
 
     @BeforeAll
     public static void setupClass() throws Exception {

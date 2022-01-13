@@ -115,7 +115,7 @@ public class CourtCaseResponseMapper {
     }
 
     private static void addDefendantFields(CourtCaseResponseBuilder builder, DefendantEntity defendantEntity) {
-        addOffenderFields(builder, defendantEntity, defendantEntity.getOffender());
+        addOffenderFields(builder, defendantEntity.getOffender());
         builder
             .defendantName(defendantEntity.getDefendantName())
             .name(defendantEntity.getName())
@@ -134,23 +134,23 @@ public class CourtCaseResponseMapper {
         builder.offences(mapOffencesFromDefendantOffences(defendantEntity.getOffences()));
     }
 
-    private static void addOffenderFields(CourtCaseResponseBuilder builder, DefendantEntity defendant, OffenderEntity offender) {
+    private static void addOffenderFields(CourtCaseResponseBuilder builder, OffenderEntity offender) {
         builder
             .awaitingPsr(Optional.ofNullable(offender)
                                     .map(OffenderEntity::getAwaitingPsr)
-                                    .orElse(defendant.getAwaitingPsr()))
+                                    .orElse(null))
             .breach(Optional.ofNullable(offender)
                                     .map(OffenderEntity::isBreach)
-                                    .orElse(defendant.getBreach()))
+                                    .orElse(null))
             .preSentenceActivity(Optional.ofNullable(offender)
                                     .map(OffenderEntity::isPreSentenceActivity)
-                                    .orElse(defendant.getPreSentenceActivity()))
+                                    .orElse(null))
             .suspendedSentenceOrder(Optional.ofNullable(offender)
                                     .map(OffenderEntity::isSuspendedSentenceOrder)
-                                    .orElse(defendant.getSuspendedSentenceOrder()))
+                                    .orElse(null))
             .previouslyKnownTerminationDate(Optional.ofNullable(offender)
                                     .map(OffenderEntity::getPreviouslyKnownTerminationDate)
-                                    .orElse(defendant.getPreviouslyKnownTerminationDate()))
+                                    .orElse(null))
             .probationStatus(Optional.ofNullable(offender)
                                     .map(OffenderEntity::getProbationStatus)
                                     .orElse(null))

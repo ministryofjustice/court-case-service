@@ -1,9 +1,20 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.With;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.annotations.Type;
+import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,19 +29,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.With;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
-import org.hibernate.annotations.Type;
-import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "DEFENDANT")
@@ -102,30 +103,6 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
 
     @Column(name = "NATIONALITY_2")
     private final String nationality2;
-
-    @Deprecated(forRemoval = true)
-    @Column(name = "PREVIOUSLY_KNOWN_TERMINATION_DATE")
-    private final LocalDate previouslyKnownTerminationDate;
-
-    @Deprecated(forRemoval = true)
-    @Column(name = "SUSPENDED_SENTENCE_ORDER", nullable = false)
-    private final Boolean suspendedSentenceOrder;
-
-    @Deprecated(forRemoval = true)
-    @Column(name = "BREACH", nullable = false)
-    private final Boolean breach;
-
-    @Deprecated(forRemoval = true)
-    @Column(name = "PRE_SENTENCE_ACTIVITY", nullable = false)
-    private final Boolean preSentenceActivity;
-
-    @Deprecated(forRemoval = true)
-    @Column(name = "AWAITING_PSR")
-    private final Boolean awaitingPsr;
-
-    @Deprecated(forRemoval = true)
-    @Column(name = "PROBATION_STATUS", nullable = false)
-    private final String probationStatus;
 
     @Column(name = "manual_update", nullable = false, updatable = false)
     private boolean manualUpdate;

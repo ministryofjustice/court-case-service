@@ -177,12 +177,6 @@ public class CourtCaseRequest {
             .defendantId(Optional.ofNullable(defendantId).orElse(UUID.randomUUID().toString()))
             .cro(cro)
             .pnc(pnc)
-            .awaitingPsr(awaitingPsr)
-            .probationStatus(ProbationStatus.of(probationStatus).name())
-            .preSentenceActivity(preSentenceActivity)
-            .previouslyKnownTerminationDate(previouslyKnownTerminationDate)
-            .breach(breach)
-            .suspendedSentenceOrder(suspendedSentenceOrder)
             .offences(defendantOffences)
             .build();
 

@@ -119,16 +119,6 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
         void whenCreateCaseExtendedByCaseId_thenCreateNewRecord() {
 
             final var offenderEntity = offenderRepository.findByCrn(CRN);
-            offenderEntity.ifPresentOrElse(off -> {
-                assertThat(off.getCrn()).isEqualTo(CRN);
-                assertThat(off.getProbationStatus()).isEqualTo(ProbationStatus.CURRENT);
-                assertThat(off.getAwaitingPsr()).isNull();
-                assertThat(off.isBreach()).isFalse();
-                assertThat(off.isPreSentenceActivity()).isFalse();
-                assertThat(off.isSuspendedSentenceOrder()).isFalse();
-                assertThat(off.getPreviouslyKnownTerminationDate()).isNull();
-            }, () -> fail("Initial offender values unexpected"));
-
             given()
                 .auth()
                 .oauth2(getToken())

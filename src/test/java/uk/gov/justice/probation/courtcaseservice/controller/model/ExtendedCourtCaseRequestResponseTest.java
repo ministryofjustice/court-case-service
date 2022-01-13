@@ -98,18 +98,16 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(courtCaseEntity.getCro()).isEqualTo(CRO);
         assertThat(courtCaseEntity.getDefendantDob()).isEqualTo(DEFENDANT_DOB);
         assertThat(courtCaseEntity.getDefendantSex().getName()).isEqualTo("M");
-        assertThat(courtCaseEntity.getPreviouslyKnownTerminationDate()).isEqualTo(previouslyKnownTerminationDate);
-        assertThat(courtCaseEntity.getPreSentenceActivity()).isEqualTo(Boolean.TRUE);
-        assertThat(courtCaseEntity.getBreach()).isEqualTo(Boolean.TRUE);
-        assertThat(courtCaseEntity.getAwaitingPsr()).isEqualTo(Boolean.TRUE);
-        assertThat(courtCaseEntity.getProbationStatus()).isEqualTo("CURRENT");
+        assertThat(courtCaseEntity.getDefendants().get(0).getOffender().getPreviouslyKnownTerminationDate()).isEqualTo(previouslyKnownTerminationDate);
+        assertThat(courtCaseEntity.getDefendants().get(0).getOffender().isPreSentenceActivity()).isEqualTo(Boolean.TRUE);
+        assertThat(courtCaseEntity.getDefendants().get(0).getOffender().isBreach()).isEqualTo(Boolean.TRUE);
+        assertThat(courtCaseEntity.getDefendants().get(0).getOffender().getAwaitingPsr()).isEqualTo(Boolean.TRUE);
+        assertThat(courtCaseEntity.getDefendants().get(0).getOffender().getProbationStatus()).isEqualTo(ProbationStatus.CURRENT);
         assertThat(courtCaseEntity.getOffences()).hasSize(2);
 
         assertThat(courtCaseEntity.getDefendants()).hasSize(1);
         final var defendantEntity = courtCaseEntity.getDefendants().get(0);
-        assertThat(defendantEntity.getAwaitingPsr()).isEqualTo(Boolean.TRUE);
         assertThat(defendantEntity.getAddress()).isEqualTo(expectedAddress);
-        assertThat(defendantEntity.getBreach()).isEqualTo(Boolean.TRUE);
         assertThat(defendantEntity.getCrn()).isEqualTo(CRN);
         assertThat(defendantEntity.getCro()).isEqualTo(CRO);
         assertThat(defendantEntity.getCourtCase()).isSameAs(courtCaseEntity);
@@ -117,9 +115,11 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(defendantEntity.getDefendantName()).isEqualTo(NAME.getFullName());
         assertThat(defendantEntity.getName()).isEqualTo(NAME);
         assertThat(defendantEntity.getPnc()).isEqualTo(PNC);
-        assertThat(defendantEntity.getPreSentenceActivity()).isEqualTo(Boolean.TRUE);
-        assertThat(defendantEntity.getPreviouslyKnownTerminationDate()).isEqualTo(previouslyKnownTerminationDate);
-        assertThat(defendantEntity.getProbationStatus()).isEqualTo("CURRENT");
+        assertThat(defendantEntity.getOffender().getAwaitingPsr()).isEqualTo(Boolean.TRUE);
+        assertThat(defendantEntity.getOffender().isBreach()).isEqualTo(Boolean.TRUE);
+        assertThat(defendantEntity.getOffender().isPreSentenceActivity()).isEqualTo(Boolean.TRUE);
+        assertThat(defendantEntity.getOffender().getPreviouslyKnownTerminationDate()).isEqualTo(previouslyKnownTerminationDate);
+        assertThat(defendantEntity.getOffender().getProbationStatus()).isEqualTo(ProbationStatus.CURRENT);
         assertThat(defendantEntity.getSex()).isSameAs(Sex.MALE);
         assertThat(defendantEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
 
@@ -315,8 +315,6 @@ class ExtendedCourtCaseRequestResponseTest {
                                         .line5("line5")
                                         .postcode("postcode")
                                         .build())
-                                .awaitingPsr(true)
-                                .breach(true)
                                 .offender(OffenderEntity.builder()
                                     .crn("crn")
                                     .preSentenceActivity(true)
@@ -335,10 +333,7 @@ class ExtendedCourtCaseRequestResponseTest {
                                         .surname("surname")
                                         .build())
                                 .defendantId("defendantId")
-                                .preSentenceActivity(true)
-                                .previouslyKnownTerminationDate(LocalDate.of(2001, 1, 1))
                                 .sex(Sex.MALE)
-                                .suspendedSentenceOrder(true)
                                 .offences(List.of(DefendantOffenceEntity.builder()
                                                 .act("act")
                                                 .summary("summary")

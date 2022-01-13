@@ -69,7 +69,6 @@ public class CourtCaseMapper {
     public static DefendantEntity createDefendant(DefendantEntity defendantEntity, String newProbationStatus) {
 
         var newDefendantEntity = DefendantEntity.builder()
-            .probationStatus(Optional.ofNullable(newProbationStatus).orElse(defendantEntity.getProbationStatus()))
             .defendantId(defendantEntity.getDefendantId())
             .defendantName(defendantEntity.getDefendantName())
             .name(defendantEntity.getName())
@@ -82,11 +81,6 @@ public class CourtCaseMapper {
             .sex(defendantEntity.getSex())
             .nationality1(defendantEntity.getNationality1())
             .nationality2(defendantEntity.getNationality2())
-            .previouslyKnownTerminationDate(defendantEntity.getPreviouslyKnownTerminationDate())
-            .suspendedSentenceOrder(defendantEntity.getSuspendedSentenceOrder())
-            .breach(defendantEntity.getBreach())
-            .preSentenceActivity(defendantEntity.getPreSentenceActivity())
-            .awaitingPsr(defendantEntity.getAwaitingPsr())
             .offences(Optional.ofNullable(defendantEntity.getOffences()).orElse(Collections.emptyList())
                 .stream()
                 .map(CourtCaseMapper::createDefendantOffence)
@@ -95,11 +89,6 @@ public class CourtCaseMapper {
 
         newDefendantEntity.getOffences().forEach(offenceEntity -> offenceEntity.setDefendant(newDefendantEntity));
         return newDefendantEntity;
-    }
-
-    static DefendantEntity createDefendant(DefendantEntity defendantEntity, String crn, String updatedProbationStatus) {
-        var newProbationStatus = crn.equals(defendantEntity.getCrn()) ? updatedProbationStatus : defendantEntity.getProbationStatus();
-        return createDefendant(defendantEntity, newProbationStatus);
     }
 
     static DefendantOffenceEntity createDefendantOffence(DefendantOffenceEntity offenceEntity) {

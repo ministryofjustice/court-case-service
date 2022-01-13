@@ -23,49 +23,6 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.anOffence;
 
 class CourtCaseMapperTest {
-
-    @Test
-    void givenUpdateForOtherCrn_whenCreateDefendant_thenPopulateAllFieldsLeaveCrn() {
-
-        var defendant = EntityHelper.aDefendantEntity();
-
-        var newEntity = CourtCaseMapper.createDefendant(defendant, "OTHER_CRN", "CURRENT");
-
-        assertThat(newEntity).isNotSameAs(defendant);
-        assertThat(newEntity.getProbationStatus()).isNotEqualTo("CURRENT");
-        assertThat(newEntity.getDefendantId()).isEqualTo(defendant.getDefendantId());
-        assertThat(newEntity.getId()).isNull();
-        assertThat(newEntity.getOffences()).hasSize(1);
-        assertThat(newEntity.getDefendantName()).isEqualTo(defendant.getDefendantName());
-        assertThat(newEntity.getName()).isEqualTo(defendant.getName());
-        assertThat(newEntity.getDefendantId()).isEqualTo(defendant.getDefendantId());
-        assertThat(newEntity.getType()).isEqualTo(defendant.getType());
-        assertThat(newEntity.getAddress()).isEqualTo(defendant.getAddress());
-        assertThat(newEntity.getCrn()).isEqualTo(defendant.getCrn());
-        assertThat(newEntity.getPnc()).isEqualTo(defendant.getPnc());
-        assertThat(newEntity.getCro()).isEqualTo(defendant.getCro());
-        assertThat(newEntity.getDateOfBirth()).isEqualTo(defendant.getDateOfBirth());
-        assertThat(newEntity.getSex()).isEqualTo(defendant.getSex());
-        assertThat(newEntity.getNationality1()).isEqualTo(defendant.getNationality1());
-        assertThat(newEntity.getNationality2()).isEqualTo(defendant.getNationality2());
-        assertThat(newEntity.getPreviouslyKnownTerminationDate()).isEqualTo(defendant.getPreviouslyKnownTerminationDate());
-        assertThat(newEntity.getSuspendedSentenceOrder()).isEqualTo(defendant.getSuspendedSentenceOrder());
-        assertThat(newEntity.getBreach()).isEqualTo(defendant.getBreach());
-        assertThat(newEntity.getPreSentenceActivity()).isEqualTo(defendant.getPreSentenceActivity());
-        assertThat(newEntity.getAwaitingPsr()).isEqualTo(defendant.getAwaitingPsr());
-    }
-
-    @Test
-    void givenUpdateForSameCrn_whenCreateNew_thenPopulateAllFieldsAndUpdateProbationStatus() {
-
-        var defendant = EntityHelper.aDefendantEntity();
-
-        var newEntity = CourtCaseMapper.createDefendant(defendant, CRN, "CURRENT");
-
-        assertThat(newEntity).isNotSameAs(defendant);
-        assertThat(newEntity.getProbationStatus()).isEqualTo("CURRENT");
-    }
-
     @Test
     void whenCreateDefendantOffence_thenReturnNew() {
 

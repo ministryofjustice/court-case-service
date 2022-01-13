@@ -127,7 +127,7 @@ class CourtCaseRequestTest {
             .line5("LINE5")
             .postcode("POSTCODE")
             .build();
-        final var expectedDefendant = EntityHelper.aDefendantEntity(address).withProbationStatus(ProbationStatus.NO_RECORD.name());
+        final var expectedDefendant = EntityHelper.aDefendantEntity(address);
         assertThat(defendant)
             .usingRecursiveComparison()
             .ignoringFields("id", "courtCase", "offences", "offender")

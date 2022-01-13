@@ -109,25 +109,25 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                 });
     }
 
-    void updateOffenders(CourtCaseEntity courtCase, Predicate<DefendantEntity> defendantPredicate) {
-        Optional.ofNullable(courtCase.getDefendants()).orElse(Collections.emptyList())
+    void updateOffenders(CourtCaseEntity updatedCourtCase, Predicate<DefendantEntity> defendantPredicate) {
+        Optional.ofNullable(updatedCourtCase.getDefendants()).orElse(Collections.emptyList())
             .stream()
             .filter(defendantPredicate)
             .map(DefendantEntity::getOffender)
             .filter(Objects::nonNull)
-            .forEach(existingOffender -> {
-                final var offenderEntity = offenderRepository.findByCrn(existingOffender.getCrn());
-                offenderEntity.ifPresentOrElse(offender -> {
-                    existingOffender.setId(offender.getId());
-                    offender.setProbationStatus(existingOffender.getProbationStatus());
-                    offender.setAwaitingPsr(existingOffender.getAwaitingPsr());
-                    offender.setBreach(existingOffender.isBreach());
-                    offender.setPreSentenceActivity(existingOffender.isPreSentenceActivity());
-                    offender.setSuspendedSentenceOrder(existingOffender.isSuspendedSentenceOrder());
-                    offender.setPreviouslyKnownTerminationDate(existingOffender.getPreviouslyKnownTerminationDate());
+            .forEach(updatedOffender -> {
+                final var existingOffender = offenderRepository.findByCrn(updatedOffender.getCrn());
+                existingOffender.ifPresentOrElse(offender -> {
+                    updatedOffender.setId(offender.getId());
+                    offender.setProbationStatus(updatedOffender.getProbationStatus());
+                    offender.setAwaitingPsr(updatedOffender.getAwaitingPsr());
+                    offender.setBreach(updatedOffender.isBreach());
+                    offender.setPreSentenceActivity(updatedOffender.isPreSentenceActivity());
+                    offender.setSuspendedSentenceOrder(updatedOffender.isSuspendedSentenceOrder());
+                    offender.setPreviouslyKnownTerminationDate(updatedOffender.getPreviouslyKnownTerminationDate());
                     offenderRepository.save(offender);
                     },
-                    () -> offenderRepository.save(existingOffender));
+                    () -> offenderRepository.save(updatedOffender));
             });
     }
 

@@ -1,10 +1,11 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
+import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 
 public class EntityHelper {
 
@@ -117,12 +118,6 @@ public class EntityHelper {
             .nationality1(NATIONALITY_1)
             .nationality2(NATIONALITY_2)
             .defendantId(defendantId)
-            .awaitingPsr(AWAITING_PSR)
-            .breach(BREACH)
-            .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
-            .previouslyKnownTerminationDate(TERMINATION_DATE)
-            .probationStatus(PROBATION_STATUS)
-            .suspendedSentenceOrder(SUSPENDED_SENTENCE)
             .offences(List.of(aDefendantOffence()))
             .build();
     }

@@ -135,8 +135,6 @@ public class ExtendedCourtCaseRequestResponse {
 
         final var defendantEntity = DefendantEntity.builder()
             .address(buildAddress(defendant.getAddress()))
-            .awaitingPsr(defendant.getAwaitingPsr())
-            .breach(defendant.getBreach())
             .cro(defendant.getCro())
             .dateOfBirth(defendant.getDateOfBirth())
             .defendantName(defendant.getName().getFullName())
@@ -144,11 +142,7 @@ public class ExtendedCourtCaseRequestResponse {
             .offences(offences)
             .offender(offender)
             .pnc(defendant.getPnc())
-            .preSentenceActivity(defendant.getPreSentenceActivity())
-            .previouslyKnownTerminationDate(defendant.getPreviouslyKnownTerminationDate())
-            .probationStatus(defendant.getProbationStatus())
             .sex(Sex.fromString(defendant.getSex()))
-            .suspendedSentenceOrder(defendant.getSuspendedSentenceOrder())
             .type(defendant.getType())
             .defendantId(defendant.getDefendantId())
             .build();
@@ -219,7 +213,6 @@ public class ExtendedCourtCaseRequestResponse {
 
         return CourtCaseEntity.builder()
             // Top level fields to be retired into the Defendant
-            .awaitingPsr(firstDefendant.map(DefendantEntity::getAwaitingPsr).orElse(null))
             .defendantAddress(firstDefendant.map(DefendantEntity::getAddress).orElse(null))
             .defendantName(firstDefendant.map(DefendantEntity::getDefendantName).orElse(null))
             .name(firstDefendant.map(DefendantEntity::getName).orElse(null))
@@ -229,11 +222,11 @@ public class ExtendedCourtCaseRequestResponse {
             .cro(firstDefendant.map(DefendantEntity::getCro).orElse(null))
             .defendantDob(firstDefendant.map(DefendantEntity::getDateOfBirth).orElse(null))
             .defendantSex(firstDefendant.map(DefendantEntity::getSex).orElse(null))
-            .previouslyKnownTerminationDate(firstDefendant.map(DefendantEntity::getPreviouslyKnownTerminationDate).orElse(null))
-            .suspendedSentenceOrder(firstDefendant.map(DefendantEntity::getSuspendedSentenceOrder).orElse(null))
-            .breach(firstDefendant.map(DefendantEntity::getBreach).orElse(null))
-            .preSentenceActivity(firstDefendant.map(DefendantEntity::getPreSentenceActivity).orElse(null))
-            .probationStatus(firstDefendant.map(DefendantEntity::getProbationStatus).orElse(null));
+            .previouslyKnownTerminationDate(firstDefendant.map(DefendantEntity::getOffender).map(OffenderEntity::getPreviouslyKnownTerminationDate).orElse(null))
+            .suspendedSentenceOrder(firstDefendant.map(DefendantEntity::getOffender).map(OffenderEntity::isSuspendedSentenceOrder).orElse(null))
+            .breach(firstDefendant.map(DefendantEntity::getOffender).map(OffenderEntity::isBreach).orElse(null))
+            .preSentenceActivity(firstDefendant.map(DefendantEntity::getOffender).map(OffenderEntity::isPreSentenceActivity).orElse(null))
+            .probationStatus(firstDefendant.map(DefendantEntity::getOffender).map(OffenderEntity::getProbationStatus).map(ProbationStatus::getName).orElse(null));
     }
 
     // Top level offence will be moved to the defendant

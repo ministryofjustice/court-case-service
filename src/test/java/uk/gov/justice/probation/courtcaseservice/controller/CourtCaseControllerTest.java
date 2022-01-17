@@ -245,10 +245,10 @@ class CourtCaseControllerTest {
     }
 
     @Test
-    void whenCreatedAfterIsNull_thenDefaultToTodayMinus8Days() {
+    void whenCreatedAfterIsNull_thenDefaultToALongTimeAgo() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
-        final LocalDateTime createdAfter = LocalDateTime.of(DATE, LocalTime.MIDNIGHT).minusDays(8);
+        final LocalDateTime createdAfter = LocalDateTime.of(-4712, 1, 1, 0, 0);
         courtCaseController.getCaseList(COURT_CODE, DATE, null, CREATED_BEFORE, webRequest);
 
         verify(courtCaseService).filterCases(COURT_CODE, DATE, createdAfter, CREATED_BEFORE);

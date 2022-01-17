@@ -40,7 +40,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static java.time.LocalTime.MIDNIGHT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Tag(name = "Court and Cases Resources")
@@ -50,6 +49,7 @@ public class CourtCaseController {
 
     // See https://www.postgresql.org/docs/9.0/datatype-datetime.html
     private static final int MAX_YEAR_SUPPORTED_BY_DB = 294276;
+    private static final int MIN_YEAR_SUPPORTED_BY_DB = -4712;
     private static final int MAX_AGE = 1;
     private static final LocalDateTime NEVER_MODIFIED_DATE = LocalDateTime.of(2020, MAX_AGE, MAX_AGE, 0, 0);
     private final CourtCaseService courtCaseService;
@@ -180,7 +180,7 @@ public class CourtCaseController {
 
         final var createdAfterOrDefault = Optional.ofNullable(createdAfter)
                 .orElse(
-                        LocalDateTime.of(date, MIDNIGHT).minusDays(8)
+                        LocalDateTime.of(MIN_YEAR_SUPPORTED_BY_DB, 1, 1, 0, 0)
                 );
 
         final var createdBeforeOrDefault = Optional.ofNullable(createdBefore)

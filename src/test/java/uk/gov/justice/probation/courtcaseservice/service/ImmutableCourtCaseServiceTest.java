@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.lenient;
@@ -92,17 +93,31 @@ class ImmutableCourtCaseServiceTest {
         }
 
         @Test
-        void givenUnknownCourtCode_whenCreateOrUpdateCase_thenThrowException() {
-            when(courtRepository.findByCourtCode("XXX")).thenThrow(new EntityNotFoundException("not found court"));
+        void givenUnknownCourtCode_whenCreateOrUpdateCase_thenCreateIt() {
+            when(courtRepository.findByCourtCode("XXX")).thenReturn(Optional.empty());
+            when(courtCaseRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.empty());
+            when(courtCaseRepository.save(incomingCourtCase)).thenReturn(incomingCourtCase);
+            final var existingOffender = OffenderEntity.builder().crn(CRN).id(199L).probationStatus(ProbationStatus.CURRENT).build();
+            when(offenderRepository.findByCrn(any())).thenReturn(Optional.of(existingOffender));
+
             incomingCourtCase = CourtCaseEntity.builder()
                     .caseId(CASE_ID)
                     .hearings(Collections.singletonList(aHearingEntity().withCourtCode("XXX")))
+                    .defendants(Collections.singletonList(defendant))
                     .build();
 
-            Assertions.assertThrows(EntityNotFoundException.class, () -> {
-                service.createUpdateCaseForSingleDefendantId(CASE_ID, DEFENDANT_ID, incomingCourtCase).block();
-            });
+            service.createUpdateCaseForSingleDefendantId(CASE_ID, DEFENDANT_ID, incomingCourtCase).block();
             verify(courtRepository).findByCourtCode("XXX");
+            verify(courtRepository).save(CourtEntity.builder()
+                    .courtCode("XXX")
+                    .build());
+
+            verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, incomingCourtCase);
+            verify(telemetryService).trackCourtCaseDefendantEvent(TelemetryEventType.DEFENDANT_LINKED, incomingCourtCase.getDefendants().get(0), CASE_ID);
+            verify(courtCaseRepository).findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
+            verify(courtCaseRepository).save(incomingCourtCase);
+            verify(offenderRepository).findByCrn(any());
+            verify(offenderRepository).save(existingOffender);
             verifyNoMoreInteractions(courtRepository, courtCaseRepository, telemetryService, offenderRepository);
         }
 
@@ -369,8 +384,13 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenUnknownCourtCode_whenCreateOrUpdateCase_thenThrowException() {
+            courtCase = EntityHelper.aCourtCaseEntity(null, CASE_NO);
+            when(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.empty());
+            when(courtCaseRepository.save(courtCase)).thenReturn(courtCase);
             when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             when(courtRepository.findByCourtCode("XXX")).thenReturn(Optional.empty());
+
+
             courtCase = CourtCaseEntity.builder()
                     .hearings(List.of(
                             HearingEntity.builder()
@@ -384,11 +404,12 @@ class ImmutableCourtCaseServiceTest {
                     .caseId(CASE_ID)
                     .build();
 
-            Assertions.assertThrows(EntityNotFoundException.class, () -> {
-                service.createCase(CASE_ID, courtCase).block();
-            });
+            service.createCase(CASE_ID, courtCase).block();
+
             verify(courtRepository).findByCourtCode("XXX");
-            verifyNoMoreInteractions(courtRepository, courtCaseRepository, telemetryService);
+            verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCase);
+            verify(courtCaseRepository).save(courtCase);
+            verifyNoMoreInteractions(courtCaseRepository, telemetryService, offenderRepository);
         }
 
         @Test
@@ -609,7 +630,7 @@ class ImmutableCourtCaseServiceTest {
             ));
             when(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.of(existingCase));
             when(groupedOffenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, "defendant1"))
-                .thenReturn(buildOffenderMatches(matchCrn, rejectedCrn));
+                    .thenReturn(buildOffenderMatches(matchCrn, rejectedCrn));
             when(groupedOffenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, "defendant2")).thenReturn(Optional.empty());
             var caseToUpdate = EntityHelper.aCourtCaseEntity(null, CASE_NO, List.of(
                     aDefendantEntity("defendant1", matchCrn),
@@ -656,19 +677,21 @@ class ImmutableCourtCaseServiceTest {
         }
     }
 
-    record CourtCaseEntityMatcher(String caseId, List<String> defendantIds) implements ArgumentMatcher<CourtCaseEntity> {
+    record CourtCaseEntityMatcher(String caseId,
+                                  List<String> defendantIds) implements ArgumentMatcher<CourtCaseEntity> {
 
         @Override
         public boolean matches(CourtCaseEntity arg) {
             final var argDefendantIds = Optional.ofNullable(arg.getDefendants()).orElse(Collections.emptyList())
-                .stream()
-                .map(DefendantEntity::getDefendantId)
-                .collect(Collectors.toList());
+                    .stream()
+                    .map(DefendantEntity::getDefendantId)
+                    .collect(Collectors.toList());
             return caseId.equals(arg.getCaseId()) && defendantIds.equals(argDefendantIds);
         }
     }
 
-    record CourtCaseEntityListMatcher(String caseId, List<String> defendantIds) implements ArgumentMatcher<List<CourtCaseEntity>> {
+    record CourtCaseEntityListMatcher(String caseId,
+                                      List<String> defendantIds) implements ArgumentMatcher<List<CourtCaseEntity>> {
 
         @Override
         public boolean matches(List<CourtCaseEntity> arg) {
@@ -676,9 +699,9 @@ class ImmutableCourtCaseServiceTest {
                 return false;
             }
             final var argDefendantIds = Optional.ofNullable(arg.get(0).getDefendants()).orElse(Collections.emptyList())
-                .stream()
-                .map(DefendantEntity::getDefendantId)
-                .collect(Collectors.toList());
+                    .stream()
+                    .map(DefendantEntity::getDefendantId)
+                    .collect(Collectors.toList());
             return caseId.equals(arg.get(0).getCaseId()) && defendantIds.equals(argDefendantIds);
         }
     }

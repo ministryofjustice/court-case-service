@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
@@ -111,24 +112,24 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     void updateOffenders(CourtCaseEntity updatedCourtCase, Predicate<DefendantEntity> defendantPredicate) {
         Optional.ofNullable(updatedCourtCase.getDefendants()).orElse(Collections.emptyList())
-            .stream()
-            .filter(defendantPredicate)
-            .map(DefendantEntity::getOffender)
-            .filter(Objects::nonNull)
-            .forEach(updatedOffender -> {
-                final var existingOffender = offenderRepository.findByCrn(updatedOffender.getCrn());
-                existingOffender.ifPresentOrElse(offender -> {
-                    updatedOffender.setId(offender.getId());
-                    offender.setProbationStatus(updatedOffender.getProbationStatus());
-                    offender.setAwaitingPsr(updatedOffender.getAwaitingPsr());
-                    offender.setBreach(updatedOffender.isBreach());
-                    offender.setPreSentenceActivity(updatedOffender.isPreSentenceActivity());
-                    offender.setSuspendedSentenceOrder(updatedOffender.isSuspendedSentenceOrder());
-                    offender.setPreviouslyKnownTerminationDate(updatedOffender.getPreviouslyKnownTerminationDate());
-                    offenderRepository.save(offender);
-                    },
-                    () -> offenderRepository.save(updatedOffender));
-            });
+                .stream()
+                .filter(defendantPredicate)
+                .map(DefendantEntity::getOffender)
+                .filter(Objects::nonNull)
+                .forEach(updatedOffender -> {
+                    final var existingOffender = offenderRepository.findByCrn(updatedOffender.getCrn());
+                    existingOffender.ifPresentOrElse(offender -> {
+                                updatedOffender.setId(offender.getId());
+                                offender.setProbationStatus(updatedOffender.getProbationStatus());
+                                offender.setAwaitingPsr(updatedOffender.getAwaitingPsr());
+                                offender.setBreach(updatedOffender.isBreach());
+                                offender.setPreSentenceActivity(updatedOffender.isPreSentenceActivity());
+                                offender.setSuspendedSentenceOrder(updatedOffender.isSuspendedSentenceOrder());
+                                offender.setPreviouslyKnownTerminationDate(updatedOffender.getPreviouslyKnownTerminationDate());
+                                offenderRepository.save(offender);
+                            },
+                            () -> offenderRepository.save(updatedOffender));
+                });
     }
 
     private void trackCreateEvents(CourtCaseEntity createdCase) {
@@ -191,7 +192,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         updatedCase.getHearings()
                 .stream()
                 .map(HearingEntity::getCourtCode)
-                .forEach(this::checkCourtExists);
+                .forEach(courtCode -> checkCourtExists(courtCode, true));
         checkEntityCaseIdAgree(caseId, updatedCase);
     }
 
@@ -222,8 +223,22 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     private void checkCourtExists(String courtCode) throws EntityNotFoundException {
-        courtRepository.findByCourtCode(courtCode)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Court %s not found", courtCode)));
+        checkCourtExists(courtCode, false);
+    }
+
+    private void checkCourtExists(String courtCode, boolean createNotFound) throws EntityNotFoundException {
+        if (courtRepository.findByCourtCode(courtCode).isPresent())
+            return;
+
+        if (createNotFound) {
+            log.warn(String.format("Court code %s not found, saving as new Unknown Court.", courtCode));
+            courtRepository.save(CourtEntity.builder()
+                    .courtCode(courtCode)
+                    .name("Unknown Court")
+                    .build());
+        } else {
+            throw new EntityNotFoundException(String.format("Court %s not found", courtCode));
+        }
     }
 
     private void updateOffenderMatches(CourtCaseEntity existingCase, CourtCaseEntity updatedCase, String defendantId) {

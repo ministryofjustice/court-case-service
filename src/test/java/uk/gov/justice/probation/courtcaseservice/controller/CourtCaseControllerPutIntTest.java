@@ -337,12 +337,12 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
         }
 
         @Test
-        void givenUnknownCourt_whenCreateCourtCaseByCaseId_ThenRaise404() {
+        void givenUnknownCourt_whenCreateCourtCaseByCaseId_ThenOk() {
             var updatedJson = caseDetailsExtendedJson
                 .replace("\"courtCode\": \"B14LO\"", "\"courtCode\": \"" + NOT_FOUND_COURT_CODE + "\"")
                 ;
 
-            ErrorResponse result = given()
+            given()
                 .auth()
                 .oauth2(getToken())
                 .contentType(ContentType.JSON)
@@ -351,14 +351,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .when()
                 .put(String.format("/case/%s/extended", JSON_CASE_ID))
                 .then()
-                .statusCode(404)
-                .extract()
-                .body()
-                .as(ErrorResponse.class);
-
-            assertThat(result.getDeveloperMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
-            assertThat(result.getUserMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
-            assertThat(result.getStatus()).isEqualTo(404);
+                .statusCode(201);
         }
 
         @Test
@@ -630,7 +623,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
         }
 
         @Test
-        void givenUnknownCourtCodeInBody_whenUpdateCaseDataByCaseIdAndDefendantId_thenRaise404() {
+        void givenUnknownCourtCodeInBody_whenUpdateCaseDataByCaseIdAndDefendantId_thenOk() {
 
             final var unknownCourt = "X10XX";
             final var caseId = "3db9d70b-10a2-49d1-b74d-379f2db74862";
@@ -652,8 +645,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .when()
                 .put(String.format(PUT_BY_CASEID_AND_DEFENDANTID_PATH, caseId, defendantIdToUpdate))
                 .then()
-                .statusCode(404)
-                .body("developerMessage", equalTo("Court " + unknownCourt + " not found"))
+                .statusCode(201)
             ;
         }
 

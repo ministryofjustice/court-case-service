@@ -340,8 +340,8 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
         }
 
         @Test
-        void shouldReturnNotFoundForNonexistentCourt() {
-            ErrorResponse result = given()
+        void shouldReturnOkForNonexistentCourt() {
+            given()
                 .given()
                 .auth()
                 .oauth2(getToken())
@@ -351,12 +351,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .then()
                 .statusCode(404)
                 .extract()
-                .body()
-                .as(ErrorResponse.class);
-
-            assertThat(result.getDeveloperMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
-            assertThat(result.getUserMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
-            assertThat(result.getStatus()).isEqualTo(404);
+                .body();
         }
     }
 

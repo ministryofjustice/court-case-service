@@ -5,10 +5,10 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.6.2'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'com.github.ben-manes.versions' version '0.40.0'
-    id "org.flywaydb.flyway" version "8.4.0"
+    id 'com.github.ben-manes.versions' version '0.41.0'
+    id "org.flywaydb.flyway" version "8.4.1"
     id 'jacoco'
-    id "au.com.dius.pact" version "4.3.2"
+    id "au.com.dius.pact" version "4.3.4"
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm' version '1.6.10'
 }
@@ -31,7 +31,7 @@ group = 'uk.gov.justice.probation'
 
 ext {
     restAssuredVersion = '4.4.0'
-    pactVersion = '4.3.3'
+    pactVersion = '4.3.4'
 }
 
 def today = Instant.now()

@@ -231,7 +231,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
             return;
 
         if (createNotFound) {
-            log.warn(String.format("Court code %s not found, saving as new Unknown Court.", courtCode));
+            log.warn("Court code {} not found, saving as new Unknown Court.", courtCode);
             courtRepository.save(CourtEntity.builder()
                     .courtCode(courtCode)
                     .name("Unknown Court")

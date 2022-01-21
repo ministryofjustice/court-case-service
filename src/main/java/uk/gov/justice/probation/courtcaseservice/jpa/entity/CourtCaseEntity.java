@@ -82,6 +82,7 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "PRE_SENTENCE_ACTIVITY", nullable = false)
     private final Boolean preSentenceActivity;
 
+    @Deprecated(forRemoval = true)
     @ToString.Exclude
     @JsonManagedReference
     @OneToMany(mappedBy = "courtCase", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval=true)
@@ -102,24 +103,31 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, orphanRemoval=true)
     private final List<DefendantEntity> defendants;
 
+
+    @Deprecated(forRemoval = true)
     @Column(name = "DEFENDANT_NAME")
     private final String defendantName;
 
+    @Deprecated(forRemoval = true)
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "NAME")
     private final NamePropertiesEntity name;
 
+    @Deprecated(forRemoval = true)
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "DEFENDANT_ADDRESS")
     private final AddressPropertiesEntity defendantAddress;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "DEFENDANT_DOB")
     private final LocalDate defendantDob;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "DEFENDANT_SEX")
     @Enumerated(EnumType.STRING)
     private final Sex defendantSex;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "DEFENDANT_TYPE", nullable = false)
     @Enumerated(EnumType.STRING)
     private final DefendantType defendantType;
@@ -128,15 +136,19 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "CRN")
     private final String crn;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "PNC")
     private final String pnc;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "CRO")
     private final String cro;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "NATIONALITY_1")
     private final String nationality1;
 
+    @Deprecated(forRemoval = true)
     @Column(name = "NATIONALITY_2")
     private final String nationality2;
 

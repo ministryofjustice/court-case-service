@@ -40,13 +40,6 @@ public class OffenceEntity extends BaseImmutableEntity implements Serializable  
     @JsonIgnore
     private final Long id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "COURT_CASE_ID", referencedColumnName = "id", nullable = false)
-    @JsonProperty(access = Access.WRITE_ONLY)
-    @JsonBackReference
-    @Setter
-    private CourtCaseEntity courtCase;
-
     @Column(name = "OFFENCE_TITLE")
     private final String offenceTitle;
 

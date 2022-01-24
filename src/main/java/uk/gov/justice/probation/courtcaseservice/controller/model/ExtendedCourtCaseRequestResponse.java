@@ -123,7 +123,6 @@ public class ExtendedCourtCaseRequestResponse {
 
         hearingDayEntities.forEach(hearingEntity -> hearingEntity.setCourtCase(courtCaseEntity));
         defendantEntities.forEach(defendantEntity -> defendantEntity.setCourtCase(courtCaseEntity));
-        offenceEntities.forEach(offenceEntity -> offenceEntity.setCourtCase(courtCaseEntity));
         return courtCaseEntity;
     }
 

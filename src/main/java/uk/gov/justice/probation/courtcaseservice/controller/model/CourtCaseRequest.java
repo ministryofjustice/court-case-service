@@ -107,7 +107,6 @@ public class CourtCaseRequest {
                 .defendants(defendants)
                 .build();
 
-        offences.forEach(offence -> offence.setCourtCase(entity));
         hearings.forEach(hearingEntity -> hearingEntity.setCourtCase(entity));
         defendants.forEach(defendantEntity -> defendantEntity.setCourtCase(entity));
         return entity;

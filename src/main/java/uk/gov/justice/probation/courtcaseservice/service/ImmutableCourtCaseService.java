@@ -270,7 +270,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                     Optional.ofNullable(existingCase.getDefendants()).map(defendantEntities -> defendantEntities.stream().map(DefendantEntity::getDefendantId).collect(Collectors.toList())).orElse(null));
         }
         if (crnMatches && defendant.getCro() != null && !defendant.getCro().equals(match.getCro())) {
-            log.warn("Unexpected CRO mismatch when updating offender match - matchId: {}, defendant ID: {}, matchCro: %s, updateCro: %s",
+            log.warn("Unexpected CRO mismatch when updating offender match - matchId: {}, defendant ID: {}, matchCro: {}, updateCro: {}",
                     match.getId(), defendantId, match.getCro(),
                     Optional.ofNullable(existingCase.getDefendants()).map(defendantEntities -> defendantEntities.stream().map(DefendantEntity::getCro).collect(Collectors.toList())).orElse(null)
             );

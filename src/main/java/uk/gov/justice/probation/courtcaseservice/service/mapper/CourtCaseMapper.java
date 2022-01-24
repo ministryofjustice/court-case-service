@@ -45,8 +45,6 @@ public class CourtCaseMapper {
             .forEach(defendantEntity -> defendantEntity.setCourtCase(caseToSave));
         Optional.ofNullable(caseToSave.getHearings()).orElse(Collections.emptyList())
             .forEach(hearingEntity -> hearingEntity.setCourtCase(caseToSave));
-        Optional.ofNullable(caseToSave.getOffences()).orElse(Collections.emptyList())
-            .forEach(offenceEntity -> offenceEntity.setCourtCase(caseToSave));
     }
 
     public static HearingEntity createHearing(HearingEntity hearing) {

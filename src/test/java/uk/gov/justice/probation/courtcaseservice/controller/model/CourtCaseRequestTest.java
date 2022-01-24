@@ -5,8 +5,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEnt
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import java.time.LocalDate;
@@ -75,45 +73,6 @@ class CourtCaseRequestTest {
         assertThat(entity.getCaseId()).isEqualTo("CASE_ID");
         assertThat(entity.getCaseNo()).isEqualTo("CASE_NO");
         assertThat(entity.getSourceType()).isSameAs(SourceType.LIBRA);
-        assertThat(entity.getProbationStatus()).isEqualTo(ProbationStatus.NO_RECORD.getName());
-        assertThat(entity.getPreviouslyKnownTerminationDate()).isEqualTo(TERMINATION_DATE);
-        assertThat(entity.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE);
-        assertThat(entity.getBreach()).isEqualTo(BREACH);
-        assertThat(entity.getPreSentenceActivity()).isEqualTo(PRE_SENTENCE_ACTIVITY);
-        assertThat(entity.getName()).isEqualTo(NAME);
-        assertThat(entity.getDefendantName()).isEqualTo(NAME.getFullName());
-        assertThat(entity.getDefendantAddress().getLine1()).isEqualTo("LINE1");
-        assertThat(entity.getDefendantAddress().getLine2()).isEqualTo("LINE2");
-        assertThat(entity.getDefendantAddress().getLine3()).isEqualTo("LINE3");
-        assertThat(entity.getDefendantAddress().getLine4()).isEqualTo("LINE4");
-        assertThat(entity.getDefendantAddress().getLine5()).isEqualTo("LINE5");
-        assertThat(entity.getDefendantAddress().getPostcode()).isEqualTo("POSTCODE");
-        assertThat(entity.getDefendantDob()).isEqualTo(DEFENDANT_DOB);
-        assertThat(entity.getDefendantSex()).isEqualTo(Sex.MALE);
-        assertThat(entity.getCrn()).isEqualTo(CRN);
-        assertThat(entity.getPnc()).isEqualTo(PNC);
-        assertThat(entity.getCro()).isEqualTo(CRO);
-        assertThat(entity.getNationality1()).isEqualTo(NATIONALITY_1);
-        assertThat(entity.getNationality2()).isEqualTo(NATIONALITY_2);
-        assertThat(entity.getAwaitingPsr()).isEqualTo(AWAITING_PSR);
-        var expectedOffenceEntity1 = OffenceEntity.builder()
-                .offenceSummary("OFFENCE_SUMMARY1")
-                .offenceTitle("OFFENCE_TITLE1")
-                .act("ACT1")
-                .sequenceNumber(1)
-                .build();
-        var expectedOffenceEntity2 = OffenceEntity.builder()
-            .offenceSummary("OFFENCE_SUMMARY2")
-            .offenceTitle("OFFENCE_TITLE2")
-            .act("ACT2")
-            .sequenceNumber(2)
-            .build();
-        assertThat(entity.getOffences().get(0)).usingRecursiveComparison()
-            .ignoringFields("courtCase", "id")
-            .isEqualTo(expectedOffenceEntity1);
-        assertThat(entity.getOffences().get(1)).usingRecursiveComparison()
-            .ignoringFields("courtCase", "id")
-            .isEqualTo(expectedOffenceEntity2);
 
         assertThat(entity.getHearings()).hasSize(1);
         assertThat(entity.getDefendants()).hasSize(1);
@@ -174,7 +133,6 @@ class CourtCaseRequestTest {
         assertThat(entity.getCaseId()).isEqualTo("CASE_ID");
         assertThat(entity.getCaseNo()).isEqualTo("CASE_NO");
         assertThat(entity.getSourceType()).isSameAs(SourceType.LIBRA);
-        assertThat(entity.getProbationStatus()).isEqualTo("PROBATION_STATUS");
 
         assertThat(entity.getHearings()).hasSize(1);
         assertThat(entity.getDefendants()).hasSize(1);

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -264,12 +265,15 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         }
 
         if (crnMatches && defendant.getPnc() != null && !defendant.getPnc().equals(match.getPnc())) {
-            log.warn(String.format("Unexpected PNC mismatch when updating offender match - matchId: '%s', defendant ID: '%s', matchPnc: %s, updatePnc: %s",
-                    match.getId(), defendantId, match.getPnc(), existingCase.getPnc()));
+            log.warn("Unexpected PNC mismatch when updating offender match - matchId: {}, defendant ID: {}, matchPnc: {}, updatePnc: {}",
+                    match.getId(), defendantId, match.getPnc(),
+                    Optional.ofNullable(existingCase.getDefendants()).map(defendantEntities -> defendantEntities.stream().map(DefendantEntity::getDefendantId).collect(Collectors.toList())).orElse(null));
         }
         if (crnMatches && defendant.getCro() != null && !defendant.getCro().equals(match.getCro())) {
-            log.warn(String.format("Unexpected CRO mismatch when updating offender match - matchId: '%s', defendant ID: '%s', matchCro: %s, updateCro: %s",
-                    match.getId(), defendantId, match.getCro(), existingCase.getCro()));
+            log.warn("Unexpected CRO mismatch when updating offender match - matchId: {}, defendant ID: {}, matchCro: %s, updateCro: %s",
+                    match.getId(), defendantId, match.getCro(),
+                    Optional.ofNullable(existingCase.getDefendants()).map(defendantEntities -> defendantEntities.stream().map(DefendantEntity::getCro).collect(Collectors.toList())).orElse(null)
+            );
         }
     }
 

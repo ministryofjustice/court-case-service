@@ -113,8 +113,7 @@ public class ExtendedCourtCaseRequestResponse {
             .toList();
         final var offenceEntities = buildOffences(defendantEntities);
 
-        final var courtCaseEntity = buildLegacyFields(defendantEntities)
-            .offences(offenceEntities)
+        final var courtCaseEntity = CourtCaseEntity.builder()
             .hearings(hearingDayEntities)
             .defendants(defendantEntities)
             .caseNo(caseNo)
@@ -203,30 +202,6 @@ public class ExtendedCourtCaseRequestResponse {
                     .postcode(address.getPostcode())
                     .build())
             .orElse(null);
-    }
-
-    // All these fields will be removed into the defendant and hearings
-    @Deprecated(forRemoval = true)
-    private CourtCaseEntity.CourtCaseEntityBuilder buildLegacyFields(List<DefendantEntity> defendantEntities) {
-
-        final var firstDefendant = defendantEntities.stream().findFirst();
-
-        return CourtCaseEntity.builder()
-            // Top level fields to be retired into the Defendant
-            .defendantAddress(firstDefendant.map(DefendantEntity::getAddress).orElse(null))
-            .defendantName(firstDefendant.map(DefendantEntity::getDefendantName).orElse(null))
-            .name(firstDefendant.map(DefendantEntity::getName).orElse(null))
-            .defendantType(firstDefendant.map(DefendantEntity::getType).orElse(null))
-            .crn(firstDefendant.map(DefendantEntity::getCrn).orElse(null))
-            .pnc(firstDefendant.map(DefendantEntity::getPnc).orElse(null))
-            .cro(firstDefendant.map(DefendantEntity::getCro).orElse(null))
-            .defendantDob(firstDefendant.map(DefendantEntity::getDateOfBirth).orElse(null))
-            .defendantSex(firstDefendant.map(DefendantEntity::getSex).orElse(null))
-            .previouslyKnownTerminationDate(firstDefendant.map(DefendantEntity::getOffender).map(OffenderEntity::getPreviouslyKnownTerminationDate).orElse(null))
-            .suspendedSentenceOrder(firstDefendant.map(DefendantEntity::getOffender).map(OffenderEntity::isSuspendedSentenceOrder).orElse(null))
-            .breach(firstDefendant.map(DefendantEntity::getOffender).map(OffenderEntity::isBreach).orElse(null))
-            .preSentenceActivity(firstDefendant.map(DefendantEntity::getOffender).map(OffenderEntity::isPreSentenceActivity).orElse(null))
-            .probationStatus(firstDefendant.map(DefendantEntity::getOffender).map(OffenderEntity::getProbationStatus).map(ProbationStatus::getName).orElse(null));
     }
 
     // Top level offence will be moved to the defendant

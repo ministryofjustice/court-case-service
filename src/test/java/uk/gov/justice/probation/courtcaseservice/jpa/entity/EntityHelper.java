@@ -76,7 +76,6 @@ public class EntityHelper {
         return populateBasics(crn)
             .caseId(CASE_ID)
             .caseNo(caseNo)
-            .probationStatus(probationStatus)
             .build();
     }
 
@@ -163,27 +162,10 @@ public class EntityHelper {
     private static CourtCaseEntity.CourtCaseEntityBuilder populateBasics(String crn) {
         var defendant = aDefendantEntity(DEFENDANT_ID, crn);
         return CourtCaseEntity.builder()
-            .probationStatus(PROBATION_STATUS)
-            .previouslyKnownTerminationDate(TERMINATION_DATE)
-            .suspendedSentenceOrder(SUSPENDED_SENTENCE)
-            .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
-            .breach(BREACH)
-            .defendantName(DEFENDANT_NAME)
-            .name(NAME)
-            .defendantAddress(DEFENDANT_ADDRESS)
-            .defendantDob(DEFENDANT_DOB)
-            .defendantSex(Sex.fromString(DEFENDANT_SEX))
-            .defendantType(DefendantType.PERSON)
-            .pnc(PNC)
-            .cro(CRO)
-            .nationality1(NATIONALITY_1)
-            .nationality2(NATIONALITY_2)
-            .awaitingPsr(AWAITING_PSR)
             .sourceType(SOURCE)
             .deleted(false)
             .firstCreated(LocalDateTime.now())
             .defendants(List.of(defendant))
-            .offences(List.of(anOffence()))
             .hearings(List.of(aHearingEntity()));
     }
 

@@ -20,7 +20,6 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.OFFENCE_TITLE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SESSION_START_TIME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingEntity;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.anOffence;
 
 class CourtCaseMapperTest {
     @Test
@@ -68,7 +67,6 @@ class CourtCaseMapperTest {
         var updatedEntity = CourtCaseEntity.builder()
             .defendants(List.of(updatedDefendant))
             .hearings(hearings)
-            .offences(List.of(anOffence(), anOffence()))
             .caseId(CASE_ID)
             .build();
 
@@ -85,7 +83,6 @@ class CourtCaseMapperTest {
         var newEntity = CourtCaseMapper.mergeDefendantsOnCase(existingCourtCaseEntity, updatedEntity, DEFENDANT_ID);
 
         checkCollection(newEntity.getHearings(), newEntity);
-        checkCollection(newEntity.getOffences(), newEntity);
         checkCollection(newEntity.getDefendants(), newEntity);
 
         assertThat(newEntity.getDefendants()).extracting("crn").containsExactlyInAnyOrder("D99999", CRN);
@@ -114,7 +111,6 @@ class CourtCaseMapperTest {
         var updatedDefendant = EntityHelper.aDefendantEntity(DEFENDANT_ADDRESS, newName);
         var updatedEntity = CourtCaseEntity.builder()
             .defendants(List.of(updatedDefendant))
-            .offences(List.of(anOffence(), anOffence()))
             .caseId(CASE_ID)
             .build();
 
@@ -128,7 +124,6 @@ class CourtCaseMapperTest {
         var newEntity = CourtCaseMapper.mergeDefendantsOnCase(existingCourtCaseEntity, updatedEntity, DEFENDANT_ID);
 
         checkCollection(newEntity.getHearings(), newEntity);
-        checkCollection(newEntity.getOffences(), newEntity);
 
         assertThat(newEntity.getDefendants()).hasSize(1);
         assertThat(newEntity.getDefendants()).extracting("crn").containsExactly(CRN);

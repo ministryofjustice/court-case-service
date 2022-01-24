@@ -88,22 +88,11 @@ class ExtendedCourtCaseRequestResponseTest {
                 .postcode("S3 7DQ")
                 .build();
 
-        // top level field checks (defendant based) to be retired
-        assertThat(courtCaseEntity.getName()).isEqualTo(NAME);
-        assertThat(courtCaseEntity.getDefendantName()).isEqualTo(NAME.getFullName());
-        assertThat(courtCaseEntity.getDefendantType()).isSameAs(DefendantType.PERSON);
-        assertThat(courtCaseEntity.getDefendantAddress()).isEqualTo(expectedAddress);
-        assertThat(courtCaseEntity.getCrn()).isEqualTo(CRN);
-        assertThat(courtCaseEntity.getPnc()).isEqualTo(PNC);
-        assertThat(courtCaseEntity.getCro()).isEqualTo(CRO);
-        assertThat(courtCaseEntity.getDefendantDob()).isEqualTo(DEFENDANT_DOB);
-        assertThat(courtCaseEntity.getDefendantSex().getName()).isEqualTo("M");
         assertThat(courtCaseEntity.getDefendants().get(0).getOffender().getPreviouslyKnownTerminationDate()).isEqualTo(previouslyKnownTerminationDate);
         assertThat(courtCaseEntity.getDefendants().get(0).getOffender().isPreSentenceActivity()).isEqualTo(Boolean.TRUE);
         assertThat(courtCaseEntity.getDefendants().get(0).getOffender().isBreach()).isEqualTo(Boolean.TRUE);
         assertThat(courtCaseEntity.getDefendants().get(0).getOffender().getAwaitingPsr()).isEqualTo(Boolean.TRUE);
         assertThat(courtCaseEntity.getDefendants().get(0).getOffender().getProbationStatus()).isEqualTo(ProbationStatus.CURRENT);
-        assertThat(courtCaseEntity.getOffences()).hasSize(2);
 
         assertThat(courtCaseEntity.getDefendants()).hasSize(1);
         final var defendantEntity = courtCaseEntity.getDefendants().get(0);

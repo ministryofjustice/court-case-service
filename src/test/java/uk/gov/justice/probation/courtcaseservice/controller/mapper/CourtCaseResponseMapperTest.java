@@ -218,8 +218,7 @@ class CourtCaseResponseMapperTest {
                 .suspendedSentenceOrder(true)
                 .build());
 
-        var courtCase = courtCaseEntity.withDefendants(List.of(defendant))
-            .withAwaitingPsr(true);
+        var courtCase = courtCaseEntity.withDefendants(List.of(defendant));
 
         var response = CourtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5);
 
@@ -309,30 +308,12 @@ class CourtCaseResponseMapperTest {
 
         return CourtCaseEntity.builder()
             .id(ID)
-            .pnc(PNC)
-            .cro(CRO)
-            .previouslyKnownTerminationDate(PREVIOUSLY_KNOWN_TERMINATION_DATE)
-            .suspendedSentenceOrder(SUSPENDED_SENTENCE_ORDER)
-            .probationStatus(PROBATION_STATUS_NOT_SENTENCED)
             .sourceType(SourceType.COMMON_PLATFORM)
-            .nationality2(NATIONALITY_2)
-            .nationality1(NATIONALITY_1)
-            .crn(CRN)
-            .defendantSex(DEFENDANT_SEX)
-            .defendantDob(DEFENDANT_DOB)
-            .defendantName(DEFENDANT_NAME)
-            .defendantAddress(addressPropertiesEntity)
-            .name(namePropertiesEntity)
-            .defendantType(DEFENDANT_TYPE)
             .caseNo(CASE_NO)
-            .breach(BREACH)
-            .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
             .caseId(CASE_ID)
             .created(CREATED)
-            .offences(offences)
             .firstCreated(firstCreated)
             .defendants(defendants)
-            .awaitingPsr(true)
             .hearings(hearings)
             .build();
     }

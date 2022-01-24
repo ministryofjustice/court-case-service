@@ -95,8 +95,6 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
         var courtCaseEntity = CourtCaseEntity.builder()
                 .caseId("D517D32D-3C80-41E8-846E-D274DC2B94A5")
                 .caseNo("D517D32D-3C80-41E8-846E-D274DC2B94A5")
-                .crn("X340741")
-                .pnc("A/1234560BA")
                 .sourceType(SourceType.LIBRA)
                 .defendants(List.of(DefendantEntity.builder()
                         .address(AddressPropertiesEntity.builder()

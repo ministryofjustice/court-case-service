@@ -15,7 +15,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
@@ -40,7 +39,6 @@ class CourtCaseResponseMapperTest {
     private static final String CASE_NO = "CASE_NO";
     private static final String COURT_CODE = "COURT_CODE";
     private static final String COURT_ROOM = "COURT_ROOM";
-    private static final String PROBATION_STATUS_NOT_SENTENCED = "NOT_SENTENCED";
     private static final boolean SUSPENDED_SENTENCE_ORDER = true;
     private static final boolean BREACH = true;
     private static final boolean PRE_SENTENCE_ACTIVITY = true;
@@ -80,10 +78,6 @@ class CourtCaseResponseMapperTest {
 
     @BeforeEach
     void setUp() {
-        var offences = Arrays.asList(
-            OffenceEntity.builder().offenceTitle(OFFENCE_TITLE).offenceSummary(OFFENCE_SUMMARY).act(ACT).sequenceNumber(1).build(),
-            OffenceEntity.builder().offenceTitle(OFFENCE_TITLE + "2").offenceSummary(OFFENCE_SUMMARY + "2").act(ACT + "2").sequenceNumber(2).build()
-        );
         List<DefendantEntity> defendants = Arrays.asList(
             DefendantEntity.builder().defendantName(DEFENDANT_NAME)
                 .name(namePropertiesEntity)
@@ -113,8 +107,7 @@ class CourtCaseResponseMapperTest {
                 .build()
         );
 
-        var matchGroups = buildMatchGroups();
-        courtCaseEntity = buildCourtCaseEntity(offences, defendants, hearings, FIRST_CREATED);
+        courtCaseEntity = buildCourtCaseEntity(defendants, hearings, FIRST_CREATED);
     }
 
     @Test
@@ -304,7 +297,7 @@ class CourtCaseResponseMapperTest {
         assertCaseFields(courtCaseResponse, caseNo, SourceType.COMMON_PLATFORM);
     }
 
-    private CourtCaseEntity buildCourtCaseEntity(List<OffenceEntity> offences, List<DefendantEntity> defendants, List<HearingEntity> hearings, LocalDateTime firstCreated) {
+    private CourtCaseEntity buildCourtCaseEntity(List<DefendantEntity> defendants, List<HearingEntity> hearings, LocalDateTime firstCreated) {
 
         return CourtCaseEntity.builder()
             .id(ID)

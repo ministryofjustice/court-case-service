@@ -12,7 +12,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
@@ -111,7 +110,6 @@ public class ExtendedCourtCaseRequestResponse {
             .stream()
             .map(this::buildDefendant)
             .toList();
-        final var offenceEntities = buildOffences(defendantEntities);
 
         final var courtCaseEntity = CourtCaseEntity.builder()
             .hearings(hearingDayEntities)
@@ -202,24 +200,4 @@ public class ExtendedCourtCaseRequestResponse {
                     .build())
             .orElse(null);
     }
-
-    // Top level offence will be moved to the defendant
-    @Deprecated(forRemoval = true)
-    private List<OffenceEntity> buildOffences(List<DefendantEntity> defendantEntities) {
-        final var offences = defendantEntities.stream().findFirst()
-            .map(DefendantEntity::getOffences)
-            .orElse(Collections.emptyList());
-        return IntStream.range(0, Optional.ofNullable(offences).map(List::size).orElse(0))
-            .mapToObj(i -> {
-                var offence = offences.get(i);
-                return OffenceEntity.builder()
-                    .sequenceNumber(offence.getSequence())
-                    .offenceTitle(offence.getTitle())
-                    .offenceSummary(offence.getSummary())
-                    .act(offence.getAct())
-                    .build();
-            })
-            .collect(Collectors.toList());
-    }
-
 }

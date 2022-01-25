@@ -150,15 +150,6 @@ public class EntityHelper {
             .build();
     }
 
-    public static OffenceEntity anOffence() {
-        return OffenceEntity.builder()
-            .offenceSummary(OFFENCE_SUMMARY)
-            .offenceTitle(OFFENCE_TITLE)
-            .act(OFFENCE_ACT)
-            .sequenceNumber(1)
-            .build();
-    }
-
     private static CourtCaseEntity.CourtCaseEntityBuilder populateBasics(String crn) {
         var defendant = aDefendantEntity(DEFENDANT_ID, crn);
         return CourtCaseEntity.builder()

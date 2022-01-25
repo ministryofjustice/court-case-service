@@ -12,7 +12,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
@@ -74,20 +73,6 @@ public class CourtCaseRequest {
     private final Boolean awaitingPsr;
 
     public CourtCaseEntity asEntity() {
-        final List<OffenceEntity> offences = IntStream.range(0, Optional.ofNullable(getOffences())
-                .map(List::size)
-                .orElse(0)
-        )
-                .mapToObj(i -> {
-                    var offence = getOffences().get(i);
-                    return OffenceEntity.builder()
-                        .sequenceNumber(i + 1)
-                        .offenceTitle(offence.getOffenceTitle())
-                        .offenceSummary(offence.getOffenceSummary())
-                        .act(offence.getAct())
-                        .build();
-                })
-                .collect(Collectors.toList());
 
         final List<HearingEntity> hearings = List.of(HearingEntity.builder()
             .courtCode(courtCode)
@@ -97,7 +82,7 @@ public class CourtCaseRequest {
             .listNo(listNo)
             .build());
 
-        final List<DefendantEntity> defendants = buildDefendants(offences);
+        final List<DefendantEntity> defendants = buildDefendants();
 
         final CourtCaseEntity entity = CourtCaseEntity.builder()
                 .caseId(caseId)
@@ -112,17 +97,22 @@ public class CourtCaseRequest {
         return entity;
     }
 
-    List<DefendantEntity> buildDefendants(final List<OffenceEntity> caseOffences) {
+    List<DefendantEntity> buildDefendants() {
 
-        final List<DefendantOffenceEntity> defendantOffences = Optional.ofNullable(caseOffences).orElse(Collections.emptyList())
-                                                        .stream()
-                                                        .map(offence -> DefendantOffenceEntity.builder()
-                                                                            .sequence(offence.getSequenceNumber())
-                                                                            .title(offence.getOffenceTitle())
-                                                                            .summary(offence.getOffenceSummary())
-                                                                            .act(offence.getAct())
-                                                                            .build())
-                                                        .collect(Collectors.toList());
+        final List<DefendantOffenceEntity> offences = IntStream.range(0, Optional.ofNullable(getOffences())
+                        .map(List::size)
+                        .orElse(0)
+                )
+                .mapToObj(i -> {
+                    var offence = getOffences().get(i);
+                    return DefendantOffenceEntity.builder()
+                            .sequence(i + 1)
+                            .title(offence.getOffenceTitle())
+                            .summary(offence.getOffenceSummary())
+                            .act(offence.getAct())
+                            .build();
+                })
+                .collect(Collectors.toList());
 
         final var defendant = DefendantEntity.builder()
             .address(Optional.ofNullable(defendantAddress)
@@ -141,10 +131,10 @@ public class CourtCaseRequest {
             .defendantId(Optional.ofNullable(defendantId).orElse(UUID.randomUUID().toString()))
             .cro(cro)
             .pnc(pnc)
-            .offences(defendantOffences)
+            .offences(offences)
             .build();
 
-        defendantOffences.forEach(defendantOffence -> defendantOffence.setDefendant(defendant));
+        offences.forEach(defendantOffence -> defendantOffence.setDefendant(defendant));
         return Collections.singletonList(defendant);
     }
 

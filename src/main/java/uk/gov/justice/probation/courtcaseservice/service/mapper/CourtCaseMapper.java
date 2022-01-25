@@ -4,7 +4,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 
 import java.util.Collections;
 import java.util.List;
@@ -97,19 +96,4 @@ public class CourtCaseMapper {
             .sequence(offenceEntity.getSequence())
             .build();
     }
-
-    /**
-     * @deprecated offences directly on the court case will be retired in favour of DefendantOffenceEntity linked to DefendantEntity
-     */
-    @Deprecated(forRemoval = true)
-    static OffenceEntity createOffence(OffenceEntity offenceEntity) {
-        return OffenceEntity.builder()
-            .act(offenceEntity.getAct())
-            .offenceSummary(offenceEntity.getOffenceSummary())
-            .offenceTitle(offenceEntity.getOffenceTitle())
-            .sequenceNumber(offenceEntity.getSequenceNumber())
-            .build();
-    }
-
-
 }

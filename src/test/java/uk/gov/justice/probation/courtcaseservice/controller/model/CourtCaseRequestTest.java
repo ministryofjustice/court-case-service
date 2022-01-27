@@ -48,8 +48,8 @@ class CourtCaseRequestTest {
                                                             .breach(BREACH)
                                                             .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
                                                             .offences(Arrays.asList(
-                                                                    new OffenceRequestResponse("OFFENCE_TITLE1", "OFFENCE_SUMMARY1","ACT1"),
-                                                                    new OffenceRequestResponse("OFFENCE_TITLE2", "OFFENCE_SUMMARY2","ACT2")
+                                                                    new OffenceRequestResponse("OFFENCE_TITLE1", "OFFENCE_SUMMARY1","ACT1", 10),
+                                                                    new OffenceRequestResponse("OFFENCE_TITLE2", "OFFENCE_SUMMARY2","ACT2", 20)
                                                                 )
                                                             )
                                                             .defendantDob(DEFENDANT_DOB)
@@ -99,6 +99,7 @@ class CourtCaseRequestTest {
             .title("OFFENCE_TITLE1")
             .act("ACT1")
             .sequence(1)
+            .listNo(10)
             .build();
         assertThat(defendant.getOffences().get(0))
             .usingRecursiveComparison()

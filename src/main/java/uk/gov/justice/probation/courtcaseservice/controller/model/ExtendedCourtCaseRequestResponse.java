@@ -173,6 +173,7 @@ public class ExtendedCourtCaseRequestResponse {
                     .title(offence.getOffenceTitle())
                     .summary(offence.getOffenceSummary())
                     .act(offence.getAct())
+                    .listNo(offence.getListNo())
                     .build();
             })
             .collect(Collectors.toList());

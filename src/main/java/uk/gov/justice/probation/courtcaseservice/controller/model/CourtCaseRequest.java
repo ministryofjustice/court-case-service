@@ -110,6 +110,7 @@ public class CourtCaseRequest {
                             .title(offence.getOffenceTitle())
                             .summary(offence.getOffenceSummary())
                             .act(offence.getAct())
+                            .listNo(offence.getListNo())
                             .build();
                 })
                 .collect(Collectors.toList());

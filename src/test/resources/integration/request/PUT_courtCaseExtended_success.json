@@ -41,12 +41,14 @@
         {
           "offenceTitle": "Theft from a shop",
           "offenceSummary": "On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.",
-          "act": "Contrary to section 1(1) and 7 of the Theft Act 1968."
+          "act": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
+          "listNo": 5
         },
         {
           "offenceTitle": "Theft from a different shop",
           "offenceSummary": "On 02/01/2015 at own, stole article, to the value of £123.00, belonging to person.",
-          "act": "Contrary to section 1(1) and 7 of the Theft Act 1968."
+          "act": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
+          "listNo": 8
         }
       ]
     }

@@ -17,4 +17,5 @@ public class OffenceRequestResponse {
     @NotBlank
     private final String offenceSummary;
     private final String act;
+    private final Integer listNo;
 }

@@ -147,6 +147,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             ;
 
             var cc = courtCaseRepository.findByCaseIdAndDefendantId(JSON_CASE_ID, "d1eefed2-04df-11ec-b2d8-0242ac130002");
+            cc.ifPresentOrElse(courtCaseEntity -> {
+                assertThat(courtCaseEntity.getDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
+            }, () -> fail("Court case not created as expected"));
 
             offenderRepository.findByCrn(CRN).ifPresentOrElse(off -> {
                 assertThat(off.getCrn()).isEqualTo(CRN);

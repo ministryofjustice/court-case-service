@@ -55,4 +55,7 @@ public class DefendantOffenceEntity extends BaseImmutableEntity implements Seria
     @Column(name = "SEQUENCE", nullable = false)
     @JsonProperty
     private final Integer sequence;
+
+    @Column(name = "LIST_NO", nullable = false)
+    private final Integer listNo;
 }

@@ -120,6 +120,7 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(offences).extracting("sequence").containsOnly(1, 2);
         assertThat(offences).extracting("summary").containsOnly("SUMMARY1", "SUMMARY2");
         assertThat(offences).extracting("title").containsOnly("TITLE1", "TITLE2");
+        assertThat(offences).extracting("listNo").containsOnly(10, 20);
 
         final var offender = defendantEntity.getOffender();
         assertThat(offender.getCrn()).isEqualTo(CRN);
@@ -368,11 +369,13 @@ class ExtendedCourtCaseRequestResponseTest {
                     .offenceTitle("TITLE1")
                     .offenceSummary("SUMMARY1")
                     .act("ACT1")
+                    .listNo(10)
                     .build(),
                 OffenceRequestResponse.builder()
                     .offenceTitle("TITLE2")
                     .offenceSummary("SUMMARY2")
                     .act("ACT2")
+                    .listNo(20)
                     .build()))
             .build();
     }

@@ -94,6 +94,7 @@ public class CourtCaseMapper {
             .summary(offenceEntity.getSummary())
             .title(offenceEntity.getTitle())
             .sequence(offenceEntity.getSequence())
+            .listNo(offenceEntity.getListNo())
             .build();
     }
 }

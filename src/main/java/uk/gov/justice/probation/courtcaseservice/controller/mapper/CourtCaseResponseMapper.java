@@ -111,6 +111,7 @@ public class CourtCaseResponseMapper {
             .offenceSummary(offenceEntity.getSummary())
             .act(offenceEntity.getAct())
             .sequenceNumber(offenceEntity.getSequence())
+            .listNo(offenceEntity.getListNo())
             .build();
     }
 

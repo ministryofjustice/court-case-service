@@ -271,6 +271,7 @@ class ExtendedCourtCaseRequestResponseTest {
                                         .act("act")
                                         .offenceSummary("summary")
                                         .offenceTitle("title")
+                                        .listNo(11)
                                         .build(),
                                 OffenceRequestResponse.builder()
                                         .act("act2")
@@ -329,6 +330,7 @@ class ExtendedCourtCaseRequestResponseTest {
                                                 .summary("summary")
                                                 .title("title")
                                                 .sequence(1)
+                                                .listNo(11)
                                                 .build(),
                                         DefendantOffenceEntity.builder()
                                                 .act("act2")

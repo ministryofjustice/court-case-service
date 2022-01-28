@@ -106,7 +106,7 @@ test {
 task integrationTest(type: Test) {
     useJUnitPlatform()
     filter {
-        includeTestsMatching '*IntTest*'
+        includeTestsMatching '*IntTest'
     }
 }
 

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
@@ -312,7 +312,7 @@ class OffenderRestClientIntTest extends BaseIntTest {
         var probationStatusDetail = optionalProbationStatusDetail.get();
         assertThat(probationStatusDetail.getInBreach()).isTrue();
         assertThat(probationStatusDetail.isPreSentenceActivity()).isTrue();
-        assertThat(probationStatusDetail.getStatus()).isEqualTo(ProbationStatus.PREVIOUSLY_KNOWN.name());
+        assertThat(probationStatusDetail.getStatus()).isEqualTo(DefendantProbationStatus.PREVIOUSLY_KNOWN.name());
         assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2010, Month.APRIL, 5));
     }
 

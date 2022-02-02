@@ -4,12 +4,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
@@ -17,6 +17,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
@@ -136,7 +137,7 @@ class CourtCaseResponseMapperTest {
                 .awaitingPsr(true)
                 .suspendedSentenceOrder(true)
                 .breach(true)
-                .probationStatus(ProbationStatus.CURRENT)
+                .probationStatus(OffenderProbationStatus.CURRENT)
                 .previouslyKnownTerminationDate(LocalDate.now())
                 .build())
             .pnc("PNC123")
@@ -205,7 +206,7 @@ class CourtCaseResponseMapperTest {
         var defendant = EntityHelper.aDefendantEntity("bd1f71e5-939b-4580-8354-7d6061a58032")
             .withName(newName)
             .withOffender(OffenderEntity.builder().crn("W99999")
-                .probationStatus(ProbationStatus.PREVIOUSLY_KNOWN)
+                .probationStatus(OffenderProbationStatus.PREVIOUSLY_KNOWN)
                 .previouslyKnownTerminationDate(LocalDate.now())
                 .awaitingPsr(false)
                 .breach(true)
@@ -248,7 +249,7 @@ class CourtCaseResponseMapperTest {
 
         // defendant-based fields
         assertThat(courtCaseResponse.getPreviouslyKnownTerminationDate()).isEqualTo(PREVIOUSLY_KNOWN_TERMINATION_DATE);
-        assertThat(courtCaseResponse.getProbationStatus()).isSameAs(ProbationStatus.NOT_SENTENCED.getName());
+        assertThat(courtCaseResponse.getProbationStatus()).isSameAs(DefendantProbationStatus.NOT_SENTENCED.getName());
         assertThat(courtCaseResponse.getSuspendedSentenceOrder()).isEqualTo(SUSPENDED_SENTENCE_ORDER);
         assertThat(courtCaseResponse.getBreach()).isEqualTo(BREACH);
         assertThat(courtCaseResponse.getPreSentenceActivity()).isEqualTo(PRE_SENTENCE_ACTIVITY);

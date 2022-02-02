@@ -32,6 +32,7 @@ import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Table(name = "DEFENDANT")
@@ -107,9 +108,13 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "manual_update", nullable = false, updatable = false)
     private boolean manualUpdate;
 
+    @Column(name = "OFFENDER_CONFIRMED", nullable = false, updatable = false)
+    private boolean offenderConfirmed;
+
     @PrePersist
     public void prePersistManualUpdate(){
         manualUpdate = "prepare-a-case-for-court".equals(new ClientDetails().getClientId());
+        offenderConfirmed = offenderConfirmed || manualUpdate;
     }
 
     public String getDefendantSurname() {
@@ -120,4 +125,10 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
         return offender != null ? offender.getCrn() : null;
     }
 
+    public DefendantProbationStatus getProbationStatusForDisplay() {
+        return Optional.ofNullable(offender)
+                .map(OffenderEntity::getProbationStatus)
+                .map(OffenderProbationStatus::asDefendantProbationStatus)
+                .orElse(offenderConfirmed ? DefendantProbationStatus.CONFIRMED_NO_RECORD : DefendantProbationStatus.UNCONFIRMED_NO_RECORD);
+    }
 }

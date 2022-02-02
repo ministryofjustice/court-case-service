@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,5 +24,5 @@ public class OffenderDetail {
     private List<String> middleNames;
     private String surname;
     private LocalDate dateOfBirth;
-    private ProbationStatus probationStatus;
+    private DefendantProbationStatus probationStatus;
 }

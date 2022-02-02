@@ -12,8 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
@@ -173,7 +173,7 @@ class OffenderMatchServiceTest {
             verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);
             verify(offenderRestClient).getConvictionsByCrn(crn);
             assertThat(offenderMatchDetail.getForename()).isEqualTo("Chris");
-            assertThat(offenderMatchDetail.getProbationStatus()).isEqualTo(ProbationStatus.CURRENT);
+            assertThat(offenderMatchDetail.getProbationStatus()).isEqualTo(DefendantProbationStatus.CURRENT);
         }
 
         @Test
@@ -188,7 +188,7 @@ class OffenderMatchServiceTest {
             assertThat(offenderMatchDetail.getForename()).isEqualTo("Chris");
             verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);
             verify(offenderRestClient).getConvictionsByCrn(crn);
-            assertThat(offenderMatchDetail.getProbationStatus()).isEqualTo(ProbationStatus.CURRENT);
+            assertThat(offenderMatchDetail.getProbationStatus()).isEqualTo(DefendantProbationStatus.CURRENT);
         }
 
         @Test
@@ -203,7 +203,7 @@ class OffenderMatchServiceTest {
             final var offenderMatchDetail = service.getOffenderMatchDetail("X320741");
 
             assertThat(offenderMatchDetail.getForename()).isEqualTo("Chris");
-            assertThat(offenderMatchDetail.getProbationStatus()).isEqualTo(ProbationStatus.CURRENT);
+            assertThat(offenderMatchDetail.getProbationStatus()).isEqualTo(DefendantProbationStatus.CURRENT);
         }
 
         @Test

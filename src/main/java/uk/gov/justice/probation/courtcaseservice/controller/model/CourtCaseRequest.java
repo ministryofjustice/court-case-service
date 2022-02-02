@@ -13,6 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
@@ -153,7 +154,7 @@ public class CourtCaseRequest {
     private OffenderEntity buildOffender(String crn) {
         return OffenderEntity.builder()
                 .crn(crn)
-                .probationStatus(ProbationStatus.of(probationStatus))
+                .probationStatus(OffenderProbationStatus.of(probationStatus))
                 .previouslyKnownTerminationDate(previouslyKnownTerminationDate)
                 .awaitingPsr(awaitingPsr)
                 .breach(Optional.ofNullable(breach).orElse(false))

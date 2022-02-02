@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
@@ -40,7 +41,7 @@ public class CourtCaseResponse {
     private final String source;
     private final LocalDateTime sessionStartTime;
     private final CourtSession session;
-    private final ProbationStatus probationStatus;
+    private final DefendantProbationStatus probationStatus;
     private final LocalDate previouslyKnownTerminationDate;
     private final Boolean suspendedSentenceOrder;
     private final Boolean breach;
@@ -63,9 +64,10 @@ public class CourtCaseResponse {
 
     @JsonProperty
     public String getProbationStatus() {
-        return Optional.ofNullable(probationStatus)
-                .map(ProbationStatus::getName)
-                .orElse(crn == null && numberOfPossibleMatches >= 1 ? POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS : ProbationStatus.NO_RECORD.getName());
+        if(probationStatus == DefendantProbationStatus.UNCONFIRMED_NO_RECORD && numberOfPossibleMatches >= 1) {
+            return POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS;
+        }
+        return probationStatus.getName();
     }
 
     @JsonProperty
@@ -78,7 +80,7 @@ public class CourtCaseResponse {
     @JsonProperty
     public String getProbationStatusActual() {
         return Optional.ofNullable(probationStatus)
-            .map(ProbationStatus::name)
+            .map(DefendantProbationStatus::name)
             .orElse(null);
     }
 }

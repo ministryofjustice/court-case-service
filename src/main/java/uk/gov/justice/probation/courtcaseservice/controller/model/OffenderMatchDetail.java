@@ -3,15 +3,17 @@ package uk.gov.justice.probation.courtcaseservice.controller.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.controller.Constants;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Builder
@@ -28,14 +30,14 @@ public class OffenderMatchDetail {
     private final LocalDate dateOfBirth;
     private final Address address;
     private final MatchIdentifiers matchIdentifiers;
-    private final ProbationStatus probationStatus;
+    private final DefendantProbationStatus probationStatus;
     @JsonProperty("mostRecentEvent")
     private final Event event;
 
     @JsonProperty
     public String getProbationStatusActual() {
         return Optional.ofNullable(probationStatus)
-            .map(ProbationStatus::name)
+            .map(DefendantProbationStatus::name)
             .orElse(null);
     }
 }

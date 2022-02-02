@@ -129,7 +129,9 @@ public class CourtCaseResponseMapper {
             .nationality2(defendantEntity.getNationality2())
             .cro(defendantEntity.getCro())
             .pnc(defendantEntity.getPnc())
-            .crn(defendantEntity.getCrn());
+            .crn(defendantEntity.getCrn())
+            .probationStatus(defendantEntity.getProbationStatusForDisplay())
+        ;
 
         // Offences
         builder.offences(mapOffencesFromDefendantOffences(defendantEntity.getOffences()));
@@ -151,9 +153,6 @@ public class CourtCaseResponseMapper {
                                     .orElse(null))
             .previouslyKnownTerminationDate(Optional.ofNullable(offender)
                                     .map(OffenderEntity::getPreviouslyKnownTerminationDate)
-                                    .orElse(null))
-            .probationStatus(Optional.ofNullable(offender)
-                                    .map(OffenderEntity::getProbationStatus)
                                     .orElse(null))
         ;
     }

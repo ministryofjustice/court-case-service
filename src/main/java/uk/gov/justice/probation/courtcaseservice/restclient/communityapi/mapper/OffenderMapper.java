@@ -4,7 +4,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.Address;
 import uk.gov.justice.probation.courtcaseservice.controller.model.Event;
 import uk.gov.justice.probation.courtcaseservice.controller.model.MatchIdentifiers;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiContactDetails;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
@@ -46,7 +46,7 @@ public class OffenderMapper {
     public static OffenderDetail offenderDetailFrom(CommunityApiOffenderResponse offenderResponse, ProbationStatusDetail probationStatusDetail) {
         return OffenderDetail.builder()
             .otherIds(otherIdsFrom(offenderResponse))
-            .probationStatus(ProbationStatus.of(probationStatusDetail.getStatus()))
+            .probationStatus(DefendantProbationStatus.of(probationStatusDetail.getStatus()))
             .dateOfBirth(offenderResponse.getDateOfBirth())
             .forename(offenderResponse.getFirstName())
             .middleNames(offenderResponse.getMiddleNames())
@@ -89,7 +89,7 @@ public class OffenderMapper {
             .middleNames(Optional.ofNullable(offenderMatchDetail.getMiddleNames()).orElse(Collections.emptyList()))
             .surname(offenderMatchDetail.getSurname())
             .address(offenderMatchDetail.getAddress())
-            .probationStatus(ProbationStatus.of(probationStatus.getStatus()))
+            .probationStatus(DefendantProbationStatus.of(probationStatus.getStatus()))
             .matchIdentifiers(offenderMatchDetail.getMatchIdentifiers())
             .dateOfBirth(offenderMatchDetail.getDateOfBirth());
         if (sentence != null) {

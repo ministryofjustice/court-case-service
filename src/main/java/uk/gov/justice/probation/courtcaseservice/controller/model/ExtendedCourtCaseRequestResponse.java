@@ -14,6 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
@@ -155,7 +156,7 @@ public class ExtendedCourtCaseRequestResponse {
                     OffenderEntity.builder()
                                 .crn(crn)
                                 .previouslyKnownTerminationDate(defendant.getPreviouslyKnownTerminationDate())
-                                .probationStatus(ProbationStatus.of(defendant.getProbationStatus()))
+                                .probationStatus(OffenderProbationStatus.of(defendant.getProbationStatus()))
                                 .awaitingPsr(defendant.getAwaitingPsr())
                                 .breach(Optional.ofNullable(defendant.getBreach()).orElse(false))
                                 .preSentenceActivity(Optional.ofNullable(defendant.getPreSentenceActivity()).orElse(false))

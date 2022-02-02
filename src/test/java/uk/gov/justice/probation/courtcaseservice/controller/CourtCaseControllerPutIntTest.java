@@ -569,13 +569,12 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .put(String.format(PUT_BY_CASEID_AND_DEFENDANTID_PATH, caseId, defendantId))
                 .then()
                 .statusCode(201)
-                // TODO - these need to go back in after ticket PIC-1864
-//                .body("$", not(hasKey("crn")))
-//                .body("$", not(hasKey("awaitingPsr")))
-//                .body("$", not(hasKey("breach")))
-//                .body("$", not(hasKey("preSentenceActivity")))
-//                .body("$", not(hasKey("suspendedSentenceOrder")))
-//                .body("$", not(hasKey("previouslyKnownTerminationDate")))
+                .body("$", not(hasKey("crn")))
+                .body("$", not(hasKey("awaitingPsr")))
+                .body("$", not(hasKey("breach")))
+                .body("$", not(hasKey("preSentenceActivity")))
+                .body("$", not(hasKey("suspendedSentenceOrder")))
+                .body("$", not(hasKey("previouslyKnownTerminationDate")))
                 .body("probationStatus", equalTo("No record"))
             ;
 
@@ -708,14 +707,13 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             .body("nationality1", equalTo(NATIONALITY_1))
             .body("nationality2", equalTo(NATIONALITY_2))
         ;
-        // TODO - these need to go back in after PIC-1864
-//        validatableResponse
-//            .body("$", not(hasKey("crn")))
-//            .body("$", not(hasKey("awaitingPsr")))
-//            .body("$", not(hasKey("breach")))
-//            .body("$", not(hasKey("preSentenceActivity")))
-//            .body("$", not(hasKey("suspendedSentenceOrder")))
-//            .body("$", not(hasKey("previouslyKnownTerminationDate")))
-//            ;
+        validatableResponse
+            .body("$", not(hasKey("crn")))
+            .body("$", not(hasKey("awaitingPsr")))
+            .body("$", not(hasKey("breach")))
+            .body("$", not(hasKey("preSentenceActivity")))
+            .body("$", not(hasKey("suspendedSentenceOrder")))
+            .body("$", not(hasKey("previouslyKnownTerminationDate")))
+            ;
     }
 }

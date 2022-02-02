@@ -1,7 +1,6 @@
 -- Note that this script creates hard-coded numbers for ID values would be derived from sequences when using the service.
 -- The script has been changed to use negative numbers for the fields which should come from sequences.
 -- This means that you can start updating cases and defendants (using sequences) without worrying about that
--- TODO - at the time of writing I have to populate defendant_name, session_start_time and court_room but these should now be in other tables
 
 INSERT INTO court (id, name, court_code) VALUES (1142408, 'North Shields', 'B10JQ');
 INSERT INTO court (id, name, court_code) VALUES (1142409, 'Sheffield Magistrates'' Court', 'B14LO');

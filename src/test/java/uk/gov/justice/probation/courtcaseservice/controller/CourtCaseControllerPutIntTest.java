@@ -14,9 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
@@ -153,7 +153,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
 
             offenderRepository.findByCrn(CRN).ifPresentOrElse(off -> {
                 assertThat(off.getCrn()).isEqualTo(CRN);
-                assertThat(off.getProbationStatus()).isEqualTo(ProbationStatus.PREVIOUSLY_KNOWN);
+                assertThat(off.getProbationStatus()).isEqualTo(OffenderProbationStatus.PREVIOUSLY_KNOWN);
                 assertThat(off.getAwaitingPsr()).isTrue();
                 assertThat(off.isBreach()).isTrue();
                 assertThat(off.isPreSentenceActivity()).isTrue();
@@ -216,7 +216,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             ;
 
             offenderRepository.findByCrn(crn).ifPresentOrElse(off -> {
-                assertThat(off.getProbationStatus()).isEqualTo(ProbationStatus.PREVIOUSLY_KNOWN);
+                assertThat(off.getProbationStatus()).isEqualTo(OffenderProbationStatus.PREVIOUSLY_KNOWN);
                 assertThat(off.getAwaitingPsr()).isTrue();
                 assertThat(off.isBreach()).isTrue();
                 assertThat(off.isPreSentenceActivity()).isTrue();
@@ -330,7 +330,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 }, () -> fail("Case should exist"));
 
             offenderRepository.findByCrn(newCrn).ifPresentOrElse(off -> {
-                assertThat(off.getProbationStatus()).isEqualTo(ProbationStatus.PREVIOUSLY_KNOWN);
+                assertThat(off.getProbationStatus()).isEqualTo(OffenderProbationStatus.PREVIOUSLY_KNOWN);
                 assertThat(off.getAwaitingPsr()).isTrue();
                 assertThat(off.isBreach()).isTrue();
                 assertThat(off.isPreSentenceActivity()).isTrue();

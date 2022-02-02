@@ -22,14 +22,15 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.Event;
 import uk.gov.justice.probation.courtcaseservice.controller.model.MatchIdentifiers;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetailResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
@@ -162,7 +163,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                                         .pnc("2004/0712343H")
                                         .cro("123456/04A")
                                         .build())
-                                        .probationStatus(ProbationStatus.PREVIOUSLY_KNOWN)
+                                        .probationStatus(DefendantProbationStatus.PREVIOUSLY_KNOWN)
                                         .event(Event.builder()
                                                 .startDate(LocalDate.of(2014, 1, 1))
                                                 .length(5)
@@ -214,7 +215,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                                 .breach(true)
                                 .preSentenceActivity(true)
                                 .awaitingPsr(true)
-                                .probationStatus(ProbationStatus.CURRENT)
+                                .probationStatus(OffenderProbationStatus.CURRENT)
                                 .build())
                         .build()))
                 .build();
@@ -224,7 +225,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
     @State({"an offender record exists"})
     void offenderRecordExists() {
         var offenderDetail = OffenderDetail.builder()
-                .probationStatus(ProbationStatus.NO_RECORD)
+                .probationStatus(DefendantProbationStatus.UNCONFIRMED_NO_RECORD)
                 .forename("Floella")
                 .middleNames(List.of("Karen", "Yunies"))
                 .surname("Benjamin")

@@ -14,7 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.Event;
 import uk.gov.justice.probation.courtcaseservice.controller.model.MatchIdentifiers;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetailResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
@@ -81,8 +81,8 @@ class OffenderMatchesControllerTest {
     @Test
     void givenMultipleMatches_whenGetOffenderMatchDetailByCaseAndDefendantId_thenReturnMultiple() {
 
-        var detail1 = buildOffenderMatchDetail("Christopher", ProbationStatus.PREVIOUSLY_KNOWN);
-        var detail2 = buildOffenderMatchDetail("Christian", ProbationStatus.CURRENT);
+        var detail1 = buildOffenderMatchDetail("Christopher", DefendantProbationStatus.PREVIOUSLY_KNOWN);
+        var detail2 = buildOffenderMatchDetail("Christian", DefendantProbationStatus.CURRENT);
 
         var response = OffenderMatchDetailResponse.builder()
             .offenderMatchDetails(List.of(detail1, detail2))
@@ -122,7 +122,7 @@ class OffenderMatchesControllerTest {
             .jsonPath("offenderMatchDetails[1].probationStatus").isEqualTo("Current");
     }
 
-    private OffenderMatchDetail buildOffenderMatchDetail(String forename, ProbationStatus probationStatus) {
+    private OffenderMatchDetail buildOffenderMatchDetail(String forename, DefendantProbationStatus probationStatus) {
         return OffenderMatchDetail.builder()
                 .dateOfBirth(LocalDate.of(1969, Month.AUGUST, 26))
                 .title("Mr.")

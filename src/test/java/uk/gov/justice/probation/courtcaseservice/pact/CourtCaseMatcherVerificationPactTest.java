@@ -15,7 +15,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -25,6 +24,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
@@ -80,7 +80,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                         .crn("X340741")
                         .preSentenceActivity(true)
                         .previouslyKnownTerminationDate(LocalDate.of(2010, 1, 1))
-                        .probationStatus(ProbationStatus.CURRENT)
+                        .probationStatus(OffenderProbationStatus.CURRENT)
                         .suspendedSentenceOrder(true)
                         .breach(true)
                         .build())
@@ -109,7 +109,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                             .crn("X346204")
                             .preSentenceActivity(true)
                             .previouslyKnownTerminationDate(LocalDate.of(2019, 5, 3))
-                            .probationStatus(ProbationStatus.PREVIOUSLY_KNOWN)
+                            .probationStatus(OffenderProbationStatus.PREVIOUSLY_KNOWN)
                             .awaitingPsr(true)
                             .suspendedSentenceOrder(true)
                             .breach(true)
@@ -147,7 +147,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                         .crn("X346224")
                                         .preSentenceActivity(true)
                                         .previouslyKnownTerminationDate(LocalDate.of(2019, 5, 3))
-                                        .probationStatus(ProbationStatus.PREVIOUSLY_KNOWN)
+                                        .probationStatus(OffenderProbationStatus.PREVIOUSLY_KNOWN)
                                         .awaitingPsr(true)
                                         .suspendedSentenceOrder(true)
                                         .breach(true)

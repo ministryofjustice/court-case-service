@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 
 import java.time.LocalDate;
 
@@ -18,7 +18,7 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProbationStatusDetail {
-    public static final ProbationStatusDetail NO_RECORD_STATUS = ProbationStatusDetail.builder().status(ProbationStatus.NO_RECORD.name()).build();
+    public static final ProbationStatusDetail NO_RECORD_STATUS = ProbationStatusDetail.builder().status(DefendantProbationStatus.UNCONFIRMED_NO_RECORD.name()).build();
     private final String status;
     private final LocalDate previouslyKnownTerminationDate;
     private final Boolean inBreach;

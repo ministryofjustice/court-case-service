@@ -8,7 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionsResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCustody;
@@ -66,7 +66,7 @@ class OffenderMapperTest {
 
             var probationStatusDetail = OffenderMapper.probationStatusDetailFrom(communityApiProbationStatus);
 
-            assertThat(probationStatusDetail.getStatus()).isEqualTo(ProbationStatus.NOT_SENTENCED.name());
+            assertThat(probationStatusDetail.getStatus()).isEqualTo(DefendantProbationStatus.NOT_SENTENCED.name());
             assertThat(probationStatusDetail.getInBreach()).isTrue();
             assertThat(probationStatusDetail.isPreSentenceActivity()).isTrue();
             assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isEqualTo(date);
@@ -113,7 +113,7 @@ class OffenderMapperTest {
             assertThat(offenderDetail.getOtherIds().getPncNumber()).isEqualTo("2004/0712343H");
             assertThat(offenderDetail.getOtherIds().getCroNumber()).isEqualTo("123456/04A");
             assertThat(offenderDetail.getMiddleNames()).containsExactlyInAnyOrder("Hope", "Felix");
-            assertThat(offenderDetail.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
+            assertThat(offenderDetail.getProbationStatus()).isSameAs(DefendantProbationStatus.CURRENT);
             assertThat(offenderDetail.getDateOfBirth()).isNull();
             assertThat(offenderDetail.getForename()).isEqualTo("Aadland");
             assertThat(offenderDetail.getSurname()).isEqualTo("Bertrand");
@@ -372,7 +372,7 @@ class OffenderMapperTest {
 
             assertOffenderMatchFields(offenderMatchDetail);
 
-            assertThat(offenderMatchDetail.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
+            assertThat(offenderMatchDetail.getProbationStatus()).isSameAs(DefendantProbationStatus.CURRENT);
             assertThat(offenderMatchDetail.getEvent().getLength()).isEqualTo(6);
             assertThat(offenderMatchDetail.getEvent().getLengthUnits()).isEqualTo("Months");
             assertThat(offenderMatchDetail.getEvent().getText()).isEqualTo("Sentence description");

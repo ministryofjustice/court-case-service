@@ -18,13 +18,13 @@ VALUES (-1000001, 'X320741', 'CURRENT', '2010-01-01', true, true, true, true, 'b
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, created_by)
 VALUES (-1000002, 'X320742', 'NOT_SENTENCED', 'before-test.sql');
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, created_by)
-VALUES (-1000003, 'X320743', 'NO_RECORD', 'before-test.sql');
+VALUES (-1000003, 'X320743', 'NOT_SENTENCED', 'before-test.sql');
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, created_by)
-VALUES (-1000004, 'X320744', 'NO_RECORD', 'before-test.sql');
+VALUES (-1000004, 'X320744', 'NOT_SENTENCED', 'before-test.sql');
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, created_by)
-VALUES (-1000005, 'X320745', 'NO_RECORD', 'before-test.sql');
+VALUES (-1000005, 'X320745', 'NOT_SENTENCED', 'before-test.sql');
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, created_by)
-VALUES (-1000006, 'X320746', 'NO_RECORD', 'before-test.sql');
+VALUES (-1000006, 'X320746', 'NOT_SENTENCED', 'before-test.sql');
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, created_by)
 VALUES (-1000007, 'X320654', 'CURRENT', 'before-test.sql');
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, previously_known_termination_date, breach, pre_sentence_activity, suspended_sentence_order, created_by)

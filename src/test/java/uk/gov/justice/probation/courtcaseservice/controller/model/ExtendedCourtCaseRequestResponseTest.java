@@ -9,6 +9,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
@@ -92,7 +93,7 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(courtCaseEntity.getDefendants().get(0).getOffender().isPreSentenceActivity()).isEqualTo(Boolean.TRUE);
         assertThat(courtCaseEntity.getDefendants().get(0).getOffender().isBreach()).isEqualTo(Boolean.TRUE);
         assertThat(courtCaseEntity.getDefendants().get(0).getOffender().getAwaitingPsr()).isEqualTo(Boolean.TRUE);
-        assertThat(courtCaseEntity.getDefendants().get(0).getOffender().getProbationStatus()).isEqualTo(ProbationStatus.CURRENT);
+        assertThat(courtCaseEntity.getDefendants().get(0).getOffender().getProbationStatus()).isEqualTo(OffenderProbationStatus.CURRENT);
 
         assertThat(courtCaseEntity.getDefendants()).hasSize(1);
         final var defendantEntity = courtCaseEntity.getDefendants().get(0);
@@ -108,7 +109,7 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(defendantEntity.getOffender().isBreach()).isEqualTo(Boolean.TRUE);
         assertThat(defendantEntity.getOffender().isPreSentenceActivity()).isEqualTo(Boolean.TRUE);
         assertThat(defendantEntity.getOffender().getPreviouslyKnownTerminationDate()).isEqualTo(previouslyKnownTerminationDate);
-        assertThat(defendantEntity.getOffender().getProbationStatus()).isEqualTo(ProbationStatus.CURRENT);
+        assertThat(defendantEntity.getOffender().getProbationStatus()).isEqualTo(OffenderProbationStatus.CURRENT);
         assertThat(defendantEntity.getSex()).isSameAs(Sex.MALE);
         assertThat(defendantEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
 
@@ -124,7 +125,7 @@ class ExtendedCourtCaseRequestResponseTest {
 
         final var offender = defendantEntity.getOffender();
         assertThat(offender.getCrn()).isEqualTo(CRN);
-        assertThat(offender.getProbationStatus()).isSameAs(ProbationStatus.CURRENT);
+        assertThat(offender.getProbationStatus()).isSameAs(OffenderProbationStatus.CURRENT);
         assertThat(offender.getAwaitingPsr()).isEqualTo(Boolean.TRUE);
         assertThat(offender.isBreach()).isEqualTo(Boolean.TRUE);
         assertThat(offender.isPreSentenceActivity()).isEqualTo(Boolean.TRUE);
@@ -312,7 +313,7 @@ class ExtendedCourtCaseRequestResponseTest {
                                     .suspendedSentenceOrder(true)
                                     .awaitingPsr(true)
                                     .breach(true)
-                                    .probationStatus(ProbationStatus.CURRENT)
+                                    .probationStatus(OffenderProbationStatus.CURRENT)
                                     .build())
                                 .pnc("pnc")
                                 .cro("cro")

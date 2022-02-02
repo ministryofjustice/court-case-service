@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
@@ -669,7 +669,7 @@ class  OffenderServiceTest {
             var detail = service.getOffenderDetail(CRN).block();
 
             assertThat(detail.getOtherIds().getOffenderId()).isEqualTo(OFFENDER_ID);
-            assertThat(detail.getProbationStatus()).isEqualTo(ProbationStatus.CURRENT);
+            assertThat(detail.getProbationStatus()).isEqualTo(DefendantProbationStatus.CURRENT);
         }
     }
 
@@ -707,7 +707,7 @@ class  OffenderServiceTest {
 
         @Test
         void whenGetProbationStatus_thenReturn() {
-            var probationStatus = ProbationStatusDetail.builder().status(ProbationStatus.CURRENT.name()).build();
+            var probationStatus = ProbationStatusDetail.builder().status(DefendantProbationStatus.CURRENT.name()).build();
             when(offenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatus));
 
             var probationStatusDetail = service.getProbationStatus(CRN).blockOptional();

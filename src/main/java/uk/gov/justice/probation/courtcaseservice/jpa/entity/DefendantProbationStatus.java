@@ -1,31 +1,33 @@
-package uk.gov.justice.probation.courtcaseservice.controller.model;
+package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public enum ProbationStatus {
+public enum DefendantProbationStatus {
     CURRENT("Current"),
     PREVIOUSLY_KNOWN("Previously known"),
     NOT_SENTENCED("Pre-sentence record"),
-    NO_RECORD("No record");
+    UNCONFIRMED_NO_RECORD("No record"),
+    CONFIRMED_NO_RECORD("No record")
+    ;
 
-    private static final ProbationStatus DEFAULT = NO_RECORD;
+    private static final DefendantProbationStatus DEFAULT = UNCONFIRMED_NO_RECORD;
 
     private final String name;
 
-    ProbationStatus(String name) {
+    DefendantProbationStatus(String name) {
         this.name = name;
     }
 
-    public static ProbationStatus of(String status) {
+    public static DefendantProbationStatus of(String status) {
         final var probationStatus = status == null ? DEFAULT.name() : status.trim().toUpperCase();
         try {
-            return ProbationStatus.valueOf(probationStatus.replaceAll(" ", "_"));
+            return DefendantProbationStatus.valueOf(probationStatus.replaceAll(" ", "_"));
         }
         catch (RuntimeException ex) {
             log.error("Unable to map {} to a known ProbationStatus enum value", status, ex);
-            return ProbationStatus.DEFAULT;
+            return DefendantProbationStatus.DEFAULT;
         }
     }
 

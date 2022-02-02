@@ -5,6 +5,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEnt
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import java.time.LocalDate;
@@ -23,9 +24,9 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NAME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_1;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_2;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NO_RECORD_DESCRIPTION;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PNC;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PRE_SENTENCE_ACTIVITY;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SUSPENDED_SENTENCE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.TERMINATION_DATE;
 
@@ -42,7 +43,7 @@ class CourtCaseRequestTest {
                                                             .courtRoom("COURT_ROOM")
                                                             .source("LIBRA")
                                                             .sessionStartTime(SESSION_START_TIME)
-                                                            .probationStatus(NO_RECORD_DESCRIPTION)
+                                                            .probationStatus(PROBATION_STATUS)
                                                             .previouslyKnownTerminationDate(TERMINATION_DATE)
                                                             .suspendedSentenceOrder(SUSPENDED_SENTENCE)
                                                             .breach(BREACH)
@@ -108,7 +109,7 @@ class CourtCaseRequestTest {
         assertThat(defendant.getOffences().get(0).getDefendant()).isNotNull();
 
         assertThat(defendant.getOffender().getCrn()).isEqualTo(CRN);
-        assertThat(defendant.getOffender().getProbationStatus()).isSameAs(ProbationStatus.NO_RECORD);
+        assertThat(defendant.getOffender().getProbationStatus()).isSameAs(OffenderProbationStatus.PREVIOUSLY_KNOWN);
         assertThat(defendant.getOffender().getPreviouslyKnownTerminationDate()).isEqualTo(TERMINATION_DATE);
         assertThat(defendant.getOffender().getAwaitingPsr()).isEqualTo(AWAITING_PSR);
         assertThat(defendant.getOffender().isBreach()).isEqualTo(BREACH);
@@ -124,7 +125,7 @@ class CourtCaseRequestTest {
             .courtCode("COURT_CODE")
             .courtRoom("COURT_ROOM")
             .sessionStartTime(SESSION_START_TIME)
-            .probationStatus("PROBATION_STATUS")
+            .probationStatus("PREVIOUSLY_KNOWN")
             .defendantName(DEFENDANT_NAME)
             .defendantDob(DEFENDANT_DOB)
             .build();
@@ -151,7 +152,7 @@ class CourtCaseRequestTest {
             .courtCode("COURT_CODE")
             .courtRoom("COURT_ROOM")
             .sessionStartTime(SESSION_START_TIME)
-            .probationStatus("PROBATION_STATUS")
+            .probationStatus("PREVIOUSLY_KNOWN")
             .defendantName(DEFENDANT_NAME)
             .defendantDob(DEFENDANT_DOB)
             .crn("CRN")

@@ -96,8 +96,8 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[5].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a57"))
                 .body("cases[5].source", equalTo("COMMON_PLATFORM"))
                 .body("cases[5].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("cases[5].probationStatus", equalTo("No record"))
-                .body("cases[5].probationStatusActual", equalTo("NO_RECORD"))
+                .body("cases[5].probationStatus", equalTo("Pre-sentence record"))
+                .body("cases[5].probationStatusActual", equalTo("NOT_SENTENCED"))
                 .body("cases[6].caseNo", equalTo(null))
                 .body("cases[6].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a18"))
                 .body("cases[6].createdToday", equalTo(false));
@@ -640,8 +640,8 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[4].caseNo", equalTo(null))
                 .body("cases[4].source", equalTo("COMMON_PLATFORM"))
                 .body("cases[5].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(23, 59, 59)).format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("cases[5].probationStatus", equalTo("No record"))
-                .body("cases[5].probationStatusActual", equalTo("NO_RECORD"))
+                .body("cases[5].probationStatus", equalTo("Pre-sentence record"))
+                .body("cases[5].probationStatusActual", equalTo("NOT_SENTENCED"))
                 .body("cases[6].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a18"))
                 .body("cases[6].createdToday", equalTo(false));
         }

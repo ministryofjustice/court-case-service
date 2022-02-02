@@ -15,5 +15,6 @@ public class OffenceResponse {
     private final String offenceSummary;
     private final String act;
     private final int sequenceNumber;
+    private final Integer listNo;
 
 }

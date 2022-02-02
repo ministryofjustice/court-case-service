@@ -94,6 +94,7 @@ public class ExtendedCourtCaseRequestResponse {
                                                 .act(offence.getAct())
                                                 .offenceTitle(offence.getTitle())
                                                 .offenceSummary(offence.getSummary())
+                                                .listNo(offence.getListNo())
                                                 .build())
                                         .toList())
                                 .build())

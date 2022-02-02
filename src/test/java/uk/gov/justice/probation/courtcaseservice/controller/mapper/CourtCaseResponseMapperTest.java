@@ -50,6 +50,7 @@ class CourtCaseResponseMapperTest {
     private static final String OFFENCE_TITLE = "OFFENCE_TITLE";
     private static final String OFFENCE_SUMMARY = "OFFENCE_SUMMARY";
     private static final String ACT = "ACT";
+    private static final Integer OFFENCE_LIST_NO = 25;
     private static final String DEFENDANT_NAME = "DEFENDANT_NAME";
     private static final DefendantType DEFENDANT_TYPE = DefendantType.PERSON;
     private static final String DEFENDANT_ID = "81cdaec1-d197-4a70-b2a8-beeabdd05d21";
@@ -119,6 +120,7 @@ class CourtCaseResponseMapperTest {
             .sequence(1)
             .summary(OFFENCE_SUMMARY)
             .title(OFFENCE_TITLE)
+            .listNo(OFFENCE_LIST_NO)
             .build();
         var defendantUuid = UUID.randomUUID().toString();
         var defendantName = NamePropertiesEntity.builder().title("DJ").forename1("Giles").surname("PETERSON").build();
@@ -275,6 +277,7 @@ class CourtCaseResponseMapperTest {
         assertThat(offenceResponse.getOffenceSummary()).isEqualTo(OFFENCE_SUMMARY);
         assertThat(offenceResponse.getAct()).isEqualTo(ACT);
         assertThat(offenceResponse.getOffenceSummary()).isEqualTo(OFFENCE_SUMMARY);
+        assertThat(offenceResponse.getListNo()).isEqualTo(OFFENCE_LIST_NO);
     }
 
     private void assertHearingFields(CourtCaseResponse courtCaseResponse) {

@@ -1,6 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -19,7 +21,6 @@ import java.time.Month;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse.DEFAULT_SOURCE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
@@ -141,6 +142,7 @@ class ExtendedCourtCaseRequestResponseTest {
             .sex("M")
             .type(DefendantType.PERSON)
             .defendantId(DEFENDANT_ID)
+            .offences(List.of(OffenceRequestResponse.builder().listNo(10).build()))
             .build();
         final var request = ExtendedCourtCaseRequestResponse.builder()
             .defendants(List.of(defendant))
@@ -149,7 +151,11 @@ class ExtendedCourtCaseRequestResponseTest {
         final var courtCaseEntity = request.asCourtCaseEntity();
 
         assertThat(courtCaseEntity.getDefendants()).hasSize(1);
-        assertThat(courtCaseEntity.getDefendants().get(0).getOffences()).isEmpty();
+        assertThat(courtCaseEntity.getDefendants().get(0).getOffences()).containsOnly(
+                DefendantOffenceEntity.builder()
+                        .sequence(1)
+                        .listNo(10)
+                        .build());
         assertThat(courtCaseEntity.getDefendants().get(0).getOffender()).isNull();
     }
 
@@ -165,6 +171,7 @@ class ExtendedCourtCaseRequestResponseTest {
             .crn("CRN")
             .build();
         final var request = ExtendedCourtCaseRequestResponse.builder()
+                .hearingDays(List.of(HearingDay.builder().sessionStartTime(LocalDateTime.now()).listNo("list1").build()))
             .defendants(List.of(defendant))
             .build();
 
@@ -174,22 +181,6 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(offender.isBreach()).isEqualTo(false);
         assertThat(offender.isPreSentenceActivity()).isEqualTo(false);
         assertThat(offender.isSuspendedSentenceOrder()).isEqualTo(false);
-    }
-
-    @Test
-    void givenNullHearingsAndDefendants_whenAsEntity_thenReturn() {
-
-        final var request = ExtendedCourtCaseRequestResponse.builder()
-                .caseNo(CASE_NO)
-                .caseId(CASE_ID)
-                .build();
-
-        final var courtCaseEntity = request.asCourtCaseEntity();
-
-        assertThat(courtCaseEntity.getHearings()).isEmpty();
-        assertThat(courtCaseEntity.getDefendants()).isEmpty();
-        assertThat(courtCaseEntity.getCaseNo()).isEqualTo(CASE_NO);
-        assertThat(courtCaseEntity.getSourceType()).isEqualTo(DEFAULT_SOURCE);
     }
 
     @Test
@@ -278,6 +269,135 @@ class ExtendedCourtCaseRequestResponseTest {
                                         .build()))
                         .build());
         assertThat(actual.getDefendants().get(1).getDefendantId()).isEqualTo("DEFENDANT_ID_2");
+    }
+
+    @Test()
+    void whenListNoInNeitherOfHearingDaysAndDefendantOffences_thenThrow() {
+
+        var hearingDays = List.of(
+                HearingDay.builder().sessionStartTime(LocalDateTime.now()).build(),
+                HearingDay.builder().sessionStartTime(LocalDateTime.now()).build());
+        var offences = List.of(OffenceRequestResponse.builder().build());
+
+        var courtCase = ExtendedCourtCaseRequestResponse.builder()
+                .hearingDays(hearingDays).defendants(List.of(Defendant.builder().offences(offences).build(),
+                        Defendant.builder().offences(offences).build())).build();
+        ConflictingInputException conflictingInputException = Assertions.assertThrows(ConflictingInputException.class,
+                courtCase::asCourtCaseEntity, "Exception must be thrown");
+        Assertions.assertEquals(conflictingInputException.getMessage(),
+                "listNo should be provided in either hearingDays[] or defendants[].offences[]");
+    }
+
+    @Test()
+    void whenListNoIsInBothHearingDaysAndDefendantOffences_thenThrow() {
+
+        var hearingDays = List.of(
+                HearingDay.builder().listNo("list1").build(),
+                HearingDay.builder().listNo("list2").build());
+        var offences = List.of(OffenceRequestResponse.builder().listNo(20).build());
+
+        var courtCase = ExtendedCourtCaseRequestResponse.builder()
+                .hearingDays(hearingDays).defendants(List.of(Defendant.builder().offences(offences).build())).build();
+
+        ConflictingInputException conflictingInputException = Assertions.assertThrows(ConflictingInputException.class,
+                courtCase::asCourtCaseEntity, "Exception must be thrown");
+        Assertions.assertEquals(conflictingInputException.getMessage(),
+                "Only one of hearingDays[].listNo and defendants[].offences[].listNo must be provided");
+    }
+
+    @Test()
+    void whenListNoIsNotProvidedInAllOfTheHearingDays_thenThrow() {
+
+        var hearingDays = List.of(
+                HearingDay.builder().listNo("list1").build(),
+                HearingDay.builder().build(),
+                HearingDay.builder().listNo("list2").build());
+        var offences = List.of(OffenceRequestResponse.builder().build());
+
+        var courtCase = ExtendedCourtCaseRequestResponse.builder()
+                .hearingDays(hearingDays).defendants(List.of(Defendant.builder().offences(offences).build())).build();
+
+        ConflictingInputException conflictingInputException = Assertions.assertThrows(ConflictingInputException.class,
+                courtCase::asCourtCaseEntity, "Exception must be thrown");
+        Assertions.assertEquals(conflictingInputException.getMessage(),
+                "listNo is missing from one or more hearingDays[]");
+    }
+
+    @Test()
+    void whenListNoIsNotProvidedInAllOfTheOffences_thenThrow() {
+
+        var hearingDays = List.of(
+                HearingDay.builder().build(),
+                HearingDay.builder().build());
+        var offences1 = List.of(
+                    OffenceRequestResponse.builder().listNo(10).build(),
+                    OffenceRequestResponse.builder().listNo(10).build()
+                );
+         var offences2 = List.of(
+                    OffenceRequestResponse.builder().listNo(30).build(),
+                    OffenceRequestResponse.builder().build()
+                );
+
+        var courtCase = ExtendedCourtCaseRequestResponse.builder()
+                .hearingDays(hearingDays).defendants(
+                        List.of(Defendant.builder().offences(offences1).build(),
+                        Defendant.builder().offences(offences2).build())
+                ).build();
+
+        ConflictingInputException conflictingInputException = Assertions.assertThrows(ConflictingInputException.class,
+                courtCase::asCourtCaseEntity, "Exception must be thrown");
+        Assertions.assertEquals(conflictingInputException.getMessage(),
+                "listNo missing in one or more defendants[].offences[]");
+    }
+
+    @Test()
+    void givenPutWith_NoListNoInHearingDays_WithListNoInDefendantOffences_Accepted() {
+
+        var hearingDays = List.of(
+                HearingDay.builder().sessionStartTime(LocalDateTime.now()).build(),
+                HearingDay.builder().sessionStartTime(LocalDateTime.now()).build());
+        var offences1 = List.of(
+                    OffenceRequestResponse.builder().listNo(10).build(),
+                    OffenceRequestResponse.builder().listNo(20).build()
+                );
+         var offences2 = List.of(
+                    OffenceRequestResponse.builder().listNo(30).build()
+                );
+
+        var courtCase = ExtendedCourtCaseRequestResponse.builder()
+                .hearingDays(hearingDays).defendants(
+                        List.of(Defendant.builder().name(NamePropertiesEntity.builder().forename1("Foreone").surname("Surone").build()).offences(offences1).build(),
+                        Defendant.builder().name(NamePropertiesEntity.builder().forename1("Foretwo").surname("Surtwo").build()).offences(offences2).build())
+                ).build();
+
+        var courtCaseEntity = courtCase.asCourtCaseEntity();
+        assertThat(courtCaseEntity.getDefendants()).hasSize(2);
+        assertThat(courtCaseEntity.getDefendants().get(0).getOffences()).extracting("listNo").containsOnly(10, 20);
+        assertThat(courtCaseEntity.getDefendants().get(1).getOffences()).extracting("listNo").containsOnly(30);
+    }
+
+    @Test()
+    void givenPutWith_NoListNoInDefendantOffences_WithListNoInHearingDays_Accepted() {
+
+        var hearingDays = List.of(
+                HearingDay.builder().listNo("10").sessionStartTime(LocalDateTime.now()).build(),
+                HearingDay.builder().listNo("20").sessionStartTime(LocalDateTime.now()).build());
+        var offences1 = List.of(
+                    OffenceRequestResponse.builder().build(),
+                    OffenceRequestResponse.builder().build()
+                );
+         var offences2 = List.of(
+                    OffenceRequestResponse.builder().build()
+                );
+
+        var courtCase = ExtendedCourtCaseRequestResponse.builder()
+                .hearingDays(hearingDays).defendants(
+                        List.of(Defendant.builder().name(NamePropertiesEntity.builder().forename1("Foreone").surname("Surone").build()).offences(offences1).build(),
+                        Defendant.builder().name(NamePropertiesEntity.builder().forename1("Foretwo").surname("Surtwo").build()).offences(offences2).build())
+                ).build();
+
+        var courtCaseEntity = courtCase.asCourtCaseEntity();
+        assertThat(courtCaseEntity.getHearings()).extracting("listNo").containsOnly("10", "20");
     }
 
     private CourtCaseEntity buildEntity() {

@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -21,8 +23,10 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -103,6 +107,8 @@ public class ExtendedCourtCaseRequestResponse {
 
     public CourtCaseEntity asCourtCaseEntity() {
 
+        validateListNo();
+
         final var hearingDayEntities = Optional.ofNullable(hearingDays).orElse(Collections.emptyList())
             .stream()
             .map(this::buildHearing)
@@ -123,6 +129,45 @@ public class ExtendedCourtCaseRequestResponse {
         hearingDayEntities.forEach(hearingEntity -> hearingEntity.setCourtCase(courtCaseEntity));
         defendantEntities.forEach(defendantEntity -> defendantEntity.setCourtCase(courtCaseEntity));
         return courtCaseEntity;
+    }
+
+    private void validateListNo() {
+
+        List<HearingDay> hearingDays = Optional.ofNullable(this.getHearingDays())
+                .orElse(Collections.emptyList());
+
+        var hearingDaysWitListNo = hearingDays.stream().filter(hearingDay -> StringUtils.isNotBlank(hearingDay.getListNo())).count();
+
+        if(hearingDaysWitListNo > 0) {
+            if(hearingDaysWitListNo != hearingDays.size()) {
+                throw new ConflictingInputException("listNo is missing from one or more hearingDays[]");
+            }
+
+            var offencesHasListNo = getAllOffences().stream()
+                    .anyMatch(offenceRequestResponse -> Objects.nonNull(offenceRequestResponse.getListNo()));
+
+            if(offencesHasListNo) {
+                throw new ConflictingInputException("Only one of hearingDays[].listNo and defendants[].offences[].listNo must be provided");
+            }
+        } else {
+            List<OffenceRequestResponse> allOffences = getAllOffences();
+            var offencesWithListNo = allOffences.stream()
+                    .filter(offenceRequestResponse -> Objects.nonNull(offenceRequestResponse.getListNo())).collect(Collectors.toList());
+
+            if(offencesWithListNo.isEmpty()) {
+                throw new ConflictingInputException("listNo should be provided in either hearingDays[] or defendants[].offences[]");
+            }
+            if (allOffences.stream().anyMatch(offenceRequestResponses -> Objects.isNull(offenceRequestResponses.getListNo()))) {
+                throw new ConflictingInputException("listNo missing in one or more defendants[].offences[]");
+            }
+        }
+    }
+
+    private List<OffenceRequestResponse> getAllOffences() {
+        return Optional.ofNullable(this.getDefendants())
+                .orElse(Collections.emptyList())
+                .stream().map(defendant -> Optional.ofNullable(defendant.getOffences()).orElse(Collections.emptyList()))
+                .flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     private DefendantEntity buildDefendant(Defendant defendant) {

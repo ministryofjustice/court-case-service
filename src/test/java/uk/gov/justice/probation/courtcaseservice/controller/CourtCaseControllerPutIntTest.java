@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
@@ -181,8 +182,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .put(String.format("/case/%s/extended", JSON_CASE_ID))
                 .then()
                 .statusCode(400)
-                .body("userMessage", equalTo("Only one of hearingDays[].listNo and defendants[].offences[].listNo must be provided"));
-
+                .body("userMessage", containsString("Only one of hearingDays[].listNo and defendants[].offences[].listNo must be provided"));
         }
 
         @Test

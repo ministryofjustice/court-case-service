@@ -1,145 +1,152 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.controller.model.Defendant;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingDay;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 
+import javax.validation.ConstraintValidatorContext;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
 class ListNoValidatorTest {
+
+    @Mock
+    ConstraintValidatorContext constraintValidatorContext;
+
+    @Mock
+    ConstraintValidatorContext.ConstraintViolationBuilder constraintViolationBuilder;
 
     private static final ListNoValidator LIST_NO_VALIDATOR = new ListNoValidator();
 
-    @Test()
-    void whenListNoInNeitherOfHearingDaysAndDefendantOffences_thenThrow() {
-
-        var hearingDays = List.of(
-                HearingDay.builder().sessionStartTime(LocalDateTime.now()).build(),
-                HearingDay.builder().sessionStartTime(LocalDateTime.now()).build());
-        var offences = List.of(OffenceRequestResponse.builder().build());
-
-        var courtCase = ExtendedCourtCaseRequestResponse.builder()
-                .hearingDays(hearingDays).defendants(List.of(Defendant.builder().offences(offences).build(),
-                        Defendant.builder().offences(offences).build())).build();
-        ConflictingInputException conflictingInputException = Assertions.assertThrows(ConflictingInputException.class,
-                () -> LIST_NO_VALIDATOR.isValid(courtCase, null), "Exception must be thrown");
-        Assertions.assertEquals(conflictingInputException.getMessage(),
-                "listNo should be provided in either hearingDays[] or defendants[].offences[]");
+    @BeforeEach
+    void setup() {
+        when(constraintValidatorContext.buildConstraintViolationWithTemplate(anyString())).thenReturn(constraintViolationBuilder);
+        when(constraintViolationBuilder.addConstraintViolation()).thenReturn(constraintValidatorContext);
     }
 
-    @Test()
-    void whenListNoIsInBothHearingDaysAndDefendantOffences_thenThrow() {
-
-        var hearingDays = List.of(
-                HearingDay.builder().listNo("list1").build(),
-                HearingDay.builder().listNo("list2").build());
-        var offences = List.of(OffenceRequestResponse.builder().listNo(20).build());
-
-        var courtCase = ExtendedCourtCaseRequestResponse.builder()
-                .hearingDays(hearingDays).defendants(List.of(Defendant.builder().offences(offences).build())).build();
-
-        ConflictingInputException conflictingInputException = Assertions.assertThrows(ConflictingInputException.class,
-                () -> LIST_NO_VALIDATOR.isValid(courtCase, null), "Exception must be thrown");
-        Assertions.assertEquals(conflictingInputException.getMessage(),
-                "Only one of hearingDays[].listNo and defendants[].offences[].listNo must be provided");
+    @AfterEach
+    void tearDown() {
+        Mockito.reset(constraintValidatorContext, constraintViolationBuilder);
     }
 
-    @Test()
-    void whenListNoIsNotProvidedInAllOfTheHearingDays_thenThrow() {
+    private static List<HearingDay> HEARING_DAYS_WITHOUT_LIST_NO = List.of(
+            HearingDay.builder().sessionStartTime(LocalDateTime.now()).build(),
+            HearingDay.builder().sessionStartTime(LocalDateTime.now()).build());
 
-        var hearingDays = List.of(
-                HearingDay.builder().listNo("list1").build(),
-                HearingDay.builder().build(),
-                HearingDay.builder().listNo("list2").build());
-        var offences = List.of(OffenceRequestResponse.builder().build());
+    private static List<OffenceRequestResponse> OFFENCES_WITHOUT_LIST_NO = List.of(OffenceRequestResponse.builder().build(),
+            OffenceRequestResponse.builder().build());
+
+    private static List<HearingDay> HEARING_DAYS_WITH_LIST_NO = List.of(
+            HearingDay.builder().listNo("10").sessionStartTime(LocalDateTime.now()).build(),
+            HearingDay.builder().listNo("20").sessionStartTime(LocalDateTime.now()).build());
+
+    private static List<OffenceRequestResponse> OFFENCES_WITH_LIST_NO = List.of(
+            OffenceRequestResponse.builder().listNo(30).build(),
+            OffenceRequestResponse.builder().listNo(40).build()
+    );
+
+    @Test
+    void whenListNoInNeitherOfHearingDaysAndDefendantOffences_thenFailValidation() {
 
         var courtCase = ExtendedCourtCaseRequestResponse.builder()
-                .hearingDays(hearingDays).defendants(List.of(Defendant.builder().offences(offences).build())).build();
+                .hearingDays(HEARING_DAYS_WITHOUT_LIST_NO).defendants(
+                        List.of(Defendant.builder().offences(OFFENCES_WITHOUT_LIST_NO).build(),
+                        Defendant.builder().offences(OFFENCES_WITHOUT_LIST_NO).build())).build();
 
-        ConflictingInputException conflictingInputException = Assertions.assertThrows(ConflictingInputException.class,
-                () -> LIST_NO_VALIDATOR.isValid(courtCase, null), "Exception must be thrown");
-        Assertions.assertEquals(conflictingInputException.getMessage(),
-                "listNo is missing from one or more hearingDays[]");
+        assertThat(LIST_NO_VALIDATOR.isValid(courtCase, constraintValidatorContext)).isFalse();
+
+        Mockito.verify(constraintValidatorContext).buildConstraintViolationWithTemplate("listNo should be provided in either hearingDays[] or defendants[].offences[]");
+        Mockito.verify(constraintViolationBuilder).addConstraintViolation();
     }
 
-    @Test()
-    void whenListNoIsNotProvidedInAllOfTheOffences_thenThrow() {
+    @Test
+    void whenListNoIsInBothHearingDaysAndDefendantOffences_thenFailValidation() {
+
+        var courtCase = ExtendedCourtCaseRequestResponse.builder()
+                .hearingDays(HEARING_DAYS_WITH_LIST_NO).defendants(
+                        List.of(Defendant.builder().offences(OFFENCES_WITH_LIST_NO).build())).build();
+
+        assertThat(LIST_NO_VALIDATOR.isValid(courtCase, constraintValidatorContext)).isFalse();
+        Mockito.verify(constraintValidatorContext).buildConstraintViolationWithTemplate("Only one of hearingDays[].listNo and defendants[].offences[].listNo must be provided");
+        Mockito.verify(constraintViolationBuilder).addConstraintViolation();
+    }
+
+    @Test
+    void whenListNoIsNotProvidedInAllOfTheHearingDays_thenFailValidation() {
+
+        var hearingDays = new ArrayList<HearingDay>(List.of(HearingDay.builder().build()));
+        hearingDays.addAll(HEARING_DAYS_WITH_LIST_NO);
+
+        var courtCase = ExtendedCourtCaseRequestResponse.builder()
+                .hearingDays(hearingDays).defendants(List.of(Defendant.builder().offences(OFFENCES_WITHOUT_LIST_NO).build())).build();
+
+        assertThat(LIST_NO_VALIDATOR.isValid(courtCase, constraintValidatorContext)).isFalse();
+        Mockito.verify(constraintValidatorContext).buildConstraintViolationWithTemplate("listNo is missing from one or more hearingDays[]");
+        Mockito.verify(constraintViolationBuilder).addConstraintViolation();
+    }
+
+    @Test
+    void whenListNoIsNotProvidedInAllOfTheOffences_thenFailValidation() {
 
         var hearingDays = List.of(
                 HearingDay.builder().build(),
                 HearingDay.builder().build());
-        var offences1 = List.of(
-                OffenceRequestResponse.builder().listNo(10).build(),
-                OffenceRequestResponse.builder().listNo(10).build()
-        );
-        var offences2 = List.of(
-                OffenceRequestResponse.builder().listNo(30).build(),
-                OffenceRequestResponse.builder().build()
-        );
 
         var courtCase = ExtendedCourtCaseRequestResponse.builder()
                 .hearingDays(hearingDays).defendants(
-                        List.of(Defendant.builder().offences(offences1).build(),
-                                Defendant.builder().offences(offences2).build())
+                        List.of(Defendant.builder().offences(OFFENCES_WITH_LIST_NO).build(),
+                                Defendant.builder().offences(OFFENCES_WITHOUT_LIST_NO).build())
                 ).build();
 
-        ConflictingInputException conflictingInputException = Assertions.assertThrows(ConflictingInputException.class,
-                () -> LIST_NO_VALIDATOR.isValid(courtCase, null), "Exception must be thrown");
-        Assertions.assertEquals(conflictingInputException.getMessage(),
-                "listNo missing in one or more defendants[].offences[]");
+        assertThat(LIST_NO_VALIDATOR.isValid(courtCase, constraintValidatorContext)).isFalse();
+        Mockito.verify(constraintValidatorContext).buildConstraintViolationWithTemplate("listNo missing in one or more defendants[].offences[]");
+        Mockito.verify(constraintViolationBuilder).addConstraintViolation();
     }
 
-    @Test()
+    @Test
     void givenPutWith_NoListNoInHearingDays_WithListNoInDefendantOffences_Accepted() {
 
-        var hearingDays = List.of(
-                HearingDay.builder().sessionStartTime(LocalDateTime.now()).build(),
-                HearingDay.builder().sessionStartTime(LocalDateTime.now()).build());
-        var offences1 = List.of(
-                OffenceRequestResponse.builder().listNo(10).build(),
-                OffenceRequestResponse.builder().listNo(20).build()
-        );
-        var offences2 = List.of(
-                OffenceRequestResponse.builder().listNo(30).build()
-        );
-
         var courtCase = ExtendedCourtCaseRequestResponse.builder()
-                .hearingDays(hearingDays).defendants(
-                        List.of(Defendant.builder().name(NamePropertiesEntity.builder().forename1("Foreone").surname("Surone").build()).offences(offences1).build(),
-                                Defendant.builder().name(NamePropertiesEntity.builder().forename1("Foretwo").surname("Surtwo").build()).offences(offences2).build())
+                .hearingDays(HEARING_DAYS_WITHOUT_LIST_NO).defendants(
+                        List.of(Defendant.builder().name(NamePropertiesEntity.builder().forename1("Foreone").surname("Surone").build())
+                                        .offences(OFFENCES_WITH_LIST_NO).build(),
+                                Defendant.builder().name(NamePropertiesEntity.builder().forename1("Foretwo").surname("Surtwo").build())
+                                        .offences(OFFENCES_WITH_LIST_NO).build())
                 ).build();
-
-        Assertions.assertTrue(LIST_NO_VALIDATOR.isValid(courtCase, null), "Should return true");
+        assertThat(LIST_NO_VALIDATOR.isValid(courtCase, constraintValidatorContext)).isTrue();
+        verifyNoInteractions(constraintValidatorContext);
+        verifyNoInteractions(constraintViolationBuilder);
     }
 
-    @Test()
-    void givenPutWith_NoListNoInDefendantOffences_WithListNoInHearingDays_Accepted() {
-
-        var hearingDays = List.of(
-                HearingDay.builder().listNo("10").sessionStartTime(LocalDateTime.now()).build(),
-                HearingDay.builder().listNo("20").sessionStartTime(LocalDateTime.now()).build());
-        var offences1 = List.of(
-                OffenceRequestResponse.builder().build(),
-                OffenceRequestResponse.builder().build()
-        );
-        var offences2 = List.of(
-                OffenceRequestResponse.builder().build()
-        );
+    @Test
+    void whenNoListNoInDefendantOffences_WithListNoInHearingDays_Accepted() {
 
         var courtCase = ExtendedCourtCaseRequestResponse.builder()
-                .hearingDays(hearingDays).defendants(
-                        List.of(Defendant.builder().name(NamePropertiesEntity.builder().forename1("Foreone").surname("Surone").build()).offences(offences1).build(),
-                                Defendant.builder().name(NamePropertiesEntity.builder().forename1("Foretwo").surname("Surtwo").build()).offences(offences2).build())
+                .hearingDays(HEARING_DAYS_WITH_LIST_NO).defendants(
+                        List.of(Defendant.builder().name(NamePropertiesEntity.builder().forename1("Foreone").surname("Surone").build())
+                                        .offences(OFFENCES_WITHOUT_LIST_NO).build(),
+                                Defendant.builder().name(NamePropertiesEntity.builder().forename1("Foretwo").surname("Surtwo").build())
+                                        .offences(OFFENCES_WITHOUT_LIST_NO).build())
                 ).build();
 
-        Assertions.assertTrue(LIST_NO_VALIDATOR.isValid(courtCase, null), "Should return true");
+        assertThat(LIST_NO_VALIDATOR.isValid(courtCase, constraintValidatorContext)).isTrue();
+        verifyNoInteractions(constraintValidatorContext);
+        verifyNoInteractions(constraintViolationBuilder);
     }
-
-
 }

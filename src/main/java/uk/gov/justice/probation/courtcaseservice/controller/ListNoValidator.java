@@ -2,7 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingDay;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceRequestResponse;
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
  * request with both is rejected
  */
 @Slf4j
-public class ListNoValidator implements ConstraintValidator<ValidateListNo, ExtendedCourtCaseRequestResponse> { // 1.
+public class ListNoValidator implements ConstraintValidator<ValidateListNo, ExtendedCourtCaseRequestResponse> {
 
     @Override
     public void initialize(ValidateListNo constraintAnnotation) {
@@ -35,8 +34,12 @@ public class ListNoValidator implements ConstraintValidator<ValidateListNo, Exte
     @Override
     public boolean isValid(ExtendedCourtCaseRequestResponse extendedCourtCaseRequestResponse,
                            ConstraintValidatorContext context) {
-        validateListNo(extendedCourtCaseRequestResponse);
-        return true;
+        var validationError = validateListNo(extendedCourtCaseRequestResponse);
+        return validationError.map(message -> {
+            context.buildConstraintViolationWithTemplate(message)
+                    .addConstraintViolation();
+            return false;
+        }).orElse(true);
     }
 
     private List<OffenceRequestResponse> getAllOffences(ExtendedCourtCaseRequestResponse courtCase) {
@@ -46,35 +49,37 @@ public class ListNoValidator implements ConstraintValidator<ValidateListNo, Exte
                 .flatMap(Collection::stream).collect(Collectors.toList());
     }
 
-    private void validateListNo(ExtendedCourtCaseRequestResponse courtCase) {
+    private Optional<String> validateListNo(ExtendedCourtCaseRequestResponse courtCase) {
 
         List<HearingDay> hearingDays = Optional.ofNullable(courtCase.getHearingDays())
                 .orElse(Collections.emptyList());
 
         var hearingDaysWitListNo = hearingDays.stream().filter(hearingDay -> StringUtils.isNotBlank(hearingDay.getListNo())).count();
 
-        if(hearingDaysWitListNo > 0) {
-            if(hearingDaysWitListNo != hearingDays.size()) {
-                throw new ConflictingInputException("listNo is missing from one or more hearingDays[]");
+        if (hearingDaysWitListNo > 0) {
+            if (hearingDaysWitListNo != hearingDays.size()) {
+                return Optional.of("listNo is missing from one or more hearingDays[]");
             }
 
             var offencesHasListNo = getAllOffences(courtCase).stream()
                     .anyMatch(offenceRequestResponse -> Objects.nonNull(offenceRequestResponse.getListNo()));
 
-            if(offencesHasListNo) {
-                throw new ConflictingInputException("Only one of hearingDays[].listNo and defendants[].offences[].listNo must be provided");
+            if (offencesHasListNo) {
+                return Optional.of("Only one of hearingDays[].listNo and defendants[].offences[].listNo must be provided");
             }
         } else {
             List<OffenceRequestResponse> allOffences = getAllOffences(courtCase);
             var offencesWithListNo = allOffences.stream()
                     .filter(offenceRequestResponse -> Objects.nonNull(offenceRequestResponse.getListNo())).collect(Collectors.toList());
 
-            if(offencesWithListNo.isEmpty()) {
-                throw new ConflictingInputException("listNo should be provided in either hearingDays[] or defendants[].offences[]");
+            if (offencesWithListNo.isEmpty()) {
+                return Optional.of("listNo should be provided in either hearingDays[] or defendants[].offences[]");
             }
             if (allOffences.stream().anyMatch(offenceRequestResponses -> Objects.isNull(offenceRequestResponses.getListNo()))) {
-                throw new ConflictingInputException("listNo missing in one or more defendants[].offences[]");
+                return Optional.of("listNo missing in one or more defendants[].offences[]");
             }
         }
+
+        return Optional.ofNullable(null);
     }
 }

@@ -14,9 +14,9 @@ import static java.lang.annotation.ElementType.*;
  */
 @Target({TYPE, ANNOTATION_TYPE, PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = ListNoValidator.class) // 1.
+@Constraint(validatedBy = ListNoValidator.class)
 public @interface ValidateListNo {
     String message() default "Invalid lisNo";
-    Class<?>[] groups() default {}; // 2.
-    Class<? extends Payload>[] payload() default {}; // 3.
+    Class<?>[] groups() default {};
+    Class<? extends Payload>[] payload() default {};
 }

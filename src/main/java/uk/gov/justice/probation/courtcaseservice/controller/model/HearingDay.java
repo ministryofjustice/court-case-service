@@ -21,6 +21,5 @@ public class HearingDay {
     private final String courtRoom;
     @NotNull
     private final LocalDateTime sessionStartTime;
-    @NotNull
     private final String listNo;
 }

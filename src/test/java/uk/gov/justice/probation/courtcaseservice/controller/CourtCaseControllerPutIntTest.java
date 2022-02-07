@@ -23,6 +23,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderReposito
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,6 +41,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
+import static org.springframework.util.StreamUtils.copyToString;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_SEX;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
@@ -97,6 +99,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
 
         @Value("classpath:integration/request/PUT_courtCaseExtended_success.json")
         private Resource caseDetailsExtendedResource;
+
+        @Value("classpath:integration/request/PUT_courtCaseExtended_invalidListNo.json")
+        private Resource caseDetailsExtendedInvalidListNoResource;
 
         // Note: There's a bizarre stack overflow bug happening when using the same Resource pattern as above which is why
         // this file is being read in a different way. There's an urgent fix required so committing as is to fix later.
@@ -160,6 +165,23 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 assertThat(off.isSuspendedSentenceOrder()).isTrue();
                 assertThat(off.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2018, Month.JUNE, 24));
             }, () -> fail("Offender values not updated as expected"));
+
+        }
+
+        @Test
+        void whenCreateCaseExtendedByCaseIdWithIvalidListNo_thenReturnBadRequest() throws IOException {
+
+            given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(copyToString(caseDetailsExtendedInvalidListNoResource.getInputStream(), Charset.defaultCharset()))
+                .when()
+                .put(String.format("/case/%s/extended", JSON_CASE_ID))
+                .then()
+                .statusCode(400)
+                .body("userMessage", equalTo("Only one of hearingDays[].listNo and defendants[].offences[].listNo must be provided"));
 
         }
 

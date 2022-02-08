@@ -5,7 +5,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.6.3'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'com.github.ben-manes.versions' version '0.41.0'
+    id 'com.github.ben-manes.versions' version '0.42.0'
     id "org.flywaydb.flyway" version "8.4.4"
     id 'jacoco'
     id "au.com.dius.pact" version "4.3.4"
@@ -188,7 +188,7 @@ dependencies {
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.4'
     implementation 'net.logstash.logback:logstash-logback-encoder:7.0.1'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1'
-    implementation 'org.springdoc:springdoc-openapi-ui:1.6.5'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.6'
 
     testAnnotationProcessor 'org.projectlombok:lombok'
     testRuntimeOnly("org.junit.platform:junit-platform-launcher") {
@@ -196,7 +196,7 @@ dependencies {
     }
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.28.0'
+    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.31.0'
     testImplementation("io.rest-assured:json-path:$restAssuredVersion")
     testImplementation("io.rest-assured:xml-path:$restAssuredVersion")
     testImplementation("io.rest-assured:rest-assured:$restAssuredVersion") {

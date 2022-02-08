@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import uk.gov.justice.probation.courtcaseservice.controller.ValidateListNo;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -34,6 +35,7 @@ import java.util.stream.IntStream;
 @AllArgsConstructor
 @Slf4j
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@ValidateListNo
 public class ExtendedCourtCaseRequestResponse {
     static final SourceType DEFAULT_SOURCE = SourceType.COMMON_PLATFORM;
     private final String caseNo;

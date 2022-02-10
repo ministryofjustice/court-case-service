@@ -320,7 +320,7 @@ workflows:
   build-test-and-deploy:
     filters:
       branches:
-        ignore: no_ci.*
+        ignore: /no-ci.*/
     unless: << pipeline.parameters.only_pacts >>
     jobs:
       - app_scan:

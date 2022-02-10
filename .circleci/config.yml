@@ -344,7 +344,6 @@ workflows:
           filters:
             branches:
               only: main
-              ignore: /no-ci.*/
       - hmpps/helm_lint:
           name: helm_lint_dev
       - build_docker:
@@ -416,3 +415,6 @@ workflows:
     jobs:
       - pact_check_and_publish:
           pact_consumer_tags: << pipeline.parameters.pact_consumer_tags >>
+          filters:
+            branches:
+              ignore: /no-ci.*/

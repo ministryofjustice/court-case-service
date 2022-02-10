@@ -5,13 +5,11 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
-class HearingEntityTest {
+class HearingDayEntityTest {
 
     @Test
     public void testLoggableString() {
-        final var hearing = HearingEntity.builder()
+        final var hearing = HearingDayEntity.builder()
                 .hearingDay(LocalDate.of(2021, 11, 1))
                 .hearingTime(LocalTime.of(9, 30))
                 .courtRoom("Court room 1")

@@ -11,7 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEnt
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
@@ -180,8 +180,8 @@ public class ExtendedCourtCaseRequestResponse {
             .collect(Collectors.toList());
     }
 
-    private HearingEntity buildHearing(HearingDay hearingDay) {
-        return HearingEntity.builder()
+    private HearingDayEntity buildHearing(HearingDay hearingDay) {
+        return HearingDayEntity.builder()
             .courtCode(hearingDay.getCourtCode())
             .courtRoom(hearingDay.getCourtRoom())
             .listNo(hearingDay.getListNo())

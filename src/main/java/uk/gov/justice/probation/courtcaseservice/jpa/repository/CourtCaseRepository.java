@@ -88,6 +88,7 @@ public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Lon
         LocalDateTime createdBefore
     );
 
+    // TODO: We can use hearing.created rather than cc.created and eliminate a join here as they should have the same value
     @Query(value = "select cc.created " +
         "from court_case cc " +
         "inner join hearing h on h.court_case_id = cc.id " +

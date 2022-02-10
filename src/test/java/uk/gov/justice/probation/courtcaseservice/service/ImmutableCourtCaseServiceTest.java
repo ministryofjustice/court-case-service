@@ -19,7 +19,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
@@ -393,10 +393,10 @@ class ImmutableCourtCaseServiceTest {
 
             courtCase = CourtCaseEntity.builder()
                     .hearings(List.of(
-                            HearingEntity.builder()
+                            HearingDayEntity.builder()
                                     .courtCode(COURT_CODE)
                                     .build(),
-                            HearingEntity.builder()
+                            HearingDayEntity.builder()
                                     .courtCode("XXX")
                                     .build()
 
@@ -416,7 +416,7 @@ class ImmutableCourtCaseServiceTest {
         void givenCaseIdMismatch_whenCreateOrUpdateCase_thenThrowException() {
             courtCase = CourtCaseEntity.builder()
                     .hearings(List.of(
-                            HearingEntity.builder()
+                            HearingDayEntity.builder()
                                     .courtCode(COURT_CODE)
                                     .build()
                     ))

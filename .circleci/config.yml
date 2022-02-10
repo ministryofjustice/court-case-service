@@ -318,6 +318,9 @@ workflows:
           image_name: court-case-service-nginx
           dockerfile: ./nginx/Dockerfile
   build-test-and-deploy:
+    filters:
+      branches:
+        ignore: no_ci.*
     unless: << pipeline.parameters.only_pacts >>
     jobs:
       - app_scan:

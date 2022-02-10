@@ -5,6 +5,7 @@ import com.microsoft.applicationinsights.boot.dependencies.apachecommons.io.File
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -169,8 +170,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
 
         }
 
+        @Disabled("This validation is rejecting cases in prod. Temporarily disabling whilst we determine if we can do validation on this field.")
         @Test
-        void whenCreateCaseExtendedByCaseIdWithIvalidListNo_thenReturnBadRequest() throws IOException {
+        void whenCreateCaseExtendedByCaseIdWithInvalidListNo_thenReturnBadRequest() throws IOException {
 
             given()
                 .auth()

@@ -27,7 +27,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
@@ -179,7 +179,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                 .caseId(caseId)
                 .caseNo("1600028913")
                 .sourceType(SourceType.LIBRA)
-                .hearings(Collections.singletonList(HearingEntity.builder()
+                .hearings(Collections.singletonList(HearingDayEntity.builder()
                         .listNo("3rd")
                         .courtCode("B10JQ")
                         .courtRoom("1")

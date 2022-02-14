@@ -121,6 +121,11 @@ jobs:
             - gradle-{{ checksum "build.gradle" }}
             - gradle-
       - run: ./gradlew build jacocoTestReport
+      - run:
+          name: Build data dictionary
+          command: |
+            sudo apt update && sudo apt install graphviz
+            data_dictionary/build-data-dictionary.sh
       - set_app_version
       - save_cache:
           paths:
@@ -135,6 +140,7 @@ jobs:
           paths:
             - build/libs
             - build.gradle
+            - data_dictionary
       - jira/notify:
           token_name: JIRA_CIRCLE_TOKEN
           job_type: build
@@ -195,7 +201,7 @@ jobs:
                   docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
                   docker tag mojdigitalstudio/<<parameters.app_name>>:$APP_VERSION mojdigitalstudio/<<parameters.app_name>>:latest
                   docker push mojdigitalstudio/<<parameters.app_name>>:$APP_VERSION
-                  docker push mojdigitalstudio/<<parameters.app_name>>:latest
+#                  docker push mojdigitalstudio/<<parameters.app_name>>:latest
       - jira/notify:
           token_name: JIRA_CIRCLE_TOKEN
           job_type: build
@@ -377,12 +383,33 @@ workflows:
           filters:
             branches:
               only: main
+      - build_docker:
+          name: build_docker_data_dictionary_main
+          app_name: pic-data-dictionary
+          dockerfile_path: ./data_dictionary
+          requires:
+            - build
+          main: true
+          filters:
+            branches:
+              only: main
+      - build_docker:
+          name: build_docker_data_dictionary
+          app_name: pic-data-dictionary
+          dockerfile_path: ./data_dictionary
+          requires:
+            - build
+          main: true
+          filters:
+            branches:
+              ignore: main
       - deploy_dev:
           context: court-probation-live-dev
           requires:
             - helm_lint_dev
             - build_docker_main
             - build_docker_nginx_main
+            - build_docker_data_dictionary_main
           filters:
             branches:
               only: main

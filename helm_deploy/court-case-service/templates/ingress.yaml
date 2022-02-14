@@ -36,5 +36,9 @@ spec:
             backend:
               serviceName: {{ $serviceName }}
               servicePort: http
+          - path: /meta/schema
+            backend:
+              serviceName: data-dictionary
+              servicePort: http
   {{- end }}
 {{- end }}

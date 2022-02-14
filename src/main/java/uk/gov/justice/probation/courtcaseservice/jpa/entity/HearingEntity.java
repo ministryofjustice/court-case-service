@@ -74,8 +74,8 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
-    @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, orphanRemoval=true)
-    private final List<DefendantEntity> defendants;
+    @OneToMany(mappedBy = "hearing_defendant", cascade = CascadeType.ALL, orphanRemoval=true)
+    private final List<HearingDefendantEntity> hearingDefendants;
 
     @Column(name = "SOURCE_TYPE")
     @Enumerated(EnumType.STRING)

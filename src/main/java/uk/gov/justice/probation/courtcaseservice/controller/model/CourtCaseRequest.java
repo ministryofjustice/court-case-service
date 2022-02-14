@@ -78,8 +78,8 @@ public class CourtCaseRequest {
         final List<HearingDayEntity> hearings = List.of(HearingDayEntity.builder()
             .courtCode(courtCode)
             .courtRoom(courtRoom)
-            .hearingDay(sessionStartTime.toLocalDate())
-            .hearingTime(sessionStartTime.toLocalTime())
+            .day(sessionStartTime.toLocalDate())
+            .time(sessionStartTime.toLocalTime())
             .listNo(listNo)
             .build());
 

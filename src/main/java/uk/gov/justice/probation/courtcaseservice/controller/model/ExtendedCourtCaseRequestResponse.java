@@ -56,8 +56,8 @@ public class ExtendedCourtCaseRequestResponse {
                         .map(hearingEntity -> HearingDay.builder()
                                 .courtCode(hearingEntity.getCourtCode())
                                 .courtRoom(hearingEntity.getCourtRoom())
-                                .sessionStartTime(Optional.ofNullable(hearingEntity.getHearingDay())
-                                        .map(day -> LocalDateTime.of(day, Optional.ofNullable(hearingEntity.getHearingTime()).orElse(LocalTime.MIDNIGHT)))
+                                .sessionStartTime(Optional.ofNullable(hearingEntity.getDay())
+                                        .map(day -> LocalDateTime.of(day, Optional.ofNullable(hearingEntity.getTime()).orElse(LocalTime.MIDNIGHT)))
                                         .orElse(null))
                                 .listNo(hearingEntity.getListNo())
                                 .build())
@@ -186,8 +186,8 @@ public class ExtendedCourtCaseRequestResponse {
             .courtCode(hearingDay.getCourtCode())
             .courtRoom(hearingDay.getCourtRoom())
             .listNo(hearingDay.getListNo())
-            .hearingTime(hearingDay.getSessionStartTime().toLocalTime())
-            .hearingDay(hearingDay.getSessionStartTime().toLocalDate())
+            .time(hearingDay.getSessionStartTime().toLocalTime())
+            .day(hearingDay.getSessionStartTime().toLocalDate())
             .build();
     }
 

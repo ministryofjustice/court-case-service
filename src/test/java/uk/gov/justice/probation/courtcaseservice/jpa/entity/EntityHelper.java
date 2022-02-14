@@ -141,8 +141,8 @@ public class EntityHelper {
     public static HearingDayEntity aHearingEntity(LocalDateTime sessionStartTime) {
         return HearingDayEntity.builder()
             .listNo(LIST_NO)
-            .hearingDay(sessionStartTime.toLocalDate())
-            .hearingTime(sessionStartTime.toLocalTime())
+            .day(sessionStartTime.toLocalDate())
+            .time(sessionStartTime.toLocalTime())
             .courtRoom(COURT_ROOM)
             .courtCode(COURT_CODE)
             .build();

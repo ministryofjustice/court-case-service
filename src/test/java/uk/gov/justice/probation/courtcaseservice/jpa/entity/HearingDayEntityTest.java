@@ -12,8 +12,8 @@ class HearingDayEntityTest {
     @Test
     public void testLoggableString() {
         final var hearing = HearingDayEntity.builder()
-                .hearingDay(LocalDate.of(2021, 11, 1))
-                .hearingTime(LocalTime.of(9, 30))
+                .day(LocalDate.of(2021, 11, 1))
+                .time(LocalTime.of(9, 30))
                 .courtRoom("Court room 1")
                 .courtCode("B10JQ")
                 .listNo("1st")

@@ -62,9 +62,9 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(courtCaseEntity.getHearings()).extracting("courtCode").containsOnly(COURT_CODE);
         assertThat(courtCaseEntity.getHearings()).extracting("courtRoom").containsOnly(COURT_ROOM);
         assertThat(courtCaseEntity.getHearings()).extracting("courtRoom").containsOnly(COURT_ROOM);
-        assertThat(courtCaseEntity.getHearings()).extracting("hearingDay").containsOnly(SESSION_START_TIME.toLocalDate());
+        assertThat(courtCaseEntity.getHearings()).extracting("day").containsOnly(SESSION_START_TIME.toLocalDate());
         final var localTime = SESSION_START_TIME.toLocalTime();
-        assertThat(courtCaseEntity.getHearings()).extracting("hearingTime").containsOnly(localTime, localTime.plusMinutes(30));
+        assertThat(courtCaseEntity.getHearings()).extracting("time").containsOnly(localTime, localTime.plusMinutes(30));
         assertThat(courtCaseEntity.getHearings().get(0).getCourtCase()).isSameAs(courtCaseEntity);
     }
 
@@ -289,8 +289,8 @@ class ExtendedCourtCaseRequestResponseTest {
                 .hearings(List.of(HearingDayEntity.builder()
                                 .courtCode(COURT_CODE)
                                 .courtRoom(COURT_ROOM)
-                                .hearingDay(LocalDate.of(2021, 10, 5))
-                                .hearingTime(LocalTime.of(15, 15, 15))
+                                .day(LocalDate.of(2021, 10, 5))
+                                .time(LocalTime.of(15, 15, 15))
                                 .listNo("1")
                                 .build(),
                         HearingDayEntity.builder()

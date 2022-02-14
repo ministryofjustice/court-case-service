@@ -56,6 +56,15 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "CASE_NO", nullable = false)
     private final String caseNo;
 
+    @Column(name = "COURT_CODE", nullable = false)
+    private final String courtCode;
+
+    @Column(name = "COURT_ROOM", nullable = false)
+    private final String courtRoom;
+
+    @Column(name = "LIST_NO")
+    private final String listNo;
+
     // If you have more than one collection with fetch = FetchType.EAGER then there is an exception
     // org.hibernate.loader.MultipleBagFetchException: cannot simultaneously fetch multiple bags
     // After CP integration, we will need to look at session boundaries @LazyCollection is one solution
@@ -63,7 +72,7 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
     @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, orphanRemoval=true)
-    private final List<HearingEntity> hearings;
+    private final List<HearingDayEntity> hearingDays;
 
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)

@@ -49,8 +49,8 @@ public class CourtCaseMapper {
     public static HearingDayEntity createHearing(HearingDayEntity hearing) {
         return HearingDayEntity.builder()
             .courtCode(hearing.getCourtCode())
-            .hearingTime(hearing.getHearingTime())
-            .hearingDay(hearing.getHearingDay())
+            .time(hearing.getTime())
+            .day(hearing.getDay())
             .courtRoom(hearing.getCourtRoom())
             .listNo(hearing.getListNo())
             .build();

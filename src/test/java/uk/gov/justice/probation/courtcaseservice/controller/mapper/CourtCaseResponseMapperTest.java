@@ -94,15 +94,15 @@ class CourtCaseResponseMapperTest {
 
         var hearings = Arrays.asList(
             HearingDayEntity.builder()
-                .hearingDay(HEARING_DATE)
-                .hearingTime(SESSION_START_TIME.toLocalTime())
+                .day(HEARING_DATE)
+                .time(SESSION_START_TIME.toLocalTime())
                 .courtRoom(COURT_ROOM)
                 .courtCode(COURT_CODE)
                 .listNo(LIST_NO)
                 .build(),
             HearingDayEntity.builder()
-                .hearingDay(HEARING_DATE.plusDays(1))
-                .hearingTime(SESSION_START_TIME.toLocalTime().plusHours(4))
+                .day(HEARING_DATE.plusDays(1))
+                .time(SESSION_START_TIME.toLocalTime().plusHours(4))
                 .courtRoom("02")
                 .courtCode(COURT_CODE)
                 .listNo("91st")

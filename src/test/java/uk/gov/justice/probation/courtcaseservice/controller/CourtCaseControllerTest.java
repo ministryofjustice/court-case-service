@@ -145,8 +145,8 @@ class CourtCaseControllerTest {
 
         final var courtCaseEntity = this.courtCaseEntity.withDefendants(List.of(aDefendantEntity()))
                 .withHearings(Collections.singletonList(EntityHelper.aHearingEntity()
-                        .withHearingDay(DATE)
-                        .withHearingTime(LocalTime.of(9,0))
+                        .withDay(DATE)
+                        .withTime(LocalTime.of(9,0))
                         .withCourtCode(COURT_CODE)
                 ));
         when(courtCaseService.filterCases(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE))
@@ -169,8 +169,8 @@ class CourtCaseControllerTest {
                 .defendants(List.of(defendantEntity1, defendantEntity2))
                 .hearings(Collections.singletonList(EntityHelper.aHearingEntity()
                         .withCourtCode(COURT_CODE)
-                        .withHearingDay(DATE)
-                        .withHearingTime(LocalTime.of(9,0))))
+                        .withDay(DATE)
+                        .withTime(LocalTime.of(9,0))))
                 .build();
 
         var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));

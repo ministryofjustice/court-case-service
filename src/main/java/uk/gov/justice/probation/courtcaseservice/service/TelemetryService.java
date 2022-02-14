@@ -7,7 +7,7 @@ import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
 import java.util.Collections;
@@ -45,7 +45,7 @@ public class TelemetryService {
         ofNullable(courtCaseEntity.getHearings())
                 .ifPresent(hearings -> {
                     final var hearingsString = hearings.stream()
-                            .map(HearingEntity::loggableString)
+                            .map(HearingDayEntity::loggableString)
                             .collect(Collectors.joining(","));
                     properties.put("hearings", hearingsString);
                 });

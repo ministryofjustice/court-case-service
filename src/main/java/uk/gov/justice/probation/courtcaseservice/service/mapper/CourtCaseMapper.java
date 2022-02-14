@@ -3,7 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.service.mapper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 
 import java.util.Collections;
 import java.util.List;
@@ -46,8 +46,8 @@ public class CourtCaseMapper {
             .forEach(hearingEntity -> hearingEntity.setCourtCase(caseToSave));
     }
 
-    public static HearingEntity createHearing(HearingEntity hearing) {
-        return HearingEntity.builder()
+    public static HearingDayEntity createHearing(HearingDayEntity hearing) {
+        return HearingDayEntity.builder()
             .courtCode(hearing.getCourtCode())
             .hearingTime(hearing.getHearingTime())
             .hearingDay(hearing.getHearingDay())
@@ -56,7 +56,7 @@ public class CourtCaseMapper {
             .build();
     }
 
-    static List<HearingEntity> createHearings(List<HearingEntity> hearings) {
+    static List<HearingDayEntity> createHearings(List<HearingDayEntity> hearings) {
         return Optional.ofNullable(hearings).orElse(Collections.emptyList())
             .stream()
             .map(CourtCaseMapper::createHearing)

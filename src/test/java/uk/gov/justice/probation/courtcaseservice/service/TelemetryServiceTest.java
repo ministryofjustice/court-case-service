@@ -12,7 +12,7 @@ import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 
@@ -39,9 +39,9 @@ class TelemetryServiceTest {
     @Mock
     private ClientDetails clientDetails;
     @Mock
-    private HearingEntity firstHearing;
+    private HearingDayEntity firstHearing;
     @Mock
-    private HearingEntity secondHearing;
+    private HearingDayEntity secondHearing;
 
     @Captor
     private ArgumentCaptor<Map<String, String>> properties;

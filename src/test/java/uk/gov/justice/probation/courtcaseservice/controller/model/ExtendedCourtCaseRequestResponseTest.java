@@ -6,7 +6,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
@@ -286,14 +286,14 @@ class ExtendedCourtCaseRequestResponseTest {
                 .sourceType(SourceType.LIBRA)
                 .caseId(CASE_ID)
                 .caseNo(CASE_NO)
-                .hearings(List.of(HearingEntity.builder()
+                .hearings(List.of(HearingDayEntity.builder()
                                 .courtCode(COURT_CODE)
                                 .courtRoom(COURT_ROOM)
                                 .hearingDay(LocalDate.of(2021, 10, 5))
                                 .hearingTime(LocalTime.of(15, 15, 15))
                                 .listNo("1")
                                 .build(),
-                        HearingEntity.builder()
+                        HearingDayEntity.builder()
                                 .courtCode(COURT_CODE)
                                 .listNo("2")
                                 .build()

@@ -15,7 +15,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
@@ -192,7 +192,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private void validateEntity(String caseId, CourtCaseEntity updatedCase) {
         updatedCase.getHearings()
                 .stream()
-                .map(HearingEntity::getCourtCode)
+                .map(HearingDayEntity::getCourtCode)
                 .forEach(courtCode -> checkCourtExists(courtCode, true));
         checkEntityCaseIdAgree(caseId, updatedCase);
     }

@@ -134,12 +134,12 @@ public class EntityHelper {
             .orElse(null);
     }
 
-    public static HearingEntity aHearingEntity() {
+    public static HearingDayEntity aHearingEntity() {
         return aHearingEntity(SESSION_START_TIME);
     }
 
-    public static HearingEntity aHearingEntity(LocalDateTime sessionStartTime) {
-        return HearingEntity.builder()
+    public static HearingDayEntity aHearingEntity(LocalDateTime sessionStartTime) {
+        return HearingDayEntity.builder()
             .listNo(LIST_NO)
             .hearingDay(sessionStartTime.toLocalDate())
             .hearingTime(sessionStartTime.toLocalTime())

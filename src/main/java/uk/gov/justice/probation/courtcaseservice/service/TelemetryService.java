@@ -8,6 +8,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
 import java.util.Collections;
@@ -35,14 +36,16 @@ public class TelemetryService {
         telemetryClient.trackEvent(TelemetryEventType.GRACEFUL_DEGRADE.eventName, properties, Collections.emptyMap());
     }
 
-    void trackCourtCaseEvent(TelemetryEventType eventType, CourtCaseEntity courtCaseEntity) {
+    void trackCourtCaseEvent(TelemetryEventType eventType, HearingEntity courtCaseEntity) {
 
         Map<String, String> properties = new HashMap<>();
 
-        ofNullable(courtCaseEntity.getCaseId())
+        ofNullable(courtCaseEntity)
+                .map(HearingEntity::getCourtCase)
+                .map(CourtCaseEntity::getCaseId)
                 .ifPresent((caseId) -> properties.put("caseId", caseId));
 
-        ofNullable(courtCaseEntity.getHearings())
+        ofNullable(courtCaseEntity.getHearingDays())
                 .ifPresent(hearings -> {
                     final var hearingsString = hearings.stream()
                             .map(HearingDayEntity::loggableString)
@@ -73,13 +76,13 @@ public class TelemetryService {
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }
 
-    public void trackMatchEvent(TelemetryEventType eventType, OffenderMatchEntity matchEntity, CourtCaseEntity courtCaseEntity, String defendantId) {
+    public void trackMatchEvent(TelemetryEventType eventType, OffenderMatchEntity matchEntity, HearingEntity courtCaseEntity, String defendantId) {
 
         Map<String, String> properties = new HashMap<>();
 
         properties.put("defendantId", defendantId);
         ofNullable(courtCaseEntity)
-                .map(CourtCaseEntity::getCaseId)
+                .map(HearingEntity::getCaseId)
                 .ifPresent((caseId) -> properties.put("caseId", caseId));
         ofNullable(matchEntity)
                 .map(OffenderMatchEntity::getPnc)

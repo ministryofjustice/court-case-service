@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
 
@@ -31,7 +30,6 @@ import java.time.LocalTime;
 @SuperBuilder
 @Getter
 @With
-@ToString(exclude = "courtCase")
 @EqualsAndHashCode(callSuper = true)
 public class HearingDayEntity extends BaseImmutableEntity implements Serializable {
 
@@ -42,9 +40,9 @@ public class HearingDayEntity extends BaseImmutableEntity implements Serializabl
     private final Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "COURT_CASE_ID", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "FK_HEARING_ID", referencedColumnName = "id", nullable = false)
     @Setter
-    private CourtCaseEntity courtCase;
+    private HearingEntity hearing;
 
     @Column(name = "HEARING_DAY", nullable = false)
     private final LocalDate day;

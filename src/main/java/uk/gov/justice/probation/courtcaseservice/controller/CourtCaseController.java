@@ -23,8 +23,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListRespon
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
@@ -201,14 +201,14 @@ public class CourtCaseController {
                 .body(CaseListResponse.builder().cases(courtCaseResponses).build());
     }
 
-    private CourtCaseResponse buildCourtCaseResponseForCaseIdAndDefendantId(CourtCaseEntity courtCaseEntity, String defendantId) {
+    private CourtCaseResponse buildCourtCaseResponseForCaseIdAndDefendantId(HearingEntity courtCaseEntity, String defendantId) {
         final var offenderMatchesCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(courtCaseEntity.getCaseId(), defendantId)
             .orElse(0);
 
         return CourtCaseResponseMapper.mapFrom(courtCaseEntity, defendantId, offenderMatchesCount);
     }
 
-    private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity) {
+    private CourtCaseResponse buildCourtCaseResponse(HearingEntity courtCaseEntity) {
         final var defendantId = Optional.ofNullable(courtCaseEntity.getDefendants())
                 .flatMap(defs -> defs.stream().findFirst())
                 .map(DefendantEntity::getDefendantId)
@@ -217,7 +217,7 @@ public class CourtCaseController {
         return buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseEntity, defendantId);
     }
 
-    private List<CourtCaseResponse> buildCourtCaseResponses(CourtCaseEntity courtCaseEntity, LocalDate hearingDate) {
+    private List<CourtCaseResponse> buildCourtCaseResponses(HearingEntity courtCaseEntity, LocalDate hearingDate) {
 
         var defendantEntities = new ArrayList<>(Optional.ofNullable(courtCaseEntity.getDefendants()).orElse(Collections.emptyList()));
 

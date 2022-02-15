@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.CannotAcquireLockException;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 
 public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
     private static final String CRN = "CRN";
-    private static final CourtCaseEntity COURT_CASE_ENTITY = EntityHelper.aCourtCaseEntityWithCrn(CRN);
+    private static final HearingEntity COURT_CASE_ENTITY = EntityHelper.aCourtCaseEntityWithCrn(CRN);
     private static final String COURT_CODE = "B10JQ";
     @Autowired
     private ImmutableCourtCaseService courtCaseService;

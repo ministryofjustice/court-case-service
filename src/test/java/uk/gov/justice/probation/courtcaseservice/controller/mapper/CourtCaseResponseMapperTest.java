@@ -14,6 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
@@ -64,7 +65,7 @@ class CourtCaseResponseMapperTest {
     private static final String NATIONALITY_2 = "NATIONALITY_2";
     private static final CourtSession SESSION = CourtSession.MORNING;
     private static final LocalDateTime FIRST_CREATED = LocalDateTime.of(2020, 1, 1, 1, 1);
-    private CourtCaseEntity courtCaseEntity;
+    private HearingEntity courtCaseEntity;
     private final AddressPropertiesEntity addressPropertiesEntity = AddressPropertiesEntity.builder()
         .line1("27")
         .line2("Elm Place")
@@ -301,17 +302,20 @@ class CourtCaseResponseMapperTest {
         assertCaseFields(courtCaseResponse, caseNo, SourceType.COMMON_PLATFORM);
     }
 
-    private CourtCaseEntity buildCourtCaseEntity(List<DefendantEntity> defendants, List<HearingDayEntity> hearings, LocalDateTime firstCreated) {
+    private HearingEntity buildCourtCaseEntity(List<DefendantEntity> defendants, List<HearingDayEntity> hearings, LocalDateTime firstCreated) {
 
-        return CourtCaseEntity.builder()
+        return HearingEntity.builder()
             .id(ID)
-            .sourceType(SourceType.COMMON_PLATFORM)
-            .caseNo(CASE_NO)
-            .caseId(CASE_ID)
+            .courtCase(CourtCaseEntity.builder()
+                .sourceType(SourceType.COMMON_PLATFORM)
+                .caseNo(CASE_NO)
+                .caseId(CASE_ID)
+                .created(CREATED)
+            .build())
             .created(CREATED)
             .firstCreated(firstCreated)
             .defendants(defendants)
-            .hearings(hearings)
+            .hearingDays(hearings)
             .build();
     }
 }

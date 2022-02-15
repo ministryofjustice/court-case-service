@@ -44,36 +44,38 @@ public class EntityHelper {
     public static final String OFFENCE_ACT = "OFFENCE ACT";
     public static final Long OFFENDER_ID = 199L;
 
-    public static CourtCaseEntity aCourtCaseEntity(String caseId) {
+    public static HearingEntity aCourtCaseEntity(String caseId) {
         return populateBasics(CRN)
-            .caseId(caseId)
-            .caseNo(CASE_NO)
+            .courtCase(CourtCaseEntity.builder()
+                .caseId(caseId)
+                .caseNo(CASE_NO)
+                .sourceType(SOURCE)
+            .build())
             .build();
     }
 
-    public static CourtCaseEntity aCourtCaseEntityWithCrn(String crn) {
+    public static HearingEntity aCourtCaseEntityWithCrn(String crn) {
         return populateBasics(crn)
-            .caseId(CASE_ID)
-            .caseNo(CASE_NO)
+            .courtCase(CourtCaseEntity.builder()
+                    .caseId(CASE_ID)
+                    .caseNo(CASE_NO)
+                    .sourceType(SOURCE)
+                    .build())
             .build();
     }
 
-    public static CourtCaseEntity aCourtCaseEntity(String crn, String caseNo) {
+    public static HearingEntity aCourtCaseEntity(String crn, String caseNo) {
         return aCourtCaseEntity(crn, caseNo, List.of(aDefendantEntity(DEFENDANT_ID, crn)));
     }
 
-    public static CourtCaseEntity aCourtCaseEntity(String crn, String caseNo, List<DefendantEntity> defendants) {
+    public static HearingEntity aCourtCaseEntity(String crn, String caseNo, List<DefendantEntity> defendants) {
         return populateBasics(crn)
-            .caseId(CASE_ID)
-            .caseNo(caseNo)
+            .courtCase(CourtCaseEntity.builder()
+                .caseId(CASE_ID)
+                .caseNo(caseNo)
+                .sourceType(SOURCE)
+            .build())
             .defendants(defendants)
-            .build();
-    }
-
-    public static CourtCaseEntity aCourtCaseEntity(String crn, String caseNo, String probationStatus) {
-        return populateBasics(crn)
-            .caseId(CASE_ID)
-            .caseNo(caseNo)
             .build();
     }
 
@@ -148,14 +150,13 @@ public class EntityHelper {
             .build();
     }
 
-    private static CourtCaseEntity.CourtCaseEntityBuilder populateBasics(String crn) {
+    private static HearingEntity.HearingEntityBuilder populateBasics(String crn) {
         var defendant = aDefendantEntity(DEFENDANT_ID, crn);
-        return CourtCaseEntity.builder()
-            .sourceType(SOURCE)
+        return HearingEntity.builder()
             .deleted(false)
             .firstCreated(LocalDateTime.now())
             .defendants(List.of(defendant))
-            .hearings(List.of(aHearingEntity()));
+            .hearingDays(List.of(aHearingEntity()));
     }
 
     public static DefendantOffenceEntity aDefendantOffence() {

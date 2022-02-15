@@ -5,9 +5,9 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRespo
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse.CourtCaseResponseBuilder;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CourtCaseResponseMapper {
 
-    public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, String defendantId, int matchCount) {
+    public static CourtCaseResponse mapFrom(HearingEntity courtCaseEntity, String defendantId, int matchCount) {
         // Core case-based
         final var builder = CourtCaseResponse.builder();
 
@@ -41,7 +41,7 @@ public class CourtCaseResponseMapper {
         return builder.build();
     }
 
-    public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, DefendantEntity defendantEntity, int matchCount, LocalDate hearingDate) {
+    public static CourtCaseResponse mapFrom(HearingEntity courtCaseEntity, DefendantEntity defendantEntity, int matchCount, LocalDate hearingDate) {
         // Core case-based
         final var builder = CourtCaseResponse.builder();
 
@@ -55,7 +55,7 @@ public class CourtCaseResponseMapper {
         return builder.build();
     }
 
-    private static void buildCaseFields(CourtCaseResponseBuilder builder, CourtCaseEntity courtCaseEntity) {
+    private static void buildCaseFields(CourtCaseResponseBuilder builder, HearingEntity courtCaseEntity) {
         // Case-based fields
         builder.caseId(courtCaseEntity.getCaseId())
             .source(courtCaseEntity.getSourceType().name())
@@ -65,23 +65,22 @@ public class CourtCaseResponseMapper {
         }
     }
 
-    static void buildHearings(CourtCaseResponseBuilder builder, CourtCaseEntity courtCaseEntity, LocalDate hearingDate) {
-        var hearings = Optional.ofNullable(courtCaseEntity.getHearings())
-            .orElse(Collections.emptyList());
+    static void buildHearings(CourtCaseResponseBuilder builder, HearingEntity courtCaseEntity, LocalDate hearingDate) {
+        var hearings = Optional.ofNullable(courtCaseEntity.getHearingDays())
+            .orElseThrow();
 
         var targetHearing = hearings
             .stream()
             .filter(hearingEntity -> hearingDate == null || hearingDate.isEqual(hearingEntity.getDay()))
-            .findFirst();
+            .findFirst()
+            .orElseThrow();
 
         // Populate the top level fields with the details from the single hearing
-        targetHearing.map((hearing) ->
-                                    builder.courtCode(hearing.getCourtCode())
-                                            .courtRoom(hearing.getCourtRoom())
-                                            .sessionStartTime(hearing.getSessionStartTime())
-                                            .session(hearing.getSession())
-                                            .listNo(hearing.getListNo()))
-                .orElseThrow();
+        builder.courtCode(targetHearing.getCourtCode())
+                .courtRoom(targetHearing.getCourtRoom())
+                .sessionStartTime(targetHearing.getSessionStartTime())
+                .session(targetHearing.getSession())
+                .listNo(targetHearing.getListNo());
 
         builder.hearings(
             hearings.stream()

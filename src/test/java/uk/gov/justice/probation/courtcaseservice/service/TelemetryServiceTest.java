@@ -13,6 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 
@@ -127,7 +128,7 @@ class TelemetryServiceTest {
 
     @Test
     void givenAllValuesAreNull_whenTrackCourtCaseEvent_thenNoPropertiesReturned() {
-        var courtCase = CourtCaseEntity.builder()
+        var courtCase = HearingEntity.builder()
                 .build();
 
         service.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCase);
@@ -183,10 +184,12 @@ class TelemetryServiceTest {
         verify(telemetryClient).trackEvent(TelemetryEventType.DEFENDANT_UNLINKED.eventName, properties, Collections.emptyMap());
     }
 
-    private CourtCaseEntity buildCourtCase() {
-        return CourtCaseEntity.builder()
-                .caseId(CASE_ID)
-                .hearings(List.of(
+    private HearingEntity buildCourtCase() {
+        return HearingEntity.builder()
+                .courtCase(CourtCaseEntity.builder()
+                    .caseId(CASE_ID)
+                .build())
+                .hearingDays(List.of(
                         firstHearing,
                         secondHearing
                 ))

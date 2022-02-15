@@ -1,15 +1,16 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
-import java.util.List;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 
-class CourtCaseEntityTest {
+class HearingEntityTest {
 
-    private final CourtCaseEntity courtCaseEntity =
-        CourtCaseEntity.builder()
+    private final HearingEntity courtCaseEntity =
+        HearingEntity.builder()
                     .defendants(List.of(DefendantEntity.builder()
                                             .defendantId("abc")
                                             .build(),
@@ -19,19 +20,19 @@ class CourtCaseEntityTest {
                     .build();
 
     @Test
-    void givenCaseWithDefendants_thenReturn() {
+    void givenHearingWithDefendants_thenReturn() {
         var defendant = courtCaseEntity.getDefendant(DEFENDANT_ID);
         assertThat(defendant.getDefendantId()).isEqualTo(DEFENDANT_ID);
     }
 
     @Test
-    void givenCaseWithDefendants_whenRequestWrongId_thenReturnNull() {
+    void givenHearingWithDefendants_whenRequestWrongId_thenReturnNull() {
         assertThat(courtCaseEntity.getDefendant("XXX")).isNull();
     }
 
     @Test
-    void givenCaseWithNoDefendants_thenReturnNull() {
-        var courtCase = CourtCaseEntity.builder().build();
+    void givenHearingWithNoDefendants_thenReturnNull() {
+        var courtCase = HearingEntity.builder().build();
 
         assertThat(courtCase.getDefendant("XXX")).isNull();
     }

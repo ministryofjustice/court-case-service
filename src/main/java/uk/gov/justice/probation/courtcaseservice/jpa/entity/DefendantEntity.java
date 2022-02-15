@@ -53,9 +53,9 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
 
     @ToString.Exclude
     @ManyToOne(optional = false)
-    @JoinColumn(name = "COURT_CASE_ID", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "FK_HEARING_ID", referencedColumnName = "id", nullable = false)
     @Setter
-    private CourtCaseEntity courtCase;
+    private HearingEntity hearing;
 
     @ToString.Exclude
     @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)

@@ -18,8 +18,8 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 
 import java.io.File;
@@ -61,7 +61,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
     ObjectMapper mapper;
 
     @Autowired
-    CourtCaseRepository courtCaseRepository;
+    HearingRepository courtCaseRepository;
 
     @Autowired
     OffenderRepository offenderRepository;
@@ -449,7 +449,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             // All parts of the save are not in the response - so we check extra
             courtCaseRepository.findByCaseId(caseId)
                 .ifPresentOrElse(entity -> {
-                    assertThat(entity.getHearings()).hasSize(1);
+                    assertThat(entity.getHearingDays()).hasSize(1);
                     assertThat(entity.getDefendants()).hasSize(1);
                     assertThat(entity.getDefendants().get(0).getOffences()).hasSize(2);
                     assertThat(entity.getDefendants().get(0).getOffender()).isNull();
@@ -503,7 +503,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             // All parts of the save are not in the response - so we check extra
             courtCaseRepository.findByCaseId(caseId)
                 .ifPresentOrElse(entity -> {
-                    assertThat(entity.getHearings()).hasSize(2);
+                    assertThat(entity.getHearingDays()).hasSize(2);
                     assertThat(entity.getDefendants()).hasSize(2);
                     assertThat(entity.getDefendants()).extracting("defendantId").containsExactlyInAnyOrder(defendantIdToUpdate, defendantIdToRetain);
                     assertThat(entity.getDefendants().stream()

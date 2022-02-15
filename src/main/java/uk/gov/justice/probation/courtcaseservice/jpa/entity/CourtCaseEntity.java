@@ -26,10 +26,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Schema(description = "Court Case")
 @Entity
@@ -56,20 +53,11 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "CASE_NO", nullable = false)
     private final String caseNo;
 
-    // If you have more than one collection with fetch = FetchType.EAGER then there is an exception
-    // org.hibernate.loader.MultipleBagFetchException: cannot simultaneously fetch multiple bags
-    // After CP integration, we will need to look at session boundaries @LazyCollection is one solution
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
     @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, orphanRemoval=true)
-    private final List<HearingDayEntity> hearings;
-
-    @ToString.Exclude
-    @LazyCollection(value = LazyCollectionOption.FALSE)
-    @JsonIgnore
-    @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, orphanRemoval=true)
-    private final List<DefendantEntity> defendants;
+    private final List<HearingEntity> hearings;
 
     @Column(name = "SOURCE_TYPE")
     @Enumerated(EnumType.STRING)
@@ -77,15 +65,4 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
 
     @Column(name = "deleted", nullable = false, updatable = false)
     private final boolean deleted;
-
-    @Column(name = "first_created", insertable = false, updatable = false)
-    private final LocalDateTime firstCreated;
-
-    public DefendantEntity getDefendant(String defendantId) {
-        return Optional.ofNullable(getDefendants()).orElse(Collections.emptyList())
-            .stream()
-            .filter(defendantEntity -> defendantId.equalsIgnoreCase(defendantEntity.getDefendantId()))
-            .findFirst()
-            .orElse(null);
-    }
 }

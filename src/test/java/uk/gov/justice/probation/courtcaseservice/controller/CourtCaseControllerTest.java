@@ -15,6 +15,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
@@ -64,11 +65,13 @@ class CourtCaseControllerTest {
     private OffenderMatchService offenderMatchService;
     @InjectMocks
     private CourtCaseController courtCaseController;
-    private final CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder()
-            .caseNo(CASE_NO)
-            .caseId(CASE_ID)
-            .sourceType(COMMON_PLATFORM)
-            .hearings(Collections.singletonList(EntityHelper.aHearingEntity()
+    private final HearingEntity courtCaseEntity = HearingEntity.builder()
+            .courtCase(CourtCaseEntity.builder()
+                .caseNo(CASE_NO)
+                .caseId(CASE_ID)
+                .sourceType(COMMON_PLATFORM)
+            .build())
+            .hearingDays(Collections.singletonList(EntityHelper.aHearingEntity()
                     .withCourtCode(COURT_CODE)))
             .defendants(Collections.singletonList(
                     DefendantEntity.builder()
@@ -144,7 +147,7 @@ class CourtCaseControllerTest {
         when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
 
         final var courtCaseEntity = this.courtCaseEntity.withDefendants(List.of(aDefendantEntity()))
-                .withHearings(Collections.singletonList(EntityHelper.aHearingEntity()
+                .withHearingDays(Collections.singletonList(EntityHelper.aHearingEntity()
                         .withDay(DATE)
                         .withTime(LocalTime.of(9,0))
                         .withCourtCode(COURT_CODE)
@@ -163,11 +166,13 @@ class CourtCaseControllerTest {
 
         var defendantEntity1 = EntityHelper.aDefendantEntity();
         var defendantEntity2 = EntityHelper.aDefendantEntity(NamePropertiesEntity.builder().title("HRH").forename1("Catherine").forename2("The").surname("GREAT").build());
-        var courtCaseEntity = CourtCaseEntity.builder()
-                .caseNo(CASE_NO)
-                .sourceType(COMMON_PLATFORM)
+        var courtCaseEntity = HearingEntity.builder()
+                .courtCase(CourtCaseEntity.builder()
+                    .caseNo(CASE_NO)
+                    .sourceType(COMMON_PLATFORM)
+                .build())
                 .defendants(List.of(defendantEntity1, defendantEntity2))
-                .hearings(Collections.singletonList(EntityHelper.aHearingEntity()
+                .hearingDays(Collections.singletonList(EntityHelper.aHearingEntity()
                         .withCourtCode(COURT_CODE)
                         .withDay(DATE)
                         .withTime(LocalTime.of(9,0))))
@@ -330,10 +335,10 @@ class CourtCaseControllerTest {
         assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(possibleMatchCount);
     }
 
-    private CourtCaseEntity buildCourtCaseEntity(NamePropertiesEntity name, LocalDateTime sessionStartTime, String courtRoom) {
+    private HearingEntity buildCourtCaseEntity(NamePropertiesEntity name, LocalDateTime sessionStartTime, String courtRoom) {
         return aCourtCaseEntity(UUID.randomUUID().toString())
                 .withDefendants(List.of(aDefendantEntity(UUID.randomUUID().toString()).withName(name)))
-                .withHearings(List.of(aHearingEntity(sessionStartTime).withCourtRoom(courtRoom)));
+                .withHearingDays(List.of(aHearingEntity(sessionStartTime).withCourtRoom(courtRoom)));
 
     }
 }

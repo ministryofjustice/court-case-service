@@ -119,8 +119,8 @@ INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, def
 VALUES (-1700028908, -1700028908, '3bf70cd8-7e9d-4d29-b9b2-f8f7f898cb32', 'Mr David BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'X320746', 'PERSON', 'MALE');
 
 -- See GET_cases_givenCreatedBefore_andCreatedAfterFilterParams_andManualUpdatesHaveBeenMadeAfterTheseTimes_whenGetCases_thenReturnManualUpdates
-INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, created_by, manual_update, source_type)
-VALUES (-1700028909, 'e652eaae-1114-4593-8f56-659eb2baffcf', 1600028919, '2020-10-01 16:59:59', 'TURANGALEE(prepare-a-case-for-court)', true, 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, created_by, source_type)
+VALUES (-1700028909, 'e652eaae-1114-4593-8f56-659eb2baffcf', 1600028919, '2020-10-01 16:59:59', 'TURANGALEE(prepare-a-case-for-court)', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, court_case_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
 VALUES (-1700028909, -1700028909, 'B30NY', 1, '2200-12-14', '12:59:59', '3rd', '2020-10-01 16:59:59');
 INSERT INTO courtcaseservicetest.DEFENDANT (id, court_case_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, pnc, sex, crn)

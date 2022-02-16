@@ -73,11 +73,11 @@ public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Lon
         "           inner join hearing on hearing.court_case_id = group_cc.id  " +
         "           where ((group_cc.created >= :createdAfter and group_cc.created < :createdBefore) " +
         "             or (group_cc.created >= :createdBefore and group_cc.manual_update is true)) " +
+        "           and hearing.court_code = :courtCode " +
         "           group by group_cc.case_id) grouped_cases " +
         "       on cc.case_id = grouped_cases.case_id " +
         "   inner join hearing h on h.court_case_id = cc.id " +
         "where h.hearing_day = :hearingDay " +
-        "and h.court_code = :courtCode " +
         "and cc.created = grouped_cases.max_created " +
         "and cc.deleted = false",
         nativeQuery = true)

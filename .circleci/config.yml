@@ -112,6 +112,23 @@ _snyk_options: &snyk_options
   additional-arguments: "--policy-path=.snyk"
 
 jobs:
+  build_data_dictionary:
+    executor: builder
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - gradle-{{ checksum "build.gradle" }}
+            - gradle-
+      - run:
+          name: Build data dictionary
+          command: |
+            sudo apt update && sudo apt install graphviz
+            data_dictionary/build-data-dictionary.sh
+      - persist_to_workspace:
+          root: .
+          paths:
+            - data_dictionary
   build:
     executor: builder
     steps:
@@ -121,11 +138,6 @@ jobs:
             - gradle-{{ checksum "build.gradle" }}
             - gradle-
       - run: ./gradlew build jacocoTestReport
-      - run:
-          name: Build data dictionary
-          command: |
-            sudo apt update && sudo apt install graphviz
-            data_dictionary/build-data-dictionary.sh
       - set_app_version
       - save_cache:
           paths:
@@ -140,7 +152,6 @@ jobs:
           paths:
             - build/libs
             - build.gradle
-            - data_dictionary
       - jira/notify:
           token_name: JIRA_CIRCLE_TOKEN
           job_type: build
@@ -179,7 +190,7 @@ jobs:
           command: |
             docker build --rm=false <<parameters.dockerfile_path>> \
                --pull \
-               --tag "mojdigitalstudio/<<parameters.app_name>>:$APP_VERSION" \
+               --tag "hmpps/<<parameters.app_name>>:$APP_VERSION" \
                --label "maintainer=info@digital.justice.gov.uk" \
                --label "app.version=$APP_VERSION" \
                --label "build.version=$APP_VERSION" \
@@ -188,7 +199,7 @@ jobs:
                --label "build.gitref=$CIRCLE_SHA1"
       - snyk/scan:
           project: '${CIRCLE_PROJECT_REPONAME}-docker/${CIRCLE_BRANCH}'
-          docker-image-name: 'mojdigitalstudio/<<parameters.app_name>>:$APP_VERSION'
+          docker-image-name: 'hmpps/<<parameters.app_name>>:$APP_VERSION'
           target-file: '<<parameters.dockerfile_path>>/Dockerfile'
           monitor-on-build: << parameters.main >>
           <<: *snyk_options
@@ -198,10 +209,11 @@ jobs:
             - run:
                 name: Publish to docker hub
                 command: |
-                  docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-                  docker tag mojdigitalstudio/<<parameters.app_name>>:$APP_VERSION mojdigitalstudio/<<parameters.app_name>>:latest
-                  docker push mojdigitalstudio/<<parameters.app_name>>:$APP_VERSION
-#                  docker push mojdigitalstudio/<<parameters.app_name>>:latest
+                  docker login -u="${QUAYIO_USERNAME}" -p="${QUAYIO_PASSWORD}" quay.io
+                  docker tag hmpps/<<parameters.app_name>>:$APP_VERSION quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
+                  docker tag hmpps/<<parameters.app_name>>:$APP_VERSION quay.io/hmpps/<<parameters.app_name>>:latest
+                  docker push quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
+                  docker push hmpps/<<parameters.app_name>>:latest
       - jira/notify:
           token_name: JIRA_CIRCLE_TOKEN
           job_type: build
@@ -263,7 +275,7 @@ jobs:
           docker_layer_caching: true
       - snyk/scan:
           project: '${CIRCLE_PROJECT_REPONAME}-docker/${CIRCLE_BRANCH}'
-          docker-image-name: 'mojdigitalstudio/<<parameters.image_name>>:latest'
+          docker-image-name: 'hmpps/<<parameters.image_name>>:latest'
           target-file: '<<parameters.dockerfile>>'
           monitor-on-build: true
           <<: *snyk_options
@@ -340,6 +352,10 @@ workflows:
           filters:
             tags:
               ignore: /.*/
+      - build_data_dictionary:
+          filters:
+            tags:
+              ignore: /.*/
       - pact-consumer-publish:
           requires:
             - build
@@ -349,6 +365,7 @@ workflows:
       - hmpps/helm_lint:
           name: helm_lint_dev
       - build_docker:
+          name: build_docker_service_branch
           app_name: court-case-service
           requires:
             - build
@@ -356,7 +373,7 @@ workflows:
             branches:
               ignore: main
       - build_docker:
-          name: build_docker_main
+          name: build_docker_service_main
           app_name: court-case-service
           requires:
             - build
@@ -389,17 +406,18 @@ workflows:
           dockerfile_path: ./data_dictionary
           requires:
             - build
+            - build_data_dictionary
           main: true
           filters:
             branches:
               only: main
       - build_docker:
-          name: build_docker_data_dictionary
           app_name: pic-data-dictionary
+          name: build_docker_data_dictionary_branch
           dockerfile_path: ./data_dictionary
           requires:
             - build
-          main: true
+            - build_data_dictionary
           filters:
             branches:
               ignore: main
@@ -407,7 +425,7 @@ workflows:
           context: court-probation-live-dev
           requires:
             - helm_lint_dev
-            - build_docker_main
+            - build_docker_service_main
             - build_docker_nginx_main
             - build_docker_data_dictionary_main
           filters:

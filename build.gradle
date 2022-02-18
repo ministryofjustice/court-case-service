@@ -227,7 +227,7 @@ dependencies {
 
     testImplementation("org.apache.httpcomponents:fluent-hc:4.5.13")
 
-    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.2.5'
+    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.2.6'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 

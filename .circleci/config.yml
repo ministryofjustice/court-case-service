@@ -163,6 +163,9 @@ jobs:
         default: false
       app_name:
         type: string
+      repo_name:
+        type: string
+        default: mojdigitalstudio
       dockerfile_path:
         type: string
         default: .
@@ -179,7 +182,7 @@ jobs:
           command: |
             docker build --rm=false <<parameters.dockerfile_path>> \
                --pull \
-               --tag "mojdigitalstudio/<<parameters.app_name>>:$APP_VERSION" \
+               --tag "<<parameters.repo_name>>/<<parameters.app_name>>:$APP_VERSION" \
                --label "maintainer=info@digital.justice.gov.uk" \
                --label "app.version=$APP_VERSION" \
                --label "build.version=$APP_VERSION" \
@@ -188,7 +191,7 @@ jobs:
                --label "build.gitref=$CIRCLE_SHA1"
       - snyk/scan:
           project: '${CIRCLE_PROJECT_REPONAME}-docker/${CIRCLE_BRANCH}'
-          docker-image-name: 'mojdigitalstudio/<<parameters.app_name>>:$APP_VERSION'
+          docker-image-name: '<<parameters.repo_name>>/<<parameters.app_name>>:$APP_VERSION'
           target-file: '<<parameters.dockerfile_path>>/Dockerfile'
           monitor-on-build: << parameters.main >>
           <<: *snyk_options
@@ -199,9 +202,9 @@ jobs:
                 name: Publish to docker hub
                 command: |
                   docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-                  docker tag mojdigitalstudio/<<parameters.app_name>>:$APP_VERSION mojdigitalstudio/<<parameters.app_name>>:latest
-                  docker push mojdigitalstudio/<<parameters.app_name>>:$APP_VERSION
-#                  docker push mojdigitalstudio/<<parameters.app_name>>:latest
+                  docker tag <<parameters.repo_name>>/<<parameters.app_name>>:$APP_VERSION <<parameters.repo_name>>/<<parameters.app_name>>:latest
+                  docker push <<parameters.repo_name>>/<<parameters.app_name>>:$APP_VERSION
+#                  docker push <<parameters.repo_name>>/<<parameters.app_name>>:latest
       - jira/notify:
           token_name: JIRA_CIRCLE_TOKEN
           job_type: build
@@ -386,6 +389,7 @@ workflows:
       - build_docker:
           name: build_docker_data_dictionary_main
           app_name: pic-data-dictionary
+          repo_name: ministryofjustice
           dockerfile_path: ./data_dictionary
           requires:
             - build
@@ -396,6 +400,7 @@ workflows:
       - build_docker:
           name: build_docker_data_dictionary
           app_name: pic-data-dictionary
+          repo_name: ministryofjustice
           dockerfile_path: ./data_dictionary
           requires:
             - build

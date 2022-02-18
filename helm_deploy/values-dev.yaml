@@ -36,8 +36,8 @@ nginx_proxy:
     port: 8080
 
 data_dictionary:
-  name: pic-data-dictionary
-  service_host: http://pic-data-dictionary.pic-data-dictionary
+  name: data-dictionary
+  service_host: http://data-dictionary.court-probation-dev
   replicaCount: 1
 
   service:
@@ -46,7 +46,7 @@ data_dictionary:
 
   deployment:
     image:
-      repository: docker.io/mojdigitalstudio/pic-data-dictionary
+      repository: docker.io/ministryofjustice/pic-data-dictionary
       tag: latest
       pullPolicy: Always
     port: 8080

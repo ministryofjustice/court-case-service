@@ -6,7 +6,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
@@ -62,9 +62,9 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(courtCaseEntity.getHearings()).extracting("courtCode").containsOnly(COURT_CODE);
         assertThat(courtCaseEntity.getHearings()).extracting("courtRoom").containsOnly(COURT_ROOM);
         assertThat(courtCaseEntity.getHearings()).extracting("courtRoom").containsOnly(COURT_ROOM);
-        assertThat(courtCaseEntity.getHearings()).extracting("hearingDay").containsOnly(SESSION_START_TIME.toLocalDate());
+        assertThat(courtCaseEntity.getHearings()).extracting("day").containsOnly(SESSION_START_TIME.toLocalDate());
         final var localTime = SESSION_START_TIME.toLocalTime();
-        assertThat(courtCaseEntity.getHearings()).extracting("hearingTime").containsOnly(localTime, localTime.plusMinutes(30));
+        assertThat(courtCaseEntity.getHearings()).extracting("time").containsOnly(localTime, localTime.plusMinutes(30));
         assertThat(courtCaseEntity.getHearings().get(0).getCourtCase()).isSameAs(courtCaseEntity);
     }
 
@@ -286,14 +286,14 @@ class ExtendedCourtCaseRequestResponseTest {
                 .sourceType(SourceType.LIBRA)
                 .caseId(CASE_ID)
                 .caseNo(CASE_NO)
-                .hearings(List.of(HearingEntity.builder()
+                .hearings(List.of(HearingDayEntity.builder()
                                 .courtCode(COURT_CODE)
                                 .courtRoom(COURT_ROOM)
-                                .hearingDay(LocalDate.of(2021, 10, 5))
-                                .hearingTime(LocalTime.of(15, 15, 15))
+                                .day(LocalDate.of(2021, 10, 5))
+                                .time(LocalTime.of(15, 15, 15))
                                 .listNo("1")
                                 .build(),
-                        HearingEntity.builder()
+                        HearingDayEntity.builder()
                                 .courtCode(COURT_CODE)
                                 .listNo("2")
                                 .build()

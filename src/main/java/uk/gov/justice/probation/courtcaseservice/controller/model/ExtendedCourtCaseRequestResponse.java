@@ -11,7 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEnt
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
@@ -56,8 +56,8 @@ public class ExtendedCourtCaseRequestResponse {
                         .map(hearingEntity -> HearingDay.builder()
                                 .courtCode(hearingEntity.getCourtCode())
                                 .courtRoom(hearingEntity.getCourtRoom())
-                                .sessionStartTime(Optional.ofNullable(hearingEntity.getHearingDay())
-                                        .map(day -> LocalDateTime.of(day, Optional.ofNullable(hearingEntity.getHearingTime()).orElse(LocalTime.MIDNIGHT)))
+                                .sessionStartTime(Optional.ofNullable(hearingEntity.getDay())
+                                        .map(day -> LocalDateTime.of(day, Optional.ofNullable(hearingEntity.getTime()).orElse(LocalTime.MIDNIGHT)))
                                         .orElse(null))
                                 .listNo(hearingEntity.getListNo())
                                 .build())
@@ -181,13 +181,13 @@ public class ExtendedCourtCaseRequestResponse {
             .collect(Collectors.toList());
     }
 
-    private HearingEntity buildHearing(HearingDay hearingDay) {
-        return HearingEntity.builder()
+    private HearingDayEntity buildHearing(HearingDay hearingDay) {
+        return HearingDayEntity.builder()
             .courtCode(hearingDay.getCourtCode())
             .courtRoom(hearingDay.getCourtRoom())
             .listNo(hearingDay.getListNo())
-            .hearingTime(hearingDay.getSessionStartTime().toLocalTime())
-            .hearingDay(hearingDay.getSessionStartTime().toLocalDate())
+            .time(hearingDay.getSessionStartTime().toLocalTime())
+            .day(hearingDay.getSessionStartTime().toLocalDate())
             .build();
     }
 

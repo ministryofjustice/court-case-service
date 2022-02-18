@@ -10,7 +10,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
@@ -75,11 +75,11 @@ public class CourtCaseRequest {
 
     public CourtCaseEntity asEntity() {
 
-        final List<HearingEntity> hearings = List.of(HearingEntity.builder()
+        final List<HearingDayEntity> hearings = List.of(HearingDayEntity.builder()
             .courtCode(courtCode)
             .courtRoom(courtRoom)
-            .hearingDay(sessionStartTime.toLocalDate())
-            .hearingTime(sessionStartTime.toLocalTime())
+            .day(sessionStartTime.toLocalDate())
+            .time(sessionStartTime.toLocalTime())
             .listNo(listNo)
             .build());
 

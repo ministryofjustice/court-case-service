@@ -21,7 +21,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
@@ -68,10 +68,10 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
         var courtCaseEntity = CourtCaseEntity.builder()
             .caseNo("1600028913")
             .sourceType(SourceType.LIBRA)
-            .hearings(Collections.singletonList(HearingEntity.builder()
+            .hearings(Collections.singletonList(HearingDayEntity.builder()
                 .courtCode("B10JQ")
-                .hearingDay(LocalDate.of(2021, 9, 11))
-                .hearingTime(LocalTime.of(9, 0))
+                .day(LocalDate.of(2021, 9, 11))
+                .time(LocalTime.of(9, 0))
                 .build()))
             .defendants(Collections.singletonList(DefendantEntity.builder()
                     .defendantId("51354F3C-9625-404D-B820-C74724D23484")
@@ -170,18 +170,18 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                 .type(DefendantType.PERSON)
                                 .build()))
 
-                .hearings(List.of(HearingEntity.builder()
+                .hearings(List.of(HearingDayEntity.builder()
                                 .courtCode("B10JQ")
                                 .courtRoom("4")
-                                .hearingTime(LocalTime.of(10, 16, 51))
-                                .hearingDay(LocalDate.of(2021, 8, 16))
+                                .time(LocalTime.of(10, 16, 51))
+                                .day(LocalDate.of(2021, 8, 16))
                                 .listNo("4")
                                 .build(),
-                        HearingEntity.builder()
+                        HearingDayEntity.builder()
                                 .courtCode("B10JQ")
                                 .courtRoom("3")
-                                .hearingTime(LocalTime.of(10, 16, 51))
-                                .hearingDay(LocalDate.of(2021, 8, 17))
+                                .time(LocalTime.of(10, 16, 51))
+                                .day(LocalDate.of(2021, 8, 17))
                                 .listNo("3")
                                 .build()))
                 .build();

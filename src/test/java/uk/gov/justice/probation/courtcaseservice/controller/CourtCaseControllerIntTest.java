@@ -195,27 +195,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
         }
 
         @Test
-        void GET_cases_givenCreatedBefore_andCreatedAfterFilterParams_andManualUpdatesHaveBeenMadeAfterTheseTimes_whenGetCases_thenReturnManualUpdates() {
-
-            var futureDecember14 = LocalDate.of(2200, Month.DECEMBER, 14).format(DateTimeFormatter.ISO_DATE);
-
-            given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .get("/court/B30NY/cases?date={date}&createdAfter=2020-09-01T16:59:59&createdBefore=2020-09-01T17:00:00", futureDecember14)
-                .then()
-                .assertThat()
-                .statusCode(200)
-                .body("cases", hasSize(1))
-                .body("cases[0].caseId", equalTo("e652eaae-1114-4593-8f56-659eb2baffcf"))
-                .body("cases[0].caseNo", equalTo(null))
-                .body("cases[0].source", equalTo("COMMON_PLATFORM"))
-                .body("cases[0].defendantName", equalTo("Mr Hubert FARNSWORTH"))
-            ;
-        }
-
-        @Test
         void GET_cases_shouldGetEmptyCaseListWhenNoCasesMatch() {
             given()
                 .auth()

@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "HEARING")
+@Table(name = "HEARING_DAY")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @SuperBuilder
@@ -33,7 +33,7 @@ import java.time.LocalTime;
 @With
 @ToString(exclude = "courtCase")
 @EqualsAndHashCode(callSuper = true)
-public class HearingEntity extends BaseImmutableEntity implements Serializable {
+public class HearingDayEntity extends BaseImmutableEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -47,10 +47,10 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     private CourtCaseEntity courtCase;
 
     @Column(name = "HEARING_DAY", nullable = false)
-    private final LocalDate hearingDay;
+    private final LocalDate day;
 
     @Column(name = "HEARING_TIME", nullable = false)
-    private final LocalTime hearingTime;
+    private final LocalTime time;
 
     @Column(name = "COURT_CODE", nullable = false)
     private final String courtCode;
@@ -62,14 +62,14 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     private final String listNo;
 
     public CourtSession getSession() {
-        return CourtSession.from(hearingTime);
+        return CourtSession.from(time);
     }
 
     public LocalDateTime getSessionStartTime() {
-        return LocalDateTime.of(hearingDay, hearingTime);
+        return LocalDateTime.of(day, time);
     }
 
     public String loggableString(){
-        return String.format("%s|%s|%sT%s", courtCode, courtRoom, hearingDay, hearingTime);
+        return String.format("%s|%s|%sT%s", courtCode, courtRoom, day, time);
     }
 }

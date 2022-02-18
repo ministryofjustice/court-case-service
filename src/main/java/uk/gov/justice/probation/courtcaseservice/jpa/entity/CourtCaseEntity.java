@@ -63,7 +63,7 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
     @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, orphanRemoval=true)
-    private final List<HearingEntity> hearings;
+    private final List<HearingDayEntity> hearings;
 
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)
@@ -80,10 +80,6 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
 
     @Column(name = "first_created", insertable = false, updatable = false)
     private final LocalDateTime firstCreated;
-
-    @Deprecated(forRemoval = true)
-    @Column(name = "manual_update", nullable = false, updatable = false)
-    private boolean manualUpdate;
 
     public DefendantEntity getDefendant(String defendantId) {
         return Optional.ofNullable(getDefendants()).orElse(Collections.emptyList())

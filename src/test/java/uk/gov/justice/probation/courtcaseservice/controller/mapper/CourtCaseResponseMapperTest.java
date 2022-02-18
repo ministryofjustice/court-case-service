@@ -13,7 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationSt
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
@@ -93,16 +93,16 @@ class CourtCaseResponseMapperTest {
         );
 
         var hearings = Arrays.asList(
-            HearingEntity.builder()
-                .hearingDay(HEARING_DATE)
-                .hearingTime(SESSION_START_TIME.toLocalTime())
+            HearingDayEntity.builder()
+                .day(HEARING_DATE)
+                .time(SESSION_START_TIME.toLocalTime())
                 .courtRoom(COURT_ROOM)
                 .courtCode(COURT_CODE)
                 .listNo(LIST_NO)
                 .build(),
-            HearingEntity.builder()
-                .hearingDay(HEARING_DATE.plusDays(1))
-                .hearingTime(SESSION_START_TIME.toLocalTime().plusHours(4))
+            HearingDayEntity.builder()
+                .day(HEARING_DATE.plusDays(1))
+                .time(SESSION_START_TIME.toLocalTime().plusHours(4))
                 .courtRoom("02")
                 .courtCode(COURT_CODE)
                 .listNo("91st")
@@ -301,7 +301,7 @@ class CourtCaseResponseMapperTest {
         assertCaseFields(courtCaseResponse, caseNo, SourceType.COMMON_PLATFORM);
     }
 
-    private CourtCaseEntity buildCourtCaseEntity(List<DefendantEntity> defendants, List<HearingEntity> hearings, LocalDateTime firstCreated) {
+    private CourtCaseEntity buildCourtCaseEntity(List<DefendantEntity> defendants, List<HearingDayEntity> hearings, LocalDateTime firstCreated) {
 
         return CourtCaseEntity.builder()
             .id(ID)

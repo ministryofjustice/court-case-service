@@ -6,10 +6,10 @@ pgdatabase=${POSTGRES_DB:-court_case_test}
 
 mkdir -p "$jardir" "$schemadir"
 
-./gradlew flywayMigrate -Pflyway.url="jdbc:postgresql://localhost:5432/${pgdatabase}" \
+./gradlew flywayMigrate -Pflyway.url="jdbc:postgresql://localhost:5432/$pgdatabase" \
   -Dflyway.user=root \
   -Dflyway.password=dev \
-  -Dflyway.locations="src/main/resources/db/migration/courtcase"
+  -Dflyway.locations="classpath:db/migration/courtcase"
 
 wget https://github.com/schemaspy/schemaspy/releases/download/v6.1.0/schemaspy-6.1.0.jar -O "$jardir/schemaspy.jar"
 wget https://jdbc.postgresql.org/download/postgresql-42.2.19.jar -O "$jardir/postgresql.jar"

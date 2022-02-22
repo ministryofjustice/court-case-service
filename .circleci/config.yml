@@ -213,7 +213,7 @@ jobs:
                   docker tag hmpps/<<parameters.app_name>>:$APP_VERSION quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
                   docker tag hmpps/<<parameters.app_name>>:$APP_VERSION quay.io/hmpps/<<parameters.app_name>>:latest
                   docker push quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
-                  docker push hmpps/<<parameters.app_name>>:latest
+                  docker push quay.io/hmpps/<<parameters.app_name>>:latest
       - jira/notify:
           token_name: JIRA_CIRCLE_TOKEN
           job_type: build
@@ -365,7 +365,6 @@ workflows:
       - hmpps/helm_lint:
           name: helm_lint_dev
       - build_docker:
-          name: build_docker_service_branch
           app_name: court-case-service
           requires:
             - build
@@ -373,7 +372,7 @@ workflows:
             branches:
               ignore: main
       - build_docker:
-          name: build_docker_service_main
+          name: build_docker_main
           app_name: court-case-service
           requires:
             - build
@@ -425,7 +424,7 @@ workflows:
           context: court-probation-live-dev
           requires:
             - helm_lint_dev
-            - build_docker_service_main
+            - build_docker_main
             - build_docker_nginx_main
             - build_docker_data_dictionary_main
           filters:

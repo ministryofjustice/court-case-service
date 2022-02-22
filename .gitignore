@@ -5,6 +5,8 @@ HELP.md
 **/.DS_Store
 /bin/
 
+data_dictionary/libs/**
+data_dictionary/schema/**
 
 ### STS ###
 .apt_generated

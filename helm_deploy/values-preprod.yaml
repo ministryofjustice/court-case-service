@@ -6,7 +6,7 @@ maxReplicaCount: 8
 maxSurge: 2
 
 image:
-  repository: docker.io/mojdigitalstudio/court-case-service
+  repository: quay.io/hmpps/court-case-service
   tag: latest
   pullPolicy: Always
   port: 8080
@@ -30,7 +30,7 @@ nginx_proxy:
 
   deployment:
     image:
-      repository: docker.io/mojdigitalstudio/court-case-service-nginx
+      repository: quay.io/hmpps/court-case-service-nginx
       tag: latest
       pullPolicy: Always
     port: 8080

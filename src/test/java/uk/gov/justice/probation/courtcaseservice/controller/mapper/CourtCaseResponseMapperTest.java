@@ -65,7 +65,7 @@ class CourtCaseResponseMapperTest {
     private static final String NATIONALITY_2 = "NATIONALITY_2";
     private static final CourtSession SESSION = CourtSession.MORNING;
     private static final LocalDateTime FIRST_CREATED = LocalDateTime.of(2020, 1, 1, 1, 1);
-    private HearingEntity courtCaseEntity;
+    private HearingEntity hearingEntity;
     private final AddressPropertiesEntity addressPropertiesEntity = AddressPropertiesEntity.builder()
         .line1("27")
         .line2("Elm Place")
@@ -110,7 +110,7 @@ class CourtCaseResponseMapperTest {
                 .build()
         );
 
-        courtCaseEntity = buildCourtCaseEntity(defendants, hearings, FIRST_CREATED);
+        hearingEntity = buildCourtCaseEntity(defendants, hearings, FIRST_CREATED);
     }
 
     @Test
@@ -149,7 +149,7 @@ class CourtCaseResponseMapperTest {
             .offences(singletonList(defendantOffence))
             .build();
 
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(courtCaseEntity, defendantEntity, 3, HEARING_DATE);
+        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(hearingEntity, defendantEntity, 3, HEARING_DATE);
 
         assertCaseFields(courtCaseResponse, null, SourceType.COMMON_PLATFORM);
         assertHearingFields(courtCaseResponse);
@@ -190,7 +190,7 @@ class CourtCaseResponseMapperTest {
             .withOffender(OffenderEntity.builder().crn("D99999").build());
         var defendant2 = EntityHelper.aDefendantEntity(DEFENDANT_ID);
 
-        var courtCase = courtCaseEntity.withDefendants(List.of(defendant1, defendant2));
+        var courtCase = hearingEntity.withDefendants(List.of(defendant1, defendant2));
 
         var response = CourtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5);
 
@@ -215,7 +215,7 @@ class CourtCaseResponseMapperTest {
                 .suspendedSentenceOrder(true)
                 .build());
 
-        var courtCase = courtCaseEntity.withDefendants(List.of(defendant));
+        var courtCase = hearingEntity.withDefendants(List.of(defendant));
 
         var response = CourtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5);
 

@@ -58,7 +58,7 @@ public class OffenderMatchService {
     }
 
     private GroupedOffenderMatchesEntity createForCaseAndDefendant(String caseId, String defendantId, GroupedOffenderMatchesRequest offenderMatches) {
-        final var courtCaseEntity = courtCaseService.getCaseByCaseId(caseId);
+        final var courtCaseEntity = courtCaseService.getHearingByCaseId(caseId);
         return OffenderMatchMapper.newGroupedMatchesOf(defendantId, offenderMatches, courtCaseEntity);
     }
 
@@ -74,7 +74,7 @@ public class OffenderMatchService {
     }
 
     public OffenderMatchDetailResponse getOffenderMatchDetailsByCaseIdAndDefendantId(String caseId, String defendantId) {
-        courtCaseService.getCaseByCaseIdAndDefendantId(caseId, defendantId);    // Throw EntityNotFound if case does not exist
+        courtCaseService.getHearingByCaseIdAndDefendantId(caseId, defendantId);    // Throw EntityNotFound if case does not exist
         List<OffenderMatchDetail> offenderMatchDetails = getOffenderMatchesByCaseIdAndDefendantId(caseId, defendantId)
             .map(GroupedOffenderMatchesEntity::getOffenderMatches)
             .map(offenderMatchEntities -> offenderMatchEntities

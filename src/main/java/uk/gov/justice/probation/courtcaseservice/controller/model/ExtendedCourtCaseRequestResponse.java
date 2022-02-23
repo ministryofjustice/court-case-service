@@ -48,12 +48,12 @@ public class ExtendedCourtCaseRequestResponse {
     @NotEmpty
     private final List<Defendant> defendants;
 
-    public static ExtendedCourtCaseRequestResponse of(HearingEntity courtCase) {
+    public static ExtendedCourtCaseRequestResponse of(HearingEntity hearing) {
         return ExtendedCourtCaseRequestResponse.builder()
-                .caseNo(courtCase.getCaseNo())
-                .caseId(courtCase.getCaseId())
-                .source(courtCase.getSourceType().name())
-                .hearingDays(courtCase.getHearingDays().stream()
+                .caseNo(hearing.getCaseNo())
+                .caseId(hearing.getCaseId())
+                .source(hearing.getSourceType().name())
+                .hearingDays(hearing.getHearingDays().stream()
                         .map(hearingEntity -> HearingDay.builder()
                                 .courtCode(hearingEntity.getCourtCode())
                                 .courtRoom(hearingEntity.getCourtRoom())
@@ -63,7 +63,7 @@ public class ExtendedCourtCaseRequestResponse {
                                 .listNo(hearingEntity.getListNo())
                                 .build())
                         .toList())
-                .defendants(courtCase.getDefendants().stream()
+                .defendants(hearing.getDefendants().stream()
                         .map(defendantEntity -> Defendant.builder()
                                 .defendantId(defendantEntity.getDefendantId())
                                 .name(defendantEntity.getName())

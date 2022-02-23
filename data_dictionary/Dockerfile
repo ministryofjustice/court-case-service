@@ -7,6 +7,4 @@ RUN touch /var/run/nginx.pid && chown -R nginx:nginx /var/run/nginx.pid
 
 RUN apk -U upgrade
 
-EXPOSE 8080
-
 COPY schema/ /usr/share/nginx/html/meta/schema

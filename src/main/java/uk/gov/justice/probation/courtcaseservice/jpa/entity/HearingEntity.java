@@ -54,7 +54,8 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     private final Long id;
 
     @Column(name = "HEARING_ID", nullable = false)
-    private final String hearingId;
+    @Setter // TODO: This was added to enable ImmutableCourtCaseService.enforceValidHearingId() as a precautionary measure and should be removed ASAP
+    private String hearingId;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "FK_COURT_CASE_ID", referencedColumnName = "id", nullable = false)

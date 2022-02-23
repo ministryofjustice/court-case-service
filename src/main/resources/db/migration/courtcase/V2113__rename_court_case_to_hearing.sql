@@ -59,4 +59,6 @@ ALTER TABLE HEARING
 ALTER TABLE HEARING
     ADD CONSTRAINT fk_hearing_court_case FOREIGN KEY(fk_court_case_id) REFERENCES COURT_CASE(id);
 
+create index hearing_day_court_code_idx on hearing_day (court_code);
+create index hearing_created_idx on hearing (created);
 COMMIT;

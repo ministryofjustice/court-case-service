@@ -1,14 +1,16 @@
+{{- if .Values.data_dictionary -}}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.data_dictionary.name }}
+  name: data-dictionary
   labels:
     app: {{ .Values.data_dictionary.name }}
     chart: {{ template "app.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.data_dictionary.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
       release: {{ .Release.Name }}
@@ -21,11 +23,9 @@ spec:
       securityContext:
         runAsUser: 101
       containers:
-        - name: {{ printf "%s-%s" .Values.data_dictionary.name "nginx"}}
+        - name: data-dictionary
           image: "{{ .Values.data_dictionary.deployment.image.repository }}:{{ .Values.data_dictionary.deployment.image.tag }}"
-          imagePullPolicy: {{ .Values.data_dictionary.deployment.image.pullPolicy }}
-          env:
-            - name: SERVICE_HOST
-              value: {{ .Values.data_dictionary.service_host }}
           ports:
             - containerPort: {{ .Values.data_dictionary.deployment.port }}
+
+{{- end }}

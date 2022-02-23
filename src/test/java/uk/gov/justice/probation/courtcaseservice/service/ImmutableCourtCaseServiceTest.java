@@ -159,6 +159,7 @@ class ImmutableCourtCaseServiceTest {
             verify(telemetryService).trackCourtCaseDefendantEvent(TelemetryEventType.DEFENDANT_LINKED, incomingCourtCase.getDefendants().get(0), CASE_ID);
             verify(hearingRepository).findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
             verify(hearingRepository).save(incomingCourtCase);
+            assertThat(incomingCourtCase.getHearingId()).isEqualTo(CASE_ID);
             verify(offenderRepository).findByCrn(CRN);
             verify(offenderRepository).save(existingOffender);
             assertThat(savedCourtCase).isSameAs(incomingCourtCase);
@@ -292,6 +293,7 @@ class ImmutableCourtCaseServiceTest {
             verify(telemetryService).trackCourtCaseDefendantEvent(TelemetryEventType.DEFENDANT_LINKED, courtCase.getDefendants().get(0), courtCase.getCaseId());
             verify(hearingRepository).save(courtCase);
             assertThat(savedCourtCase).isNotNull();
+            assertThat(savedCourtCase.getHearingId()).isEqualTo(CASE_ID);
             verify(offenderRepository).findByCrn(CRN);
             verify(offenderRepository).save(courtCase.getDefendants().get(0).getOffender());
             verifyNoMoreInteractions(hearingRepository, telemetryService, offenderRepository);
@@ -625,6 +627,9 @@ class ImmutableCourtCaseServiceTest {
         @Captor
         private ArgumentCaptor<GroupedOffenderMatchesEntity> matchesCaptor;
 
+        @Captor
+        private ArgumentCaptor<CourtCaseEntity> courtCaseCaptor;
+
         @BeforeEach
         void setup() {
             service = new ImmutableCourtCaseService(courtRepository, courtCaseRepository, hearingRepository, telemetryService, groupedOffenderMatchRepository, offenderRepository);
@@ -652,6 +657,7 @@ class ImmutableCourtCaseServiceTest {
             service.createCase(CASE_ID, caseToUpdate).block();
 
             verify(hearingRepository).save(caseToUpdate);
+            assertThat(caseToUpdate.getHearingId()).isEqualTo(CASE_ID);
             verify(groupedOffenderMatchRepository).findByCaseIdAndDefendantId(CASE_ID, "defendant1");
             verify(groupedOffenderMatchRepository).findByCaseIdAndDefendantId(CASE_ID, "defendant2");
 
@@ -697,22 +703,6 @@ class ImmutableCourtCaseServiceTest {
                     .map(DefendantEntity::getDefendantId)
                     .collect(Collectors.toList());
             return caseId.equals(arg.getCaseId()) && defendantIds.equals(argDefendantIds);
-        }
-    }
-
-    record CourtCaseEntityListMatcher(String caseId,
-                                      List<String> defendantIds) implements ArgumentMatcher<List<HearingEntity>> {
-
-        @Override
-        public boolean matches(List<HearingEntity> arg) {
-            if (arg.size() != 1) {
-                return false;
-            }
-            final var argDefendantIds = Optional.ofNullable(arg.get(0).getDefendants()).orElse(Collections.emptyList())
-                    .stream()
-                    .map(DefendantEntity::getDefendantId)
-                    .collect(Collectors.toList());
-            return caseId.equals(arg.get(0).getCaseId()) && defendantIds.equals(argDefendantIds);
         }
     }
 

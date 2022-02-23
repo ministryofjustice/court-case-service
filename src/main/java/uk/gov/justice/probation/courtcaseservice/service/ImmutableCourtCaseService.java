@@ -81,11 +81,26 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         return Mono.just(updatedCase)
                 .map(hearingEntity -> {
                     log.debug("Saving case ID {}", caseId);
-                    // TODO: Remove. This is a temporary measure to allow the application to continue working whilst we update the data structures
-                    assert hearingEntity.getHearingId() != null && hearingEntity.getHearingId().equals(hearingEntity.getCaseId());
+                    enforceValidHearingId(hearingEntity);
                     courtCaseRepository.save(hearingEntity.getCourtCase());
                     return hearingRepository.save(hearingEntity);
                 });
+    }
+
+    /**
+     * This method was introduced to guarantee that hearingId is always set to match the caseId whilst data migration is
+     * underway and flag where this is not the case so fixes can be implemented.  All being well the if condition will
+     * never be met and this method will be removed in the next batch of changes
+     * @param hearingEntity
+     */
+    @Deprecated(forRemoval = true)
+    private void enforceValidHearingId(HearingEntity hearingEntity) {
+        // TODO: Remove. This is a temporary measure to allow the application to continue working whilst we update the data structures
+        if(hearingEntity.getHearingId() == null || !hearingEntity.getHearingId().equals(hearingEntity.getCaseId())){
+            log.warn("Unexpected condition: HearingEntity did not have hearingId set as expected. Setting to caseId {}", hearingEntity.getCaseId());
+            hearingEntity.setHearingId(hearingEntity.getCaseId());
+        }
+
     }
 
     @Override
@@ -114,7 +129,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                 .map((hearingEntity) -> {
                     log.debug("Saving case ID {} with updates applied for defendant ID {}", caseId, defendantId);
                     // TODO: Remove. This is a temporary measure to allow the application to continue working whilst we update the data structures
-                    assert hearingEntity.getHearingId() != null && hearingEntity.getHearingId().equals(hearingEntity.getCaseId());
+                    enforceValidHearingId(hearingEntity);
                     courtCaseRepository.save(hearingEntity.getCourtCase());
                     return hearingRepository.save(hearingEntity);
                 });

@@ -38,7 +38,7 @@ spec:
               servicePort: http
           - path: /meta/schema
             backend:
-              serviceName: data-dictionary
+              serviceName: pic-data-dictionary
               servicePort: http
   {{- end }}
 {{- end }}

@@ -90,11 +90,11 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long> {
         "       (select min(group_hearing.created) as min_created, max(group_hearing.created) as max_created, group_hearing.fk_court_case_id from hearing group_hearing " +
         "           inner join hearing_day on hearing_day.fk_hearing_id = group_hearing.id " +
         "           where group_hearing.created >= :createdAfter and group_hearing.created < :createdBefore " +
+        "           and hearing_day.court_code = :courtCode " +
         "           group by group_hearing.fk_court_case_id) grouped_hearings " +
         "       on h.fk_court_case_id = grouped_hearings.fk_court_case_id " +
         "   inner join hearing_day hday on hday.fk_hearing_id = h.id " +
         "where hday.hearing_day = :hearingDay " +
-        "and hday.court_code = :courtCode " +
         "and h.created = grouped_hearings.max_created " +
         "and h.deleted = false",
         nativeQuery = true)

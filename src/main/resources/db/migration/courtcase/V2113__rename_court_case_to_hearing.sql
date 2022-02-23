@@ -61,4 +61,15 @@ ALTER TABLE HEARING
 
 create index hearing_day_court_code_idx on hearing_day (court_code);
 create index hearing_created_idx on hearing (created);
+
+-- Add firstCreated field to hearing to make determining it at run time more efficient
+ALTER TABLE HEARING
+    ADD COLUMN first_created TIMESTAMP DEFAULT now();
+
+UPDATE hearing SET first_created = min_created
+FROM (SELECT min(created) as min_created, hearing_id from HEARING group by HEARING_ID) as existing_hearing
+WHERE hearing.hearing_id = existing_hearing.hearing_id;
+
+ALTER TABLE HEARING
+    ALTER COLUMN first_created SET not null;
 COMMIT;

@@ -101,8 +101,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[5].probationStatusActual", equalTo("NOT_SENTENCED"))
                 .body("cases[6].caseNo", equalTo(null))
                 .body("cases[6].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a18"))
-                    // TODO: Fix
-//                .body("cases[6].createdToday", equalTo(false))
+                .body("cases[6].createdToday", equalTo(false))
             ;
         }
 
@@ -626,8 +625,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[5].probationStatus", equalTo("Pre-sentence record"))
                 .body("cases[5].probationStatusActual", equalTo("NOT_SENTENCED"))
                 .body("cases[6].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a18"))
-                // TODO: Fix createdToday
-//                .body("cases[6].createdToday", equalTo(false))
+                .body("cases[6].createdToday", equalTo(false))
             ;
         }
     }

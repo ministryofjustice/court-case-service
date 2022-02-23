@@ -62,7 +62,6 @@ public class OffenderMatchService {
         return OffenderMatchMapper.newGroupedMatchesOf(defendantId, offenderMatches, courtCaseEntity);
     }
 
-    // TODO: Do something with this defendantId?
     public Mono<GroupedOffenderMatchesEntity> getGroupedMatchesByCaseId(String caseId, String defendantId, Long groupId) {
         return Mono.justOrEmpty(offenderMatchRepository.findById(groupId))
             .map(groupedOffenderMatchesEntity -> {

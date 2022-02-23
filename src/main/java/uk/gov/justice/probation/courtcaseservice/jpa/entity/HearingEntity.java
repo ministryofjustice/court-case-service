@@ -27,7 +27,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -82,8 +81,6 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     @Column(name = "deleted", nullable = false, updatable = false)
     private final boolean deleted;
 
-    // TODO: Replace this transient field with a populated column
-    @Transient
     @Column(name = "first_created", insertable = false, updatable = false)
     private final LocalDateTime firstCreated;
 

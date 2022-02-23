@@ -36,16 +36,16 @@ public class TelemetryService {
         telemetryClient.trackEvent(TelemetryEventType.GRACEFUL_DEGRADE.eventName, properties, Collections.emptyMap());
     }
 
-    void trackCourtCaseEvent(TelemetryEventType eventType, HearingEntity courtCaseEntity) {
+    void trackCourtCaseEvent(TelemetryEventType eventType, HearingEntity hearingEntity) {
 
         Map<String, String> properties = new HashMap<>();
 
-        ofNullable(courtCaseEntity)
+        ofNullable(hearingEntity)
                 .map(HearingEntity::getCourtCase)
                 .map(CourtCaseEntity::getCaseId)
                 .ifPresent((caseId) -> properties.put("caseId", caseId));
 
-        ofNullable(courtCaseEntity.getHearingDays())
+        ofNullable(hearingEntity.getHearingDays())
                 .ifPresent(hearings -> {
                     final var hearingsString = hearings.stream()
                             .map(HearingDayEntity::loggableString)
@@ -76,12 +76,12 @@ public class TelemetryService {
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }
 
-    public void trackMatchEvent(TelemetryEventType eventType, OffenderMatchEntity matchEntity, HearingEntity courtCaseEntity, String defendantId) {
+    public void trackMatchEvent(TelemetryEventType eventType, OffenderMatchEntity matchEntity, HearingEntity hearingEntity, String defendantId) {
 
         Map<String, String> properties = new HashMap<>();
 
         properties.put("defendantId", defendantId);
-        ofNullable(courtCaseEntity)
+        ofNullable(hearingEntity)
                 .map(HearingEntity::getCaseId)
                 .ifPresent((caseId) -> properties.put("caseId", caseId));
         ofNullable(matchEntity)

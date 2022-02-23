@@ -9,7 +9,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 
 class HearingEntityTest {
 
-    private final HearingEntity courtCaseEntity =
+    private final HearingEntity hearingEntity =
         HearingEntity.builder()
                     .defendants(List.of(DefendantEntity.builder()
                                             .defendantId("abc")
@@ -21,13 +21,13 @@ class HearingEntityTest {
 
     @Test
     void givenHearingWithDefendants_thenReturn() {
-        var defendant = courtCaseEntity.getDefendant(DEFENDANT_ID);
+        var defendant = hearingEntity.getDefendant(DEFENDANT_ID);
         assertThat(defendant.getDefendantId()).isEqualTo(DEFENDANT_ID);
     }
 
     @Test
     void givenHearingWithDefendants_whenRequestWrongId_thenReturnNull() {
-        assertThat(courtCaseEntity.getDefendant("XXX")).isNull();
+        assertThat(hearingEntity.getDefendant("XXX")).isNull();
     }
 
     @Test

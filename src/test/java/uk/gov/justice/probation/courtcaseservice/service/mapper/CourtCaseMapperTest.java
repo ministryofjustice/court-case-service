@@ -79,7 +79,7 @@ class CourtCaseMapperTest {
             .withId(100L);
         var existingUpdatedDefendant = EntityHelper.aDefendantEntity()
             .withId(101L);
-        var existingCourtCaseEntity = EntityHelper.aCourtCaseEntity(CASE_ID)
+        var existingCourtCaseEntity = EntityHelper.aHearingEntity(CASE_ID)
             .withDefendants(List.of(existingUpdatedDefendant, existingNonUpdatedDefendant))
             .withHearingDays(hearings);
 
@@ -122,7 +122,7 @@ class CourtCaseMapperTest {
         // Existing has defendants and hearings, all with ids which must be removed
         var existingUpdatedDefendant = EntityHelper.aDefendantEntity()
             .withId(101L);
-        var existingCourtCaseEntity = EntityHelper.aCourtCaseEntity(CASE_ID)
+        var existingCourtCaseEntity = EntityHelper.aHearingEntity(CASE_ID)
             .withDefendants(List.of(existingUpdatedDefendant))
             .withHearingDays(hearings);
 
@@ -137,9 +137,9 @@ class CourtCaseMapperTest {
         assertThat(newEntity.getDefendants().get(0).getHearing()).isSameAs(newEntity);
     }
 
-    private void checkCollection(List<? extends BaseImmutableEntity> childEntities, HearingEntity courtCase) {
+    private void checkCollection(List<? extends BaseImmutableEntity> childEntities, HearingEntity hearing) {
         assertThat(childEntities).hasSize(2);
         assertThat(childEntities).extracting("id").allMatch(Objects::isNull);
-        assertThat(childEntities).extracting("hearing").containsExactlyInAnyOrder(courtCase, courtCase);
+        assertThat(childEntities).extracting("hearing").containsExactlyInAnyOrder(hearing, hearing);
     }
 }

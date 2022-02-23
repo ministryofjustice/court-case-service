@@ -13,17 +13,17 @@ import java.util.stream.Collectors;
 
 public class OffenderMatchMapper {
 
-    public static GroupedOffenderMatchesEntity newGroupedMatchesOf(GroupedOffenderMatchesRequest offenderMatches, HearingEntity courtCase) {
+    public static GroupedOffenderMatchesEntity newGroupedMatchesOf(GroupedOffenderMatchesRequest offenderMatches) {
         var group = GroupedOffenderMatchesEntity.builder()
             .build();
         group.setOffenderMatches(buildOffenderMatchEntities(offenderMatches.getMatches(), group));
         return group;
     }
 
-    public static GroupedOffenderMatchesEntity newGroupedMatchesOf(String defendantId, GroupedOffenderMatchesRequest offenderMatches, HearingEntity courtCase) {
+    public static GroupedOffenderMatchesEntity newGroupedMatchesOf(String defendantId, GroupedOffenderMatchesRequest offenderMatches, HearingEntity hearing) {
         var group = GroupedOffenderMatchesEntity.builder()
                 .defendantId(defendantId)
-                .caseId(courtCase.getCaseId())
+                .caseId(hearing.getCaseId())
                 .build();
         group.setOffenderMatches(buildOffenderMatchEntities(offenderMatches.getMatches(), group));
         return group;

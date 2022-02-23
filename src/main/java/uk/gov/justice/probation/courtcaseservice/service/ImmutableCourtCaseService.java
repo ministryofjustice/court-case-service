@@ -65,7 +65,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     @Override
     @Retryable(value = CannotAcquireLockException.class)
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public Mono<HearingEntity> createCase(String caseId, HearingEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
+    public Mono<HearingEntity> createHearing(String caseId, HearingEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
         validateEntity(caseId, updatedCase);
 
         updateOffenders(updatedCase, defendantEntity -> true);
@@ -106,7 +106,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     @Override
     @Retryable(value = CannotAcquireLockException.class)
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public Mono<HearingEntity> createUpdateCaseForSingleDefendantId(String caseId, String defendantId, HearingEntity updatedCase)
+    public Mono<HearingEntity> createUpdateHearingForSingleDefendantId(String caseId, String defendantId, HearingEntity updatedCase)
             throws EntityNotFoundException, InputMismatchException {
         validateEntityByDefendantId(caseId, defendantId, updatedCase);
 
@@ -184,7 +184,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     @Override
-    public HearingEntity getCaseByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException {
+    public HearingEntity getHearingByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException {
         checkCourtExists(courtCode);
         log.info("Court case requested for court {} for case {}", courtCode, caseNo);
         return hearingRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
@@ -192,21 +192,21 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     @Override
-    public HearingEntity getCaseByCaseId(String caseId) throws EntityNotFoundException {
+    public HearingEntity getHearingByCaseId(String caseId) throws EntityNotFoundException {
         log.info("Court case requested for case ID {}", caseId);
         return hearingRepository.findByCaseId(caseId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found", caseId)));
     }
 
     @Override
-    public HearingEntity getCaseByCaseIdAndDefendantId(String caseId, String defendantId) throws EntityNotFoundException {
+    public HearingEntity getHearingByCaseIdAndDefendantId(String caseId, String defendantId) throws EntityNotFoundException {
         log.info("Court case requested for case ID {} and defendant ID {}", caseId, defendantId);
         return hearingRepository.findByCaseIdAndDefendantId(caseId, defendantId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found for defendant %s", caseId, defendantId)));
     }
 
     @Override
-    public List<HearingEntity> filterCases(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
+    public List<HearingEntity> filterHearings(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
         final var court = courtRepository.findByCourtCode(courtCode)
                 .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
 
@@ -301,7 +301,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         }
     }
 
-    public Optional<LocalDateTime> filterCasesLastModified(String courtCode, LocalDate searchDate) {
+    public Optional<LocalDateTime> filterHearingsLastModified(String courtCode, LocalDate searchDate) {
         return hearingRepository.findLastModifiedByHearingDay(courtCode, searchDate);
     }
 

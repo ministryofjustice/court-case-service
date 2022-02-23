@@ -54,7 +54,7 @@ class OffenderMatchServiceTest {
     @Mock
     private GroupedOffenderMatchesRequest groupedOffenderMatchesRequest;
     @Mock
-    private HearingEntity courtCaseEntity;
+    private HearingEntity hearingEntity;
 
     private OffenderMatchService service;
 
@@ -78,8 +78,8 @@ class OffenderMatchServiceTest {
         @Test
         void givenNoExistingCase_whenCreateOrUpdate_thenCreate() {
             when(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.empty());
-            when(courtCaseEntity.getCaseId()).thenReturn(CASE_ID);
-            when(courtCaseService.getCaseByCaseId(CASE_ID)).thenReturn(courtCaseEntity);
+            when(hearingEntity.getCaseId()).thenReturn(CASE_ID);
+            when(courtCaseService.getHearingByCaseId(CASE_ID)).thenReturn(hearingEntity);
             when(offenderMatchRepository.save(argThat(new EntityMatcher(DEFENDANT_ID, CASE_ID)))).thenReturn(groupedOffenderMatchesEntity);
 
             var match = service.createOrUpdateGroupedMatchesByDefendant(CASE_ID, DEFENDANT_ID, request).blockOptional();

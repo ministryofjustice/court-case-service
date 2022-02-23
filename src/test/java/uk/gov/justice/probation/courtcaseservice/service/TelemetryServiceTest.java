@@ -68,7 +68,7 @@ class TelemetryServiceTest {
                 .crn(CRN)
                 .build();
 
-        service.trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, match, buildCourtCase(), DEFENDANT_ID);
+        service.trackMatchEvent(TelemetryEventType.MATCH_CONFIRMED, match, buildHearing(), DEFENDANT_ID);
 
         verify(telemetryClient).trackEvent(eq("PiCMatchConfirmed"), properties.capture(), metricsCaptor.capture());
 
@@ -92,7 +92,7 @@ class TelemetryServiceTest {
         when(firstHearing.loggableString()).thenReturn("first-hearing-description");
         when(secondHearing.loggableString()).thenReturn("second-hearing-description");
 
-        var courtCase = buildCourtCase();
+        var courtCase = buildHearing();
 
         service.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, courtCase);
 
@@ -110,7 +110,7 @@ class TelemetryServiceTest {
 
     @Test
     void givenNullProperties_whenTrackCourtCaseEvent_thenExcludeUserProperties() {
-        var courtCase = buildCourtCase();
+        var courtCase = buildHearing();
         when(firstHearing.loggableString()).thenReturn("first-hearing-description");
         when(secondHearing.loggableString()).thenReturn("second-hearing-description");
 
@@ -184,7 +184,7 @@ class TelemetryServiceTest {
         verify(telemetryClient).trackEvent(TelemetryEventType.DEFENDANT_UNLINKED.eventName, properties, Collections.emptyMap());
     }
 
-    private HearingEntity buildCourtCase() {
+    private HearingEntity buildHearing() {
         return HearingEntity.builder()
                 .courtCase(CourtCaseEntity.builder()
                     .caseId(CASE_ID)

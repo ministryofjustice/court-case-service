@@ -90,7 +90,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                     .pnc("A/1234560BA")
                     .build()))
             .build();
-        when(courtCaseService.getCaseByCaseNumber("B10JQ", "1600028913")).thenReturn(courtCaseEntity);
+        when(courtCaseService.getHearingByCaseNumber("B10JQ", "1600028913")).thenReturn(courtCaseEntity);
     }
 
     @State({"a case exists for caseId D517D32D-3C80-41E8-846E-D274DC2B94A5"})
@@ -191,12 +191,12 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                 .build()))
                 .build();
 
-        when(courtCaseService.getCaseByCaseId("D517D32D-3C80-41E8-846E-D274DC2B94A5")).thenReturn(courtCaseEntity);
+        when(courtCaseService.getHearingByCaseId("D517D32D-3C80-41E8-846E-D274DC2B94A5")).thenReturn(courtCaseEntity);
     }
 
     @State({"a case will be PUT by id"})
     void mockPutCourtCaseExtended() {
-        final Mono<HearingEntity> caseMono = Mono.just(EntityHelper.aCourtCaseEntity("X340741", "1600028914"));
-        when(courtCaseService.createCase(eq("D517D32D-3C80-41E8-846E-D274DC2B94A5"), any(HearingEntity.class))).thenReturn(caseMono);
+        final Mono<HearingEntity> caseMono = Mono.just(EntityHelper.aHearingEntity("X340741", "1600028914"));
+        when(courtCaseService.createHearing(eq("D517D32D-3C80-41E8-846E-D274DC2B94A5"), any(HearingEntity.class))).thenReturn(caseMono);
     }
 }

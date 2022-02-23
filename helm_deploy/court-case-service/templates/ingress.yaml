@@ -36,9 +36,11 @@ spec:
             backend:
               serviceName: {{ $serviceName }}
               servicePort: http
+        {{- if $.Values.data_dictionary }}
           - path: /meta/schema
             backend:
               serviceName: pic-data-dictionary
               servicePort: http
+        {{- end }}
   {{- end }}
 {{- end }}

@@ -1,3 +1,5 @@
+{{- if .Values.data_dictionary -}}
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -16,3 +18,5 @@ spec:
       name: http
   selector:
     app: {{ .Values.data_dictionary.name }}
+
+{{- end }}

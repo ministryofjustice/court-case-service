@@ -52,21 +52,6 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long> {
         nativeQuery = true)
     Optional<HearingEntity> findByCaseId(String caseId);
 
-    // TODO - need to get CourtCaseEntity values for CRN, etc, from defendant
-//    @Query(value = "select hearing.*, grouped_hearings.min_created as first_created " +
-//        "from hearing" +
-//        "   inner join " +
-//        "       (select min(group_hearing.created) as min_created, max(group_hearing.created) as max_created, group_hearing.hearing_id from hearing group_hearing " +
-//        "           inner join defendant d on d.fk_hearing_id = group_hearing.id  " +
-//        "           where d.defendant_id = :defendantId " +
-//        "           and group_hearing.hearing_id = :caseId " +
-//        "           group by group_hearing.hearing_id) grouped_hearings " +
-//        "       on hearing.fk_court_case_id = grouped_hearings.hearing_id " +
-//        "and hearing.hearing_id = :caseId " +
-//        "and hearing.created = grouped_hearings.max_created " +
-//        "and hearing.deleted = false " +
-//        "order by hearing.id desc limit 1",
-//        nativeQuery = true)
     @Query(value = "select h.*, grouped_cases.min_created as something_else from court_case cc " +
             "join hearing h on cc.id = h.fk_court_case_id " +
             "inner join " +

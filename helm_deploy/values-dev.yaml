@@ -5,6 +5,8 @@ minReplicaCount: 1
 maxReplicaCount: 2
 maxSurge: 1
 
+environment: dev
+
 image:
   repository: quay.io/hmpps/court-case-service
   tag: latest

@@ -3,7 +3,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: data-extractor-analyticss
+  name: data-extractor-analytics
 spec:
   schedule: "0 1 * * *"
   jobTemplate:

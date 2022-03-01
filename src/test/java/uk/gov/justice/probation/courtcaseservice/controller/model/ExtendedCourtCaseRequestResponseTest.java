@@ -3,12 +3,12 @@ package uk.gov.justice.probation.courtcaseservice.controller.model;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
@@ -160,8 +160,8 @@ class ExtendedCourtCaseRequestResponseTest {
 
         final var offences = defendantEntity.getOffences();
         assertThat(offences).hasSize(2);
-        assertThat(offences.get(0).getDefendant()).isSameAs(defendantEntity);
-        assertThat(offences.get(1).getDefendant()).isSameAs(defendantEntity);
+        assertThat(offences.get(0).getHearingDefendant()).isSameAs(defendantEntity);
+        assertThat(offences.get(1).getHearingDefendant()).isSameAs(defendantEntity);
         assertThat(offences).extracting("act").containsOnly("ACT1", "ACT2");
         assertThat(offences).extracting("sequence").containsOnly(1, 2);
         assertThat(offences).extracting("summary").containsOnly("SUMMARY1", "SUMMARY2");
@@ -347,7 +347,7 @@ class ExtendedCourtCaseRequestResponseTest {
                                 .listNo("2")
                                 .build()
                 ))
-                .defendants(List.of(DefendantEntity.builder()
+                .defendants(List.of(HearingDefendantEntity.builder()
                                 .address(AddressPropertiesEntity.builder()
                                         .line1("line1")
                                         .line2("line2")
@@ -375,19 +375,19 @@ class ExtendedCourtCaseRequestResponseTest {
                                         .build())
                                 .defendantId("defendantId")
                                 .sex(Sex.MALE)
-                                .offences(List.of(DefendantOffenceEntity.builder()
+                                .offences(List.of(OffenceEntity.builder()
                                                 .act("act")
                                                 .summary("summary")
                                                 .title("title")
                                                 .sequence(1)
                                                 .listNo(11)
                                                 .build(),
-                                        DefendantOffenceEntity.builder()
+                                        OffenceEntity.builder()
                                                 .act("act2")
                                                 .build()
                                 ))
                                 .build(),
-                        DefendantEntity.builder()
+                        HearingDefendantEntity.builder()
                                 .defendantId("DEFENDANT_ID_2")
                                 .build()))
                 .build();

@@ -10,9 +10,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
@@ -159,7 +159,7 @@ class TelemetryServiceTest {
     @Test
     void whenTrackDefendantEvent_thenCallService() {
 
-        var defendant = DefendantEntity.builder()
+        var defendant = HearingDefendantEntity.builder()
             .pnc(PNC)
             .defendantId(DEFENDANT_ID)
             .offender(anOffender(CRN))
@@ -175,7 +175,7 @@ class TelemetryServiceTest {
     @Test
     void givenNoOffender_whenTrackDefendantEvent_thenCallService() {
 
-        var defendant = DefendantEntity.builder()
+        var defendant = HearingDefendantEntity.builder()
             .defendantId(DEFENDANT_ID)
             .pnc(PNC)
             .build();

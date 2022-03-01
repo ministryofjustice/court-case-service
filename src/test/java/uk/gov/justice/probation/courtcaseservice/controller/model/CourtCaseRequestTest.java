@@ -2,9 +2,9 @@ package uk.gov.justice.probation.courtcaseservice.controller.model;
 
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
@@ -97,7 +97,7 @@ class CourtCaseRequestTest {
         assertThat(defendant.getHearing()).isNotNull();
 
         assertThat(defendant.getOffences()).hasSize(2);
-        var expectedDefendantOffenceEntity1 = DefendantOffenceEntity.builder()
+        var expectedDefendantOffenceEntity1 = OffenceEntity.builder()
             .summary("OFFENCE_SUMMARY1")
             .title("OFFENCE_TITLE1")
             .act("ACT1")
@@ -106,9 +106,9 @@ class CourtCaseRequestTest {
             .build();
         assertThat(defendant.getOffences().get(0))
             .usingRecursiveComparison()
-            .ignoringFields("id", "defendant")
+            .ignoringFields("id", "hearingDefendant")
             .isEqualTo(expectedDefendantOffenceEntity1);
-        assertThat(defendant.getOffences().get(0).getDefendant()).isNotNull();
+        assertThat(defendant.getOffences().get(0).getHearingDefendant()).isNotNull();
 
         assertThat(defendant.getOffender().getCrn()).isEqualTo(CRN);
         assertThat(defendant.getOffender().getProbationStatus()).isSameAs(OffenderProbationStatus.PREVIOUSLY_KNOWN);

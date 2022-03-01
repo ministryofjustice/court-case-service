@@ -76,7 +76,7 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
     @OneToMany(mappedBy = "hearing", cascade = CascadeType.ALL, orphanRemoval=true)
-    private final List<DefendantEntity> defendants;
+    private final List<HearingDefendantEntity> defendants;
 
     @Column(name = "deleted", nullable = false, updatable = false)
     private final boolean deleted;
@@ -96,7 +96,7 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
         return courtCase.getSourceType();
     }
 
-    public DefendantEntity getDefendant(String defendantId) {
+    public HearingDefendantEntity getDefendant(String defendantId) {
         return Optional.ofNullable(defendants)
                 .map(Collection::stream)
                 .flatMap(defendantEntityStream -> defendantEntityStream

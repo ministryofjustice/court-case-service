@@ -13,8 +13,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRespo
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
@@ -75,7 +75,7 @@ class CourtCaseControllerTest {
             .hearingDays(Collections.singletonList(EntityHelper.aHearingEntity()
                     .withCourtCode(COURT_CODE)))
             .defendants(Collections.singletonList(
-                    DefendantEntity.builder()
+                    HearingDefendantEntity.builder()
                             .defendantId(DEFENDANT_ID)
                             .build()
             ))

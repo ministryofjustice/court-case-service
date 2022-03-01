@@ -17,13 +17,13 @@ import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
@@ -77,7 +77,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                 .day(LocalDate.of(2021, 9, 11))
                 .time(LocalTime.of(9, 0))
                 .build()))
-            .defendants(Collections.singletonList(DefendantEntity.builder()
+            .defendants(Collections.singletonList(HearingDefendantEntity.builder()
                     .defendantId("51354F3C-9625-404D-B820-C74724D23484")
                     .sex(Sex.MALE)
                     .offender(OffenderEntity.builder()
@@ -103,7 +103,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                     .caseNo("D517D32D-3C80-41E8-846E-D274DC2B94A5")
                     .sourceType(SourceType.LIBRA)
                 .build())
-                .defendants(List.of(DefendantEntity.builder()
+                .defendants(List.of(HearingDefendantEntity.builder()
                         .address(AddressPropertiesEntity.builder()
                                 .line1("Address 1")
                                 .line2("Address 2")
@@ -131,7 +131,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                 .surname("Morgan")
                                 .title("Mr")
                                 .build())
-                        .offences(List.of(DefendantOffenceEntity.builder()
+                        .offences(List.of(OffenceEntity.builder()
                                 .act("Theft act")
                                 .summary("Did a theft")
                                 .title("Thievery")
@@ -140,7 +140,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                         .sex(Sex.MALE)
                         .type(DefendantType.PERSON)
                         .build(),
-                        DefendantEntity.builder()
+                        HearingDefendantEntity.builder()
                                 .address(AddressPropertiesEntity.builder()
                                         .line1("Address 1")
                                         .line2("Address 2")
@@ -167,7 +167,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                         .surname("Marston")
                                         .title("Mr")
                                         .build())
-                                .offences(List.of(DefendantOffenceEntity.builder()
+                                .offences(List.of(OffenceEntity.builder()
                                         .act("Theft act")
                                         .summary("Did a theft")
                                         .title("Thievery")

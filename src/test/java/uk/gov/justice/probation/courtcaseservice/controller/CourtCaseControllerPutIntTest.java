@@ -16,7 +16,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
@@ -613,7 +613,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                         var offender = courtCase.getDefendants().stream()
                             .filter(defendantEntity -> defendantEntity.getDefendantId().equalsIgnoreCase(defendantId))
                             .findFirst()
-                            .map(DefendantEntity::getOffender)
+                            .map(HearingDefendantEntity::getOffender)
                             .orElse(null);
                         assertThat(offender).isNotNull();
                     }, () -> fail("COURT CASE does not exist for " + caseId));

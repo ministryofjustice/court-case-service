@@ -12,9 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
@@ -135,11 +135,11 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                 });
     }
 
-    void updateOffenders(HearingEntity updatedCourtCase, Predicate<DefendantEntity> defendantPredicate) {
+    void updateOffenders(HearingEntity updatedCourtCase, Predicate<HearingDefendantEntity> defendantPredicate) {
         Optional.ofNullable(updatedCourtCase.getDefendants()).orElse(Collections.emptyList())
                 .stream()
                 .filter(defendantPredicate)
-                .map(DefendantEntity::getOffender)
+                .map(HearingDefendantEntity::getOffender)
                 .filter(Objects::nonNull)
                 .forEach(updatedOffender -> {
                     final var existingOffender = offenderRepository.findByCrn(updatedOffender.getCrn());
@@ -173,7 +173,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         });
     }
 
-    private void trackUpdateDefendantEvents(HearingEntity existingCase, DefendantEntity defendant, String caseId) {
+    private void trackUpdateDefendantEvents(HearingEntity existingCase, HearingDefendantEntity defendant, String caseId) {
         final var existingDefendant = existingCase.getDefendant(defendant.getDefendantId());
         final var wasLinked = Optional.ofNullable(existingDefendant).map(def -> def.getOffender() != null).orElse(false);
         final var isLinked = defendant.getOffender() != null;
@@ -277,7 +277,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     private void confirmAndRejectMatches(HearingEntity existingCase, HearingEntity updatedCase, OffenderMatchEntity match, String defendantId) {
         var defendant = updatedCase.getDefendant(defendantId);
-        var offender = Optional.ofNullable(defendant).map(DefendantEntity::getOffender);
+        var offender = Optional.ofNullable(defendant).map(HearingDefendantEntity::getOffender);
         boolean crnMatches = match.getCrn().equals(offender.map(OffenderEntity::getCrn).orElse(null));
 
         match.setConfirmed(crnMatches);
@@ -291,12 +291,12 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         if (crnMatches && defendant.getPnc() != null && !defendant.getPnc().equals(match.getPnc())) {
             log.warn("Unexpected PNC mismatch when updating offender match - matchId: {}, defendant ID: {}, matchPnc: {}, updatePnc: {}",
                     match.getId(), defendantId, match.getPnc(),
-                    Optional.ofNullable(existingCase.getDefendants()).map(defendantEntities -> defendantEntities.stream().map(DefendantEntity::getDefendantId).collect(Collectors.toList())).orElse(null));
+                    Optional.ofNullable(existingCase.getDefendants()).map(defendantEntities -> defendantEntities.stream().map(HearingDefendantEntity::getDefendantId).collect(Collectors.toList())).orElse(null));
         }
         if (crnMatches && defendant.getCro() != null && !defendant.getCro().equals(match.getCro())) {
             log.warn("Unexpected CRO mismatch when updating offender match - matchId: {}, defendant ID: {}, matchCro: {}, updateCro: {}",
                     match.getId(), defendantId, match.getCro(),
-                    Optional.ofNullable(existingCase.getDefendants()).map(defendantEntities -> defendantEntities.stream().map(DefendantEntity::getCro).collect(Collectors.toList())).orElse(null)
+                    Optional.ofNullable(existingCase.getDefendants()).map(defendantEntities -> defendantEntities.stream().map(HearingDefendantEntity::getCro).collect(Collectors.toList())).orElse(null)
             );
         }
     }

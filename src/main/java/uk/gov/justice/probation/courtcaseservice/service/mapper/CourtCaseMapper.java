@@ -1,9 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 
 import java.util.Collections;
 import java.util.List;
@@ -63,9 +63,9 @@ public class CourtCaseMapper {
             .collect(Collectors.toList());
     }
 
-    public static DefendantEntity createDefendant(DefendantEntity defendantEntity, String newProbationStatus) {
+    public static HearingDefendantEntity createDefendant(HearingDefendantEntity defendantEntity, String newProbationStatus) {
 
-        var newDefendantEntity = DefendantEntity.builder()
+        var newDefendantEntity = HearingDefendantEntity.builder()
             .defendantId(defendantEntity.getDefendantId())
             .defendantName(defendantEntity.getDefendantName())
             .name(defendantEntity.getName())
@@ -84,12 +84,12 @@ public class CourtCaseMapper {
                 .collect(Collectors.toList()))
             .build();
 
-        newDefendantEntity.getOffences().forEach(offenceEntity -> offenceEntity.setDefendant(newDefendantEntity));
+        newDefendantEntity.getOffences().forEach(offenceEntity -> offenceEntity.setHearingDefendant(newDefendantEntity));
         return newDefendantEntity;
     }
 
-    static DefendantOffenceEntity createDefendantOffence(DefendantOffenceEntity offenceEntity) {
-        return DefendantOffenceEntity.builder()
+    static OffenceEntity createDefendantOffence(OffenceEntity offenceEntity) {
+        return OffenceEntity.builder()
             .act(offenceEntity.getAct())
             .summary(offenceEntity.getSummary())
             .title(offenceEntity.getTitle())

@@ -15,10 +15,10 @@ import org.springframework.lang.NonNull;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
@@ -85,7 +85,7 @@ class ImmutableCourtCaseServiceTest {
     class CreateUpdateByCaseAndDefendantIdTest {
 
         private HearingEntity incomingHearing;
-        private DefendantEntity defendant;
+        private HearingDefendantEntity defendant;
         private OffenderEntity offender;
 
         @BeforeEach
@@ -94,7 +94,7 @@ class ImmutableCourtCaseServiceTest {
             lenient().when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             incomingHearing = EntityHelper.aHearingEntity(CRN, CASE_NO);
             offender = OffenderEntity.builder().crn("X99999").probationStatus(OffenderProbationStatus.of(PROBATION_STATUS)).build();
-            defendant = DefendantEntity.builder().defendantId(DEFENDANT_ID).offender(offender).build();
+            defendant = HearingDefendantEntity.builder().defendantId(DEFENDANT_ID).offender(offender).build();
         }
 
         @Test
@@ -186,7 +186,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenSingleExistingCaseLinkedCase_whenCreateOrUpdateCaseCalledWithoutCrnToUnlink_thenLogUpdatedEventAndSave() {
-            var defendant = DefendantEntity.builder().defendantId(DEFENDANT_ID).build();
+            var defendant = HearingDefendantEntity.builder().defendantId(DEFENDANT_ID).build();
             var updatedCase = EntityHelper.aHearingEntity(CASE_ID).withDefendants(List.of(defendant));
             var existingCase = EntityHelper.aHearingEntityWithCrn(CRN);
             when(hearingRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(existingCase));
@@ -226,7 +226,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenExistingCaseWithMultipleDefendants_whenCreateOrUpdateCaseCalledWithCrn_thenLogCreatedAndLinkedEvent() {
-            var otherExistingDefendant = DefendantEntity.builder().defendantId("DEF_ID_2").build().withOffender(offender);
+            var otherExistingDefendant = HearingDefendantEntity.builder().defendantId("DEF_ID_2").build().withOffender(offender);
             var updatedCase = EntityHelper.aHearingEntity(CASE_ID).withDefendants(List.of(defendant));
             var existingCase = EntityHelper.aHearingEntity(CASE_ID).withDefendants(List.of(defendant, otherExistingDefendant));
             when(offenderRepository.findByCrn("X99999")).thenReturn(Optional.empty());
@@ -247,7 +247,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void whenAddDefendants_thenReturn() {
-            var otherExistingDefendant = DefendantEntity.builder().defendantId("DEF_ID_2").build().withOffender(offender);
+            var otherExistingDefendant = HearingDefendantEntity.builder().defendantId("DEF_ID_2").build().withOffender(offender);
             var updatedCase = EntityHelper.aHearingEntity(CASE_ID).withDefendants(List.of(defendant));
             var existingCase = EntityHelper.aHearingEntity(CASE_ID).withDefendants(List.of(defendant, otherExistingDefendant));
             when(offenderRepository.findByCrn("X99999")).thenReturn(Optional.empty());
@@ -701,7 +701,7 @@ class ImmutableCourtCaseServiceTest {
         public boolean matches(HearingEntity arg) {
             final var argDefendantIds = Optional.ofNullable(arg.getDefendants()).orElse(Collections.emptyList())
                     .stream()
-                    .map(DefendantEntity::getDefendantId)
+                    .map(HearingDefendantEntity::getDefendantId)
                     .collect(Collectors.toList());
             return caseId.equals(arg.getCaseId()) && defendantIds.equals(argDefendantIds);
         }

@@ -24,10 +24,10 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchD
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetailResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
@@ -190,7 +190,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                         .time(LocalTime.of(9, 0))
                         .day(LocalDate.of(2019, 12, 4))
                         .build()))
-                .defendants(Collections.singletonList(DefendantEntity.builder()
+                .defendants(Collections.singletonList(HearingDefendantEntity.builder()
                         .defendantId(defendantId)
                         .pnc("A/1234560BA")
                         .defendantName("Mr Johnny BALL")

@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
@@ -133,12 +133,12 @@ public class ExtendedCourtCaseRequestResponse {
         return courtCaseEntity;
     }
 
-    private DefendantEntity buildDefendant(Defendant defendant) {
+    private HearingDefendantEntity buildDefendant(Defendant defendant) {
 
         final var offences = buildDefendantOffences(defendant.getOffences());
         final var offender = buildOffender(defendant);
 
-        final var defendantEntity = DefendantEntity.builder()
+        final var defendantEntity = HearingDefendantEntity.builder()
             .address(buildAddress(defendant.getAddress()))
             .cro(defendant.getCro())
             .dateOfBirth(defendant.getDateOfBirth())
@@ -152,7 +152,7 @@ public class ExtendedCourtCaseRequestResponse {
             .defendantId(defendant.getDefendantId())
             .phoneNumber(Optional.ofNullable(defendant.getPhoneNumber()).map(PhoneNumber::asEntity).orElse(null))
             .build();
-        offences.forEach(offence -> offence.setDefendant(defendantEntity));
+        offences.forEach(offence -> offence.setHearingDefendant(defendantEntity));
         return defendantEntity;
     }
 
@@ -171,14 +171,14 @@ public class ExtendedCourtCaseRequestResponse {
                     .orElse(null);
     }
 
-    private List<DefendantOffenceEntity> buildDefendantOffences(List<OffenceRequestResponse> offences) {
+    private List<OffenceEntity> buildDefendantOffences(List<OffenceRequestResponse> offences) {
 
         return IntStream.range(0, Optional.ofNullable(offences)
                                     .map(List::size)
                                     .orElse(0))
             .mapToObj(i -> {
                 var offence = offences.get(i);
-                return DefendantOffenceEntity.builder()
+                return OffenceEntity.builder()
                     .sequence(i + 1)
                     .title(offence.getOffenceTitle())
                     .summary(offence.getOffenceSummary())

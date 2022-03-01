@@ -23,7 +23,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListRespon
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
@@ -211,7 +211,7 @@ public class CourtCaseController {
     private CourtCaseResponse buildCourtCaseResponse(HearingEntity hearingEntity) {
         final var defendantId = Optional.ofNullable(hearingEntity.getDefendants())
                 .flatMap(defs -> defs.stream().findFirst())
-                .map(DefendantEntity::getDefendantId)
+                .map(HearingDefendantEntity::getDefendantId)
                 .orElseThrow(() -> new IllegalStateException(String.format("Court case with id %s does not have any defendants.", hearingEntity.getCaseId())));
 
         return buildCourtCaseResponseForCaseIdAndDefendantId(hearingEntity, defendantId);
@@ -223,7 +223,7 @@ public class CourtCaseController {
 
         final var caseId = hearingEntity.getCaseId();
         return defendantEntities.stream()
-            .sorted(Comparator.comparing(DefendantEntity::getDefendantSurname))
+            .sorted(Comparator.comparing(HearingDefendantEntity::getDefendantSurname))
             .map(defendantEntity ->  {
                 var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantEntity.getDefendantId()).orElse(0);
                 return CourtCaseResponseMapper.mapFrom(hearingEntity, defendantEntity, matchCount, hearingDate);

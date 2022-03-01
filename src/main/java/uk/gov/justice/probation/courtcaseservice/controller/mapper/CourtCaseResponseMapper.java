@@ -6,9 +6,9 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRespo
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
@@ -42,7 +42,7 @@ public class CourtCaseResponseMapper {
         return builder.build();
     }
 
-    public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, DefendantEntity defendantEntity, int matchCount, LocalDate hearingDate) {
+    public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, HearingDefendantEntity defendantEntity, int matchCount, LocalDate hearingDate) {
         // Core case-based
         final var builder = CourtCaseResponse.builder();
 
@@ -96,7 +96,7 @@ public class CourtCaseResponseMapper {
             .collect(Collectors.toList()));
     }
 
-    private static List<OffenceResponse> mapOffencesFromDefendantOffences(List<DefendantOffenceEntity> offenceEntities) {
+    private static List<OffenceResponse> mapOffencesFromDefendantOffences(List<OffenceEntity> offenceEntities) {
         return Optional.ofNullable(offenceEntities).orElse(Collections.emptyList())
             .stream()
             .sorted(Comparator.comparing(offenceEntity ->
@@ -106,7 +106,7 @@ public class CourtCaseResponseMapper {
             .collect(Collectors.toList());
     }
 
-    private static OffenceResponse mapFrom(DefendantOffenceEntity offenceEntity) {
+    private static OffenceResponse mapFrom(OffenceEntity offenceEntity) {
         return OffenceResponse.builder()
             .offenceTitle(offenceEntity.getTitle())
             .offenceSummary(offenceEntity.getSummary())
@@ -116,7 +116,7 @@ public class CourtCaseResponseMapper {
             .build();
     }
 
-    private static void addDefendantFields(CourtCaseResponseBuilder builder, DefendantEntity defendantEntity) {
+    private static void addDefendantFields(CourtCaseResponseBuilder builder, HearingDefendantEntity defendantEntity) {
         addOffenderFields(builder, defendantEntity.getOffender());
         builder
             .defendantName(defendantEntity.getDefendantName())

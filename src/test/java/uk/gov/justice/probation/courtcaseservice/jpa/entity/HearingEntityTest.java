@@ -11,10 +11,10 @@ class HearingEntityTest {
 
     private final HearingEntity hearingEntity =
         HearingEntity.builder()
-                    .defendants(List.of(DefendantEntity.builder()
+                    .defendants(List.of(HearingDefendantEntity.builder()
                                             .defendantId("abc")
                                             .build(),
-                                        DefendantEntity.builder()
+                                        HearingDefendantEntity.builder()
                                             .defendantId(DEFENDANT_ID)
                                             .build()))
                     .build();

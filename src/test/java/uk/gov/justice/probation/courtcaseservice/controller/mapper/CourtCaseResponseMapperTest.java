@@ -7,15 +7,15 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceRespons
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
@@ -82,8 +82,8 @@ class CourtCaseResponseMapperTest {
 
     @BeforeEach
     void setUp() {
-        List<DefendantEntity> defendants = Arrays.asList(
-            DefendantEntity.builder().defendantName(DEFENDANT_NAME)
+        List<HearingDefendantEntity> defendants = Arrays.asList(
+            HearingDefendantEntity.builder().defendantName(DEFENDANT_NAME)
                 .name(namePropertiesEntity)
                 .sex(DEFENDANT_SEX)
                 .nationality1(NATIONALITY_1)
@@ -117,7 +117,7 @@ class CourtCaseResponseMapperTest {
     @Test
     void givenSeparateDefendant_whenMap_thenReturnMultipleResponses() {
         // Build defendant with deliberately different values from the defaults
-        var defendantOffence = DefendantOffenceEntity.builder()
+        var defendantOffence = OffenceEntity.builder()
             .act(ACT)
             .sequence(1)
             .summary(OFFENCE_SUMMARY)
@@ -126,7 +126,7 @@ class CourtCaseResponseMapperTest {
             .build();
         var defendantUuid = UUID.randomUUID().toString();
         var defendantName = NamePropertiesEntity.builder().title("DJ").forename1("Giles").surname("PETERSON").build();
-        var defendantEntity = DefendantEntity.builder()
+        var defendantEntity = HearingDefendantEntity.builder()
             .defendantName(defendantName.getFullName())
             .name(defendantName)
             .address(AddressPropertiesEntity.builder().postcode("WN8 0PZ").build())
@@ -304,7 +304,7 @@ class CourtCaseResponseMapperTest {
         assertCaseFields(courtCaseResponse, caseNo, SourceType.COMMON_PLATFORM);
     }
 
-    private HearingEntity buildCourtCaseEntity(List<DefendantEntity> defendants, List<HearingDayEntity> hearings, LocalDateTime firstCreated) {
+    private HearingEntity buildCourtCaseEntity(List<HearingDefendantEntity> defendants, List<HearingDayEntity> hearings, LocalDateTime firstCreated) {
 
         return HearingEntity.builder()
             .id(ID)

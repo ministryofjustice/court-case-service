@@ -42,8 +42,8 @@ import java.util.Optional;
 @With
 @Getter
 @ToString
-@EqualsAndHashCode(callSuper = true, exclude = "hearing")
-public class DefendantEntity extends BaseImmutableEntity implements Serializable {
+@EqualsAndHashCode(callSuper = true, exclude = "hearingDefendant")
+public class HearingDefendantEntity extends BaseImmutableEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -68,8 +68,8 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
 
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)
-    @OneToMany(mappedBy = "defendant", cascade = CascadeType.ALL, orphanRemoval=true)
-    private final List<DefendantOffenceEntity> offences;
+    @OneToMany(mappedBy = "hearingDefendant", cascade = CascadeType.ALL, orphanRemoval=true)
+    private final List<OffenceEntity> offences;
 
     @Column(name = "DEFENDANT_NAME", nullable = false)
     private final String defendantName;

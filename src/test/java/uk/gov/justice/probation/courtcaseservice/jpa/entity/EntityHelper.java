@@ -73,7 +73,7 @@ public class EntityHelper {
         return aHearingEntity(crn, caseNo, List.of(aDefendantEntity(DEFENDANT_ID, crn)));
     }
 
-    public static HearingEntity aHearingEntity(String crn, String caseNo, List<DefendantEntity> defendants) {
+    public static HearingEntity aHearingEntity(String crn, String caseNo, List<HearingDefendantEntity> defendants) {
         return populateBasics(crn)
             .courtCase(CourtCaseEntity.builder()
                 .caseId(CASE_ID)
@@ -84,32 +84,32 @@ public class EntityHelper {
             .build();
     }
 
-    public static DefendantEntity aDefendantEntity() {
+    public static HearingDefendantEntity aDefendantEntity() {
         return aDefendantEntity(DEFENDANT_ADDRESS, NAME);
     }
 
-    public static DefendantEntity aDefendantEntity(AddressPropertiesEntity address, NamePropertiesEntity name) {
+    public static HearingDefendantEntity aDefendantEntity(AddressPropertiesEntity address, NamePropertiesEntity name) {
         return aDefendantEntity(address, name, DEFENDANT_ID, CRN);
     }
 
-    public static DefendantEntity aDefendantEntity(NamePropertiesEntity name) {
+    public static HearingDefendantEntity aDefendantEntity(NamePropertiesEntity name) {
         return aDefendantEntity(DEFENDANT_ADDRESS, name);
     }
 
-    public static DefendantEntity aDefendantEntity(AddressPropertiesEntity address) {
+    public static HearingDefendantEntity aDefendantEntity(AddressPropertiesEntity address) {
         return aDefendantEntity(address, NAME);
     }
 
-    public static DefendantEntity aDefendantEntity(String defendantId) {
+    public static HearingDefendantEntity aDefendantEntity(String defendantId) {
         return aDefendantEntity(DEFENDANT_ADDRESS, NAME, defendantId, CRN);
     }
 
-    public static DefendantEntity aDefendantEntity(String defendantId, String crn) {
+    public static HearingDefendantEntity aDefendantEntity(String defendantId, String crn) {
         return aDefendantEntity(DEFENDANT_ADDRESS, NAME, defendantId, crn);
     }
 
-    private static DefendantEntity aDefendantEntity(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId, String crn) {
-        return DefendantEntity.builder()
+    private static HearingDefendantEntity aDefendantEntity(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId, String crn) {
+        return HearingDefendantEntity.builder()
             .name(name)
             .defendantName(name.getFullName())
             .offender(anOffender(crn))
@@ -166,12 +166,12 @@ public class EntityHelper {
             .hearingDays(List.of(aHearingEntity()));
     }
 
-    public static DefendantOffenceEntity aDefendantOffence() {
+    public static OffenceEntity aDefendantOffence() {
         return aDefendantOffence(OFFENCE_TITLE, 1);
     }
 
-    public static DefendantOffenceEntity aDefendantOffence(String title, Integer seq) {
-        return DefendantOffenceEntity.builder()
+    public static OffenceEntity aDefendantOffence(String title, Integer seq) {
+        return OffenceEntity.builder()
             .summary(OFFENCE_SUMMARY)
             .title(title)
             .act(OFFENCE_ACT)

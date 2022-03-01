@@ -101,7 +101,7 @@ class CourtCaseMapperTest {
                 assertThat(defendant.getName().getForename1()).isEqualTo("Gordon");
                 assertThat(defendant.getHearing()).isSameAs(newEntity);
                 var offences = defendant.getOffences();
-                assertThat(offences.get(0).getDefendant()).isSameAs(defendant);
+                assertThat(offences.get(0).getHearingDefendant()).isSameAs(defendant);
             });
     }
 

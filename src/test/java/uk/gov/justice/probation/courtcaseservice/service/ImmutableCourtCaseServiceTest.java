@@ -51,6 +51,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.HEARING_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aDefendantEntity;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingEntity;
@@ -159,7 +160,7 @@ class ImmutableCourtCaseServiceTest {
             verify(telemetryService).trackCourtCaseDefendantEvent(TelemetryEventType.DEFENDANT_LINKED, incomingHearing.getDefendants().get(0), CASE_ID);
             verify(hearingRepository).findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
             verify(hearingRepository).save(incomingHearing);
-            assertThat(incomingHearing.getHearingId()).isEqualTo(CASE_ID);
+            assertThat(incomingHearing.getHearingId()).isEqualTo(HEARING_ID);
             verify(offenderRepository).findByCrn(CRN);
             verify(offenderRepository).save(existingOffender);
             assertThat(savedCourtCase).isSameAs(incomingHearing);
@@ -283,7 +284,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenNoExistingCase_whenCreateOrUpdateCaseCalledWithLinkedDefendant_thenLogCreatedAndLinkedEvent() {
-            when(hearingRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.empty());
+            when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.empty());
             when(hearingRepository.save(hearing)).thenReturn(hearing);
             when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.empty());
 
@@ -293,7 +294,7 @@ class ImmutableCourtCaseServiceTest {
             verify(telemetryService).trackCourtCaseDefendantEvent(TelemetryEventType.DEFENDANT_LINKED, hearing.getDefendants().get(0), hearing.getCaseId());
             verify(hearingRepository).save(hearing);
             assertThat(savedCourtCase).isNotNull();
-            assertThat(savedCourtCase.getHearingId()).isEqualTo(CASE_ID);
+            assertThat(savedCourtCase.getHearingId()).isEqualTo(HEARING_ID);
             verify(offenderRepository).findByCrn(CRN);
             verify(offenderRepository).save(hearing.getDefendants().get(0).getOffender());
             verifyNoMoreInteractions(hearingRepository, telemetryService, offenderRepository);
@@ -303,7 +304,7 @@ class ImmutableCourtCaseServiceTest {
         void givenNoExistingCase_whenCreateCaseCalledWithoutCrn_thenLogOnlyCreatedEvent() {
 
             hearing = EntityHelper.aHearingEntity(null, CASE_NO);
-            when(hearingRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.empty());
+            when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.empty());
             when(hearingRepository.save(hearing)).thenReturn(hearing);
 
             var savedCourtCase = service.createHearing(CASE_ID, hearing).block();
@@ -316,7 +317,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenExistingCase_whenCreateOrUpdateCaseCalled_thenLogUpdatedEvent() {
-            when(hearingRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.of(hearing));
+            when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(hearing));
             when(hearingRepository.save(hearing)).thenReturn(hearing);
             var existingOffender = OffenderEntity.builder().crn(CRN).probationStatus(OffenderProbationStatus.CURRENT).id(201L).build();
             when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(existingOffender));
@@ -338,7 +339,7 @@ class ImmutableCourtCaseServiceTest {
         @Test
         void givenExistingCaseWithNullCrn_whenCreateOrUpdateCaseCalledWithCrn_thenLogLinkedEvent() {
             var existingCase = EntityHelper.aHearingEntity(null, CASE_NO);
-            when(hearingRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.of(existingCase));
+            when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(existingCase));
             when(hearingRepository.save(existingCase)).thenReturn(existingCase);
             var existingOffender = OffenderEntity.builder().crn(CRN).id(201L).build();
             when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(existingOffender));
@@ -356,7 +357,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenExistingCaseWithCrn_whenCreateOrUpdateCaseCalledWithNullCrn_thenLogUnLinkedEvent() {
-            when(hearingRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.of(hearing));
+            when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(hearing));
             when(hearingRepository.save(hearing)).thenReturn(hearing);
 
             var updatedCourtCase = EntityHelper.aHearingEntity(null, CASE_NO);
@@ -375,7 +376,7 @@ class ImmutableCourtCaseServiceTest {
             var linkedDefendant = aDefendantEntity("abc", CRN);
             var unlinkedDefendant = aDefendantEntity("def", null);
             var newCourtCase = hearing.withDefendants(List.of(linkedDefendant, unlinkedDefendant));
-            when(hearingRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.empty());
+            when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.empty());
             when(hearingRepository.save(newCourtCase)).thenReturn(newCourtCase);
             when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.empty());
 
@@ -392,14 +393,14 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenUnknownCourtCode_whenCreateOrUpdateCase_thenThrowException() {
-            hearing = EntityHelper.aHearingEntity(null, CASE_NO);
-            when(hearingRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.empty());
+            when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.empty());
             when(hearingRepository.save(hearing)).thenReturn(hearing);
             when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             when(courtRepository.findByCourtCode("XXX")).thenReturn(Optional.empty());
 
 
             hearing = HearingEntity.builder()
+                    .hearingId(HEARING_ID)
                     .hearingDays(List.of(
                             HearingDayEntity.builder()
                                     .courtCode(COURT_CODE)
@@ -643,7 +644,7 @@ class ImmutableCourtCaseServiceTest {
             var existingCase = EntityHelper.aHearingEntity(null, CASE_NO, List.of(
                     aDefendantEntity("defendant1", null)
             ));
-            when(hearingRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.of(existingCase));
+            when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(existingCase));
             when(groupedOffenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, "defendant1"))
                     .thenReturn(buildOffenderMatches(matchCrn, rejectedCrn));
             when(groupedOffenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, "defendant2")).thenReturn(Optional.empty());
@@ -657,7 +658,7 @@ class ImmutableCourtCaseServiceTest {
             service.createHearing(CASE_ID, caseToUpdate).block();
 
             verify(hearingRepository).save(caseToUpdate);
-            assertThat(caseToUpdate.getHearingId()).isEqualTo(CASE_ID);
+            assertThat(caseToUpdate.getHearingId()).isEqualTo(HEARING_ID);
             verify(groupedOffenderMatchRepository).findByCaseIdAndDefendantId(CASE_ID, "defendant1");
             verify(groupedOffenderMatchRepository).findByCaseIdAndDefendantId(CASE_ID, "defendant2");
 

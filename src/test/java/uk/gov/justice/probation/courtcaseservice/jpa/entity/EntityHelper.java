@@ -8,6 +8,7 @@ import java.util.Optional;
 public class EntityHelper {
 
     public static final String CASE_ID = "ac24a1be-939b-49a4-a524-21a3d228f8bc";
+    public static final String HEARING_ID = "75e63d6c-5487-4244-a5bc-7cf8a38992db";
     public static final String COURT_CODE = "B10JQ";
     public static final String CRN  = "X340906";
     public static final String CASE_NO = "1001";
@@ -153,6 +154,7 @@ public class EntityHelper {
     private static HearingEntity.HearingEntityBuilder populateBasics(String crn) {
         var defendant = aDefendantEntity(DEFENDANT_ID, crn);
         return HearingEntity.builder()
+            .hearingId(HEARING_ID)
             .deleted(false)
             .firstCreated(LocalDateTime.now())
             .defendants(List.of(defendant))

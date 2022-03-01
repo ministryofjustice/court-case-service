@@ -13,14 +13,7 @@ import java.util.Optional;
 @Repository
 public interface HearingRepository extends CrudRepository<HearingEntity, Long> {
 
-    @Query(value = "SELECT hearing.*, null as first_created FROM hearing " +
-        "join court_case " +
-        "on court_case.id = hearing.fk_court_case_id " +
-        "where court_case.case_id  = :caseId " +
-        "and hearing.deleted = false " +
-        "order by hearing.id desc LIMIT 1",
-        nativeQuery = true)
-    Optional<HearingEntity> findFirstByCaseIdOrderByIdDesc(String caseId);
+    Optional<HearingEntity> findFirstByHearingIdOrderByIdDesc(String hearingId);
 
     @Query(value = "select h.* from court_case cc " +
             "join hearing h on cc.id = h.fk_court_case_id " +

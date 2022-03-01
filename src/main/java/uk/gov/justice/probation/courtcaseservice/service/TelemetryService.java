@@ -45,6 +45,10 @@ public class TelemetryService {
                 .map(CourtCaseEntity::getCaseId)
                 .ifPresent((caseId) -> properties.put("caseId", caseId));
 
+        ofNullable(hearingEntity)
+                .map(HearingEntity::getHearingId)
+                .ifPresent((hearingId) -> properties.put("hearingId", hearingId));
+
         ofNullable(hearingEntity.getHearingDays())
                 .ifPresent(hearings -> {
                     final var hearingsString = hearings.stream()
@@ -84,6 +88,9 @@ public class TelemetryService {
         ofNullable(hearingEntity)
                 .map(HearingEntity::getCaseId)
                 .ifPresent((caseId) -> properties.put("caseId", caseId));
+        ofNullable(hearingEntity)
+                .map(HearingEntity::getHearingId)
+                .ifPresent((hearingId) -> properties.put("hearingId", hearingId));
         ofNullable(matchEntity)
                 .map(OffenderMatchEntity::getPnc)
                 .ifPresent((pnc) -> properties.put("pnc", pnc));

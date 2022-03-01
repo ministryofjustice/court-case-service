@@ -65,20 +65,20 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     @Override
     @Retryable(value = CannotAcquireLockException.class)
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public Mono<HearingEntity> createHearing(String caseId, HearingEntity updatedCase) throws EntityNotFoundException, InputMismatchException {
-        validateEntity(caseId, updatedCase);
+    public Mono<HearingEntity> createHearing(String caseId, HearingEntity updatedHearing) throws EntityNotFoundException, InputMismatchException {
+        validateEntity(caseId, updatedHearing);
 
-        updateOffenders(updatedCase, defendantEntity -> true);
-        hearingRepository.findFirstByCaseIdOrderByIdDesc(caseId)
+        updateOffenders(updatedHearing, defendantEntity -> true);
+        hearingRepository.findFirstByHearingIdOrderByIdDesc(Optional.ofNullable(updatedHearing.getHearingId()).orElse(caseId))
                 .ifPresentOrElse(
-                        existingCase -> {
-                            updatedCase.getDefendants()
-                                    .forEach(defendantEntity -> updateOffenderMatches(existingCase, updatedCase, defendantEntity.getDefendantId()));
-                            trackUpdateEvents(existingCase, updatedCase);
+                        existingHearing -> {
+                            updatedHearing.getDefendants()
+                                    .forEach(defendantEntity -> updateOffenderMatches(existingHearing, updatedHearing, defendantEntity.getDefendantId()));
+                            trackUpdateEvents(existingHearing, updatedHearing);
                         },
-                        () -> trackCreateEvents(updatedCase));
+                        () -> trackCreateEvents(updatedHearing));
 
-        return Mono.just(updatedCase)
+        return Mono.just(updatedHearing)
                 .map(hearingEntity -> {
                     log.debug("Saving case ID {}", caseId);
                     enforceValidHearingId(hearingEntity);

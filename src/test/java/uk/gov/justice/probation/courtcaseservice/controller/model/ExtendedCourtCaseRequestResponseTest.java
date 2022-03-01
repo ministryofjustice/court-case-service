@@ -41,6 +41,8 @@ class ExtendedCourtCaseRequestResponseTest {
     void givenHearings_whenAsEntity_thenReturn() {
 
         final var request = ExtendedCourtCaseRequestResponse.builder()
+                .caseId("CASE_ID")
+                .hearingId("HEARING_ID")
                 .hearingDays(List.of(
                         HearingDay.builder()
                                 .listNo(LIST_NO)
@@ -57,6 +59,45 @@ class ExtendedCourtCaseRequestResponseTest {
                 .build();
 
         final var courtCaseEntity = request.asCourtCaseEntity();
+
+        assertThat(courtCaseEntity.getCaseId()).isEqualTo("CASE_ID");
+        assertThat(courtCaseEntity.getHearingId()).isEqualTo("HEARING_ID");
+
+        assertThat(courtCaseEntity.getHearingDays()).hasSize(2);
+        assertThat(courtCaseEntity.getHearingDays()).extracting("listNo").contains("1st", "2nd");
+        assertThat(courtCaseEntity.getHearingDays()).extracting("courtCode").containsOnly(COURT_CODE);
+        assertThat(courtCaseEntity.getHearingDays()).extracting("courtRoom").containsOnly(COURT_ROOM);
+        assertThat(courtCaseEntity.getHearingDays()).extracting("courtRoom").containsOnly(COURT_ROOM);
+        assertThat(courtCaseEntity.getHearingDays()).extracting("day").containsOnly(SESSION_START_TIME.toLocalDate());
+        final var localTime = SESSION_START_TIME.toLocalTime();
+        assertThat(courtCaseEntity.getHearingDays()).extracting("time").containsOnly(localTime, localTime.plusMinutes(30));
+        assertThat(courtCaseEntity.getHearingDays().get(0).getHearing()).isSameAs(courtCaseEntity);
+    }
+
+    @Test
+    void givenNoCaseId_whenAsEntity_thenReturnCaseIdAsHearingId() {
+
+        final var request = ExtendedCourtCaseRequestResponse.builder()
+                .caseId("CASE_ID")
+                .hearingDays(List.of(
+                        HearingDay.builder()
+                                .listNo(LIST_NO)
+                                .sessionStartTime(SESSION_START_TIME)
+                                .courtRoom(COURT_ROOM)
+                                .courtCode(COURT_CODE)
+                                .build(),
+                        HearingDay.builder()
+                                .listNo("2nd")
+                                .sessionStartTime(SESSION_START_TIME.plusMinutes(30))
+                                .courtRoom(COURT_ROOM)
+                                .courtCode(COURT_CODE)
+                                .build()))
+                .build();
+
+        final var courtCaseEntity = request.asCourtCaseEntity();
+
+        assertThat(courtCaseEntity.getCaseId()).isEqualTo("CASE_ID");
+        assertThat(courtCaseEntity.getHearingId()).isEqualTo("CASE_ID");
 
         assertThat(courtCaseEntity.getHearingDays()).hasSize(2);
         assertThat(courtCaseEntity.getHearingDays()).extracting("listNo").contains("1st", "2nd");
@@ -235,6 +276,7 @@ class ExtendedCourtCaseRequestResponseTest {
 
         assertThat(actual.getSource()).isEqualTo("LIBRA");
         assertThat(actual.getCaseId()).isEqualTo(CASE_ID);
+        assertThat(actual.getHearingId()).isEqualTo("HEARING_ID");
         assertThat(actual.getCaseNo()).isEqualTo(CASE_NO);
         assertThat(actual.getHearingDays().get(0)).isEqualTo(HearingDay.builder()
                 .courtRoom(COURT_ROOM)
@@ -284,6 +326,7 @@ class ExtendedCourtCaseRequestResponseTest {
 
     private HearingEntity buildEntity() {
         return HearingEntity.builder()
+                .hearingId("HEARING_ID")
                 .courtCase(CourtCaseEntity.builder()
                     .sourceType(SourceType.LIBRA)
                     .caseId(CASE_ID)

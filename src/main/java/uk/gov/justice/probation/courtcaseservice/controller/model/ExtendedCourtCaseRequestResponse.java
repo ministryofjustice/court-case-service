@@ -40,6 +40,7 @@ public class ExtendedCourtCaseRequestResponse {
     private final String caseNo;
     @NotBlank
     private final String caseId;
+    private final String hearingId;
     private final String source;
     @Valid
     @NotEmpty
@@ -52,6 +53,7 @@ public class ExtendedCourtCaseRequestResponse {
         return ExtendedCourtCaseRequestResponse.builder()
                 .caseNo(hearing.getCaseNo())
                 .caseId(hearing.getCaseId())
+                .hearingId(hearing.getHearingId())
                 .source(hearing.getSourceType().name())
                 .hearingDays(hearing.getHearingDays().stream()
                         .map(hearingEntity -> HearingDay.builder()
@@ -122,8 +124,7 @@ public class ExtendedCourtCaseRequestResponse {
                 .caseId(caseId)
                 .sourceType(SourceType.valueOf(Optional.ofNullable(source).orElse(DEFAULT_SOURCE.name())))
             .build())
-            // TODO: Remove. This is a temporary measure to allow the application to continue working whilst we update the data structures adding hearingId
-            .hearingId(caseId)
+            .hearingId(Optional.ofNullable(hearingId).orElse(caseId))
             .build();
 
         hearingDayEntities.forEach(hearingEntity -> hearingEntity.setHearing(courtCaseEntity));

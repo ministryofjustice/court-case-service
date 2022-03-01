@@ -95,6 +95,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
     @Nested
     class PutByCaseIdExtended {
         private static final String JSON_CASE_ID = "ac24a1be-939b-49a4-a524-21a3d228f8bc";
+        private static final String JSON_HEARING_ID = "75e63d6c-5487-4244-a5bc-7cf8a38992db";
 
         @Value("classpath:integration/request/PUT_courtCaseExtended_update_invalid.json")
         private Resource invalidExtendedCaseResource;
@@ -125,7 +126,6 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
         @Test
         void whenCreateCaseExtendedByCaseId_thenCreateNewRecord() {
 
-            final var offenderEntity = offenderRepository.findByCrn(CRN);
             given()
                 .auth()
                 .oauth2(getToken())
@@ -137,6 +137,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .then()
                 .statusCode(201)
                 .body("caseId", equalTo(JSON_CASE_ID))
+                .body("hearingId", equalTo(JSON_HEARING_ID))
                 .body("source", equalTo("COMMON_PLATFORM"))
                 .body("defendants", hasSize(1))
                 .body("defendants[0].offences",  hasSize(2))
@@ -155,6 +156,8 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
 
             var cc = courtCaseRepository.findByCaseIdAndDefendantId(JSON_CASE_ID, "d1eefed2-04df-11ec-b2d8-0242ac130002");
             cc.ifPresentOrElse(courtCaseEntity -> {
+                assertThat(courtCaseEntity.getCaseId()).isEqualTo(JSON_CASE_ID);
+                assertThat(courtCaseEntity.getHearingId()).isEqualTo(JSON_HEARING_ID);
                 assertThat(courtCaseEntity.getDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
             }, () -> fail("Court case not created as expected"));
 
@@ -168,6 +171,30 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 assertThat(off.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2018, Month.JUNE, 24));
             }, () -> fail("Offender values not updated as expected"));
 
+        }
+
+        @Test
+        void givenHearingIdIsAbsent_whenCreateCaseExtendedByCaseId_thenCreateNewRecordWithCaseIdAsHearingId() {
+
+            given()
+                    .auth()
+                    .oauth2(getToken())
+                    .contentType(ContentType.JSON)
+                    .accept(ContentType.JSON)
+                    .body(caseDetailsExtendedJson.replace("  \"hearingId\": \"75e63d6c-5487-4244-a5bc-7cf8a38992db\",", ""))
+                    .when()
+                    .put(String.format("/case/%s/extended", JSON_CASE_ID))
+                    .then()
+                    .statusCode(201)
+                    .body("caseId", equalTo(JSON_CASE_ID))
+                    .body("hearingId", equalTo(JSON_CASE_ID))
+            ;
+
+            var cc = courtCaseRepository.findByCaseIdAndDefendantId(JSON_CASE_ID, "d1eefed2-04df-11ec-b2d8-0242ac130002");
+            cc.ifPresentOrElse(courtCaseEntity -> {
+                assertThat(courtCaseEntity.getCaseId()).isEqualTo(JSON_CASE_ID);
+                assertThat(courtCaseEntity.getHearingId()).isEqualTo(JSON_CASE_ID);
+            }, () -> fail("Court case not created as expected"));
         }
 
         @Disabled("This validation is rejecting cases in prod. Temporarily disabling whilst we determine if we can do validation on this field.")

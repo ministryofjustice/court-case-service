@@ -34,7 +34,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -50,6 +50,7 @@ class CourtCaseControllerTest {
 
     private static final String COURT_CODE = "COURT_CODE";
     private static final String CASE_NO = "CASE_NO";
+    private static final String HEARING_ID = "HEARING_ID";
 
     private static final LocalDate DATE = LocalDate.of(2020, 2, 24);
     private static final LocalDateTime CREATED_AFTER = LocalDateTime.of(2020, 2, 23, 0, 0);
@@ -65,6 +66,7 @@ class CourtCaseControllerTest {
     @InjectMocks
     private CourtCaseController courtCaseController;
     private final HearingEntity hearingEntity = HearingEntity.builder()
+            .hearingId(HEARING_ID)
             .courtCase(CourtCaseEntity.builder()
                 .caseNo(CASE_NO)
                 .caseId(CASE_ID)
@@ -116,6 +118,7 @@ class CourtCaseControllerTest {
         var courtCase = courtCaseController.getExtendedCourtCase(CASE_ID);
         assertThat(courtCase.getCaseNo()).isEqualTo(CASE_NO);
         assertThat(courtCase.getCaseId()).isEqualTo(CASE_ID);
+        assertThat(courtCase.getHearingId()).isEqualTo(HEARING_ID);
 
         verify(courtCaseService).getHearingByCaseId(CASE_ID);
         verifyNoMoreInteractions(courtCaseService);
@@ -307,14 +310,12 @@ class CourtCaseControllerTest {
 
     @Test
     void whenUpdateWholeCaseByCaseId_shouldReturnCourtCaseResponse() {
-        var courtCaseRequest = mock(ExtendedCourtCaseRequestResponse.class);
-        when(courtCaseRequest.asCourtCaseEntity()).thenReturn(hearingEntity);
-        when(courtCaseService.createHearing(CASE_ID, hearingEntity)).thenReturn(Mono.just(hearingEntity));
+        var courtCaseRequest = ExtendedCourtCaseRequestResponse.builder().caseId("CASE_ID").build();
+        when(courtCaseService.createHearing(eq(CASE_ID), any())).thenReturn(Mono.just(hearingEntity));
 
         var courtCase = courtCaseController.updateCourtCaseId(CASE_ID, courtCaseRequest).block();
 
-        assertThat(courtCase).isSameAs(courtCaseRequest);
-        verify(courtCaseRequest).asCourtCaseEntity();
+        assertThat(courtCase.getCaseId()).isSameAs(CASE_ID);
         verify(courtCaseService).createHearing(CASE_ID, hearingEntity);
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }

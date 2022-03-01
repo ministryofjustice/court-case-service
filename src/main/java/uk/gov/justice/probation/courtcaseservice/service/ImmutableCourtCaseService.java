@@ -96,7 +96,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     @Deprecated(forRemoval = true)
     private void enforceValidHearingId(HearingEntity hearingEntity) {
         // TODO: Remove. This is a temporary measure to allow the application to continue working whilst we update the data structures
-        if(hearingEntity.getHearingId() == null || !hearingEntity.getHearingId().equals(hearingEntity.getCaseId())){
+        if(hearingEntity.getHearingId() == null){
             log.warn("Unexpected condition: HearingEntity did not have hearingId set as expected. Setting to caseId {}", hearingEntity.getCaseId());
             hearingEntity.setHearingId(hearingEntity.getCaseId());
         }

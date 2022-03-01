@@ -102,7 +102,7 @@ public class CourtCaseController {
     Mono<ExtendedCourtCaseRequestResponse> updateCourtCaseId(@PathVariable(value = "caseId") String caseId,
                                                              @Valid @RequestBody ExtendedCourtCaseRequestResponse courtCaseRequest) {
         return courtCaseService.createHearing(caseId, courtCaseRequest.asCourtCaseEntity())
-            .thenReturn(courtCaseRequest);
+                .map(ExtendedCourtCaseRequestResponse::of);
     }
 
     @Operation(description = "Returns extended court case data, by case id.")

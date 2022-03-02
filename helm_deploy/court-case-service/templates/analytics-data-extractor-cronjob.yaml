@@ -9,9 +9,6 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   schedule: {{ .Values.analytics_data_extractor.cron_schedule }}
-  selector:
-    matchLabels:
-      release: {{ .Release.Name }}
   jobTemplate:
     spec:
       template:

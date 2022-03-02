@@ -23,7 +23,7 @@ import javax.persistence.Table;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "DEFENDANT_OFFENCE")
+@Table(name = "OFFENCE")
 @AllArgsConstructor
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
@@ -39,7 +39,7 @@ public class OffenceEntity extends BaseImmutableEntity implements Serializable  
     private final Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "DEFENDANT_ID", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "FK_HEARING_DEFENDANT_ID", referencedColumnName = "id", nullable = false)
     @Setter
     private HearingDefendantEntity hearingDefendant;
 

@@ -12,9 +12,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
@@ -54,7 +54,7 @@ class OffenderMatchServiceTest {
     @Mock
     private GroupedOffenderMatchesRequest groupedOffenderMatchesRequest;
     @Mock
-    private CourtCaseEntity courtCaseEntity;
+    private HearingEntity hearingEntity;
 
     private OffenderMatchService service;
 
@@ -78,8 +78,8 @@ class OffenderMatchServiceTest {
         @Test
         void givenNoExistingCase_whenCreateOrUpdate_thenCreate() {
             when(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.empty());
-            when(courtCaseEntity.getCaseId()).thenReturn(CASE_ID);
-            when(courtCaseService.getCaseByCaseId(CASE_ID)).thenReturn(courtCaseEntity);
+            when(hearingEntity.getCaseId()).thenReturn(CASE_ID);
+            when(courtCaseService.getHearingByCaseId(CASE_ID)).thenReturn(hearingEntity);
             when(offenderMatchRepository.save(argThat(new EntityMatcher(DEFENDANT_ID, CASE_ID)))).thenReturn(groupedOffenderMatchesEntity);
 
             var match = service.createOrUpdateGroupedMatchesByDefendant(CASE_ID, DEFENDANT_ID, request).blockOptional();

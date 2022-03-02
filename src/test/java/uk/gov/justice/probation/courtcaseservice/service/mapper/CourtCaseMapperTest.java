@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.BaseImmutableEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 
@@ -64,10 +65,12 @@ class CourtCaseMapperTest {
         var newName = NamePropertiesEntity.builder().surname("STUBBS").forename1("Una").build();
         var updatedDefendant = EntityHelper.aDefendantEntity(DEFENDANT_ADDRESS, newName)
             .withOffender(OffenderEntity.builder().crn("D99999").build());
-        var updatedEntity = CourtCaseEntity.builder()
+        var updatedEntity = HearingEntity.builder()
             .defendants(List.of(updatedDefendant))
-            .hearings(hearings)
-            .caseId(CASE_ID)
+            .hearingDays(hearings)
+            .courtCase(CourtCaseEntity.builder()
+                .caseId(CASE_ID)
+            .build())
             .build();
 
         // Existing has defendants and hearings, all with ids which must be removed
@@ -76,13 +79,13 @@ class CourtCaseMapperTest {
             .withId(100L);
         var existingUpdatedDefendant = EntityHelper.aDefendantEntity()
             .withId(101L);
-        var existingCourtCaseEntity = EntityHelper.aCourtCaseEntity(CASE_ID)
+        var existingCourtCaseEntity = EntityHelper.aHearingEntity(CASE_ID)
             .withDefendants(List.of(existingUpdatedDefendant, existingNonUpdatedDefendant))
-            .withHearings(hearings);
+            .withHearingDays(hearings);
 
         var newEntity = CourtCaseMapper.mergeDefendantsOnCase(existingCourtCaseEntity, updatedEntity, DEFENDANT_ID);
 
-        checkCollection(newEntity.getHearings(), newEntity);
+        checkCollection(newEntity.getHearingDays(), newEntity);
         checkCollection(newEntity.getDefendants(), newEntity);
 
         assertThat(newEntity.getDefendants()).extracting("crn").containsExactlyInAnyOrder("D99999", CRN);
@@ -90,13 +93,13 @@ class CourtCaseMapperTest {
             .allSatisfy(defendant -> {
                 assertThat(defendant.getName().getSurname()).isEqualTo("STUBBS");
                 assertThat(defendant.getName().getForename1()).isEqualTo("Una");
-                assertThat(defendant.getCourtCase()).isSameAs(newEntity);
+                assertThat(defendant.getHearing()).isSameAs(newEntity);
             });
         assertThat(newEntity.getDefendants()).filteredOn(d -> d.getCrn().equals("X340906"))
             .allSatisfy(defendant -> {
                 assertThat(defendant.getName().getSurname()).isEqualTo("BENNETT");
                 assertThat(defendant.getName().getForename1()).isEqualTo("Gordon");
-                assertThat(defendant.getCourtCase()).isSameAs(newEntity);
+                assertThat(defendant.getHearing()).isSameAs(newEntity);
                 var offences = defendant.getOffences();
                 assertThat(offences.get(0).getDefendant()).isSameAs(defendant);
             });
@@ -109,32 +112,34 @@ class CourtCaseMapperTest {
         // Update comes in with a new CRN and name and one hearing
         var newName = NamePropertiesEntity.builder().surname("STUBBS").forename1("Una").build();
         var updatedDefendant = EntityHelper.aDefendantEntity(DEFENDANT_ADDRESS, newName);
-        var updatedEntity = CourtCaseEntity.builder()
+        var updatedEntity = HearingEntity.builder()
             .defendants(List.of(updatedDefendant))
-            .caseId(CASE_ID)
+            .courtCase(CourtCaseEntity.builder()
+                .caseId(CASE_ID)
+            .build())
             .build();
 
         // Existing has defendants and hearings, all with ids which must be removed
         var existingUpdatedDefendant = EntityHelper.aDefendantEntity()
             .withId(101L);
-        var existingCourtCaseEntity = EntityHelper.aCourtCaseEntity(CASE_ID)
+        var existingCourtCaseEntity = EntityHelper.aHearingEntity(CASE_ID)
             .withDefendants(List.of(existingUpdatedDefendant))
-            .withHearings(hearings);
+            .withHearingDays(hearings);
 
         var newEntity = CourtCaseMapper.mergeDefendantsOnCase(existingCourtCaseEntity, updatedEntity, DEFENDANT_ID);
 
-        checkCollection(newEntity.getHearings(), newEntity);
+        checkCollection(newEntity.getHearingDays(), newEntity);
 
         assertThat(newEntity.getDefendants()).hasSize(1);
         assertThat(newEntity.getDefendants()).extracting("crn").containsExactly(CRN);
         assertThat(newEntity.getDefendants().get(0).getName().getForename1()).isEqualTo("Una");
         assertThat(newEntity.getDefendants().get(0).getName().getSurname()).isEqualTo("STUBBS");
-        assertThat(newEntity.getDefendants().get(0).getCourtCase()).isSameAs(newEntity);
+        assertThat(newEntity.getDefendants().get(0).getHearing()).isSameAs(newEntity);
     }
 
-    private void checkCollection(List<? extends BaseImmutableEntity> childEntities, CourtCaseEntity courtCase) {
+    private void checkCollection(List<? extends BaseImmutableEntity> childEntities, HearingEntity hearing) {
         assertThat(childEntities).hasSize(2);
         assertThat(childEntities).extracting("id").allMatch(Objects::isNull);
-        assertThat(childEntities).extracting("courtCase").containsExactlyInAnyOrder(courtCase, courtCase);
+        assertThat(childEntities).extracting("hearing").containsExactlyInAnyOrder(hearing, hearing);
     }
 }

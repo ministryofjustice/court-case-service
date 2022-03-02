@@ -12,6 +12,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
@@ -39,6 +40,7 @@ public class ExtendedCourtCaseRequestResponse {
     private final String caseNo;
     @NotBlank
     private final String caseId;
+    private final String hearingId;
     private final String source;
     @Valid
     @NotEmpty
@@ -47,12 +49,13 @@ public class ExtendedCourtCaseRequestResponse {
     @NotEmpty
     private final List<Defendant> defendants;
 
-    public static ExtendedCourtCaseRequestResponse of(CourtCaseEntity courtCase) {
+    public static ExtendedCourtCaseRequestResponse of(HearingEntity hearing) {
         return ExtendedCourtCaseRequestResponse.builder()
-                .caseNo(courtCase.getCaseNo())
-                .caseId(courtCase.getCaseId())
-                .source(courtCase.getSourceType().name())
-                .hearingDays(courtCase.getHearings().stream()
+                .caseNo(hearing.getCaseNo())
+                .caseId(hearing.getCaseId())
+                .hearingId(hearing.getHearingId())
+                .source(hearing.getSourceType().name())
+                .hearingDays(hearing.getHearingDays().stream()
                         .map(hearingEntity -> HearingDay.builder()
                                 .courtCode(hearingEntity.getCourtCode())
                                 .courtRoom(hearingEntity.getCourtRoom())
@@ -62,7 +65,7 @@ public class ExtendedCourtCaseRequestResponse {
                                 .listNo(hearingEntity.getListNo())
                                 .build())
                         .toList())
-                .defendants(courtCase.getDefendants().stream()
+                .defendants(hearing.getDefendants().stream()
                         .map(defendantEntity -> Defendant.builder()
                                 .defendantId(defendantEntity.getDefendantId())
                                 .name(defendantEntity.getName())
@@ -102,7 +105,7 @@ public class ExtendedCourtCaseRequestResponse {
                 .build();
     }
 
-    public CourtCaseEntity asCourtCaseEntity() {
+    public HearingEntity asCourtCaseEntity() {
 
         final var hearingDayEntities = Optional.ofNullable(hearingDays).orElse(Collections.emptyList())
             .stream()
@@ -113,16 +116,19 @@ public class ExtendedCourtCaseRequestResponse {
             .map(this::buildDefendant)
             .toList();
 
-        final var courtCaseEntity = CourtCaseEntity.builder()
-            .hearings(hearingDayEntities)
+        final var courtCaseEntity = HearingEntity.builder()
+            .hearingDays(hearingDayEntities)
             .defendants(defendantEntities)
-            .caseNo(caseNo)
-            .caseId(caseId)
-            .sourceType(SourceType.valueOf(Optional.ofNullable(source).orElse(DEFAULT_SOURCE.name())))
+            .courtCase(CourtCaseEntity.builder()
+                .caseNo(caseNo)
+                .caseId(caseId)
+                .sourceType(SourceType.valueOf(Optional.ofNullable(source).orElse(DEFAULT_SOURCE.name())))
+            .build())
+            .hearingId(Optional.ofNullable(hearingId).orElse(caseId))
             .build();
 
-        hearingDayEntities.forEach(hearingEntity -> hearingEntity.setCourtCase(courtCaseEntity));
-        defendantEntities.forEach(defendantEntity -> defendantEntity.setCourtCase(courtCaseEntity));
+        hearingDayEntities.forEach(hearingEntity -> hearingEntity.setHearing(courtCaseEntity));
+        defendantEntities.forEach(defendantEntity -> defendantEntity.setHearing(courtCaseEntity));
         return courtCaseEntity;
     }
 

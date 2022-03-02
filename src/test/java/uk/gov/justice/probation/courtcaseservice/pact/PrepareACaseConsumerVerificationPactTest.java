@@ -28,6 +28,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
@@ -131,13 +132,13 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
     }
 
     private void mockCase(String caseId, String defendantId) {
-        CourtCaseEntity courtCaseEntity = buildCourtCaseEntity(caseId, defendantId);
+        HearingEntity hearingEntity = buildCourtCaseEntity(caseId, defendantId);
 
-        when(courtCaseService.createUpdateCaseForSingleDefendantId(eq(caseId), eq(defendantId), any()))
-                .thenReturn(Mono.just(courtCaseEntity));
+        when(courtCaseService.createUpdateHearingForSingleDefendantId(eq(caseId), eq(defendantId), any()))
+                .thenReturn(Mono.just(hearingEntity));
 
-        when(courtCaseService.getCaseByCaseIdAndDefendantId(eq(caseId), eq(defendantId)))
-                .thenReturn(courtCaseEntity);
+        when(courtCaseService.getHearingByCaseIdAndDefendantId(eq(caseId), eq(defendantId)))
+                .thenReturn(hearingEntity);
 
         when(offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantId))
                 .thenReturn(Optional.of(3));
@@ -174,12 +175,14 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                         .build());
     }
 
-    private CourtCaseEntity buildCourtCaseEntity(String caseId, String defendantId) {
-        var courtCaseEntity = CourtCaseEntity.builder()
-                .caseId(caseId)
-                .caseNo("1600028913")
-                .sourceType(SourceType.LIBRA)
-                .hearings(Collections.singletonList(HearingDayEntity.builder()
+    private HearingEntity buildCourtCaseEntity(String caseId, String defendantId) {
+        var courtCaseEntity = HearingEntity.builder()
+                .courtCase(CourtCaseEntity.builder()
+                    .caseId(caseId)
+                    .caseNo("1600028913")
+                    .sourceType(SourceType.LIBRA)
+                .build())
+                .hearingDays(Collections.singletonList(HearingDayEntity.builder()
                         .listNo("3rd")
                         .courtCode("B10JQ")
                         .courtRoom("1")

@@ -1,9 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,11 +18,11 @@ import java.util.stream.Collectors;
  */
 public class CourtCaseMapper {
 
-    public static CourtCaseEntity mergeDefendantsOnCase(CourtCaseEntity existingCase, CourtCaseEntity updatedCase, String defendantId) {
+    public static HearingEntity mergeDefendantsOnCase(HearingEntity existingCase, HearingEntity updatedCase, String defendantId) {
         final var existingDefendants = Optional.ofNullable(existingCase.getDefendants()).orElse(Collections.emptyList());
-        final var existingHearings = CourtCaseMapper.createHearings(existingCase.getHearings());
+        final var existingHearings = CourtCaseMapper.createHearings(existingCase.getHearingDays());
         if (existingDefendants.size() <= 1) {
-            final var caseToSave = updatedCase.withHearings(existingHearings);
+            final var caseToSave = updatedCase.withHearingDays(existingHearings);
             applyParentToCollections(caseToSave);
             return caseToSave;
         }
@@ -34,16 +34,16 @@ public class CourtCaseMapper {
 
         // rebuild the case with new defendants and hearings
         final var caseToSave = updatedCase.withDefendants(allDefendants)
-                                                        .withHearings(CourtCaseMapper.createHearings(existingCase.getHearings()));
+                                                        .withHearingDays(CourtCaseMapper.createHearings(existingCase.getHearingDays()));
         applyParentToCollections(caseToSave);
         return caseToSave;
     }
 
-    private static void applyParentToCollections(final CourtCaseEntity caseToSave) {
+    private static void applyParentToCollections(final HearingEntity caseToSave) {
         Optional.ofNullable(caseToSave.getDefendants()).orElse(Collections.emptyList())
-            .forEach(defendantEntity -> defendantEntity.setCourtCase(caseToSave));
-        Optional.ofNullable(caseToSave.getHearings()).orElse(Collections.emptyList())
-            .forEach(hearingEntity -> hearingEntity.setCourtCase(caseToSave));
+            .forEach(defendantEntity -> defendantEntity.setHearing(caseToSave));
+        Optional.ofNullable(caseToSave.getHearingDays()).orElse(Collections.emptyList())
+            .forEach(hearingEntity -> hearingEntity.setHearing(caseToSave));
     }
 
     public static HearingDayEntity createHearing(HearingDayEntity hearing) {

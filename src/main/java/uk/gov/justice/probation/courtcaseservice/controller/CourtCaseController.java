@@ -23,8 +23,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListRespon
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
@@ -67,7 +67,7 @@ public class CourtCaseController {
     @GetMapping(value = "/case/{caseId}/defendant/{defendantId}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCaseByCaseIdAndDefendantId(@PathVariable String caseId, @PathVariable String defendantId) {
-        return this.buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseService.getCaseByCaseIdAndDefendantId(caseId, defendantId), defendantId);
+        return this.buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseService.getHearingByCaseIdAndDefendantId(caseId, defendantId), defendantId);
     }
 
     @Operation(description = "Gets the court case data by case number.")
@@ -83,7 +83,7 @@ public class CourtCaseController {
     @GetMapping(value = "/court/{courtCode}/case/{caseNo}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCase(@PathVariable String courtCode, @PathVariable String caseNo) {
-        return buildCourtCaseResponse(courtCaseService.getCaseByCaseNumber(courtCode, caseNo));
+        return buildCourtCaseResponse(courtCaseService.getHearingByCaseNumber(courtCode, caseNo));
     }
 
     @Operation(description = "Saves and returns the court case data, by case id.")
@@ -101,8 +101,8 @@ public class CourtCaseController {
     public @ResponseBody
     Mono<ExtendedCourtCaseRequestResponse> updateCourtCaseId(@PathVariable(value = "caseId") String caseId,
                                                              @Valid @RequestBody ExtendedCourtCaseRequestResponse courtCaseRequest) {
-        return courtCaseService.createCase(caseId, courtCaseRequest.asCourtCaseEntity())
-            .thenReturn(courtCaseRequest);
+        return courtCaseService.createHearing(caseId, courtCaseRequest.asCourtCaseEntity())
+                .map(ExtendedCourtCaseRequestResponse::of);
     }
 
     @Operation(description = "Returns extended court case data, by case id.")
@@ -119,7 +119,7 @@ public class CourtCaseController {
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     ExtendedCourtCaseRequestResponse getExtendedCourtCase(@PathVariable(value = "caseId") String caseId) {
-        final var courtCase = courtCaseService.getCaseByCaseId(caseId);
+        final var courtCase = courtCaseService.getHearingByCaseId(caseId);
         return ExtendedCourtCaseRequestResponse.of(courtCase);
     }
 
@@ -139,7 +139,7 @@ public class CourtCaseController {
     Mono<CourtCaseResponse> updateCourtCaseByDefendantId(@PathVariable(value = "caseId") String caseId,
         @PathVariable(value = "defendantId") String defendantId,
         @Valid @RequestBody CourtCaseRequest courtCaseRequest) {
-        return courtCaseService.createUpdateCaseForSingleDefendantId(caseId, defendantId, courtCaseRequest.asEntity())
+        return courtCaseService.createUpdateHearingForSingleDefendantId(caseId, defendantId, courtCaseRequest.asEntity())
             .map(courtCaseEntity -> buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseEntity, defendantId));
     }
 
@@ -169,7 +169,7 @@ public class CourtCaseController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdBefore,
             WebRequest webRequest
     ) {
-        var lastModified = courtCaseService.filterCasesLastModified(courtCode, date)
+        var lastModified = courtCaseService.filterHearingsLastModified(courtCode, date)
             .orElse(NEVER_MODIFIED_DATE)
             .toInstant(ZoneOffset.UTC);
         if (webRequest.checkNotModified(lastModified.toEpochMilli())) {
@@ -186,7 +186,7 @@ public class CourtCaseController {
         final var createdBeforeOrDefault = Optional.ofNullable(createdBefore)
                 .orElse(LocalDateTime.of(MAX_YEAR_SUPPORTED_BY_DB, 12, 31, 23, 59));
 
-        var courtCases = courtCaseService.filterCases(courtCode, date, createdAfterOrDefault, createdBeforeOrDefault);
+        var courtCases = courtCaseService.filterHearings(courtCode, date, createdAfterOrDefault, createdBeforeOrDefault);
         var courtCaseResponses = courtCases.stream()
                 .flatMap(courtCaseEntity -> buildCourtCaseResponses(courtCaseEntity, date).stream())
                 .sorted(Comparator
@@ -201,32 +201,32 @@ public class CourtCaseController {
                 .body(CaseListResponse.builder().cases(courtCaseResponses).build());
     }
 
-    private CourtCaseResponse buildCourtCaseResponseForCaseIdAndDefendantId(CourtCaseEntity courtCaseEntity, String defendantId) {
-        final var offenderMatchesCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(courtCaseEntity.getCaseId(), defendantId)
+    private CourtCaseResponse buildCourtCaseResponseForCaseIdAndDefendantId(HearingEntity hearingEntity, String defendantId) {
+        final var offenderMatchesCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingEntity.getCaseId(), defendantId)
             .orElse(0);
 
-        return CourtCaseResponseMapper.mapFrom(courtCaseEntity, defendantId, offenderMatchesCount);
+        return CourtCaseResponseMapper.mapFrom(hearingEntity, defendantId, offenderMatchesCount);
     }
 
-    private CourtCaseResponse buildCourtCaseResponse(CourtCaseEntity courtCaseEntity) {
-        final var defendantId = Optional.ofNullable(courtCaseEntity.getDefendants())
+    private CourtCaseResponse buildCourtCaseResponse(HearingEntity hearingEntity) {
+        final var defendantId = Optional.ofNullable(hearingEntity.getDefendants())
                 .flatMap(defs -> defs.stream().findFirst())
                 .map(DefendantEntity::getDefendantId)
-                .orElseThrow(() -> new IllegalStateException(String.format("Court case with id %s does not have any defendants.", courtCaseEntity.getCaseId())));
+                .orElseThrow(() -> new IllegalStateException(String.format("Court case with id %s does not have any defendants.", hearingEntity.getCaseId())));
 
-        return buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseEntity, defendantId);
+        return buildCourtCaseResponseForCaseIdAndDefendantId(hearingEntity, defendantId);
     }
 
-    private List<CourtCaseResponse> buildCourtCaseResponses(CourtCaseEntity courtCaseEntity, LocalDate hearingDate) {
+    private List<CourtCaseResponse> buildCourtCaseResponses(HearingEntity hearingEntity, LocalDate hearingDate) {
 
-        var defendantEntities = new ArrayList<>(Optional.ofNullable(courtCaseEntity.getDefendants()).orElse(Collections.emptyList()));
+        var defendantEntities = new ArrayList<>(Optional.ofNullable(hearingEntity.getDefendants()).orElse(Collections.emptyList()));
 
-        final var caseId = courtCaseEntity.getCaseId();
+        final var caseId = hearingEntity.getCaseId();
         return defendantEntities.stream()
             .sorted(Comparator.comparing(DefendantEntity::getDefendantSurname))
             .map(defendantEntity ->  {
                 var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantEntity.getDefendantId()).orElse(0);
-                return CourtCaseResponseMapper.mapFrom(courtCaseEntity, defendantEntity, matchCount, hearingDate);
+                return CourtCaseResponseMapper.mapFrom(hearingEntity, defendantEntity, matchCount, hearingDate);
             })
             .toList();
     }

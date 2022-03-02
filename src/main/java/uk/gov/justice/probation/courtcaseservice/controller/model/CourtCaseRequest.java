@@ -11,6 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
@@ -73,7 +74,7 @@ public class CourtCaseRequest {
     private final String nationality2;
     private final Boolean awaitingPsr;
 
-    public CourtCaseEntity asEntity() {
+    public HearingEntity asEntity() {
 
         final List<HearingDayEntity> hearings = List.of(HearingDayEntity.builder()
             .courtCode(courtCode)
@@ -85,16 +86,20 @@ public class CourtCaseRequest {
 
         final List<DefendantEntity> defendants = buildDefendants();
 
-        final CourtCaseEntity entity = CourtCaseEntity.builder()
-                .caseId(caseId)
-                .caseNo(caseNo)
-                .sourceType(SourceType.valueOf(Optional.ofNullable(source).orElse(DEFAULT_SOURCE.name())))
-                .hearings(hearings)
+        final HearingEntity entity = HearingEntity.builder()
+                .courtCase(CourtCaseEntity.builder()
+                    .caseId(caseId)
+                    .caseNo(caseNo)
+                    .sourceType(SourceType.valueOf(Optional.ofNullable(source).orElse(DEFAULT_SOURCE.name())))
+                .build()) 
+                // TODO: Remove. This is a temporary measure to allow the application to continue working whilst we update the data structures adding hearingId
+                .hearingId(caseId)
+                .hearingDays(hearings)
                 .defendants(defendants)
                 .build();
 
-        hearings.forEach(hearingEntity -> hearingEntity.setCourtCase(entity));
-        defendants.forEach(defendantEntity -> defendantEntity.setCourtCase(entity));
+        hearings.forEach(hearingEntity -> hearingEntity.setHearing(entity));
+        defendants.forEach(defendantEntity -> defendantEntity.setHearing(entity));
         return entity;
     }
 

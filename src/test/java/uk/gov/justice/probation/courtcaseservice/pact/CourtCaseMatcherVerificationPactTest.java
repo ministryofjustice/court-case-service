@@ -22,6 +22,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
@@ -65,10 +66,12 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
 
     @State({"a case exists for court B10JQ and case number 1600028913"})
     void getCourtCase() {
-        var courtCaseEntity = CourtCaseEntity.builder()
-            .caseNo("1600028913")
-            .sourceType(SourceType.LIBRA)
-            .hearings(Collections.singletonList(HearingDayEntity.builder()
+        var courtCaseEntity = HearingEntity.builder()
+            .courtCase(CourtCaseEntity.builder()
+                .caseNo("1600028913")
+                .sourceType(SourceType.LIBRA)
+            .build())
+            .hearingDays(Collections.singletonList(HearingDayEntity.builder()
                 .courtCode("B10JQ")
                 .day(LocalDate.of(2021, 9, 11))
                 .time(LocalTime.of(9, 0))
@@ -87,15 +90,17 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                     .pnc("A/1234560BA")
                     .build()))
             .build();
-        when(courtCaseService.getCaseByCaseNumber("B10JQ", "1600028913")).thenReturn(courtCaseEntity);
+        when(courtCaseService.getHearingByCaseNumber("B10JQ", "1600028913")).thenReturn(courtCaseEntity);
     }
 
     @State({"a case exists for caseId D517D32D-3C80-41E8-846E-D274DC2B94A5"})
     void getExtendedCourtCaseById() {
-        var courtCaseEntity = CourtCaseEntity.builder()
-                .caseId("D517D32D-3C80-41E8-846E-D274DC2B94A5")
-                .caseNo("D517D32D-3C80-41E8-846E-D274DC2B94A5")
-                .sourceType(SourceType.LIBRA)
+        var courtCaseEntity = HearingEntity.builder()
+                .courtCase(CourtCaseEntity.builder()
+                    .caseId("D517D32D-3C80-41E8-846E-D274DC2B94A5")
+                    .caseNo("D517D32D-3C80-41E8-846E-D274DC2B94A5")
+                    .sourceType(SourceType.LIBRA)
+                .build())
                 .defendants(List.of(DefendantEntity.builder()
                         .address(AddressPropertiesEntity.builder()
                                 .line1("Address 1")
@@ -170,7 +175,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                 .type(DefendantType.PERSON)
                                 .build()))
 
-                .hearings(List.of(HearingDayEntity.builder()
+                .hearingDays(List.of(HearingDayEntity.builder()
                                 .courtCode("B10JQ")
                                 .courtRoom("4")
                                 .time(LocalTime.of(10, 16, 51))
@@ -186,12 +191,12 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                 .build()))
                 .build();
 
-        when(courtCaseService.getCaseByCaseId("D517D32D-3C80-41E8-846E-D274DC2B94A5")).thenReturn(courtCaseEntity);
+        when(courtCaseService.getHearingByCaseId("D517D32D-3C80-41E8-846E-D274DC2B94A5")).thenReturn(courtCaseEntity);
     }
 
     @State({"a case will be PUT by id"})
     void mockPutCourtCaseExtended() {
-        final Mono<CourtCaseEntity> caseMono = Mono.just(EntityHelper.aCourtCaseEntity("X340741", "1600028914"));
-        when(courtCaseService.createCase(eq("D517D32D-3C80-41E8-846E-D274DC2B94A5"), any(CourtCaseEntity.class))).thenReturn(caseMono);
+        final Mono<HearingEntity> caseMono = Mono.just(EntityHelper.aHearingEntity("X340741", "1600028914"));
+        when(courtCaseService.createHearing(eq("D517D32D-3C80-41E8-846E-D274DC2B94A5"), any(HearingEntity.class))).thenReturn(caseMono);
     }
 }

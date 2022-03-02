@@ -35,7 +35,7 @@ class CourtCaseRequestTest {
     private static final LocalDateTime SESSION_START_TIME = LocalDateTime.of(2020, 10, 5, 9, 30);
 
     @Test
-    void givenAllFieldsPresent_whenCallAsEntity_returnCourtCaseEntity() {
+    void givenAllFieldsPresent_whenCallAsEntity_returnHearingEntity() {
         final var request = CourtCaseRequest.builder()
                                                             .caseId("CASE_ID")
                                                             .caseNo("CASE_NO")
@@ -75,7 +75,7 @@ class CourtCaseRequestTest {
         assertThat(entity.getCaseNo()).isEqualTo("CASE_NO");
         assertThat(entity.getSourceType()).isSameAs(SourceType.LIBRA);
 
-        assertThat(entity.getHearings()).hasSize(1);
+        assertThat(entity.getHearingDays()).hasSize(1);
         assertThat(entity.getDefendants()).hasSize(1);
         final var defendant = entity.getDefendants().get(0);
 
@@ -90,9 +90,9 @@ class CourtCaseRequestTest {
         final var expectedDefendant = EntityHelper.aDefendantEntity(address);
         assertThat(defendant)
             .usingRecursiveComparison()
-            .ignoringFields("id", "courtCase", "offences", "offender")
+            .ignoringFields("id", "hearing", "offences", "offender")
             .isEqualTo(expectedDefendant);
-        assertThat(defendant.getCourtCase()).isNotNull();
+        assertThat(defendant.getHearing()).isNotNull();
 
         assertThat(defendant.getOffences()).hasSize(2);
         var expectedDefendantOffenceEntity1 = DefendantOffenceEntity.builder()
@@ -136,7 +136,7 @@ class CourtCaseRequestTest {
         assertThat(entity.getCaseNo()).isEqualTo("CASE_NO");
         assertThat(entity.getSourceType()).isSameAs(SourceType.LIBRA);
 
-        assertThat(entity.getHearings()).hasSize(1);
+        assertThat(entity.getHearingDays()).hasSize(1);
         assertThat(entity.getDefendants()).hasSize(1);
         assertThat(entity.getDefendants().get(0).getDefendantId()).isNotNull();
         assertThat(entity.getDefendants().get(0).getDefendantName()).isEqualTo(DEFENDANT_NAME);

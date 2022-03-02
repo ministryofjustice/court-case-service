@@ -8,6 +8,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
 import java.util.Collections;
@@ -35,14 +36,20 @@ public class TelemetryService {
         telemetryClient.trackEvent(TelemetryEventType.GRACEFUL_DEGRADE.eventName, properties, Collections.emptyMap());
     }
 
-    void trackCourtCaseEvent(TelemetryEventType eventType, CourtCaseEntity courtCaseEntity) {
+    void trackCourtCaseEvent(TelemetryEventType eventType, HearingEntity hearingEntity) {
 
         Map<String, String> properties = new HashMap<>();
 
-        ofNullable(courtCaseEntity.getCaseId())
+        ofNullable(hearingEntity)
+                .map(HearingEntity::getCourtCase)
+                .map(CourtCaseEntity::getCaseId)
                 .ifPresent((caseId) -> properties.put("caseId", caseId));
 
-        ofNullable(courtCaseEntity.getHearings())
+        ofNullable(hearingEntity)
+                .map(HearingEntity::getHearingId)
+                .ifPresent((hearingId) -> properties.put("hearingId", hearingId));
+
+        ofNullable(hearingEntity.getHearingDays())
                 .ifPresent(hearings -> {
                     final var hearingsString = hearings.stream()
                             .map(HearingDayEntity::loggableString)
@@ -73,14 +80,17 @@ public class TelemetryService {
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }
 
-    public void trackMatchEvent(TelemetryEventType eventType, OffenderMatchEntity matchEntity, CourtCaseEntity courtCaseEntity, String defendantId) {
+    public void trackMatchEvent(TelemetryEventType eventType, OffenderMatchEntity matchEntity, HearingEntity hearingEntity, String defendantId) {
 
         Map<String, String> properties = new HashMap<>();
 
         properties.put("defendantId", defendantId);
-        ofNullable(courtCaseEntity)
-                .map(CourtCaseEntity::getCaseId)
+        ofNullable(hearingEntity)
+                .map(HearingEntity::getCaseId)
                 .ifPresent((caseId) -> properties.put("caseId", caseId));
+        ofNullable(hearingEntity)
+                .map(HearingEntity::getHearingId)
+                .ifPresent((hearingId) -> properties.put("hearingId", hearingId));
         ofNullable(matchEntity)
                 .map(OffenderMatchEntity::getPnc)
                 .ifPresent((pnc) -> properties.put("pnc", pnc));

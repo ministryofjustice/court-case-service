@@ -39,11 +39,11 @@ class OffenderMatchMapperTest {
 
     @Test
     void givenMultipleMatches_whenNewEntity_thenMapAllFields() {
-        var courtCaseEntity = EntityHelper.aCourtCaseEntity(CRN, CASE_NO);
+        var courtCaseEntity = EntityHelper.aHearingEntity(CRN, CASE_NO);
         var groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
                 .matches(asList(matchRequest1, matchRequest2))
                 .build();
-        var matchesEntity = OffenderMatchMapper.newGroupedMatchesOf(groupedOffenderMatchesRequest, courtCaseEntity);
+        var matchesEntity = OffenderMatchMapper.newGroupedMatchesOf(groupedOffenderMatchesRequest);
 
         assertThat(matchesEntity.getId()).isNull();
 
@@ -53,7 +53,7 @@ class OffenderMatchMapperTest {
 
     @Test
     void givenMultipleMatches_whenNewEntityForExtended_thenMapAllFields() {
-        var courtCaseEntity = EntityHelper.aCourtCaseEntity(CRN, CASE_NO);
+        var courtCaseEntity = EntityHelper.aHearingEntity(CRN, CASE_NO);
         var groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
             .matches(asList(matchRequest1, matchRequest2))
             .build();
@@ -69,11 +69,11 @@ class OffenderMatchMapperTest {
 
     @Test
     void givenZeroMatches_whenNewEntity_thenMapAllFields() {
-        var courtCaseEntity = EntityHelper.aCourtCaseEntity(CRN, CASE_NO);
+        var courtCaseEntity = EntityHelper.aHearingEntity(CRN, CASE_NO);
         var groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
                 .matches(Collections.emptyList())
                 .build();
-        var matchesEntity = OffenderMatchMapper.newGroupedMatchesOf(groupedOffenderMatchesRequest, courtCaseEntity);
+        var matchesEntity = OffenderMatchMapper.newGroupedMatchesOf(groupedOffenderMatchesRequest);
 
         assertThat(matchesEntity.getOffenderMatches()).isEmpty();
         assertThat(matchesEntity.getId()).isNull();

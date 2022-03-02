@@ -15,6 +15,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
@@ -33,14 +34,13 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aCourtCaseEntity;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aDefendantEntity;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingEntity;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM;
@@ -50,6 +50,7 @@ class CourtCaseControllerTest {
 
     private static final String COURT_CODE = "COURT_CODE";
     private static final String CASE_NO = "CASE_NO";
+    private static final String HEARING_ID = "HEARING_ID";
 
     private static final LocalDate DATE = LocalDate.of(2020, 2, 24);
     private static final LocalDateTime CREATED_AFTER = LocalDateTime.of(2020, 2, 23, 0, 0);
@@ -64,11 +65,14 @@ class CourtCaseControllerTest {
     private OffenderMatchService offenderMatchService;
     @InjectMocks
     private CourtCaseController courtCaseController;
-    private final CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder()
-            .caseNo(CASE_NO)
-            .caseId(CASE_ID)
-            .sourceType(COMMON_PLATFORM)
-            .hearings(Collections.singletonList(EntityHelper.aHearingEntity()
+    private final HearingEntity hearingEntity = HearingEntity.builder()
+            .hearingId(HEARING_ID)
+            .courtCase(CourtCaseEntity.builder()
+                .caseNo(CASE_NO)
+                .caseId(CASE_ID)
+                .sourceType(COMMON_PLATFORM)
+            .build())
+            .hearingDays(Collections.singletonList(EntityHelper.aHearingEntity()
                     .withCourtCode(COURT_CODE)))
             .defendants(Collections.singletonList(
                     DefendantEntity.builder()
@@ -82,7 +86,7 @@ class CourtCaseControllerTest {
 
     @Test
     void getCourtCase_shouldReturnCourtCaseResponse() {
-        when(courtCaseService.getCaseByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(courtCaseEntity);
+        when(courtCaseService.getHearingByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(hearingEntity);
         when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(3));
         var courtCase = courtCaseController.getCourtCase(COURT_CODE, CASE_NO);
         assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
@@ -92,30 +96,31 @@ class CourtCaseControllerTest {
         assertThat(courtCase.getSession()).isSameAs(session);
         assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(3);
 
-        verify(courtCaseService).getCaseByCaseNumber(COURT_CODE, CASE_NO);
+        verify(courtCaseService).getHearingByCaseNumber(COURT_CODE, CASE_NO);
         verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 
     @Test
     void givenNoDefendants_whenGetCourtCase_thenShouldThrowExceptionWithCaseId() {
-        when(courtCaseService.getCaseByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(courtCaseEntity.withDefendants(Collections.emptyList()));
+        when(courtCaseService.getHearingByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(hearingEntity.withDefendants(Collections.emptyList()));
 
         assertThatExceptionOfType(IllegalStateException.class)
                 .isThrownBy(() -> courtCaseController.getCourtCase(COURT_CODE, CASE_NO))
-                .withMessageContaining(courtCaseEntity.getCaseId());
+                .withMessageContaining(hearingEntity.getCaseId());
 
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 
     @Test
     void getExtendedCourtCaseById_shouldReturnResponse() {
-        when(courtCaseService.getCaseByCaseId(CASE_ID)).thenReturn(courtCaseEntity);
+        when(courtCaseService.getHearingByCaseId(CASE_ID)).thenReturn(hearingEntity);
         var courtCase = courtCaseController.getExtendedCourtCase(CASE_ID);
         assertThat(courtCase.getCaseNo()).isEqualTo(CASE_NO);
         assertThat(courtCase.getCaseId()).isEqualTo(CASE_ID);
+        assertThat(courtCase.getHearingId()).isEqualTo(HEARING_ID);
 
-        verify(courtCaseService).getCaseByCaseId(CASE_ID);
+        verify(courtCaseService).getHearingByCaseId(CASE_ID);
         verifyNoMoreInteractions(courtCaseService);
     }
 
@@ -123,7 +128,7 @@ class CourtCaseControllerTest {
     void getCourtCaseByCaseIdAndDefendantId_shouldReturnCourtCaseResponseNoCaseNo() {
 
         when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(2));
-        when(courtCaseService.getCaseByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(courtCaseEntity);
+        when(courtCaseService.getHearingByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(hearingEntity);
 
         var courtCase = courtCaseController.getCourtCaseByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
         assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
@@ -132,7 +137,7 @@ class CourtCaseControllerTest {
         assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(2);
         assertThat(courtCase.getSession()).isSameAs(session);
 
-        verify(courtCaseService).getCaseByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
+        verify(courtCaseService).getHearingByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
         verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
@@ -141,15 +146,15 @@ class CourtCaseControllerTest {
     void getCaseList_shouldReturnCourtCaseResponse() {
 
         var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
-        when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
+        when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
 
-        final var courtCaseEntity = this.courtCaseEntity.withDefendants(List.of(aDefendantEntity()))
-                .withHearings(Collections.singletonList(EntityHelper.aHearingEntity()
+        final var courtCaseEntity = this.hearingEntity.withDefendants(List.of(aDefendantEntity()))
+                .withHearingDays(Collections.singletonList(EntityHelper.aHearingEntity()
                         .withDay(DATE)
                         .withTime(LocalTime.of(9,0))
                         .withCourtCode(COURT_CODE)
                 ));
-        when(courtCaseService.filterCases(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE))
+        when(courtCaseService.filterHearings(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE))
                 .thenReturn(Collections.singletonList(courtCaseEntity));
         var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE, webRequest);
 
@@ -163,19 +168,21 @@ class CourtCaseControllerTest {
 
         var defendantEntity1 = EntityHelper.aDefendantEntity();
         var defendantEntity2 = EntityHelper.aDefendantEntity(NamePropertiesEntity.builder().title("HRH").forename1("Catherine").forename2("The").surname("GREAT").build());
-        var courtCaseEntity = CourtCaseEntity.builder()
-                .caseNo(CASE_NO)
-                .sourceType(COMMON_PLATFORM)
+        var courtCaseEntity = HearingEntity.builder()
+                .courtCase(CourtCaseEntity.builder()
+                    .caseNo(CASE_NO)
+                    .sourceType(COMMON_PLATFORM)
+                .build())
                 .defendants(List.of(defendantEntity1, defendantEntity2))
-                .hearings(Collections.singletonList(EntityHelper.aHearingEntity()
+                .hearingDays(Collections.singletonList(EntityHelper.aHearingEntity()
                         .withCourtCode(COURT_CODE)
                         .withDay(DATE)
                         .withTime(LocalTime.of(9,0))))
                 .build();
 
         var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
-        when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
-        when(courtCaseService.filterCases(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE)).thenReturn(Collections.singletonList(courtCaseEntity));
+        when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
+        when(courtCaseService.filterHearings(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE)).thenReturn(Collections.singletonList(courtCaseEntity));
 
         var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE, webRequest);
 
@@ -192,7 +199,7 @@ class CourtCaseControllerTest {
     @Test
     void getCaseList_sorted() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
-        when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
+        when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
 
         final var mornSession = LocalDateTime.of(DATE, LocalTime.of(9, 30));
         final var aftSession = LocalDateTime.of(DATE, LocalTime.of(14, 0));
@@ -230,7 +237,7 @@ class CourtCaseControllerTest {
 
         // Add in reverse order
         final var createdAfter = LocalDateTime.now().minus(1, ChronoUnit.DAYS);
-        when(courtCaseService.filterCases(COURT_CODE, DATE, createdAfter, CREATED_BEFORE)).thenReturn(List.of(entity5, entity4, entity3, entity2, entity1));
+        when(courtCaseService.filterHearings(COURT_CODE, DATE, createdAfter, CREATED_BEFORE)).thenReturn(List.of(entity5, entity4, entity3, entity2, entity1));
         var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, createdAfter, CREATED_BEFORE, webRequest);
 
         final var cases = responseEntity.getBody().getCases();
@@ -247,27 +254,27 @@ class CourtCaseControllerTest {
     @Test
     void whenCreatedAfterIsNull_thenDefaultToALongTimeAgo() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
-        when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
+        when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
         final LocalDateTime createdAfter = LocalDateTime.of(-4712, 1, 1, 0, 0);
         courtCaseController.getCaseList(COURT_CODE, DATE, null, CREATED_BEFORE, webRequest);
 
-        verify(courtCaseService).filterCases(COURT_CODE, DATE, createdAfter, CREATED_BEFORE);
+        verify(courtCaseService).filterHearings(COURT_CODE, DATE, createdAfter, CREATED_BEFORE);
     }
 
     @Test
     void whenCreatedBeforeIsNull_thenDefaultToMaxDate() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
-        when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
+        when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
         final LocalDateTime createdBefore = LocalDateTime.of(294276, 12, 31, 23, 59);
         courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
 
-        verify(courtCaseService).filterCases(COURT_CODE, DATE, CREATED_AFTER, createdBefore);
+        verify(courtCaseService).filterHearings(COURT_CODE, DATE, CREATED_AFTER, createdBefore);
     }
 
     @Test
     void whenListIsNotModified_thenReturn() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
-        when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
+        when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
         when(webRequest.checkNotModified(lastModified.get().toInstant(ZoneOffset.UTC).toEpochMilli())).thenReturn(true);
 
         var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
@@ -278,7 +285,7 @@ class CourtCaseControllerTest {
 
     @Test
     void whenListHasNeverBeenModified_thenReturnNeverModifiedDate() {
-        when(courtCaseService.filterCasesLastModified(COURT_CODE, DATE)).thenReturn(Optional.empty());
+        when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(Optional.empty());
         when(webRequest.checkNotModified(any(Long.class))).thenReturn(false);
 
         var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
@@ -289,29 +296,27 @@ class CourtCaseControllerTest {
 
     @Test
     void whenUpdateCaseByCaseIdAndDefendantId_shouldReturnCourtCaseResponse() {
-        when(courtCaseUpdate.asEntity()).thenReturn(courtCaseEntity);
-        when(courtCaseService.createUpdateCaseForSingleDefendantId(CASE_ID, DEFENDANT_ID, courtCaseEntity)).thenReturn(Mono.just(courtCaseEntity));
+        when(courtCaseUpdate.asEntity()).thenReturn(hearingEntity);
+        when(courtCaseService.createUpdateHearingForSingleDefendantId(CASE_ID, DEFENDANT_ID, hearingEntity)).thenReturn(Mono.just(hearingEntity));
         when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(3));
 
         var courtCase = courtCaseController.updateCourtCaseByDefendantId(CASE_ID, DEFENDANT_ID, courtCaseUpdate).block();
 
         assertCourtCase(courtCase, null, 3);
-        verify(courtCaseService).createUpdateCaseForSingleDefendantId(CASE_ID, DEFENDANT_ID, courtCaseEntity);
+        verify(courtCaseService).createUpdateHearingForSingleDefendantId(CASE_ID, DEFENDANT_ID, hearingEntity);
         verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 
     @Test
     void whenUpdateWholeCaseByCaseId_shouldReturnCourtCaseResponse() {
-        var courtCaseRequest = mock(ExtendedCourtCaseRequestResponse.class);
-        when(courtCaseRequest.asCourtCaseEntity()).thenReturn(courtCaseEntity);
-        when(courtCaseService.createCase(CASE_ID, courtCaseEntity)).thenReturn(Mono.just(courtCaseEntity));
+        var courtCaseRequest = ExtendedCourtCaseRequestResponse.builder().caseId("CASE_ID").build();
+        when(courtCaseService.createHearing(eq(CASE_ID), any())).thenReturn(Mono.just(hearingEntity));
 
         var courtCase = courtCaseController.updateCourtCaseId(CASE_ID, courtCaseRequest).block();
 
-        assertThat(courtCase).isSameAs(courtCaseRequest);
-        verify(courtCaseRequest).asCourtCaseEntity();
-        verify(courtCaseService).createCase(CASE_ID, courtCaseEntity);
+        assertThat(courtCase.getCaseId()).isSameAs(CASE_ID);
+        verify(courtCaseService).createHearing(CASE_ID, hearingEntity);
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 
@@ -330,10 +335,10 @@ class CourtCaseControllerTest {
         assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(possibleMatchCount);
     }
 
-    private CourtCaseEntity buildCourtCaseEntity(NamePropertiesEntity name, LocalDateTime sessionStartTime, String courtRoom) {
-        return aCourtCaseEntity(UUID.randomUUID().toString())
+    private HearingEntity buildCourtCaseEntity(NamePropertiesEntity name, LocalDateTime sessionStartTime, String courtRoom) {
+        return EntityHelper.aHearingEntity(UUID.randomUUID().toString())
                 .withDefendants(List.of(aDefendantEntity(UUID.randomUUID().toString()).withName(name)))
-                .withHearings(List.of(aHearingEntity(sessionStartTime).withCourtRoom(courtRoom)));
+                .withHearingDays(List.of(aHearingEntity(sessionStartTime).withCourtRoom(courtRoom)));
 
     }
 }

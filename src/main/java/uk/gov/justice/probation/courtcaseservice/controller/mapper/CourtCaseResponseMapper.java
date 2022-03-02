@@ -5,9 +5,9 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRespo
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse.CourtCaseResponseBuilder;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
@@ -22,31 +22,31 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CourtCaseResponseMapper {
 
-    public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, String defendantId, int matchCount) {
+    public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, String defendantId, int matchCount) {
         // Core case-based
         final var builder = CourtCaseResponse.builder();
 
-        buildCaseFields(builder, courtCaseEntity);
-        buildHearings(builder, courtCaseEntity, null);
+        buildCaseFields(builder, hearingEntity);
+        buildHearings(builder, hearingEntity, null);
 
-        Optional.ofNullable(courtCaseEntity.getDefendants()).orElse(Collections.emptyList())
+        Optional.ofNullable(hearingEntity.getDefendants()).orElse(Collections.emptyList())
                     .stream()
                     .filter(defendant -> defendantId.equalsIgnoreCase(defendant.getDefendantId()))
                     .findFirst()
                     .ifPresentOrElse((matchedDefendant) -> addDefendantFields(builder, matchedDefendant),
-                            () -> log.error("Couldn't find defendant ID {} for case ID {} when mapping response.", defendantId, courtCaseEntity.getCaseId()));
+                            () -> log.error("Couldn't find defendant ID {} for case ID {} when mapping response.", defendantId, hearingEntity.getCaseId()));
 
         builder.numberOfPossibleMatches(matchCount);
 
         return builder.build();
     }
 
-    public static CourtCaseResponse mapFrom(CourtCaseEntity courtCaseEntity, DefendantEntity defendantEntity, int matchCount, LocalDate hearingDate) {
+    public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, DefendantEntity defendantEntity, int matchCount, LocalDate hearingDate) {
         // Core case-based
         final var builder = CourtCaseResponse.builder();
 
-        buildCaseFields(builder, courtCaseEntity);
-        buildHearings(builder, courtCaseEntity, hearingDate);
+        buildCaseFields(builder, hearingEntity);
+        buildHearings(builder, hearingEntity, hearingDate);
 
         // Defendant-based fields
         addDefendantFields(builder, defendantEntity);
@@ -55,42 +55,41 @@ public class CourtCaseResponseMapper {
         return builder.build();
     }
 
-    private static void buildCaseFields(CourtCaseResponseBuilder builder, CourtCaseEntity courtCaseEntity) {
+    private static void buildCaseFields(CourtCaseResponseBuilder builder, HearingEntity hearingEntity) {
         // Case-based fields
-        builder.caseId(courtCaseEntity.getCaseId())
-            .source(courtCaseEntity.getSourceType().name())
-            .createdToday(LocalDate.now().isEqual(Optional.ofNullable(courtCaseEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()));
-        if (SourceType.LIBRA == courtCaseEntity.getSourceType()) {
-            builder.caseNo(courtCaseEntity.getCaseNo());
+        builder.caseId(hearingEntity.getCaseId())
+            .source(hearingEntity.getSourceType().name())
+            .createdToday(LocalDate.now().isEqual(Optional.ofNullable(hearingEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()));
+        if (SourceType.LIBRA == hearingEntity.getSourceType()) {
+            builder.caseNo(hearingEntity.getCaseNo());
         }
     }
 
-    static void buildHearings(CourtCaseResponseBuilder builder, CourtCaseEntity courtCaseEntity, LocalDate hearingDate) {
-        var hearings = Optional.ofNullable(courtCaseEntity.getHearings())
-            .orElse(Collections.emptyList());
+    static void buildHearings(CourtCaseResponseBuilder builder, HearingEntity hearingEntity, LocalDate hearingDate) {
+        var hearings = Optional.ofNullable(hearingEntity.getHearingDays())
+            .orElseThrow();
 
         var targetHearing = hearings
             .stream()
-            .filter(hearingEntity -> hearingDate == null || hearingDate.isEqual(hearingEntity.getDay()))
-            .findFirst();
+            .filter(hearingDayEntity -> hearingDate == null || hearingDate.isEqual(hearingDayEntity.getDay()))
+            .findFirst()
+            .orElseThrow();
 
         // Populate the top level fields with the details from the single hearing
-        targetHearing.map((hearing) ->
-                                    builder.courtCode(hearing.getCourtCode())
-                                            .courtRoom(hearing.getCourtRoom())
-                                            .sessionStartTime(hearing.getSessionStartTime())
-                                            .session(hearing.getSession())
-                                            .listNo(hearing.getListNo()))
-                .orElseThrow();
+        builder.courtCode(targetHearing.getCourtCode())
+                .courtRoom(targetHearing.getCourtRoom())
+                .sessionStartTime(targetHearing.getSessionStartTime())
+                .session(targetHearing.getSession())
+                .listNo(targetHearing.getListNo());
 
         builder.hearings(
             hearings.stream()
-                .map(hearingEntity -> HearingResponse.builder()
-                    .courtCode(hearingEntity.getCourtCode())
-                    .courtRoom(hearingEntity.getCourtRoom())
-                    .listNo(hearingEntity.getListNo())
-                    .session(hearingEntity.getSession())
-                    .sessionStartTime(hearingEntity.getSessionStartTime())
+                .map(hearingDayEntity -> HearingResponse.builder()
+                    .courtCode(hearingDayEntity.getCourtCode())
+                    .courtRoom(hearingDayEntity.getCourtRoom())
+                    .listNo(hearingDayEntity.getListNo())
+                    .session(hearingDayEntity.getSession())
+                    .sessionStartTime(hearingDayEntity.getSessionStartTime())
                     .build())
             .collect(Collectors.toList()));
     }

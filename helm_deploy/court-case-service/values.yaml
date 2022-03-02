@@ -1,0 +1,3 @@
+analytics_data_extractor:
+  name: analytics-data-extractor
+  cron_schedule: "0 1 * * *"

@@ -1,9 +1,17 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: data-extractor-analytics
+  name: {{ .Values.analytics_data_extractor.name }}
+  labels:
+    app: {{ .Values.analytics_data_extractor.name }}
+    chart: {{ template "app.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 spec:
-  schedule: "0 1 * * *"
+  schedule: {{ .Values.analytics_data_extractor.cron_schedule }}
+  selector:
+    matchLabels:
+      release: {{ .Release.Name }}
   jobTemplate:
     spec:
       template:

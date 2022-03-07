@@ -203,7 +203,7 @@ dependencies {
         exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
     }
 
-    testImplementation("org.codehaus.groovy:groovy:3.0.9") {
+    testImplementation("org.codehaus.groovy:groovy:3.0.10") {
         because "Transitive dependency. Latest version of RestAssured incompatible with v2 of Groovy brought in by Spring"
     }
 

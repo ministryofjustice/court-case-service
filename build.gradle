@@ -203,18 +203,6 @@ dependencies {
         exclude group: 'com.sun.xml.bind', module: 'jaxb-osgi'
     }
 
-    testImplementation("org.codehaus.groovy:groovy:3.0.9") {
-        because "Transitive dependency. Latest version of RestAssured incompatible with v2 of Groovy brought in by Spring"
-    }
-
-    testImplementation("org.codehaus.groovy:groovy-json:3.0.9") {
-        because "Transitive dependency. Latest version of RestAssured incompatible with v2 of Groovy brought in by Spring"
-    }
-
-    testImplementation("org.codehaus.groovy:groovy-xml:3.0.10") {
-        because "Transitive dependency. Latest version of RestAssured incompatible with v2 of Groovy brought in by Spring"
-    }
-
     testImplementation(platform("org.junit:junit-bom:5.8.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 

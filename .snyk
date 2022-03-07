@@ -4,7 +4,7 @@ ignore:
   SNYK-ORACLE7-OPENSSLLIBS-1769087:
     - '*':
         reason: Believed we don't used the open SSL libraries. Will revisit
-        expires: 2022-03-04T00:00:00.000Z
+        expires: 2022-05-04T00:00:00.000Z
   SNYK-ORACLE7-OPENSSL-1769085:
     - '*':
         reason: Believed we don't used the open SSL libraries. Will revisit

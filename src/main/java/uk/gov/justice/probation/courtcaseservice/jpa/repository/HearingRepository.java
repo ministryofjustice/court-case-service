@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface HearingRepository extends CrudRepository<HearingEntity, Long> {
+public interface HearingRepository extends CrudRepository<HearingEntity, Long>, HearingRepositoryBase {
 
     Optional<HearingEntity> findFirstByHearingIdOrderByIdDesc(String hearingId);
 
@@ -59,7 +59,7 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long> {
             "where h.deleted = false " +
             "order by h.id desc limit 1",
             nativeQuery = true)
-    Optional<HearingEntity> findByCaseIdAndDefendantId(String caseId, String defendantId);
+    Optional<HearingEntity> findByHearingIdAndDefendantId(String caseId, String defendantId);
 
 
     @Query(value = "select h.* as first_created " +

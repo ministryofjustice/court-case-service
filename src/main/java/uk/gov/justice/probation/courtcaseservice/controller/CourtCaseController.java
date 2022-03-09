@@ -23,6 +23,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListRespon
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
@@ -67,7 +68,7 @@ public class CourtCaseController {
     @GetMapping(value = "/case/{caseId}/defendant/{defendantId}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCaseByCaseIdAndDefendantId(@PathVariable String caseId, @PathVariable String defendantId) {
-        return this.buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseService.getHearingByCaseIdAndDefendantId(caseId, defendantId), defendantId);
+        return this.buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseService.getHearingByHearingIdAndDefendantId(caseId, defendantId), defendantId);
     }
 
     @Operation(description = "Gets the court case data by case number.")
@@ -101,7 +102,7 @@ public class CourtCaseController {
     public @ResponseBody
     Mono<ExtendedCourtCaseRequestResponse> updateCourtCaseId(@PathVariable(value = "caseId") String caseId,
                                                              @Valid @RequestBody ExtendedCourtCaseRequestResponse courtCaseRequest) {
-        return courtCaseService.createHearing(caseId, courtCaseRequest.asCourtCaseEntity())
+        return courtCaseService.createHearing(caseId, courtCaseRequest.asHearingEntity())
                 .map(ExtendedCourtCaseRequestResponse::of);
     }
 
@@ -209,9 +210,10 @@ public class CourtCaseController {
     }
 
     private CourtCaseResponse buildCourtCaseResponse(HearingEntity hearingEntity) {
-        final var defendantId = Optional.ofNullable(hearingEntity.getDefendants())
+        final var defendantId = Optional.ofNullable(hearingEntity.getHearingDefendants())
                 .flatMap(defs -> defs.stream().findFirst())
-                .map(HearingDefendantEntity::getDefendantId)
+                .map(HearingDefendantEntity::getDefendant)
+                .map(DefendantEntity::getDefendantId)
                 .orElseThrow(() -> new IllegalStateException(String.format("Court case with id %s does not have any defendants.", hearingEntity.getCaseId())));
 
         return buildCourtCaseResponseForCaseIdAndDefendantId(hearingEntity, defendantId);
@@ -219,13 +221,14 @@ public class CourtCaseController {
 
     private List<CourtCaseResponse> buildCourtCaseResponses(HearingEntity hearingEntity, LocalDate hearingDate) {
 
-        var defendantEntities = new ArrayList<>(Optional.ofNullable(hearingEntity.getDefendants()).orElse(Collections.emptyList()));
+        var defendantEntities = new ArrayList<>(Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(Collections.emptyList()));
 
         final var caseId = hearingEntity.getCaseId();
         return defendantEntities.stream()
             .sorted(Comparator.comparing(HearingDefendantEntity::getDefendantSurname))
             .map(defendantEntity ->  {
-                var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantEntity.getDefendantId()).orElse(0);
+                final String defendantId = Optional.ofNullable(defendantEntity).map(HearingDefendantEntity::getDefendant).map(DefendantEntity::getDefendantId).orElseThrow();
+                var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantId).orElse(0);
                 return CourtCaseResponseMapper.mapFrom(hearingEntity, defendantEntity, matchCount, hearingDate);
             })
             .toList();

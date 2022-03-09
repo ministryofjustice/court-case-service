@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
@@ -65,61 +66,65 @@ public class ExtendedCourtCaseRequestResponse {
                                 .listNo(hearingEntity.getListNo())
                                 .build())
                         .toList())
-                .defendants(hearing.getDefendants().stream()
-                        .map(defendantEntity -> Defendant.builder()
-                                .defendantId(defendantEntity.getDefendantId())
-                                .name(defendantEntity.getName())
-                                .dateOfBirth(defendantEntity.getDateOfBirth())
-                                .address(Optional.ofNullable(defendantEntity.getAddress())
-                                        .map(address -> AddressRequestResponse.builder()
-                                                .line1(address.getLine1())
-                                                .line2(address.getLine2())
-                                                .line3(address.getLine3())
-                                                .line4(address.getLine4())
-                                                .line5(address.getLine5())
-                                                .postcode(address.getPostcode())
-                                                .build())
-                                        .orElse(null))
-                                .type(defendantEntity.getType())
-                                .sex(Optional.ofNullable(defendantEntity.getSex()).map(Enum::name).orElse(null))
-                                .pnc(defendantEntity.getPnc())
-                                .cro(defendantEntity.getCro())
-                                .crn(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getCrn).orElse(null))
-                                .probationStatus(Optional.ofNullable(defendantEntity.getOffender()).map(offender -> offender.getProbationStatus().name()).orElse(null))
-                                .awaitingPsr(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getAwaitingPsr).orElse(null))
-                                .breach(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::isBreach).orElse(null))
-                                .preSentenceActivity(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::isPreSentenceActivity).orElse(null))
-                                .suspendedSentenceOrder(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::isSuspendedSentenceOrder).orElse(null))
-                                .previouslyKnownTerminationDate(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getPreviouslyKnownTerminationDate).orElse(null))
-                                .phoneNumber(PhoneNumber.of(defendantEntity.getPhoneNumber()))
-                                .offences(Optional.ofNullable(defendantEntity.getOffences())
-                                        .orElse(Collections.emptyList()).stream()
-                                        .map(offence ->  OffenceRequestResponse.builder()
-                                                .act(offence.getAct())
-                                                .offenceTitle(offence.getTitle())
-                                                .offenceSummary(offence.getSummary())
-                                                .listNo(offence.getListNo())
-                                                .build())
-                                        .toList())
-                                .build())
+                .defendants(hearing.getHearingDefendants().stream()
+                        .map(hearingDefendantEntity -> {
+                            final var defendant = hearingDefendantEntity.getDefendant();
+                            return Defendant.builder()
+                                    .defendantId(defendant.getDefendantId())
+                                    .name(defendant.getName())
+                                    .dateOfBirth(defendant.getDateOfBirth())
+                                    .address(Optional.ofNullable(defendant.getAddress())
+                                            .map(address -> AddressRequestResponse.builder()
+                                                    .line1(address.getLine1())
+                                                    .line2(address.getLine2())
+                                                    .line3(address.getLine3())
+                                                    .line4(address.getLine4())
+                                                    .line5(address.getLine5())
+                                                    .postcode(address.getPostcode())
+                                                    .build())
+                                            .orElse(null))
+                                    .type(defendant.getType())
+                                    .sex(Optional.ofNullable(defendant.getSex()).map(Enum::name).orElse(null))
+                                    .pnc(defendant.getPnc())
+                                    .cro(defendant.getCro())
+                                    .crn(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::getCrn).orElse(null))
+                                    .probationStatus(Optional.ofNullable(defendant.getOffender()).map(offender -> offender.getProbationStatus().name()).orElse(null))
+                                    .awaitingPsr(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::getAwaitingPsr).orElse(null))
+                                    .breach(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::isBreach).orElse(null))
+                                    .preSentenceActivity(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::isPreSentenceActivity).orElse(null))
+                                    .suspendedSentenceOrder(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::isSuspendedSentenceOrder).orElse(null))
+                                    .previouslyKnownTerminationDate(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::getPreviouslyKnownTerminationDate).orElse(null))
+                                    .phoneNumber(PhoneNumber.of(defendant.getPhoneNumber()))
+                                    .offences(Optional.ofNullable(hearingDefendantEntity)
+                                            .map(HearingDefendantEntity::getOffences)
+                                            .orElse(Collections.emptyList()).stream()
+                                            .map(offence ->  OffenceRequestResponse.builder()
+                                                    .act(offence.getAct())
+                                                    .offenceTitle(offence.getTitle())
+                                                    .offenceSummary(offence.getSummary())
+                                                    .listNo(offence.getListNo())
+                                                    .build())
+                                            .toList())
+                                    .build();
+                        })
                         .toList())
                 .build();
     }
 
-    public HearingEntity asCourtCaseEntity() {
+    public HearingEntity asHearingEntity() {
 
         final var hearingDayEntities = Optional.ofNullable(hearingDays).orElse(Collections.emptyList())
             .stream()
             .map(this::buildHearing)
             .toList();
-        final var defendantEntities = Optional.ofNullable(defendants).orElse(Collections.emptyList())
+        final var hearingDefendantEntities = Optional.ofNullable(defendants).orElse(Collections.emptyList())
             .stream()
             .map(this::buildDefendant)
             .toList();
 
-        final var courtCaseEntity = HearingEntity.builder()
+        final var hearingEntity = HearingEntity.builder()
             .hearingDays(hearingDayEntities)
-            .defendants(defendantEntities)
+            .hearingDefendants(hearingDefendantEntities)
             .courtCase(CourtCaseEntity.builder()
                 .caseNo(caseNo)
                 .caseId(caseId)
@@ -128,9 +133,9 @@ public class ExtendedCourtCaseRequestResponse {
             .hearingId(Optional.ofNullable(hearingId).orElse(caseId))
             .build();
 
-        hearingDayEntities.forEach(hearingEntity -> hearingEntity.setHearing(courtCaseEntity));
-        defendantEntities.forEach(defendantEntity -> defendantEntity.setHearing(courtCaseEntity));
-        return courtCaseEntity;
+        hearingDayEntities.forEach(hearingDayEntity -> hearingDayEntity.setHearing(hearingEntity));
+        hearingDefendantEntities.forEach(hearingDefendantEntity -> hearingDefendantEntity.setHearing(hearingEntity));
+        return hearingEntity;
     }
 
     private HearingDefendantEntity buildDefendant(Defendant defendant) {
@@ -139,18 +144,20 @@ public class ExtendedCourtCaseRequestResponse {
         final var offender = buildOffender(defendant);
 
         final var defendantEntity = HearingDefendantEntity.builder()
-            .address(buildAddress(defendant.getAddress()))
-            .cro(defendant.getCro())
-            .dateOfBirth(defendant.getDateOfBirth())
-            .defendantName(defendant.getName().getFullName())
-            .name(defendant.getName())
+            .defendant(DefendantEntity.builder()
+                .address(buildAddress(defendant.getAddress()))
+                .cro(defendant.getCro())
+                .dateOfBirth(defendant.getDateOfBirth())
+                .defendantName(defendant.getName().getFullName())
+                .name(defendant.getName())
+                .offender(offender)
+                .pnc(defendant.getPnc())
+                .sex(Sex.fromString(defendant.getSex()))
+                .type(defendant.getType())
+                .defendantId(defendant.getDefendantId())
+                .phoneNumber(Optional.ofNullable(defendant.getPhoneNumber()).map(PhoneNumber::asEntity).orElse(null))
+                .build())
             .offences(offences)
-            .offender(offender)
-            .pnc(defendant.getPnc())
-            .sex(Sex.fromString(defendant.getSex()))
-            .type(defendant.getType())
-            .defendantId(defendant.getDefendantId())
-            .phoneNumber(Optional.ofNullable(defendant.getPhoneNumber()).map(PhoneNumber::asEntity).orElse(null))
             .build();
         offences.forEach(offence -> offence.setHearingDefendant(defendantEntity));
         return defendantEntity;

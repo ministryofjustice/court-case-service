@@ -11,14 +11,22 @@ class HearingDefendantEntityTest {
 
     @Test
     void givenStandard_whenGetSurname_thenReturn() {
-        var defendantEntity = HearingDefendantEntity.builder().defendantName("Mr Jeff BRIDGES").build();
+        var defendantEntity = HearingDefendantEntity.builder()
+                .defendant(DefendantEntity.builder()
+                        .defendantName("Mr Jeff BRIDGES")
+                        .build())
+                .build();
 
         assertThat(defendantEntity.getDefendantSurname()).isEqualTo("BRIDGES");
     }
 
     @Test
     void givenSingleString_whenGetSurname_thenReturn() {
-        var defendantEntity = HearingDefendantEntity.builder().defendantName("BRIDGES").build();
+        var defendantEntity = HearingDefendantEntity.builder()
+                .defendant(DefendantEntity.builder()
+                        .defendantName("BRIDGES")
+                        .build())
+                .build();
 
         assertThat(defendantEntity.getDefendantSurname()).isEqualTo("BRIDGES");
     }
@@ -31,35 +39,45 @@ class HearingDefendantEntityTest {
 
     @Test
     void givenEmptyDefendantName_whenGetSurname_thenReturnEmptyString() {
-        var defendantEntity = HearingDefendantEntity.builder().defendantName("   ").build();
+        var defendantEntity = HearingDefendantEntity.builder()
+                .defendant(DefendantEntity.builder()
+                        .defendantName("   ")
+                        .build())
+                .build();
         assertThat(defendantEntity.getDefendantSurname()).isEmpty();
     }
 
     @Test
-    void givenNullOffender_andNoOffenderConfirmed_whenGetProbationStatus_thenReturnUnconfirmedNoRecord(){
+    void givenNullOffender_andNoOffenderConfirmed_whenGetProbationStatus_thenReturnUnconfirmedNoRecord() {
         final HearingDefendantEntity defendant = HearingDefendantEntity.builder()
-                .offender(null)
-                .offenderConfirmed(false)
+                .defendant(DefendantEntity.builder()
+                        .offender(null)
+                        .offenderConfirmed(false)
+                        .build())
                 .build();
 
         assertThat(defendant.getProbationStatusForDisplay()).isEqualTo(UNCONFIRMED_NO_RECORD);
     }
 
     @Test
-    void givenNullOffender_andOffenderConfirmed_whenGetProbationStatus_thenReturnConfirmedNoRecord(){
+    void givenNullOffender_andOffenderConfirmed_whenGetProbationStatus_thenReturnConfirmedNoRecord() {
         final HearingDefendantEntity defendant = HearingDefendantEntity.builder()
-                .offender(null)
-                .offenderConfirmed(true)
+                .defendant(DefendantEntity.builder()
+                        .offender(null)
+                        .offenderConfirmed(true)
+                        .build())
                 .build();
 
         assertThat(defendant.getProbationStatusForDisplay()).isEqualTo(CONFIRMED_NO_RECORD);
     }
 
     @Test
-    void givenOffender_whenGetProbationStatus_thenReturnOffenderProbationStatus(){
+    void givenOffender_whenGetProbationStatus_thenReturnOffenderProbationStatus() {
         final HearingDefendantEntity defendant = HearingDefendantEntity.builder()
-                .offender(OffenderEntity.builder()
-                        .probationStatus(OffenderProbationStatus.CURRENT)
+                .defendant(DefendantEntity.builder()
+                        .offender(OffenderEntity.builder()
+                                .probationStatus(OffenderProbationStatus.CURRENT)
+                                .build())
                         .build())
                 .build();
 

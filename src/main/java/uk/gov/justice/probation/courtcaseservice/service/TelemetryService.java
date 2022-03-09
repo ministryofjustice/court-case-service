@@ -66,11 +66,11 @@ public class TelemetryService {
 
         Map<String, String> properties = new HashMap<>();
 
-        ofNullable(defendantEntity.getDefendantId())
+        ofNullable(defendantEntity.getDefendant().getDefendantId())
             .ifPresent(id -> properties.put("defendantId", id));
-        ofNullable(defendantEntity.getOffender())
+        ofNullable(defendantEntity.getDefendant().getOffender())
             .ifPresent(offender -> properties.put("crn", offender.getCrn()));
-        ofNullable(defendantEntity.getPnc())
+        ofNullable(defendantEntity.getDefendant().getPnc())
             .ifPresent(pnc -> properties.put("pnc", pnc));
         ofNullable(caseId)
             .ifPresent(id -> properties.put("caseId", id));

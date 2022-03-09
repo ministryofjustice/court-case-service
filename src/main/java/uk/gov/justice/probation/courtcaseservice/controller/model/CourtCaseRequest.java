@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
@@ -96,7 +97,7 @@ public class CourtCaseRequest {
                 // TODO: Remove. This is a temporary measure to allow the application to continue working whilst we update the data structures adding hearingId
                 .hearingId(caseId)
                 .hearingDays(hearings)
-                .defendants(defendants)
+                .hearingDefendants(defendants)
                 .build();
 
         hearings.forEach(hearingEntity -> hearingEntity.setHearing(entity));
@@ -123,23 +124,25 @@ public class CourtCaseRequest {
                 .collect(Collectors.toList());
 
         final var defendant = HearingDefendantEntity.builder()
-            .address(Optional.ofNullable(defendantAddress)
-                    .map(this::buildAddress)
+            .defendant(DefendantEntity.builder()
+                .address(Optional.ofNullable(defendantAddress)
+                        .map(this::buildAddress)
+                        .orElse(null))
+                .offender(Optional.ofNullable(crn)
+                    .map(this::buildOffender)
                     .orElse(null))
-            .offender(Optional.ofNullable(crn)
-                .map(this::buildOffender)
-                .orElse(null))
-            .dateOfBirth(defendantDob)
-            .defendantName(defendantName)
-            .type(defendantType)
-            .nationality1(nationality1)
-            .nationality2(nationality2)
-            .name(name)
-            .sex(Sex.fromString(defendantSex))
-            .defendantId(Optional.ofNullable(defendantId).orElse(UUID.randomUUID().toString()))
-            .cro(cro)
-            .pnc(pnc)
-            .phoneNumber(Optional.ofNullable(phoneNumber).map(PhoneNumber::asEntity).orElse(null))
+                .dateOfBirth(defendantDob)
+                .defendantName(defendantName)
+                .type(defendantType)
+                .nationality1(nationality1)
+                .nationality2(nationality2)
+                .name(name)
+                .sex(Sex.fromString(defendantSex))
+                .defendantId(Optional.ofNullable(defendantId).orElse(UUID.randomUUID().toString()))
+                .cro(cro)
+                .pnc(pnc)
+                .phoneNumber(Optional.ofNullable(phoneNumber).map(PhoneNumber::asEntity).orElse(null))
+                .build())
             .offences(offences)
             .build();
 

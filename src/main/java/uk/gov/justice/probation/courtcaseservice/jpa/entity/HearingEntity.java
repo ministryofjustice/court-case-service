@@ -32,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Schema(description = "Hearing")
 @Entity
@@ -76,7 +77,7 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
     @OneToMany(mappedBy = "hearing", cascade = CascadeType.ALL, orphanRemoval=true)
-    private final List<HearingDefendantEntity> defendants;
+    private final List<HearingDefendantEntity> hearingDefendants;
 
     @Column(name = "deleted", nullable = false, updatable = false)
     private final boolean deleted;
@@ -96,11 +97,11 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
         return courtCase.getSourceType();
     }
 
-    public HearingDefendantEntity getDefendant(String defendantId) {
-        return Optional.ofNullable(defendants)
+    public HearingDefendantEntity getHearingDefendant(String defendantId) {
+        return Optional.ofNullable(hearingDefendants)
                 .map(Collection::stream)
                 .flatMap(defendantEntityStream -> defendantEntityStream
-                    .filter(d ->  defendantId.equals(d.getDefendantId()))
+                    .filter(d ->  defendantId.equals(d.getDefendant().getDefendantId()))
                     .findFirst()
                 )
                 .orElse(null);

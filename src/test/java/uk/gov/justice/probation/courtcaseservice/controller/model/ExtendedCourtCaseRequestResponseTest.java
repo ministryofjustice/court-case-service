@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.controller.model;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
@@ -60,7 +61,7 @@ class ExtendedCourtCaseRequestResponseTest {
                                 .build()))
                 .build();
 
-        final var courtCaseEntity = request.asCourtCaseEntity();
+        final var courtCaseEntity = request.asHearingEntity();
 
         assertThat(courtCaseEntity.getCaseId()).isEqualTo("CASE_ID");
         assertThat(courtCaseEntity.getHearingId()).isEqualTo("HEARING_ID");
@@ -96,7 +97,7 @@ class ExtendedCourtCaseRequestResponseTest {
                                 .build()))
                 .build();
 
-        final var courtCaseEntity = request.asCourtCaseEntity();
+        final var courtCaseEntity = request.asHearingEntity();
 
         assertThat(courtCaseEntity.getCaseId()).isEqualTo("CASE_ID");
         assertThat(courtCaseEntity.getHearingId()).isEqualTo("CASE_ID");
@@ -122,7 +123,7 @@ class ExtendedCourtCaseRequestResponseTest {
                 .defendants(List.of(defendant))
                 .build();
 
-        final var courtCaseEntity = request.asCourtCaseEntity();
+        final var hearingEntity = request.asHearingEntity();
 
         final var expectedAddress = AddressPropertiesEntity.builder()
                 .line1("PIC TEAM")
@@ -133,42 +134,47 @@ class ExtendedCourtCaseRequestResponseTest {
                 .postcode("S3 7DQ")
                 .build();
 
-        assertThat(courtCaseEntity.getDefendants().get(0).getOffender().getPreviouslyKnownTerminationDate()).isEqualTo(previouslyKnownTerminationDate);
-        assertThat(courtCaseEntity.getDefendants().get(0).getOffender().isPreSentenceActivity()).isEqualTo(Boolean.TRUE);
-        assertThat(courtCaseEntity.getDefendants().get(0).getOffender().isBreach()).isEqualTo(Boolean.TRUE);
-        assertThat(courtCaseEntity.getDefendants().get(0).getOffender().getAwaitingPsr()).isEqualTo(Boolean.TRUE);
-        assertThat(courtCaseEntity.getDefendants().get(0).getOffender().getProbationStatus()).isEqualTo(OffenderProbationStatus.CURRENT);
+        assertThat(hearingEntity.getHearingDefendants()).hasSize(1);
 
-        assertThat(courtCaseEntity.getDefendants()).hasSize(1);
-        final var defendantEntity = courtCaseEntity.getDefendants().get(0);
+        final var hearingDefendantEntity = hearingEntity.getHearingDefendants().get(0);
+         assertThat(hearingDefendantEntity.getHearing()).isSameAs(hearingEntity);
+
+        final var defendantEntity = hearingDefendantEntity.getDefendant();
         assertThat(defendantEntity.getAddress()).isEqualTo(expectedAddress);
         assertThat(defendantEntity.getCrn()).isEqualTo(CRN);
         assertThat(defendantEntity.getCro()).isEqualTo(CRO);
-        assertThat(defendantEntity.getHearing()).isSameAs(courtCaseEntity);
         assertThat(defendantEntity.getDateOfBirth()).isEqualTo(DEFENDANT_DOB);
         assertThat(defendantEntity.getDefendantName()).isEqualTo(NAME.getFullName());
         assertThat(defendantEntity.getName()).isEqualTo(NAME);
         assertThat(defendantEntity.getPnc()).isEqualTo(PNC);
         assertThat(defendantEntity.getPhoneNumber()).isEqualTo(DEFENDANT_PHONE_NUMBER_ENTITY);
-        assertThat(defendantEntity.getOffender().getAwaitingPsr()).isEqualTo(Boolean.TRUE);
-        assertThat(defendantEntity.getOffender().isBreach()).isEqualTo(Boolean.TRUE);
-        assertThat(defendantEntity.getOffender().isPreSentenceActivity()).isEqualTo(Boolean.TRUE);
-        assertThat(defendantEntity.getOffender().getPreviouslyKnownTerminationDate()).isEqualTo(previouslyKnownTerminationDate);
-        assertThat(defendantEntity.getOffender().getProbationStatus()).isEqualTo(OffenderProbationStatus.CURRENT);
+
+        final var offenderEntity = defendantEntity.getOffender();
+        assertThat(offenderEntity.getPreviouslyKnownTerminationDate()).isEqualTo(previouslyKnownTerminationDate);
+        assertThat(offenderEntity.isPreSentenceActivity()).isEqualTo(Boolean.TRUE);
+        assertThat(offenderEntity.isBreach()).isEqualTo(Boolean.TRUE);
+        assertThat(offenderEntity.getAwaitingPsr()).isEqualTo(Boolean.TRUE);
+        assertThat(offenderEntity.getProbationStatus()).isEqualTo(OffenderProbationStatus.CURRENT);
+
+        assertThat(offenderEntity.getAwaitingPsr()).isEqualTo(Boolean.TRUE);
+        assertThat(offenderEntity.isBreach()).isEqualTo(Boolean.TRUE);
+        assertThat(offenderEntity.isPreSentenceActivity()).isEqualTo(Boolean.TRUE);
+        assertThat(offenderEntity.getPreviouslyKnownTerminationDate()).isEqualTo(previouslyKnownTerminationDate);
+        assertThat(offenderEntity.getProbationStatus()).isEqualTo(OffenderProbationStatus.CURRENT);
         assertThat(defendantEntity.getSex()).isSameAs(Sex.MALE);
         assertThat(defendantEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
 
-        final var offences = defendantEntity.getOffences();
+        final var offences = hearingDefendantEntity.getOffences();
         assertThat(offences).hasSize(2);
-        assertThat(offences.get(0).getHearingDefendant()).isSameAs(defendantEntity);
-        assertThat(offences.get(1).getHearingDefendant()).isSameAs(defendantEntity);
+        assertThat(offences.get(0).getHearingDefendant().getDefendant()).isSameAs(defendantEntity);
+        assertThat(offences.get(1).getHearingDefendant().getDefendant()).isSameAs(defendantEntity);
         assertThat(offences).extracting("act").containsOnly("ACT1", "ACT2");
         assertThat(offences).extracting("sequence").containsOnly(1, 2);
         assertThat(offences).extracting("summary").containsOnly("SUMMARY1", "SUMMARY2");
         assertThat(offences).extracting("title").containsOnly("TITLE1", "TITLE2");
         assertThat(offences).extracting("listNo").containsOnly(10, 20);
 
-        final var offender = defendantEntity.getOffender();
+        final var offender = offenderEntity;
         assertThat(offender.getCrn()).isEqualTo(CRN);
         assertThat(offender.getProbationStatus()).isSameAs(OffenderProbationStatus.CURRENT);
         assertThat(offender.getAwaitingPsr()).isEqualTo(Boolean.TRUE);
@@ -182,40 +188,40 @@ class ExtendedCourtCaseRequestResponseTest {
     void givenDefendantWithoutCrn_whenAsEntity_thenReturnWithNoOffender() {
 
         final var defendant = Defendant.builder()
-            .name(NAME)
-            .pnc(PNC)
-            .sex("M")
-            .type(DefendantType.PERSON)
-            .defendantId(DEFENDANT_ID)
-            .build();
+                .name(NAME)
+                .pnc(PNC)
+                .sex("M")
+                .type(DefendantType.PERSON)
+                .defendantId(DEFENDANT_ID)
+                .build();
         final var request = ExtendedCourtCaseRequestResponse.builder()
-            .defendants(List.of(defendant))
-            .build();
+                .defendants(List.of(defendant))
+                .build();
 
-        final var courtCaseEntity = request.asCourtCaseEntity();
+        final var courtCaseEntity = request.asHearingEntity();
 
-        assertThat(courtCaseEntity.getDefendants()).hasSize(1);
-        assertThat(courtCaseEntity.getDefendants().get(0).getOffences()).isEmpty();
-        assertThat(courtCaseEntity.getDefendants().get(0).getOffender()).isNull();
+        assertThat(courtCaseEntity.getHearingDefendants()).hasSize(1);
+        assertThat(courtCaseEntity.getHearingDefendants().get(0).getOffences()).isEmpty();
+        assertThat(courtCaseEntity.getHearingDefendants().get(0).getDefendant().getOffender()).isNull();
     }
 
     @Test
     void givenDefendantWitCrnAndWithoutNonNullableFields_whenAsEntity_thenReturnWithDefaults() {
 
         final var defendant = Defendant.builder()
-            .name(NAME)
-            .pnc(PNC)
-            .sex("M")
-            .type(DefendantType.PERSON)
-            .defendantId(DEFENDANT_ID)
-            .crn("CRN")
-            .build();
+                .name(NAME)
+                .pnc(PNC)
+                .sex("M")
+                .type(DefendantType.PERSON)
+                .defendantId(DEFENDANT_ID)
+                .crn("CRN")
+                .build();
         final var request = ExtendedCourtCaseRequestResponse.builder()
-            .defendants(List.of(defendant))
-            .build();
+                .defendants(List.of(defendant))
+                .build();
 
-        final var courtCaseEntity = request.asCourtCaseEntity();
-        final var offender = courtCaseEntity.getDefendants().get(0).getOffender();
+        final var courtCaseEntity = request.asHearingEntity();
+        final var offender = courtCaseEntity.getHearingDefendants().get(0).getDefendant().getOffender();
         assertThat(offender).isNotNull();
         assertThat(offender.isBreach()).isEqualTo(false);
         assertThat(offender.isPreSentenceActivity()).isEqualTo(false);
@@ -230,10 +236,10 @@ class ExtendedCourtCaseRequestResponseTest {
                 .caseId(CASE_ID)
                 .build();
 
-        final var courtCaseEntity = request.asCourtCaseEntity();
+        final var courtCaseEntity = request.asHearingEntity();
 
         assertThat(courtCaseEntity.getHearingDays()).isEmpty();
-        assertThat(courtCaseEntity.getDefendants()).isEmpty();
+        assertThat(courtCaseEntity.getHearingDefendants()).isEmpty();
         assertThat(courtCaseEntity.getCaseNo()).isEqualTo(CASE_NO);
         assertThat(courtCaseEntity.getSourceType()).isEqualTo(DEFAULT_SOURCE);
     }
@@ -242,32 +248,32 @@ class ExtendedCourtCaseRequestResponseTest {
     void givenVerboseSex_whenAsEntity_thenReturn() {
 
         final var request = ExtendedCourtCaseRequestResponse.builder()
-            .caseNo(CASE_NO)
-            .caseId(CASE_ID)
-            .defendants(List.of(buildDefendant("male")))
-            .build();
+                .caseNo(CASE_NO)
+                .caseId(CASE_ID)
+                .defendants(List.of(buildDefendant("male")))
+                .build();
 
-        final var courtCaseEntity = request.asCourtCaseEntity();
+        final var courtCaseEntity = request.asHearingEntity();
 
         assertThat(courtCaseEntity.getHearingDays()).isEmpty();
-        assertThat(courtCaseEntity.getDefendants()).hasSize(1);
-        assertThat(courtCaseEntity.getDefendants().get(0).getSex()).isEqualTo(Sex.MALE);
+        assertThat(courtCaseEntity.getHearingDefendants()).hasSize(1);
+        assertThat(courtCaseEntity.getHearingDefendants().get(0).getDefendant().getSex()).isEqualTo(Sex.MALE);
     }
 
     @Test
     void givenNullSex_whenAsEntity_thenReturnAsNotKnown() {
 
         final var request = ExtendedCourtCaseRequestResponse.builder()
-            .caseNo(CASE_NO)
-            .caseId(CASE_ID)
-            .defendants(List.of(buildDefendant(null)))
-            .build();
+                .caseNo(CASE_NO)
+                .caseId(CASE_ID)
+                .defendants(List.of(buildDefendant(null)))
+                .build();
 
-        final var courtCaseEntity = request.asCourtCaseEntity();
+        final var courtCaseEntity = request.asHearingEntity();
 
         assertThat(courtCaseEntity.getHearingDays()).isEmpty();
-        assertThat(courtCaseEntity.getDefendants()).hasSize(1);
-        assertThat(courtCaseEntity.getDefendants().get(0).getSex()).isEqualTo(Sex.NOT_KNOWN);
+        assertThat(courtCaseEntity.getHearingDefendants()).hasSize(1);
+        assertThat(courtCaseEntity.getHearingDefendants().get(0).getDefendant().getSex()).isEqualTo(Sex.NOT_KNOWN);
     }
 
     @Test
@@ -289,41 +295,41 @@ class ExtendedCourtCaseRequestResponseTest {
                 .build());
         assertThat(actual.getHearingDays().get(1).getListNo()).isEqualTo("2");
         assertThat(actual.getDefendants().get(0)).isEqualTo(Defendant.builder()
-                        .address(AddressRequestResponse.builder()
-                                .line1("line1")
-                                .line2("line2")
-                                .line3("line3")
-                                .line4("line4")
-                                .line5("line5")
-                                .postcode("postcode")
-                                .build())
-                        .awaitingPsr(true)
-                        .breach(true)
-                        .crn("crn")
-                        .pnc("pnc")
-                        .cro("cro")
-                        .dateOfBirth(LocalDate.of(2000, 1, 1))
-                        .name(NamePropertiesEntity.builder()
-                                .forename1("forename1")
-                                .forename2("forename2")
-                                .surname("surname")
-                                .build())
-                        .defendantId("defendantId")
-                        .preSentenceActivity(true)
-                        .previouslyKnownTerminationDate(LocalDate.of(2001, 1, 1))
-                        .probationStatus("CURRENT")
-                        .sex(Sex.MALE.name())
-                        .suspendedSentenceOrder(true)
-                        .offences(List.of(OffenceRequestResponse.builder()
-                                        .act("act")
-                                        .offenceSummary("summary")
-                                        .offenceTitle("title")
-                                        .listNo(11)
-                                        .build(),
-                                OffenceRequestResponse.builder()
-                                        .act("act2")
-                                        .build()))
-                        .build());
+                .address(AddressRequestResponse.builder()
+                        .line1("line1")
+                        .line2("line2")
+                        .line3("line3")
+                        .line4("line4")
+                        .line5("line5")
+                        .postcode("postcode")
+                        .build())
+                .awaitingPsr(true)
+                .breach(true)
+                .crn("crn")
+                .pnc("pnc")
+                .cro("cro")
+                .dateOfBirth(LocalDate.of(2000, 1, 1))
+                .name(NamePropertiesEntity.builder()
+                        .forename1("forename1")
+                        .forename2("forename2")
+                        .surname("surname")
+                        .build())
+                .defendantId("defendantId")
+                .preSentenceActivity(true)
+                .previouslyKnownTerminationDate(LocalDate.of(2001, 1, 1))
+                .probationStatus("CURRENT")
+                .sex(Sex.MALE.name())
+                .suspendedSentenceOrder(true)
+                .offences(List.of(OffenceRequestResponse.builder()
+                                .act("act")
+                                .offenceSummary("summary")
+                                .offenceTitle("title")
+                                .listNo(11)
+                                .build(),
+                        OffenceRequestResponse.builder()
+                                .act("act2")
+                                .build()))
+                .build());
         assertThat(actual.getDefendants().get(1).getDefendantId()).isEqualTo("DEFENDANT_ID_2");
     }
 
@@ -331,10 +337,10 @@ class ExtendedCourtCaseRequestResponseTest {
         return HearingEntity.builder()
                 .hearingId("HEARING_ID")
                 .courtCase(CourtCaseEntity.builder()
-                    .sourceType(SourceType.LIBRA)
-                    .caseId(CASE_ID)
-                    .caseNo(CASE_NO)
-                .build())
+                        .sourceType(SourceType.LIBRA)
+                        .caseId(CASE_ID)
+                        .caseNo(CASE_NO)
+                        .build())
                 .hearingDays(List.of(HearingDayEntity.builder()
                                 .courtCode(COURT_CODE)
                                 .courtRoom(COURT_ROOM)
@@ -347,34 +353,37 @@ class ExtendedCourtCaseRequestResponseTest {
                                 .listNo("2")
                                 .build()
                 ))
-                .defendants(List.of(HearingDefendantEntity.builder()
-                                .address(AddressPropertiesEntity.builder()
-                                        .line1("line1")
-                                        .line2("line2")
-                                        .line3("line3")
-                                        .line4("line4")
-                                        .line5("line5")
-                                        .postcode("postcode")
+                .hearingDefendants(List.of(HearingDefendantEntity.builder()
+
+                                .defendant(DefendantEntity.builder()
+                                        .address(AddressPropertiesEntity.builder()
+                                                .line1("line1")
+                                                .line2("line2")
+                                                .line3("line3")
+                                                .line4("line4")
+                                                .line5("line5")
+                                                .postcode("postcode")
+                                                .build())
+                                        .offender(OffenderEntity.builder()
+                                                .crn("crn")
+                                                .preSentenceActivity(true)
+                                                .previouslyKnownTerminationDate(LocalDate.of(2001, 1, 1))
+                                                .suspendedSentenceOrder(true)
+                                                .awaitingPsr(true)
+                                                .breach(true)
+                                                .probationStatus(OffenderProbationStatus.CURRENT)
+                                                .build())
+                                        .pnc("pnc")
+                                        .cro("cro")
+                                        .dateOfBirth(LocalDate.of(2000, 1, 1))
+                                        .name(NamePropertiesEntity.builder()
+                                                .forename1("forename1")
+                                                .forename2("forename2")
+                                                .surname("surname")
+                                                .build())
+                                        .defendantId("defendantId")
+                                        .sex(Sex.MALE)
                                         .build())
-                                .offender(OffenderEntity.builder()
-                                    .crn("crn")
-                                    .preSentenceActivity(true)
-                                    .previouslyKnownTerminationDate(LocalDate.of(2001, 1, 1))
-                                    .suspendedSentenceOrder(true)
-                                    .awaitingPsr(true)
-                                    .breach(true)
-                                    .probationStatus(OffenderProbationStatus.CURRENT)
-                                    .build())
-                                .pnc("pnc")
-                                .cro("cro")
-                                .dateOfBirth(LocalDate.of(2000, 1, 1))
-                                .name(NamePropertiesEntity.builder()
-                                        .forename1("forename1")
-                                        .forename2("forename2")
-                                        .surname("surname")
-                                        .build())
-                                .defendantId("defendantId")
-                                .sex(Sex.MALE)
                                 .offences(List.of(OffenceEntity.builder()
                                                 .act("act")
                                                 .summary("summary")
@@ -388,48 +397,50 @@ class ExtendedCourtCaseRequestResponseTest {
                                 ))
                                 .build(),
                         HearingDefendantEntity.builder()
-                                .defendantId("DEFENDANT_ID_2")
+                                .defendant(DefendantEntity.builder()
+                                        .defendantId("DEFENDANT_ID_2")
+                                        .build())
                                 .build()))
                 .build();
     }
 
     private Defendant buildDefendant(String sex) {
         return Defendant.builder()
-            .awaitingPsr(Boolean.TRUE)
-            .address(AddressRequestResponse.builder()
-                .line1("PIC TEAM")
-                .line2("Digital Studio")
-                .line3("32 Scotland Street")
-                .line4("Sheffield")
-                .line5("South Yorkshire")
-                .postcode("S3 7DQ")
-                .build())
-            .breach(Boolean.TRUE)
-            .crn(CRN)
-            .cro(CRO)
-            .dateOfBirth(DEFENDANT_DOB)
-            .name(NAME)
-            .pnc(PNC)
-            .phoneNumber(DEFENDANT_PHONE_NUMBER)
-            .preSentenceActivity(Boolean.TRUE)
-            .previouslyKnownTerminationDate(LocalDate.of(2021, Month.MARCH, 20))
-            .probationStatus("CURRENT")
-            .sex(Sex.fromString(sex).name())
-            .suspendedSentenceOrder(Boolean.TRUE)
-            .type(DefendantType.PERSON)
-            .defendantId(DEFENDANT_ID)
-            .offences(List.of(OffenceRequestResponse.builder()
-                    .offenceTitle("TITLE1")
-                    .offenceSummary("SUMMARY1")
-                    .act("ACT1")
-                    .listNo(10)
-                    .build(),
-                OffenceRequestResponse.builder()
-                    .offenceTitle("TITLE2")
-                    .offenceSummary("SUMMARY2")
-                    .act("ACT2")
-                    .listNo(20)
-                    .build()))
-            .build();
+                .awaitingPsr(Boolean.TRUE)
+                .address(AddressRequestResponse.builder()
+                        .line1("PIC TEAM")
+                        .line2("Digital Studio")
+                        .line3("32 Scotland Street")
+                        .line4("Sheffield")
+                        .line5("South Yorkshire")
+                        .postcode("S3 7DQ")
+                        .build())
+                .breach(Boolean.TRUE)
+                .crn(CRN)
+                .cro(CRO)
+                .dateOfBirth(DEFENDANT_DOB)
+                .name(NAME)
+                .pnc(PNC)
+                .phoneNumber(DEFENDANT_PHONE_NUMBER)
+                .preSentenceActivity(Boolean.TRUE)
+                .previouslyKnownTerminationDate(LocalDate.of(2021, Month.MARCH, 20))
+                .probationStatus("CURRENT")
+                .sex(Sex.fromString(sex).name())
+                .suspendedSentenceOrder(Boolean.TRUE)
+                .type(DefendantType.PERSON)
+                .defendantId(DEFENDANT_ID)
+                .offences(List.of(OffenceRequestResponse.builder()
+                                .offenceTitle("TITLE1")
+                                .offenceSummary("SUMMARY1")
+                                .act("ACT1")
+                                .listNo(10)
+                                .build(),
+                        OffenceRequestResponse.builder()
+                                .offenceTitle("TITLE2")
+                                .offenceSummary("SUMMARY2")
+                                .act("ACT2")
+                                .listNo(20)
+                                .build()))
+                .build();
     }
 }

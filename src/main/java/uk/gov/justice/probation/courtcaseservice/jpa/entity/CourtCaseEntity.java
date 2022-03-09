@@ -63,6 +63,7 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Enumerated(EnumType.STRING)
     private final SourceType sourceType;
 
+    // TODO: This should be inherited from BaseImmutableEntity
     @Column(name = "deleted", nullable = false, updatable = false)
     private final boolean deleted;
 }

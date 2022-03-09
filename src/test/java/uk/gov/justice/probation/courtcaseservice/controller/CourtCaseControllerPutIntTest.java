@@ -16,6 +16,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
@@ -159,12 +160,12 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .body("hearingDays", hasSize(1))
             ;
 
-            var cc = courtCaseRepository.findByCaseIdAndDefendantId(JSON_CASE_ID, "d1eefed2-04df-11ec-b2d8-0242ac130002");
+            var cc = courtCaseRepository.findByHearingIdAndDefendantId(JSON_CASE_ID, "d1eefed2-04df-11ec-b2d8-0242ac130002");
             cc.ifPresentOrElse(courtCaseEntity -> {
                 assertThat(courtCaseEntity.getCaseId()).isEqualTo(JSON_CASE_ID);
                 assertThat(courtCaseEntity.getHearingId()).isEqualTo(JSON_HEARING_ID);
-                assertThat(courtCaseEntity.getDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
-                assertThat(courtCaseEntity.getDefendants().get(0).getPhoneNumber()).isEqualTo(
+                assertThat(courtCaseEntity.getHearingDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
+                assertThat(courtCaseEntity.getHearingDefendants().get(0).getDefendant().getPhoneNumber()).isEqualTo(
                         PhoneNumberEntity.builder().home("07000000013").mobile("07000000014").work("07000000015").build());
             }, () -> fail("Court case not created as expected"));
 
@@ -197,7 +198,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                     .body("hearingId", equalTo(JSON_CASE_ID))
             ;
 
-            var cc = courtCaseRepository.findByCaseIdAndDefendantId(JSON_CASE_ID, "d1eefed2-04df-11ec-b2d8-0242ac130002");
+            var cc = courtCaseRepository.findByHearingIdAndDefendantId(JSON_CASE_ID, "d1eefed2-04df-11ec-b2d8-0242ac130002");
             cc.ifPresentOrElse(courtCaseEntity -> {
                 assertThat(courtCaseEntity.getCaseId()).isEqualTo(JSON_CASE_ID);
                 assertThat(courtCaseEntity.getHearingId()).isEqualTo(JSON_CASE_ID);
@@ -306,8 +307,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             // No offenders associated with the defendants
             courtCaseRepository.findByCaseId("3db9d70b-10a2-49d1-b74d-379f2db74862")
                 .ifPresentOrElse(theCase -> {
-                        assertThat(theCase.getDefendants()
+                        assertThat(theCase.getHearingDefendants()
                                             .stream()
+                                            .map(HearingDefendantEntity::getDefendant)
                                             .filter(defendantEntity -> defendantEntity.getOffender() != null)
                                             .toList()).isEmpty();
                     }, () -> fail("Case should exist"));
@@ -326,9 +328,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             // No offenders associated with the defendants
             courtCaseRepository.findByCaseId(caseId)
                 .ifPresentOrElse(theCase -> {
-                    var defendants = theCase.getDefendants();
+                    var defendants = theCase.getHearingDefendants();
                     assertThat(defendants).hasSize(1);
-                    assertThat(defendants.get(0).getOffender()).isNull();
+                    assertThat(defendants.get(0).getDefendant().getOffender()).isNull();
                 }, () -> fail("Case should exist"));
 
             given()
@@ -347,9 +349,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             // The correct offender is now associated
             courtCaseRepository.findByCaseId(caseId)
                 .ifPresentOrElse(theCase -> {
-                    var defendants = theCase.getDefendants();
+                    var defendants = theCase.getHearingDefendants();
                     assertThat(defendants).hasSize(1);
-                    assertThat(defendants.get(0).getOffender().getCrn()).isEqualTo(CRN);
+                    assertThat(defendants.get(0).getDefendant().getOffender().getCrn()).isEqualTo(CRN);
                 }, () -> fail("Case should exist"));
         }
 
@@ -382,9 +384,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             // The correct offender is now associated
             courtCaseRepository.findByCaseId(caseId)
                 .ifPresentOrElse(theCase -> {
-                    var defendants = theCase.getDefendants();
+                    var defendants = theCase.getHearingDefendants();
                     assertThat(defendants).hasSize(1);
-                    assertThat(defendants.get(0).getOffender().getCrn()).isEqualTo(newCrn);
+                    assertThat(defendants.get(0).getDefendant().getOffender().getCrn()).isEqualTo(newCrn);
                 }, () -> fail("Case should exist"));
 
             offenderRepository.findByCrn(newCrn).ifPresentOrElse(off -> {
@@ -484,10 +486,10 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             courtCaseRepository.findByCaseId(caseId)
                 .ifPresentOrElse(entity -> {
                     assertThat(entity.getHearingDays()).hasSize(1);
-                    assertThat(entity.getDefendants()).hasSize(1);
-                    assertThat(entity.getDefendants().get(0).getOffences()).hasSize(2);
-                    assertThat(entity.getDefendants().get(0).getOffender()).isNull();
-                    assertThat(entity.getDefendants().get(0).getPhoneNumber()).isEqualTo(DEFENDANT_PHONE_NUMBER_ENTITY);
+                    assertThat(entity.getHearingDefendants()).hasSize(1);
+                    assertThat(entity.getHearingDefendants().get(0).getOffences()).hasSize(2);
+                    assertThat(entity.getHearingDefendants().get(0).getDefendant().getOffender()).isNull();
+                    assertThat(entity.getHearingDefendants().get(0).getDefendant().getPhoneNumber()).isEqualTo(DEFENDANT_PHONE_NUMBER_ENTITY);
                 }, () -> fail("COURT CASE does not exist for " + caseId));
         }
 
@@ -511,8 +513,8 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             // All parts of the save are not in the response - so we check extra
             courtCaseRepository.findByCaseId(caseId)
                 .ifPresentOrElse(entity -> {
-                    assertThat(entity.getDefendants()).hasSize(2);
-                    assertThat(entity.getDefendants()).extracting("offender").containsOnlyNulls();
+                    assertThat(entity.getHearingDefendants()).hasSize(2);
+                    assertThat(entity.getHearingDefendants()).extracting("defendant.offender").containsOnlyNulls();
                 }, () -> fail("COURT CASE does not exist for " + caseId));
 
             given()
@@ -539,10 +541,11 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             courtCaseRepository.findByCaseId(caseId)
                 .ifPresentOrElse(entity -> {
                     assertThat(entity.getHearingDays()).hasSize(2);
-                    assertThat(entity.getDefendants()).hasSize(2);
-                    assertThat(entity.getDefendants()).extracting("defendantId").containsExactlyInAnyOrder(defendantIdToUpdate, defendantIdToRetain);
-                    assertThat(entity.getDefendants().stream()
+                    assertThat(entity.getHearingDefendants()).hasSize(2);
+                    assertThat(entity.getHearingDefendants()).extracting("defendantId").containsExactlyInAnyOrder(defendantIdToUpdate, defendantIdToRetain);
+                    assertThat(entity.getHearingDefendants().stream()
                                         .filter(d -> d.getDefendantId().equalsIgnoreCase(defendantIdToUpdate))
+                                        .map(HearingDefendantEntity::getDefendant)
                                         .map(d -> d.getOffender().getCrn())
                                         .findFirst().get())
                         .isEqualTo(crn);
@@ -608,12 +611,13 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .replace("\"crn\": \"X320741\"", "\"crn\": null")
                 ;
 
-            courtCaseRepository.findByCaseIdAndDefendantId(caseId, defendantId)
+            courtCaseRepository.findByHearingIdAndDefendantId(caseId, defendantId)
                     .ifPresentOrElse(courtCase -> {
-                        var offender = courtCase.getDefendants().stream()
+                        var offender = courtCase.getHearingDefendants().stream()
                             .filter(defendantEntity -> defendantEntity.getDefendantId().equalsIgnoreCase(defendantId))
                             .findFirst()
-                            .map(HearingDefendantEntity::getOffender)
+                            .map(HearingDefendantEntity::getDefendant)
+                            .map(DefendantEntity::getOffender)
                             .orElse(null);
                         assertThat(offender).isNotNull();
                     }, () -> fail("COURT CASE does not exist for " + caseId));
@@ -637,13 +641,13 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .body("probationStatus", equalTo("No record"))
             ;
 
-            courtCaseRepository.findByCaseIdAndDefendantId(caseId, defendantId)
+            courtCaseRepository.findByHearingIdAndDefendantId(caseId, defendantId)
                 .ifPresentOrElse(courtCase -> {
-                    var defendant = courtCase.getDefendants().stream()
+                    var defendant = courtCase.getHearingDefendants().stream()
                         .filter(defendantEntity -> defendantEntity.getDefendantId().equalsIgnoreCase(defendantId))
                         .findFirst()
                         .orElse(null);
-                    assertThat(defendant.getOffender()).isNull();
+                    assertThat(defendant.getDefendant().getOffender()).isNull();
                 }, () -> fail("COURT CASE does not exist for " + caseId));
         }
 

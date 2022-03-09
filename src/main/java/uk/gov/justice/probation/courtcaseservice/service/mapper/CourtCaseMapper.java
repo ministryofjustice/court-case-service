@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
@@ -18,32 +19,33 @@ import java.util.stream.Collectors;
  */
 public class CourtCaseMapper {
 
-    public static HearingEntity mergeDefendantsOnCase(HearingEntity existingCase, HearingEntity updatedCase, String defendantId) {
-        final var existingDefendants = Optional.ofNullable(existingCase.getDefendants()).orElse(Collections.emptyList());
-        final var existingHearings = CourtCaseMapper.createHearings(existingCase.getHearingDays());
-        if (existingDefendants.size() <= 1) {
-            final var caseToSave = updatedCase.withHearingDays(existingHearings);
+    public static HearingEntity mergeDefendantsOnHearing(HearingEntity existingHearing, HearingEntity updatedHearing, String defendantId) {
+        final var existingHearingDefendants = Optional.ofNullable(existingHearing.getHearingDefendants()).orElse(Collections.emptyList());
+        final var existingHearingDays = CourtCaseMapper.createHearings(existingHearing.getHearingDays());
+        if (existingHearingDefendants.size() <= 1) {
+            final var caseToSave = updatedHearing.withHearingDays(existingHearingDays);
             applyParentToCollections(caseToSave);
             return caseToSave;
         }
 
-        final var allDefendants = existingCase.getDefendants().stream()
+        final var allDefendants = existingHearing.getHearingDefendants().stream()
             .map(existingDefendant -> defendantId.equalsIgnoreCase(existingDefendant.getDefendantId()) ?
-                                updatedCase.getDefendants().get(0) : CourtCaseMapper.createDefendant(existingDefendant, null))
+                                updatedHearing.getHearingDefendants().get(0) : CourtCaseMapper.createDefendant(existingDefendant, null))
             .collect(Collectors.toList());
 
         // rebuild the case with new defendants and hearings
-        final var caseToSave = updatedCase.withDefendants(allDefendants)
-                                                        .withHearingDays(CourtCaseMapper.createHearings(existingCase.getHearingDays()));
+        final var caseToSave = updatedHearing.withHearingDefendants(allDefendants)
+                                                        .withHearingDays(CourtCaseMapper.createHearings(existingHearing.getHearingDays()));
         applyParentToCollections(caseToSave);
         return caseToSave;
     }
 
-    private static void applyParentToCollections(final HearingEntity caseToSave) {
-        Optional.ofNullable(caseToSave.getDefendants()).orElse(Collections.emptyList())
-            .forEach(defendantEntity -> defendantEntity.setHearing(caseToSave));
-        Optional.ofNullable(caseToSave.getHearingDays()).orElse(Collections.emptyList())
-            .forEach(hearingEntity -> hearingEntity.setHearing(caseToSave));
+    private static void applyParentToCollections(final HearingEntity hearingToSave) {
+        Optional.ofNullable(hearingToSave.getHearingDefendants()).orElse(Collections.emptyList())
+            .forEach(hearingDefendantEntity -> hearingDefendantEntity.setHearing(hearingToSave));
+
+        Optional.ofNullable(hearingToSave.getHearingDays()).orElse(Collections.emptyList())
+            .forEach(hearingDayEntity -> hearingDayEntity.setHearing(hearingToSave));
     }
 
     public static HearingDayEntity createHearing(HearingDayEntity hearing) {
@@ -63,22 +65,26 @@ public class CourtCaseMapper {
             .collect(Collectors.toList());
     }
 
-    public static HearingDefendantEntity createDefendant(HearingDefendantEntity defendantEntity, String newProbationStatus) {
+    // TODO: Remove redundant parameter
+    public static HearingDefendantEntity createDefendant(HearingDefendantEntity hearingDefendantEntity, String newProbationStatus) {
 
+        final var defendantEntity = Optional.of(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).orElseThrow();
         var newDefendantEntity = HearingDefendantEntity.builder()
-            .defendantId(defendantEntity.getDefendantId())
-            .defendantName(defendantEntity.getDefendantName())
-            .name(defendantEntity.getName())
-            .type(defendantEntity.getType())
-            .address(defendantEntity.getAddress())
-            .offender(defendantEntity.getOffender())
-            .pnc(defendantEntity.getPnc())
-            .cro(defendantEntity.getCro())
-            .dateOfBirth(defendantEntity.getDateOfBirth())
-            .sex(defendantEntity.getSex())
-            .nationality1(defendantEntity.getNationality1())
-            .nationality2(defendantEntity.getNationality2())
-            .offences(Optional.ofNullable(defendantEntity.getOffences()).orElse(Collections.emptyList())
+            .defendant(DefendantEntity.builder()
+                .defendantId(defendantEntity.getDefendantId())
+                .defendantName(defendantEntity.getDefendantName())
+                .name(defendantEntity.getName())
+                .type(defendantEntity.getType())
+                .address(defendantEntity.getAddress())
+                .offender(defendantEntity.getOffender())
+                .pnc(defendantEntity.getPnc())
+                .cro(defendantEntity.getCro())
+                .dateOfBirth(defendantEntity.getDateOfBirth())
+                .sex(defendantEntity.getSex())
+                .nationality1(defendantEntity.getNationality1())
+                .nationality2(defendantEntity.getNationality2())
+            .build())
+            .offences(Optional.ofNullable(hearingDefendantEntity.getOffences()).orElse(Collections.emptyList())
                 .stream()
                 .map(CourtCaseMapper::createDefendantOffence)
                 .collect(Collectors.toList()))

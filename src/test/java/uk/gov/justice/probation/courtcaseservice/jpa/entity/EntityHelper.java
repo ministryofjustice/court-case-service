@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class EntityHelper {
 
@@ -80,7 +81,7 @@ public class EntityHelper {
                 .caseNo(caseNo)
                 .sourceType(SOURCE)
             .build())
-            .defendants(defendants)
+            .hearingDefendants(defendants)
             .build();
     }
 
@@ -110,19 +111,21 @@ public class EntityHelper {
 
     private static HearingDefendantEntity aDefendantEntity(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId, String crn) {
         return HearingDefendantEntity.builder()
-            .name(name)
-            .defendantName(name.getFullName())
-            .offender(anOffender(crn))
-            .cro(CRO)
-            .pnc(PNC)
-            .type(DefendantType.PERSON)
-            .address(defendantAddress)
-            .dateOfBirth(DEFENDANT_DOB)
-            .sex(Sex.fromString(DEFENDANT_SEX))
-            .nationality1(NATIONALITY_1)
-            .nationality2(NATIONALITY_2)
-            .defendantId(defendantId)
-            .phoneNumber(DEFENDANT_PHONE_NUMBER_ENTITY)
+            .defendant(DefendantEntity.builder()
+                .name(name)
+                .defendantName(name.getFullName())
+                .offender(anOffender(crn))
+                .cro(CRO)
+                .pnc(PNC)
+                .type(DefendantType.PERSON)
+                .address(defendantAddress)
+                .dateOfBirth(DEFENDANT_DOB)
+                .sex(Sex.fromString(DEFENDANT_SEX))
+                .nationality1(NATIONALITY_1)
+                .nationality2(NATIONALITY_2)
+                .defendantId(defendantId)
+                .phoneNumber(DEFENDANT_PHONE_NUMBER_ENTITY)
+            .build())
             .offences(List.of(aDefendantOffence()))
             .build();
     }
@@ -162,7 +165,7 @@ public class EntityHelper {
             .hearingId(HEARING_ID)
             .deleted(false)
             .firstCreated(LocalDateTime.now())
-            .defendants(List.of(defendant))
+            .hearingDefendants(List.of(defendant))
             .hearingDays(List.of(aHearingEntity()));
     }
 
@@ -179,4 +182,45 @@ public class EntityHelper {
             .build();
     }
 
+    public static HearingDefendantEntity aHearingDefendant(NamePropertiesEntity name) {
+        final var offender = anOffender(CRN);
+        return aHearingDefendant(name, offender);
+    }
+
+    public static HearingDefendantEntity aHearingDefendant(NamePropertiesEntity name, OffenderEntity offender) {
+        return aHearingDefendant(name, offender, null);
+    }
+
+    public static HearingDefendantEntity aHearingDefendant(NamePropertiesEntity name, OffenderEntity offender, Long id) {
+        return aHearingDefendant(name, offender, id, UUID.randomUUID().toString());
+    }
+
+    public static HearingDefendantEntity aHearingDefendant(NamePropertiesEntity name, OffenderEntity offender, Long id, String defendantId) {
+        return HearingDefendantEntity.builder()
+                .id(id)
+                .defendant(DefendantEntity.builder()
+                        .defendantId(defendantId)
+                        .name(name)
+                        .defendantName(name.getFullName())
+                        .offender(offender)
+                        .cro(CRO)
+                        .pnc(PNC)
+                        .type(DefendantType.PERSON)
+                        .address(DEFENDANT_ADDRESS)
+                        .dateOfBirth(DEFENDANT_DOB)
+                        .sex(Sex.fromString(DEFENDANT_SEX))
+                        .nationality1(NATIONALITY_1)
+                        .nationality2(NATIONALITY_2)
+                        .build())
+                .offences(List.of(aDefendantOffence()))
+                .build();
+    }
+
+    public static HearingDefendantEntity aDefendantEntity(long id) {
+        return aHearingDefendant(NAME, anOffender(CRN), id);
+    }
+
+    public static HearingDefendantEntity aDefendantEntity(long id, String defendantId) {
+        return aHearingDefendant(NAME, anOffender(CRN), id, defendantId);
+    }
 }

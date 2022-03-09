@@ -30,9 +30,9 @@ public class CourtCaseResponseMapper {
         buildCaseFields(builder, hearingEntity);
         buildHearings(builder, hearingEntity, null);
 
-        Optional.ofNullable(hearingEntity.getDefendants()).orElse(Collections.emptyList())
+        Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(Collections.emptyList())
                     .stream()
-                    .filter(defendant -> defendantId.equalsIgnoreCase(defendant.getDefendantId()))
+                    .filter(defendant -> defendantId.equalsIgnoreCase(defendant.getDefendant().getDefendantId()))
                     .findFirst()
                     .ifPresentOrElse((matchedDefendant) -> addDefendantFields(builder, matchedDefendant),
                             () -> log.error("Couldn't find defendant ID {} for case ID {} when mapping response.", defendantId, hearingEntity.getCaseId()));
@@ -116,27 +116,28 @@ public class CourtCaseResponseMapper {
             .build();
     }
 
-    private static void addDefendantFields(CourtCaseResponseBuilder builder, HearingDefendantEntity defendantEntity) {
-        addOffenderFields(builder, defendantEntity.getOffender());
+    private static void addDefendantFields(CourtCaseResponseBuilder builder, HearingDefendantEntity hearingDefendantEntity) {
+        final var defendant = hearingDefendantEntity.getDefendant();
+        addOffenderFields(builder, defendant.getOffender());
         builder
-            .defendantName(defendantEntity.getDefendantName())
-            .name(defendantEntity.getName())
-            .defendantAddress(defendantEntity.getAddress())
-            .defendantDob(defendantEntity.getDateOfBirth())
-            .defendantSex(defendantEntity.getSex())
-            .defendantType(defendantEntity.getType())
-            .defendantId(defendantEntity.getDefendantId())
-            .phoneNumber(PhoneNumber.of(defendantEntity.getPhoneNumber()))
-            .nationality1(defendantEntity.getNationality1())
-            .nationality2(defendantEntity.getNationality2())
-            .cro(defendantEntity.getCro())
-            .pnc(defendantEntity.getPnc())
-            .crn(defendantEntity.getCrn())
-            .probationStatus(defendantEntity.getProbationStatusForDisplay())
+            .defendantName(defendant.getDefendantName())
+            .name(defendant.getName())
+            .defendantAddress(defendant.getAddress())
+            .defendantDob(defendant.getDateOfBirth())
+            .defendantSex(defendant.getSex())
+            .defendantType(defendant.getType())
+            .defendantId(defendant.getDefendantId())
+            .phoneNumber(PhoneNumber.of(defendant.getPhoneNumber()))
+            .nationality1(defendant.getNationality1())
+            .nationality2(defendant.getNationality2())
+            .cro(defendant.getCro())
+            .pnc(defendant.getPnc())
+            .crn(hearingDefendantEntity.getCrn())
+            .probationStatus(hearingDefendantEntity.getProbationStatusForDisplay())
         ;
 
         // Offences
-        builder.offences(mapOffencesFromDefendantOffences(defendantEntity.getOffences()));
+        builder.offences(mapOffencesFromDefendantOffences(hearingDefendantEntity.getOffences()));
     }
 
     private static void addOffenderFields(CourtCaseResponseBuilder builder, OffenderEntity offender) {

@@ -102,7 +102,7 @@ orbs:
   kubernetes: circleci/kubernetes@0.3.0
   helm: circleci/helm@1.1.2
   mem: circleci/rememborb@0.0.1
-  snyk: snyk/snyk@0.0.12
+  snyk: snyk/snyk@1.1.2
   jira: circleci/jira@1.2.2
 
 _snyk_options: &snyk_options

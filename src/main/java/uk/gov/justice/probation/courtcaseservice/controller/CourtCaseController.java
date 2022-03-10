@@ -226,10 +226,10 @@ public class CourtCaseController {
         final var caseId = hearingEntity.getCaseId();
         return defendantEntities.stream()
             .sorted(Comparator.comparing(HearingDefendantEntity::getDefendantSurname))
-            .map(defendantEntity ->  {
-                final String defendantId = Optional.ofNullable(defendantEntity).map(HearingDefendantEntity::getDefendant).map(DefendantEntity::getDefendantId).orElseThrow();
+            .map(hearingDefendantEntity ->  {
+                final String defendantId = Optional.ofNullable(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).map(DefendantEntity::getDefendantId).orElseThrow();
                 var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantId).orElse(0);
-                return CourtCaseResponseMapper.mapFrom(hearingEntity, defendantEntity, matchCount, hearingDate);
+                return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate);
             })
             .toList();
     }

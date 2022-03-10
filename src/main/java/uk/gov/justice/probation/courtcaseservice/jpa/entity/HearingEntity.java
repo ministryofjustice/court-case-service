@@ -32,7 +32,6 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Schema(description = "Hearing")
 @Entity
@@ -57,7 +56,7 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     @Setter // TODO: This was added to enable ImmutableCourtCaseService.enforceValidHearingId() as a precautionary measure and should be removed ASAP
     private String hearingId;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "FK_COURT_CASE_ID", referencedColumnName = "id", nullable = false)
     @Setter
     private CourtCaseEntity courtCase;
@@ -76,7 +75,7 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
-    @OneToMany(mappedBy = "hearing", cascade = CascadeType.ALL, orphanRemoval=true)
+    @OneToMany(mappedBy = "hearing", orphanRemoval=true, cascade = CascadeType.ALL)
     private final List<HearingDefendantEntity> hearingDefendants;
 
     @Column(name = "deleted", nullable = false, updatable = false)
@@ -101,7 +100,7 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
         return Optional.ofNullable(hearingDefendants)
                 .map(Collection::stream)
                 .flatMap(defendantEntityStream -> defendantEntityStream
-                    .filter(d ->  defendantId.equals(d.getDefendant().getDefendantId()))
+                    .filter(d ->  defendantId.equals(d.getDefendantId()))
                     .findFirst()
                 )
                 .orElse(null);

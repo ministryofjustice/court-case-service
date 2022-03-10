@@ -144,6 +144,7 @@ public class ExtendedCourtCaseRequestResponse {
         final var offender = buildOffender(defendant);
 
         final var defendantEntity = HearingDefendantEntity.builder()
+            .defendantId(defendant.getDefendantId())
             .defendant(DefendantEntity.builder()
                 .address(buildAddress(defendant.getAddress()))
                 .cro(defendant.getCro())

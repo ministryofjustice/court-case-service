@@ -138,8 +138,10 @@ class ExtendedCourtCaseRequestResponseTest {
 
         final var hearingDefendantEntity = hearingEntity.getHearingDefendants().get(0);
          assertThat(hearingDefendantEntity.getHearing()).isSameAs(hearingEntity);
+         assertThat(hearingDefendantEntity.getDefendantId()).isSameAs(DEFENDANT_ID);
 
         final var defendantEntity = hearingDefendantEntity.getDefendant();
+        assertThat(defendantEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
         assertThat(defendantEntity.getAddress()).isEqualTo(expectedAddress);
         assertThat(defendantEntity.getCrn()).isEqualTo(CRN);
         assertThat(defendantEntity.getCro()).isEqualTo(CRO);
@@ -147,6 +149,7 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(defendantEntity.getDefendantName()).isEqualTo(NAME.getFullName());
         assertThat(defendantEntity.getName()).isEqualTo(NAME);
         assertThat(defendantEntity.getPnc()).isEqualTo(PNC);
+        assertThat(defendantEntity.getSex()).isSameAs(Sex.MALE);
         assertThat(defendantEntity.getPhoneNumber()).isEqualTo(DEFENDANT_PHONE_NUMBER_ENTITY);
 
         final var offenderEntity = defendantEntity.getOffender();
@@ -161,8 +164,6 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(offenderEntity.isPreSentenceActivity()).isEqualTo(Boolean.TRUE);
         assertThat(offenderEntity.getPreviouslyKnownTerminationDate()).isEqualTo(previouslyKnownTerminationDate);
         assertThat(offenderEntity.getProbationStatus()).isEqualTo(OffenderProbationStatus.CURRENT);
-        assertThat(defendantEntity.getSex()).isSameAs(Sex.MALE);
-        assertThat(defendantEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
 
         final var offences = hearingDefendantEntity.getOffences();
         assertThat(offences).hasSize(2);

@@ -16,7 +16,6 @@ import org.hibernate.annotations.LazyCollectionOption;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -24,6 +23,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -46,16 +46,17 @@ public class HearingDefendantEntity extends BaseImmutableEntity implements Seria
     private final Long id;
 
     @ToString.Exclude
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "FK_HEARING_ID", referencedColumnName = "id", nullable = false)
+    @ManyToOne()
+    @JoinColumn(name = "FK_HEARING_ID", referencedColumnName = "id")
     @Setter
     private HearingEntity hearing;
 
+    @Column(name = "DEFENDANT_ID", nullable = false)
+    private final String defendantId;
+
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "DEFENDANT_ID", referencedColumnName = "DEFENDANT_ID")
+    @Transient
     @Setter
-    // TODO: ? Make this transient and populate manually
     private DefendantEntity defendant;
 
     @ToString.Exclude
@@ -77,10 +78,4 @@ public class HearingDefendantEntity extends BaseImmutableEntity implements Seria
         return defendant.getProbationStatusForDisplay();
     }
 
-    public String getDefendantId() {
-        return Optional.of(this)
-                .map(HearingDefendantEntity::getDefendant)
-                .map(DefendantEntity::getDefendantId)
-                .orElseThrow();
-    }
 }

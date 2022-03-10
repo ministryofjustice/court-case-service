@@ -74,8 +74,8 @@ class CourtCaseMapperTest {
                 .build();
 
         // Existing has defendants and hearings, all with ids which must be removed
-        var existingNonUpdatedDefendant = EntityHelper.aDefendantEntity(100L, "904aeafa-b3db-41be-99ba-b2fbbf344d8b");
-        var existingUpdatedDefendant = EntityHelper.aDefendantEntity(101L, DEFENDANT_ID);
+        var existingNonUpdatedDefendant = EntityHelper.aHearingDefendantEntity(100L, "904aeafa-b3db-41be-99ba-b2fbbf344d8b");
+        var existingUpdatedDefendant = EntityHelper.aHearingDefendantEntity(101L, DEFENDANT_ID);
         var existingCourtCaseEntity = EntityHelper.aHearingEntity(CASE_ID)
             .withHearingDefendants(List.of(existingUpdatedDefendant, existingNonUpdatedDefendant))
             .withHearingDays(hearingDays);
@@ -107,7 +107,7 @@ class CourtCaseMapperTest {
 
         // Update comes in with a new CRN and name and one hearing
         var newName = NamePropertiesEntity.builder().surname("STUBBS").forename1("Una").build();
-        var updatedDefendant = EntityHelper.aDefendantEntity(DEFENDANT_ADDRESS, newName);
+        var updatedDefendant = EntityHelper.aHearingDefendantEntity(DEFENDANT_ADDRESS, newName);
         var updatedEntity = HearingEntity.builder()
             .hearingDefendants(List.of(updatedDefendant))
             .courtCase(CourtCaseEntity.builder()
@@ -116,7 +116,7 @@ class CourtCaseMapperTest {
             .build();
 
         // Existing has defendants and hearings, all with ids which must be removed
-        var existingUpdatedDefendant = EntityHelper.aDefendantEntity()
+        var existingUpdatedDefendant = EntityHelper.aHearingDefendantEntity()
             .withId(101L);
         var existingCourtCaseEntity = EntityHelper.aHearingEntity(CASE_ID)
             .withHearingDefendants(List.of(existingUpdatedDefendant))

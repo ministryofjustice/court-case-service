@@ -21,7 +21,7 @@ class HearingRepositoryIntTest extends BaseRepositoryIntTest {
 
     @Test
     public void findByCaseId_shouldReturnOneResultWhereCreatedTimestampsClash() {
-        final var courtCase = hearingRepository.findByCaseId("created_clash_id_1");
+        final var courtCase = hearingRepository.findByHearingId("created_clash_id_1");
         assertThat(courtCase).isPresent();
         assertThat(courtCase.get().getId()).isEqualTo(-1700028900L);
     }
@@ -29,13 +29,6 @@ class HearingRepositoryIntTest extends BaseRepositoryIntTest {
     @Test
     public void findByCourtCodeAndCaseNo_shouldReturnOneResultWhereCreatedTimestampsClash() {
         final var courtCase = hearingRepository.findByCourtCodeAndCaseNo("B10JQ", "1600028913");
-        assertThat(courtCase).isPresent();
-        assertThat(courtCase.get().getId()).isEqualTo(-1700028900L);
-    }
-
-    @Test
-    public void findByCaseIdAndDefendantId_shouldReturnOneResultWhereCreatedTimestampsClash() {
-        final var courtCase = hearingRepository.findByHearingIdAndDefendantId("created_clash_id_1", "40db17d6-04db-11ec-b2d8-0242ac130002");
         assertThat(courtCase).isPresent();
         assertThat(courtCase.get().getId()).isEqualTo(-1700028900L);
     }

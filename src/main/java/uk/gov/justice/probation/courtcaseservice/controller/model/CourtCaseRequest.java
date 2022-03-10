@@ -123,7 +123,9 @@ public class CourtCaseRequest {
                 })
                 .collect(Collectors.toList());
 
-        final var defendant = HearingDefendantEntity.builder()
+        final var defendantId = Optional.ofNullable(this.defendantId).orElse(UUID.randomUUID().toString());
+        final var hearingDefendant = HearingDefendantEntity.builder()
+            .defendantId(defendantId)
             .defendant(DefendantEntity.builder()
                 .address(Optional.ofNullable(defendantAddress)
                         .map(this::buildAddress)
@@ -138,7 +140,7 @@ public class CourtCaseRequest {
                 .nationality2(nationality2)
                 .name(name)
                 .sex(Sex.fromString(defendantSex))
-                .defendantId(Optional.ofNullable(defendantId).orElse(UUID.randomUUID().toString()))
+                .defendantId(defendantId)
                 .cro(cro)
                 .pnc(pnc)
                 .phoneNumber(Optional.ofNullable(phoneNumber).map(PhoneNumber::asEntity).orElse(null))
@@ -146,8 +148,8 @@ public class CourtCaseRequest {
             .offences(offences)
             .build();
 
-        offences.forEach(defendantOffence -> defendantOffence.setHearingDefendant(defendant));
-        return Collections.singletonList(defendant);
+        offences.forEach(defendantOffence -> defendantOffence.setHearingDefendant(hearingDefendant));
+        return Collections.singletonList(hearingDefendant);
     }
 
     private AddressPropertiesEntity buildAddress(AddressRequestResponse addressRequest) {

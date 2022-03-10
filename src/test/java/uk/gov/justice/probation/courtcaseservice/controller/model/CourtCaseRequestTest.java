@@ -90,7 +90,7 @@ class CourtCaseRequestTest {
             .line5("LINE5")
             .postcode("POSTCODE")
             .build();
-        final var expectedHearingDefendant = EntityHelper.aDefendantEntity(address);
+        final var expectedHearingDefendant = EntityHelper.aHearingDefendantEntity(address);
         assertThat(hearingDefendant)
             .usingRecursiveComparison()
             .ignoringFields("id", "hearing", "offences", "defendant.offender")
@@ -142,8 +142,10 @@ class CourtCaseRequestTest {
 
         assertThat(entity.getHearingDays()).hasSize(1);
         assertThat(entity.getHearingDefendants()).hasSize(1);
-        assertThat(entity.getHearingDefendants().get(0).getDefendantId()).isNotNull();
-        final var defendant = entity.getHearingDefendants().get(0).getDefendant();
+        final var hearingDefendant = entity.getHearingDefendants().get(0);
+        assertThat(hearingDefendant.getDefendantId()).isNotNull();
+        assertThat(hearingDefendant.getDefendant().getDefendantId()).isEqualTo(hearingDefendant.getDefendantId());
+        final var defendant = hearingDefendant.getDefendant();
         assertThat(defendant.getDefendantName()).isEqualTo(DEFENDANT_NAME);
         assertThat(defendant.getDateOfBirth()).isEqualTo(DEFENDANT_DOB);
         assertThat(defendant.getOffender()).isNull();

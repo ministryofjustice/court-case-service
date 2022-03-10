@@ -42,7 +42,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aDefendantEntity;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingDefendantEntity;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingEntity;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM;
 
@@ -151,7 +151,7 @@ class CourtCaseControllerTest {
         var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
 
-        final var courtCaseEntity = this.hearingEntity.withHearingDefendants(List.of(aDefendantEntity()))
+        final var courtCaseEntity = this.hearingEntity.withHearingDefendants(List.of(EntityHelper.aHearingDefendantEntity()))
                 .withHearingDays(Collections.singletonList(EntityHelper.aHearingEntity()
                         .withDay(DATE)
                         .withTime(LocalTime.of(9, 0))
@@ -169,8 +169,8 @@ class CourtCaseControllerTest {
     @Test
     void givenSingleCaseWithMultipleDefendants_whenGetCaseList_shouldReturnMultipleCourtCaseResponse() {
 
-        var defendantEntity1 = EntityHelper.aDefendantEntity();
-        var defendantEntity2 = EntityHelper.aDefendantEntity(NamePropertiesEntity.builder().title("HRH").forename1("Catherine").forename2("The").surname("GREAT").build());
+        var defendantEntity1 = EntityHelper.aHearingDefendantEntity();
+        var defendantEntity2 = EntityHelper.aHearingDefendantEntity(NamePropertiesEntity.builder().title("HRH").forename1("Catherine").forename2("The").surname("GREAT").build());
         var courtCaseEntity = HearingEntity.builder()
                 .courtCase(CourtCaseEntity.builder()
                         .caseNo(CASE_NO)

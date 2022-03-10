@@ -21,7 +21,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 
 import java.io.File;
@@ -64,7 +64,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
     ObjectMapper mapper;
 
     @Autowired
-    HearingRepository courtCaseRepository;
+    HearingRepositoryFacade courtCaseRepository;
 
     @Autowired
     OffenderRepository offenderRepository;
@@ -160,7 +160,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .body("hearingDays", hasSize(1))
             ;
 
-            var cc = courtCaseRepository.findByHearingIdAndDefendantId(JSON_CASE_ID, "d1eefed2-04df-11ec-b2d8-0242ac130002");
+            var cc = courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID);
             cc.ifPresentOrElse(courtCaseEntity -> {
                 assertThat(courtCaseEntity.getCaseId()).isEqualTo(JSON_CASE_ID);
                 assertThat(courtCaseEntity.getHearingId()).isEqualTo(JSON_HEARING_ID);
@@ -198,7 +198,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                     .body("hearingId", equalTo(JSON_CASE_ID))
             ;
 
-            var cc = courtCaseRepository.findByHearingIdAndDefendantId(JSON_CASE_ID, "d1eefed2-04df-11ec-b2d8-0242ac130002");
+            var cc = courtCaseRepository.findByCaseIdAndDefendantId(JSON_CASE_ID, "d1eefed2-04df-11ec-b2d8-0242ac130002");
             cc.ifPresentOrElse(courtCaseEntity -> {
                 assertThat(courtCaseEntity.getCaseId()).isEqualTo(JSON_CASE_ID);
                 assertThat(courtCaseEntity.getHearingId()).isEqualTo(JSON_CASE_ID);
@@ -322,7 +322,8 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             final var defendantId = "d49323c0-04da-11ec-b2d8-0242ac130002";
             final var updatedJson = caseDetailsExtendedJson
                 .replace("\"caseId\": \"ac24a1be-939b-49a4-a524-21a3d228f8bc\"", "\"caseId\": \"" + caseId + "\"")
-                .replace("\"defendantId\": \"e0056894-e8f8-42c2-ba9a-e41250c3d1a3\"", "\"defendantId\": \"" + defendantId + "\"")
+                .replace("\"defendantId\": \"d1eefed2-04df-11ec-b2d8-0242ac130002\"", "\"defendantId\": \"" + defendantId + "\"")
+                .replace("  \"hearingId\": \"75e63d6c-5487-4244-a5bc-7cf8a38992db\",", "")
                 ;
 
             // No offenders associated with the defendants
@@ -362,7 +363,8 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             final var newCrn = "X212786";
             final var updatedJson = caseDetailsExtendedJson
                 .replace("\"caseId\": \"ac24a1be-939b-49a4-a524-21a3d228f8bc\"", "\"caseId\": \"" + caseId + "\"")
-                .replace("\"defendantId\": \"e0056894-e8f8-42c2-ba9a-e41250c3d1a3\"", "\"defendantId\": \"" + defendantId + "\"")
+                .replace("\"defendantId\": \"d1eefed2-04df-11ec-b2d8-0242ac130002\"", "\"defendantId\": \"" + defendantId + "\"")
+                .replace("  \"hearingId\": \"75e63d6c-5487-4244-a5bc-7cf8a38992db\",", "")
                 .replace("\"crn\": \"X320741\"", "\"crn\": \""+ newCrn + "\"")
                 ;
 
@@ -503,6 +505,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             final var defendantIdToRetain = "6f014c2e-8be3-4a12-a551-8377bd31a7b8";
 
             // Updated JSON will update the name
+
             var updatedJson = caseDetailsJson
                 .replace("\"courtCode\": \"B10JQ\"", "\"courtCode\": \"" + LEICESTER_COURT_CODE + "\"")
                 .replace("\"caseId\": \"571b7172-4cef-435c-9048-d071a43b9dbf\"", "\"caseId\": \"" + caseId + "\"")
@@ -611,7 +614,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .replace("\"crn\": \"X320741\"", "\"crn\": null")
                 ;
 
-            courtCaseRepository.findByHearingIdAndDefendantId(caseId, defendantId)
+            courtCaseRepository.findByCaseIdAndDefendantId(caseId, defendantId)
                     .ifPresentOrElse(courtCase -> {
                         var offender = courtCase.getHearingDefendants().stream()
                             .filter(defendantEntity -> defendantEntity.getDefendantId().equalsIgnoreCase(defendantId))
@@ -641,7 +644,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .body("probationStatus", equalTo("No record"))
             ;
 
-            courtCaseRepository.findByHearingIdAndDefendantId(caseId, defendantId)
+            courtCaseRepository.findByCaseIdAndDefendantId(caseId, defendantId)
                 .ifPresentOrElse(courtCase -> {
                     var defendant = courtCase.getHearingDefendants().stream()
                         .filter(defendantEntity -> defendantEntity.getDefendantId().equalsIgnoreCase(defendantId))
@@ -683,7 +686,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .put(String.format(PUT_BY_CASEID_AND_DEFENDANTID_PATH, JSON_CASE_ID, defendantId))
                 .then()
                 .statusCode(400)
-                .body("developerMessage", equalTo("Defendant Id " + defendantId + " does not match the one in the CourtCaseEntity body as submitted " + JSON_DEFENDANT_ID))
+                .body("developerMessage", equalTo("Defendant Id '" + defendantId + "' does not match the one in the CourtCaseEntity body submitted '" + JSON_DEFENDANT_ID + "'"))
             ;
         }
 

@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -39,7 +40,7 @@ public class HearingDayEntity extends BaseImmutableEntity implements Serializabl
     @JsonIgnore
     private final Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "FK_HEARING_ID", referencedColumnName = "id", nullable = false)
     @Setter
     private HearingEntity hearing;

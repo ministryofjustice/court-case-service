@@ -38,8 +38,8 @@ public class OffenceEntity extends BaseImmutableEntity implements Serializable  
     @JsonIgnore
     private final Long id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "FK_HEARING_DEFENDANT_ID", referencedColumnName = "id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "FK_HEARING_DEFENDANT_ID", referencedColumnName = "id")
     @Setter
     private HearingDefendantEntity hearingDefendant;
 

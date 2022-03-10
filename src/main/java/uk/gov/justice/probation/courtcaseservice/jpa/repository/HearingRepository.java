@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface HearingRepository extends CrudRepository<HearingEntity, Long>, HearingRepositoryBase {
+public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
 
-    Optional<HearingEntity> findFirstByHearingIdOrderByIdDesc(String hearingId);
+    Optional<HearingEntity> findFirstByHearingIdOrderByCreatedDesc(String hearingId);
 
     @Query(value = "select h.* from court_case cc " +
             "join hearing h on cc.id = h.fk_court_case_id " +
@@ -31,35 +31,17 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
             nativeQuery = true)
     Optional<HearingEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo);
 
-    @Query(value = "select h.* from court_case cc " +
-                    "join hearing h on cc.id = h.fk_court_case_id " +
+    @Query(value = "select h.* from hearing h " +
                     "inner join " +
-                    "   (select max(court_case.created) as max_created, court_case.case_id as case_id from court_case " +
-                    "   join hearing on court_case.id = hearing.fk_court_case_id " +
-                    "   where court_case.case_id = :caseId " +
-                    "   group by court_case.case_id) grouped_cases " +
-                    "on cc.created = grouped_cases.max_created " +
-                    "and cc.case_id = grouped_cases.case_id " +
+                    "   (select max(hearing.created) as max_created, hearing.hearing_id as hearing_id from hearing " +
+                    "   where hearing.hearing_id = :hearingId " +
+                    "   group by hearing.hearing_id) grouped_cases " +
+                    "on h.created = grouped_cases.max_created " +
+                    "and h.hearing_id = grouped_cases.hearing_id " +
                     "where h.deleted = false " +
                     "order by h.id desc limit 1",
         nativeQuery = true)
-    Optional<HearingEntity> findByCaseId(String caseId);
-
-    @Query(value = "select h.* from court_case cc " +
-            "join hearing h on cc.id = h.fk_court_case_id " +
-            "inner join " +
-            "   (select max(court_case.created) as max_created, court_case.case_id from court_case " +
-            "   join hearing on court_case.id = hearing.fk_court_case_id " +
-            "   inner join defendant d on hearing.id = d.fk_hearing_id  " +
-            "   where court_case.case_id = :caseId " +
-            "   and d.defendant_id = :defendantId " +
-            "   group by court_case.case_id) grouped_cases " +
-            "on cc.created = grouped_cases.max_created " +
-            "and cc.case_id = grouped_cases.case_id " +
-            "where h.deleted = false " +
-            "order by h.id desc limit 1",
-            nativeQuery = true)
-    Optional<HearingEntity> findByHearingIdAndDefendantId(String caseId, String defendantId);
+    Optional<HearingEntity> findByHearingId(String hearingId);
 
 
     @Query(value = "select h.* as first_created " +

@@ -30,7 +30,7 @@ public class CourtCaseMapper {
 
         final var allDefendants = existingHearing.getHearingDefendants().stream()
             .map(existingDefendant -> defendantId.equalsIgnoreCase(existingDefendant.getDefendantId()) ?
-                                updatedHearing.getHearingDefendants().get(0) : CourtCaseMapper.createDefendant(existingDefendant, null))
+                                updatedHearing.getHearingDefendants().get(0) : CourtCaseMapper.createDefendant(existingDefendant))
             .collect(Collectors.toList());
 
         // rebuild the case with new defendants and hearings
@@ -65,11 +65,11 @@ public class CourtCaseMapper {
             .collect(Collectors.toList());
     }
 
-    // TODO: Remove redundant parameter
-    public static HearingDefendantEntity createDefendant(HearingDefendantEntity hearingDefendantEntity, String newProbationStatus) {
+    public static HearingDefendantEntity createDefendant(HearingDefendantEntity hearingDefendantEntity) {
 
         final var defendantEntity = Optional.of(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).orElseThrow();
-        var newDefendantEntity = HearingDefendantEntity.builder()
+        var newHearingDefendantEntity = HearingDefendantEntity.builder()
+            .defendantId(defendantEntity.getDefendantId())
             .defendant(DefendantEntity.builder()
                 .defendantId(defendantEntity.getDefendantId())
                 .defendantName(defendantEntity.getDefendantName())
@@ -90,8 +90,8 @@ public class CourtCaseMapper {
                 .collect(Collectors.toList()))
             .build();
 
-        newDefendantEntity.getOffences().forEach(offenceEntity -> offenceEntity.setHearingDefendant(newDefendantEntity));
-        return newDefendantEntity;
+        newHearingDefendantEntity.getOffences().forEach(offenceEntity -> offenceEntity.setHearingDefendant(newHearingDefendantEntity));
+        return newHearingDefendantEntity;
     }
 
     static OffenceEntity createDefendantOffence(OffenceEntity offenceEntity) {

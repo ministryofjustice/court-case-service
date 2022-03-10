@@ -12,11 +12,13 @@ class HearingEntityTest {
     private final HearingEntity hearingEntity =
         HearingEntity.builder()
                     .hearingDefendants(List.of(HearingDefendantEntity.builder()
+                                    .defendantId("abc")
                                     .defendant(DefendantEntity.builder()
                                             .defendantId("abc")
                                         .build())
                                     .build(),
                                         HearingDefendantEntity.builder()
+                                            .defendantId(DEFENDANT_ID)
                                             .defendant(DefendantEntity.builder()
                                             .defendantId(DEFENDANT_ID)
                                         .build())
@@ -25,8 +27,9 @@ class HearingEntityTest {
 
     @Test
     void givenHearingWithDefendants_thenReturn() {
-        var defendant = hearingEntity.getHearingDefendant(DEFENDANT_ID);
-        assertThat(defendant.getDefendantId()).isEqualTo(DEFENDANT_ID);
+        var hearingDefendant = hearingEntity.getHearingDefendant(DEFENDANT_ID);
+        assertThat(hearingDefendant.getDefendantId()).isEqualTo(DEFENDANT_ID);
+        assertThat(hearingDefendant.getDefendant().getDefendantId()).isEqualTo(DEFENDANT_ID);
     }
 
     @Test

@@ -195,7 +195,7 @@ class CourtCaseResponseMapperTest {
 
         var newName = NamePropertiesEntity.builder().surname("PRESLEY").forename1("Elvis").build();
         var defendant1 = buildDefendant(newName,OffenderEntity.builder().crn("D99999").build());
-        var defendant2 = EntityHelper.aDefendantEntity(DEFENDANT_ID);
+        var defendant2 = EntityHelper.aHearingDefendantEntity(DEFENDANT_ID);
 
         var courtCase = hearingEntity.withHearingDefendants(List.of(defendant1, defendant2));
 

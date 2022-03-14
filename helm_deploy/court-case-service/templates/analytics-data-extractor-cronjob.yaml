@@ -21,6 +21,13 @@ spec:
               args: ["extract_table_names.py &&
                     extract_pg_jsonl_snapshot.py &&
                     transfer_local_to_s3.sh"]
+            {{ if .Values.analytics_data_extractor.resources }}
+              resources:
+                limits:
+                  memory: {{ .Values.analytics_data_extractor.resources.memory.limit }}
+                requests:
+                  memory: {{ .Values.analytics_data_extractor.resources.memory.request }}
+            {{ end }}
               env:
                 - name: PGHOST
                   valueFrom:

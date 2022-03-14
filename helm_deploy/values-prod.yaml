@@ -36,6 +36,12 @@ nginx_proxy:
       pullPolicy: Always
     port: 8080
 
+analytics_data_extractor:
+  resources:
+    memory:
+      limit: 4Gi
+      request: 2Gi
+
 env:
   JAVA_OPTS: "-Xmx512m"
   community_api:

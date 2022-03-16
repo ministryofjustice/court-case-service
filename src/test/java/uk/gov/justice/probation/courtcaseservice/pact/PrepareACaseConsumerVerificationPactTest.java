@@ -211,6 +211,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                         .type(DefendantType.PERSON)
                         .nationality1("British")
                         .nationality2("Polish")
+                        .phoneNumber("07000000009")
                         .offender(OffenderEntity.builder()
                                 .crn("X320741")
                                 .previouslyKnownTerminationDate(LocalDate.of(2010, 1, 1))

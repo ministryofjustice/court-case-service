@@ -91,6 +91,7 @@ public class ExtendedCourtCaseRequestResponse {
                                 .preSentenceActivity(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::isPreSentenceActivity).orElse(null))
                                 .suspendedSentenceOrder(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::isSuspendedSentenceOrder).orElse(null))
                                 .previouslyKnownTerminationDate(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getPreviouslyKnownTerminationDate).orElse(null))
+                                .phoneNumber(defendantEntity.getPhoneNumber())
                                 .offences(Optional.ofNullable(defendantEntity.getOffences())
                                         .orElse(Collections.emptyList()).stream()
                                         .map(offence ->  OffenceRequestResponse.builder()
@@ -149,6 +150,7 @@ public class ExtendedCourtCaseRequestResponse {
             .sex(Sex.fromString(defendant.getSex()))
             .type(defendant.getType())
             .defendantId(defendant.getDefendantId())
+            .phoneNumber(defendant.getPhoneNumber())
             .build();
         offences.forEach(offence -> offence.setDefendant(defendantEntity));
         return defendantEntity;

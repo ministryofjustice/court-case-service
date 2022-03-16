@@ -56,6 +56,7 @@ public class CourtCaseResponse {
     private final String defendantId;
     private final String nationality1;
     private final String nationality2;
+    private final String phoneNumber;
     private final boolean createdToday;
     private final boolean removed;
     private final long numberOfPossibleMatches;

@@ -34,6 +34,7 @@ public class EntityHelper {
     public static final String PNC = "PNC";
     public static final String CRO = "CRO/12334";
     public static final String DEFENDANT_SEX = "M";
+    public static final String DEFENDANT_PHONE_NUMBER = "0712345678";
     public static final String PROBATION_STATUS = "Previously known";
     public static final String NO_RECORD_DESCRIPTION = "No record";
     public static final String NATIONALITY_1 = "British";
@@ -118,6 +119,7 @@ public class EntityHelper {
             .nationality1(NATIONALITY_1)
             .nationality2(NATIONALITY_2)
             .defendantId(defendantId)
+            .phoneNumber(DEFENDANT_PHONE_NUMBER)
             .offences(List.of(aDefendantOffence()))
             .build();
     }

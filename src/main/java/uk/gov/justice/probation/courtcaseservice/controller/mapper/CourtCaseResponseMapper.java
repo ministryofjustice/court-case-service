@@ -124,6 +124,7 @@ public class CourtCaseResponseMapper {
             .defendantSex(defendantEntity.getSex())
             .defendantType(defendantEntity.getType())
             .defendantId(defendantEntity.getDefendantId())
+            .phoneNumber(defendantEntity.getPhoneNumber())
             .nationality1(defendantEntity.getNationality1())
             .nationality2(defendantEntity.getNationality2())
             .cro(defendantEntity.getCro())

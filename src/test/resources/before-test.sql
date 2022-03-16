@@ -43,8 +43,8 @@ INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, crea
 
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
 VALUES (-1000000, -1700028900, 'B10JQ', 1, '2019-12-14', '09:00', '3rd');
-INSERT INTO courtcaseservicetest.DEFENDANT (id, fk_hearing_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, crn, pnc, cro, sex, nationality_1, nationality_2)
-VALUES (-1000000, -1700028900, '40db17d6-04db-11ec-b2d8-0242ac130002', 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', 'X320741', 'A/1234560BA', '311462/13E', 'MALE', 'British', 'Polish');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, fk_hearing_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, crn, pnc, cro, sex, nationality_1, nationality_2, phone_number)
+VALUES (-1000000, -1700028900, '40db17d6-04db-11ec-b2d8-0242ac130002', 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', 'X320741', 'A/1234560BA', '311462/13E', 'MALE', 'British', 'Polish', '07000000007');
 INSERT INTO courtcaseservicetest.DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, LIST_NO)
 VALUES (-1000000, -1000000, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, 10);
 INSERT INTO courtcaseservicetest.DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
@@ -62,12 +62,12 @@ INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, cou
 VALUES (-1700029901, -1700029901, 'B10JQ', 1, '2019-12-14', '07:00', '3rd');
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
 VALUES (-1700029902, -1700029901, 'B10JQ', 2, '2019-12-15', '13:00', '4th');
-INSERT INTO courtcaseservicetest.DEFENDANT (id, fk_hearing_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, pnc, cro, sex, nationality_1, nationality_2)
-VALUES (-1700029902, -1700029901, '7a319a46-037c-481c-ab1e-dbfab62af4d6', 'Mr Billy ZANE', '{"title": "Mr", "surname": "ZANE", "forename1": "Billy"}', '{"line1": "Billy Place", "line2": "Zane Pla", "postcode": "z12 8gt 5dr"}', 'PERSON', '1987-10-10', 'A/1234560BA', '311462/13E', 'MALE', 'British', 'Polish');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, fk_hearing_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, pnc, cro, sex, nationality_1, nationality_2, phone_number)
+VALUES (-1700029902, -1700029901, '7a319a46-037c-481c-ab1e-dbfab62af4d6', 'Mr Billy ZANE', '{"title": "Mr", "surname": "ZANE", "forename1": "Billy"}', '{"line1": "Billy Place", "line2": "Zane Pla", "postcode": "z12 8gt 5dr"}', 'PERSON', '1987-10-10', 'A/1234560BA', '311462/13E', 'MALE', 'British', 'Polish', '07000000008');
 INSERT INTO courtcaseservicetest.DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-1700029902, -1700029902, 'Billy stole from a shop', 'On 01/01/2015 at own, Billy stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);
-INSERT INTO courtcaseservicetest.DEFENDANT (id, fk_hearing_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, pnc, cro, sex, nationality_1, nationality_2)
-VALUES (-1700029903, -1700029901, '7a320a46-037c-481c-ab1e-dbfab62af4d6', 'Ms Emma Radical', '{"title": "Ms", "surname": "RADICAL", "forename1": "Emma"}', '{"line1": "Emma Place", "line2": "Radical Place", "postcode": "e12 8gt"}', 'PERSON', '1987-10-10', 'A/1234560CD', '311465/13F', 'FEMALE', 'Romanian', 'Chinese');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, fk_hearing_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, pnc, cro, sex, nationality_1, nationality_2, phone_number)
+VALUES (-1700029903, -1700029901, '7a320a46-037c-481c-ab1e-dbfab62af4d6', 'Ms Emma Radical', '{"title": "Ms", "surname": "RADICAL", "forename1": "Emma"}', '{"line1": "Emma Place", "line2": "Radical Place", "postcode": "e12 8gt"}', 'PERSON', '1987-10-10', 'A/1234560CD', '311465/13F', 'FEMALE', 'Romanian', 'Chinese', '07000000006');
 INSERT INTO courtcaseservicetest.DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, LIST_NO)
 VALUES (-1700029903, -1700029903, 'Emma stole 1st thing from a shop', 'On 01/01/2015 at own, Emma stole 1st article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, 35);
 INSERT INTO courtcaseservicetest.DEFENDANT_OFFENCE (ID, DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
@@ -270,8 +270,8 @@ INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, crea
 -- 683bcde4-611f-4487-9833-f68090507b74 - Hearing / defendants / defendant offences for case id
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
 VALUES (-16000, 16000, 'B10JQ', 1, '2020-02-29', '14:00:00', '1st');
-INSERT INTO courtcaseservicetest.DEFENDANT (id, fk_hearing_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, crn, pnc, sex, nationality_1, nationality_2)
-VALUES (-16000, 16000, '005ae89b-46e9-4fa5-bb5e-d117011cab32', 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": "line4", "line5": "line5"}', 'PERSON', '1958-10-10', 'C16000', 'A/160000BA', 'MALE', 'British', 'Polish');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, fk_hearing_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, crn, pnc, sex, nationality_1, nationality_2, phone_number)
+VALUES (-16000, 16000, '005ae89b-46e9-4fa5-bb5e-d117011cab32', 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": "line4", "line5": "line5"}', 'PERSON', '1958-10-10', 'C16000', 'A/160000BA', 'MALE', 'British', 'Polish', '07000000008');
 INSERT INTO courtcaseservicetest.DEFENDANT (id, fk_hearing_id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, crn, pnc, sex, nationality_1)
 VALUES (-16001, 16000, 'f2c83643-8ebd-4609-9183-cd8c34984e33', 'Mr Brian CANT', '{"title": "Mr", "surname": "CANT", "forename1": "Brian", "forename2": "Bryan", "forename3": "Eric"}', '{"line1": "26", "line2": "Elms Road", "postcode": "LE2 3LU", "line3": "Leicester"}', 'PERSON', '1939-10-10', 'D16000', 'D/160000BA', 'MALE', 'British');
 

@@ -73,6 +73,7 @@ public class CourtCaseRequest {
     private final String nationality1;
     private final String nationality2;
     private final Boolean awaitingPsr;
+    private final String phoneNumber;
 
     public HearingEntity asEntity() {
 
@@ -138,6 +139,7 @@ public class CourtCaseRequest {
             .defendantId(Optional.ofNullable(defendantId).orElse(UUID.randomUUID().toString()))
             .cro(cro)
             .pnc(pnc)
+            .phoneNumber(phoneNumber)
             .offences(offences)
             .build();
 

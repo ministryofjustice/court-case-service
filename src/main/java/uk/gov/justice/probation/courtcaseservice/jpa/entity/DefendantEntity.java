@@ -111,6 +111,9 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "OFFENDER_CONFIRMED", nullable = false, updatable = false)
     private boolean offenderConfirmed;
 
+    @Column(name = "PHONE_NUMBER", nullable = false, updatable = false)
+    private final String phoneNumber;
+
     @PrePersist
     public void prePersistManualUpdate(){
         manualUpdate = "prepare-a-case-for-court".equals(new ClientDetails().getClientId());

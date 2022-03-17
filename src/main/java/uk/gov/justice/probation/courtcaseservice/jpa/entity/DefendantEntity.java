@@ -111,8 +111,9 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "OFFENDER_CONFIRMED", nullable = false, updatable = false)
     private boolean offenderConfirmed;
 
-    @Column(name = "PHONE_NUMBER", nullable = false, updatable = false)
-    private final String phoneNumber;
+    @Type(type = "jsonb")
+    @Column(columnDefinition = "jsonb", name = "PHONE_NUMBER")
+    private final PhoneNumberEntity phoneNumber;
 
     @PrePersist
     public void prePersistManualUpdate(){

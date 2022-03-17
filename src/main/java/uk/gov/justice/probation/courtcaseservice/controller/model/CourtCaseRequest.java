@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.justice.probation.courtcaseservice.controller.mapper.PhoneNumberMapper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -15,6 +16,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
@@ -73,7 +75,7 @@ public class CourtCaseRequest {
     private final String nationality1;
     private final String nationality2;
     private final Boolean awaitingPsr;
-    private final String phoneNumber;
+    private final PhoneNumber phoneNumber;
 
     public HearingEntity asEntity() {
 
@@ -139,7 +141,7 @@ public class CourtCaseRequest {
             .defendantId(Optional.ofNullable(defendantId).orElse(UUID.randomUUID().toString()))
             .cro(cro)
             .pnc(pnc)
-            .phoneNumber(phoneNumber)
+            .phoneNumber(PhoneNumberMapper.mapFrom(phoneNumber))
             .offences(offences)
             .build();
 

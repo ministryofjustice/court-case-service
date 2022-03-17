@@ -31,6 +31,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_DOB;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_PHONE_NUMBER;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_PHONE_NUMBER_ENTITY;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NAME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PNC;
@@ -148,7 +149,7 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(defendantEntity.getDefendantName()).isEqualTo(NAME.getFullName());
         assertThat(defendantEntity.getName()).isEqualTo(NAME);
         assertThat(defendantEntity.getPnc()).isEqualTo(PNC);
-        assertThat(defendantEntity.getPhoneNumber()).isEqualTo(DEFENDANT_PHONE_NUMBER);
+        assertThat(defendantEntity.getPhoneNumber()).isEqualTo(DEFENDANT_PHONE_NUMBER_ENTITY);
         assertThat(defendantEntity.getOffender().getAwaitingPsr()).isEqualTo(Boolean.TRUE);
         assertThat(defendantEntity.getOffender().isBreach()).isEqualTo(Boolean.TRUE);
         assertThat(defendantEntity.getOffender().isPreSentenceActivity()).isEqualTo(Boolean.TRUE);

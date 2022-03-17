@@ -37,7 +37,11 @@
       "breach": true,
       "preSentenceActivity": true,
       "awaitingPsr": true,
-      "phoneNumber": "07000000001",
+      "phoneNumber": {
+        "home": "07000000013",
+        "mobile": "07000000014",
+        "work": "07000000015"
+      },
       "offences": [
         {
           "offenceTitle": "Theft from a shop",

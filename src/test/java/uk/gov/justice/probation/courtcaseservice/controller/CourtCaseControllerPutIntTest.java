@@ -18,6 +18,7 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
@@ -45,7 +46,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static org.springframework.util.StreamUtils.copyToString;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_PHONE_NUMBER;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_PHONE_NUMBER_ENTITY;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_SEX;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NATIONALITY_1;
@@ -147,7 +148,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 .body("defendants[0].probationStatus", equalTo("PREVIOUSLY_KNOWN"))
                 .body("defendants[0].sex", equalTo("M"))
                 .body("defendants[0].name.forename1", equalTo("Dylan"))
-                .body("defendants[0].phoneNumber", equalTo("07000000001"))
+                .body("defendants[0].phoneNumber.home", equalTo("07000000013"))
+                .body("defendants[0].phoneNumber.mobile", equalTo("07000000014"))
+                .body("defendants[0].phoneNumber.work", equalTo("07000000015"))
                 .body("hearingDays", hasSize(1))
                 .body("hearingDays[0].courtCode", equalTo("B14LO"))
                 .body("hearingDays[0].courtRoom", equalTo("1"))
@@ -161,7 +164,8 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                 assertThat(courtCaseEntity.getCaseId()).isEqualTo(JSON_CASE_ID);
                 assertThat(courtCaseEntity.getHearingId()).isEqualTo(JSON_HEARING_ID);
                 assertThat(courtCaseEntity.getDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
-                assertThat(courtCaseEntity.getDefendants().get(0).getPhoneNumber()).isEqualTo("07000000001");
+                assertThat(courtCaseEntity.getDefendants().get(0).getPhoneNumber()).isEqualTo(
+                        PhoneNumberEntity.builder().home("07000000013").mobile("07000000014").work("07000000015").build());
             }, () -> fail("Court case not created as expected"));
 
             offenderRepository.findByCrn(CRN).ifPresentOrElse(off -> {
@@ -459,9 +463,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             final var defendantId = "c6df9428-8c81-4957-a67e-a0bfdd0351d3";
             var updatedJson = caseDetailsJson
                 .replace("\"caseId\": \"571b7172-4cef-435c-9048-d071a43b9dbf\"", "\"caseId\": \"" + caseId + "\"")
-                .replace("\"defendantId\": \"e0056894-e8f8-42c2-ba9a-e41250c3d1a3\"", "\"defendantId\": \"" + defendantId + "\", \"phoneNumber\": \"" + DEFENDANT_PHONE_NUMBER + "\"")
-                .replace("\"crn\": \"X320741\"", "\"crn\": null")
-                ;
+                .replace("\"defendantId\": \"e0056894-e8f8-42c2-ba9a-e41250c3d1a3\"", "\"defendantId\": \"" + defendantId + "\"" +
+                        ", \"phoneNumber\": {\"home\": \"07000000013\", \"mobile\": \"07000000015\", \"work\": \"07000000014\"}")
+                .replace("\"crn\": \"X320741\"", "\"crn\": null");
 
             var validatableResponse = given()
                 .auth()
@@ -483,7 +487,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
                     assertThat(entity.getDefendants()).hasSize(1);
                     assertThat(entity.getDefendants().get(0).getOffences()).hasSize(2);
                     assertThat(entity.getDefendants().get(0).getOffender()).isNull();
-                    assertThat(entity.getDefendants().get(0).getPhoneNumber()).isEqualTo(DEFENDANT_PHONE_NUMBER);
+                    assertThat(entity.getDefendants().get(0).getPhoneNumber()).isEqualTo(DEFENDANT_PHONE_NUMBER_ENTITY);
                 }, () -> fail("COURT CASE does not exist for " + caseId));
         }
 
@@ -742,7 +746,9 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             .body("sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
             .body("defendantType", equalTo("PERSON"))
             .body("defendantName", equalTo(DEFENDANT_NAME))
-            .body("phoneNumber", equalTo(DEFENDANT_PHONE_NUMBER))
+            .body("phoneNumber.home", equalTo("07000000013"))
+            .body("phoneNumber.mobile", equalTo("07000000015"))
+            .body("phoneNumber.work", equalTo("07000000014"))
             .body("defendantAddress.line1", equalTo(ADDRESS.getLine1()))
             .body("defendantAddress.line2", equalTo(ADDRESS.getLine2()))
             .body("defendantAddress.postcode", equalTo(ADDRESS.getPostcode()))

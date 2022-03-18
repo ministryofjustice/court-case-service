@@ -5,6 +5,6 @@ RUN chown -R nginx:nginx /var/cache/nginx
 RUN chown -R nginx:nginx /var/log/nginx
 RUN touch /var/run/nginx.pid && chown -R nginx:nginx /var/run/nginx.pid
 
-RUN apt update
+RUN apk update --no-cache
 
 COPY schema/ /usr/share/nginx/html/meta/schema

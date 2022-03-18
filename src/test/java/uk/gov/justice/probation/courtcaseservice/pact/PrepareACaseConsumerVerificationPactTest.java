@@ -32,6 +32,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
@@ -211,6 +212,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                         .type(DefendantType.PERSON)
                         .nationality1("British")
                         .nationality2("Polish")
+                        .phoneNumber(PhoneNumberEntity.builder().home("07000000010").work("07000000011").mobile("07000000012").build())
                         .offender(OffenderEntity.builder()
                                 .crn("X320741")
                                 .previouslyKnownTerminationDate(LocalDate.of(2010, 1, 1))

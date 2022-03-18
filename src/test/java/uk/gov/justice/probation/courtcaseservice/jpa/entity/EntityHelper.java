@@ -1,5 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
+import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,6 +36,8 @@ public class EntityHelper {
     public static final String PNC = "PNC";
     public static final String CRO = "CRO/12334";
     public static final String DEFENDANT_SEX = "M";
+    public static final PhoneNumberEntity DEFENDANT_PHONE_NUMBER_ENTITY = PhoneNumberEntity.builder().home("07000000013").work("07000000014").mobile("07000000015").build();
+    public static final PhoneNumber DEFENDANT_PHONE_NUMBER = PhoneNumber.builder().home("07000000013").work("07000000014").mobile("07000000015").build();
     public static final String PROBATION_STATUS = "Previously known";
     public static final String NO_RECORD_DESCRIPTION = "No record";
     public static final String NATIONALITY_1 = "British";
@@ -118,6 +122,7 @@ public class EntityHelper {
             .nationality1(NATIONALITY_1)
             .nationality2(NATIONALITY_2)
             .defendantId(defendantId)
+            .phoneNumber(DEFENDANT_PHONE_NUMBER_ENTITY)
             .offences(List.of(aDefendantOffence()))
             .build();
     }

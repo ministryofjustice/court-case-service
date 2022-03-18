@@ -33,7 +33,6 @@ class HearingRepositoryIntTest extends BaseRepositoryIntTest {
         assertThat(courtCase.get().getId()).isEqualTo(-1700028900L);
     }
 
-
     @Test
     public void findByCaseIdAndDefendantId_shouldReturnOneResultWhereCreatedTimestampsClash() {
         final var courtCase = hearingRepository.findByCaseIdAndDefendantId("created_clash_id_1", "40db17d6-04db-11ec-b2d8-0242ac130002");

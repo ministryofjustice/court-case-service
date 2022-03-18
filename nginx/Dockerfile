@@ -5,7 +5,7 @@ RUN chown -R nginx:nginx /var/cache/nginx
 RUN chown -R nginx:nginx /var/log/nginx
 RUN touch /var/run/nginx.pid && chown -R nginx:nginx /var/run/nginx.pid
 
-RUN apk -U upgrade
+RUN apk upgrade --no-cache
 
 COPY /nginx.conf /etc/nginx/
 COPY /default.conf.template /etc/nginx/templates/

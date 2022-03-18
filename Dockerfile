@@ -3,7 +3,7 @@ MAINTAINER HMPPS Digital Studio <info@digital.justice.gov.uk>
 
 RUN yum update -yq
 RUN yum install -y curl
-
+RUN yum -y update expat
 ENV TZ=Europe/London
 RUN ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" > /etc/timezone
 

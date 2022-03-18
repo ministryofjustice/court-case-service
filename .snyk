@@ -9,6 +9,9 @@ ignore:
     - '*':
         reason: Believed we don't used the open SSL libraries. Will revisit
         expires: 2022-03-04T00:00:00.000Z
-
+  SNYK-ORACLE7-EXPAT-2427672:
+    - '*':
+        reason: Hoping this will be patched soon
+        expires: 2022-03-25T00:00:00.000Z
 patch: {}
 version: v1.19.0

@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import uk.gov.justice.probation.courtcaseservice.controller.mapper.PhoneNumberMapper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -92,7 +91,7 @@ public class ExtendedCourtCaseRequestResponse {
                                 .preSentenceActivity(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::isPreSentenceActivity).orElse(null))
                                 .suspendedSentenceOrder(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::isSuspendedSentenceOrder).orElse(null))
                                 .previouslyKnownTerminationDate(Optional.ofNullable(defendantEntity.getOffender()).map(OffenderEntity::getPreviouslyKnownTerminationDate).orElse(null))
-                                .phoneNumber(PhoneNumberMapper.mapFrom(defendantEntity.getPhoneNumber()))
+                                .phoneNumber(PhoneNumber.of(defendantEntity.getPhoneNumber()))
                                 .offences(Optional.ofNullable(defendantEntity.getOffences())
                                         .orElse(Collections.emptyList()).stream()
                                         .map(offence ->  OffenceRequestResponse.builder()
@@ -151,7 +150,7 @@ public class ExtendedCourtCaseRequestResponse {
             .sex(Sex.fromString(defendant.getSex()))
             .type(defendant.getType())
             .defendantId(defendant.getDefendantId())
-            .phoneNumber(PhoneNumberMapper.mapFrom(defendant.getPhoneNumber()))
+            .phoneNumber(Optional.ofNullable(defendant.getPhoneNumber()).map(PhoneNumber::asEntity).orElse(null))
             .build();
         offences.forEach(offence -> offence.setDefendant(defendantEntity));
         return defendantEntity;

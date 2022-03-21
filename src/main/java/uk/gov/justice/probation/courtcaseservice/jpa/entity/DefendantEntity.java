@@ -53,6 +53,9 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Setter
     private OffenderEntity offender;
 
+    @Column(name = "CRN", nullable = false, insertable = false, updatable = false)
+    private final String crn;
+
     @Column(name = "DEFENDANT_ID", nullable = false)
     private final String defendantId;
 
@@ -110,9 +113,9 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
         return defendantName == null ? "" : defendantName.substring(defendantName.lastIndexOf(" ")+1);
     }
 
-    public String getCrn() {
-        return offender != null ? offender.getCrn() : null;
-    }
+//    public String getCrn() {
+//        return offender != null ? offender.getCrn() : null;
+//    }
 
     public DefendantProbationStatus getProbationStatusForDisplay() {
         return Optional.ofNullable(offender)

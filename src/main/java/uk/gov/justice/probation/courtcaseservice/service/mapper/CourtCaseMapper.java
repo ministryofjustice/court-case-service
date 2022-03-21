@@ -30,7 +30,7 @@ public class CourtCaseMapper {
 
         final var allDefendants = existingHearing.getHearingDefendants().stream()
             .map(existingDefendant -> defendantId.equalsIgnoreCase(existingDefendant.getDefendantId()) ?
-                                updatedHearing.getHearingDefendants().get(0) : CourtCaseMapper.createDefendant(existingDefendant))
+                                updatedHearing.getHearingDefendants().get(0) : CourtCaseMapper.createHearingDefendant(existingDefendant))
             .collect(Collectors.toList());
 
         // rebuild the case with new defendants and hearings
@@ -65,7 +65,7 @@ public class CourtCaseMapper {
             .collect(Collectors.toList());
     }
 
-    public static HearingDefendantEntity createDefendant(HearingDefendantEntity hearingDefendantEntity) {
+    public static HearingDefendantEntity createHearingDefendant(HearingDefendantEntity hearingDefendantEntity) {
 
         final var defendantEntity = Optional.of(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).orElseThrow();
         var newHearingDefendantEntity = HearingDefendantEntity.builder()
@@ -77,6 +77,7 @@ public class CourtCaseMapper {
                 .type(defendantEntity.getType())
                 .address(defendantEntity.getAddress())
                 .offender(defendantEntity.getOffender())
+                .crn(defendantEntity.getCrn())
                 .pnc(defendantEntity.getPnc())
                 .cro(defendantEntity.getCro())
                 .dateOfBirth(defendantEntity.getDateOfBirth())

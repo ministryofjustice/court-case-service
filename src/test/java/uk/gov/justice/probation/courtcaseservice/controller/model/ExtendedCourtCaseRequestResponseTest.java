@@ -158,12 +158,8 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(offenderEntity.isBreach()).isEqualTo(Boolean.TRUE);
         assertThat(offenderEntity.getAwaitingPsr()).isEqualTo(Boolean.TRUE);
         assertThat(offenderEntity.getProbationStatus()).isEqualTo(OffenderProbationStatus.CURRENT);
-
-        assertThat(offenderEntity.getAwaitingPsr()).isEqualTo(Boolean.TRUE);
-        assertThat(offenderEntity.isBreach()).isEqualTo(Boolean.TRUE);
-        assertThat(offenderEntity.isPreSentenceActivity()).isEqualTo(Boolean.TRUE);
-        assertThat(offenderEntity.getPreviouslyKnownTerminationDate()).isEqualTo(previouslyKnownTerminationDate);
-        assertThat(offenderEntity.getProbationStatus()).isEqualTo(OffenderProbationStatus.CURRENT);
+        assertThat(offenderEntity.isSuspendedSentenceOrder()).isEqualTo(Boolean.TRUE);
+        assertThat(offenderEntity.getCrn()).isEqualTo(CRN);
 
         final var offences = hearingDefendantEntity.getOffences();
         assertThat(offences).hasSize(2);
@@ -174,15 +170,6 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(offences).extracting("summary").containsOnly("SUMMARY1", "SUMMARY2");
         assertThat(offences).extracting("title").containsOnly("TITLE1", "TITLE2");
         assertThat(offences).extracting("listNo").containsOnly(10, 20);
-
-        final var offender = offenderEntity;
-        assertThat(offender.getCrn()).isEqualTo(CRN);
-        assertThat(offender.getProbationStatus()).isSameAs(OffenderProbationStatus.CURRENT);
-        assertThat(offender.getAwaitingPsr()).isEqualTo(Boolean.TRUE);
-        assertThat(offender.isBreach()).isEqualTo(Boolean.TRUE);
-        assertThat(offender.isPreSentenceActivity()).isEqualTo(Boolean.TRUE);
-        assertThat(offender.isSuspendedSentenceOrder()).isEqualTo(Boolean.TRUE);
-        assertThat(offender.getPreviouslyKnownTerminationDate()).isEqualTo(previouslyKnownTerminationDate);
     }
 
     @Test

@@ -134,6 +134,7 @@ class CourtCaseResponseMapperTest {
         var defendantName = NamePropertiesEntity.builder().title("DJ").forename1("Giles").surname("PETERSON").build();
         var defendantEntity = HearingDefendantEntity.builder()
                 .defendant(DefendantEntity.builder()
+                    .crn("CRN123")
                     .defendantName(defendantName.getFullName())
                     .name(defendantName)
                     .address(AddressPropertiesEntity.builder().postcode("WN8 0PZ").build())
@@ -240,6 +241,7 @@ class CourtCaseResponseMapperTest {
                         .name(name)
                         .defendantName(name.getFullName())
                         .offender(offender)
+                        .crn(offender.getCrn())
                         .cro(CRO)
                         .pnc(PNC)
                         .type(DefendantType.PERSON)

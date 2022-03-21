@@ -350,6 +350,7 @@ class CourtCaseControllerPutIntTest extends BaseIntTest {
             // The correct offender is now associated
             courtCaseRepository.findByCaseId(caseId)
                 .ifPresentOrElse(theCase -> {
+                    // TODO: This is returning the same defendant twice, duplicate hearingDefendant?
                     var defendants = theCase.getHearingDefendants();
                     assertThat(defendants).hasSize(1);
                     assertThat(defendants.get(0).getDefendant().getOffender().getCrn()).isEqualTo(CRN);

@@ -143,10 +143,11 @@ public class ExtendedCourtCaseRequestResponse {
         final var offences = buildDefendantOffences(defendant.getOffences());
         final var offender = buildOffender(defendant);
 
-        final var defendantEntity = HearingDefendantEntity.builder()
+        final var hearingDefendantEntity = HearingDefendantEntity.builder()
             .defendantId(defendant.getDefendantId())
             .defendant(DefendantEntity.builder()
                 .address(buildAddress(defendant.getAddress()))
+                .crn(defendant.getCrn())
                 .cro(defendant.getCro())
                 .dateOfBirth(defendant.getDateOfBirth())
                 .defendantName(defendant.getName().getFullName())
@@ -160,8 +161,8 @@ public class ExtendedCourtCaseRequestResponse {
                 .build())
             .offences(offences)
             .build();
-        offences.forEach(offence -> offence.setHearingDefendant(defendantEntity));
-        return defendantEntity;
+        offences.forEach(offence -> offence.setHearingDefendant(hearingDefendantEntity));
+        return hearingDefendantEntity;
     }
 
     private OffenderEntity buildOffender(Defendant defendant) {

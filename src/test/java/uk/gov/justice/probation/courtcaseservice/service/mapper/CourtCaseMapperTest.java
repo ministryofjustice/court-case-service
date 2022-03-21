@@ -64,7 +64,10 @@ class CourtCaseMapperTest {
 
         // Update comes in with a new CRN and name
         var newName = NamePropertiesEntity.builder().surname("STUBBS").forename1("Una").build();
-        var updatedHearingDefendant = EntityHelper.aHearingDefendant(newName, OffenderEntity.builder().crn("D99999").build());
+        final var aHearingDefendant = EntityHelper.aHearingDefendant(newName, OffenderEntity.builder().crn("D99999").build());
+        final var updatedDefendant = aHearingDefendant
+                .getDefendant().withCrn("D99999");
+        var updatedHearingDefendant = aHearingDefendant.withDefendant(updatedDefendant);
         var updatedEntity = HearingEntity.builder()
                 .hearingDefendants(List.of(updatedHearingDefendant))
                 .hearingDays(hearingDays)

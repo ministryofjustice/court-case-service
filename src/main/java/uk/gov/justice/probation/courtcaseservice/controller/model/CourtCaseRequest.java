@@ -133,6 +133,7 @@ public class CourtCaseRequest {
                 .offender(Optional.ofNullable(crn)
                     .map(this::buildOffender)
                     .orElse(null))
+                .crn(crn)
                 .dateOfBirth(defendantDob)
                 .defendantName(defendantName)
                 .type(defendantType)

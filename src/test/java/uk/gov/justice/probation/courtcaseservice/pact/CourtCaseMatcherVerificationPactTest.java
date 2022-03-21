@@ -81,6 +81,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                 .hearingDefendants(Collections.singletonList(HearingDefendantEntity.builder()
                         .defendant(DefendantEntity.builder()
                                 .defendantId("51354F3C-9625-404D-B820-C74724D23484")
+                                .crn("X340741")
                                 .sex(Sex.MALE)
                                 .offender(OffenderEntity.builder()
                                         .crn("X340741")

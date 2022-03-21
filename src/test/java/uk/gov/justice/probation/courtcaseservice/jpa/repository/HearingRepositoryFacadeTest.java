@@ -210,7 +210,6 @@ class HearingRepositoryFacadeTest {
         facade.save(HEARING);
 
         verify(offenderRepository).findByCrn(CRN);
-        verify(courtCaseRepository).save(COURT_CASE);
         verify(offenderRepository).saveAll(List.of(OFFENDER));
         verify(defendantRepository).saveAll(List.of(DEFENDANT));
         verify(hearingRepository).save(HEARING);
@@ -228,7 +227,6 @@ class HearingRepositoryFacadeTest {
         verify(offenderRepository).findByCrn(CRN_2);
         verify(offenderRepository).saveAll(List.of(OFFENDER_2, OFFENDER));
         verify(defendantRepository).saveAll(List.of(DEFENDANT_2, DEFENDANT));
-        verify(courtCaseRepository).save(COURT_CASE);
         verify(hearingRepository).save(HEARING_WITH_MULTIPLE_DEFENDANTS);
         verifyNoMoreInteractions(courtCaseRepository, hearingRepository, defendantRepository);
     }

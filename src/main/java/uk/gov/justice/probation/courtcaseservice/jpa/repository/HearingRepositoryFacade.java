@@ -96,12 +96,15 @@ public class HearingRepositoryFacade {
     }
 
     public HearingEntity save(HearingEntity hearingEntity) {
-        final var mergedHearing = hearingEntity.withHearingDefendants(hearingEntity.getHearingDefendants()
-                .stream()
-                .map(this::updateHearingDefendantWithExistingOffenders)
-                .collect(Collectors.toList()));
+        hearingEntity.getHearingDefendants().forEach((HearingDefendantEntity hearingDefendantEntity) -> {
+            hearingDefendantEntity.setDefendant(
+                    hearingDefendantEntity.getDefendant()
+                    .withOffender(Optional.ofNullable(hearingDefendantEntity.getDefendant().getOffender())
+                            .map(this::updateOffenderIfItExists)
+                            .orElse(null)));
+        });
 
-        final var defendantEntities = mergedHearing.getHearingDefendants()
+        final var defendantEntities = hearingEntity.getHearingDefendants()
                 .stream()
                 .map(HearingDefendantEntity::getDefendant)
                 .collect(Collectors.toList());
@@ -110,23 +113,10 @@ public class HearingRepositoryFacade {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        // All the commented ones shouldn't (I don't think) be necessary - and they cause more errors than without
         offenderRepository.saveAll(offenderEntities);
         defendantRepository.saveAll(defendantEntities);
-//        courtCaseRepository.save(mergedHearing.getCourtCase());
-//        hearingDefendantRepository.saveAll(mergedHearing.getHearingDefendants());
-        final var savedHearing = hearingRepository.save(mergedHearing);
-//        hearingDayRepository.saveAll(mergedHearing.getHearingDays());
-//        final var savedHearing = mergedHearing;
+        final var savedHearing = hearingRepository.save(hearingEntity);
         return savedHearing;
-    }
-
-    private HearingDefendantEntity updateHearingDefendantWithExistingOffenders(HearingDefendantEntity hearingDefendantEntity) {
-        final var defendant = hearingDefendantEntity.getDefendant();
-        return hearingDefendantEntity.withDefendant(defendant
-                .withOffender(Optional.ofNullable(defendant.getOffender())
-                        .map(this::updateOffenderIfItExists)
-                        .orElse(null)));
     }
 
     @NonNull

@@ -21,7 +21,8 @@ ALTER TABLE HEARING_DEFENDANT
     DROP COLUMN nationality_1,
     DROP COLUMN nationality_2,
     DROP COLUMN manual_update,
-    DROP COLUMN offender_confirmed;
+    DROP COLUMN offender_confirmed,
+    DROP COLUMN phone_number;
 
 -- Drop redundant columns from DEFENDANT
 ALTER TABLE DEFENDANT

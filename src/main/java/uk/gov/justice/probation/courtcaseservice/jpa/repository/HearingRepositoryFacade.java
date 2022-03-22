@@ -25,21 +25,13 @@ import java.util.stream.Collectors;
 public class HearingRepositoryFacade {
 
     private final OffenderRepository offenderRepository;
-    private final CourtCaseRepository courtCaseRepository;
     private final HearingRepository hearingRepository;
-    private final HearingDayRepository hearingDayRepository;
-    private final OffenceRepository offenceRepository;
-    private final HearingDefendantRepository hearingDefendantRepository;
     private final DefendantRepository defendantRepository;
 
     @Autowired
-    public HearingRepositoryFacade(OffenderRepository offenderRepository, CourtCaseRepository courtCaseRepository, HearingRepository hearingRepository, HearingDayRepository hearingDayRepository, OffenceRepository offenceRepository, HearingDefendantRepository hearingDefendantRepository, DefendantRepository defendantRepository) {
+    public HearingRepositoryFacade(OffenderRepository offenderRepository, HearingRepository hearingRepository, DefendantRepository defendantRepository) {
         this.offenderRepository = offenderRepository;
-        this.courtCaseRepository = courtCaseRepository;
         this.hearingRepository = hearingRepository;
-        this.hearingDayRepository = hearingDayRepository;
-        this.offenceRepository = offenceRepository;
-        this.hearingDefendantRepository = hearingDefendantRepository;
         this.defendantRepository = defendantRepository;
     }
 
@@ -115,8 +107,7 @@ public class HearingRepositoryFacade {
 
         offenderRepository.saveAll(offenderEntities);
         defendantRepository.saveAll(defendantEntities);
-        final var savedHearing = hearingRepository.save(hearingEntity);
-        return savedHearing;
+        return hearingRepository.save(hearingEntity);
     }
 
     @NonNull
@@ -142,6 +133,7 @@ public class HearingRepositoryFacade {
 
     private HearingDefendantEntity updateWithDefendant(HearingDefendantEntity hearingDefendantEntity, String caseId) {
         return defendantRepository.findFirstByDefendantIdOrderByIdDesc(hearingDefendantEntity.getDefendantId())
+                // TODO: Check that offender is returned as expected
                 .map(hearingDefendantEntity::withDefendant)
                 .orElseThrow(() -> {
                             throw new RuntimeException(String.format("Unexpected state: Defendant '%s' is specified on case '%s' but it does not exist", hearingDefendantEntity.getDefendantId(), caseId));

@@ -113,10 +113,6 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
         return defendantName == null ? "" : defendantName.substring(defendantName.lastIndexOf(" ")+1);
     }
 
-//    public String getCrn() {
-//        return offender != null ? offender.getCrn() : null;
-//    }
-
     public DefendantProbationStatus getProbationStatusForDisplay() {
         return Optional.ofNullable(offender)
                 .map(OffenderEntity::getProbationStatus)

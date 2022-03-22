@@ -72,13 +72,7 @@ class HearingRepositoryFacadeTest {
                     .build()));
 
     @Mock
-    private CourtCaseRepository courtCaseRepository;
-    @Mock
     private HearingRepository hearingRepository;
-    @Mock
-    private HearingDefendantRepository hearingDefendantRepository;
-    @Mock
-    private OffenceRepository offenceRepository;
     @Mock
     private OffenderRepository offenderRepository;
     @Mock
@@ -104,7 +98,7 @@ class HearingRepositoryFacadeTest {
         verify(hearingRepository).findFirstByHearingIdOrderByCreatedDesc(HEARING_ID);
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
-        verifyNoMoreInteractions(courtCaseRepository, hearingRepository, defendantRepository);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
     @Test
@@ -119,7 +113,7 @@ class HearingRepositoryFacadeTest {
         verify(hearingRepository).findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO);
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
-        verifyNoMoreInteractions(courtCaseRepository, hearingRepository, defendantRepository);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
     @Test
@@ -133,7 +127,7 @@ class HearingRepositoryFacadeTest {
         verify(hearingRepository).findFirstByHearingIdOrderByCreatedDesc(HEARING_ID);
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
-        verifyNoMoreInteractions(courtCaseRepository, hearingRepository, defendantRepository);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
     @Test
@@ -191,7 +185,7 @@ class HearingRepositoryFacadeTest {
         verify(hearingRepository).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, A_DATETIME, A_DATETIME);
         verify(defendantRepository, times(2)).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
-        verifyNoMoreInteractions(courtCaseRepository, hearingRepository, defendantRepository);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
     @Test
@@ -200,7 +194,7 @@ class HearingRepositoryFacadeTest {
         final var actual = facade.findLastModifiedByHearingDay(COURT_CODE, A_DATE);
         assertThat(actual).get().isEqualTo(A_DATETIME);
         verify(hearingRepository).findLastModifiedByHearingDay(COURT_CODE, A_DATE);
-        verifyNoMoreInteractions(courtCaseRepository, hearingRepository, defendantRepository);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
     @Test
@@ -213,7 +207,7 @@ class HearingRepositoryFacadeTest {
         verify(offenderRepository).saveAll(List.of(OFFENDER));
         verify(defendantRepository).saveAll(List.of(DEFENDANT));
         verify(hearingRepository).save(HEARING);
-        verifyNoMoreInteractions(courtCaseRepository, hearingRepository, defendantRepository);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
     @Test
@@ -228,7 +222,7 @@ class HearingRepositoryFacadeTest {
         verify(offenderRepository).saveAll(List.of(OFFENDER_2, OFFENDER));
         verify(defendantRepository).saveAll(List.of(DEFENDANT_2, DEFENDANT));
         verify(hearingRepository).save(HEARING_WITH_MULTIPLE_DEFENDANTS);
-        verifyNoMoreInteractions(courtCaseRepository, hearingRepository, defendantRepository);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
     @Test

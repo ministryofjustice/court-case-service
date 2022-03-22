@@ -153,6 +153,10 @@ task wipTest(type: Test) {
 }
 
 dependencies {
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.2") {
+        because("2.13.1 has vulnerabilities")
+    }
+
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 

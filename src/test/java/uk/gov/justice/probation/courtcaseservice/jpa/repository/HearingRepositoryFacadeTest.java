@@ -170,6 +170,44 @@ class HearingRepositoryFacadeTest {
     }
 
     @Test
+    void whenFindByCourtCodeAndHearingDay_andDateTimeIsMinMax_thenCallRepoMethodWithoutDateConstraints() {
+        when(hearingRepository.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE))
+                .thenReturn(List.of(HEARING, HEARING_WITH_MULTIPLE_DEFENDANTS));
+        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
+        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
+
+        final var actual = facade.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, LocalDateTime.MIN, LocalDateTime.MAX);
+        assertThat(actual.size()).isEqualTo(2);
+        assertThat(actual.get(0).getHearingDefendants().get(0).getDefendant()).isEqualTo(DEFENDANT);
+        assertThat(actual.get(1).getHearingDefendants().get(0).getDefendant()).isEqualTo(DEFENDANT_2);
+        assertThat(actual.get(1).getHearingDefendants().get(1).getDefendant()).isEqualTo(DEFENDANT);
+
+        verify(hearingRepository).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE);
+        verify(defendantRepository, times(2)).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
+        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository);
+    }
+
+    @Test
+    void whenFindByCourtCodeAndHearingDay_andDateTimesAreNull_thenCallRepoMethodWithoutDateConstraints() {
+        when(hearingRepository.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE))
+                .thenReturn(List.of(HEARING, HEARING_WITH_MULTIPLE_DEFENDANTS));
+        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
+        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
+
+        final var actual = facade.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, null, null);
+        assertThat(actual.size()).isEqualTo(2);
+        assertThat(actual.get(0).getHearingDefendants().get(0).getDefendant()).isEqualTo(DEFENDANT);
+        assertThat(actual.get(1).getHearingDefendants().get(0).getDefendant()).isEqualTo(DEFENDANT_2);
+        assertThat(actual.get(1).getHearingDefendants().get(1).getDefendant()).isEqualTo(DEFENDANT);
+
+        verify(hearingRepository).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE);
+        verify(defendantRepository, times(2)).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
+        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository);
+    }
+
+    @Test
     void whenFindByCourtCodeAndHearingDay_thenReturnDefendants() {
         when(hearingRepository.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, A_DATETIME, A_DATETIME))
                 .thenReturn(List.of(HEARING, HEARING_WITH_MULTIPLE_DEFENDANTS));

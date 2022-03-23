@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -23,6 +22,8 @@ import java.util.stream.Collectors;
  * to Service layer consumers, abstracting away custom code required for maintaining immutable records.
  */
 public class HearingRepositoryFacade {
+    private static final int MAX_YEAR_SUPPORTED_BY_DB = 294276;
+    private static final int MIN_YEAR_SUPPORTED_BY_DB = -4712;
 
     private final OffenderRepository offenderRepository;
     private final HearingRepository hearingRepository;
@@ -69,15 +70,23 @@ public class HearingRepositoryFacade {
                 .map(hearingEntity -> findDefendant(hearingEntity, defendantId).isPresent() ? updateWithDefendants(hearingEntity) : null);
     }
 
-    private Optional<HearingDefendantEntity> findDefendant(HearingEntity hearingEntity, String defendantId) {
-        return hearingEntity.getHearingDefendants()
+    @Deprecated
+    /**
+     * @deprecated Deprecated in favour of the version without createdAfter and createdBefore parameters as the lookup is
+     * significantly more efficient without these constraints.
+     */
+    public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
+
+        return (canIgnoreCreatedDates(createdAfter, createdBefore)
+                        ? hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay)
+                        : hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay, createdAfter, createdBefore))
                 .stream()
-                .filter(hearingDefendantEntity -> defendantId.equals(hearingDefendantEntity.getDefendantId()))
-                .findFirst();
+                .map(this::updateWithDefendants)
+                .collect(Collectors.toList());
     }
 
-    public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
-        return hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay, createdAfter, createdBefore)
+    public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay) {
+        return hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay)
                 .stream()
                 .map(this::updateWithDefendants)
                 .collect(Collectors.toList());
@@ -110,7 +119,18 @@ public class HearingRepositoryFacade {
         return hearingRepository.save(hearingEntity);
     }
 
-    @NonNull
+    private boolean canIgnoreCreatedDates(LocalDateTime createdAfter, LocalDateTime createdBefore) {
+        return (createdAfter == null && createdBefore == null)
+                || (createdAfter.getYear() <= MIN_YEAR_SUPPORTED_BY_DB && createdBefore.getYear() >= MAX_YEAR_SUPPORTED_BY_DB);
+    }
+
+    private Optional<HearingDefendantEntity> findDefendant(HearingEntity hearingEntity, String defendantId) {
+        return hearingEntity.getHearingDefendants()
+                .stream()
+                .filter(hearingDefendantEntity -> defendantId.equals(hearingDefendantEntity.getDefendantId()))
+                .findFirst();
+    }
+
     private OffenderEntity updateOffenderIfItExists(OffenderEntity updatedOffender) {
         return offenderRepository.findByCrn(updatedOffender.getCrn())
                 .map(existingOffender -> existingOffender
@@ -127,14 +147,21 @@ public class HearingRepositoryFacade {
     private HearingEntity updateWithDefendants(HearingEntity hearingEntity) {
         return hearingEntity.withHearingDefendants(hearingEntity.getHearingDefendants()
                 .stream()
-                .map(hearingDefendantEntity -> updateWithDefendant(hearingDefendantEntity, hearingEntity.getCaseId()))
+                .map(hearingDefendantEntity -> updateDefendantAndOffender(hearingDefendantEntity, hearingEntity.getCaseId()))
                 .collect(Collectors.toList()));
     }
 
-    private HearingDefendantEntity updateWithDefendant(HearingDefendantEntity hearingDefendantEntity, String caseId) {
+    private HearingDefendantEntity updateDefendantAndOffender(HearingDefendantEntity hearingDefendantEntity, String caseId) {
         return defendantRepository.findFirstByDefendantIdOrderByIdDesc(hearingDefendantEntity.getDefendantId())
-                // TODO: Check that offender is returned as expected
-                .map(hearingDefendantEntity::withDefendant)
+                .map(defendant -> {
+                    hearingDefendantEntity.setDefendant(defendant);
+                    Optional.ofNullable(defendant.getCrn())
+                            .map(crn -> offenderRepository.findByCrn(crn)
+                                    .orElseThrow(() -> new RuntimeException(String.format("Unexpected state: Offender with CRN '%s' is specified on defendant '%s' but it does not exist", crn, defendant.getDefendantId())))
+                            )
+                            .ifPresent(defendant::setOffender);
+                    return hearingDefendantEntity;
+                })
                 .orElseThrow(() -> {
                             throw new RuntimeException(String.format("Unexpected state: Defendant '%s' is specified on case '%s' but it does not exist", hearingDefendantEntity.getDefendantId(), caseId));
                         }

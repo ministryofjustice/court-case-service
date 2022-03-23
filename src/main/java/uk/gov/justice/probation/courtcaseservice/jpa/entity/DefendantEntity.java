@@ -13,19 +13,16 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Type;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -48,8 +45,7 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     private final Long id;
 
     @ToString.Exclude
-    @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "CRN", referencedColumnName = "CRN")
+    @Transient
     @Setter
     private OffenderEntity offender;
 

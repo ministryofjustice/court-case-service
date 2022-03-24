@@ -96,6 +96,7 @@ public class HearingRepositoryFacade {
         return hearingRepository.findLastModifiedByHearingDay(courtCode, hearingDay);
     }
 
+    @Transactional
     public HearingEntity save(HearingEntity hearingEntity) {
         hearingEntity.getHearingDefendants().forEach((HearingDefendantEntity hearingDefendantEntity) -> {
             hearingDefendantEntity.setDefendant(

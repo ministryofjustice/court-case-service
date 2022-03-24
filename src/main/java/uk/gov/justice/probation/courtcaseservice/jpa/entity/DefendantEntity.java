@@ -49,7 +49,7 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Setter
     private OffenderEntity offender;
 
-    @Column(name = "CRN", nullable = false, insertable = false, updatable = false)
+    @Column(name = "CRN", nullable = false, updatable = false)
     private final String crn;
 
     @Column(name = "DEFENDANT_ID", nullable = false)

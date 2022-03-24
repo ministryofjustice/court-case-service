@@ -323,11 +323,11 @@ VALUES (false, false, 'X980123', 'CRO1', 'NAME_DOB', 'A/160000BA', 16000);
 --
 -- Section to populate an entirely new COURT CASE with separate HEARING, DEFENDANT, DEFENDANT_OFFENCE. Also a caseId which looks like a UUID which is what will be happening post CP integration
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
-VALUES (-1700030000, 'ac24a1be-939b-49a4-a524-21a3d2230000', '1700030000', '2010-01-01', 'COMMON_PLATFORM');
+VALUES (-1700030050, 'ac24a1be-939b-49a4-a524-21a3d2230000', '1700030000', '2010-01-01', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
-VALUES (-1700030000, -1700030000, 'ac24a1be-939b-49a4-a524-21a3d2230000', '2010-01-01');
+VALUES (-1700030050, -1700030050, 'ac24a1be-939b-49a4-a524-21a3d2230000', '2010-01-01');
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
-VALUES (-1700030000, -1700030000, 'B14LO', 1, '2019-12-14', '09:00:00', '3rd', now() - interval '2 hours');
+VALUES (-1700030050, -1700030050, 'B14LO', 1, '2019-12-14', '09:00:00', '3rd', now() - interval '2 hours');
 
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
 VALUES (-1700030001, 'ac24a1be-939b-49a4-a524-21a3d2230000', '1700030000', now(), 'COMMON_PLATFORM');

@@ -13,18 +13,18 @@ import java.util.Optional;
 @Repository
 public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
 
-    Optional<HearingEntity> findFirstByHearingIdOrderByCreatedDesc(String hearingId);
+    Optional<HearingEntity> findFirstByHearingIdOrderByIdDesc(String hearingId);
 
     @Query(value = "select h.* from court_case cc " +
             "join hearing h on cc.id = h.fk_court_case_id " +
             "join hearing_day hd on h.id = hd.fk_hearing_id " +
-            "inner join (select max(court_case.created) as max_created, court_case.case_no, hearing_day.court_code from court_case " +
+            "inner join (select max(court_case.id) as max_id, court_case.case_no, hearing_day.court_code from court_case " +
             "   join hearing on court_case.id = hearing.fk_court_case_id " +
             "   join hearing_day on hearing.id = hearing_day.fk_hearing_id " +
             "   where court_case.case_no = :caseNo " +
             "   and hearing_day.court_code = :courtCode " +
             "   group by court_case.case_no, hearing_day.court_code) grouped_cases " +
-            "on cc.created = grouped_cases.max_created " +
+            "on cc.id = grouped_cases.max_id " +
             "and cc.case_no = grouped_cases.case_no " +
             "where cc.deleted = false " +
             "order by cc.id desc limit 1",
@@ -33,10 +33,10 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
 
     @Query(value = "select h.* from hearing h " +
                     "inner join " +
-                    "   (select max(hearing.created) as max_created, hearing.hearing_id as hearing_id from hearing " +
+                    "   (select max(hearing.id) as max_id, hearing.hearing_id as hearing_id from hearing " +
                     "   where hearing.hearing_id = :hearingId " +
                     "   group by hearing.hearing_id) grouped_cases " +
-                    "on h.created = grouped_cases.max_created " +
+                    "on h.id = grouped_cases.max_id " +
                     "and h.hearing_id = grouped_cases.hearing_id " +
                     "where h.deleted = false " +
                     "order by h.id desc limit 1",
@@ -46,18 +46,16 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
 
     @Query(value = "select h.* as first_created " +
         "from hearing h " +
-        "   inner join " +
-        "       (select max(group_hearing.created) as max_created, max(group_hearing.id) as max_id, group_hearing.HEARING_ID from hearing group_hearing " +
-        "           inner join hearing_day on hearing_day.fk_hearing_id = group_hearing.id " +
-        "           where group_hearing.created >= :createdAfter and group_hearing.created < :createdBefore " +
-        "           and hearing_day.court_code = :courtCode " +
-        "           group by group_hearing.HEARING_ID " +
-        "           ) grouped_hearings " +
-        "       on h.id = grouped_hearings.max_id " +
-        "       and h.hearing_id = grouped_hearings.hearing_id " +
-        "   inner join hearing_day hday on hday.fk_hearing_id = h.id " +
+        "inner join " +
+        "   (select max(group_hearing.id) as max_id, group_hearing.HEARING_ID from hearing group_hearing " +
+        "       inner join hearing_day on hearing_day.fk_hearing_id = group_hearing.id " +
+        "       where group_hearing.created >= :createdAfter and group_hearing.created < :createdBefore " +
+        "       and hearing_day.court_code = :courtCode " +
+        "       group by group_hearing.HEARING_ID " +
+        "       ) grouped_hearings " +
+        "on h.id = grouped_hearings.max_id " +
+        "inner join hearing_day hday on hday.fk_hearing_id = h.id " +
         "where hday.hearing_day = :hearingDay " +
-        "and h.created = grouped_hearings.max_created " +
         "and h.deleted = false ",
         nativeQuery = true)
     List<HearingEntity> findByCourtCodeAndHearingDay(
@@ -69,7 +67,7 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
     @Query(value = "select h.* as first_created " +
         "from hearing h " +
         "   inner join " +
-        "       (select max(group_hearing.created) as max_created, max(group_hearing.id) as max_id, group_hearing.HEARING_ID from hearing group_hearing " +
+        "       (select max(group_hearing.id) as max_id, group_hearing.HEARING_ID from hearing group_hearing " +
         "           inner join hearing_day on hearing_day.fk_hearing_id = group_hearing.id " +
         "           where hearing_day.court_code = :courtCode " +
         "           group by group_hearing.HEARING_ID " +
@@ -77,7 +75,6 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
         "       on h.id = grouped_hearings.max_id " +
         "   inner join hearing_day hday on hday.fk_hearing_id = h.id " +
         "where hday.hearing_day = :hearingDay " +
-        "and h.created = grouped_hearings.max_created " +
         "and h.deleted = false ",
         nativeQuery = true)
     List<HearingEntity> findByCourtCodeAndHearingDay(

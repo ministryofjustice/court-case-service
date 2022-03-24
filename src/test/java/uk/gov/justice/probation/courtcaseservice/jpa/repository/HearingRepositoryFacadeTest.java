@@ -87,7 +87,7 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void whenFindFirstByHearingIdOrderByIdDesc_thenReturnDefendants() {
-        when(hearingRepository.findFirstByHearingIdOrderByCreatedDesc(HEARING_ID)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
+        when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
         final var actual = facade.findFirstByHearingIdOrderByIdDesc(HEARING_ID);
@@ -96,7 +96,7 @@ class HearingRepositoryFacadeTest {
         assertThat(actual.get().getHearingDefendant(DEFENDANT_ID).getDefendant()).isEqualTo(DEFENDANT);
         assertThat(actual.get().getHearingDefendant(DEFENDANT_ID_2).getDefendant()).isEqualTo(DEFENDANT_2);
 
-        verify(hearingRepository).findFirstByHearingIdOrderByCreatedDesc(HEARING_ID);
+        verify(hearingRepository).findFirstByHearingIdOrderByIdDesc(HEARING_ID);
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
@@ -119,13 +119,13 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void whenFindByCaseId_thenReturnDefendants() {
-        when(hearingRepository.findFirstByHearingIdOrderByCreatedDesc(HEARING_ID)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
+        when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
 
         final var actual = facade.findByCaseId(HEARING_ID);
         assertThat(actual).get().isEqualTo(HEARING_WITH_MULTIPLE_DEFENDANTS);
-        verify(hearingRepository).findFirstByHearingIdOrderByCreatedDesc(HEARING_ID);
+        verify(hearingRepository).findFirstByHearingIdOrderByIdDesc(HEARING_ID);
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);

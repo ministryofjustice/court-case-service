@@ -37,7 +37,7 @@ public class HearingRepositoryFacade {
     }
 
     public Optional<HearingEntity> findFirstByHearingIdOrderByIdDesc(String hearingId) {
-        return hearingRepository.findFirstByHearingIdOrderByCreatedDesc(hearingId)
+        return hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
                 .map(this::updateWithDefendants);
     }
 
@@ -53,7 +53,7 @@ public class HearingRepositoryFacade {
      * as part of PIC-2062.
      */
     public Optional<HearingEntity> findByCaseId(String caseId) {
-        final var firstByHearingIdOrderByIdDesc = hearingRepository.findFirstByHearingIdOrderByCreatedDesc(caseId);
+        final var firstByHearingIdOrderByIdDesc = hearingRepository.findFirstByHearingIdOrderByIdDesc(caseId);
         return firstByHearingIdOrderByIdDesc
                 .map(this::updateWithDefendants);
     }

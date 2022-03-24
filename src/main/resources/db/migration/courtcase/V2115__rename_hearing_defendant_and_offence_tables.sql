@@ -7,7 +7,7 @@ CREATE TABLE PIC_2024_DEFENDANT_OFFENCE_BK AS TABLE DEFENDANT_OFFENCE;
 -- Rename DEFENDANT -> HEARING_DEFENDANT
 ALTER TABLE DEFENDANT RENAME TO HEARING_DEFENDANT;
 ALTER SEQUENCE defendant_id_seq RENAME TO hearing_defendant_id_seq;
-ALTER INDEX defendant_court_case_id_idx RENAME TO hearing_defendant_hearing_fk_hearing_id_idx;
+ALTER INDEX defendant_court_case_id_idx RENAME TO hearing_defendant_fk_hearing_id_idx;
 ALTER INDEX defendant_crn_idx RENAME TO hearing_defendant_crn_idx;
 ALTER TABLE HEARING_DEFENDANT RENAME CONSTRAINT defendant_pkey TO hearing_defendant_pkey;
 ALTER TABLE HEARING_DEFENDANT RENAME CONSTRAINT fk_defendant_court_case TO fk_hearing_defendant_hearing;

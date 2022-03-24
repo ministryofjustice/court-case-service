@@ -27,6 +27,15 @@ ALTER TABLE HEARING_DEFENDANT
 -- Drop redundant columns from DEFENDANT
 ALTER TABLE DEFENDANT
     DROP COLUMN fk_hearing_id;
+ALTER TABLE DEFENDANT
+    ALTER COLUMN TYPE               SET DEFAULT 'PERSON',
+    ALTER COLUMN CREATED            SET DEFAULT now();
+ALTER TABLE DEFENDANT
+    ALTER COLUMN DEFENDANT_ID       SET NOT NULL,
+    ALTER COLUMN DEFENDANT_NAME     SET NOT NULL,
+    ALTER COLUMN TYPE               SET NOT NULL,
+    ALTER COLUMN NAME               SET NOT NULL,
+    ALTER COLUMN CREATED            SET NOT NULL;
 
 -- Create sequences and constraints
 
@@ -38,6 +47,5 @@ ALTER TABLE DEFENDANT ALTER COLUMN manual_update SET NOT NULL;
 ALTER TABLE DEFENDANT ALTER COLUMN offender_confirmed SET DEFAULT FALSE;
 ALTER TABLE DEFENDANT ALTER COLUMN offender_confirmed SET NOT NULL;
 CREATE INDEX defendant_defendant_id_key ON defendant(defendant_id);
-CREATE INDEX hearing_defendant_hearing_id_idx on HEARING_DEFENDANT (fk_hearing_id);
 
 COMMIT;

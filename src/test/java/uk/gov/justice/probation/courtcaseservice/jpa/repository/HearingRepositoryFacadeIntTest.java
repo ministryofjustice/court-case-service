@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 
 import java.time.LocalDate;
@@ -87,6 +88,16 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
                 LocalDateTime.of(LocalDate.EPOCH, LocalTime.MIDNIGHT), LocalDateTime.of(LocalDate.of(2125, 1, 1), LocalTime.MIDNIGHT));
 
         assertIsCorrectCaseList(actual);
+    }
+
+    @Test
+    public void whenSave_thenPersistHearingAndDefendantsAndOffenders() {
+        final var hearingEntity = EntityHelper.aHearingEntity("b229b992-02d2-4393-affd-3878f2c7d61e");
+        assertThat(hearingRepositoryFacade.save(hearingEntity)).isEqualTo(hearingEntity);
+
+        assertThat(hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(EntityHelper.HEARING_ID).orElseThrow())
+                .usingRecursiveComparison().ignoringFields("created")
+                .isEqualTo(hearingEntity);
     }
 
     private void assertIsCorrectCaseList(List<HearingEntity> actual) {

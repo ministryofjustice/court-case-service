@@ -48,6 +48,7 @@ class HearingRepositoryFacadeTest {
             .caseId("caseId")
             .build();
     private static final HearingEntity HEARING = HearingEntity.builder()
+            .hearingId(HEARING_ID)
             .courtCase(COURT_CASE)
             .hearingDefendants(List.of(HearingDefendantEntity.builder()
                     .defendantId(DEFENDANT_ID)
@@ -161,12 +162,21 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void givenDefendantOnCase_andDefendantDoesNotExist_whenFindByCaseIdAndDefendantId_thenThrowException() {
-
+        HEARING.getHearingDefendant(DEFENDANT_ID).setHearing(HEARING);
         when(hearingRepository.findByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING));
 
         assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(() -> facade.findByCaseIdAndDefendantId(HEARING_ID, DEFENDANT_ID))
-                .withMessage("Unexpected state: Defendant 'defendantId' is specified on case 'caseId' but it does not exist");
+                .withMessage("Unexpected state: Defendant 'defendantId' is specified on hearing 'hearingId' but it does not exist");
+    }
+
+    @Test
+    void givenDefendantOnCase_andDefendantDoesNotExist_andHearingIdIsNotAvailable_whenFindByCaseIdAndDefendantId_thenThrowExceptionWithoutHearingIdAsFallback() {
+        when(hearingRepository.findByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING));
+
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> facade.findByCaseIdAndDefendantId(HEARING_ID, DEFENDANT_ID))
+                .withMessage("Unexpected state: Defendant 'defendantId' is specified on hearing '<Error: Unable to determine hearingId>' but it does not exist");
     }
 
     @Test

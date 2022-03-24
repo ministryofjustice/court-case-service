@@ -147,11 +147,11 @@ public class HearingRepositoryFacade {
     private HearingEntity updateWithDefendants(HearingEntity hearingEntity) {
         return hearingEntity.withHearingDefendants(hearingEntity.getHearingDefendants()
                 .stream()
-                .map(hearingDefendantEntity -> updateDefendantAndOffender(hearingDefendantEntity, hearingEntity.getCaseId()))
+                .map(this::updateDefendantAndOffender)
                 .collect(Collectors.toList()));
     }
 
-    private HearingDefendantEntity updateDefendantAndOffender(HearingDefendantEntity hearingDefendantEntity, String caseId) {
+    private HearingDefendantEntity updateDefendantAndOffender(HearingDefendantEntity hearingDefendantEntity) {
         return defendantRepository.findFirstByDefendantIdOrderByIdDesc(hearingDefendantEntity.getDefendantId())
                 .map(defendant -> {
                     hearingDefendantEntity.setDefendant(defendant);
@@ -163,7 +163,7 @@ public class HearingRepositoryFacade {
                     return hearingDefendantEntity;
                 })
                 .orElseThrow(() -> {
-                            throw new RuntimeException(String.format("Unexpected state: Defendant '%s' is specified on case '%s' but it does not exist", hearingDefendantEntity.getDefendantId(), caseId));
+                            throw new RuntimeException(String.format("Unexpected state: Defendant '%s' is specified on hearing '%s' but it does not exist", hearingDefendantEntity.getDefendantId(), Optional.ofNullable(hearingDefendantEntity.getHearing()).map(HearingEntity::getHearingId).orElse("<Error: Unable to determine hearingId>")));
                         }
                 );
     }

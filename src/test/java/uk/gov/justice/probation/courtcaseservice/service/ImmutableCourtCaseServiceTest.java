@@ -52,7 +52,6 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.HEARING_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingEntity;
 
 @ExtendWith(MockitoExtension.class)
 class ImmutableCourtCaseServiceTest {
@@ -112,7 +111,7 @@ class ImmutableCourtCaseServiceTest {
                     .courtCase(CourtCaseEntity.builder()
                             .caseId(CASE_ID)
                             .build())
-                    .hearingDays(Collections.singletonList(aHearingEntity().withCourtCode("XXX")))
+                    .hearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity().withCourtCode("XXX")))
                     .hearingDefendants(Collections.singletonList(defendant))
                     .build();
 

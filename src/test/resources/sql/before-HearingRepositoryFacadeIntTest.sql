@@ -27,7 +27,7 @@ INSERT INTO courtcaseservicetest.OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SU
 VALUES (-198, -198, 'Theft from a garage', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 17:59:59.000');
 
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
-VALUES (1, 'X25829', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test');
+VALUES (-100, 'X25829', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test');
 
 -- Initial creation of Royston Vasey - Error case - offender referenced by CRN does not exist
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
@@ -188,7 +188,7 @@ INSERT INTO courtcaseservicetest.OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SU
 VALUES (-187, -187, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 16:59:59.001');
 
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
-VALUES (2, 'X12345', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test');
+VALUES (-99, 'X12345', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test');
 
 -- Updated hearing - defendant removed
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)

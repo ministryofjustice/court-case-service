@@ -21,7 +21,6 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.OFFENCE_SUMMARY;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.OFFENCE_TITLE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SESSION_START_TIME;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingEntity;
 
 class CourtCaseMapperTest {
     @Test
@@ -41,8 +40,8 @@ class CourtCaseMapperTest {
     @Test
     void whenCreateHearings_thenReturnList() {
 
-        var hearingEntity1 = EntityHelper.aHearingEntity();
-        var hearingEntity2 = EntityHelper.aHearingEntity(SESSION_START_TIME.plusDays(1));
+        var hearingEntity1 = EntityHelper.aHearingDayEntity();
+        var hearingEntity2 = EntityHelper.aHearingDayEntity(SESSION_START_TIME.plusDays(1));
 
         var hearings = CourtCaseMapper.createHearings(List.of(hearingEntity1, hearingEntity2));
 
@@ -60,7 +59,7 @@ class CourtCaseMapperTest {
 
     @Test
     void whenMerge_thenRestoreDefendantsAndHearings() {
-        final var hearingDays = List.of(aHearingEntity().withId(100L), aHearingEntity(SESSION_START_TIME.plusDays(1)).withId(101L));
+        final var hearingDays = List.of(EntityHelper.aHearingDayEntity().withId(100L), EntityHelper.aHearingDayEntity(SESSION_START_TIME.plusDays(1)).withId(101L));
 
         // Update comes in with a new CRN and name
         var newName = NamePropertiesEntity.builder().surname("STUBBS").forename1("Una").build();
@@ -106,7 +105,7 @@ class CourtCaseMapperTest {
 
     @Test
     void givenExistingCaseWithSingleDefendant_whenMerge_thenRestoreHearings() {
-        final var hearings = List.of(aHearingEntity().withId(100L), aHearingEntity(SESSION_START_TIME.plusDays(1)).withId(101L));
+        final var hearings = List.of(EntityHelper.aHearingDayEntity().withId(100L), EntityHelper.aHearingDayEntity(SESSION_START_TIME.plusDays(1)).withId(101L));
 
         // Update comes in with a new CRN and name and one hearing
         var newName = NamePropertiesEntity.builder().surname("STUBBS").forename1("Una").build();

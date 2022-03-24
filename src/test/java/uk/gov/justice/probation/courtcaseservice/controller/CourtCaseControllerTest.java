@@ -42,8 +42,6 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingDefendantEntity;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingEntity;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM;
 
 @ExtendWith(MockitoExtension.class)
@@ -73,7 +71,7 @@ class CourtCaseControllerTest {
                     .caseId(CASE_ID)
                     .sourceType(COMMON_PLATFORM)
                     .build())
-            .hearingDays(Collections.singletonList(EntityHelper.aHearingEntity()
+            .hearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()
                     .withCourtCode(COURT_CODE)))
             .hearingDefendants(Collections.singletonList(
                     HearingDefendantEntity.builder()
@@ -152,7 +150,7 @@ class CourtCaseControllerTest {
         when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
 
         final var courtCaseEntity = this.hearingEntity.withHearingDefendants(List.of(EntityHelper.aHearingDefendantEntity()))
-                .withHearingDays(Collections.singletonList(EntityHelper.aHearingEntity()
+                .withHearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()
                         .withDay(DATE)
                         .withTime(LocalTime.of(9, 0))
                         .withCourtCode(COURT_CODE)
@@ -177,7 +175,7 @@ class CourtCaseControllerTest {
                         .sourceType(COMMON_PLATFORM)
                         .build())
                 .hearingDefendants(List.of(defendantEntity1, defendantEntity2))
-                .hearingDays(Collections.singletonList(EntityHelper.aHearingEntity()
+                .hearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()
                         .withCourtCode(COURT_CODE)
                         .withDay(DATE)
                         .withTime(LocalTime.of(9, 0))))
@@ -342,7 +340,7 @@ class CourtCaseControllerTest {
         final var hearingDefendantEntity = EntityHelper.aHearingDefendant(name);
         return EntityHelper.aHearingEntity(UUID.randomUUID().toString())
                 .withHearingDefendants(List.of(hearingDefendantEntity))
-                .withHearingDays(List.of(aHearingEntity(sessionStartTime).withCourtRoom(courtRoom)));
+                .withHearingDays(List.of(EntityHelper.aHearingDayEntity(sessionStartTime).withCourtRoom(courtRoom)));
 
     }
 }

@@ -51,13 +51,19 @@ public class EntityHelper {
     public static final Long OFFENDER_ID = 199L;
 
     public static HearingEntity aHearingEntity(String caseId) {
-        return populateBasics(CRN)
-            .courtCase(CourtCaseEntity.builder()
-                .caseId(caseId)
-                .caseNo(CASE_NO)
-                .sourceType(SOURCE)
-            .build())
-            .build();
+        final var hearingEntity = populateBasics(CRN)
+                .courtCase(CourtCaseEntity.builder()
+                        .caseId(caseId)
+                        .caseNo(CASE_NO)
+                        .sourceType(SOURCE)
+                        .build())
+                .build();
+
+        hearingEntity.getHearingDefendants()
+                .forEach(hearingDefendant -> hearingDefendant.setHearing(hearingEntity));
+        hearingEntity.getHearingDays()
+                .forEach(hearingDay -> hearingDay.setHearing(hearingEntity));
+        return hearingEntity;
     }
 
     public static HearingEntity aHearingEntityWithCrn(String crn) {
@@ -110,26 +116,29 @@ public class EntityHelper {
     }
 
     private static HearingDefendantEntity aHearingDefendantEntity(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId, String crn) {
-        return HearingDefendantEntity.builder()
-            .defendantId(defendantId)
-            .defendant(DefendantEntity.builder()
-                .name(name)
-                .defendantName(name.getFullName())
-                .offender(anOffender(crn))
-                .crn(CRN)
-                .cro(CRO)
-                .pnc(PNC)
-                .type(DefendantType.PERSON)
-                .address(defendantAddress)
-                .dateOfBirth(DEFENDANT_DOB)
-                .sex(Sex.fromString(DEFENDANT_SEX))
-                .nationality1(NATIONALITY_1)
-                .nationality2(NATIONALITY_2)
+        final HearingDefendantEntity hearingDefendant = HearingDefendantEntity.builder()
                 .defendantId(defendantId)
-                .phoneNumber(DEFENDANT_PHONE_NUMBER_ENTITY)
-            .build())
-            .offences(List.of(aDefendantOffence()))
-            .build();
+                .defendant(DefendantEntity.builder()
+                        .name(name)
+                        .defendantName(name.getFullName())
+                        .offender(anOffender(crn))
+                        .crn(CRN)
+                        .cro(CRO)
+                        .pnc(PNC)
+                        .type(DefendantType.PERSON)
+                        .address(defendantAddress)
+                        .dateOfBirth(DEFENDANT_DOB)
+                        .sex(Sex.fromString(DEFENDANT_SEX))
+                        .nationality1(NATIONALITY_1)
+                        .nationality2(NATIONALITY_2)
+                        .defendantId(defendantId)
+                        .phoneNumber(DEFENDANT_PHONE_NUMBER_ENTITY)
+                        .build())
+                .offences(List.of(aDefendantOffence()))
+                .build();
+        hearingDefendant.getOffences()
+                .forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendant));
+        return hearingDefendant;
     }
 
     public static OffenderEntity anOffender(String crn) {
@@ -147,11 +156,12 @@ public class EntityHelper {
             .orElse(null);
     }
 
-    public static HearingDayEntity aHearingEntity() {
-        return aHearingEntity(SESSION_START_TIME);
+    public static HearingDayEntity aHearingDayEntity() {
+        return aHearingDayEntity(SESSION_START_TIME);
+
     }
 
-    public static HearingDayEntity aHearingEntity(LocalDateTime sessionStartTime) {
+    public static HearingDayEntity aHearingDayEntity(LocalDateTime sessionStartTime) {
         return HearingDayEntity.builder()
             .listNo(LIST_NO)
             .day(sessionStartTime.toLocalDate())
@@ -168,7 +178,7 @@ public class EntityHelper {
             .deleted(false)
             .firstCreated(LocalDateTime.now())
             .hearingDefendants(List.of(defendant))
-            .hearingDays(List.of(aHearingEntity()));
+            .hearingDays(List.of(aHearingDayEntity()));
     }
 
     public static OffenceEntity aDefendantOffence() {

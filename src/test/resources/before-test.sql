@@ -106,13 +106,13 @@ VALUES (-1700028903, '44817de0-cc89-460a-8f07-0b06ef45982a', 'Mr Mads MIKKELSEN'
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
 VALUES (-1700028903, -1700028903, '44817de0-cc89-460a-8f07-0b06ef45982a');
 
--- 2 versions for case id '1f93aa0a-7e46-4885-a1cb-f25a4be33a58'
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
-VALUES (-1700028904, '1f93aa0a-7e46-4885-a1cb-f25a4be33a59', 1600028917, '2020-10-01 16:59:59', 'COMMON_PLATFORM');
+VALUES (-1700028954, '1f93aa0a-7e46-4885-a1cb-f25a4be33a59', 1600028917, '2020-10-01 16:59:59', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
-VALUES (-1700028904, -1700028904, '1f93aa0a-7e46-4885-a1cb-f25a4be33a59', '2020-10-01 16:59:59');
+VALUES (-1700028954, -1700028954, '1f93aa0a-7e46-4885-a1cb-f25a4be33a59', '2020-10-01 16:59:59');
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-1700028904, -1700028904, 'B10JQ', 1, '2019-12-14', '12:59:59', '3rd');
+VALUES (-1700028954, -1700028954, 'B10JQ', 1, '2019-12-14', '12:59:59', '3rd');
+
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
 VALUES (-1700028905, '1f93aa0a-7e46-4885-a1cb-f25a4be33a59', 1600028917, '2020-10-01 18:59:59', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
@@ -138,11 +138,12 @@ VALUES (-1700028906, -1700028906, '965c0391-8929-4fff-b88c-2f813cf16d43');
 -- See CourtCaseControllerIntTest.GET_cases_givenNoCreatedFilterParams_whenGetCases_thenReturnAllCases()
 -- These records are used to test that the createdToday field returns false if a new record was created today updating an existing one
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
-VALUES (-1700028907, '1f93aa0a-7e46-4885-a1cb-f25a4be33a18', 1600028918, '2020-10-01 16:59:59', 'COMMON_PLATFORM');
+VALUES (-1700028957, '1f93aa0a-7e46-4885-a1cb-f25a4be33a18', 1600028918, '2020-10-01 16:59:59', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
-VALUES (-1700028907, -1700028907, '1f93aa0a-7e46-4885-a1cb-f25a4be33a18', '2020-10-01 16:59:59');
+VALUES (-1700028957, -1700028957, '1f93aa0a-7e46-4885-a1cb-f25a4be33a18', '2020-10-01 16:59:59');
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
-VALUES (-1700028907, -1700028907, 'B10JQ', 2, '2019-12-14', '13:00:00', '3rd', '2020-10-01 16:59:59');
+VALUES (-1700028957, -1700028957, 'B10JQ', 2, '2019-12-14', '13:00:00', '3rd', '2020-10-01 16:59:59');
+
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
 VALUES (-1700028908, '1f93aa0a-7e46-4885-a1cb-f25a4be33a18', 1600028918, now(), 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created, first_created)

@@ -46,11 +46,11 @@ VALUES (-1000054, -1700028952, 'B10JQ', 1, '2022-02-17', '09:00', '3rd', '2020-0
 
 -- 1 Basic case Libra - old version
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
-VALUES (-1700028902, 'case_list_1', 1600028914, '2020-08-01 16:59:59.000', 'LIBRA');
+VALUES (-1700028962, 'case_list_1', 1600028914, '2020-08-01 16:59:59.000', 'LIBRA');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
-VALUES (-1700028902, -1700028902, 'case_list_1', '2020-08-01 16:59:59.000');
+VALUES (-1700028962, -1700028962, 'case_list_1', '2020-08-01 16:59:59.000');
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
-VALUES (-1000004, -1700028902, 'B10JQ', 1, '2022-02-17', '09:00', '3rd', '2020-08-01 16:59:59.000');
+VALUES (-1000004, -1700028962, 'B10JQ', 1, '2022-02-17', '09:00', '3rd', '2020-08-01 16:59:59.000');
 
 -- 2 Basic case Common Platform
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
@@ -62,11 +62,11 @@ VALUES (-1000055, -1700028953, 'B10JQ', 1, '2022-02-17', '09:00', '3rd', '2020-0
 
 -- 2 Basic case Common Platform - old version
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
-VALUES (-1700028903, 'case_list_2', 1600028914, '2020-08-01 16:59:59.000', 'COMMON_PLATFORM');
+VALUES (-1700028963, 'case_list_2', 1600028914, '2020-08-01 16:59:59.000', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
-VALUES (-1700028903, -1700028903, 'case_list_2', '2020-08-01 16:59:59.000');
+VALUES (-1700028963, -1700028963, 'case_list_2', '2020-08-01 16:59:59.000');
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
-VALUES (-1000005, -1700028903, 'B10JQ', 1, '2022-02-17', '09:00', '3rd', '2020-08-01 16:59:59.000');
+VALUES (-1000005, -1700028963, 'B10JQ', 1, '2022-02-17', '09:00', '3rd', '2020-08-01 16:59:59.000');
 
 -- 3 Moved to this court
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)

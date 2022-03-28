@@ -32,6 +32,7 @@ import java.util.UUID;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.HEARING_ID;
 
 
 class CourtCaseResponseMapperTest {
@@ -282,6 +283,7 @@ class CourtCaseResponseMapperTest {
     }
 
     private void assertHearingFields(CourtCaseResponse courtCaseResponse) {
+        assertThat(courtCaseResponse.getHearingId()).isEqualTo(HEARING_ID);
         assertThat(courtCaseResponse.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCaseResponse.getCourtRoom()).isEqualTo(COURT_ROOM);
         assertThat(courtCaseResponse.getListNo()).isEqualTo(LIST_NO);
@@ -306,6 +308,7 @@ class CourtCaseResponseMapperTest {
 
         return HearingEntity.builder()
             .id(ID)
+            .hearingId(HEARING_ID)
             .courtCase(CourtCaseEntity.builder()
                 .sourceType(SourceType.COMMON_PLATFORM)
                 .caseNo(CASE_NO)

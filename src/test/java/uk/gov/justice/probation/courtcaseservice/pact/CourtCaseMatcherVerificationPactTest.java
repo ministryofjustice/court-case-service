@@ -66,7 +66,8 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
 
     @State({"a case exists for court B10JQ and case number 1600028913"})
     void getCourtCase() {
-        var courtCaseEntity = HearingEntity.builder()
+        var hearingEntity = HearingEntity.builder()
+            .hearingId("8bbb4fe3-a899-45c7-bdd4-4ee25ac5a83f")
             .courtCase(CourtCaseEntity.builder()
                 .caseNo("1600028913")
                 .sourceType(SourceType.LIBRA)
@@ -90,7 +91,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                     .pnc("A/1234560BA")
                     .build()))
             .build();
-        when(courtCaseService.getHearingByCaseNumber("B10JQ", "1600028913")).thenReturn(courtCaseEntity);
+        when(courtCaseService.getHearingByCaseNumber("B10JQ", "1600028913")).thenReturn(hearingEntity);
     }
 
     @State({"a case exists for caseId D517D32D-3C80-41E8-846E-D274DC2B94A5"})

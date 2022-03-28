@@ -31,6 +31,7 @@ public class CourtCaseResponse {
     private static final String POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS = "Possible NDelius record";
 
     private final String caseId;
+    private final String hearingId;
     private final String caseNo;
     private final String crn;
     private final String pnc;

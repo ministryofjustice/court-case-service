@@ -56,7 +56,7 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     @Setter // TODO: This was added to enable ImmutableCourtCaseService.enforceValidHearingId() as a precautionary measure and should be removed ASAP
     private String hearingId;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "FK_COURT_CASE_ID", referencedColumnName = "id", nullable = false)
     @Setter
     private CourtCaseEntity courtCase;
@@ -75,8 +75,8 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
-    @OneToMany(mappedBy = "hearing", cascade = CascadeType.ALL, orphanRemoval=true)
-    private final List<DefendantEntity> defendants;
+    @OneToMany(mappedBy = "hearing", orphanRemoval=true, cascade = CascadeType.ALL)
+    private final List<HearingDefendantEntity> hearingDefendants;
 
     @Column(name = "deleted", nullable = false, updatable = false)
     private final boolean deleted;
@@ -96,8 +96,8 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
         return courtCase.getSourceType();
     }
 
-    public DefendantEntity getDefendant(String defendantId) {
-        return Optional.ofNullable(defendants)
+    public HearingDefendantEntity getHearingDefendant(String defendantId) {
+        return Optional.ofNullable(hearingDefendants)
                 .map(Collection::stream)
                 .flatMap(defendantEntityStream -> defendantEntityStream
                     .filter(d ->  defendantId.equals(d.getDefendantId()))

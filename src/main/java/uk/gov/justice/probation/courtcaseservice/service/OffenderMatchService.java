@@ -73,7 +73,7 @@ public class OffenderMatchService {
     }
 
     public OffenderMatchDetailResponse getOffenderMatchDetailsByCaseIdAndDefendantId(String caseId, String defendantId) {
-        courtCaseService.getHearingByCaseIdAndDefendantId(caseId, defendantId);    // Throw EntityNotFound if case does not exist
+        courtCaseService.getHearingByHearingIdAndDefendantId(caseId, defendantId);    // Throw EntityNotFound if case does not exist
         List<OffenderMatchDetail> offenderMatchDetails = getOffenderMatchesByCaseIdAndDefendantId(caseId, defendantId)
             .map(GroupedOffenderMatchesEntity::getOffenderMatches)
             .map(offenderMatchEntities -> offenderMatchEntities

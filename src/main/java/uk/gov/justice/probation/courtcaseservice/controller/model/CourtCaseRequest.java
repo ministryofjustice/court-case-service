@@ -8,11 +8,12 @@ import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
@@ -85,7 +86,7 @@ public class CourtCaseRequest {
             .listNo(listNo)
             .build());
 
-        final List<DefendantEntity> defendants = buildDefendants();
+        final List<HearingDefendantEntity> defendants = buildDefendants();
 
         final HearingEntity entity = HearingEntity.builder()
                 .courtCase(CourtCaseEntity.builder()
@@ -96,7 +97,7 @@ public class CourtCaseRequest {
                 // TODO: Remove. This is a temporary measure to allow the application to continue working whilst we update the data structures adding hearingId
                 .hearingId(caseId)
                 .hearingDays(hearings)
-                .defendants(defendants)
+                .hearingDefendants(defendants)
                 .build();
 
         hearings.forEach(hearingEntity -> hearingEntity.setHearing(entity));
@@ -104,15 +105,15 @@ public class CourtCaseRequest {
         return entity;
     }
 
-    List<DefendantEntity> buildDefendants() {
+    List<HearingDefendantEntity> buildDefendants() {
 
-        final List<DefendantOffenceEntity> offences = IntStream.range(0, Optional.ofNullable(getOffences())
+        final List<OffenceEntity> offences = IntStream.range(0, Optional.ofNullable(getOffences())
                         .map(List::size)
                         .orElse(0)
                 )
                 .mapToObj(i -> {
                     var offence = getOffences().get(i);
-                    return DefendantOffenceEntity.builder()
+                    return OffenceEntity.builder()
                             .sequence(i + 1)
                             .title(offence.getOffenceTitle())
                             .summary(offence.getOffenceSummary())
@@ -122,29 +123,34 @@ public class CourtCaseRequest {
                 })
                 .collect(Collectors.toList());
 
-        final var defendant = DefendantEntity.builder()
-            .address(Optional.ofNullable(defendantAddress)
-                    .map(this::buildAddress)
+        final var defendantId = Optional.ofNullable(this.defendantId).orElse(UUID.randomUUID().toString());
+        final var hearingDefendant = HearingDefendantEntity.builder()
+            .defendantId(defendantId)
+            .defendant(DefendantEntity.builder()
+                .address(Optional.ofNullable(defendantAddress)
+                        .map(this::buildAddress)
+                        .orElse(null))
+                .offender(Optional.ofNullable(crn)
+                    .map(this::buildOffender)
                     .orElse(null))
-            .offender(Optional.ofNullable(crn)
-                .map(this::buildOffender)
-                .orElse(null))
-            .dateOfBirth(defendantDob)
-            .defendantName(defendantName)
-            .type(defendantType)
-            .nationality1(nationality1)
-            .nationality2(nationality2)
-            .name(name)
-            .sex(Sex.fromString(defendantSex))
-            .defendantId(Optional.ofNullable(defendantId).orElse(UUID.randomUUID().toString()))
-            .cro(cro)
-            .pnc(pnc)
-            .phoneNumber(Optional.ofNullable(phoneNumber).map(PhoneNumber::asEntity).orElse(null))
+                .crn(crn)
+                .dateOfBirth(defendantDob)
+                .defendantName(defendantName)
+                .type(defendantType)
+                .nationality1(nationality1)
+                .nationality2(nationality2)
+                .name(name)
+                .sex(Sex.fromString(defendantSex))
+                .defendantId(defendantId)
+                .cro(cro)
+                .pnc(pnc)
+                .phoneNumber(Optional.ofNullable(phoneNumber).map(PhoneNumber::asEntity).orElse(null))
+                .build())
             .offences(offences)
             .build();
 
-        offences.forEach(defendantOffence -> defendantOffence.setDefendant(defendant));
-        return Collections.singletonList(defendant);
+        offences.forEach(defendantOffence -> defendantOffence.setHearingDefendant(hearingDefendant));
+        return Collections.singletonList(hearingDefendant);
     }
 
     private AddressPropertiesEntity buildAddress(AddressRequestResponse addressRequest) {

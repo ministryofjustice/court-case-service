@@ -15,7 +15,7 @@ public interface CourtCaseService {
 
     HearingEntity getHearingByCaseId(String caseId) throws EntityNotFoundException;
 
-    HearingEntity getHearingByCaseIdAndDefendantId(String caseId, String defendantId) throws EntityNotFoundException;
+    HearingEntity getHearingByHearingIdAndDefendantId(String caseId, String defendantId) throws EntityNotFoundException;
 
     Mono<HearingEntity> createHearing(String caseId, HearingEntity updatedCase)
         throws EntityNotFoundException, InputMismatchException;

@@ -8,14 +8,15 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEnt
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantOffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
@@ -32,6 +33,8 @@ import java.util.UUID;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ADDRESS;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aDefendantOffence;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.HEARING_ID;
 
 
@@ -68,47 +71,50 @@ class CourtCaseResponseMapperTest {
     private static final LocalDateTime FIRST_CREATED = LocalDateTime.of(2020, 1, 1, 1, 1);
     private HearingEntity hearingEntity;
     private final AddressPropertiesEntity addressPropertiesEntity = AddressPropertiesEntity.builder()
-        .line1("27")
-        .line2("Elm Place")
-        .line3("Bangor")
-        .postcode("ad21 5dr")
-        .build();
+            .line1("27")
+            .line2("Elm Place")
+            .line3("Bangor")
+            .postcode("ad21 5dr")
+            .build();
     private final NamePropertiesEntity namePropertiesEntity = NamePropertiesEntity.builder()
-        .forename1("Wyatt")
-        .forename2("Berry")
-        .forename3("Stapp")
-        .surname("Earp")
-        .build();
+            .forename1("Wyatt")
+            .forename2("Berry")
+            .forename3("Stapp")
+            .surname("Earp")
+            .build();
 
     @BeforeEach
     void setUp() {
-        List<DefendantEntity> defendants = Arrays.asList(
-            DefendantEntity.builder().defendantName(DEFENDANT_NAME)
-                .name(namePropertiesEntity)
-                .sex(DEFENDANT_SEX)
-                .nationality1(NATIONALITY_1)
-                .nationality2(NATIONALITY_2)
-                .dateOfBirth(DEFENDANT_DOB)
-                .pnc(PNC)
-                .defendantId(DEFENDANT_ID)
-                .build()
+        List<HearingDefendantEntity> defendants = Arrays.asList(
+                HearingDefendantEntity.builder()
+                        .defendant(DefendantEntity.builder()
+                                .defendantName(DEFENDANT_NAME)
+                                .name(namePropertiesEntity)
+                                .sex(DEFENDANT_SEX)
+                                .nationality1(NATIONALITY_1)
+                                .nationality2(NATIONALITY_2)
+                                .dateOfBirth(DEFENDANT_DOB)
+                                .pnc(PNC)
+                                .defendantId(DEFENDANT_ID)
+                                .build())
+                        .build()
         );
 
         var hearings = Arrays.asList(
-            HearingDayEntity.builder()
-                .day(HEARING_DATE)
-                .time(SESSION_START_TIME.toLocalTime())
-                .courtRoom(COURT_ROOM)
-                .courtCode(COURT_CODE)
-                .listNo(LIST_NO)
-                .build(),
-            HearingDayEntity.builder()
-                .day(HEARING_DATE.plusDays(1))
-                .time(SESSION_START_TIME.toLocalTime().plusHours(4))
-                .courtRoom("02")
-                .courtCode(COURT_CODE)
-                .listNo("91st")
-                .build()
+                HearingDayEntity.builder()
+                        .day(HEARING_DATE)
+                        .time(SESSION_START_TIME.toLocalTime())
+                        .courtRoom(COURT_ROOM)
+                        .courtCode(COURT_CODE)
+                        .listNo(LIST_NO)
+                        .build(),
+                HearingDayEntity.builder()
+                        .day(HEARING_DATE.plusDays(1))
+                        .time(SESSION_START_TIME.toLocalTime().plusHours(4))
+                        .courtRoom("02")
+                        .courtCode(COURT_CODE)
+                        .listNo("91st")
+                        .build()
         );
 
         hearingEntity = buildCourtCaseEntity(defendants, hearings, FIRST_CREATED);
@@ -117,38 +123,41 @@ class CourtCaseResponseMapperTest {
     @Test
     void givenSeparateDefendant_whenMap_thenReturnMultipleResponses() {
         // Build defendant with deliberately different values from the defaults
-        var defendantOffence = DefendantOffenceEntity.builder()
-            .act(ACT)
-            .sequence(1)
-            .summary(OFFENCE_SUMMARY)
-            .title(OFFENCE_TITLE)
-            .listNo(OFFENCE_LIST_NO)
-            .build();
+        var defendantOffence = OffenceEntity.builder()
+                .act(ACT)
+                .sequence(1)
+                .summary(OFFENCE_SUMMARY)
+                .title(OFFENCE_TITLE)
+                .listNo(OFFENCE_LIST_NO)
+                .build();
         var defendantUuid = UUID.randomUUID().toString();
         var defendantName = NamePropertiesEntity.builder().title("DJ").forename1("Giles").surname("PETERSON").build();
-        var defendantEntity = DefendantEntity.builder()
-            .defendantName(defendantName.getFullName())
-            .name(defendantName)
-            .address(AddressPropertiesEntity.builder().postcode("WN8 0PZ").build())
-            .sex(Sex.FEMALE)
-            .nationality1("Romanian")
-            .dateOfBirth(DEFENDANT_DOB.plusDays(2))
-            .offender(OffenderEntity.builder()
-                .crn("CRN123")
-                .preSentenceActivity(true)
-                .awaitingPsr(true)
-                .suspendedSentenceOrder(true)
-                .breach(true)
-                .probationStatus(OffenderProbationStatus.CURRENT)
-                .previouslyKnownTerminationDate(LocalDate.now())
+        var defendantEntity = HearingDefendantEntity.builder()
+                .defendant(DefendantEntity.builder()
+                    .crn("CRN123")
+                    .defendantName(defendantName.getFullName())
+                    .name(defendantName)
+                    .address(AddressPropertiesEntity.builder().postcode("WN8 0PZ").build())
+                    .sex(Sex.FEMALE)
+                    .nationality1("Romanian")
+                    .dateOfBirth(DEFENDANT_DOB.plusDays(2))
+                    .offender(OffenderEntity.builder()
+                            .crn("CRN123")
+                            .preSentenceActivity(true)
+                            .awaitingPsr(true)
+                            .suspendedSentenceOrder(true)
+                            .breach(true)
+                            .probationStatus(OffenderProbationStatus.CURRENT)
+                            .previouslyKnownTerminationDate(LocalDate.now())
+                            .build())
+                    .pnc("PNC123")
+                    .cro("CRO123")
+                    .defendantId(defendantUuid)
+                    .type(DefendantType.PERSON)
+                    .nationality1("Romanian")
                 .build())
-            .pnc("PNC123")
-            .cro("CRO123")
-            .defendantId(defendantUuid)
-            .type(DefendantType.PERSON)
-            .nationality1("Romanian")
-            .offences(singletonList(defendantOffence))
-            .build();
+                .offences(singletonList(defendantOffence))
+                .build();
 
         var courtCaseResponse = CourtCaseResponseMapper.mapFrom(hearingEntity, defendantEntity, 3, HEARING_DATE);
 
@@ -186,12 +195,10 @@ class CourtCaseResponseMapperTest {
     void givenMultipleDefendants_whenMapByDefendantId_thenReturnCorrectDefendant() {
 
         var newName = NamePropertiesEntity.builder().surname("PRESLEY").forename1("Elvis").build();
-        var defendant1 = EntityHelper.aDefendantEntity("bd1f71e5-939b-4580-8354-7d6061a58032")
-            .withName(newName)
-            .withOffender(OffenderEntity.builder().crn("D99999").build());
-        var defendant2 = EntityHelper.aDefendantEntity(DEFENDANT_ID);
+        var defendant1 = buildDefendant(newName,OffenderEntity.builder().crn("D99999").build());
+        var defendant2 = EntityHelper.aHearingDefendantEntity(DEFENDANT_ID);
 
-        var courtCase = hearingEntity.withDefendants(List.of(defendant1, defendant2));
+        var courtCase = hearingEntity.withHearingDefendants(List.of(defendant1, defendant2));
 
         var response = CourtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5);
 
@@ -204,19 +211,18 @@ class CourtCaseResponseMapperTest {
     @Test
     void givenDefendantWithOffender_whenMapByDefendantId_thenReturnFieldsFromOffender() {
 
-        var newName = NamePropertiesEntity.builder().surname("TICKELL").forename1("Katherine").build();
-        var defendant = EntityHelper.aDefendantEntity("bd1f71e5-939b-4580-8354-7d6061a58032")
-            .withName(newName)
-            .withOffender(OffenderEntity.builder().crn("W99999")
+        final var name = NamePropertiesEntity.builder().surname("TICKELL").forename1("Katherine").build();
+        final OffenderEntity offender = OffenderEntity.builder().crn("W99999")
                 .probationStatus(OffenderProbationStatus.PREVIOUSLY_KNOWN)
                 .previouslyKnownTerminationDate(LocalDate.now())
                 .awaitingPsr(false)
                 .breach(true)
                 .preSentenceActivity(false)
                 .suspendedSentenceOrder(true)
-                .build());
+                .build();
+        HearingDefendantEntity defendant = buildDefendant(name, offender);
 
-        var courtCase = hearingEntity.withDefendants(List.of(defendant));
+        var courtCase = hearingEntity.withHearingDefendants(List.of(defendant));
 
         var response = CourtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5);
 
@@ -229,17 +235,39 @@ class CourtCaseResponseMapperTest {
         assertThat(response.getSuspendedSentenceOrder()).isTrue();
     }
 
+    private HearingDefendantEntity buildDefendant(NamePropertiesEntity name, OffenderEntity offender) {
+        var defendant = HearingDefendantEntity.builder()
+                .defendant(DefendantEntity.builder()
+                        .name(name)
+                        .defendantName(name.getFullName())
+                        .offender(offender)
+                        .crn(offender.getCrn())
+                        .cro(CRO)
+                        .pnc(PNC)
+                        .type(DefendantType.PERSON)
+                        .address(DEFENDANT_ADDRESS)
+                        .dateOfBirth(DEFENDANT_DOB)
+                        .sex(DEFENDANT_SEX)
+                        .nationality1(NATIONALITY_1)
+                        .nationality2(NATIONALITY_2)
+                        .defendantId("bd1f71e5-939b-4580-8354-7d6061a58032")
+                        .build())
+                .offences(List.of(aDefendantOffence()))
+                .build();
+        return defendant;
+    }
+
     private GroupedOffenderMatchesEntity buildMatchGroups() {
         return GroupedOffenderMatchesEntity.builder()
-                        .offenderMatches(Arrays.asList(
-                                OffenderMatchEntity.builder()
-                                        .crn("1234")
-                                        .build(),
-                                OffenderMatchEntity.builder()
-                                        .crn("2345")
-                                        .build()
-                        ))
-                        .build();
+                .offenderMatches(Arrays.asList(
+                        OffenderMatchEntity.builder()
+                                .crn("1234")
+                                .build(),
+                        OffenderMatchEntity.builder()
+                                .crn("2345")
+                                .build()
+                ))
+                .build();
     }
 
     private void assertCaseResponse(CourtCaseResponse courtCaseResponse, String caseNo, SourceType sourceType) {
@@ -294,7 +322,7 @@ class CourtCaseResponseMapperTest {
 
     private void assertCaseFields(CourtCaseResponse courtCaseResponse, String caseNo, SourceType sourceType) {
         Optional.ofNullable(caseNo)
-            .ifPresentOrElse((c) -> assertThat(courtCaseResponse.getCaseNo()).isEqualTo(c), () -> assertThat(courtCaseResponse.getCaseNo()).isNull());
+                .ifPresentOrElse((c) -> assertThat(courtCaseResponse.getCaseNo()).isEqualTo(c), () -> assertThat(courtCaseResponse.getCaseNo()).isNull());
         assertThat(courtCaseResponse.getCaseId()).isEqualTo(CASE_ID);
         assertThat(courtCaseResponse.getSource()).isEqualTo(sourceType.name());
         assertThat(courtCaseResponse.isCreatedToday()).isFalse();
@@ -304,21 +332,21 @@ class CourtCaseResponseMapperTest {
         assertCaseFields(courtCaseResponse, caseNo, SourceType.COMMON_PLATFORM);
     }
 
-    private HearingEntity buildCourtCaseEntity(List<DefendantEntity> defendants, List<HearingDayEntity> hearings, LocalDateTime firstCreated) {
+    private HearingEntity buildCourtCaseEntity(List<HearingDefendantEntity> defendants, List<HearingDayEntity> hearings, LocalDateTime firstCreated) {
 
         return HearingEntity.builder()
-            .id(ID)
-            .hearingId(HEARING_ID)
-            .courtCase(CourtCaseEntity.builder()
-                .sourceType(SourceType.COMMON_PLATFORM)
-                .caseNo(CASE_NO)
-                .caseId(CASE_ID)
+                .id(ID)
+                .hearingId(HEARING_ID)
+                .courtCase(CourtCaseEntity.builder()
+                        .sourceType(SourceType.COMMON_PLATFORM)
+                        .caseNo(CASE_NO)
+                        .caseId(CASE_ID)
+                        .created(CREATED)
+                        .build())
                 .created(CREATED)
-            .build())
-            .created(CREATED)
-            .firstCreated(firstCreated)
-            .defendants(defendants)
-            .hearingDays(hearings)
-            .build();
+                .firstCreated(firstCreated)
+                .hearingDefendants(defendants)
+                .hearingDays(hearings)
+                .build();
     }
 }

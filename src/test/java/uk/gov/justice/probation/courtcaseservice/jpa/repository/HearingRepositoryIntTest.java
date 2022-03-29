@@ -21,7 +21,7 @@ class HearingRepositoryIntTest extends BaseRepositoryIntTest {
 
     @Test
     public void findByCaseId_shouldReturnOneResultWhereCreatedTimestampsClash() {
-        final var courtCase = hearingRepository.findByCaseId("created_clash_id_1");
+        final var courtCase = hearingRepository.findByHearingId("created_clash_id_1");
         assertThat(courtCase).isPresent();
         assertThat(courtCase.get().getId()).isEqualTo(-1700028900L);
     }
@@ -34,13 +34,6 @@ class HearingRepositoryIntTest extends BaseRepositoryIntTest {
     }
 
     @Test
-    public void findByCaseIdAndDefendantId_shouldReturnOneResultWhereCreatedTimestampsClash() {
-        final var courtCase = hearingRepository.findByCaseIdAndDefendantId("created_clash_id_1", "40db17d6-04db-11ec-b2d8-0242ac130002");
-        assertThat(courtCase).isPresent();
-        assertThat(courtCase.get().getId()).isEqualTo(-1700028900L);
-    }
-
-    @Test
     public void findLastModifiedByHearingDay_shouldReturnOneResultWhereCreatedTimestampsClash() {
         final var lastModified = hearingRepository.findLastModifiedByHearingDay("B10JQ", LocalDate.of(2019, 12, 14));
         assertThat(lastModified).isPresent();
@@ -48,11 +41,20 @@ class HearingRepositoryIntTest extends BaseRepositoryIntTest {
     }
 
     @Test
-    public void findByCourtCodeAndHearingDay_shouldReturnExpectedCases() {
+    public void findByCourtCodeAndHearingDayWithBeforeAfterConstraints_shouldReturnExpectedCases() {
         final var hearings = hearingRepository.findByCourtCodeAndHearingDay("B10JQ", LocalDate.of(2022, 2, 17), LocalDateTime.of(2000, 1, 1, 1, 1), LocalDateTime.of(2500, 1, 1, 1, 1));
         assertThat(hearings).asList()
                 .extracting("id")
                 .containsExactlyInAnyOrder(-1700028904L, -1700028953L, -1700028952L,
-                        -1700028907L); // <- This shouldn't be included, see PIC-1958
+                        -1700028907L); // <- Known issue, this shouldn't be included, see PIC-2010
+    }
+
+    @Test
+    public void findByCourtCodeAndHearingDay_shouldReturnExpectedCases() {
+        final var hearings = hearingRepository.findByCourtCodeAndHearingDay("B10JQ", LocalDate.of(2022, 2, 17));
+        assertThat(hearings).asList()
+                .extracting("id")
+                .containsExactlyInAnyOrder(-1700028904L, -1700028953L, -1700028952L,
+                        -1700028907L); // <- Known issue, this shouldn't be included, see PIC-2010
     }
 }

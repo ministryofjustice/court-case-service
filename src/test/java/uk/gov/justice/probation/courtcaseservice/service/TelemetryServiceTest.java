@@ -13,6 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
@@ -159,15 +160,17 @@ class TelemetryServiceTest {
     @Test
     void whenTrackDefendantEvent_thenCallService() {
 
-        var defendant = DefendantEntity.builder()
-            .pnc(PNC)
-            .defendantId(DEFENDANT_ID)
-            .offender(anOffender(CRN))
-            .build();
+        var defendant = HearingDefendantEntity.builder()
+                .defendant(DefendantEntity.builder()
+                        .pnc(PNC)
+                        .defendantId(DEFENDANT_ID)
+                        .offender(anOffender(CRN))
+                        .build())
+                .build();
 
         service.trackCourtCaseDefendantEvent(TelemetryEventType.DEFENDANT_LINKED, defendant, "caseId");
 
-        var properties = Map.of("crn", CRN,"pnc", PNC, "caseId", "caseId", "defendantId", DEFENDANT_ID);
+        var properties = Map.of("crn", CRN, "pnc", PNC, "caseId", "caseId", "defendantId", DEFENDANT_ID);
 
         verify(telemetryClient).trackEvent(TelemetryEventType.DEFENDANT_LINKED.eventName, properties, Collections.emptyMap());
     }
@@ -175,10 +178,12 @@ class TelemetryServiceTest {
     @Test
     void givenNoOffender_whenTrackDefendantEvent_thenCallService() {
 
-        var defendant = DefendantEntity.builder()
-            .defendantId(DEFENDANT_ID)
-            .pnc(PNC)
-            .build();
+        var defendant = HearingDefendantEntity.builder()
+                .defendant(DefendantEntity.builder()
+                        .defendantId(DEFENDANT_ID)
+                        .pnc(PNC)
+                        .build())
+                .build();
 
         service.trackCourtCaseDefendantEvent(TelemetryEventType.DEFENDANT_UNLINKED, defendant, "caseId");
 
@@ -191,8 +196,8 @@ class TelemetryServiceTest {
         return HearingEntity.builder()
                 .hearingId(HEARING_ID)
                 .courtCase(CourtCaseEntity.builder()
-                    .caseId(CASE_ID)
-                .build())
+                        .caseId(CASE_ID)
+                        .build())
                 .hearingDays(List.of(
                         firstHearing,
                         secondHearing

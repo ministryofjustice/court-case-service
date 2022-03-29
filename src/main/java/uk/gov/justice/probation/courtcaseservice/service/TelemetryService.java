@@ -5,9 +5,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
@@ -62,15 +62,15 @@ public class TelemetryService {
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }
 
-    void trackCourtCaseDefendantEvent(TelemetryEventType eventType, DefendantEntity defendantEntity, String caseId) {
+    void trackCourtCaseDefendantEvent(TelemetryEventType eventType, HearingDefendantEntity defendantEntity, String caseId) {
 
         Map<String, String> properties = new HashMap<>();
 
-        ofNullable(defendantEntity.getDefendantId())
+        ofNullable(defendantEntity.getDefendant().getDefendantId())
             .ifPresent(id -> properties.put("defendantId", id));
-        ofNullable(defendantEntity.getOffender())
+        ofNullable(defendantEntity.getDefendant().getOffender())
             .ifPresent(offender -> properties.put("crn", offender.getCrn()));
-        ofNullable(defendantEntity.getPnc())
+        ofNullable(defendantEntity.getDefendant().getPnc())
             .ifPresent(pnc -> properties.put("pnc", pnc));
         ofNullable(caseId)
             .ifPresent(id -> properties.put("caseId", id));

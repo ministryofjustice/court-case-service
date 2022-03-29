@@ -41,7 +41,7 @@ public class OffenderEntity extends BaseEntity implements Serializable {
     private Long id;
 
     @EqualsAndHashCode.Include
-    @Column(name = "CRN", unique = true, nullable = false)
+    @Column(name = "CRN", unique = true, nullable = false, updatable = false)
     private String crn;
 
     @Column(name = "PROBATION_STATUS")

@@ -1,17 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
-import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OrderColumn;
-import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -21,15 +11,26 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OrderColumn;
+import javax.persistence.Table;
+import java.io.Serializable;
+
 @Entity
-@Table(name = "DEFENDANT_OFFENCE")
+@Table(name = "OFFENCE")
 @AllArgsConstructor
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @Getter
-@ToString(exclude = "defendant")
-@EqualsAndHashCode(callSuper = true, exclude = "defendant")
-public class DefendantOffenceEntity extends BaseImmutableEntity implements Serializable  {
+@ToString(exclude = "hearingDefendant")
+@EqualsAndHashCode(callSuper = true, exclude = "hearingDefendant")
+public class OffenceEntity extends BaseImmutableEntity implements Serializable  {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -37,10 +38,10 @@ public class DefendantOffenceEntity extends BaseImmutableEntity implements Seria
     @JsonIgnore
     private final Long id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "DEFENDANT_ID", referencedColumnName = "id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "FK_HEARING_DEFENDANT_ID", referencedColumnName = "id")
     @Setter
-    private DefendantEntity defendant;
+    private HearingDefendantEntity hearingDefendant;
 
     @Column(name = "TITLE", nullable = false)
     private final String title;

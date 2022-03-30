@@ -153,7 +153,7 @@ task wipTest(type: Test) {
 }
 
 dependencies {
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.2") {
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.2.2") {
         because("2.13.1 has vulnerabilities")
     }
 

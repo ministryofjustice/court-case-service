@@ -8,6 +8,7 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -22,12 +23,14 @@ import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResp
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
+import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -55,6 +58,7 @@ public class CourtCaseController {
     private static final LocalDateTime NEVER_MODIFIED_DATE = LocalDateTime.of(2020, MAX_AGE, MAX_AGE, 0, 0);
     private final CourtCaseService courtCaseService;
     private final OffenderMatchService offenderMatchService;
+    private final OffenderUpdateService offenderUpdateService;
 
     @Operation(description = "Gets the court case data by case id.")
 //    @ApiResponses(
@@ -142,6 +146,30 @@ public class CourtCaseController {
         @Valid @RequestBody CourtCaseRequest courtCaseRequest) {
         return courtCaseService.createUpdateHearingForSingleDefendantId(caseId, defendantId, courtCaseRequest.asEntity())
             .map(courtCaseEntity -> buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseEntity, defendantId));
+    }
+
+    @Operation(description = "Saves and returns the offender details by defendant id.")
+    @PutMapping(value = "/defendant/{defendantId}/offender", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public @ResponseBody
+    Mono<DefendantOffender> updateOffenderByDefendantId(@PathVariable(value = "defendantId") String defendantId,
+        @Valid @RequestBody DefendantOffender defendant) {
+       return offenderUpdateService.updateDefendantOffender(defendantId, defendant.asEntity());
+    }
+
+    @Operation(description = "Removes defendant offender association by defendant id.")
+    @DeleteMapping(value = "/defendant/{defendantId}/offender", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteOffender(@PathVariable(value = "defendantId") String defendantId) {
+       offenderUpdateService.removeDefendantOffenderAssociation(defendantId);
+    }
+
+    @Operation(description = "Returns the offender details by defendant id.")
+    @GetMapping(value = "/defendant/{defendantId}/offender", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    Mono<DefendantOffender> getOffenderByDefendantId(@PathVariable(value = "defendantId") String defendantId) {
+       return offenderUpdateService.getDefendantOffenderByDefendantId(defendantId);
     }
 
     @Operation(summary = "Gets case data for a court on a date. ",

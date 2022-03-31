@@ -1,7 +1,11 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.controller.model.Defendant;
+import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
 import java.time.LocalDate;

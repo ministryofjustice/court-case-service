@@ -10,6 +10,7 @@ import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
@@ -20,6 +21,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
+import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -62,6 +64,8 @@ class CourtCaseControllerTest {
     private CourtCaseRequest courtCaseUpdate;
     @Mock
     private OffenderMatchService offenderMatchService;
+    @Mock
+    private OffenderUpdateService offenderUpdateService;
     @InjectMocks
     private CourtCaseController courtCaseController;
     private final HearingEntity hearingEntity = HearingEntity.builder()
@@ -321,6 +325,28 @@ class CourtCaseControllerTest {
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 
+    @Test
+    void whenGetOffenderByDefendantId_shouldReturnOffender() {
+        DefendantOffender testOffender = DefendantOffender.builder().crn(CRN).build();
+        when(offenderUpdateService.getDefendantOffenderByDefendantId(DEFENDANT_ID)).thenReturn(Mono.just(testOffender));
+        var actual = courtCaseController.getOffenderByDefendantId(DEFENDANT_ID).block();
+        verify(offenderUpdateService).getDefendantOffenderByDefendantId(DEFENDANT_ID);
+        assertThat(actual).isEqualTo(testOffender);
+    }
+
+    @Test
+    void whenDeleteOffenderByDefendantId_shouldInvokeDeleteOffender() {
+        courtCaseController.deleteOffender(DEFENDANT_ID);
+        verify(offenderUpdateService).removeDefendantOffenderAssociation(DEFENDANT_ID);
+    }
+
+    @Test
+    void whenUpdateOffenderByDefendantId_shouldInvokeUpdateOffender() {
+        DefendantOffender testDefendant = DefendantOffender.builder().crn(CRN).build();
+        courtCaseController.updateOffenderByDefendantId(DEFENDANT_ID, testDefendant);
+        verify(offenderUpdateService).updateDefendantOffender(DEFENDANT_ID, testDefendant.asEntity());
+    }
+
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, NamePropertiesEntity defendantName, LocalDateTime sessionTime) {
         assertThat(cases.get(position).getCourtRoom()).isEqualTo(courtRoom);
         assertThat(cases.get(position).getName()).isEqualTo(defendantName);
@@ -341,6 +367,5 @@ class CourtCaseControllerTest {
         return EntityHelper.aHearingEntity(UUID.randomUUID().toString())
                 .withHearingDefendants(List.of(hearingDefendantEntity))
                 .withHearingDays(List.of(EntityHelper.aHearingDayEntity(sessionStartTime).withCourtRoom(courtRoom)));
-
     }
 }

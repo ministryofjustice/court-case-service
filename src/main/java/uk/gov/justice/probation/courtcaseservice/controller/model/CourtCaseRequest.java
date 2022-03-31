@@ -153,10 +153,6 @@ public class CourtCaseRequest {
         return Collections.singletonList(hearingDefendant);
     }
 
-    private AddressPropertiesEntity buildAddress(AddressRequestResponse addressRequest) {
-        return addressRequest.asEntity();
-    }
-
     private OffenderEntity buildOffender(String crn) {
         return OffenderEntity.builder()
                 .crn(crn)

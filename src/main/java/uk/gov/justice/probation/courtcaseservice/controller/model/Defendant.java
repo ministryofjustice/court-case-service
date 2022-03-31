@@ -11,7 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
@@ -55,33 +54,4 @@ public class Defendant {
     @Valid
     @NotEmpty
     private final List<OffenceRequestResponse> offences;
-
-    public DefendantEntity asEntity() {
-        // TODO
-        return DefendantEntity.builder()
-                .address(Optional.ofNullable(address)
-                        .map(AddressRequestResponse::asEntity)
-                        .orElse(null))
-//                .offender(Optional.ofNullable(crn)
-//                        .map(this::buildOffender)
-//                        .orElse(null))
-                .crn(crn)
-                .dateOfBirth(dateOfBirth)
-                .defendantName(Optional.ofNullable(name).map(NamePropertiesEntity::getFullName).orElse(null))
-                .type(type)
-//                .nationality1(nationality1)
-//                .nationality2(nationality2)
-                .name(name)
-                .sex(Sex.fromString(sex))
-                .defendantId(defendantId)
-                .cro(cro)
-                .pnc(pnc)
-                .phoneNumber(Optional.ofNullable(phoneNumber).map(PhoneNumber::asEntity).orElse(null))
-//                .offenderConfirmed(true/false)
-                .build();
-    }
-
-    public static Defendant of(final DefendantEntity defendantEntity) {
-        return Defendant.builder().build(); // TODO
-    }
 }

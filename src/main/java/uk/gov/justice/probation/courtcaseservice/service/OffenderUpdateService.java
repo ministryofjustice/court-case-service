@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
@@ -13,6 +14,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantReposit
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
+import javax.transaction.Transactional;
+
 @Service
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
@@ -21,16 +24,18 @@ public class OffenderUpdateService {
     private final DefendantRepository defendantRepository;
     private final OffenderRepository offenderRepository;
 
+    @Autowired
     public OffenderUpdateService(DefendantRepository defendantRepository, OffenderRepository offenderRepository) {
         this.defendantRepository = defendantRepository;
         this.offenderRepository = offenderRepository;
     }
 
+    @Transactional
     public void removeDefendantOffenderAssociation(final String defendantId) {
         final var defendant = findDefendantOrElseThrow(defendantId);
 
         if (!StringUtils.isEmpty(defendant.getCrn())) {
-            defendantRepository.save(defendant.withCrn(null));
+            defendantRepository.save(defendant.withCrn(null).withId(null));
         }
     }
 
@@ -44,6 +49,7 @@ public class OffenderUpdateService {
         return Mono.just(offender);
     }
 
+    @Transactional
     public Mono<DefendantOffender> updateDefendantOffender(final String defendantId, OffenderEntity offenderUpdate) {
 
         final var defendant = findDefendantOrElseThrow(defendantId);
@@ -63,7 +69,7 @@ public class OffenderUpdateService {
         final var updatedOffender = offenderRepository.save(offenderToUpdate);
 
         if (!StringUtils.equals(defendant.getCrn(), offenderToUpdate.getCrn())) {
-            final var updatedDefendant = defendant.withCrn(offenderUpdate.getCrn());
+            final var updatedDefendant = defendant.withCrn(offenderUpdate.getCrn()).withId(null);
             defendantRepository.save(updatedDefendant);
         }
 

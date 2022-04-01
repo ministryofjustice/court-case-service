@@ -150,7 +150,7 @@ public class CourtCaseController {
 
     @Operation(description = "Saves and returns the offender details by defendant id.")
     @PutMapping(value = "/defendant/{defendantId}/offender", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     Mono<DefendantOffender> updateOffenderByDefendantId(@PathVariable(value = "defendantId") String defendantId,
         @Valid @RequestBody DefendantOffender defendant) {
@@ -158,14 +158,14 @@ public class CourtCaseController {
     }
 
     @Operation(description = "Removes defendant offender association by defendant id.")
-    @DeleteMapping(value = "/defendant/{defendantId}/offender", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/defendant/{defendantId}/offender", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public void deleteOffender(@PathVariable(value = "defendantId") String defendantId) {
        offenderUpdateService.removeDefendantOffenderAssociation(defendantId);
     }
 
     @Operation(description = "Returns the offender details by defendant id.")
-    @GetMapping(value = "/defendant/{defendantId}/offender", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/defendant/{defendantId}/offender", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     Mono<DefendantOffender> getOffenderByDefendantId(@PathVariable(value = "defendantId") String defendantId) {

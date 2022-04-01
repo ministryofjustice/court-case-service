@@ -13,6 +13,7 @@ INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Sheffield', '
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Leicester', 'B33HU');
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Aberystwyth', 'B63AD');
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('New New York', 'B30NY');
+INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Old New York', 'C10JQ');
 
 -- The offender records for all CRNs in here
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
@@ -37,7 +38,8 @@ INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, created_by
 VALUES (-1000009, 'D16000', 'NOT_SENTENCED', 'before-test.sql');
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, created_by)
 VALUES (-1000010, 'DX12345', 'CURRENT', 'before-test.sql');
-
+INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
+VALUES (-1000011, 'Y320741', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test.sql');
 
 -- START DEFINITION OF CASE NO 1600028913
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type) VALUES (-1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 1600028913, now(), 'LIBRA');
@@ -154,6 +156,25 @@ INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, nam
 VALUES (-1700028908, '3bf70cd8-7e9d-4d29-b9b2-f8f7f898cb32', 'Mr David BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'X320746', 'PERSON', 'MALE');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
 VALUES (-1700028908, -1700028908, '3bf70cd8-7e9d-4d29-b9b2-f8f7f898cb32');
+
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
+VALUES (-1800028909, 'c4dee5e1-3cd9-4a2d-9e39-ccdacefc92b9', 1700028918, now(), 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created, first_created)
+VALUES (-1800028909, -1800028909, '682da1fb-cdce-476c-adff-0a2bd9f8355a', now(), '2020-10-01 16:59:59');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
+VALUES (-1800028909, -1800028909, 'C10JQ', 2, '2019-12-14', '13:00:00', '3rd', now());
+INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, name, crn, type, sex)
+VALUES (-1800028909, '9c2f11b0-1bca-4b24-85a1-315d67020b2c', 'Mr David BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'Y320741', 'PERSON', 'MALE');
+INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
+VALUES (-1800028909, -1800028909, '9c2f11b0-1bca-4b24-85a1-315d67020b2c');
+INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, name, crn, type, sex)
+VALUES (-1800028901, 'd59762b6-2da7-4af0-a09f-7296d40f15ce', 'Mr Phil BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'Y320741', 'PERSON', 'MALE');
+INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
+VALUES (-1800028901, -1800028909, 'd59762b6-2da7-4af0-a09f-7296d40f15ce');
+INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, name, type, sex)
+VALUES (-1800028902, 'c34bfca0-1ff1-4dab-9db7-acd27392b31a', 'Mr Phil BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'PERSON', 'MALE');
+INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
+VALUES (-1800028902, -1800028909, 'c34bfca0-1ff1-4dab-9db7-acd27392b31a');
 
 -- See GET_cases_givenCreatedBefore_andCreatedAfterFilterParams_andManualUpdatesHaveBeenMadeAfterTheseTimes_whenGetCases_thenReturnManualUpdates
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, created_by, source_type)

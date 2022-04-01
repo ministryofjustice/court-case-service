@@ -35,7 +35,7 @@ import java.util.Optional;
 @With
 @Getter
 @ToString
-@EqualsAndHashCode(callSuper = true, exclude = "hearingDefendant")
+@EqualsAndHashCode(exclude = "hearingDefendant")
 public class DefendantEntity extends BaseImmutableEntity implements Serializable {
 
     @Id

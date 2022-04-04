@@ -6,11 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.AssertionErrors;
-import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
@@ -43,7 +40,7 @@ class OffenderUpdateServiceTest {
                 .willReturn(Optional.of(DefendantEntity.builder().build()));
 
         var offender = offenderUpdateService.getDefendantOffenderByDefendantId(DEFENDANT_ID).block();
-        assertThat(offender).isEqualTo(DefendantOffender.builder().build());
+        assertThat(offender).isEqualTo(OffenderEntity.builder().build());
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verifyNoInteractions(offenderRepository);
     }
@@ -56,7 +53,7 @@ class OffenderUpdateServiceTest {
         given(offenderRepository.findByCrn(CRN)).willReturn(Optional.ofNullable(null));
 
         var offender = offenderUpdateService.getDefendantOffenderByDefendantId(DEFENDANT_ID).block();
-        assertThat(offender).isEqualTo(DefendantOffender.builder().build());
+        assertThat(offender).isEqualTo(OffenderEntity.builder().build());
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(offenderRepository).findByCrn(CRN);
     }
@@ -70,7 +67,7 @@ class OffenderUpdateServiceTest {
                 .preSentenceActivity(true).breach(true).suspendedSentenceOrder(true).build()));
 
         var offender = offenderUpdateService.getDefendantOffenderByDefendantId(DEFENDANT_ID).block();
-        assertThat(offender).isEqualTo(DefendantOffender.builder().crn(CRN).breach(true).suspendedSentenceOrder(true)
+        assertThat(offender).isEqualTo(OffenderEntity.builder().crn(CRN).breach(true).suspendedSentenceOrder(true)
                 .preSentenceActivity(true).build());
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(offenderRepository).findByCrn(CRN);
@@ -152,8 +149,8 @@ class OffenderUpdateServiceTest {
         given(offenderRepository.save(offenderEntity)).willReturn(offenderEntity.withId(1L));
 
         var offender = offenderUpdateService.updateDefendantOffender(DEFENDANT_ID, offenderEntity).block();
-        assertThat(offender).isEqualTo(DefendantOffender.builder().crn(CRN).breach(false).suspendedSentenceOrder(false)
-                .preSentenceActivity(false).build());
+        assertThat(offender).isEqualTo(OffenderEntity.builder().crn(CRN).breach(false).suspendedSentenceOrder(false)
+                .preSentenceActivity(false).id(1L).build());
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(offenderRepository).findByCrn(CRN);
         verify(offenderRepository).save(offenderEntity);
@@ -179,9 +176,9 @@ class OffenderUpdateServiceTest {
 
         var offender = offenderUpdateService.updateDefendantOffender(DEFENDANT_ID, offenderUpdate).block();
 
-        assertThat(offender).isEqualTo(DefendantOffender.builder().crn(CRN).suspendedSentenceOrder(true)
+        assertThat(offender).isEqualTo(OffenderEntity.builder().crn(CRN).suspendedSentenceOrder(true)
                 .preSentenceActivity(true).breach(false)
-                .probationStatus(CURRENT.name()).build());
+                .probationStatus(CURRENT).build());
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(offenderRepository).findByCrn(CRN);
         verify(offenderRepository).save(offenderUpdate);
@@ -209,9 +206,9 @@ class OffenderUpdateServiceTest {
 
         var offender = offenderUpdateService.updateDefendantOffender(DEFENDANT_ID, offenderUpdate).block();
 
-        assertThat(offender).isEqualTo(DefendantOffender.builder().crn(NEW_CRN).suspendedSentenceOrder(true)
+        assertThat(offender).isEqualTo(OffenderEntity.builder().crn(NEW_CRN).suspendedSentenceOrder(true)
                 .preSentenceActivity(true).breach(false)
-                .probationStatus(CURRENT.name()).build());
+                .probationStatus(CURRENT).build());
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(offenderRepository).findByCrn(NEW_CRN);
         verify(offenderRepository).save(offenderUpdate);

@@ -14,7 +14,7 @@ class DefendantOffenderTest {
     void shouldMapToEntityCorrectly() {
         LocalDate now = LocalDate.now();
         final var actual = DefendantOffender.builder()
-                .probationStatus("CURRENT")
+                .probationStatus(CURRENT)
                 .preSentenceActivity(true)
                 .suspendedSentenceOrder(true)
                 .breach(true)
@@ -50,7 +50,7 @@ class DefendantOffenderTest {
 
         assertThat(DefendantOffender.of(actual)).isEqualTo(
                 DefendantOffender.builder()
-                        .probationStatus("CURRENT")
+                        .probationStatus(CURRENT)
                         .preSentenceActivity(true)
                         .suspendedSentenceOrder(true)
                         .breach(true)

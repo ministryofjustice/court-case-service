@@ -153,8 +153,8 @@ public class CourtCaseController {
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     Mono<DefendantOffender> updateOffenderByDefendantId(@PathVariable(value = "defendantId") String defendantId,
-        @Valid @RequestBody DefendantOffender defendant) {
-       return offenderUpdateService.updateDefendantOffender(defendantId, defendant.asEntity());
+        @Valid @RequestBody DefendantOffender defendantOffender) {
+       return offenderUpdateService.updateDefendantOffender(defendantId, defendantOffender.asEntity()).map(DefendantOffender::of);
     }
 
     @Operation(description = "Removes defendant offender association by defendant id.")
@@ -169,7 +169,7 @@ public class CourtCaseController {
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     Mono<DefendantOffender> getOffenderByDefendantId(@PathVariable(value = "defendantId") String defendantId) {
-       return offenderUpdateService.getDefendantOffenderByDefendantId(defendantId);
+       return offenderUpdateService.getDefendantOffenderByDefendantId(defendantId).map(DefendantOffender::of);
     }
 
     @Operation(summary = "Gets case data for a court on a date. ",

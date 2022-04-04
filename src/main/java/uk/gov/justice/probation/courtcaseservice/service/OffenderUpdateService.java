@@ -7,7 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
@@ -39,32 +38,31 @@ public class OffenderUpdateService {
         }
     }
 
-    public Mono<DefendantOffender> getDefendantOffenderByDefendantId(final String defendantId) {
+    public Mono<OffenderEntity> getDefendantOffenderByDefendantId(final String defendantId) {
 
         final var defendant = findDefendantOrElseThrow(defendantId);
 
-        final var offender =  StringUtils.isEmpty(defendant.getCrn()) ? DefendantOffender.builder().build() :
-                offenderRepository.findByCrn(defendant.getCrn()).map(DefendantOffender::of).orElse(DefendantOffender.builder().build());
+        final var offenderEntity =  StringUtils.isEmpty(defendant.getCrn()) ? OffenderEntity.builder().build() :
+                offenderRepository.findByCrn(defendant.getCrn()).orElse(OffenderEntity.builder().build());
 
-        return Mono.just(offender);
+        return Mono.just(offenderEntity);
     }
 
     @Transactional
-    public Mono<DefendantOffender> updateDefendantOffender(final String defendantId, OffenderEntity offenderUpdate) {
+    public Mono<OffenderEntity> updateDefendantOffender(final String defendantId, OffenderEntity offenderUpdate) {
 
         final var defendant = findDefendantOrElseThrow(defendantId);
 
         final var dbOffender = offenderRepository.findByCrn(offenderUpdate.getCrn());
 
-        final var offenderToUpdate = dbOffender.map(oe -> {
-            oe.setProbationStatus(offenderUpdate.getProbationStatus());
-            oe.setPreviouslyKnownTerminationDate(offenderUpdate.getPreviouslyKnownTerminationDate());
-            oe.setSuspendedSentenceOrder(offenderUpdate.isSuspendedSentenceOrder());
-            oe.setBreach(offenderUpdate.isBreach());
-            oe.setPreSentenceActivity(offenderUpdate.isPreSentenceActivity());
-            oe.setAwaitingPsr(offenderUpdate.getAwaitingPsr());
-            return oe;
-        }).orElse(offenderUpdate);
+        final var offenderToUpdate = dbOffender.map(oe ->
+            oe.withProbationStatus(offenderUpdate.getProbationStatus())
+                .withPreviouslyKnownTerminationDate(offenderUpdate.getPreviouslyKnownTerminationDate())
+                .withSuspendedSentenceOrder(offenderUpdate.isSuspendedSentenceOrder())
+                .withBreach(offenderUpdate.isBreach())
+                .withPreSentenceActivity(offenderUpdate.isPreSentenceActivity())
+                .withAwaitingPsr(offenderUpdate.getAwaitingPsr()))
+            .orElse(offenderUpdate);
 
         final var updatedOffender = offenderRepository.save(offenderToUpdate);
 
@@ -73,7 +71,7 @@ public class OffenderUpdateService {
             defendantRepository.save(updatedDefendant);
         }
 
-        return Mono.just(DefendantOffender.of(updatedOffender));
+        return Mono.just(updatedOffender);
     }
 
     private DefendantEntity findDefendantOrElseThrow(String defendantId) {

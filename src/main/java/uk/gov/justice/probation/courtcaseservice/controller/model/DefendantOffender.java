@@ -20,7 +20,7 @@ import java.util.Optional;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DefendantOffender {
-    private final String probationStatus;
+    private final OffenderProbationStatus probationStatus;
     @NotBlank
     private final String crn;
     private final LocalDate previouslyKnownTerminationDate;
@@ -32,7 +32,7 @@ public class DefendantOffender {
     public OffenderEntity asEntity() {
         return OffenderEntity.builder()
                 .crn(crn)
-                .probationStatus(OffenderProbationStatus.of(probationStatus))
+                .probationStatus(probationStatus)
                 .previouslyKnownTerminationDate(previouslyKnownTerminationDate)
                 .awaitingPsr(awaitingPsr)
                 .breach(Optional.ofNullable(breach).orElse(false))
@@ -45,7 +45,7 @@ public class DefendantOffender {
 
         return DefendantOffender.builder()
                 .crn(offenderEntity.getCrn())
-                .probationStatus(Optional.ofNullable(offenderEntity.getProbationStatus()).map(OffenderProbationStatus::getName).orElse(null))
+                .probationStatus(offenderEntity.getProbationStatus())
                 .previouslyKnownTerminationDate(offenderEntity.getPreviouslyKnownTerminationDate())
                 .awaitingPsr(offenderEntity.getAwaitingPsr())
                 .breach(offenderEntity.isBreach())

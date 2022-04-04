@@ -135,6 +135,15 @@ public class CourtCaseController {
         return ExtendedCourtCaseRequestResponse.of(courtCase);
     }
 
+    @Operation(description = "Returns extended court case data, by hearing id.")
+    @GetMapping(value = "/hearing/{hearingId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    ExtendedCourtCaseRequestResponse getCourtCaseByHearingId(@PathVariable(value = "hearingId") String hearingId) {
+        final var courtCase = courtCaseService.getHearingByHearingId(hearingId);
+        return ExtendedCourtCaseRequestResponse.of(courtCase);
+    }
+
     @Operation(description = "Saves and returns the court case data, by case id.")
 //    @ApiResponses(
 //        value = {

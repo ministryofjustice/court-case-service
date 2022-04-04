@@ -839,4 +839,41 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             ;
         }
     }
+
+    @Nested
+    class GetCaseByHearingId {
+
+        @Test
+        void givenExistingHearingId_whenGetCaseByHearingId_thenReturnIntTest() {
+
+            given()
+                .auth()
+                .oauth2(getToken())
+            .when()
+                .header("Accept", "application/json")
+                .get("/hearing/{hearingId}", "1f93aa0a-7e46-4885-a1cb-f25a4be33a00")
+            .then()
+                .statusCode(200)
+                .body("source", equalTo("LIBRA"))
+                .body("caseNo", equalTo("1600028913"))
+                .body("caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
+                .body("hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
+                .body("defendants", hasSize(1))
+                .body("defendants[0].type", equalTo("PERSON"))
+                .body("defendants[0].phoneNumber.mobile", equalTo("07000000007"))
+                .body("defendants[0].phoneNumber.home", equalTo("07000000013"))
+                .body("defendants[0].phoneNumber.work", equalTo("07000000015"))
+                .body("defendants[0].name.title", equalTo("Mr"))
+                .body("defendants[0].name.forename1", equalTo("Johnny"))
+                .body("defendants[0].name.surname", equalTo("BALL"))
+                .body("defendants[0].offences", hasSize(2))
+                .body("defendants[0].offences[0].offenceTitle", equalTo("Theft from a shop"))
+                .body("defendants[0].offences[0].listNo", equalTo(10))
+                .body("hearingDays", hasSize(1))
+                .body("hearingDays[0].courtCode", equalTo(COURT_CODE))
+                .body("hearingDays[0].courtRoom", equalTo(COURT_ROOM))
+                .body("hearingDays[0].listNo", equalTo("3rd"))
+                .body("hearingDays[0].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(9, 0)).format(DateTimeFormatter.ISO_DATE_TIME)));
+        }
+    }
 }

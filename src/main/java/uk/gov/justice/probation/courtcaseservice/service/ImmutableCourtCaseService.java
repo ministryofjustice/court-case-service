@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.service;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.retry.annotation.Retryable;
@@ -60,22 +61,20 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     public Mono<HearingEntity> createHearing(String caseId, HearingEntity updatedHearing) throws EntityNotFoundException, InputMismatchException {
         validateEntity(caseId, updatedHearing);
 
-        hearingRepository.findFirstByHearingIdOrderByIdDesc(Optional.ofNullable(updatedHearing.getHearingId()).orElse(caseId))
-                .ifPresentOrElse(
-                        existingHearing -> {
-                            updatedHearing.getHearingDefendants()
-                                    .stream().map(HearingDefendantEntity::getDefendant)
-                                    .forEach(defendantEntity -> updateOffenderMatches(existingHearing, updatedHearing, defendantEntity.getDefendantId()));
-                            trackUpdateEvents(existingHearing, updatedHearing);
-                        },
-                        () -> trackCreateEvents(updatedHearing));
+        return createHearingInternal(Optional.ofNullable(updatedHearing.getHearingId()).orElse(caseId), updatedHearing);
+    }
 
-        return Mono.just(updatedHearing)
-                .map(hearingEntity -> {
-                    log.debug("Saving case ID {}", caseId);
-                    enforceValidHearingId(hearingEntity);
-                    return hearingRepository.save(hearingEntity);
-                });
+    @Override
+    @Retryable(value = CannotAcquireLockException.class)
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public Mono<HearingEntity> createHearingByHearingId(String hearingId, HearingEntity updatedHearing) throws EntityNotFoundException, InputMismatchException {
+        validateCourtCode(updatedHearing);
+        if (!StringUtils.equals(hearingId, updatedHearing.getHearingId())) {
+            throw new ConflictingInputException(String.format("Hearing Id %s does not match with value from body %s",
+                hearingId, updatedHearing.getHearingId()));
+        }
+
+        return createHearingInternal(hearingId, updatedHearing);
     }
 
     @Override
@@ -157,6 +156,25 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     }
 
+    private Mono<HearingEntity> createHearingInternal(String hearingId, HearingEntity updatedHearing) {
+        hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
+            .ifPresentOrElse(
+                existingHearing -> {
+                    updatedHearing.getHearingDefendants()
+                        .stream().map(HearingDefendantEntity::getDefendant)
+                        .forEach(defendantEntity -> updateOffenderMatches(existingHearing, updatedHearing, defendantEntity.getDefendantId()));
+                    trackUpdateEvents(existingHearing, updatedHearing);
+                },
+                () -> trackCreateEvents(updatedHearing));
+
+        return Mono.just(updatedHearing)
+            .map(hearingEntity -> {
+                log.debug("Saving case ID {}", hearingId);
+                enforceValidHearingId(hearingEntity);
+                return hearingRepository.save(hearingEntity);
+            });
+    }
+
     private void trackCreateEvents(HearingEntity createdCase) {
         telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_CREATED, createdCase);
         Optional.ofNullable(createdCase.getHearingDefendants()).orElse(Collections.emptyList())
@@ -187,11 +205,15 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     private void validateEntity(String caseId, HearingEntity updatedCase) {
+        validateCourtCode(updatedCase);
+        checkEntityCaseIdAgree(caseId, updatedCase);
+    }
+
+    private void validateCourtCode(HearingEntity updatedCase) {
         updatedCase.getHearingDays()
                 .stream()
                 .map(HearingDayEntity::getCourtCode)
                 .forEach(courtCode -> checkCourtExists(courtCode, true));
-        checkEntityCaseIdAgree(caseId, updatedCase);
     }
 
     private void validateEntityByDefendantId(String caseId, String defendantId, HearingEntity updatedCase) {

@@ -30,7 +30,7 @@ project.targetCompatibility = JavaVersion.VERSION_16
 group = 'uk.gov.justice.probation'
 
 ext {
-    restAssuredVersion = '5.0.0'
+    restAssuredVersion = '5.0.1'
     pactVersion = '4.3.6'
 }
 

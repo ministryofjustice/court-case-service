@@ -62,11 +62,16 @@ public class HearingRepositoryFacade {
     /**
      * @deprecated Strictly speaking this finds by hearingId which equals caseId only for a subset of cases created
      * before hearingId was fully rolled out. Using it after this point will produce unexpected results.To be removed
-     * as part of PIC-2062.
+     * as part of PIC-2062. Use @findByHearingIdAndDefendantId instead.
      */
     public Optional<HearingEntity> findByCaseIdAndDefendantId(String caseId, String defendantId) {
 
-        return hearingRepository.findByHearingId(caseId)
+        return findByHearingIdAndDefendantId(caseId, defendantId);
+    }
+
+    public Optional<HearingEntity> findByHearingIdAndDefendantId(String hearingId, String defendantId) {
+
+        return hearingRepository.findByHearingId(hearingId)
                 .map(hearingEntity -> findDefendant(hearingEntity, defendantId).isPresent() ? updateWithDefendants(hearingEntity) : null);
     }
 

@@ -129,9 +129,27 @@ class CourtCaseControllerTest {
     void getCourtCaseByCaseIdAndDefendantId_shouldReturnCourtCaseResponseNoCaseNo() {
 
         when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(2));
-        when(courtCaseService.getHearingByHearingIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(hearingEntity);
+        when(courtCaseService.getHearingByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(hearingEntity);
 
         var courtCase = courtCaseController.getCourtCaseByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
+        assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(courtCase.getCaseNo()).isNull();
+        assertThat(courtCase.getSessionStartTime()).isNotNull();
+        assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(2);
+        assertThat(courtCase.getSession()).isSameAs(session);
+
+        verify(courtCaseService).getHearingByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
+        verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
+        verifyNoMoreInteractions(courtCaseService, offenderMatchService);
+    }
+
+    @Test
+    void getCourtCaseByHearingIdAndDefendantId_shouldReturnCourtCaseResponseNoCaseNo() {
+
+        when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(2));
+        when(courtCaseService.getHearingByHearingIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(hearingEntity);
+
+        var courtCase = courtCaseController.getCourtCaseByHearingIdAndDefendantId(CASE_ID, DEFENDANT_ID);
         assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCase.getCaseNo()).isNull();
         assertThat(courtCase.getSessionStartTime()).isNotNull();

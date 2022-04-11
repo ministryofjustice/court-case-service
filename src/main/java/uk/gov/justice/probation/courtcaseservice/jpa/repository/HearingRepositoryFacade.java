@@ -106,17 +106,23 @@ public class HearingRepositoryFacade {
                             .orElse(null)));
         });
 
-        final var defendantEntities = hearingEntity.getHearingDefendants()
+        final var changedDefendantEntities = hearingEntity.getHearingDefendants()
                 .stream()
                 .map(HearingDefendantEntity::getDefendant)
+                .filter(existingDefendant -> defendantRepository.findFirstByDefendantIdOrderByIdDesc(existingDefendant.getDefendantId())
+                        .map(existing -> !existing.equals(existingDefendant))
+                        .orElse(true))
                 .collect(Collectors.toList());
-        final var offenderEntities = defendantEntities.stream()
+        final var changedOffenderEntities = changedDefendantEntities.stream()
                 .map(DefendantEntity::getOffender)
                 .filter(Objects::nonNull)
+                .filter(offenderEntity -> offenderRepository.findByCrn(offenderEntity.getCrn())
+                        .map(existing -> !existing.equals(offenderEntity))
+                        .orElse(true))
                 .collect(Collectors.toList());
 
-        offenderRepository.saveAll(offenderEntities);
-        defendantRepository.saveAll(defendantEntities);
+        offenderRepository.saveAll(changedOffenderEntities);
+        defendantRepository.saveAll(changedDefendantEntities);
         return hearingRepository.save(hearingEntity);
     }
 

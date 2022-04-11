@@ -246,12 +246,13 @@ class HearingRepositoryFacadeTest {
     }
 
     @Test
-    void whenSave_thenSaveHearing_Case_Offender_AndDefendant() {
-        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER));
+    void whenSave_thenSaveHearing_Offender_AndDefendant() {
+        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)));
+        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
 
         facade.save(HEARING);
 
-        verify(offenderRepository).findByCrn(CRN);
+        verify(offenderRepository, times(2)).findByCrn(CRN);
         verify(offenderRepository).saveAll(List.of(OFFENDER));
         verify(defendantRepository).saveAll(List.of(DEFENDANT));
         verify(hearingRepository).save(HEARING);
@@ -259,14 +260,31 @@ class HearingRepositoryFacadeTest {
     }
 
     @Test
-    void whenSaveHearingWithMultipleDefendants_thenSaveHearing_Case_AllOffenders_AndAllDefendants() {
+    void whenSave_andOffenderAndDefendantUnchanged_thenSaveHearing_Only() {
         when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER));
-        when(offenderRepository.findByCrn(CRN_2)).thenReturn(Optional.of(OFFENDER_2));
+        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
+
+        facade.save(HEARING);
+
+        verify(offenderRepository).findByCrn(CRN);
+        verify(offenderRepository).saveAll(List.of());
+        verify(defendantRepository).saveAll(List.of());
+        verify(hearingRepository).save(HEARING);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository);
+    }
+
+    @Test
+    void whenSaveHearingWithMultipleDefendants_thenSaveHearing_Case_AllOffenders_AndAllDefendants() {
+
+        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)));
+        when(offenderRepository.findByCrn(CRN_2)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED).withCrn(CRN_2)));
+        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
+        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
 
         facade.save(HEARING_WITH_MULTIPLE_DEFENDANTS);
 
-        verify(offenderRepository).findByCrn(CRN);
-        verify(offenderRepository).findByCrn(CRN_2);
+        verify(offenderRepository, times(2)).findByCrn(CRN);
+        verify(offenderRepository, times(2)).findByCrn(CRN_2);
         verify(offenderRepository).saveAll(List.of(OFFENDER_2, OFFENDER));
         verify(defendantRepository).saveAll(List.of(DEFENDANT_2, DEFENDANT));
         verify(hearingRepository).save(HEARING_WITH_MULTIPLE_DEFENDANTS);

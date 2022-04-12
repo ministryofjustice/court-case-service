@@ -30,7 +30,7 @@ import java.time.LocalDate;
 @With
 @Setter
 @Getter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+@EqualsAndHashCode(callSuper = false)
 @ToString
 public class OffenderEntity extends BaseEntity implements Serializable {
 
@@ -40,7 +40,6 @@ public class OffenderEntity extends BaseEntity implements Serializable {
     @JsonIgnore
     private Long id;
 
-    @EqualsAndHashCode.Include
     @Column(name = "CRN", unique = true, nullable = false, updatable = false)
     private String crn;
 

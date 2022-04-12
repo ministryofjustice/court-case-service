@@ -507,6 +507,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
     class GetCaseByHearingIdAndDefendantId {
         private static final String PATH = "/hearing/{hearingId}/defendant/{defendantId}";
         private static final String CASE_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
+        private static final String HEARING_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
 
         @Test
         void givenKnownCaseIdWithNoOffender_whenGetCase_thenReturn() {
@@ -570,22 +571,24 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
         }
 
         @Test
-        void givenKnownCaseIdWithOffender_whenGetCase_thenReturn() {
+        void givenKnownHearingIdWithOffender_whenGetHearing_thenReturn() {
 
+            var hearingId = "683bcde4-611f-4487-9833-f68090507b74";
+            var defendantId = "005ae89b-46e9-4fa5-bb5e-d117011cab32";
             var response = given()
                 .given()
                 .auth()
                 .oauth2(getToken())
                 .when()
                 .header("Accept", "application/json")
-                .get(PATH, "683bcde4-611f-4487-9833-f68090507b74", "005ae89b-46e9-4fa5-bb5e-d117011cab32")
+                .get(PATH, hearingId, defendantId)
                 .then()
                 .statusCode(200);
 
             response
                 .body("caseId", equalTo("683bcde4-611f-4487-9833-f68090507b74"))
-                .body("hearingId", equalTo(HEARING_ID))
-                .body("defendantId", equalTo("005ae89b-46e9-4fa5-bb5e-d117011cab32"))
+                .body("hearingId", equalTo(hearingId))
+                .body("defendantId", equalTo(defendantId))
                 .body("phoneNumber.mobile", equalTo("07000000008"))
                 .body("phoneNumber.home", equalTo("07000000013"))
                 .body("phoneNumber.work", equalTo("07000000015"))
@@ -600,9 +603,9 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
         }
 
         @Test
-        void givenUnknownCaseId_whenGetCase_thenReturn404() {
+        void givenUnknownHearingId_whenGetCase_thenReturn404() {
 
-            final var NOT_FOUND_CASE_ID = "1f93bbcc-7e46-4885-a1cb-f25a4be33a56";
+            final var NOT_FOUND_HEARING_ID = "1f93bbcc-7e46-4885-a1cb-f25a4be33a56";
 
             ErrorResponse result = given()
                 .given()
@@ -610,20 +613,20 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .oauth2(getToken())
                 .when()
                 .header("Accept", "application/json")
-                .get(PATH, NOT_FOUND_CASE_ID, DEFENDANT_ID)
+                .get(PATH, NOT_FOUND_HEARING_ID, DEFENDANT_ID)
                 .then()
                 .statusCode(404)
                 .extract()
                 .body()
                 .as(ErrorResponse.class);
 
-            assertThat(result.getDeveloperMessage()).contains("Case " + NOT_FOUND_CASE_ID + " not found");
-            assertThat(result.getUserMessage()).contains("Case " + NOT_FOUND_CASE_ID + " not found");
+            assertThat(result.getDeveloperMessage()).contains("Hearing " + NOT_FOUND_HEARING_ID + " not found");
+            assertThat(result.getUserMessage()).contains("Hearing " + NOT_FOUND_HEARING_ID + " not found");
             assertThat(result.getStatus()).isEqualTo(404);
         }
 
         @Test
-        void givenUnknownDefendantId_whenGetCase_thenReturn404() {
+        void givenUnknownDefendantId_whenGetHearingByDefendant_thenReturn404() {
 
             final var NOT_FOUND_DEFENDANT_ID = "2f934532-7e46-4885-a1cb-f25a4be33a56";
 
@@ -640,15 +643,15 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body()
                 .as(ErrorResponse.class);
 
-            assertThat(result.getDeveloperMessage()).contains("Case " + CASE_ID + " not found for defendant " + NOT_FOUND_DEFENDANT_ID);
-            assertThat(result.getUserMessage()).contains("Case " + CASE_ID + " not found for defendant " + NOT_FOUND_DEFENDANT_ID);
+            assertThat(result.getDeveloperMessage()).contains("Hearing " + HEARING_ID + " not found for defendant " + NOT_FOUND_DEFENDANT_ID);
+            assertThat(result.getUserMessage()).contains("Hearing " + HEARING_ID + " not found for defendant " + NOT_FOUND_DEFENDANT_ID);
             assertThat(result.getStatus()).isEqualTo(404);
         }
 
         @Test
-        void shouldReturnNotFoundForDeletedCase() {
+        void shouldReturnNotFoundForDeletedHearing() {
 
-            final var DELETED_CASE_ID = "5555559";
+            final var DELETED_HEARING_ID = "1b6cf731-1892-4b9e-abc3-7fab87a39c21";
 
             ErrorResponse result = given()
                 .given()
@@ -656,15 +659,15 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .oauth2(getToken())
                 .when()
                 .header("Accept", "application/json")
-                .get(PATH, DELETED_CASE_ID, DEFENDANT_ID)
+                .get(PATH, DELETED_HEARING_ID, DEFENDANT_ID)
                 .then()
                 .statusCode(404)
                 .extract()
                 .body()
                 .as(ErrorResponse.class);
 
-            assertThat(result.getDeveloperMessage()).contains("Case " + DELETED_CASE_ID + " not found");
-            assertThat(result.getUserMessage()).contains("Case " + DELETED_CASE_ID + " not found");
+            assertThat(result.getDeveloperMessage()).contains("Hearing 1b6cf731-1892-4b9e-abc3-7fab87a39c21 not found for defendant 40db17d6-04db-11ec-b2d8-0242ac130002");
+            assertThat(result.getUserMessage()).contains("Hearing 1b6cf731-1892-4b9e-abc3-7fab87a39c21 not found for defendant 40db17d6-04db-11ec-b2d8-0242ac130002");
             assertThat(result.getStatus()).isEqualTo(404);
         }
 

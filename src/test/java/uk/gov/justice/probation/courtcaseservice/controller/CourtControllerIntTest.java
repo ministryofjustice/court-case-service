@@ -79,7 +79,7 @@ class CourtControllerIntTest extends BaseIntTest {
             .then()
             .assertThat()
             .statusCode(200)
-            .body("courts", hasSize(5))
+            .body("courts", hasSize(6))
             .body("courts[0].code", equalTo("B63AD"))
             .body("courts[0].name", equalTo("Aberystwyth"))
             .body("courts[1].code", equalTo("B33HU"))
@@ -88,8 +88,10 @@ class CourtControllerIntTest extends BaseIntTest {
             .body("courts[2].name", equalTo("New New York"))
             .body("courts[3].code", equalTo("B10JQ"))
             .body("courts[3].name", equalTo("North Shields"))
-            .body("courts[4].code", equalTo("B14LO"))
-            .body("courts[4].name", equalTo("Sheffield"))
+            .body("courts[4].code", equalTo("C10JQ"))
+            .body("courts[4].name", equalTo("Old New York"))
+            .body("courts[5].code", equalTo("B14LO"))
+            .body("courts[5].name", equalTo("Sheffield"))
         ;
     }
 }

@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -77,6 +78,8 @@ class HearingRepositoryFacadeTest {
     private HearingRepository hearingRepository;
     @Mock
     private OffenderRepository offenderRepository;
+    @Mock
+    private OffenderRepositoryFacade offenderRepositoryFacade;
     @Mock
     private DefendantRepository defendantRepository;
 
@@ -286,6 +289,7 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void whenSave_thenSaveHearing_Offender_AndDefendant() {
+        when(offenderRepositoryFacade.updateOffenderIfItExists(OFFENDER)).thenReturn(OFFENDER);
         when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)))
                                                 // This must return 2 separate but identical objects on both calls as they
                                                 // are mutated by the save() method
@@ -294,7 +298,8 @@ class HearingRepositoryFacadeTest {
 
         facade.save(HEARING);
 
-        verify(offenderRepository, times(2)).findByCrn(CRN);
+        verify(offenderRepositoryFacade).updateOffenderIfItExists(any(OffenderEntity.class));
+        verify(offenderRepository).findByCrn(CRN);
         verify(offenderRepository).saveAll(List.of(OFFENDER));
         verify(defendantRepository).saveAll(List.of(DEFENDANT));
         verify(hearingRepository).save(HEARING);
@@ -303,12 +308,12 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void whenSave_andOffenderAndDefendantUnchanged_thenSaveHearing_Only() {
-        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER));
+        when(offenderRepositoryFacade.updateOffenderIfItExists(OFFENDER)).thenReturn(OFFENDER);
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
 
         facade.save(HEARING);
 
-        verify(offenderRepository).findByCrn(CRN);
+        verify(offenderRepositoryFacade).updateOffenderIfItExists(OFFENDER);
         verify(offenderRepository).saveAll(List.of());
         verify(defendantRepository).saveAll(List.of());
         verify(hearingRepository).save(HEARING);
@@ -317,21 +322,22 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void whenSaveHearingWithMultipleDefendants_thenSaveHearing_Case_AllOffenders_AndAllDefendants() {
+        when(offenderRepositoryFacade.updateOffenderIfItExists(OFFENDER)).thenReturn(OFFENDER.withCrn(CRN));
+        when(offenderRepositoryFacade.updateOffenderIfItExists(OFFENDER_2)).thenReturn(OFFENDER_2.withCrn(CRN_2));
 
-        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)))
-                                                // This must return 2 separate but identical objects on both calls as they
-                                                // are mutated by the save() method
-                                                .thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)));
-        when(offenderRepository.findByCrn(CRN_2)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED).withCrn(CRN_2)))
-                                                // See previous comment
-                                                .thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED).withCrn(CRN_2)));
+        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)));
+        when(offenderRepository.findByCrn(CRN_2)).thenReturn(Optional.of(OFFENDER_2.withProbationStatus(NOT_SENTENCED)));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
 
         facade.save(HEARING_WITH_MULTIPLE_DEFENDANTS);
 
-        verify(offenderRepository, times(2)).findByCrn(CRN);
-        verify(offenderRepository, times(2)).findByCrn(CRN_2);
+        verify(offenderRepositoryFacade, times(2)).updateOffenderIfItExists(any(OffenderEntity.class));
+        verify(offenderRepositoryFacade).updateOffenderIfItExists(OFFENDER);
+        verify(offenderRepositoryFacade).updateOffenderIfItExists(OFFENDER_2);
+        verify(offenderRepository).findByCrn(CRN);
+        verify(offenderRepository).findByCrn(CRN);
+        verify(offenderRepository).findByCrn(CRN_2);
         verify(offenderRepository).saveAll(List.of(OFFENDER_2, OFFENDER));
         verify(defendantRepository).saveAll(List.of(DEFENDANT_2, DEFENDANT));
         verify(hearingRepository).save(HEARING_WITH_MULTIPLE_DEFENDANTS);
@@ -340,18 +346,21 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void whenSaveHearingWithOffenders_thenPassCompleteDataToHearingRepository() {
-        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER.withId(1L)));
 
         final var date = LocalDate.of(2022, 3, 16);
+        OffenderEntity updatedOffender = OFFENDER
+            .withBreach(true)
+            .withAwaitingPsr(true)
+            .withProbationStatus(NOT_SENTENCED)
+            .withPreviouslyKnownTerminationDate(date)
+            .withSuspendedSentenceOrder(true)
+            .withPreSentenceActivity(true);
+
+        when(offenderRepositoryFacade.updateOffenderIfItExists(updatedOffender)).thenReturn(updatedOffender.withId(1L));
+
         final var updatedHearing = HEARING.withHearingDefendants(List.of(HearingDefendantEntity.builder()
                 .defendantId(DEFENDANT_ID)
-                .defendant(DEFENDANT.withOffender(OFFENDER
-                        .withBreach(true)
-                        .withAwaitingPsr(true)
-                        .withProbationStatus(NOT_SENTENCED)
-                        .withPreviouslyKnownTerminationDate(date)
-                        .withSuspendedSentenceOrder(true)
-                        .withPreSentenceActivity(true)
+                .defendant(DEFENDANT.withOffender(updatedOffender
                 ))
                 .build()));
         facade.save(updatedHearing);

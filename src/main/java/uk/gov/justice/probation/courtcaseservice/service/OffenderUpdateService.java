@@ -14,6 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderReposito
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
 import javax.transaction.Transactional;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -41,11 +42,13 @@ public class OffenderUpdateService {
     public Mono<OffenderEntity> getDefendantOffenderByDefendantId(final String defendantId) {
 
         final var defendant = findDefendantOrElseThrow(defendantId);
+        Optional<OffenderEntity> offenderEntity = StringUtils.isEmpty(defendant.getCrn()) ? Optional.empty() :
+            offenderRepository.findByCrn(defendant.getCrn());
 
-        final var offenderEntity =  StringUtils.isEmpty(defendant.getCrn()) ? OffenderEntity.builder().build() :
-                offenderRepository.findByCrn(defendant.getCrn()).orElse(OffenderEntity.builder().build());
-
-        return Mono.just(offenderEntity);
+        if(offenderEntity.isEmpty()) {
+            throw new EntityNotFoundException("Offender details not found for defendant %s", defendantId);
+        }
+        return Mono.just(offenderEntity.get());
     }
 
     @Transactional

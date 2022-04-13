@@ -425,6 +425,14 @@ INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, nam
 VALUES (-4000001, '81adf9ee-76ab-42cc-998d-fb6ae80a4cc9', 'Mr Tom CRUISE', '{"title": "Mr", "surname": "CRUISE", "forename1": "Tom"}', 'PERSON', 'DX12345', 'MALE', NOW() - INTERVAL '3 day');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
 VALUES (-4000001, 4000000, '81adf9ee-76ab-42cc-998d-fb6ae80a4cc9');
+INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, name, type, sex, created)
+VALUES (-4000002, '03d0c6a4-b00f-499b-bbb6-1fa80b1d7cf4', 'Mr Tom CRUISE', '{"title": "Mr", "surname": "CRUISE", "forename1": "Tom"}', 'PERSON', 'MALE', NOW() - INTERVAL '3 day');
+INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
+VALUES (-4000004, 4000000, '03d0c6a4-b00f-499b-bbb6-1fa80b1d7cf4');
+INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, name, type, crn, sex, created)
+VALUES (-4000003, '7420ce9b-8d56-4019-9e68-81a17f54327e', 'Mr Tom CRUISE', '{"title": "Mr", "surname": "CRUISE", "forename1": "Tom"}', 'PERSON', 'XXXXXXXX', 'MALE', NOW() - INTERVAL '3 day');
+INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
+VALUES (-4000005, 4000000, '7420ce9b-8d56-4019-9e68-81a17f54327e');
 
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, source_type, created)
 VALUES (4000001, 'ce84bb2d-e44a-4554-a1a8-795accaac4d8', 4000001, 'COMMON_PLATFORM', NOW() - INTERVAL '1 day');

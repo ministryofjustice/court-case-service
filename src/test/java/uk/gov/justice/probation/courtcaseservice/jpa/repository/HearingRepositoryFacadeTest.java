@@ -39,6 +39,7 @@ class HearingRepositoryFacadeTest {
     private static final String CRN = "12345";
     private static final OffenderEntity OFFENDER = OffenderEntity.builder()
             .crn(CRN)
+            .breach(true)
             .build();
     private static final DefendantEntity DEFENDANT = DefendantEntity.builder()
             .defendantId(DEFENDANT_ID)
@@ -285,7 +286,10 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void whenSave_thenSaveHearing_Offender_AndDefendant() {
-        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)));
+        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)))
+                                                // This must return 2 separate but identical objects on both calls as they
+                                                // are mutated by the save() method
+                                                .thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
 
         facade.save(HEARING);
@@ -314,8 +318,13 @@ class HearingRepositoryFacadeTest {
     @Test
     void whenSaveHearingWithMultipleDefendants_thenSaveHearing_Case_AllOffenders_AndAllDefendants() {
 
-        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)));
-        when(offenderRepository.findByCrn(CRN_2)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED).withCrn(CRN_2)));
+        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)))
+                                                // This must return 2 separate but identical objects on both calls as they
+                                                // are mutated by the save() method
+                                                .thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)));
+        when(offenderRepository.findByCrn(CRN_2)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED).withCrn(CRN_2)))
+                                                // See previous comment
+                                                .thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED).withCrn(CRN_2)));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
 

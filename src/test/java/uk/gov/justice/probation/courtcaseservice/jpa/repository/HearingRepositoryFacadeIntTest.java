@@ -5,18 +5,27 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.HEARING_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus.CURRENT;
 
 @Sql(scripts = {
@@ -95,7 +104,54 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
         final var hearingEntity = EntityHelper.aHearingEntity("b229b992-02d2-4393-affd-3878f2c7d61e");
         assertThat(hearingRepositoryFacade.save(hearingEntity)).isEqualTo(hearingEntity);
 
-        assertThat(hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(EntityHelper.HEARING_ID).orElseThrow())
+        assertThat(hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(HEARING_ID).orElseThrow())
+                .usingRecursiveComparison().ignoringFields("created")
+                .isEqualTo(hearingEntity);
+    }
+
+    @Test
+    public void givenAnExistingOffender_whenSave_thenPersistOffender() {
+
+        final var offenderEntity = OffenderEntity.builder()
+                .crn("X25829")
+                .awaitingPsr(false)
+                .preSentenceActivity(false)
+                .suspendedSentenceOrder(false)
+                .preSentenceActivity(false)
+                .previouslyKnownTerminationDate(null)
+                .build();
+
+        final var defendantEntity = DefendantEntity.builder()
+                .defendantId("d1eefed2-04df-11ec-b2d8-0242ac130002")
+                .defendantName("Ferris Bueller")
+                .name(NamePropertiesEntity.builder()
+                        .forename1("Ferris")
+                        .surname("Bueller")
+                        .build())
+                .type(DefendantType.PERSON)
+                .offender(offenderEntity)
+                .build();
+
+        final var hearingDefendantEntity = HearingDefendantEntity.builder()
+                .defendantId("d1eefed2-04df-11ec-b2d8-0242ac130002")
+                .defendant(defendantEntity)
+                .build();
+
+        final var hearingEntity = HearingEntity.builder()
+                .courtCase(CourtCaseEntity.builder()
+                        .caseId(CASE_ID)
+                        .build())
+                .hearingId(HEARING_ID)
+                .hearingDefendants(Collections.singletonList(
+                        hearingDefendantEntity
+                ))
+                .build();
+
+        hearingDefendantEntity.setHearing(hearingEntity);
+
+        assertThat(hearingRepositoryFacade.save(hearingEntity)).isEqualTo(hearingEntity);
+
+        assertThat(hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(HEARING_ID).orElseThrow())
                 .usingRecursiveComparison().ignoringFields("created")
                 .isEqualTo(hearingEntity);
     }

@@ -101,34 +101,44 @@ public class HearingRepositoryFacade {
         return hearingRepository.findLastModifiedByHearingDay(courtCode, hearingDay);
     }
 
-    @Transactional
     public HearingEntity save(HearingEntity hearingEntity) {
+        updateWithExistingEntities(hearingEntity);
+
+        final var changedDefendants = getChangedDefendants(hearingEntity);
+
+        offenderRepository.saveAll(getChangedOffenders(changedDefendants));
+        defendantRepository.saveAll(changedDefendants);
+        return hearingRepository.save(hearingEntity);
+    }
+
+    private void updateWithExistingEntities(HearingEntity hearingEntity) {
         hearingEntity.getHearingDefendants().forEach((HearingDefendantEntity hearingDefendantEntity) -> {
             hearingDefendantEntity.setDefendant(
                     hearingDefendantEntity.getDefendant()
-                    .withOffender(Optional.ofNullable(hearingDefendantEntity.getDefendant().getOffender())
-                            .map(this::updateOffenderIfItExists)
-                            .orElse(null)));
+                            .withOffender(Optional.ofNullable(hearingDefendantEntity.getDefendant().getOffender())
+                                    .map(this::updateOffenderIfItExists)
+                                    .orElse(null)));
         });
+    }
 
-        final var changedDefendantEntities = hearingEntity.getHearingDefendants()
-                .stream()
-                .map(HearingDefendantEntity::getDefendant)
-                .filter(existingDefendant -> defendantRepository.findFirstByDefendantIdOrderByIdDesc(existingDefendant.getDefendantId())
-                        .map(existing -> !existing.equals(existingDefendant))
-                        .orElse(true))
-                .collect(Collectors.toList());
-        final var changedOffenderEntities = changedDefendantEntities.stream()
+    private List<OffenderEntity> getChangedOffenders(List<DefendantEntity> changedDefendantEntities) {
+        return changedDefendantEntities.stream()
                 .map(DefendantEntity::getOffender)
                 .filter(Objects::nonNull)
                 .filter(offenderEntity -> offenderRepository.findByCrn(offenderEntity.getCrn())
                         .map(existing -> !existing.equals(offenderEntity))
                         .orElse(true))
                 .collect(Collectors.toList());
+    }
 
-        offenderRepository.saveAll(changedOffenderEntities);
-        defendantRepository.saveAll(changedDefendantEntities);
-        return hearingRepository.save(hearingEntity);
+    private List<DefendantEntity> getChangedDefendants(HearingEntity hearingEntity) {
+        return hearingEntity.getHearingDefendants()
+                .stream()
+                .map(HearingDefendantEntity::getDefendant)
+                .filter(existingDefendant -> defendantRepository.findFirstByDefendantIdOrderByIdDesc(existingDefendant.getDefendantId())
+                        .map(existing -> !existing.equals(existingDefendant))
+                        .orElse(true))
+                .collect(Collectors.toList());
     }
 
     private boolean canIgnoreCreatedDates(LocalDateTime createdAfter, LocalDateTime createdBefore) {
@@ -145,13 +155,18 @@ public class HearingRepositoryFacade {
 
     private OffenderEntity updateOffenderIfItExists(OffenderEntity updatedOffender) {
         return offenderRepository.findByCrn(updatedOffender.getCrn())
-                .map(existingOffender -> existingOffender
-                        .withBreach(updatedOffender.isBreach())
-                        .withAwaitingPsr(updatedOffender.getAwaitingPsr())
-                        .withProbationStatus(updatedOffender.getProbationStatus())
-                        .withPreviouslyKnownTerminationDate(updatedOffender.getPreviouslyKnownTerminationDate())
-                        .withSuspendedSentenceOrder(updatedOffender.isSuspendedSentenceOrder())
-                        .withPreSentenceActivity(updatedOffender.isPreSentenceActivity())
+                .map(existingOffender -> {
+                        // Implementation note: We're breaking immutability here because otherwise Hibernate will
+                        // encounter an exception 'Row was updated or deleted by another transaction (or unsaved-value
+                        // mapping was incorrect)' due a conflict between the existing record and the update.
+                        existingOffender.setBreach(updatedOffender.isBreach());
+                        existingOffender.setAwaitingPsr(updatedOffender.getAwaitingPsr());
+                        existingOffender.setProbationStatus(updatedOffender.getProbationStatus());
+                        existingOffender.setPreviouslyKnownTerminationDate(updatedOffender.getPreviouslyKnownTerminationDate());
+                        existingOffender.setSuspendedSentenceOrder(updatedOffender.isSuspendedSentenceOrder());
+                        existingOffender.setPreSentenceActivity(updatedOffender.isPreSentenceActivity());
+                        return existingOffender;
+                    }
                 )
                 .orElse(updatedOffender);
     }

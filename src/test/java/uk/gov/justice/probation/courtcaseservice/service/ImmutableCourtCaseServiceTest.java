@@ -571,7 +571,7 @@ class ImmutableCourtCaseServiceTest {
             final var courtCaseEntity = EntityHelper.aHearingEntityWithCrn(CRN);
             when(hearingRepositoryFacade.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(courtCaseEntity));
 
-            final var entity = service.getHearingByHearingIdAndDefendantId(CASE_ID, DEFENDANT_ID);
+            final var entity = service.getHearingByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
 
             assertThat(entity).isSameAs(courtCaseEntity);
             verify(hearingRepositoryFacade).findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
@@ -583,7 +583,7 @@ class ImmutableCourtCaseServiceTest {
             when(hearingRepositoryFacade.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.empty());
 
             var exception = catchThrowable(() ->
-                    service.getHearingByHearingIdAndDefendantId(CASE_ID, DEFENDANT_ID)
+                    service.getHearingByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)
             );
             assertThat(exception).isInstanceOf(EntityNotFoundException.class)
                     .hasMessageContaining("Case " + CASE_ID + " not found for defendant " + DEFENDANT_ID);

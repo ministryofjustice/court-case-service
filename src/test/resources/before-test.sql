@@ -436,3 +436,8 @@ INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_
 VALUES (-4000002, 4000001, '27457a3e-fc49-49d3-af22-bf980df4a805');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
 VALUES (-4000003, 4000001, '81adf9ee-76ab-42cc-998d-fb6ae80a4cc9');
+
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, deleted, source_type)
+VALUES (4000011, '1b6cf731-1892-4b9e-abc3-7fab87a39c21', 1111128919, '2020-10-01 16:59:59', false, 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
+VALUES (4000011, 4000011, '1b6cf731-1892-4b9e-abc3-7fab87a39c21', NOW() - INTERVAL '1 day');

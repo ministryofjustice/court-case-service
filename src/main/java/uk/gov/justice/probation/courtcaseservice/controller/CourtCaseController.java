@@ -72,7 +72,14 @@ public class CourtCaseController {
     @GetMapping(value = "/case/{caseId}/defendant/{defendantId}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCaseByCaseIdAndDefendantId(@PathVariable String caseId, @PathVariable String defendantId) {
-        return this.buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseService.getHearingByHearingIdAndDefendantId(caseId, defendantId), defendantId);
+        return this.buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseService.getHearingByCaseIdAndDefendantId(caseId, defendantId), defendantId);
+    }
+
+    @Operation(description = "Gets the court case data by hearing id and defendant id.")
+    @GetMapping(value = "/hearing/{hearingId}/defendant/{defendantId}", produces = APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    CourtCaseResponse getCourtCaseByHearingIdAndDefendantId(@PathVariable String hearingId, @PathVariable String defendantId) {
+        return this.buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseService.getHearingByHearingIdAndDefendantId(hearingId, defendantId), defendantId);
     }
 
     @Operation(description = "Gets the court case data by case number.")

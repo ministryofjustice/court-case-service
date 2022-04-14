@@ -137,7 +137,7 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void whenFindByCaseIdAndDefendantId_thenReturnAHearingWithDefendant() {
-        when(hearingRepository.findByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING));
+        when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(HEARING));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
 
         final var actual = facade.findByCaseIdAndDefendantId(HEARING_ID, DEFENDANT_ID);
@@ -147,7 +147,7 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void whenFindByHearingIdAndDefendantId_thenReturnAHearingWithDefendant() {
-        when(hearingRepository.findByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING));
+        when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(HEARING));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
 
         final var actual = facade.findByHearingIdAndDefendantId(HEARING_ID, DEFENDANT_ID);
@@ -157,7 +157,7 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void givenMultipleDefendants_whenFindByCaseIdAndDefendantId_thenReturnAHearingWithAllDefendants() {
-        when(hearingRepository.findByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
+        when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
 
@@ -169,7 +169,7 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void givenMultipleDefendants_whenFindByHearingIdAndDefendantId_thenReturnAHearingWithAllDefendants() {
-        when(hearingRepository.findByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
+        when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
 
@@ -181,14 +181,14 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void givenDefendantIdNotOnCase_whenFindByCaseIdAndDefendantId_thenReturnEmpty() {
-        when(hearingRepository.findByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING));
+        when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(HEARING));
 
         assertThat(facade.findByCaseIdAndDefendantId(HEARING_ID, "THE_WRONG_DEFENDANT_ID")).isEmpty();
     }
 
     @Test
     void givenDefendantIdNotOnCase_whenFindByHearingIdAndDefendantId_thenReturnEmpty() {
-        when(hearingRepository.findByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING));
+        when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(HEARING));
 
         assertThat(facade.findByHearingIdAndDefendantId(HEARING_ID, "THE_WRONG_DEFENDANT_ID")).isEmpty();
     }
@@ -196,7 +196,7 @@ class HearingRepositoryFacadeTest {
     @Test
     void givenDefendantOnCase_andDefendantDoesNotExist_whenFindByCaseIdAndDefendantId_thenThrowException() {
         HEARING.getHearingDefendant(DEFENDANT_ID).setHearing(HEARING);
-        when(hearingRepository.findByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING));
+        when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(HEARING));
 
         assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(() -> facade.findByCaseIdAndDefendantId(HEARING_ID, DEFENDANT_ID))
@@ -205,7 +205,7 @@ class HearingRepositoryFacadeTest {
     }    @Test
     void givenDefendantOnCase_andDefendantDoesNotExist_whenFindByHearingIdAndDefendantId_thenThrowException() {
         HEARING.getHearingDefendant(DEFENDANT_ID).setHearing(HEARING);
-        when(hearingRepository.findByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING));
+        when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(HEARING));
 
         assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(() -> facade.findByHearingIdAndDefendantId(HEARING_ID, DEFENDANT_ID))
@@ -214,7 +214,7 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void givenDefendantOnCase_andDefendantDoesNotExist_andHearingIdIsNotAvailable_whenFindByCaseIdAndDefendantId_thenThrowExceptionWithoutHearingIdAsFallback() {
-        when(hearingRepository.findByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING));
+        when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(HEARING));
 
         assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(() -> facade.findByCaseIdAndDefendantId(HEARING_ID, DEFENDANT_ID))

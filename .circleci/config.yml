@@ -197,12 +197,6 @@ jobs:
                --label "build.number=$CIRCLE_BUILD_NUM" \
                --label "build.url=$CIRCLE_BUILD_URL" \
                --label "build.gitref=$CIRCLE_SHA1"
-      - snyk/scan:
-          project: '${CIRCLE_PROJECT_REPONAME}-docker/${CIRCLE_BRANCH}'
-          docker-image-name: 'hmpps/<<parameters.app_name>>:$APP_VERSION'
-          target-file: '<<parameters.dockerfile_path>>/Dockerfile'
-          monitor-on-build: << parameters.main >>
-          <<: *snyk_options
       - when:
           condition: << parameters.main >>
           steps:

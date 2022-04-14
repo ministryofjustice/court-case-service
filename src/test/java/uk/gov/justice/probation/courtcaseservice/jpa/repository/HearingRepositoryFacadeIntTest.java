@@ -35,6 +35,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProba
 public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
     @Autowired
     private OffenderRepository offenderRepository;
+    private OffenderRepositoryFacade offenderRepositoryFacade;
     @Autowired
     private HearingRepository hearingRepository;
     @Autowired
@@ -44,7 +45,8 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
 
     @BeforeEach
     public void setUp() {
-        hearingRepositoryFacade = new HearingRepositoryFacade(offenderRepository, hearingRepository, defendantRepository);
+        offenderRepositoryFacade = new OffenderRepositoryFacade(offenderRepository);
+        hearingRepositoryFacade = new HearingRepositoryFacade(offenderRepository, offenderRepositoryFacade, hearingRepository, defendantRepository);
     }
 
     @Test

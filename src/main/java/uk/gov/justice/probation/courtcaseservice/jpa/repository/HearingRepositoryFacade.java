@@ -26,12 +26,14 @@ public class HearingRepositoryFacade {
     private static final int MIN_YEAR_SUPPORTED_BY_DB = -4712;
 
     private final OffenderRepository offenderRepository;
+    private final OffenderRepositoryFacade offenderRepositoryFacade;
     private final HearingRepository hearingRepository;
     private final DefendantRepository defendantRepository;
 
     @Autowired
-    public HearingRepositoryFacade(OffenderRepository offenderRepository, HearingRepository hearingRepository, DefendantRepository defendantRepository) {
+    public HearingRepositoryFacade(OffenderRepository offenderRepository, OffenderRepositoryFacade offenderRepositoryFacade, HearingRepository hearingRepository, DefendantRepository defendantRepository) {
         this.offenderRepository = offenderRepository;
+        this.offenderRepositoryFacade = offenderRepositoryFacade;
         this.hearingRepository = hearingRepository;
         this.defendantRepository = defendantRepository;
     }
@@ -116,7 +118,7 @@ public class HearingRepositoryFacade {
             hearingDefendantEntity.setDefendant(
                     hearingDefendantEntity.getDefendant()
                             .withOffender(Optional.ofNullable(hearingDefendantEntity.getDefendant().getOffender())
-                                    .map(this::updateOffenderIfItExists)
+                                    .map(offenderRepositoryFacade::updateOffenderIfItExists)
                                     .orElse(null)));
         });
     }
@@ -151,24 +153,6 @@ public class HearingRepositoryFacade {
                 .stream()
                 .filter(hearingDefendantEntity -> defendantId.equals(hearingDefendantEntity.getDefendantId()))
                 .findFirst();
-    }
-
-    private OffenderEntity updateOffenderIfItExists(OffenderEntity updatedOffender) {
-        return offenderRepository.findByCrn(updatedOffender.getCrn())
-                .map(existingOffender -> {
-                        // Implementation note: We're breaking immutability here because otherwise Hibernate will
-                        // encounter an exception 'Row was updated or deleted by another transaction (or unsaved-value
-                        // mapping was incorrect)' due a conflict between the existing record and the update.
-                        existingOffender.setBreach(updatedOffender.isBreach());
-                        existingOffender.setAwaitingPsr(updatedOffender.getAwaitingPsr());
-                        existingOffender.setProbationStatus(updatedOffender.getProbationStatus());
-                        existingOffender.setPreviouslyKnownTerminationDate(updatedOffender.getPreviouslyKnownTerminationDate());
-                        existingOffender.setSuspendedSentenceOrder(updatedOffender.isSuspendedSentenceOrder());
-                        existingOffender.setPreSentenceActivity(updatedOffender.isPreSentenceActivity());
-                        return existingOffender;
-                    }
-                )
-                .orElse(updatedOffender);
     }
 
     private HearingEntity updateWithDefendants(HearingEntity hearingEntity) {

@@ -15,6 +15,7 @@ import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFou
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus.CURRENT;
@@ -39,10 +40,9 @@ class OffenderUpdateServiceTest {
         given(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID))
                 .willReturn(Optional.of(DefendantEntity.builder().build()));
 
-        var offender = offenderUpdateService.getDefendantOffenderByDefendantId(DEFENDANT_ID).block();
-        assertThat(offender).isEqualTo(OffenderEntity.builder().build());
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
-        verifyNoInteractions(offenderRepository);
+        assertThatExceptionOfType(EntityNotFoundException.class)
+            .isThrownBy(() -> offenderUpdateService.getDefendantOffenderByDefendantId(DEFENDANT_ID).block())
+            .withMessage("Offender details not found for defendant defendant-id-one");
     }
 
     @Test
@@ -50,12 +50,11 @@ class OffenderUpdateServiceTest {
         given(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID))
                 .willReturn(Optional.of(DefendantEntity.builder().crn(CRN).build()));
 
-        given(offenderRepository.findByCrn(CRN)).willReturn(Optional.ofNullable(null));
+        given(offenderRepository.findByCrn(CRN)).willReturn(Optional.empty());
 
-        var offender = offenderUpdateService.getDefendantOffenderByDefendantId(DEFENDANT_ID).block();
-        assertThat(offender).isEqualTo(OffenderEntity.builder().build());
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
-        verify(offenderRepository).findByCrn(CRN);
+        assertThatExceptionOfType(EntityNotFoundException.class)
+            .isThrownBy(() -> offenderUpdateService.getDefendantOffenderByDefendantId(DEFENDANT_ID).block())
+            .withMessage("Offender details not found for defendant defendant-id-one");
     }
 
     @Test

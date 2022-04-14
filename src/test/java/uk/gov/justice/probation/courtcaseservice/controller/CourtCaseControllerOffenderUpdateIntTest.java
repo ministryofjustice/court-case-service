@@ -25,8 +25,6 @@ import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.get
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class CourtCaseControllerOffenderUpdateIntTest extends BaseIntTest {
 
-    public static final String KEY_ID = "mock-key";
-    private static final String LAST_MODIFIED_COURT_CODE = "B14LO";
     private static final String DEFENDANT_ID = "40db17d6-04db-11ec-b2d8-0242ac130002";
 
     @Autowired
@@ -59,6 +57,36 @@ public class CourtCaseControllerOffenderUpdateIntTest extends BaseIntTest {
             .body("breach", equalTo(true))
             .body("preSentenceActivity", equalTo(true))
             .body("suspendedSentenceOrder", equalTo(true))
+        ;
+    }
+
+    @Test
+    void GET_offender_givenDefendantIdWithNoCrn_whenGetOffender_thenReturnHttpNotFound() {
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .when()
+            .get("/defendant/{defendantId}/offender", "03d0c6a4-b00f-499b-bbb6-1fa80b1d7cf4")
+            .then()
+            .assertThat()
+            .statusCode(404)
+            .body("userMessage", equalTo("Offender details not found for defendant 03d0c6a4-b00f-499b-bbb6-1fa80b1d7cf4"))
+        ;
+    }
+
+    @Test
+    void GET_offender_givenDefendantIdWithCrnButNoOffender_whenGetOffender_thenReturnHttpNotFound() {
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .when()
+            .get("/defendant/{defendantId}/offender", "7420ce9b-8d56-4019-9e68-81a17f54327e")
+            .then()
+            .assertThat()
+            .statusCode(404)
+            .body("userMessage", equalTo("Offender details not found for defendant 7420ce9b-8d56-4019-9e68-81a17f54327e"))
         ;
     }
 

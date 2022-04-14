@@ -31,19 +31,6 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
             nativeQuery = true)
     Optional<HearingEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo);
 
-    @Query(value = "select h.* from hearing h " +
-                    "inner join " +
-                    "   (select max(hearing.id) as max_id, hearing.hearing_id as hearing_id from hearing " +
-                    "   where hearing.hearing_id = :hearingId " +
-                    "   group by hearing.hearing_id) grouped_cases " +
-                    "on h.id = grouped_cases.max_id " +
-                    "and h.hearing_id = grouped_cases.hearing_id " +
-                    "where h.deleted = false " +
-                    "order by h.id desc limit 1",
-        nativeQuery = true)
-    Optional<HearingEntity> findByHearingId(String hearingId);
-
-
     @Query(value = "select h.* as first_created " +
         "from hearing h " +
         "inner join " +

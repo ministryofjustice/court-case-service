@@ -73,7 +73,7 @@ public class HearingRepositoryFacade {
 
     public Optional<HearingEntity> findByHearingIdAndDefendantId(String hearingId, String defendantId) {
 
-        return hearingRepository.findByHearingId(hearingId)
+        return hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
                 .map(hearingEntity -> findDefendant(hearingEntity, defendantId).isPresent() ? updateWithDefendants(hearingEntity) : null);
     }
 

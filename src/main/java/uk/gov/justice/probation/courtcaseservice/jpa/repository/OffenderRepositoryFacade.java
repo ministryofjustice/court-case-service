@@ -19,18 +19,17 @@ public class OffenderRepositoryFacade {
     public OffenderEntity updateOffenderIfItExists(OffenderEntity updatedOffender) {
         return offenderRepository.findByCrn(updatedOffender.getCrn())
             .map(existingOffender -> {
-                    // Implementation note: We're breaking immutability here because otherwise Hibernate will
-                    // encounter an exception 'Row was updated or deleted by another transaction (or unsaved-value
-                    // mapping was incorrect)' due a conflict between the existing record and the update.
-                    existingOffender.setBreach(updatedOffender.isBreach());
-                    existingOffender.setAwaitingPsr(updatedOffender.getAwaitingPsr());
-                    existingOffender.setProbationStatus(updatedOffender.getProbationStatus());
-                    existingOffender.setPreviouslyKnownTerminationDate(updatedOffender.getPreviouslyKnownTerminationDate());
-                    existingOffender.setSuspendedSentenceOrder(updatedOffender.isSuspendedSentenceOrder());
-                    existingOffender.setPreSentenceActivity(updatedOffender.isPreSentenceActivity());
-                    return existingOffender;
-                }
-            )
+                // Implementation note: We're breaking immutability here because otherwise Hibernate will
+                // encounter an exception 'Row was updated or deleted by another transaction (or unsaved-value
+                // mapping was incorrect)' due a conflict between the existing record and the update.
+                existingOffender.setBreach(updatedOffender.isBreach());
+                existingOffender.setAwaitingPsr(updatedOffender.getAwaitingPsr());
+                existingOffender.setProbationStatus(updatedOffender.getProbationStatus());
+                existingOffender.setPreviouslyKnownTerminationDate(updatedOffender.getPreviouslyKnownTerminationDate());
+                existingOffender.setSuspendedSentenceOrder(updatedOffender.isSuspendedSentenceOrder());
+                existingOffender.setPreSentenceActivity(updatedOffender.isPreSentenceActivity());
+                return existingOffender;
+            })
             .orElse(updatedOffender);
     }
 

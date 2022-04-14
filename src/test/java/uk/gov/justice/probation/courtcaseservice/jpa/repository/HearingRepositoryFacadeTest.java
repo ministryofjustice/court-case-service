@@ -290,10 +290,7 @@ class HearingRepositoryFacadeTest {
     @Test
     void whenSave_thenSaveHearing_Offender_AndDefendant() {
         when(offenderRepositoryFacade.updateOffenderIfItExists(OFFENDER)).thenReturn(OFFENDER);
-        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)))
-                                                // This must return 2 separate but identical objects on both calls as they
-                                                // are mutated by the save() method
-                                                .thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)));
+        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
 
         facade.save(HEARING);
@@ -335,7 +332,6 @@ class HearingRepositoryFacadeTest {
         verify(offenderRepositoryFacade, times(2)).updateOffenderIfItExists(any(OffenderEntity.class));
         verify(offenderRepositoryFacade).updateOffenderIfItExists(OFFENDER);
         verify(offenderRepositoryFacade).updateOffenderIfItExists(OFFENDER_2);
-        verify(offenderRepository).findByCrn(CRN);
         verify(offenderRepository).findByCrn(CRN);
         verify(offenderRepository).findByCrn(CRN_2);
         verify(offenderRepository).saveAll(List.of(OFFENDER_2, OFFENDER));

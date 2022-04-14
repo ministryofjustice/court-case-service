@@ -40,6 +40,9 @@ INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, created_by
 VALUES (-1000010, 'DX12345', 'CURRENT', 'before-test.sql');
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
 VALUES (-1000011, 'Y320741', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test.sql');
+INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
+VALUES (-1000012, 'Z320755', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test.sql');
+
 
 -- START DEFINITION OF CASE NO 1600028913
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type) VALUES (-1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 1600028913, now(), 'LIBRA');
@@ -433,6 +436,10 @@ INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, nam
 VALUES (-4000003, '7420ce9b-8d56-4019-9e68-81a17f54327e', 'Mr Tom CRUISE', '{"title": "Mr", "surname": "CRUISE", "forename1": "Tom"}', 'PERSON', 'XXXXXXXX', 'MALE', NOW() - INTERVAL '3 day');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
 VALUES (-4000005, 4000000, '7420ce9b-8d56-4019-9e68-81a17f54327e');
+INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, name, type, crn, sex, created)
+VALUES (-4000006, 'af9f884d-22ec-4eaa-b420-9619c011afe6', 'Mr Tom CRUISE', '{"title": "Mr", "surname": "CRUISE", "forename1": "Tom"}', 'PERSON', 'Z320755', 'MALE', NOW() - INTERVAL '3 day');
+INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
+VALUES (-4000006, 4000000, 'af9f884d-22ec-4eaa-b420-9619c011afe6');
 
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, source_type, created)
 VALUES (4000001, 'ce84bb2d-e44a-4554-a1a8-795accaac4d8', 4000001, 'COMMON_PLATFORM', NOW() - INTERVAL '1 day');

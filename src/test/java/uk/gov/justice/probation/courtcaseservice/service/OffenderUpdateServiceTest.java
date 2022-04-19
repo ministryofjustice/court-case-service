@@ -18,7 +18,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus.CURRENT;
@@ -148,15 +147,13 @@ class OffenderUpdateServiceTest {
                 .willReturn(Optional.of(defendantEntity));
         OffenderEntity offenderEntity = OffenderEntity.builder().crn(CRN).build();
 
-        given(offenderRepositoryFacade.updateOffenderIfItExists(offenderEntity)).willReturn(offenderEntity);
-        given(offenderRepository.save(offenderEntity)).willReturn(offenderEntity.withId(1L));
+        given(offenderRepositoryFacade.save(offenderEntity)).willReturn(offenderEntity);
 
         var offender = offenderUpdateService.updateDefendantOffender(DEFENDANT_ID, offenderEntity).block();
         assertThat(offender).isEqualTo(OffenderEntity.builder().crn(CRN).breach(false).suspendedSentenceOrder(false)
-                .preSentenceActivity(false).id(1L).build());
+                .preSentenceActivity(false).build());
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
-        verify(offenderRepositoryFacade).updateOffenderIfItExists(offenderEntity);
-        verify(offenderRepository).save(offenderEntity);
+        verify(offenderRepositoryFacade).save(offenderEntity);
         verify(defendantRepository).save(defendantEntity.withCrn(CRN));
     }
 
@@ -170,8 +167,7 @@ class OffenderUpdateServiceTest {
                 .preSentenceActivity(true).breach(false)
                 .probationStatus(CURRENT).crn(CRN).build();
 
-        given(offenderRepositoryFacade.updateOffenderIfItExists(offenderUpdate)).willReturn(offenderUpdate);
-        given(offenderRepository.save(any(OffenderEntity.class))).willReturn(offenderUpdate);
+        given(offenderRepositoryFacade.save(offenderUpdate)).willReturn(offenderUpdate);
 
         var offender = offenderUpdateService.updateDefendantOffender(DEFENDANT_ID, offenderUpdate).block();
 
@@ -179,8 +175,7 @@ class OffenderUpdateServiceTest {
                 .preSentenceActivity(true).breach(false)
                 .probationStatus(CURRENT).build());
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
-        verify(offenderRepositoryFacade).updateOffenderIfItExists(offenderUpdate);
-        verify(offenderRepository).save(offenderUpdate);
+        verify(offenderRepositoryFacade).save(offenderUpdate);
         verify(defendantRepository).save(defendantEntity.withCrn(CRN));
     }
 
@@ -196,8 +191,7 @@ class OffenderUpdateServiceTest {
                 .preSentenceActivity(true).breach(false)
                 .probationStatus(CURRENT).crn(NEW_CRN).build();
 
-        given(offenderRepositoryFacade.updateOffenderIfItExists(offenderUpdate)).willReturn(offenderUpdate);
-        given(offenderRepository.save(any(OffenderEntity.class))).willReturn(offenderUpdate);
+        given(offenderRepositoryFacade.save(offenderUpdate)).willReturn(offenderUpdate);
 
         var offender = offenderUpdateService.updateDefendantOffender(DEFENDANT_ID, offenderUpdate).block();
 
@@ -205,7 +199,7 @@ class OffenderUpdateServiceTest {
                 .preSentenceActivity(true).breach(false)
                 .probationStatus(CURRENT).build());
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
-        verify(offenderRepository).save(offenderUpdate);
+        verify(offenderRepositoryFacade).save(offenderUpdate);
         verify(defendantRepository).save(defendantEntity.withCrn(NEW_CRN));
     }
 }

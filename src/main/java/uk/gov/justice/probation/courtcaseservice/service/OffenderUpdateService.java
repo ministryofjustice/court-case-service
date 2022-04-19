@@ -59,11 +59,9 @@ public class OffenderUpdateService {
 
         final var defendant = findDefendantOrElseThrow(defendantId);
 
-        final var offenderToUpdate = offenderRepositoryFacade.updateOffenderIfItExists(offenderUpdate);
+        final var updatedOffender = offenderRepositoryFacade.save(offenderUpdate);
 
-        final var updatedOffender = offenderRepository.save(offenderToUpdate);
-
-        if (!StringUtils.equals(defendant.getCrn(), offenderToUpdate.getCrn())) {
+        if (!StringUtils.equals(defendant.getCrn(), updatedOffender.getCrn())) {
             final var updatedDefendant = defendant.withCrn(offenderUpdate.getCrn()).withId(null);
             defendantRepository.save(updatedDefendant);
         }

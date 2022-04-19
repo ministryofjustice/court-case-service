@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -10,16 +11,12 @@ import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
+import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,8 +31,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -62,6 +58,8 @@ class CourtCaseControllerTest {
     private CourtCaseRequest courtCaseUpdate;
     @Mock
     private OffenderMatchService offenderMatchService;
+    @Mock
+    private OffenderUpdateService offenderUpdateService;
     @InjectMocks
     private CourtCaseController courtCaseController;
     private final HearingEntity hearingEntity = HearingEntity.builder()
@@ -129,9 +127,27 @@ class CourtCaseControllerTest {
     void getCourtCaseByCaseIdAndDefendantId_shouldReturnCourtCaseResponseNoCaseNo() {
 
         when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(2));
-        when(courtCaseService.getHearingByHearingIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(hearingEntity);
+        when(courtCaseService.getHearingByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(hearingEntity);
 
         var courtCase = courtCaseController.getCourtCaseByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
+        assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
+        assertThat(courtCase.getCaseNo()).isNull();
+        assertThat(courtCase.getSessionStartTime()).isNotNull();
+        assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(2);
+        assertThat(courtCase.getSession()).isSameAs(session);
+
+        verify(courtCaseService).getHearingByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
+        verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
+        verifyNoMoreInteractions(courtCaseService, offenderMatchService);
+    }
+
+    @Test
+    void getCourtCaseByHearingIdAndDefendantId_shouldReturnCourtCaseResponseNoCaseNo() {
+
+        when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(2));
+        when(courtCaseService.getHearingByHearingIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(hearingEntity);
+
+        var courtCase = courtCaseController.getCourtCaseByHearingIdAndDefendantId(CASE_ID, DEFENDANT_ID);
         assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCase.getCaseNo()).isNull();
         assertThat(courtCase.getSessionStartTime()).isNotNull();
@@ -321,6 +337,33 @@ class CourtCaseControllerTest {
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 
+    @Test
+    void whenGetOffenderByDefendantId_shouldReturnOffender() {
+        OffenderEntity offenderEntity = OffenderEntity.builder().crn(CRN).build();
+        when(offenderUpdateService.getDefendantOffenderByDefendantId(DEFENDANT_ID)).thenReturn(Mono.just(offenderEntity));
+        var actual = courtCaseController.getOffenderByDefendantId(DEFENDANT_ID).block();
+        verify(offenderUpdateService).getDefendantOffenderByDefendantId(DEFENDANT_ID);
+        assertThat(actual).isEqualTo(DefendantOffender.builder().crn(CRN).suspendedSentenceOrder(false)
+            .breach(false).preSentenceActivity(false).build());
+    }
+
+    @Test
+    void whenDeleteOffenderByDefendantId_shouldInvokeDeleteOffender() {
+        courtCaseController.deleteOffender(DEFENDANT_ID);
+        verify(offenderUpdateService).removeDefendantOffenderAssociation(DEFENDANT_ID);
+    }
+
+    @Test
+    void whenUpdateOffenderByDefendantId_shouldInvokeUpdateOffender() {
+        DefendantOffender testDefendant = DefendantOffender.builder().crn(CRN).build();
+        when(offenderUpdateService.updateDefendantOffender(DEFENDANT_ID, testDefendant.asEntity())).
+            thenReturn(Mono.just(OffenderEntity.builder().crn(CRN).build()));
+        final var actual = courtCaseController.updateOffenderByDefendantId(DEFENDANT_ID, testDefendant).block();
+        verify(offenderUpdateService).updateDefendantOffender(DEFENDANT_ID, testDefendant.asEntity());
+        assertThat(actual).isEqualTo(DefendantOffender.builder().crn(CRN).suspendedSentenceOrder(false)
+            .breach(false).preSentenceActivity(false).build());
+    }
+
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, NamePropertiesEntity defendantName, LocalDateTime sessionTime) {
         assertThat(cases.get(position).getCourtRoom()).isEqualTo(courtRoom);
         assertThat(cases.get(position).getName()).isEqualTo(defendantName);
@@ -341,6 +384,5 @@ class CourtCaseControllerTest {
         return EntityHelper.aHearingEntity(UUID.randomUUID().toString())
                 .withHearingDefendants(List.of(hearingDefendantEntity))
                 .withHearingDays(List.of(EntityHelper.aHearingDayEntity(sessionStartTime).withCourtRoom(courtRoom)));
-
     }
 }

@@ -139,7 +139,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
         when(courtCaseService.createUpdateHearingForSingleDefendantId(eq(caseId), eq(defendantId), any()))
                 .thenReturn(Mono.just(hearingEntity));
 
-        when(courtCaseService.getHearingByHearingIdAndDefendantId(eq(caseId), eq(defendantId)))
+        when(courtCaseService.getHearingByCaseIdAndDefendantId(eq(caseId), eq(defendantId)))
                 .thenReturn(hearingEntity);
 
         when(offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantId))

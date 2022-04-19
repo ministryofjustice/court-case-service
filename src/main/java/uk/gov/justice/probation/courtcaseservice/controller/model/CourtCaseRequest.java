@@ -128,7 +128,7 @@ public class CourtCaseRequest {
             .defendantId(defendantId)
             .defendant(DefendantEntity.builder()
                 .address(Optional.ofNullable(defendantAddress)
-                        .map(this::buildAddress)
+                        .map(AddressRequestResponse::asEntity)
                         .orElse(null))
                 .offender(Optional.ofNullable(crn)
                     .map(this::buildOffender)
@@ -151,17 +151,6 @@ public class CourtCaseRequest {
 
         offences.forEach(defendantOffence -> defendantOffence.setHearingDefendant(hearingDefendant));
         return Collections.singletonList(hearingDefendant);
-    }
-
-    private AddressPropertiesEntity buildAddress(AddressRequestResponse addressRequest) {
-        return AddressPropertiesEntity.builder()
-            .line1(addressRequest.getLine1())
-            .line2(addressRequest.getLine2())
-            .line3(addressRequest.getLine3())
-            .line4(addressRequest.getLine4())
-            .line5(addressRequest.getLine5())
-            .postcode(addressRequest.getPostcode())
-            .build();
     }
 
     private OffenderEntity buildOffender(String crn) {

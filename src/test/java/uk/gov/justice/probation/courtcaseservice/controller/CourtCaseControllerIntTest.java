@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,7 +10,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 
 import java.time.LocalDate;
@@ -26,8 +30,7 @@ import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_ROOM;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
@@ -71,6 +74,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[0].caseNo", equalTo(null))
                 .body("cases[0].source", equalTo("COMMON_PLATFORM"))
                 .body("cases[0].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
+                .body("cases[0].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
                 .body("cases[0].defendantType", equalTo("PERSON"))
                 .body("cases[0].defendantName", equalTo("Ms Emma Radical"))
                 .body("cases[0].phoneNumber.mobile", equalTo("07000000006"))
@@ -84,10 +88,12 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[0].offences[0].offenceTitle", equalTo("Emma stole 1st thing from a shop"))
                 .body("cases[0].offences[0].listNo", equalTo(35))
                 .body("cases[1].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
+                .body("cases[1].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
                 .body("cases[1].offences", hasSize(1))
                 .body("cases[1].offences[0].offenceTitle", equalTo("Billy stole from a shop"))
                 .body("cases[2].offences", hasSize(2))
                 .body("cases[2].caseNo", equalTo("1600028913"))
+                .body("cases[2].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
                 .body("cases[2].source", equalTo("LIBRA"))
                 .body("cases[2].probationStatus", equalToIgnoringCase("Current"))
                 .body("cases[2].offences[0].sequenceNumber", equalTo(1))
@@ -98,12 +104,14 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[4].source", equalTo("COMMON_PLATFORM"))
                 .body("cases[5].caseNo", equalTo(null))
                 .body("cases[5].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a57"))
+                .body("cases[5].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a57"))
                 .body("cases[5].source", equalTo("COMMON_PLATFORM"))
                 .body("cases[5].sessionStartTime", equalTo(LocalDateTime.of(2019, 12, 14, 23, 59, 59).format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("cases[5].probationStatus", equalTo("Pre-sentence record"))
                 .body("cases[5].probationStatusActual", equalTo("NOT_SENTENCED"))
                 .body("cases[6].caseNo", equalTo(null))
                 .body("cases[6].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a18"))
+                .body("cases[6].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a18"))
                 .body("cases[6].createdToday", equalTo(false))
             ;
         }
@@ -153,11 +161,17 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .statusCode(200)
                 .body("cases", hasSize(6))
                 .body("cases[0].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
+                .body("cases[0].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
                 .body("cases[1].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
+                .body("cases[1].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
                 .body("cases[2].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
+                .body("cases[2].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
                 .body("cases[3].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a59"))
+                .body("cases[3].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a59"))
                 .body("cases[4].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a57"))
+                .body("cases[4].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a57"))
                 .body("cases[5].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a18"))
+                .body("cases[5].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a18"))
             ;
         }
 
@@ -504,6 +518,176 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
 
     }
 
+    @Nested
+    class GetCaseByHearingIdAndDefendantId {
+        private static final String PATH = "/hearing/{hearingId}/defendant/{defendantId}";
+        private static final String CASE_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
+        private static final String HEARING_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
+
+        @Test
+        void givenKnownCaseIdWithNoOffender_whenGetCase_thenReturn() {
+
+            var response = given()
+                .given()
+                .auth()
+                .oauth2(getToken())
+                .when()
+                .header("Accept", "application/json")
+                .get(PATH, HEARING_ID, DEFENDANT_ID)
+                .then()
+                .statusCode(200);
+
+            response
+                .body("caseId", equalTo(CASE_ID))
+                .body("hearingId", equalTo(HEARING_ID))
+                .body("offences", hasSize(2))
+                .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
+                .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
+                .body("offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
+                .body("offences[1].offenceTitle", equalTo("Theft from a different shop"))
+                .body("probationStatus", equalTo("Current"))
+                .body("probationStatusActual", equalTo("CURRENT"))
+                .body("previouslyKnownTerminationDate", equalTo(LocalDate.of(2010, Month.JANUARY, 1).format(DateTimeFormatter.ISO_LOCAL_DATE)))
+                .body("preSentenceActivity", equalTo(true))
+                .body("suspendedSentenceOrder", equalTo(true))
+                .body("breach", equalTo(true))
+                .body("source", equalTo("LIBRA"))
+                .body("caseNo", equalTo("1600028913"))
+                .body("crn", equalTo("X320741"))
+                .body("pnc", equalTo("A/1234560BA"))
+                .body("cro", equalTo("311462/13E"))
+                .body("listNo", equalTo("3rd"))
+                .body("courtCode", equalTo(COURT_CODE))
+                .body("sessionStartTime", equalTo(DECEMBER_14_9AM.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                .body("defendantName", equalTo("Mr Johnny BALL"))
+                .body("defendantId", equalTo(DEFENDANT_ID))
+                .body("phoneNumber.mobile", equalTo("07000000007"))
+                .body("phoneNumber.home", equalTo("07000000013"))
+                .body("phoneNumber.work", equalTo("07000000015"))
+                .body("name.title", equalTo("Mr"))
+                .body("name.forename1", equalTo("Johnny"))
+                .body("name.forename2", equalTo("John"))
+                .body("name.forename3", equalTo("Jon"))
+                .body("name.surname", equalTo("BALL"))
+                .body("defendantAddress.line1", equalTo("27"))
+                .body("defendantAddress.line2", equalTo("Elm Place"))
+                .body("defendantAddress.postcode", equalTo("ad21 5dr"))
+                .body("defendantAddress.line3", equalTo("Bangor"))
+                .body("defendantAddress.line4", equalTo(null))
+                .body("defendantAddress.line5", equalTo(null))
+                .body("defendantDob", equalTo(LocalDate.of(1958, Month.OCTOBER, 10).format(DateTimeFormatter.ISO_LOCAL_DATE)))
+                .body("defendantSex", equalTo("M"))
+                .body("nationality1", equalTo("British"))
+                .body("nationality2", equalTo("Polish"))
+                .body("removed", equalTo(false))
+                .body("createdToday", equalTo(true))
+                .body("numberOfPossibleMatches", equalTo(3))
+            ;
+        }
+
+        @Test
+        void givenKnownHearingIdWithOffender_whenGetHearing_thenReturn() {
+
+            var hearingId = "683bcde4-611f-4487-9833-f68090507b74";
+            var defendantId = "005ae89b-46e9-4fa5-bb5e-d117011cab32";
+            var response = given()
+                .given()
+                .auth()
+                .oauth2(getToken())
+                .when()
+                .header("Accept", "application/json")
+                .get(PATH, hearingId, defendantId)
+                .then()
+                .statusCode(200);
+
+            response
+                .body("caseId", equalTo("683bcde4-611f-4487-9833-f68090507b74"))
+                .body("hearingId", equalTo(hearingId))
+                .body("defendantId", equalTo(defendantId))
+                .body("phoneNumber.mobile", equalTo("07000000008"))
+                .body("phoneNumber.home", equalTo("07000000013"))
+                .body("phoneNumber.work", equalTo("07000000015"))
+                .body("probationStatus", equalToIgnoringCase("Previously known"))
+                .body("probationStatusActual", equalTo("PREVIOUSLY_KNOWN"))
+                .body("crn", equalTo("C16000"))
+                .body("breach", equalTo(true))
+                .body("preSentenceActivity", equalTo(true))
+                .body("suspendedSentenceOrder", equalTo(true))
+                .body("previouslyKnownTerminationDate", equalTo(JAN_1_2010.format(DateTimeFormatter.ISO_LOCAL_DATE)))
+            ;
+        }
+
+        @Test
+        void givenUnknownHearingId_whenGetCase_thenReturn404() {
+
+            final var NOT_FOUND_HEARING_ID = "1f93bbcc-7e46-4885-a1cb-f25a4be33a56";
+
+            ErrorResponse result = given()
+                .given()
+                .auth()
+                .oauth2(getToken())
+                .when()
+                .header("Accept", "application/json")
+                .get(PATH, NOT_FOUND_HEARING_ID, DEFENDANT_ID)
+                .then()
+                .statusCode(404)
+                .extract()
+                .body()
+                .as(ErrorResponse.class);
+
+            assertThat(result.getDeveloperMessage()).contains("Hearing " + NOT_FOUND_HEARING_ID + " not found");
+            assertThat(result.getUserMessage()).contains("Hearing " + NOT_FOUND_HEARING_ID + " not found");
+            assertThat(result.getStatus()).isEqualTo(404);
+        }
+
+        @Test
+        void givenUnknownDefendantId_whenGetHearingByDefendant_thenReturn404() {
+
+            final var NOT_FOUND_DEFENDANT_ID = "2f934532-7e46-4885-a1cb-f25a4be33a56";
+
+            ErrorResponse result = given()
+                .given()
+                .auth()
+                .oauth2(getToken())
+                .when()
+                .header("Accept", "application/json")
+                .get(PATH, CASE_ID, NOT_FOUND_DEFENDANT_ID)
+                .then()
+                .statusCode(404)
+                .extract()
+                .body()
+                .as(ErrorResponse.class);
+
+            assertThat(result.getDeveloperMessage()).contains("Hearing " + HEARING_ID + " not found for defendant " + NOT_FOUND_DEFENDANT_ID);
+            assertThat(result.getUserMessage()).contains("Hearing " + HEARING_ID + " not found for defendant " + NOT_FOUND_DEFENDANT_ID);
+            assertThat(result.getStatus()).isEqualTo(404);
+        }
+
+        @Test
+        void shouldReturnNotFoundForDeletedHearing() {
+
+            final var DELETED_HEARING_ID = "1b6cf731-1892-4b9e-abc3-7fab87a39c21";
+
+            ErrorResponse result = given()
+                .given()
+                .auth()
+                .oauth2(getToken())
+                .when()
+                .header("Accept", "application/json")
+                .get(PATH, DELETED_HEARING_ID, DEFENDANT_ID)
+                .then()
+                .statusCode(404)
+                .extract()
+                .body()
+                .as(ErrorResponse.class);
+
+            assertThat(result.getDeveloperMessage()).contains("Hearing 1b6cf731-1892-4b9e-abc3-7fab87a39c21 not found for defendant 40db17d6-04db-11ec-b2d8-0242ac130002");
+            assertThat(result.getUserMessage()).contains("Hearing 1b6cf731-1892-4b9e-abc3-7fab87a39c21 not found for defendant 40db17d6-04db-11ec-b2d8-0242ac130002");
+            assertThat(result.getStatus()).isEqualTo(404);
+        }
+
+    }
+
     private void validateResponse(ValidatableResponse validatableResponse, String startTime, String caseId) {
         validatableResponse
             .body("caseNo", equalTo(CASE_NO))
@@ -655,5 +839,4 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             ;
         }
     }
-
 }

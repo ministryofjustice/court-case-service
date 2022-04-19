@@ -13,6 +13,7 @@ INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Sheffield', '
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Leicester', 'B33HU');
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Aberystwyth', 'B63AD');
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('New New York', 'B30NY');
+INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Old New York', 'C10JQ');
 
 -- The offender records for all CRNs in here
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
@@ -37,6 +38,10 @@ INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, created_by
 VALUES (-1000009, 'D16000', 'NOT_SENTENCED', 'before-test.sql');
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, created_by)
 VALUES (-1000010, 'DX12345', 'CURRENT', 'before-test.sql');
+INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
+VALUES (-1000011, 'Y320741', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test.sql');
+INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
+VALUES (-1000012, 'Z320755', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test.sql');
 
 
 -- START DEFINITION OF CASE NO 1600028913
@@ -154,6 +159,25 @@ INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, nam
 VALUES (-1700028908, '3bf70cd8-7e9d-4d29-b9b2-f8f7f898cb32', 'Mr David BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'X320746', 'PERSON', 'MALE');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
 VALUES (-1700028908, -1700028908, '3bf70cd8-7e9d-4d29-b9b2-f8f7f898cb32');
+
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
+VALUES (-1800028909, 'c4dee5e1-3cd9-4a2d-9e39-ccdacefc92b9', 1700028918, now(), 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created, first_created)
+VALUES (-1800028909, -1800028909, '682da1fb-cdce-476c-adff-0a2bd9f8355a', now(), '2020-10-01 16:59:59');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
+VALUES (-1800028909, -1800028909, 'C10JQ', 2, '2019-12-14', '13:00:00', '3rd', now());
+INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, name, crn, type, sex)
+VALUES (-1800028909, '9c2f11b0-1bca-4b24-85a1-315d67020b2c', 'Mr David BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'Y320741', 'PERSON', 'MALE');
+INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
+VALUES (-1800028909, -1800028909, '9c2f11b0-1bca-4b24-85a1-315d67020b2c');
+INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, name, crn, type, sex)
+VALUES (-1800028901, 'd59762b6-2da7-4af0-a09f-7296d40f15ce', 'Mr Phil BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'Y320741', 'PERSON', 'MALE');
+INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
+VALUES (-1800028901, -1800028909, 'd59762b6-2da7-4af0-a09f-7296d40f15ce');
+INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, name, type, sex)
+VALUES (-1800028902, 'c34bfca0-1ff1-4dab-9db7-acd27392b31a', 'Mr Phil BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'PERSON', 'MALE');
+INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
+VALUES (-1800028902, -1800028909, 'c34bfca0-1ff1-4dab-9db7-acd27392b31a');
 
 -- See GET_cases_givenCreatedBefore_andCreatedAfterFilterParams_andManualUpdatesHaveBeenMadeAfterTheseTimes_whenGetCases_thenReturnManualUpdates
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, created_by, source_type)
@@ -404,6 +428,18 @@ INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, nam
 VALUES (-4000001, '81adf9ee-76ab-42cc-998d-fb6ae80a4cc9', 'Mr Tom CRUISE', '{"title": "Mr", "surname": "CRUISE", "forename1": "Tom"}', 'PERSON', 'DX12345', 'MALE', NOW() - INTERVAL '3 day');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
 VALUES (-4000001, 4000000, '81adf9ee-76ab-42cc-998d-fb6ae80a4cc9');
+INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, name, type, sex, created)
+VALUES (-4000002, '03d0c6a4-b00f-499b-bbb6-1fa80b1d7cf4', 'Mr Tom CRUISE', '{"title": "Mr", "surname": "CRUISE", "forename1": "Tom"}', 'PERSON', 'MALE', NOW() - INTERVAL '3 day');
+INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
+VALUES (-4000004, 4000000, '03d0c6a4-b00f-499b-bbb6-1fa80b1d7cf4');
+INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, name, type, crn, sex, created)
+VALUES (-4000003, '7420ce9b-8d56-4019-9e68-81a17f54327e', 'Mr Tom CRUISE', '{"title": "Mr", "surname": "CRUISE", "forename1": "Tom"}', 'PERSON', 'XXXXXXXX', 'MALE', NOW() - INTERVAL '3 day');
+INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
+VALUES (-4000005, 4000000, '7420ce9b-8d56-4019-9e68-81a17f54327e');
+INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, defendant_name, name, type, crn, sex, created)
+VALUES (-4000006, 'af9f884d-22ec-4eaa-b420-9619c011afe6', 'Mr Tom CRUISE', '{"title": "Mr", "surname": "CRUISE", "forename1": "Tom"}', 'PERSON', 'Z320755', 'MALE', NOW() - INTERVAL '3 day');
+INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
+VALUES (-4000006, 4000000, 'af9f884d-22ec-4eaa-b420-9619c011afe6');
 
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, source_type, created)
 VALUES (4000001, 'ce84bb2d-e44a-4554-a1a8-795accaac4d8', 4000001, 'COMMON_PLATFORM', NOW() - INTERVAL '1 day');
@@ -415,3 +451,8 @@ INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_
 VALUES (-4000002, 4000001, '27457a3e-fc49-49d3-af22-bf980df4a805');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
 VALUES (-4000003, 4000001, '81adf9ee-76ab-42cc-998d-fb6ae80a4cc9');
+
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, deleted, source_type)
+VALUES (4000011, '1b6cf731-1892-4b9e-abc3-7fab87a39c21', 1111128919, '2020-10-01 16:59:59', false, 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
+VALUES (4000011, 4000011, '1b6cf731-1892-4b9e-abc3-7fab87a39c21', NOW() - INTERVAL '1 day');

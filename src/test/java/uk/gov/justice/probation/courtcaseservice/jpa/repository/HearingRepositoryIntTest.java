@@ -20,13 +20,6 @@ class HearingRepositoryIntTest extends BaseRepositoryIntTest {
     private HearingRepository hearingRepository;
 
     @Test
-    public void findByCaseId_shouldReturnOneResultWhereCreatedTimestampsClash() {
-        final var courtCase = hearingRepository.findByHearingId("created_clash_id_1");
-        assertThat(courtCase).isPresent();
-        assertThat(courtCase.get().getId()).isEqualTo(-1700028900L);
-    }
-
-    @Test
     public void findByCourtCodeAndCaseNo_shouldReturnOneResultWhereCreatedTimestampsClash() {
         final var courtCase = hearingRepository.findByCourtCodeAndCaseNo("B10JQ", "1600028913");
         assertThat(courtCase).isPresent();

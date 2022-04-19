@@ -26,12 +26,14 @@ public class HearingRepositoryFacade {
     private static final int MIN_YEAR_SUPPORTED_BY_DB = -4712;
 
     private final OffenderRepository offenderRepository;
+    private final OffenderRepositoryFacade offenderRepositoryFacade;
     private final HearingRepository hearingRepository;
     private final DefendantRepository defendantRepository;
 
     @Autowired
-    public HearingRepositoryFacade(OffenderRepository offenderRepository, HearingRepository hearingRepository, DefendantRepository defendantRepository) {
+    public HearingRepositoryFacade(OffenderRepository offenderRepository, OffenderRepositoryFacade offenderRepositoryFacade, HearingRepository hearingRepository, DefendantRepository defendantRepository) {
         this.offenderRepository = offenderRepository;
+        this.offenderRepositoryFacade = offenderRepositoryFacade;
         this.hearingRepository = hearingRepository;
         this.defendantRepository = defendantRepository;
     }
@@ -62,11 +64,16 @@ public class HearingRepositoryFacade {
     /**
      * @deprecated Strictly speaking this finds by hearingId which equals caseId only for a subset of cases created
      * before hearingId was fully rolled out. Using it after this point will produce unexpected results.To be removed
-     * as part of PIC-2062.
+     * as part of PIC-2062. Use @findByHearingIdAndDefendantId instead.
      */
     public Optional<HearingEntity> findByCaseIdAndDefendantId(String caseId, String defendantId) {
 
-        return hearingRepository.findByHearingId(caseId)
+        return findByHearingIdAndDefendantId(caseId, defendantId);
+    }
+
+    public Optional<HearingEntity> findByHearingIdAndDefendantId(String hearingId, String defendantId) {
+
+        return hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
                 .map(hearingEntity -> findDefendant(hearingEntity, defendantId).isPresent() ? updateWithDefendants(hearingEntity) : null);
     }
 
@@ -96,28 +103,44 @@ public class HearingRepositoryFacade {
         return hearingRepository.findLastModifiedByHearingDay(courtCode, hearingDay);
     }
 
-    @Transactional
     public HearingEntity save(HearingEntity hearingEntity) {
+        updateWithExistingEntities(hearingEntity);
+
+        final var changedDefendants = getChangedDefendants(hearingEntity);
+
+        offenderRepository.saveAll(getChangedOffenders(changedDefendants));
+        defendantRepository.saveAll(changedDefendants);
+        return hearingRepository.save(hearingEntity);
+    }
+
+    private void updateWithExistingEntities(HearingEntity hearingEntity) {
         hearingEntity.getHearingDefendants().forEach((HearingDefendantEntity hearingDefendantEntity) -> {
             hearingDefendantEntity.setDefendant(
                     hearingDefendantEntity.getDefendant()
-                    .withOffender(Optional.ofNullable(hearingDefendantEntity.getDefendant().getOffender())
-                            .map(this::updateOffenderIfItExists)
-                            .orElse(null)));
+                            .withOffender(Optional.ofNullable(hearingDefendantEntity.getDefendant().getOffender())
+                                    .map(offenderRepositoryFacade::updateOffenderIfItExists)
+                                    .orElse(null)));
         });
+    }
 
-        final var defendantEntities = hearingEntity.getHearingDefendants()
-                .stream()
-                .map(HearingDefendantEntity::getDefendant)
-                .collect(Collectors.toList());
-        final var offenderEntities = defendantEntities.stream()
+    private List<OffenderEntity> getChangedOffenders(List<DefendantEntity> changedDefendantEntities) {
+        return changedDefendantEntities.stream()
                 .map(DefendantEntity::getOffender)
                 .filter(Objects::nonNull)
+                .filter(offenderEntity -> offenderRepository.findByCrn(offenderEntity.getCrn())
+                        .map(existing -> !existing.equals(offenderEntity))
+                        .orElse(true))
                 .collect(Collectors.toList());
+    }
 
-        offenderRepository.saveAll(offenderEntities);
-        defendantRepository.saveAll(defendantEntities);
-        return hearingRepository.save(hearingEntity);
+    private List<DefendantEntity> getChangedDefendants(HearingEntity hearingEntity) {
+        return hearingEntity.getHearingDefendants()
+                .stream()
+                .map(HearingDefendantEntity::getDefendant)
+                .filter(existingDefendant -> defendantRepository.findFirstByDefendantIdOrderByIdDesc(existingDefendant.getDefendantId())
+                        .map(existing -> !existing.equals(existingDefendant))
+                        .orElse(true))
+                .collect(Collectors.toList());
     }
 
     private boolean canIgnoreCreatedDates(LocalDateTime createdAfter, LocalDateTime createdBefore) {
@@ -130,19 +153,6 @@ public class HearingRepositoryFacade {
                 .stream()
                 .filter(hearingDefendantEntity -> defendantId.equals(hearingDefendantEntity.getDefendantId()))
                 .findFirst();
-    }
-
-    private OffenderEntity updateOffenderIfItExists(OffenderEntity updatedOffender) {
-        return offenderRepository.findByCrn(updatedOffender.getCrn())
-                .map(existingOffender -> existingOffender
-                        .withBreach(updatedOffender.isBreach())
-                        .withAwaitingPsr(updatedOffender.getAwaitingPsr())
-                        .withProbationStatus(updatedOffender.getProbationStatus())
-                        .withPreviouslyKnownTerminationDate(updatedOffender.getPreviouslyKnownTerminationDate())
-                        .withSuspendedSentenceOrder(updatedOffender.isSuspendedSentenceOrder())
-                        .withPreSentenceActivity(updatedOffender.isPreSentenceActivity())
-                )
-                .orElse(updatedOffender);
     }
 
     private HearingEntity updateWithDefendants(HearingEntity hearingEntity) {

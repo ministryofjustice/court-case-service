@@ -16,6 +16,12 @@ public class OffenderRepositoryFacade {
         this.offenderRepository = offenderRepository;
     }
 
+    public OffenderEntity save(OffenderEntity offenderUpdate) {
+        final var offenderToUpdate = updateOffenderIfItExists(offenderUpdate);
+
+        return offenderRepository.save(offenderToUpdate);
+    }
+
     public OffenderEntity updateOffenderIfItExists(OffenderEntity updatedOffender) {
         return offenderRepository.findByCrn(updatedOffender.getCrn())
             .map(existingOffender -> {

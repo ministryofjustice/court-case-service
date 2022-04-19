@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 
@@ -22,6 +23,7 @@ class OffenderRepositoryFacadeTest {
     @Mock
     private OffenderRepository offenderRepository;
 
+    @Spy
     @InjectMocks
     private OffenderRepositoryFacade offenderRepositoryFacade;
 
@@ -55,6 +57,43 @@ class OffenderRepositoryFacadeTest {
         final var actual = offenderRepositoryFacade.updateOffenderIfItExists(updatedOffender);
 
         verify(offenderRepository).findByCrn(CRN);
+        assertThat(existingOffender).isEqualTo(updatedOffender);
+        assertThat(actual).isEqualTo(updatedOffender);
+    }
+
+    @Test
+    void shouldSaveOffenderWhenExists() {
+
+        LocalDate now = LocalDate.now();
+        final var CRN = "CRN001";
+        final var updatedOffender = OffenderEntity.builder()
+            .crn(CRN)
+            .breach(true)
+            .awaitingPsr(false)
+            .probationStatus(PREVIOUSLY_KNOWN)
+            .previouslyKnownTerminationDate(now.plusDays(30))
+            .suspendedSentenceOrder(false)
+            .preSentenceActivity(true)
+            .build();
+
+        final var existingOffender = OffenderEntity.builder()
+            .crn(CRN)
+            .breach(false)
+            .awaitingPsr(true)
+            .probationStatus(CURRENT)
+            .previouslyKnownTerminationDate(now.plusDays(20))
+            .suspendedSentenceOrder(true)
+            .preSentenceActivity(false)
+            .build();
+
+        given(offenderRepository.findByCrn(CRN)).willReturn(Optional.of(existingOffender));
+        given(offenderRepository.save(updatedOffender)).willReturn(updatedOffender);
+
+        final var actual = offenderRepositoryFacade.save(updatedOffender);
+
+        verify(offenderRepository).findByCrn(CRN);
+        verify(offenderRepositoryFacade).updateOffenderIfItExists(updatedOffender);
+        verify(offenderRepository).save(updatedOffender);
         assertThat(existingOffender).isEqualTo(updatedOffender);
         assertThat(actual).isEqualTo(updatedOffender);
     }

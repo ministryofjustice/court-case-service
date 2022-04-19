@@ -11,6 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
 import javax.transaction.Transactional;
@@ -23,11 +24,13 @@ public class OffenderUpdateService {
 
     private final DefendantRepository defendantRepository;
     private final OffenderRepository offenderRepository;
+    private final OffenderRepositoryFacade offenderRepositoryFacade;
 
     @Autowired
-    public OffenderUpdateService(DefendantRepository defendantRepository, OffenderRepository offenderRepository) {
+    public OffenderUpdateService(DefendantRepository defendantRepository, OffenderRepository offenderRepository, OffenderRepositoryFacade offenderRepositoryFacade) {
         this.defendantRepository = defendantRepository;
         this.offenderRepository = offenderRepository;
+        this.offenderRepositoryFacade = offenderRepositoryFacade;
     }
 
     @Transactional
@@ -56,20 +59,9 @@ public class OffenderUpdateService {
 
         final var defendant = findDefendantOrElseThrow(defendantId);
 
-        final var dbOffender = offenderRepository.findByCrn(offenderUpdate.getCrn());
+        final var updatedOffender = offenderRepositoryFacade.save(offenderUpdate);
 
-        final var offenderToUpdate = dbOffender.map(oe ->
-            oe.withProbationStatus(offenderUpdate.getProbationStatus())
-                .withPreviouslyKnownTerminationDate(offenderUpdate.getPreviouslyKnownTerminationDate())
-                .withSuspendedSentenceOrder(offenderUpdate.isSuspendedSentenceOrder())
-                .withBreach(offenderUpdate.isBreach())
-                .withPreSentenceActivity(offenderUpdate.isPreSentenceActivity())
-                .withAwaitingPsr(offenderUpdate.getAwaitingPsr()))
-            .orElse(offenderUpdate);
-
-        final var updatedOffender = offenderRepository.save(offenderToUpdate);
-
-        if (!StringUtils.equals(defendant.getCrn(), offenderToUpdate.getCrn())) {
+        if (!StringUtils.equals(defendant.getCrn(), updatedOffender.getCrn())) {
             final var updatedDefendant = defendant.withCrn(offenderUpdate.getCrn()).withId(null);
             defendantRepository.save(updatedDefendant);
         }

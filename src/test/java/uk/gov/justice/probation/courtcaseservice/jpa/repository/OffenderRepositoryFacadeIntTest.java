@@ -1,20 +1,17 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.springframework.test.util.AssertionErrors;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus.PREVIOUSLY_KNOWN;
 
 @Sql(scripts = {
@@ -33,7 +30,7 @@ public class OffenderRepositoryFacadeIntTest extends BaseRepositoryIntTest {
     }
 
     @Test
-    void shouldUpdateOffenderWhenExists() {
+    void shouldUpdateAndSaveOffenderWhenExists() {
         LocalDate testDate = LocalDate.now().plusDays(30);
         final var CRN = "Z320755";
 
@@ -47,7 +44,7 @@ public class OffenderRepositoryFacadeIntTest extends BaseRepositoryIntTest {
             .preSentenceActivity(true)
             .build();
 
-        offenderRepositoryFacade.updateOffenderIfItExists(updatedOffender);
+        offenderRepositoryFacade.save(updatedOffender);
 
         final var actual = offenderRepository.findByCrn(CRN).get();
         assertThat(actual.getCrn()).isEqualTo(CRN);
@@ -60,9 +57,11 @@ public class OffenderRepositoryFacadeIntTest extends BaseRepositoryIntTest {
     }
 
     @Test
-    void shouldReturnInputUpdatedOffenderWhenOffenderDoesNotExists() {
+    void shouldSaveAndReturnOffenderWhenOffenderDoesNotExist() {
         LocalDate testDate = LocalDate.now().plusDays(30);
         final var CRN = "XXXXX";
+        var dbOffender = offenderRepository.findByCrn(CRN);
+        assertThat(dbOffender.isEmpty()).isTrue();
 
         final var updatedOffender = OffenderEntity.builder()
             .crn(CRN)
@@ -74,10 +73,10 @@ public class OffenderRepositoryFacadeIntTest extends BaseRepositoryIntTest {
             .preSentenceActivity(true)
             .build();
 
-        var actual = offenderRepositoryFacade.updateOffenderIfItExists(updatedOffender);
+        var actual = offenderRepositoryFacade.save(updatedOffender);
 
-        final var dbOffender = offenderRepository.findByCrn(CRN);
-        assertThat(dbOffender.isEmpty()).isTrue();
+        dbOffender = offenderRepository.findByCrn(CRN);
+        assertThat(dbOffender.isEmpty()).isFalse();
         assertThat(actual).isEqualTo(updatedOffender);
     }
 }

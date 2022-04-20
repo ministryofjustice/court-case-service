@@ -60,14 +60,6 @@ public class OffenderController {
     private CustodyService custodyService;
 
     @Operation(summary = "Gets the offender probation record by CRN")
-//    @ApiResponses(
-//        value = {
-//            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-//            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-//            @ApiResponse(code = 404, message = "Not Found. For example if the CRN can't be matched.", response = ErrorResponse.class),
-//            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//        })
     @GetMapping(path="offender/{crn}/probation-record", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     ProbationRecord getProbationRecord(@Parameter(name = "crn", description = "CRN for the offender", example = "X320741", required = true) @UpperCasePathVariable("crn") String crn,
@@ -77,15 +69,6 @@ public class OffenderController {
     }
 
     @Operation(summary = "Gets the basic offender probation status details by CRN")
-//    @ApiResponses(
-//        value = {
-//            @ApiResponse(code = 200, message = "OK", response = ProbationStatusDetail.class),
-//            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-//            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-//            @ApiResponse(code = 404, message = "Not Found. For example if the CRN can't be matched.", response = ErrorResponse.class),
-//            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//        })
     @GetMapping(path="offender/{crn}/probation-status-detail", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     Mono<ProbationStatusDetail> getProbationStatusDetail(@Parameter(name = "crn", description = "CRN for the offender", example = "X320741", required = true) @UpperCasePathVariable("crn") String crn) {
@@ -93,15 +76,6 @@ public class OffenderController {
     }
 
     @Operation(summary = "Gets the offender detail by CRN")
-//    @ApiResponses(
-//        value = {
-//            @ApiResponse(code = 200, message = "OK", response = OffenderDetail.class),
-//            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-//            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-//            @ApiResponse(code = 404, message = "Not Found. For example if the CRN can't be matched.", response = ErrorResponse.class),
-//            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//        })
     @GetMapping(path="offender/{crn}/detail", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     Mono<OffenderDetail> getOffenderDetail(@Parameter(name = "crn", description = "CRN for the offender", example = "X320741", required = true) @UpperCasePathVariable("crn") String crn) {
@@ -109,14 +83,6 @@ public class OffenderController {
     }
 
     @Operation(summary = "Gets the conviction by CRN and conviction ID.")
-//    @ApiResponses(
-//        value = {
-//            @ApiResponse(code = 200, message = "OK", response = Conviction.class),
-//            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-//            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//            @ApiResponse(code = 404, message = "Not Found. For example if the CRN can't be matched.", response = ErrorResponse.class),
-//            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//        })
     @GetMapping(path="offender/{crn}/convictions/{convictionId}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     Mono<Conviction> getConviction(@Parameter(name = "crn", description = "CRN for the offender", example = "X320741", required = true) @UpperCasePathVariable("crn") String crn,
@@ -126,14 +92,6 @@ public class OffenderController {
 
     @GetMapping(value = "/offender/{crn}/convictions/{convictionId}/sentence", produces = APPLICATION_JSON_VALUE)
     @Operation(summary = "Return the Sentence detail with attendances, Unpaid Work and current order details for a CRN, conviction id and sentence id  where enforcement is flagged")
-//    @ApiResponses(
-//            value = {
-//                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-//                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-//                    @ApiResponse(code = 404, message = "Not found. For example if the CRN can't be matched.", response = ErrorResponse.class),
-//                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//            })
     public SentenceResponse getSentence(@UpperCasePathVariable("crn") String crn, @PathVariable Long convictionId) {
         if (!featureFlags.sentenceData()) {
             return convictionService.getConvictionOnly(crn, convictionId);
@@ -143,27 +101,11 @@ public class OffenderController {
 
     @GetMapping(value = "/offender/{crn}/convictions/{convictionId}/sentence/custody", produces = APPLICATION_JSON_VALUE)
     @Operation(summary = "Return custody data for a sentence", tags = "prepare-a-case")
-//    @ApiResponses(
-//        value = {
-//            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-//            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-//            @ApiResponse(code = 404, message = "Not found. For example if the CRN can't be matched.", response = ErrorResponse.class),
-//            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//        })
     public @ResponseBody Mono<Custody> getCustody(@UpperCasePathVariable("crn") String crn, @PathVariable Long convictionId) {
         return custodyService.getCustody(crn, convictionId);
     }
 
     @Operation(summary = "Gets Breach data by CRN, conviction ID and breach id.")
-//    @ApiResponses(
-//            value = {
-//                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-//                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-//                    @ApiResponse(code = 404, message = "Not Found. For example if the CRN can't be matched.", response = ErrorResponse.class),
-//                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//            })
     @GetMapping(path="offender/{crn}/convictions/{convictionId}/breaches/{breachId}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     BreachResponse getBreach(@UpperCasePathVariable("crn") String crn, @PathVariable Long convictionId, @PathVariable Long breachId) {
@@ -171,14 +113,6 @@ public class OffenderController {
     }
 
     @Operation(summary = "Gets a document by ID for a CRN.")
-//    @ApiResponses(
-//        value = {
-//            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-//            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-//            @ApiResponse(code = 404, message = "Not Found. If the CRN can't be matched.", response = ErrorResponse.class),
-//            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//        })
     @GetMapping(path="offender/{crn}/documents/{documentId}")
     public HttpEntity<Resource> getOffenderDocumentByCrn(
         @Parameter(name = "crn", description = "CRN for the offender", example = "X320741", required = true) @NotNull final @UpperCasePathVariable("crn") String crn,
@@ -189,14 +123,6 @@ public class OffenderController {
     }
 
     @Operation(summary = "Gets the offender risk registrations by CRN")
-//    @ApiResponses(
-//        value = {
-//            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-//            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-//            @ApiResponse(code = 404, message = "Not Found. For example if the CRN can't be matched.", response = ErrorResponse.class),
-//            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//        })
     @GetMapping(path="offender/{crn}/registrations", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     Mono<List<Registration>> getOffenderRegistrations(@Parameter(name = "crn", description = "CRN for the offender", example = "X320741", required = true) @UpperCasePathVariable("crn") String crn) {

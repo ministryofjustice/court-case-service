@@ -122,6 +122,13 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     @Override
+    public HearingEntity getHearingByHearingId(String hearingId) throws EntityNotFoundException {
+        log.info("Court case requested for hearing ID {}", hearingId);
+        return hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
+            .orElseThrow(() -> new EntityNotFoundException(String.format("Hearing %s not found", hearingId)));
+    }
+
+    @Override
     public HearingEntity getHearingByCaseIdAndDefendantId(String hearingId, String defendantId) throws EntityNotFoundException {
         log.info("Court case requested for case ID {} and defendant ID {}", hearingId, defendantId);
         return hearingRepository.findByCaseIdAndDefendantId(hearingId, defendantId)

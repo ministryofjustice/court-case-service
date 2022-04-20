@@ -10,7 +10,7 @@ plugins {
     id 'jacoco'
     id "au.com.dius.pact" version "4.3.6"
     id 'java-library'
-    id 'org.jetbrains.kotlin.jvm' version '1.6.20'
+    id 'org.jetbrains.kotlin.jvm' version '1.6.21'
 }
 
 repositories {
@@ -164,7 +164,7 @@ dependencies {
 
     runtimeOnly 'org.flywaydb:flyway-core'
     runtimeOnly "org.springframework.boot:spring-boot-devtools"
-    runtimeOnly 'org.postgresql:postgresql:42.3.3'
+    runtimeOnly 'org.postgresql:postgresql:42.3.4'
 
     implementation 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 

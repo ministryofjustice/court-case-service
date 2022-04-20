@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.eq;
@@ -131,7 +132,7 @@ class ImmutableCourtCaseServiceTest {
         @Test
         void givenCaseIdMismatch_whenCreateOrUpdateCase_thenThrowException() {
             incomingHearing = EntityHelper.aHearingEntityWithCrn(CRN);
-            Assertions.assertThrows(ConflictingInputException.class, () -> {
+            assertThrows(ConflictingInputException.class, () -> {
                 service.createUpdateHearingForSingleDefendantId("OTHER-CASE-ID", DEFENDANT_ID, incomingHearing).block();
             });
             verify(courtRepository).findByCourtCode(COURT_CODE);
@@ -140,7 +141,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenDefendantIdMismatch_whenCreateOrUpdateCase_thenThrowException() {
-            Assertions.assertThrows(ConflictingInputException.class, () -> {
+            assertThrows(ConflictingInputException.class, () -> {
                 service.createUpdateHearingForSingleDefendantId(CASE_ID, "OTHER-DEFENDANT-ID", incomingHearing).block();
             });
             verify(courtRepository).findByCourtCode(COURT_CODE);
@@ -819,6 +820,34 @@ class ImmutableCourtCaseServiceTest {
                                     .rejected(false)
                                     .build()))
                     .build());
+        }
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Nested
+    @DisplayName("Tests for get court case data by hearing id")
+    class GetByHearingIdTest {
+
+        @BeforeEach
+        void setup() {
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository);
+        }
+
+        @Test
+        void giveHearingExistWithHearingId_whenGetByHearingId_thenReturnHearingEntity() {
+            when(hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(HEARING_ID))
+                .thenReturn(Optional.of(HearingEntity.builder().build()));
+            final var actual = service.getHearingByHearingId(HEARING_ID);
+            verify(hearingRepositoryFacade).findFirstByHearingIdOrderByIdDesc(HEARING_ID);
+            assertThat(actual).isEqualTo(HearingEntity.builder().build());
+        }
+
+        @Test
+        void giveHearingDoesNoeExistWithHearingId_whenGetByHearingId_thenThrowEntityNotFoundException() {
+            when(hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(HEARING_ID))
+                .thenReturn(Optional.ofNullable(null));
+            final var exception =  assertThrows(EntityNotFoundException.class, () -> service.getHearingByHearingId(HEARING_ID));
+            assertThat(exception.getMessage()).isEqualTo(String.format("Hearing %s not found", HEARING_ID));
         }
     }
 

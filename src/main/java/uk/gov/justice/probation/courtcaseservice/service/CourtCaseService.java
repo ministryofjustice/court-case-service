@@ -23,6 +23,8 @@ public interface CourtCaseService {
     Mono<HearingEntity> createHearing(String caseId, HearingEntity updatedCase)
         throws EntityNotFoundException, InputMismatchException;
 
+    Mono<HearingEntity> createHearingByHearingId(String hearingId, HearingEntity updatedHearing) throws EntityNotFoundException, InputMismatchException;
+
     Mono<HearingEntity> createUpdateHearingForSingleDefendantId(String caseId, String defendantId, HearingEntity updatedCase)
         throws EntityNotFoundException, InputMismatchException;
 

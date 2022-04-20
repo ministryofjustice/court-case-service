@@ -117,6 +117,16 @@ public class CourtCaseController {
                 .map(ExtendedCourtCaseRequestResponse::of);
     }
 
+    @Operation(description = "Saves and returns the court case data, by hearing id.")
+    @PutMapping(value = "/hearing/{hearingId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public @ResponseBody
+    Mono<ExtendedCourtCaseRequestResponse> updateCourtCaseByHearingId(@PathVariable(value = "hearingId") String hearingId,
+                                                             @Valid @RequestBody ExtendedCourtCaseRequestResponse courtCaseRequest) {
+        return courtCaseService.createHearingByHearingId(hearingId, courtCaseRequest.asHearingEntity())
+                .map(ExtendedCourtCaseRequestResponse::of);
+    }
+
     @Operation(description = "Returns extended court case data, by case id.")
 //    @ApiResponses(
 //            value = {

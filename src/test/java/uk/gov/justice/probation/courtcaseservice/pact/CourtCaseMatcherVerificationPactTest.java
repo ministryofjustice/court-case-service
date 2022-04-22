@@ -98,8 +98,8 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
         when(courtCaseService.getHearingByCaseNumber("B10JQ", "1600028913")).thenReturn(courtCaseEntity);
     }
 
-    @State({"a case exists for caseId D517D32D-3C80-41E8-846E-D274DC2B94A5"})
-    void getExtendedCourtCaseById() {
+    @State({"a case exists for hearingId 8bbb4fe3-a899-45c7-bdd4-4ee25ac5a83f"})
+    void getCaseByHearingId() {
         var courtCaseEntity = HearingEntity.builder()
                 .hearingId("8bbb4fe3-a899-45c7-bdd4-4ee25ac5a83f")
                 .courtCase(CourtCaseEntity.builder()
@@ -201,7 +201,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                 .build()))
                 .build();
 
-        when(courtCaseService.getHearingByCaseId("D517D32D-3C80-41E8-846E-D274DC2B94A5")).thenReturn(courtCaseEntity);
+        when(courtCaseService.getHearingByHearingId("8bbb4fe3-a899-45c7-bdd4-4ee25ac5a83f")).thenReturn(courtCaseEntity);
     }
 
     @State({"a case will be PUT by id"})

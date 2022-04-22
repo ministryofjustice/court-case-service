@@ -102,12 +102,31 @@ public class CourtCaseController {
                 .map(ExtendedCourtCaseRequestResponse::of);
     }
 
+    @Operation(description = "Saves and returns the court case data, by hearing id.")
+    @PutMapping(value = "/hearing/{hearingId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public @ResponseBody
+    Mono<ExtendedCourtCaseRequestResponse> updateCourtCaseByHearingId(@PathVariable(value = "hearingId") String hearingId,
+                                                             @Valid @RequestBody ExtendedCourtCaseRequestResponse courtCaseRequest) {
+        return courtCaseService.createHearingByHearingId(hearingId, courtCaseRequest.asHearingEntity())
+                .map(ExtendedCourtCaseRequestResponse::of);
+    }
+
     @Operation(description = "Returns extended court case data, by case id.")
     @GetMapping(value = "/case/{caseId}/extended", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     ExtendedCourtCaseRequestResponse getExtendedCourtCase(@PathVariable(value = "caseId") String caseId) {
         final var courtCase = courtCaseService.getHearingByCaseId(caseId);
+        return ExtendedCourtCaseRequestResponse.of(courtCase);
+    }
+  
+    @Operation(description = "Returns extended court case data, by hearing id.")
+    @GetMapping(value = "/hearing/{hearingId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    ExtendedCourtCaseRequestResponse getCourtCaseByHearingId(@PathVariable(value = "hearingId") String hearingId) {
+        final var courtCase = courtCaseService.getHearingByHearingId(hearingId);
         return ExtendedCourtCaseRequestResponse.of(courtCase);
     }
 

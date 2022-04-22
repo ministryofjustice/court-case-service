@@ -6,7 +6,7 @@ plugins {
     id 'org.springframework.boot' version '2.6.6'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'com.github.ben-manes.versions' version '0.42.0'
-    id "org.flywaydb.flyway" version "8.5.8"
+    id "org.flywaydb.flyway" version "8.5.9"
     id 'jacoco'
     id "au.com.dius.pact" version "4.3.6"
     id 'java-library'
@@ -187,7 +187,7 @@ dependencies {
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.4'
     implementation 'net.logstash.logback:logstash-logback-encoder:7.1'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2'
-    implementation 'org.springdoc:springdoc-openapi-ui:1.6.7'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.8'
 
     testAnnotationProcessor 'org.projectlombok:lombok'
     testRuntimeOnly("org.junit.platform:junit-platform-launcher") {

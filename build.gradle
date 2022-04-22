@@ -6,7 +6,7 @@ plugins {
     id 'org.springframework.boot' version '2.6.6'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'com.github.ben-manes.versions' version '0.42.0'
-    id "org.flywaydb.flyway" version "8.5.8"
+    id "org.flywaydb.flyway" version "8.5.9"
     id 'jacoco'
     id "au.com.dius.pact" version "4.3.6"
     id 'java-library'

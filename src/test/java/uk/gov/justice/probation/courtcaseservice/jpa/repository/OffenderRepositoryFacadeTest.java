@@ -20,6 +20,9 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProba
 @ExtendWith(MockitoExtension.class)
 class OffenderRepositoryFacadeTest {
 
+    private static final String CRO = "CRO007";
+    private static final String PNC = "PNC007";
+
     @Mock
     private OffenderRepository offenderRepository;
 
@@ -40,6 +43,8 @@ class OffenderRepositoryFacadeTest {
             .previouslyKnownTerminationDate(now.plusDays(30))
             .suspendedSentenceOrder(false)
             .preSentenceActivity(true)
+            .cro(CRO)
+            .pnc(PNC)
             .build();
 
         final var existingOffender = OffenderEntity.builder()

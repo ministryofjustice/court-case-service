@@ -28,6 +28,10 @@ public class OffenderRepositoryFacade {
                 // Implementation note: We're breaking immutability here because otherwise Hibernate will
                 // encounter an exception 'Row was updated or deleted by another transaction (or unsaved-value
                 // mapping was incorrect)' due a conflict between the existing record and the update.
+
+                existingOffender.setCro(updatedOffender.getCro());
+                existingOffender.setPnc(updatedOffender.getPnc());
+                existingOffender.setBreach(updatedOffender.isBreach());
                 existingOffender.setBreach(updatedOffender.isBreach());
                 existingOffender.setAwaitingPsr(updatedOffender.getAwaitingPsr());
                 existingOffender.setProbationStatus(updatedOffender.getProbationStatus());

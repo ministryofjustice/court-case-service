@@ -19,6 +19,8 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProba
 }, config = @SqlConfig(transactionMode = ISOLATED))
 public class OffenderRepositoryFacadeIntTest extends BaseRepositoryIntTest {
 
+    private static final String CRO = "CRO007";
+    private static final String PNC = "PNC007";
     @Autowired
     private OffenderRepository offenderRepository;
 
@@ -36,6 +38,8 @@ public class OffenderRepositoryFacadeIntTest extends BaseRepositoryIntTest {
 
         final var updatedOffender = OffenderEntity.builder()
             .crn(CRN)
+            .cro(CRO)
+            .pnc(PNC)
             .breach(false)
             .awaitingPsr(false)
             .probationStatus(PREVIOUSLY_KNOWN)
@@ -48,6 +52,8 @@ public class OffenderRepositoryFacadeIntTest extends BaseRepositoryIntTest {
 
         final var actual = offenderRepository.findByCrn(CRN).get();
         assertThat(actual.getCrn()).isEqualTo(CRN);
+        assertThat(actual.getCro()).isEqualTo(CRO);
+        assertThat(actual.getPnc()).isEqualTo(PNC);
         assertThat(actual.isBreach()).isEqualTo(false);
         assertThat(actual.getAwaitingPsr()).isEqualTo(false);
         assertThat(actual.getProbationStatus()).isEqualTo(PREVIOUSLY_KNOWN);
@@ -65,6 +71,8 @@ public class OffenderRepositoryFacadeIntTest extends BaseRepositoryIntTest {
 
         final var updatedOffender = OffenderEntity.builder()
             .crn(CRN)
+            .cro(CRO)
+            .pnc(PNC)
             .breach(false)
             .awaitingPsr(false)
             .probationStatus(PREVIOUSLY_KNOWN)

@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
+import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -42,6 +43,12 @@ public class OffenderEntity extends BaseEntity implements Serializable {
 
     @Column(name = "CRN", unique = true, nullable = false, updatable = false)
     private String crn;
+
+    @Column(name = "PNC")
+    private String pnc;
+
+    @Column(name = "CRO")
+    private String cro;
 
     @Column(name = "PROBATION_STATUS")
     @Enumerated(EnumType.STRING)

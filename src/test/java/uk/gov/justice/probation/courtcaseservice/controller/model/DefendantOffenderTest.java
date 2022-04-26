@@ -21,6 +21,8 @@ class DefendantOffenderTest {
                 .awaitingPsr(false)
                 .previouslyKnownTerminationDate(now)
                 .crn("crn-one")
+                .pnc("pnc-one")
+                .cro("cro-one")
                 .build();
 
         assertThat(actual.asEntity()).isEqualTo(
@@ -32,6 +34,8 @@ class DefendantOffenderTest {
                         .awaitingPsr(false)
                         .previouslyKnownTerminationDate(now)
                         .crn("crn-one")
+                        .pnc("pnc-one")
+                        .cro("cro-one")
                         .build());
     }
 
@@ -46,6 +50,8 @@ class DefendantOffenderTest {
                 .awaitingPsr(false)
                 .previouslyKnownTerminationDate(now)
                 .crn("crn-one")
+                .pnc("pnc-one")
+                .cro("cro-one")
                 .build();
 
         assertThat(DefendantOffender.of(actual)).isEqualTo(
@@ -57,6 +63,8 @@ class DefendantOffenderTest {
                         .awaitingPsr(false)
                         .previouslyKnownTerminationDate(now)
                         .crn("crn-one")
+                        .pnc("pnc-one")
+                        .cro("cro-one")
                         .build());
     }
 }

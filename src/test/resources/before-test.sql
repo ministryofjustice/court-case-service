@@ -18,8 +18,8 @@ INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Old New York'
 -- The offender records for all CRNs in here
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
 VALUES (-1000000, 'X781345', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test');
-INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
-VALUES (-1000001, 'X320741', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test.sql');
+INSERT INTO courtcaseservicetest.OFFENDER (id, crn, pnc, cro, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
+VALUES (-1000001, 'X320741', 'PNCINT007', 'CROINT007', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test.sql');
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, created_by)
 VALUES (-1000002, 'X320742', 'NOT_SENTENCED', 'before-test.sql');
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, created_by)

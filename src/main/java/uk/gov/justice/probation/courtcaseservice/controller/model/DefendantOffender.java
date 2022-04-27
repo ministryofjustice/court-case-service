@@ -23,6 +23,8 @@ public class DefendantOffender {
     private final OffenderProbationStatus probationStatus;
     @NotBlank
     private final String crn;
+    private final String pnc;
+    private final String cro;
     private final LocalDate previouslyKnownTerminationDate;
     private final Boolean suspendedSentenceOrder;
     private final Boolean breach;
@@ -32,6 +34,8 @@ public class DefendantOffender {
     public OffenderEntity asEntity() {
         return OffenderEntity.builder()
                 .crn(crn)
+                .cro(cro)
+                .pnc(pnc)
                 .probationStatus(probationStatus)
                 .previouslyKnownTerminationDate(previouslyKnownTerminationDate)
                 .awaitingPsr(awaitingPsr)
@@ -45,6 +49,8 @@ public class DefendantOffender {
 
         return DefendantOffender.builder()
                 .crn(offenderEntity.getCrn())
+                .pnc(offenderEntity.getPnc())
+                .cro(offenderEntity.getCro())
                 .probationStatus(offenderEntity.getProbationStatus())
                 .previouslyKnownTerminationDate(offenderEntity.getPreviouslyKnownTerminationDate())
                 .awaitingPsr(offenderEntity.getAwaitingPsr())
@@ -52,9 +58,5 @@ public class DefendantOffender {
                 .preSentenceActivity(offenderEntity.isPreSentenceActivity())
                 .suspendedSentenceOrder(offenderEntity.isSuspendedSentenceOrder())
                 .build();
-    }
-
-    public static DefendantOffender of(final DefendantEntity defendantEntity) {
-        return DefendantOffender.builder().build(); // TODO
     }
 }

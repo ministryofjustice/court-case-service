@@ -51,6 +51,8 @@ public class CourtCaseControllerOffenderUpdateIntTest extends BaseIntTest {
             .assertThat()
             .statusCode(200)
             .body("crn", equalTo("X320741"))
+            .body("pnc", equalTo("PNCINT007"))
+            .body("cro", equalTo("CROINT007"))
             .body("probationStatus", equalTo("CURRENT"))
             .body("previouslyKnownTerminationDate", equalTo("2010-01-01"))
             .body("awaitingPsr", equalTo(true))
@@ -111,6 +113,8 @@ public class CourtCaseControllerOffenderUpdateIntTest extends BaseIntTest {
 
         final String offenderUpdate = "{\n" +
             "                \"crn\": \"Y320741\",\n" +
+            "                \"cro\": \"CRO008\",\n" +
+            "                \"pnc\": \"PNC008\",\n" +
             "                \"probationStatus\": \"NOT_SENTENCED\",\n" +
             "                \"previouslyKnownTerminationDate\": \"2010-01-01\",\n" +
             "                \"awaitingPsr\": true,\n" +
@@ -134,6 +138,8 @@ public class CourtCaseControllerOffenderUpdateIntTest extends BaseIntTest {
 
         final var offender = offenderRepository.findByCrn("Y320741").get();
         assertThat(offender.getProbationStatus()).isEqualTo(OffenderProbationStatus.NOT_SENTENCED);
+        assertThat(offender.getPnc()).isEqualTo("PNC008");
+        assertThat(offender.getCro()).isEqualTo("CRO008");
         assertThat(offender.isBreach()).isFalse();
     }
 
@@ -142,6 +148,8 @@ public class CourtCaseControllerOffenderUpdateIntTest extends BaseIntTest {
 
         final String offenderUpdate = "{\n" +
             "                \"crn\": \"Z320741\",\n" +
+            "                \"pnc\": \"PNC009\",\n" +
+            "                \"cro\": \"CRO009\",\n" +
             "                \"probationStatus\": \"NOT_SENTENCED\",\n" +
             "                \"previouslyKnownTerminationDate\": \"2010-01-01\",\n" +
             "                \"awaitingPsr\": true,\n" +
@@ -165,6 +173,8 @@ public class CourtCaseControllerOffenderUpdateIntTest extends BaseIntTest {
 
         final var offender = offenderRepository.findByCrn("Z320741").get();
         assertThat(offender.getProbationStatus()).isEqualTo(OffenderProbationStatus.NOT_SENTENCED);
+        assertThat(offender.getPnc()).isEqualTo("PNC009");
+        assertThat(offender.getCro()).isEqualTo("CRO009");
         assertThat(offender.isBreach()).isFalse();
 
         final var defendant = defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_FOR_UPDATE_NEW_OFFENDER).get();

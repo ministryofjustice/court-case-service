@@ -32,7 +32,6 @@ public class OffenderRepositoryFacade {
                 existingOffender.setCro(updatedOffender.getCro());
                 existingOffender.setPnc(updatedOffender.getPnc());
                 existingOffender.setBreach(updatedOffender.isBreach());
-                existingOffender.setBreach(updatedOffender.isBreach());
                 existingOffender.setAwaitingPsr(updatedOffender.getAwaitingPsr());
                 existingOffender.setProbationStatus(updatedOffender.getProbationStatus());
                 existingOffender.setPreviouslyKnownTerminationDate(updatedOffender.getPreviouslyKnownTerminationDate());

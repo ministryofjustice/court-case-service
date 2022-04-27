@@ -1,6 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -46,7 +49,14 @@ import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@Tag(name = "Court and Cases Resources")
+@OpenAPIDefinition(info =
+    @Info(
+            title = "court-case-service",
+            description = "Service to access court cases imported from HMCTS Libra and Common Platform court lists",
+            license = @License(name = "The MIT License (MIT)", url = "https://github.com/ministryofjustice/court-case-service/blob/main/LICENSE")
+    )
+)
+@Tag(name = "Court Case Resources")
 @RestController
 @AllArgsConstructor
 public class CourtCaseController {
@@ -60,15 +70,8 @@ public class CourtCaseController {
     private final OffenderMatchService offenderMatchService;
     private final OffenderUpdateService offenderUpdateService;
 
-    @Operation(description = "Gets the court case data by case id.")
-//    @ApiResponses(
-//        value = {
-//            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-//            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-//            @ApiResponse(code = 404, message = "Not Found. For example if the court code or case number can't be matched.", response = ErrorResponse.class),
-//            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//        })
+    @Deprecated(forRemoval = true)
+    @Operation(description = "Gets the court case data by **hearingId** and defendantId.", summary = "This endpoint is misleadingly named for historical reasons to do with a data migration and will be removed. It behaves identically to GET `/hearing/{hearingId}/defendant/{defendantId}` so use this instead")
     @GetMapping(value = "/case/{caseId}/defendant/{defendantId}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCaseByCaseIdAndDefendantId(@PathVariable String caseId, @PathVariable String defendantId) {
@@ -83,15 +86,6 @@ public class CourtCaseController {
     }
 
     @Operation(description = "Gets the court case data by case number.")
-//    @ApiResponses(
-//            value = {
-//                    @ApiResponse(code = 200, message = "OK", response = CourtCaseResponse.class),
-//                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-//                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-//                    @ApiResponse(code = 404, message = "Not Found. For example if the court code or case number can't be matched.", response = ErrorResponse.class),
-//                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//            })
     @GetMapping(value = "/court/{courtCode}/case/{caseNo}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCase(@PathVariable String courtCode, @PathVariable String caseNo) {
@@ -99,15 +93,6 @@ public class CourtCaseController {
     }
 
     @Operation(description = "Saves and returns the court case data, by case id.")
-//    @ApiResponses(
-//            value = {
-//                    @ApiResponse(code = 201, message = "Created", response = ExtendedCourtCaseRequestResponse.class),
-//                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-//                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-//                    @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
-//                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//            })
     @PutMapping(value = "/case/{caseId}/extended", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
@@ -128,15 +113,6 @@ public class CourtCaseController {
     }
 
     @Operation(description = "Returns extended court case data, by case id.")
-//    @ApiResponses(
-//            value = {
-//                    @ApiResponse(code = 200, message = "OK", response = ExtendedCourtCaseRequestResponse.class),
-//                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-//                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-//                    @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
-//                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//            })
     @GetMapping(value = "/case/{caseId}/extended", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
@@ -144,7 +120,7 @@ public class CourtCaseController {
         final var courtCase = courtCaseService.getHearingByCaseId(caseId);
         return ExtendedCourtCaseRequestResponse.of(courtCase);
     }
-
+  
     @Operation(description = "Returns extended court case data, by hearing id.")
     @GetMapping(value = "/hearing/{hearingId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
@@ -154,16 +130,8 @@ public class CourtCaseController {
         return ExtendedCourtCaseRequestResponse.of(courtCase);
     }
 
-    @Operation(description = "Saves and returns the court case data, by case id.")
-//    @ApiResponses(
-//        value = {
-//            @ApiResponse(code = 201, message = "Updated", response = ExtendedCourtCaseRequestResponse.class),
-//            @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-//            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-//            @ApiResponse(code = 404, message = "Not Found, if for example, the court code does not exist.", response = ErrorResponse.class),
-//            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//        })
+    @Deprecated(forRemoval = true)
+    @Operation(description = "Saves and returns the court case data, by **hearingId** and defendantId.", summary = "This endpoint is misleadingly named for historical reasons to do with a data migration and will be removed. Use PUT `/defendant/{defendantId}/offender` instead.")
     @PutMapping(value = "/case/{caseId}/defendant/{defendantId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
@@ -203,16 +171,6 @@ public class CourtCaseController {
                     "createdBefore filters will not filter out updates originating from prepare-a-case, these manual updates" +
                     " are always assumed to be correct as they have been deliberately made by authorised users rather than " +
                     "automated systems.")
-//    @ApiResponses(
-//            value = {
-//                    @ApiResponse(code = 200, message = "OK", response = CaseListResponse.class),
-//                    @ApiResponse(code = 304, message = "Not modified"),
-//                    @ApiResponse(code = 400, message = "Invalid request", response = ErrorResponse.class),
-//                    @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//                    @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-//                    @ApiResponse(code = 404, message = "If the court is not found by the code passed."),
-//                    @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//            })
     @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<CaseListResponse> getCaseList(
             @PathVariable String courtCode,

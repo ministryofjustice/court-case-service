@@ -39,16 +39,6 @@ public class CourtController {
     }
 
     @Operation(description = "Creates the court entity data. Will not overwrite a record with the same court code.")
-//    @ApiResponses(
-//        value = {
-//            @ApiResponse(code = 201, message = "Created", response = CourtEntity.class),
-//            @ApiResponse(code = 400, message = "Invalid request. For example, court code parameter does not match one in RequestBody"
-//                + "or court code already exists.",
-//                response = ErrorResponse.class),
-//            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-//            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//        })
     @PutMapping(value = "/court/{courtCode}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(CREATED)
     public @ResponseBody
@@ -60,12 +50,6 @@ public class CourtController {
     }
 
     @Operation(description = "Gets a list of all courts with code and names.")
-//    @ApiResponses(
-//        value = {
-//            @ApiResponse(code = 401, message = "Unauthorised", response = ErrorResponse.class),
-//            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
-//            @ApiResponse(code = 500, message = "Unrecoverable error whilst processing request.", response = ErrorResponse.class)
-//        })
     @GetMapping(value = "/courts", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtListResponse getCourts() {

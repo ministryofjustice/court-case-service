@@ -2,7 +2,7 @@
 [![CircleCI](https://circleci.com/gh/ministryofjustice/court-case-service.svg?style=svg)](https://circleci.com/gh/ministryofjustice/court-case-service) 
 [![Swagger API docs (needs VPN)](https://img.shields.io/badge/API_docs_(needs_VPN)-view-85EA2D.svg?logo=swagger)](https://court-case-service-dev.apps.live-1.cloud-platform.service.justice.gov.uk/swagger-ui.html#)
 
-### Service to access court cases imported from HMCTS Libra court lists
+### Service to access court cases imported from HMCTS Libra and Common Platform court lists
 
 For more informations, check our [Runbook](https://dsdmoj.atlassian.net/wiki/spaces/NDSS/pages/2548662614/Prepare+a+Case+for+Sentence+RUNBOOK)
 

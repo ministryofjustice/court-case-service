@@ -53,6 +53,7 @@ data_dictionary:
 
 env:
   JAVA_OPTS: "-Xmx512m"
+  FEATURE_FLAGS_ENABLE_CACHEABLE_CASE_LIST: false
   community_api:
     base_url: https://community-api-secure.test.delius.probation.hmpps.dsd.io
   nomis_oauth:

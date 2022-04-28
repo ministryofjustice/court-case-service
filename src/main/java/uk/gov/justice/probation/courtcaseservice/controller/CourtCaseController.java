@@ -5,7 +5,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -50,15 +51,14 @@ import java.util.stream.Collectors;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @OpenAPIDefinition(info =
-    @Info(
-            title = "court-case-service",
-            description = "Service to access court cases imported from HMCTS Libra and Common Platform court lists",
-            license = @License(name = "The MIT License (MIT)", url = "https://github.com/ministryofjustice/court-case-service/blob/main/LICENSE")
-    )
+@Info(
+        title = "court-case-service",
+        description = "Service to access court cases imported from HMCTS Libra and Common Platform court lists",
+        license = @License(name = "The MIT License (MIT)", url = "https://github.com/ministryofjustice/court-case-service/blob/main/LICENSE")
+)
 )
 @Tag(name = "Court Case Resources")
 @RestController
-@AllArgsConstructor
 public class CourtCaseController {
 
     // See https://www.postgresql.org/docs/9.0/datatype-datetime.html
@@ -69,6 +69,18 @@ public class CourtCaseController {
     private final CourtCaseService courtCaseService;
     private final OffenderMatchService offenderMatchService;
     private final OffenderUpdateService offenderUpdateService;
+    private final boolean enableCacheableCaseList;
+
+    @Autowired
+    public CourtCaseController(CourtCaseService courtCaseService,
+                               OffenderMatchService offenderMatchService,
+                               OffenderUpdateService offenderUpdateService,
+                               @Value("${feature.flags.enable-cacheable-case-list:true}") boolean enableCacheableCaseList) {
+        this.courtCaseService = courtCaseService;
+        this.offenderMatchService = offenderMatchService;
+        this.offenderUpdateService = offenderUpdateService;
+        this.enableCacheableCaseList = enableCacheableCaseList;
+    }
 
     @Deprecated(forRemoval = true)
     @Operation(description = "Gets the court case data by **hearingId** and defendantId.", summary = "This endpoint is misleadingly named for historical reasons to do with a data migration and will be removed. It behaves identically to GET `/hearing/{hearingId}/defendant/{defendantId}` so use this instead")
@@ -107,7 +119,7 @@ public class CourtCaseController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     Mono<ExtendedCourtCaseRequestResponse> updateCourtCaseByHearingId(@PathVariable(value = "hearingId") String hearingId,
-                                                             @Valid @RequestBody ExtendedCourtCaseRequestResponse courtCaseRequest) {
+                                                                      @Valid @RequestBody ExtendedCourtCaseRequestResponse courtCaseRequest) {
         return courtCaseService.createHearingByHearingId(hearingId, courtCaseRequest.asHearingEntity())
                 .map(ExtendedCourtCaseRequestResponse::of);
     }
@@ -120,7 +132,7 @@ public class CourtCaseController {
         final var courtCase = courtCaseService.getHearingByCaseId(caseId);
         return ExtendedCourtCaseRequestResponse.of(courtCase);
     }
-  
+
     @Operation(description = "Returns extended court case data, by hearing id.")
     @GetMapping(value = "/hearing/{hearingId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
@@ -136,10 +148,10 @@ public class CourtCaseController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     Mono<CourtCaseResponse> updateCourtCaseByDefendantId(@PathVariable(value = "caseId") String caseId,
-        @PathVariable(value = "defendantId") String defendantId,
-        @Valid @RequestBody CourtCaseRequest courtCaseRequest) {
+                                                         @PathVariable(value = "defendantId") String defendantId,
+                                                         @Valid @RequestBody CourtCaseRequest courtCaseRequest) {
         return courtCaseService.createUpdateHearingForSingleDefendantId(caseId, defendantId, courtCaseRequest.asEntity())
-            .map(courtCaseEntity -> buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseEntity, defendantId));
+                .map(courtCaseEntity -> buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseEntity, defendantId));
     }
 
     @Operation(description = "Saves and returns the offender details by defendant id.")
@@ -147,15 +159,15 @@ public class CourtCaseController {
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     Mono<DefendantOffender> updateOffenderByDefendantId(@PathVariable(value = "defendantId") String defendantId,
-        @Valid @RequestBody DefendantOffender defendantOffender) {
-       return offenderUpdateService.updateDefendantOffender(defendantId, defendantOffender.asEntity()).map(DefendantOffender::of);
+                                                        @Valid @RequestBody DefendantOffender defendantOffender) {
+        return offenderUpdateService.updateDefendantOffender(defendantId, defendantOffender.asEntity()).map(DefendantOffender::of);
     }
 
     @Operation(description = "Removes defendant offender association by defendant id.")
     @DeleteMapping(value = "/defendant/{defendantId}/offender", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public void deleteOffender(@PathVariable(value = "defendantId") String defendantId) {
-       offenderUpdateService.removeDefendantOffenderAssociation(defendantId);
+        offenderUpdateService.removeDefendantOffenderAssociation(defendantId);
     }
 
     @Operation(description = "Returns the offender details by defendant id.")
@@ -163,7 +175,7 @@ public class CourtCaseController {
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     Mono<DefendantOffender> getOffenderByDefendantId(@PathVariable(value = "defendantId") String defendantId) {
-       return offenderUpdateService.getDefendantOffenderByDefendantId(defendantId).map(DefendantOffender::of);
+        return offenderUpdateService.getDefendantOffenderByDefendantId(defendantId).map(DefendantOffender::of);
     }
 
     @Operation(summary = "Gets case data for a court on a date. ",
@@ -182,13 +194,20 @@ public class CourtCaseController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdBefore,
             WebRequest webRequest
     ) {
-        var lastModified = courtCaseService.filterHearingsLastModified(courtCode, date)
-            .orElse(NEVER_MODIFIED_DATE)
-            .toInstant(ZoneOffset.UTC);
-        if (webRequest.checkNotModified(lastModified.toEpochMilli())) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
-                    .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS))
-                    .build();
+        var partialResponse = ResponseEntity.ok();
+        if (enableCacheableCaseList) {
+            var lastModified = courtCaseService.filterHearingsLastModified(courtCode, date)
+                    .orElse(NEVER_MODIFIED_DATE)
+                    .toInstant(ZoneOffset.UTC);
+            if (webRequest.checkNotModified(lastModified.toEpochMilli())) {
+                return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
+                        .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS))
+                        .build();
+            }
+
+            partialResponse = partialResponse
+                    .lastModified(lastModified)
+                    .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS));
         }
 
         final var createdAfterOrDefault = Optional.ofNullable(createdAfter)
@@ -208,15 +227,13 @@ public class CourtCaseController {
                         .thenComparing(CourtCaseResponse::getName))
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok()
-                .lastModified(lastModified)
-                .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS))
+        return partialResponse
                 .body(CaseListResponse.builder().cases(courtCaseResponses).build());
     }
 
     private CourtCaseResponse buildCourtCaseResponseForCaseIdAndDefendantId(HearingEntity hearingEntity, String defendantId) {
         final var offenderMatchesCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingEntity.getCaseId(), defendantId)
-            .orElse(0);
+                .orElse(0);
 
         return CourtCaseResponseMapper.mapFrom(hearingEntity, defendantId, offenderMatchesCount);
     }
@@ -237,13 +254,13 @@ public class CourtCaseController {
 
         final var caseId = hearingEntity.getCaseId();
         return defendantEntities.stream()
-            .sorted(Comparator.comparing(HearingDefendantEntity::getDefendantSurname))
-            .map(hearingDefendantEntity ->  {
-                final String defendantId = Optional.ofNullable(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).map(DefendantEntity::getDefendantId).orElseThrow();
-                var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantId).orElse(0);
-                return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate);
-            })
-            .toList();
+                .sorted(Comparator.comparing(HearingDefendantEntity::getDefendantSurname))
+                .map(hearingDefendantEntity -> {
+                    final String defendantId = Optional.ofNullable(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).map(DefendantEntity::getDefendantId).orElseThrow();
+                    var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantId).orElse(0);
+                    return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate);
+                })
+                .toList();
     }
 
 

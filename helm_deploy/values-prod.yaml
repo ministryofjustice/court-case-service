@@ -44,6 +44,7 @@ analytics_data_extractor:
 
 env:
   JAVA_OPTS: "-Xmx512m"
+  FEATURE_FLAGS_ENABLE_CACHEABLE_CASE_LIST: false
   community_api:
     base_url: https://community-api-secure.probation.service.justice.gov.uk
   nomis_oauth:

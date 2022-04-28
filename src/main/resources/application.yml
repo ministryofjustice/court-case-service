@@ -141,3 +141,7 @@ offender-service:
     included-statuses: "COMPLETE"
   psr-report-codes: "CJF,CJO,CJS,PSR"
 
+feature:
+  flags:
+    enable-cacheable-case-list: true
+

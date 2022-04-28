@@ -1,9 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
@@ -13,7 +12,14 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseReque
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
@@ -31,7 +37,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -60,7 +67,7 @@ class CourtCaseControllerTest {
     private OffenderMatchService offenderMatchService;
     @Mock
     private OffenderUpdateService offenderUpdateService;
-    @InjectMocks
+
     private CourtCaseController courtCaseController;
     private final HearingEntity hearingEntity = HearingEntity.builder()
             .hearingId(HEARING_ID)
@@ -82,6 +89,11 @@ class CourtCaseControllerTest {
             .build();
 
     private final CourtSession session = CourtSession.MORNING;
+
+    @BeforeEach
+    public void setUp() {
+        courtCaseController = new CourtCaseController(courtCaseService, offenderMatchService, offenderUpdateService, true);
+    }
 
     @Test
     void getCourtCase_shouldReturnCourtCaseResponse() {
@@ -298,6 +310,25 @@ class CourtCaseControllerTest {
 
         assertThat(responseEntity.getStatusCode().value()).isEqualTo(304);
         assertThat(responseEntity.getHeaders().get("Cache-Control").get(0)).isEqualTo("max-age=1");
+    }
+
+    @Test
+    void givenCacheableCaseListDisabled_whenListIsNotModified_thenReturnFullList() {
+        final var nonCachingController = new CourtCaseController(courtCaseService, offenderMatchService, offenderUpdateService, false);
+
+        final var courtCaseEntity = this.hearingEntity.withHearingDefendants(List.of(EntityHelper.aHearingDefendantEntity()))
+                .withHearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()
+                        .withDay(DATE)
+                        .withTime(LocalTime.of(9, 0))
+                        .withCourtCode(COURT_CODE)
+                ));
+        when(courtCaseService.filterHearings(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE))
+                .thenReturn(Collections.singletonList(courtCaseEntity));
+        var responseEntity = nonCachingController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE, webRequest);
+
+        assertThat(responseEntity.getBody().getCases()).hasSize(1);
+        assertCourtCase(responseEntity.getBody().getCases().get(0), null, 0);
+        assertThat(responseEntity.getHeaders().getFirst(HttpHeaders.LAST_MODIFIED)).isEqualTo(null);
     }
 
     @Test

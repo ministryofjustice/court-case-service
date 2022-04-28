@@ -40,6 +40,7 @@ import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.CustodyService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
+import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
@@ -86,6 +87,7 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
 
     public static final String CRN = "D991494";
+    private static final String HEARING_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
     private static final String CASE_ID = "f76f1dfe-c41e-4242-b5fa-865d7dd2ce57";
     private static final String DEFENDANT_ID = "062c670d-fdf6-441f-99e1-d2ce0c3a3846";
     private static final String CASE_ID_2 = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
@@ -98,6 +100,8 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
     private CustodyService custodyService;
     @MockBean(answer = Answers.CALLS_REAL_METHODS)
     private CourtCaseService courtCaseService;
+    @MockBean
+    private OffenderUpdateService offenderUpdateService;
 
     @BeforeEach
     void setupTestTarget(PactVerificationContext context) {
@@ -127,25 +131,30 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
     }
 
     @State({"a case exists with the given case id and defendant id",
-            "the defendant has possible matches with existing offender records"})
+            "the defendant has possible matches with existing offender records",
+            "an offender exists with the given defendantId"
+    })
     void existingCaseAndDefendant() {
-        mockCase(CASE_ID, DEFENDANT_ID);
-        mockCase(CASE_ID_2, DEFENDANT_ID_2);
+        mockCase(CASE_ID, HEARING_ID, DEFENDANT_ID);
+        mockCase(CASE_ID_2, HEARING_ID, DEFENDANT_ID_2);
     }
 
-    private void mockCase(String caseId, String defendantId) {
-        HearingEntity hearingEntity = buildCourtCaseEntity(caseId, defendantId);
+    private void mockCase(String caseId, String hearingId, String defendantId) {
+        HearingEntity hearingEntity = buildCourtCaseEntity(caseId, hearingId, defendantId);
 
-        when(courtCaseService.createUpdateHearingForSingleDefendantId(eq(caseId), eq(defendantId), any()))
+        when(offenderUpdateService.updateDefendantOffender(eq(defendantId), any()))
+                .thenReturn(Mono.just(hearingEntity.getHearingDefendant(defendantId).getDefendant().getOffender()));
+
+        when(courtCaseService.createUpdateHearingForSingleDefendantId(eq(hearingId), eq(defendantId), any()))
                 .thenReturn(Mono.just(hearingEntity));
 
-        when(courtCaseService.getHearingByCaseIdAndDefendantId(eq(caseId), eq(defendantId)))
+        when(courtCaseService.getHearingByHearingIdAndDefendantId(eq(hearingId), eq(defendantId)))
                 .thenReturn(hearingEntity);
 
-        when(offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantId))
+        when(offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingId, defendantId))
                 .thenReturn(Optional.of(3));
 
-        when(offenderMatchService.getOffenderMatchDetailsByCaseIdAndDefendantId(caseId, defendantId))
+        when(offenderMatchService.getOffenderMatchDetailsByCaseIdAndDefendantId(hearingId, defendantId))
                 .thenReturn(OffenderMatchDetailResponse.builder()
                         .offenderMatchDetails(Collections.singletonList(OffenderMatchDetail.builder()
                                 .title("Mr")
@@ -177,8 +186,9 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                         .build());
     }
 
-    private HearingEntity buildCourtCaseEntity(String caseId, String defendantId) {
+    private HearingEntity buildCourtCaseEntity(String caseId, String hearingId, String defendantId) {
         var courtCaseEntity = HearingEntity.builder()
+                .hearingId(hearingId)
                 .courtCase(CourtCaseEntity.builder()
                         .caseId(caseId)
                         .caseNo("1600028913")
@@ -192,6 +202,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                         .day(LocalDate.of(2019, 12, 4))
                         .build()))
                 .hearingDefendants(Collections.singletonList(HearingDefendantEntity.builder()
+                        .defendantId(defendantId)
                         .defendant(DefendantEntity.builder()
                                 .defendantId(defendantId)
                                 .pnc("A/1234560BA")
@@ -217,6 +228,8 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                                 .phoneNumber(PhoneNumberEntity.builder().home("07000000010").work("07000000011").mobile("07000000012").build())
                                 .offender(OffenderEntity.builder()
                                         .crn("X320741")
+                                        .pnc("PNC")
+                                        .cro("CRO")
                                         .previouslyKnownTerminationDate(LocalDate.of(2010, 1, 1))
                                         .suspendedSentenceOrder(true)
                                         .breach(true)

@@ -13,6 +13,9 @@ env:
   - name: JAVA_OPTS
     value: "{{ .Values.env.JAVA_OPTS }}"
 
+  - name: FEATURE_FLAGS_ENABLE_CACHEABLE_CASE_LIST
+    value: "{{ .Values.env.FEATURE_FLAGS_ENABLE_CACHEABLE_CASE_LIST }}"
+
   - name: DATABASE_USERNAME
     valueFrom:
       secretKeyRef:

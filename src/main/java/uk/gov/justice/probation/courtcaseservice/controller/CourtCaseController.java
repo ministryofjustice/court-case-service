@@ -124,6 +124,7 @@ public class CourtCaseController {
                 .map(ExtendedCourtCaseRequestResponse::of);
     }
 
+    @Deprecated(forRemoval = true)
     @Operation(description = "Returns extended court case data, by case id.")
     @GetMapping(value = "/case/{caseId}/extended", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)

@@ -2,8 +2,8 @@ package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchRequest;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
 import java.util.Collections;
@@ -20,10 +20,10 @@ public class OffenderMatchMapper {
         return group;
     }
 
-    public static GroupedOffenderMatchesEntity newGroupedMatchesOf(String defendantId, GroupedOffenderMatchesRequest offenderMatches, HearingEntity hearing) {
+    public static GroupedOffenderMatchesEntity newGroupedMatchesOf(String defendantId, GroupedOffenderMatchesRequest offenderMatches, CourtCaseEntity courtCase) {
         var group = GroupedOffenderMatchesEntity.builder()
                 .defendantId(defendantId)
-                .caseId(hearing.getCaseId())
+                .caseId(courtCase.getCaseId())
                 .build();
         group.setOffenderMatches(buildOffenderMatchEntities(offenderMatches.getMatches(), group));
         return group;

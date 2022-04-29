@@ -114,6 +114,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found for court %s", caseNo, courtCode)));
     }
 
+    @Deprecated(forRemoval = true)
     @Override
     public HearingEntity getHearingByCaseId(String caseId) throws EntityNotFoundException {
         log.info("Court case requested for case ID {}", caseId);

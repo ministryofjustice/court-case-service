@@ -53,7 +53,7 @@ class OffenderMatchMapperTest {
 
     @Test
     void givenMultipleMatches_whenNewEntityForExtended_thenMapAllFields() {
-        var courtCaseEntity = EntityHelper.aHearingEntity(CRN, CASE_NO);
+        var courtCaseEntity = EntityHelper.aHearingEntity(CRN, CASE_NO).getCourtCase();
         var groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
             .matches(asList(matchRequest1, matchRequest2))
             .build();

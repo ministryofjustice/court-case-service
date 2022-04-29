@@ -15,6 +15,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchD
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetailResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
@@ -40,12 +41,14 @@ public class OffenderMatchService {
     private CourtCaseService courtCaseService;
     private GroupedOffenderMatchRepository offenderMatchRepository;
     private OffenderRestClient offenderRestClient;
+    private CourtCaseRepository courtCaseRepository;
 
     @Autowired
-    public OffenderMatchService(CourtCaseService courtCaseService, GroupedOffenderMatchRepository offenderMatchRepository, OffenderRestClientFactory offenderRestClientFactory) {
+    public OffenderMatchService(CourtCaseService courtCaseService, GroupedOffenderMatchRepository offenderMatchRepository, OffenderRestClientFactory offenderRestClientFactory, CourtCaseRepository courtCaseRepository) {
         this.courtCaseService = courtCaseService;
         this.offenderMatchRepository = offenderMatchRepository;
         this.offenderRestClient = offenderRestClientFactory.build();
+        this.courtCaseRepository = courtCaseRepository;
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
@@ -58,7 +61,8 @@ public class OffenderMatchService {
     }
 
     private GroupedOffenderMatchesEntity createForCaseAndDefendant(String caseId, String defendantId, GroupedOffenderMatchesRequest offenderMatches) {
-        final var courtCaseEntity = courtCaseService.getHearingByCaseId(caseId);
+        final var courtCaseEntity = courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found", caseId)));
         return OffenderMatchMapper.newGroupedMatchesOf(defendantId, offenderMatches, courtCaseEntity);
     }
 

@@ -40,6 +40,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.URN;
 
 @Provider("court-case-service")
 @PactBroker(consumerVersionSelectors = @VersionSelector(consumer = "court-case-matcher"))
@@ -72,6 +73,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                 .courtCase(CourtCaseEntity.builder()
                         .caseNo("1600028913")
                         .sourceType(SourceType.LIBRA)
+                        .urn(URN)
                         .build())
                 .hearingDays(Collections.singletonList(HearingDayEntity.builder()
                         .courtCode("B10JQ")

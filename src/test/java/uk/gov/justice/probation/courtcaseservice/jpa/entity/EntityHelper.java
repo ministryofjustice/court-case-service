@@ -14,6 +14,7 @@ public class EntityHelper {
     public static final String HEARING_ID = "75e63d6c-5487-4244-a5bc-7cf8a38992db";
     public static final String COURT_CODE = "B10JQ";
     public static final String CRN  = "X340906";
+    public static final String URN  = "URN001";
     public static final String CASE_NO = "1001";
 
     public static final String COURT_ROOM = "1";
@@ -85,6 +86,7 @@ public class EntityHelper {
             .courtCase(CourtCaseEntity.builder()
                 .caseId(CASE_ID)
                 .caseNo(caseNo)
+                .urn(URN)
                 .sourceType(SOURCE)
             .build())
             .hearingDefendants(defendants)

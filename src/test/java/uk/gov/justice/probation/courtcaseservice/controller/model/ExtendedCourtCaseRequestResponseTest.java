@@ -37,6 +37,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NAME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PNC;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SESSION_START_TIME;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.URN;
 
 class ExtendedCourtCaseRequestResponseTest {
 
@@ -46,6 +47,7 @@ class ExtendedCourtCaseRequestResponseTest {
         final var request = ExtendedCourtCaseRequestResponse.builder()
                 .caseId("CASE_ID")
                 .hearingId("HEARING_ID")
+                .urn(URN)
                 .hearingDays(List.of(
                         HearingDay.builder()
                                 .listNo(LIST_NO)
@@ -65,6 +67,7 @@ class ExtendedCourtCaseRequestResponseTest {
 
         assertThat(courtCaseEntity.getCaseId()).isEqualTo("CASE_ID");
         assertThat(courtCaseEntity.getHearingId()).isEqualTo("HEARING_ID");
+        assertThat(courtCaseEntity.getCourtCase().getUrn()).isEqualTo(URN);
 
         assertThat(courtCaseEntity.getHearingDays()).hasSize(2);
         assertThat(courtCaseEntity.getHearingDays()).extracting("listNo").contains("1st", "2nd");
@@ -82,6 +85,7 @@ class ExtendedCourtCaseRequestResponseTest {
 
         final var request = ExtendedCourtCaseRequestResponse.builder()
                 .caseId("CASE_ID")
+                .urn(URN)
                 .hearingDays(List.of(
                         HearingDay.builder()
                                 .listNo(LIST_NO)
@@ -101,6 +105,7 @@ class ExtendedCourtCaseRequestResponseTest {
 
         assertThat(courtCaseEntity.getCaseId()).isEqualTo("CASE_ID");
         assertThat(courtCaseEntity.getHearingId()).isEqualTo("CASE_ID");
+        assertThat(courtCaseEntity.getCourtCase().getUrn()).isEqualTo(URN);
 
         assertThat(courtCaseEntity.getHearingDays()).hasSize(2);
         assertThat(courtCaseEntity.getHearingDays()).extracting("listNo").contains("1st", "2nd");
@@ -273,6 +278,7 @@ class ExtendedCourtCaseRequestResponseTest {
 
         assertThat(actual.getSource()).isEqualTo("LIBRA");
         assertThat(actual.getCaseId()).isEqualTo(CASE_ID);
+        assertThat(actual.getUrn()).isEqualTo(URN);
         assertThat(actual.getHearingId()).isEqualTo("HEARING_ID");
         assertThat(actual.getCaseNo()).isEqualTo(CASE_NO);
         assertThat(actual.getHearingDays().get(0)).isEqualTo(HearingDay.builder()
@@ -328,6 +334,7 @@ class ExtendedCourtCaseRequestResponseTest {
                         .sourceType(SourceType.LIBRA)
                         .caseId(CASE_ID)
                         .caseNo(CASE_NO)
+                        .urn(URN)
                         .build())
                 .hearingDays(List.of(HearingDayEntity.builder()
                                 .courtCode(COURT_CODE)

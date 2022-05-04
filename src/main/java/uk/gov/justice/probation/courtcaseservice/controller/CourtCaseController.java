@@ -104,6 +104,7 @@ public class CourtCaseController {
         return buildCourtCaseResponse(courtCaseService.getHearingByCaseNumber(courtCode, caseNo));
     }
 
+    @Deprecated(forRemoval = true)
     @Operation(description = "Saves and returns the court case data, by case id.")
     @PutMapping(value = "/case/{caseId}/extended", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)

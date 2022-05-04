@@ -43,6 +43,7 @@ public class ExtendedCourtCaseRequestResponse {
     private final String caseId;
     private final String hearingId;
     private final String source;
+    private final String urn;
     @Valid
     @NotEmpty
     private final List<HearingDay> hearingDays;
@@ -55,6 +56,7 @@ public class ExtendedCourtCaseRequestResponse {
                 .caseNo(hearing.getCaseNo())
                 .caseId(hearing.getCaseId())
                 .hearingId(hearing.getHearingId())
+                .urn(hearing.getCourtCase().getUrn())
                 .source(hearing.getSourceType().name())
                 .hearingDays(hearing.getHearingDays().stream()
                         .map(hearingEntity -> HearingDay.builder()
@@ -128,6 +130,7 @@ public class ExtendedCourtCaseRequestResponse {
             .courtCase(CourtCaseEntity.builder()
                 .caseNo(caseNo)
                 .caseId(caseId)
+                .urn(urn)
                 .sourceType(SourceType.valueOf(Optional.ofNullable(source).orElse(DEFAULT_SOURCE.name())))
             .build())
             .hearingId(Optional.ofNullable(hearingId).orElse(caseId))

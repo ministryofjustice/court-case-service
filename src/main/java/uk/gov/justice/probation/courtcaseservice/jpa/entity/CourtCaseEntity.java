@@ -53,6 +53,9 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "CASE_NO", nullable = false)
     private final String caseNo;
 
+    @Column(name = "urn", nullable = false)
+    private final String urn;
+
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore

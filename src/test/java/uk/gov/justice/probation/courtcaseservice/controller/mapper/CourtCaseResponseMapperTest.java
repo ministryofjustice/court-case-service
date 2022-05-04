@@ -43,6 +43,7 @@ class CourtCaseResponseMapperTest {
     private static final long ID = 1234L;
     private static final String CASE_ID = "CASE_ID";
     private static final String CASE_NO = "CASE_NO";
+    private static final String URN = "URN001";
     private static final String COURT_CODE = "COURT_CODE";
     private static final String COURT_ROOM = "COURT_ROOM";
     private static final boolean SUSPENDED_SENTENCE_ORDER = true;
@@ -326,6 +327,7 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getCaseId()).isEqualTo(CASE_ID);
         assertThat(courtCaseResponse.getSource()).isEqualTo(sourceType.name());
         assertThat(courtCaseResponse.isCreatedToday()).isFalse();
+        assertThat(courtCaseResponse.getUrn()).isEqualTo(URN);
     }
 
     private void assertCaseFields(CourtCaseResponse courtCaseResponse, String caseNo) {
@@ -342,6 +344,7 @@ class CourtCaseResponseMapperTest {
                         .caseNo(CASE_NO)
                         .caseId(CASE_ID)
                         .created(CREATED)
+                        .urn(URN)
                         .build())
                 .created(CREATED)
                 .firstCreated(firstCreated)

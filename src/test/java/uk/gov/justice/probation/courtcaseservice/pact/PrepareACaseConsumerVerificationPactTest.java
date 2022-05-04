@@ -78,6 +78,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.URN;
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
@@ -192,6 +193,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                 .courtCase(CourtCaseEntity.builder()
                         .caseId(caseId)
                         .caseNo("1600028913")
+                        .urn(URN)
                         .sourceType(SourceType.LIBRA)
                         .build())
                 .hearingDays(Collections.singletonList(HearingDayEntity.builder()

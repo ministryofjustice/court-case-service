@@ -60,6 +60,7 @@ public class CourtCaseResponseMapper {
         // Case-based fields
         builder.caseId(hearingEntity.getCaseId())
             .hearingId(hearingEntity.getHearingId())
+            .urn(hearingEntity.getCourtCase().getUrn())
             .source(hearingEntity.getSourceType().name())
             .createdToday(LocalDate.now().isEqual(Optional.ofNullable(hearingEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()));
         if (SourceType.LIBRA == hearingEntity.getSourceType()) {

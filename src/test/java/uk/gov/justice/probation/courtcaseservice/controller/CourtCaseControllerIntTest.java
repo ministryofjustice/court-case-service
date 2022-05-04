@@ -540,6 +540,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             response
                 .body("caseId", equalTo(CASE_ID))
                 .body("hearingId", equalTo(HEARING_ID))
+                .body("urn", equalTo("URN008"))
                 .body("offences", hasSize(2))
                 .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
                 .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
@@ -857,6 +858,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("source", equalTo("LIBRA"))
                 .body("caseNo", equalTo("1600028913"))
                 .body("caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
+                .body("urn", equalTo("URN008"))
                 .body("hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
                 .body("defendants", hasSize(1))
                 .body("defendants[0].type", equalTo("PERSON"))

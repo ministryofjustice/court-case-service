@@ -86,6 +86,7 @@ public class EntityHelper {
             .courtCase(CourtCaseEntity.builder()
                 .caseId(CASE_ID)
                 .caseNo(caseNo)
+                .urn(URN)
                 .sourceType(SOURCE)
             .build())
             .hearingDefendants(defendants)

@@ -107,6 +107,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                 .courtCase(CourtCaseEntity.builder()
                         .caseId("D517D32D-3C80-41E8-846E-D274DC2B94A5")
                         .caseNo("D517D32D-3C80-41E8-846E-D274DC2B94A5")
+                        .urn(URN)
                         .sourceType(SourceType.LIBRA)
                         .build())
                 .hearingDefendants(List.of(HearingDefendantEntity.builder()
@@ -209,6 +210,6 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
     @State({"a case will be PUT by id"})
     void mockPutCourtCaseExtended() {
         final Mono<HearingEntity> caseMono = Mono.just(EntityHelper.aHearingEntity("X340741", "1600028914"));
-        when(courtCaseService.createHearing(eq("D517D32D-3C80-41E8-846E-D274DC2B94A5"), any(HearingEntity.class))).thenReturn(caseMono);
+        when(courtCaseService.createHearingByHearingId(eq("ABCDD32D-3C80-41E8-846E-D274DC2B94A5"), any(HearingEntity.class))).thenReturn(caseMono);
     }
 }

@@ -57,6 +57,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
     private static final String JSON_CASE_ID = "ac24a1be-939b-49a4-a524-21a3d228f8bc";
     private static final String JSON_HEARING_ID = "75e63d6c-5487-4244-a5bc-7cf8a38992db";
+    private static final String URN = "URN007";
     @Value("classpath:integration/request/PUT_courtCaseExtended_update_invalid.json")
     private Resource invalidExtendedCaseResource;
 
@@ -90,6 +91,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             .statusCode(201)
             .body("caseId", equalTo(JSON_CASE_ID))
             .body("hearingId", equalTo(JSON_HEARING_ID))
+            .body("urn", equalTo(URN))
             .body("source", equalTo("COMMON_PLATFORM"))
             .body("defendants", hasSize(1))
             .body("defendants[0].offences",  hasSize(2))
@@ -113,6 +115,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         cc.ifPresentOrElse(courtCaseEntity -> {
             assertThat(courtCaseEntity.getCaseId()).isEqualTo(JSON_CASE_ID);
             assertThat(courtCaseEntity.getHearingId()).isEqualTo(JSON_HEARING_ID);
+            assertThat(courtCaseEntity.getCourtCase().getUrn()).isEqualTo(URN);
             assertThat(courtCaseEntity.getHearingDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
             assertThat(courtCaseEntity.getHearingDefendants().get(0).getDefendant().getPhoneNumber()).isEqualTo(
                     PhoneNumberEntity.builder().home("07000000013").mobile("07000000014").work("07000000015").build());

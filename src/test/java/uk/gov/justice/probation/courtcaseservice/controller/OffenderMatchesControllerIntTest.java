@@ -55,6 +55,30 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
         "            \"matchType\": \"NAME_DOB_ALIAS\",\n" +
         "            \"confirmed\": \"false\",\n" +
         "            \"rejected\": \"false\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "                \"matchIdentifiers\": {\n" +
+        "                \"crn\": \"X12346\"\n" +
+        "                \"offenderAliases\": [\n" +
+                    "      {\n" +
+                    "          \"id\": \"2500102187\",\n" +
+                    "          \"dateOfBirth\": \"1969-08-26\",\n" +
+                    "          \"firstName\": \"Adi\",\n" +
+                    "          \"surname\": \"Akinbye\",\n" +
+                    "          \"gender\": \"Male\"\n" +
+                    "      },\n" +
+                    "      {\n" +
+                    "          \"id\": \"2500089684\",\n" +
+                    "          \"dateOfBirth\": \"1968-08-06\",\n" +
+                    "          \"firstName\": \"Chris\",\n" +
+                    "          \"surname\": \"FAULKNER\",\n" +
+                    "          \"gender\": \"Male\"\n" +
+                    "      }\n" +
+                    "  ]" +
+        "            },\n" +
+        "            \"matchType\": \"ALL_SUPPLIED_ALIAS\",\n" +
+        "            \"confirmed\": \"false\",\n" +
+        "            \"rejected\": \"false\"\n" +
         "        }\n" +
         "    ]\n" +
         "}";

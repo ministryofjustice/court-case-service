@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Builder
@@ -18,6 +19,7 @@ public class OffenderAliasEntity {
 
     private final LocalDate dateOfBirth;
     private final String firstName;
+    private final List<String> middleNames;
     private final String surname;
     private final String gender;
 }

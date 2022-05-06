@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @AllArgsConstructor
 @Builder
@@ -18,4 +20,5 @@ public class MatchIdentifiers {
     private final String crn;
     private final String pnc;
     private final String cro;
+    private final List<OffenderMatchAlias> aliases;
 }

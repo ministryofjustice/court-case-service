@@ -5,6 +5,7 @@ public enum MatchType {
     NAME_DOB_PNC,
     /** Matches to all the parameters supplied but at least one from the one of the aliases associated to the offender */
     NAME_DOB_ALIAS,
+    ALL_SUPPLIED_ALIAS,
     HMPPS_KEY,
     EXTERNAL_KEY,
     NAME,

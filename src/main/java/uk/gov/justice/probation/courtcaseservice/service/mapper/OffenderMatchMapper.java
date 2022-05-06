@@ -1,9 +1,12 @@
 package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
+import org.jetbrains.annotations.Nullable;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchAlias;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderAliasEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
 import java.util.Collections;
@@ -41,9 +44,17 @@ public class OffenderMatchMapper {
                         .crn(offenderMatchRequest.getMatchIdentifiers().getCrn())
                         .pnc(offenderMatchRequest.getMatchIdentifiers().getPnc())
                         .cro(offenderMatchRequest.getMatchIdentifiers().getCro())
+                        .aliases(mapAliases(offenderMatchRequest.getMatchIdentifiers().getAliases()))
                         .build()
             )
             .collect(Collectors.toList());
+    }
+
+    @Nullable
+    private static List<OffenderAliasEntity> mapAliases(List<OffenderMatchAlias> offenderMatchAliases) {
+        return Optional.ofNullable(offenderMatchAliases).map(aliases ->
+            aliases.stream().map(OffenderMatchAlias::asEntity).collect(Collectors.toList())
+        ).orElse(null);
     }
 
     public static GroupedOffenderMatchesEntity update(String caseId, String defendantId, GroupedOffenderMatchesEntity group, GroupedOffenderMatchesRequest request) {

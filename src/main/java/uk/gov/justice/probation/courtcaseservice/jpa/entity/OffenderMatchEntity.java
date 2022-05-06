@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Type;
 import uk.gov.justice.probation.courtcaseservice.service.model.MatchType;
 
 import javax.persistence.Column;
@@ -20,6 +21,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.util.List;
 
 @Schema(description = "Offender Match")
 @Entity
@@ -72,4 +74,7 @@ public class OffenderMatchEntity extends BaseEntity {
     @JsonIgnore
     private GroupedOffenderMatchesEntity group;
 
+    @Type(type = "jsonb")
+    @Column(columnDefinition = "jsonb", name = "ALIASES")
+    private List<OffenderAliasEntity> aliases;
 }

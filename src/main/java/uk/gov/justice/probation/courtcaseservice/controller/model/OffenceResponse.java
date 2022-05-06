@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OffenceResponse {
     private final String offenceTitle;
     private final String offenceSummary;

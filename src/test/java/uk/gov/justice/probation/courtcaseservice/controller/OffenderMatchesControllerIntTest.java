@@ -76,7 +76,7 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
         "          }\n" +
         "        ]\n" +
         "      },\n" +
-        "      \"matchType\": \"ALL_SUPPLIED_ALIAS\",\n" +
+        "      \"matchType\": \"NAME_DOB_ALIAS\",\n" +
         "      \"confirmed\": true,\n" +
         "      \"rejected\": false\n" +
         "    }\n" +
@@ -159,7 +159,7 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                 .body("offenderMatches[0].confirmed", equalTo(false))
                 .body("offenderMatches[0].rejected", equalTo(false))
                 .body("offenderMatches[1].matchType", equalTo("NAME_DOB_ALIAS"))
-                .body("offenderMatches[2].matchType", equalTo("ALL_SUPPLIED_ALIAS"))
+                .body("offenderMatches[2].matchType", equalTo("NAME_DOB_ALIAS"))
                 .body("offenderMatches[2].aliases", hasSize(2))
                 .body("offenderMatches[2].aliases[0].gender", equalTo("Male"))
                 .body("offenderMatches[2].aliases[1].dateOfBirth", equalTo("1968-08-06"))

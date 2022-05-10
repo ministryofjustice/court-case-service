@@ -39,48 +39,48 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
         "}";
 
     public static final String MULTIPLE_NON_EXACT_MATCH_BODY =  "{\n" +
-        "    \"matches\": [\n" +
-        "        {\n" +
-        "                \"matchIdentifiers\": {\n" +
-        "                \"crn\": \"X12345\"\n" +
-        "            },\n" +
-        "            \"matchType\": \"PARTIAL_NAME\",\n" +
-        "            \"confirmed\": \"false\",\n" +
-        "            \"rejected\": \"false\"\n" +
-        "        },\n" +
-        "        {\n" +
-        "                \"matchIdentifiers\": {\n" +
-        "                \"crn\": \"X12346\"\n" +
-        "            },\n" +
-        "            \"matchType\": \"NAME_DOB_ALIAS\",\n" +
-        "            \"confirmed\": \"false\",\n" +
-        "            \"rejected\": \"false\"\n" +
-        "        },\n" +
-        "        {\n" +
-        "                \"matchIdentifiers\": {\n" +
-        "                \"crn\": \"X12346\"\n" +
-        "                \"offenderAliases\": [\n" +
-                    "      {\n" +
-                    "          \"id\": \"2500102187\",\n" +
-                    "          \"dateOfBirth\": \"1969-08-26\",\n" +
-                    "          \"firstName\": \"Adi\",\n" +
-                    "          \"surname\": \"Akinbye\",\n" +
-                    "          \"gender\": \"Male\"\n" +
-                    "      },\n" +
-                    "      {\n" +
-                    "          \"id\": \"2500089684\",\n" +
-                    "          \"dateOfBirth\": \"1968-08-06\",\n" +
-                    "          \"firstName\": \"Chris\",\n" +
-                    "          \"surname\": \"FAULKNER\",\n" +
-                    "          \"gender\": \"Male\"\n" +
-                    "      }\n" +
-                    "  ]" +
-        "            },\n" +
-        "            \"matchType\": \"ALL_SUPPLIED_ALIAS\",\n" +
-        "            \"confirmed\": \"false\",\n" +
-        "            \"rejected\": \"false\"\n" +
-        "        }\n" +
-        "    ]\n" +
+        "  \"matches\": [\n" +
+        "    {\n" +
+        "      \"matchIdentifiers\": {\n" +
+        "        \"crn\": \"X12345\"\n" +
+        "      },\n" +
+        "      \"matchType\": \"PARTIAL_NAME\",\n" +
+        "      \"confirmed\": \"false\",\n" +
+        "      \"rejected\": \"false\"\n" +
+        "    },\n" +
+        "    {\n" +
+        "      \"matchIdentifiers\": {\n" +
+        "        \"crn\": \"X12346\"\n" +
+        "      },\n" +
+        "      \"matchType\": \"NAME_DOB_ALIAS\",\n" +
+        "      \"confirmed\": \"false\",\n" +
+        "      \"rejected\": \"false\"\n" +
+        "    },\n" +
+        "    {\n" +
+        "      \"matchIdentifiers\": {\n" +
+        "        \"crn\": \"X346204\",\n" +
+        "        \"pnc\": \"pnc123\",\n" +
+        "        \"cro\": \"cro456\",\n" +
+        "        \"aliases\": [\n" +
+        "          {\n" +
+        "            \"dateOfBirth\": \"1969-08-26\",\n" +
+        "            \"firstName\": \"Adi\",\n" +
+        "            \"surname\": \"Akinbye\",\n" +
+        "            \"gender\": \"Male\"\n" +
+        "          },\n" +
+        "          {\n" +
+        "            \"dateOfBirth\": \"1968-08-06\",\n" +
+        "            \"firstName\": \"Chris\",\n" +
+        "            \"surname\": \"FAULKNER\",\n" +
+        "            \"gender\": \"Male\"\n" +
+        "          }\n" +
+        "        ]\n" +
+        "      },\n" +
+        "      \"matchType\": \"ALL_SUPPLIED_ALIAS\",\n" +
+        "      \"confirmed\": true,\n" +
+        "      \"rejected\": false\n" +
+        "    }\n" +
+        "  ]\n" +
         "}";
 
 
@@ -151,7 +151,7 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                 .get(location)
                 .then()
                 .statusCode(200)
-                .body("offenderMatches", hasSize(2))
+                .body("offenderMatches", hasSize(3))
                 .body("offenderMatches[0].crn", equalTo("X12345"))
                 .body("offenderMatches[0].pnc", equalTo(null))
                 .body("offenderMatches[0].cro", equalTo(null))
@@ -159,6 +159,10 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                 .body("offenderMatches[0].confirmed", equalTo(false))
                 .body("offenderMatches[0].rejected", equalTo(false))
                 .body("offenderMatches[1].matchType", equalTo("NAME_DOB_ALIAS"))
+                .body("offenderMatches[2].matchType", equalTo("ALL_SUPPLIED_ALIAS"))
+                .body("offenderMatches[2].aliases", hasSize(2))
+                .body("offenderMatches[2].aliases[0].gender", equalTo("Male"))
+                .body("offenderMatches[2].aliases[1].dateOfBirth", equalTo("1968-08-06"))
             ;
         }
 

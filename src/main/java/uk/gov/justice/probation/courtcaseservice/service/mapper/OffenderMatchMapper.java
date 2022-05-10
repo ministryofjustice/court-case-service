@@ -84,6 +84,7 @@ public class OffenderMatchMapper {
                         .crn(offenderMatchRequest.getMatchIdentifiers().getCrn())
                         .pnc(offenderMatchRequest.getMatchIdentifiers().getPnc())
                         .cro(offenderMatchRequest.getMatchIdentifiers().getCro())
+                        .aliases(mapAliases(offenderMatchRequest.getMatchIdentifiers().getAliases()))
                         .build()
             )
             .forEach(newMatch -> group.getOffenderMatches().add(newMatch));

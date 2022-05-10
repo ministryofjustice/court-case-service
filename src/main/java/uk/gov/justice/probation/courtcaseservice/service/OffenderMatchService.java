@@ -67,13 +67,14 @@ public class OffenderMatchService {
     }
 
     public Mono<GroupedOffenderMatchesEntity> getGroupedMatchesByCaseId(String caseId, String defendantId, Long groupId) {
-        return Mono.justOrEmpty(offenderMatchRepository.findById(groupId))
+        Mono<GroupedOffenderMatchesEntity> map = Mono.justOrEmpty(offenderMatchRepository.findById(groupId))
             .map(groupedOffenderMatchesEntity -> {
                 if (!caseId.equals(groupedOffenderMatchesEntity.getCaseId())) {
                     throw new EntityNotFoundException(String.format("Grouped Matches %s not found for caseId %s", groupId, caseId));
                 }
                 return groupedOffenderMatchesEntity;
             });
+        return map;
     }
 
     public OffenderMatchDetailResponse getOffenderMatchDetailsByCaseIdAndDefendantId(String caseId, String defendantId) {

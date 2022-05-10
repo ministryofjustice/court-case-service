@@ -37,7 +37,7 @@ class OffenderMatchMapperTest {
             .matchType(MatchType.NAME)
             .confirmed(true)
             .rejected(false)
-            .matchIdentifiers(new MatchIdentifiers("CRN1", "PNC1", "CRO1", List.of(offenderMatchAlias)))
+            .matchIdentifiers(new MatchIdentifiers("CRN1", "PNC1", "CRO1", null))
             .build();
 
     private static final OffenderMatchRequest matchRequest2 = OffenderMatchRequest.builder()
@@ -49,7 +49,6 @@ class OffenderMatchMapperTest {
 
     @Test
     void givenMultipleMatches_whenNewEntity_thenMapAllFields() {
-        var courtCaseEntity = EntityHelper.aHearingEntity(CRN, CASE_NO);
         var groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
                 .matches(asList(matchRequest1, matchRequest2))
                 .build();
@@ -59,6 +58,7 @@ class OffenderMatchMapperTest {
 
         assertThat(matchesEntity.getOffenderMatches()).hasSize(2);
         checkMatches(matchesEntity.getOffenderMatches().get(0), matchesEntity.getOffenderMatches().get(1), matchesEntity);
+        assertThat(matchesEntity.getOffenderMatches().get(1).getAliases()).hasSize(1);
     }
 
     @Test

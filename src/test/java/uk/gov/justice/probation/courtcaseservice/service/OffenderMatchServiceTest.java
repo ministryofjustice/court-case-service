@@ -286,9 +286,7 @@ class OffenderMatchServiceTest {
             given(offenderMatchRepository.findById(groupId)).willReturn(Optional.ofNullable(buildGroupedOffenderMatchesEntity("3", groupId)));
 
             // when
-            assertThrows(EntityNotFoundException.class, () -> {
-                service.getGroupedMatchesByDefendantId(defendantId, groupId).block();
-            });
+            assertThrows(EntityNotFoundException.class, () -> service.getGroupedMatchesByDefendantId(defendantId, groupId).block());
 
             // then
             verify(offenderMatchRepository).findById(groupId);
@@ -328,7 +326,7 @@ class OffenderMatchServiceTest {
                     .defendantId(defendantId)
                     .build();
         }
-
     }
+
 
 }

@@ -50,7 +50,7 @@ public class TelemetryService {
                 .ifPresent((hearingId) -> properties.put("hearingId", hearingId));
 
         ofNullable(hearingEntity.getSourceType())
-                .ifPresent((sourceType) -> properties.put("courtCaseSource", sourceType.name()));
+                .ifPresent((sourceType) -> properties.put("source", sourceType.name()));
 
         ofNullable(hearingEntity.getHearingDays())
                 .ifPresent(hearings -> {
@@ -97,7 +97,7 @@ public class TelemetryService {
         hearingEntityNullable
                 .map(HearingEntity::getSourceType)
                 .ifPresent((sourceType) -> {
-                    properties.put("courtCaseSource", sourceType.name());
+                    properties.put("source", sourceType.name());
                 });
         hearingEntityNullable
                 .map(HearingEntity::getHearingId)

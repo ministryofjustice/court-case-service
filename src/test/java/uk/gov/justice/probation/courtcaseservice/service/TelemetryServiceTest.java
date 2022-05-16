@@ -85,7 +85,7 @@ class TelemetryServiceTest {
         assertThat(properties.get("matches")).isEqualTo("3");
         assertThat(properties.get("username")).isEqualTo("Arthur");
         assertThat(properties.get("clientId")).isEqualTo("Van der Linde");
-        assertThat(properties.get("courtCaseSource")).isEqualTo("LIBRA");
+        assertThat(properties.get("source")).isEqualTo("LIBRA");
 
         assertThat(metricsCaptor.getValue()).isEmpty();
     }
@@ -110,7 +110,7 @@ class TelemetryServiceTest {
         assertThat(properties.get("hearings")).isEqualTo("first-hearing-description,second-hearing-description");
         assertThat(properties.get("username")).isEqualTo("Arthur");
         assertThat(properties.get("clientId")).isEqualTo("Van der Linde");
-        assertThat(properties.get("courtCaseSource")).isEqualTo("LIBRA");
+        assertThat(properties.get("source")).isEqualTo("LIBRA");
 
         assertThat(metricsCaptor.getValue()).isEmpty();
     }
@@ -129,7 +129,7 @@ class TelemetryServiceTest {
         assertThat(properties).hasSize(4);
         assertThat(properties.get("caseId")).isEqualTo(CASE_ID);
         assertThat(properties.get("hearings")).isEqualTo("first-hearing-description,second-hearing-description");
-        assertThat(properties.get("courtCaseSource")).isEqualTo("LIBRA");
+        assertThat(properties.get("source")).isEqualTo("LIBRA");
 
         assertThat(metricsCaptor.getValue()).isEmpty();
     }

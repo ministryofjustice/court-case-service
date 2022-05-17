@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchAlias;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiConvictionResponse;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Collections;
+import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -396,6 +398,20 @@ class OffenderMapperTest {
             assertThat(offenderMatchDetail.getAddress().getTown()).isEqualTo("Sheffield");
             assertThat(offenderMatchDetail.getAddress().getCounty()).isEqualTo("South Yorkshire");
             assertThat(offenderMatchDetail.getAddress().getPostcode()).isEqualTo("S10 2NA");
+
+            OffenderMatchAlias offenderMatchAlias1 = offenderMatchDetail.getMatchIdentifiers().getAliases().get(0);
+            assertThat(offenderMatchAlias1.getDateOfBirth()).isEqualTo(LocalDate.of(2022, 5, 17));
+            assertThat(offenderMatchAlias1.getFirstName()).isEqualTo("Aliasone");
+            assertThat(offenderMatchAlias1.getSurname()).isEqualTo("Bertrand");
+            assertThat(offenderMatchAlias1.getGender()).isEqualTo("Male");
+            assertThat(offenderMatchAlias1.getMiddleNames()).isEqualTo(List.of("Midone", "Midtwo"));
+
+            OffenderMatchAlias offenderMatchAlias2 = offenderMatchDetail.getMatchIdentifiers().getAliases().get(1);
+            assertThat(offenderMatchAlias1.getDateOfBirth()).isEqualTo(LocalDate.of(2022, 5, 17));
+            assertThat(offenderMatchAlias2.getFirstName()).isEqualTo("Aliastwo");
+            assertThat(offenderMatchAlias2.getSurname()).isEqualTo("Bertrand");
+            assertThat(offenderMatchAlias1.getGender()).isEqualTo("Male");
+            assertThat(offenderMatchAlias2.getMiddleNames()).isEqualTo(List.of("Midthree"));
         }
     }
 

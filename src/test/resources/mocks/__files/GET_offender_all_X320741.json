@@ -9,6 +9,24 @@
   "surname": "Bertrand",
   "dateOfBirth": "2000-07-19",
   "gender": "Male",
+  "offenderAliases": [
+    {
+      "dateOfBirth": "2022-05-17",
+      "firstName": "Aliasone",
+      "gender": "Male",
+      "middleNames": [
+        "Midone", "Midtwo"
+      ],
+      "surname": "Bertrand"
+    },
+    {
+      "dateOfBirth": "2022-05-17",
+      "firstName": "Aliastwo",
+      "gender": "Male",
+      "middleNames": ["Midthree"],
+      "surname": "Bertrand"
+    }
+  ],
   "otherIds": {
     "crn": "X320741",
     "pncNumber": "2004/0712343H",

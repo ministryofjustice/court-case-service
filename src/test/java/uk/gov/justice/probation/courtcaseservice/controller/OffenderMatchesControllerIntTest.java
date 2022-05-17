@@ -300,6 +300,11 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                 .body("offenderMatchDetails[0].mostRecentEvent.length", equalTo(5))
                 .body("offenderMatchDetails[0].mostRecentEvent.lengthUnits", equalTo("Years"))
                 .body("offenderMatchDetails[0].mostRecentEvent.startDate", equalTo("2014-01-01"))
+                .body("offenderMatchDetails[0].matchIdentifiers.aliases", hasSize(2))
+                .body("offenderMatchDetails[0].matchIdentifiers.aliases[0].gender", equalTo("Male"))
+                .body("offenderMatchDetails[0].matchIdentifiers.aliases[0].firstName", equalTo("Aliasone"))
+                .body("offenderMatchDetails[0].matchIdentifiers.aliases[1].firstName", equalTo("Aliastwo"))
+                .body("offenderMatchDetails[0].matchIdentifiers.aliases[1].dateOfBirth", equalTo("2022-05-17"))
             ;
         }
     }

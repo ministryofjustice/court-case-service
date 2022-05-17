@@ -75,6 +75,7 @@ public class OffenderMapper {
                 .map(otherIds -> MatchIdentifiers.builder().crn(otherIds.getCrn())
                                                             .cro(otherIds.getCroNumber())
                                                             .pnc(otherIds.getPncNumber())
+                                                            .aliases(offenderResponse.getOffenderAliases())
                                                             .build())
                 .orElse(null)
             )

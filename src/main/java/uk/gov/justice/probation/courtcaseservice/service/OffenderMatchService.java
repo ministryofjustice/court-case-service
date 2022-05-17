@@ -78,7 +78,6 @@ public class OffenderMatchService {
     }
 
     public OffenderMatchDetailResponse getOffenderMatchDetailsByCaseIdAndDefendantId(String caseId, String defendantId) {
-        courtCaseService.getHearingByCaseIdAndDefendantId(caseId, defendantId);    // Throw EntityNotFound if case does not exist
         List<OffenderMatchDetail> offenderMatchDetails = getOffenderMatchesByCaseIdAndDefendantId(caseId, defendantId)
             .map(GroupedOffenderMatchesEntity::getOffenderMatches)
             .map(offenderMatchEntities -> offenderMatchEntities
@@ -87,7 +86,7 @@ public class OffenderMatchService {
                 .map(this::getOffenderMatchDetail)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList())
-            ).orElse(Collections.emptyList());
+            ).orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found for defendant %s", caseId, defendantId)));
 
         return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchDetails).build();
     }

@@ -21,6 +21,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderM
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
@@ -33,6 +34,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -242,6 +245,19 @@ class OffenderMatchServiceTest {
 
             assertThat(response.getOffenderMatchDetails()).hasSize(2);
             assertThat(response.getOffenderMatchDetails()).extracting("forename").containsExactlyInAnyOrder("Chris", "Dave");
+        }
+
+        @Test
+        void givenDefendantIdDoesNotExist_whenGetOffenderMatchDetailsByCaseIdAndDefendantId_thenThrow() {
+
+            when(offenderMatchRepository.findByCaseIdAndDefendantId(anyString(), anyString())).thenReturn(
+                Optional.ofNullable(null));
+
+            Exception actual = assertThrows(
+                EntityNotFoundException.class,
+                () ->  service.getOffenderMatchDetailsByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)
+            );
+            assertThat(actual.getMessage()).isEqualTo("Case 4d113429-e38c-4fbf-bd94-e1c3569319eb not found for defendant e19b2776-6646-4940-93af-6b86fa1b7416");
         }
 
         private GroupedOffenderMatchesEntity buildGroupedOffenderMatchesEntity(List<String> crns) {

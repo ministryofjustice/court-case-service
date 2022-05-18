@@ -64,7 +64,7 @@ public class OffenderMatchesController {
     }
 
 
-    @Operation(description = "Gets an existing offender-match entity associated with a defendant")
+    @Operation(description = "Gets an existing grouped-offender-match entity associated with a defendant and a group")
     @GetMapping(value = GET_GROUPED_OFFENDER_MATCHES_BY_DEFENDANT_ID_AND_GROUP_ID_PATH, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody

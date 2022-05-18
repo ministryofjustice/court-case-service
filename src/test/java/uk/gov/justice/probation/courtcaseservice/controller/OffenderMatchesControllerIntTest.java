@@ -260,24 +260,6 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                     .body("userMessage", equalTo("Case " + CASE_ID + " not found for defendant 90db99d6-04db-11ec-b2d8-0242ac130002"))
                     .body("developerMessage", equalTo("Case " + CASE_ID + " not found for defendant 90db99d6-04db-11ec-b2d8-0242ac130002"));
         }
-
-        @Test
-        void givenDefendantIdMatch_whenGetGroupedMatchesByDefendantId_thenReturn200WithNoMostRecentEvent() {
-
-            String path = String.format(GET_GROUPED_OFFENDER_MATCHES_BY_DEFENDANT_ID_AND_GROUP_ID_PATH, DEFENDANT_ID, "1");
-            final var validatableResponse = given()
-                    .auth()
-                    .oauth2(getToken())
-                    .accept(APPLICATION_JSON_VALUE)
-                    .contentType(APPLICATION_JSON_VALUE)
-                    .when()
-                    .get(path)
-                    .then()
-                    .statusCode(200);
-
-            validate(validatableResponse);
-        }
-
         private void validate(ValidatableResponse validatableResponse) {
             validatableResponse.body("offenderMatchDetails", hasSize(1))
                     .body("offenderMatchDetails[0].title", equalTo(null))

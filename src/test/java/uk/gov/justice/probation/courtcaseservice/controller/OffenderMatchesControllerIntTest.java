@@ -9,9 +9,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.matchesPattern;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
@@ -83,34 +81,6 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
             "      \"rejected\": false\n" +
             "    }\n" +
             "  ]\n" +
-            "}";
-
-    final String GROUPED_OFFENDER_MATCHES_ENTITY_BODY = " {\n" +
-            "   \"created\":null,\n" +
-            "   \"lastUpdated\":null,\n" +
-            "   \"createdBy\":null,\n" +
-            "   \"lastUpdatedBy\":null,\n" +
-            "   \"deleted\":false,\n" +
-            "   \"version\":0,\n" +
-            "   \"offenderMatches\":[\n" +
-            "      {\n" +
-            "         \"created\":null,\n" +
-            "         \"lastUpdated\":null,\n" +
-            "         \"createdBy\":null,\n" +
-            "         \"lastUpdatedBy\":null,\n" +
-            "         \"deleted\":false,\n" +
-            "         \"version\":0,\n" +
-            "         \"crn\":X346204,\n" +
-            "         \"pnc\":null,\n" +
-            "         \"cro\":null,\n" +
-            "         \"matchType\":null,\n" +
-            "         \"confirmed\":null,\n" +
-            "         \"rejected\":null,\n" +
-            "         \"aliases\":null\n" +
-            "      }\n" +
-            "   ],\n" +
-            "   \"caseId\":1,\n" +
-            "   \"defendantId\":\"1081ca4e-8aa4-42ec-8212-530dec781e56\"\n" +
             "}";
 
 
@@ -347,33 +317,33 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                     .body("offenderMatchDetails[0].mostRecentEvent.length", equalTo(5))
                     .body("offenderMatchDetails[0].mostRecentEvent.lengthUnits", equalTo("Years"))
                     .body("offenderMatchDetails[0].mostRecentEvent.startDate", equalTo("2014-01-01"))
-                .body("offenderMatchDetails[0].title", equalTo("Mr."))
-                .body("offenderMatchDetails[0].forename", equalTo("Aadland"))
-                .body("offenderMatchDetails[0].middleNames", hasSize(2))
-                .body("offenderMatchDetails[0].middleNames[0]", equalTo("Felix"))
-                .body("offenderMatchDetails[0].middleNames[1]", equalTo("Hope"))
-                .body("offenderMatchDetails[0].surname", equalTo("Bertrand"))
-                .body("offenderMatchDetails[0].dateOfBirth", equalTo("2000-07-19"))
-                .body("offenderMatchDetails[0].address.addressNumber", equalTo("19"))
-                .body("offenderMatchDetails[0].address.streetName", equalTo("Junction Road"))
-                .body("offenderMatchDetails[0].address.district", equalTo("Blackheath"))
-                .body("offenderMatchDetails[0].address.town", equalTo("Sheffield"))
-                .body("offenderMatchDetails[0].address.county", equalTo("South Yorkshire"))
-                .body("offenderMatchDetails[0].address.postcode", equalTo("S10 2NA"))
-                .body("offenderMatchDetails[0].matchIdentifiers.crn", equalTo("X320741"))
-                .body("offenderMatchDetails[0].matchIdentifiers.pnc", equalTo("2004/0712343H"))
-                .body("offenderMatchDetails[0].matchIdentifiers.cro", equalTo("123456/04A"))
-                .body("offenderMatchDetails[0].probationStatus", equalTo("Previously known"))
-                .body("offenderMatchDetails[0].probationStatusActual", equalTo("PREVIOUSLY_KNOWN"))
-                .body("offenderMatchDetails[0].mostRecentEvent.text", equalTo("CJA - Indeterminate Public Prot."))
-                .body("offenderMatchDetails[0].mostRecentEvent.length", equalTo(5))
-                .body("offenderMatchDetails[0].mostRecentEvent.lengthUnits", equalTo("Years"))
-                .body("offenderMatchDetails[0].mostRecentEvent.startDate", equalTo("2014-01-01"))
-                .body("offenderMatchDetails[0].matchIdentifiers.aliases", hasSize(2))
-                .body("offenderMatchDetails[0].matchIdentifiers.aliases[0].gender", equalTo("Male"))
-                .body("offenderMatchDetails[0].matchIdentifiers.aliases[0].firstName", equalTo("Aliasone"))
-                .body("offenderMatchDetails[0].matchIdentifiers.aliases[1].firstName", equalTo("Aliastwo"))
-                .body("offenderMatchDetails[0].matchIdentifiers.aliases[1].dateOfBirth", equalTo("2022-05-17"))
+                    .body("offenderMatchDetails[0].title", equalTo("Mr."))
+                    .body("offenderMatchDetails[0].forename", equalTo("Aadland"))
+                    .body("offenderMatchDetails[0].middleNames", hasSize(2))
+                    .body("offenderMatchDetails[0].middleNames[0]", equalTo("Felix"))
+                    .body("offenderMatchDetails[0].middleNames[1]", equalTo("Hope"))
+                    .body("offenderMatchDetails[0].surname", equalTo("Bertrand"))
+                    .body("offenderMatchDetails[0].dateOfBirth", equalTo("2000-07-19"))
+                    .body("offenderMatchDetails[0].address.addressNumber", equalTo("19"))
+                    .body("offenderMatchDetails[0].address.streetName", equalTo("Junction Road"))
+                    .body("offenderMatchDetails[0].address.district", equalTo("Blackheath"))
+                    .body("offenderMatchDetails[0].address.town", equalTo("Sheffield"))
+                    .body("offenderMatchDetails[0].address.county", equalTo("South Yorkshire"))
+                    .body("offenderMatchDetails[0].address.postcode", equalTo("S10 2NA"))
+                    .body("offenderMatchDetails[0].matchIdentifiers.crn", equalTo("X320741"))
+                    .body("offenderMatchDetails[0].matchIdentifiers.pnc", equalTo("2004/0712343H"))
+                    .body("offenderMatchDetails[0].matchIdentifiers.cro", equalTo("123456/04A"))
+                    .body("offenderMatchDetails[0].probationStatus", equalTo("Previously known"))
+                    .body("offenderMatchDetails[0].probationStatusActual", equalTo("PREVIOUSLY_KNOWN"))
+                    .body("offenderMatchDetails[0].mostRecentEvent.text", equalTo("CJA - Indeterminate Public Prot."))
+                    .body("offenderMatchDetails[0].mostRecentEvent.length", equalTo(5))
+                    .body("offenderMatchDetails[0].mostRecentEvent.lengthUnits", equalTo("Years"))
+                    .body("offenderMatchDetails[0].mostRecentEvent.startDate", equalTo("2014-01-01"))
+                    .body("offenderMatchDetails[0].matchIdentifiers.aliases", hasSize(2))
+                    .body("offenderMatchDetails[0].matchIdentifiers.aliases[0].gender", equalTo("Male"))
+                    .body("offenderMatchDetails[0].matchIdentifiers.aliases[0].firstName", equalTo("Aliasone"))
+                    .body("offenderMatchDetails[0].matchIdentifiers.aliases[1].firstName", equalTo("Aliastwo"))
+                    .body("offenderMatchDetails[0].matchIdentifiers.aliases[1].dateOfBirth", equalTo("2022-05-17"))
             ;
         }
     }
@@ -383,6 +353,9 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
 
         private static final String GROUP_ID = "9999991";
         private static final String DEFENDANT_ID = "40db17d6-04db-11ec-b2d8-0242ac130002";
+
+        private static final String DEFENDANT_ID_NOT_EXIST = "40db17d6-04db";
+
 
         @Test
         void givenDefendantIdMatch_whenGetGroupedMatchesByDefendantId_thenReturn200() {
@@ -398,16 +371,24 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                     .then()
                     .statusCode(200);
 
-            validate(validatableResponse);
+            validatableResponse.body("defendantId", equalTo(DEFENDANT_ID));
         }
 
-        private void validate(ValidatableResponse validatableResponse) {
-            validatableResponse.body("offenderMatches", hasSize(1))
-            ;
-
-            // TODO
+        @Test
+        void givenDefendantIdDoesNotExist_whenGetOffenderDetailMatch_thenReturnNotFound() {
+            String path = String.format(GET_GROUPED_OFFENDER_MATCHES_BY_DEFENDANT_ID_AND_GROUP_ID_PATH, DEFENDANT_ID_NOT_EXIST, GROUP_ID);
+            given()
+                    .auth()
+                    .oauth2(getToken())
+                    .accept(APPLICATION_JSON_VALUE)
+                    .contentType(APPLICATION_JSON_VALUE)
+                    .when()
+                    .get(path)
+                    .then()
+                    .statusCode(404)
+                    //    .body("userMessage", equalTo("Case " + DEFENDANT_ID + " not found for defendant 90db99d6-04db-11ec-b2d8-0242ac130002"))
+                    .body("developerMessage", equalTo(String.format("Grouped Matches %s not found for defendant %s", GROUP_ID, DEFENDANT_ID_NOT_EXIST)));
         }
-
     }
 
 }

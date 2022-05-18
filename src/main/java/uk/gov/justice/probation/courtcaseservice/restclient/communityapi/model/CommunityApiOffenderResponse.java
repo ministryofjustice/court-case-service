@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchAlias;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,4 +26,5 @@ public class CommunityApiOffenderResponse {
     private String surname;
     private LocalDate dateOfBirth;
     private CommunityApiContactDetails contactDetails;
+    private List<OffenderMatchAlias> offenderAliases;
 }

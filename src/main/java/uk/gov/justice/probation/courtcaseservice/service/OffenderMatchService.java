@@ -139,4 +139,8 @@ public class OffenderMatchService {
                     return groupedOffenderMatchesEntity;
                 });
     }
+
+    public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatchesByDefendant(String defendantId, GroupedOffenderMatchesRequest request) {
+        return Mono.empty();
+    }
 }

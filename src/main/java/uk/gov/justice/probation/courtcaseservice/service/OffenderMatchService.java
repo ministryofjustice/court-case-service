@@ -129,8 +129,7 @@ public class OffenderMatchService {
                 .orElse(null);
     }
 
-    public Mono<GroupedOffenderMatchesEntity> getGroupedOffenderMatchesByDefendantIdAndGroupId(String defendantId, Long groupId) {
-        log.debug("Entered getGroupedMatchesByDefendantId with defendantId {} , groupId {}", defendantId, groupId);
+    public Mono<GroupedOffenderMatchesEntity> getGroupedOffenderMatchesEntityByDefendantIdAndGroupId(String defendantId, Long groupId) {
         return Mono.justOrEmpty(offenderMatchRepository.findById(groupId))
                 .map(groupedOffenderMatchesEntity -> {
                     if (!defendantId.equals(groupedOffenderMatchesEntity.getDefendantId())) {

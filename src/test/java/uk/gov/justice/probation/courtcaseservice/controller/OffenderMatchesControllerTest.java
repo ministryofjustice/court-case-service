@@ -108,7 +108,7 @@ class OffenderMatchesControllerTest {
     }
 
     @Test
-    void givenDefendantIdMatch_whenGetOffenderMatchesByDefendantId_thenReturn() {
+    void givenDefendantIdMatch_whenGetOffenderMatchesEntityByDefendantId_thenReturn() {
         // given
         List<OffenderMatchEntity> offenderMatchEntities = List.of(OffenderMatchEntity.builder()
                 .id(GROUP_ID)
@@ -119,13 +119,13 @@ class OffenderMatchesControllerTest {
                 .defendantId(DEFENDANT_ID)
                 .build();
 
-        given(offenderMatchService.getGroupedOffenderMatchesByDefendantIdAndGroupId(DEFENDANT_ID, GROUP_ID)).willReturn(Mono.just(groupedOffenderMatchesEntity));
+        given(offenderMatchService.getGroupedOffenderMatchesEntityByDefendantIdAndGroupId(DEFENDANT_ID, GROUP_ID)).willReturn(Mono.just(groupedOffenderMatchesEntity));
 
         // when
-        final var body = controller.getGroupedOffenderMatchesByDefendantIdAndGroupId(DEFENDANT_ID,GROUP_ID).block();
+        final var body = controller.getGroupedOffenderMatchesEntityByDefendantIdAndGroupId(DEFENDANT_ID,GROUP_ID).block();
 
         // then
-        verify(offenderMatchService).getGroupedOffenderMatchesByDefendantIdAndGroupId(DEFENDANT_ID, GROUP_ID);
+        verify(offenderMatchService).getGroupedOffenderMatchesEntityByDefendantIdAndGroupId(DEFENDANT_ID, GROUP_ID);
         verifyNoMoreInteractions(offenderMatchService);
         assertThat(groupedOffenderMatchesEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
     }

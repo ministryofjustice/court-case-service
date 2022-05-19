@@ -13,9 +13,6 @@ import java.util.Optional;
 public interface CourtCaseService {
     HearingEntity getHearingByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException;
 
-    HearingEntity getHearingByCaseId(String caseId) throws EntityNotFoundException;
-
-    HearingEntity getHearingByCaseIdAndDefendantId(String caseId, String defendantId) throws EntityNotFoundException;
     HearingEntity getHearingByHearingId(String hearingId) throws EntityNotFoundException;
 
     HearingEntity getHearingByHearingIdAndDefendantId(String caseId, String defendantId) throws EntityNotFoundException;
@@ -24,9 +21,6 @@ public interface CourtCaseService {
         throws EntityNotFoundException, InputMismatchException;
 
     Mono<HearingEntity> createHearingByHearingId(String hearingId, HearingEntity updatedHearing) throws EntityNotFoundException, InputMismatchException;
-
-    Mono<HearingEntity> createUpdateHearingForSingleDefendantId(String caseId, String defendantId, HearingEntity updatedCase)
-        throws EntityNotFoundException, InputMismatchException;
 
     List<HearingEntity> filterHearings(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore);
 

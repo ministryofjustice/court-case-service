@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -38,7 +37,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -120,36 +118,6 @@ class CourtCaseControllerTest {
                 .isThrownBy(() -> courtCaseController.getCourtCase(COURT_CODE, CASE_NO))
                 .withMessageContaining(hearingEntity.getCaseId());
 
-        verifyNoMoreInteractions(courtCaseService, offenderMatchService);
-    }
-
-    @Test
-    void getExtendedCourtCaseById_shouldReturnResponse() {
-        when(courtCaseService.getHearingByCaseId(CASE_ID)).thenReturn(hearingEntity);
-        var courtCase = courtCaseController.getExtendedCourtCase(CASE_ID);
-        assertThat(courtCase.getCaseNo()).isEqualTo(CASE_NO);
-        assertThat(courtCase.getCaseId()).isEqualTo(CASE_ID);
-        assertThat(courtCase.getHearingId()).isEqualTo(HEARING_ID);
-
-        verify(courtCaseService).getHearingByCaseId(CASE_ID);
-        verifyNoMoreInteractions(courtCaseService);
-    }
-
-    @Test
-    void getCourtCaseByCaseIdAndDefendantId_shouldReturnCourtCaseResponseNoCaseNo() {
-
-        when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(2));
-        when(courtCaseService.getHearingByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(hearingEntity);
-
-        var courtCase = courtCaseController.getCourtCaseByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
-        assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
-        assertThat(courtCase.getCaseNo()).isNull();
-        assertThat(courtCase.getSessionStartTime()).isNotNull();
-        assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(2);
-        assertThat(courtCase.getSession()).isSameAs(session);
-
-        verify(courtCaseService).getHearingByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
-        verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 
@@ -340,32 +308,6 @@ class CourtCaseControllerTest {
 
         assertThat(responseEntity.getHeaders().get("Last-Modified").get(0)).isEqualTo("Wed, 01 Jan 2020 00:00:00 GMT");
         assertThat(responseEntity.getHeaders().get("Cache-Control").get(0)).isEqualTo("max-age=1");
-    }
-
-    @Test
-    void whenUpdateCaseByCaseIdAndDefendantId_shouldReturnCourtCaseResponse() {
-        when(courtCaseUpdate.asEntity()).thenReturn(hearingEntity);
-        when(courtCaseService.createUpdateHearingForSingleDefendantId(CASE_ID, DEFENDANT_ID, hearingEntity)).thenReturn(Mono.just(hearingEntity));
-        when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(3));
-
-        var courtCase = courtCaseController.updateCourtCaseByDefendantId(CASE_ID, DEFENDANT_ID, courtCaseUpdate).block();
-
-        assertCourtCase(courtCase, null, 3);
-        verify(courtCaseService).createUpdateHearingForSingleDefendantId(CASE_ID, DEFENDANT_ID, hearingEntity);
-        verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
-        verifyNoMoreInteractions(courtCaseService, offenderMatchService);
-    }
-
-    @Test
-    void whenUpdateWholeCaseByCaseId_shouldReturnCourtCaseResponse() {
-        var courtCaseRequest = ExtendedCourtCaseRequestResponse.builder().caseId("CASE_ID").build();
-        when(courtCaseService.createHearing(eq(CASE_ID), any())).thenReturn(Mono.just(hearingEntity));
-
-        var courtCase = courtCaseController.updateCourtCaseId(CASE_ID, courtCaseRequest).block();
-
-        assertThat(courtCase.getCaseId()).isSameAs(CASE_ID);
-        verify(courtCaseService).createHearing(CASE_ID, hearingEntity);
-        verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 
     @Test

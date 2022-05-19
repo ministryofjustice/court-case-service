@@ -25,7 +25,6 @@ import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
@@ -82,14 +81,6 @@ public class CourtCaseController {
         this.enableCacheableCaseList = enableCacheableCaseList;
     }
 
-    @Deprecated(forRemoval = true)
-    @Operation(description = "Gets the court case data by **hearingId** and defendantId.", summary = "This endpoint is misleadingly named for historical reasons to do with a data migration and will be removed. It behaves identically to GET `/hearing/{hearingId}/defendant/{defendantId}` so use this instead")
-    @GetMapping(value = "/case/{caseId}/defendant/{defendantId}", produces = APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    CourtCaseResponse getCourtCaseByCaseIdAndDefendantId(@PathVariable String caseId, @PathVariable String defendantId) {
-        return this.buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseService.getHearingByCaseIdAndDefendantId(caseId, defendantId), defendantId);
-    }
-
     @Operation(description = "Gets the court case data by hearing id and defendant id.")
     @GetMapping(value = "/hearing/{hearingId}/defendant/{defendantId}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
@@ -104,17 +95,6 @@ public class CourtCaseController {
         return buildCourtCaseResponse(courtCaseService.getHearingByCaseNumber(courtCode, caseNo));
     }
 
-    @Deprecated(forRemoval = true)
-    @Operation(description = "Saves and returns the court case data, by case id.")
-    @PutMapping(value = "/case/{caseId}/extended", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
-    public @ResponseBody
-    Mono<ExtendedCourtCaseRequestResponse> updateCourtCaseId(@PathVariable(value = "caseId") String caseId,
-                                                             @Valid @RequestBody ExtendedCourtCaseRequestResponse courtCaseRequest) {
-        return courtCaseService.createHearing(caseId, courtCaseRequest.asHearingEntity())
-                .map(ExtendedCourtCaseRequestResponse::of);
-    }
-
     @Operation(description = "Saves and returns the court case data, by hearing id.")
     @PutMapping(value = "/hearing/{hearingId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -125,16 +105,6 @@ public class CourtCaseController {
                 .map(ExtendedCourtCaseRequestResponse::of);
     }
 
-    @Deprecated(forRemoval = true)
-    @Operation(description = "Returns extended court case data, by case id.")
-    @GetMapping(value = "/case/{caseId}/extended", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody
-    ExtendedCourtCaseRequestResponse getExtendedCourtCase(@PathVariable(value = "caseId") String caseId) {
-        final var courtCase = courtCaseService.getHearingByCaseId(caseId);
-        return ExtendedCourtCaseRequestResponse.of(courtCase);
-    }
-
     @Operation(description = "Returns extended court case data, by hearing id.")
     @GetMapping(value = "/hearing/{hearingId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
@@ -142,18 +112,6 @@ public class CourtCaseController {
     ExtendedCourtCaseRequestResponse getCourtCaseByHearingId(@PathVariable(value = "hearingId") String hearingId) {
         final var courtCase = courtCaseService.getHearingByHearingId(hearingId);
         return ExtendedCourtCaseRequestResponse.of(courtCase);
-    }
-
-    @Deprecated(forRemoval = true)
-    @Operation(description = "Saves and returns the court case data, by **hearingId** and defendantId.", summary = "This endpoint is misleadingly named for historical reasons to do with a data migration and will be removed. Use PUT `/defendant/{defendantId}/offender` instead.")
-    @PutMapping(value = "/case/{caseId}/defendant/{defendantId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
-    public @ResponseBody
-    Mono<CourtCaseResponse> updateCourtCaseByDefendantId(@PathVariable(value = "caseId") String caseId,
-                                                         @PathVariable(value = "defendantId") String defendantId,
-                                                         @Valid @RequestBody CourtCaseRequest courtCaseRequest) {
-        return courtCaseService.createUpdateHearingForSingleDefendantId(caseId, defendantId, courtCaseRequest.asEntity())
-                .map(courtCaseEntity -> buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseEntity, defendantId));
     }
 
     @Operation(description = "Saves and returns the offender details by defendant id.")

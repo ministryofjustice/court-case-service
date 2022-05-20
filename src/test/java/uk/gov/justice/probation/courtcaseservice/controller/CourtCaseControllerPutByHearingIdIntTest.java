@@ -294,7 +294,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         ;
 
         // The correct offender is now associated
-        courtCaseRepository.findByCaseId(caseId)
+        courtCaseRepository.findFirstByHearingIdOrderByIdDesc(caseId)
             .ifPresentOrElse(theCase -> {
                 var defendants = theCase.getHearingDefendants();
                 assertThat(defendants).hasSize(1);
@@ -344,7 +344,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         ;
 
         // The correct offender is now associated
-        courtCaseRepository.findByCaseId(caseId)
+        courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID)
             .ifPresentOrElse(theCase -> {
                 var defendants = theCase.getHearingDefendants();
                 assertThat(defendants).hasSize(1);

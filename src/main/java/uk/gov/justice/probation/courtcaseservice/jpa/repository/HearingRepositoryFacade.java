@@ -48,29 +48,6 @@ public class HearingRepositoryFacade {
                 .map(this::updateWithDefendants);
     }
 
-    @Deprecated(forRemoval = true)
-    /**
-     * @deprecated Strictly speaking this finds by hearingId which equals caseId only for a subset of cases created
-     * before hearingId was fully rolled out. Using it after this point will produce unexpected results.To be removed
-     * as part of PIC-2062.
-     */
-    public Optional<HearingEntity> findByCaseId(String caseId) {
-        final var firstByHearingIdOrderByIdDesc = hearingRepository.findFirstByHearingIdOrderByIdDesc(caseId);
-        return firstByHearingIdOrderByIdDesc
-                .map(this::updateWithDefendants);
-    }
-
-    @Deprecated(forRemoval = true)
-    /**
-     * @deprecated Strictly speaking this finds by hearingId which equals caseId only for a subset of cases created
-     * before hearingId was fully rolled out. Using it after this point will produce unexpected results.To be removed
-     * as part of PIC-2062. Use @findByHearingIdAndDefendantId instead.
-     */
-    public Optional<HearingEntity> findByCaseIdAndDefendantId(String caseId, String defendantId) {
-
-        return findByHearingIdAndDefendantId(caseId, defendantId);
-    }
-
     public Optional<HearingEntity> findByHearingIdAndDefendantId(String hearingId, String defendantId) {
 
         return hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)

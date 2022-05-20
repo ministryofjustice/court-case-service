@@ -31,13 +31,4 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
 
         verify(courtRepository, times(3)).findByCourtCode(COURT_CODE);
     }
-
-    @Test
-    public void givenCannotAcquireLockExceptionThrown_whenCreateUpdateCaseForSingleDefendantId_thenRetry() {
-        when(courtRepository.findByCourtCode(COURT_CODE)).thenThrow(CannotAcquireLockException.class);
-        assertThatExceptionOfType(CannotAcquireLockException.class)
-                .isThrownBy(() -> courtCaseService.createUpdateHearingForSingleDefendantId("1234", "12345", COURT_CASE_ENTITY));
-
-        verify(courtRepository, times(3)).findByCourtCode(COURT_CODE);
-    }
 }

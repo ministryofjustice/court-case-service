@@ -117,11 +117,11 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
 
     @Deprecated(forRemoval = true)
     @State({"a list of cases exist for the given date",
-            "a case exists with the given case number",
-            "the defendant has an existing conviction with sentence",
-            "a defendant has an existing conviction",
-            "will return the specific conviction breach details",
-            "a defendant has an existing conviction"})
+        "a case exists with the given case number",
+        "the defendant has an existing conviction with sentence",
+        "a defendant has an existing conviction",
+        "will return the specific conviction breach details",
+        "a defendant has an existing conviction"})
     @SuppressWarnings({"EmptyMethod"})
     void stateFromIntegrationTests() {
         // The data backing these states is created in the before-test.sql which was originally intended for application
@@ -145,9 +145,6 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
 
         when(offenderUpdateService.updateDefendantOffender(eq(defendantId), any()))
                 .thenReturn(Mono.just(hearingEntity.getHearingDefendant(defendantId).getDefendant().getOffender()));
-
-        when(courtCaseService.createUpdateHearingForSingleDefendantId(eq(hearingId), eq(defendantId), any()))
-                .thenReturn(Mono.just(hearingEntity));
 
         when(courtCaseService.getHearingByHearingIdAndDefendantId(eq(hearingId), eq(defendantId)))
                 .thenReturn(hearingEntity);

@@ -64,22 +64,6 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
     }
 
     @Test
-    public void whenFindByCaseId_thenReturnCorrectRecordWithOffender() {
-        // NOTE: This is actually the hearingId being passed - see deprecation notice for more info
-        final var actual = hearingRepositoryFacade.findByCaseId("5564cbfd-3d53-4f36-9508-437416b08738");
-
-        assertIsFerrisBueller(actual);
-    }
-
-    @Test
-    public void whenFindByCaseIdAndDefendantId_thenReturnCorrectRecordWithOffender() {
-        // NOTE: This is actually the hearingId being passed - see deprecation notice for more info
-        final var actual = hearingRepositoryFacade.findByCaseIdAndDefendantId("5564cbfd-3d53-4f36-9508-437416b08738", "0048297a-fd9c-4c96-8c03-8122b802a54d");
-
-        assertIsFerrisBueller(actual);
-    }
-
-    @Test
     public void whenFindFirstByHearingIdOrderByIdDesc_andOffenderDoesNotExist_thenThrow() {
         assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(() -> hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc("db63e9b5-6263-4235-9c4e-a99e200ae33e"))

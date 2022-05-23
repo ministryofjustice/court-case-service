@@ -27,11 +27,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,9 +51,9 @@ public class OffenderMatchService {
     @Retryable(value = {CannotAcquireLockException.class, DataIntegrityViolationException.class})
     public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatchesByDefendant(String caseId, String defendantId, GroupedOffenderMatchesRequest offenderMatches) {
         return Mono.just(offenderMatchRepository.findByCaseIdAndDefendantId(caseId, defendantId)
-            .map(existingGroup -> OffenderMatchMapper.update(caseId, defendantId, existingGroup, offenderMatches))
-            .orElseGet(() -> createForCaseAndDefendant(caseId, defendantId, offenderMatches)))
-            .map(groupedOffenderMatchesEntity -> offenderMatchRepository.save(groupedOffenderMatchesEntity));
+                        .map(existingGroup -> OffenderMatchMapper.update(caseId, defendantId, existingGroup, offenderMatches))
+                        .orElseGet(() -> createForCaseAndDefendant(caseId, defendantId, offenderMatches)))
+                .map(groupedOffenderMatchesEntity -> offenderMatchRepository.save(groupedOffenderMatchesEntity));
     }
 
     private GroupedOffenderMatchesEntity createForCaseAndDefendant(String caseId, String defendantId, GroupedOffenderMatchesRequest offenderMatches) {
@@ -68,25 +64,25 @@ public class OffenderMatchService {
 
     public Mono<GroupedOffenderMatchesEntity> getGroupedMatchesByCaseId(String caseId, String defendantId, Long groupId) {
         Mono<GroupedOffenderMatchesEntity> map = Mono.justOrEmpty(offenderMatchRepository.findById(groupId))
-            .map(groupedOffenderMatchesEntity -> {
-                if (!caseId.equals(groupedOffenderMatchesEntity.getCaseId())) {
-                    throw new EntityNotFoundException(String.format("Grouped Matches %s not found for caseId %s", groupId, caseId));
-                }
-                return groupedOffenderMatchesEntity;
-            });
+                .map(groupedOffenderMatchesEntity -> {
+                    if (!caseId.equals(groupedOffenderMatchesEntity.getCaseId())) {
+                        throw new EntityNotFoundException(String.format("Grouped Matches %s not found for caseId %s", groupId, caseId));
+                    }
+                    return groupedOffenderMatchesEntity;
+                });
         return map;
     }
 
     public OffenderMatchDetailResponse getOffenderMatchDetailsByCaseIdAndDefendantId(String caseId, String defendantId) {
         List<OffenderMatchDetail> offenderMatchDetails = getOffenderMatchesByCaseIdAndDefendantId(caseId, defendantId)
-            .map(GroupedOffenderMatchesEntity::getOffenderMatches)
-            .map(offenderMatchEntities -> offenderMatchEntities
-                .stream()
-                .map(OffenderMatchEntity::getCrn)
-                .map(this::getOffenderMatchDetail)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList())
-            ).orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found for defendant %s", caseId, defendantId)));
+                .map(GroupedOffenderMatchesEntity::getOffenderMatches)
+                .map(offenderMatchEntities -> offenderMatchEntities
+                        .stream()
+                        .map(OffenderMatchEntity::getCrn)
+                        .map(this::getOffenderMatchDetail)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList())
+                ).orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found for defendant %s", caseId, defendantId)));
 
         return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchDetails).build();
     }
@@ -103,33 +99,43 @@ public class OffenderMatchService {
         log.debug("Looking for offender detail for CRN :{}", crn);
         return Mono.zip(offenderRestClient.getOffenderMatchDetailByCrn(crn),
                         offenderRestClient.getConvictionsByCrn(crn)
-                            .onErrorResume(OffenderNotFoundException.class, e -> Mono.just(Collections.emptyList())),
+                                .onErrorResume(OffenderNotFoundException.class, e -> Mono.just(Collections.emptyList())),
                         offenderRestClient.getProbationStatusByCrn(crn))
-            .map(tuple -> addMostRecentEventToOffenderMatch(tuple.getT1(), tuple.getT2(), tuple.getT3()))
-            .block();
+                .map(tuple -> addMostRecentEventToOffenderMatch(tuple.getT1(), tuple.getT2(), tuple.getT3()))
+                .block();
     }
 
     private OffenderMatchDetail addMostRecentEventToOffenderMatch(OffenderMatchDetail offenderMatchDetail,
-                                                          List<Conviction> convictions,
-                                                          ProbationStatusDetail probationStatus) {
+                                                                  List<Conviction> convictions,
+                                                                  ProbationStatusDetail probationStatus) {
 
         if (offenderMatchDetail == null) {
             return null;
         }
 
         Sentence sentence = Optional.ofNullable(convictions).orElse(Collections.emptyList()).stream()
-            .filter(Conviction::getActive)
-            .findFirst()
-            .map(Conviction::getSentence)
-            .orElse(getSentenceForMostRecentConviction(convictions));
+                .filter(Conviction::getActive)
+                .findFirst()
+                .map(Conviction::getSentence)
+                .orElse(getSentenceForMostRecentConviction(convictions));
 
         return OffenderMapper.offenderMatchDetailFrom(offenderMatchDetail, sentence, probationStatus);
     }
 
     Sentence getSentenceForMostRecentConviction(List<Conviction> convictions) {
         return Optional.ofNullable(convictions).orElse(Collections.emptyList()).stream()
-            .min(Comparator.comparing(Conviction::getConvictionDate, Comparator.nullsLast(Comparator.reverseOrder())))
-            .map(Conviction::getSentence)
-            .orElse(null);
+                .min(Comparator.comparing(Conviction::getConvictionDate, Comparator.nullsLast(Comparator.reverseOrder())))
+                .map(Conviction::getSentence)
+                .orElse(null);
+    }
+
+    public Mono<GroupedOffenderMatchesEntity> getGroupedOffenderMatchesEntityByDefendantIdAndGroupId(String defendantId, Long groupId) {
+        return Mono.justOrEmpty(offenderMatchRepository.findById(groupId))
+                .map(groupedOffenderMatchesEntity -> {
+                    if (!defendantId.equals(groupedOffenderMatchesEntity.getDefendantId())) {
+                        throw new EntityNotFoundException(String.format("Grouped Matches %s not found for defendant %s", groupId, defendantId));
+                    }
+                    return groupedOffenderMatchesEntity;
+                });
     }
 }

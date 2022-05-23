@@ -28,11 +28,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @AllArgsConstructor
 public class OffenderMatchesController {
     private final OffenderMatchService offenderMatchService;
-
     private static final String CASE_ID_PARAM = "caseId";
     private static final String DEFENDANT_ID_PARAM = "defendantId";
     private static final String GROUP_ID_PARAM = "groupId";
-
     private static final String GET_GROUPED_OFFENDER_MATCHES_BY_DEFENDANT_ID_AND_GROUP_ID_PATH = "/defendant/{defendantId}/grouped-offender-matches/{groupId}";
     private static final String CREATE_GROUPED_OFFENDER_MATCHES_FOR_DEFENDANT_ID_PATH = "/defendant/{defendantId}/grouped-offender-matches";
 
@@ -42,8 +40,8 @@ public class OffenderMatchesController {
     @PostMapping(value = "/case/{caseId}/defendant/{defendantId}/grouped-offender-matches", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    Mono<ResponseEntity<Object>> createGroupedOffenderMatchesByDefendant(@PathVariable(value = CASE_ID_PARAM) String caseId,
-                                                                         @PathVariable(value = DEFENDANT_ID_PARAM) String defendantId,
+    Mono<ResponseEntity<Object>> createGroupedOffenderMatchesByDefendant(@PathVariable(value = "caseId") String caseId,
+                                                                         @PathVariable(value = "defendantId") String defendantId,
                                                                          @Valid @RequestBody GroupedOffenderMatchesRequest request) {
         return offenderMatchService.createOrUpdateGroupedMatchesByDefendant(caseId, defendantId, request)
                 .map(match -> ResponseEntity.created(URI.create(String.format("/case/%s/defendant/%s/grouped-offender-matches/%s", caseId, defendantId, match.getId())))

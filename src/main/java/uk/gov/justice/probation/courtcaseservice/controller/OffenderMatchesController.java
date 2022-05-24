@@ -31,14 +31,15 @@ public class OffenderMatchesController {
     private static final String CASE_ID_PARAM = "caseId";
     private static final String DEFENDANT_ID_PARAM = "defendantId";
     private static final String GROUP_ID_PARAM = "groupId";
-    private static final String GET_GROUPED_OFFENDER_MATCHES_BY_DEFENDANT_ID_AND_GROUP_ID_PATH = "/defendant/{defendantId}/grouped-offender-matches/{groupId}";
-    private static final String CREATE_GROUPED_OFFENDER_MATCHES_FOR_DEFENDANT_ID_PATH = "/defendant/{defendantId}/grouped-offender-matches";
+    private static final String GET_GROUPED_OFFENDER_MATCHES_ENTITY_BY_DEFENDANT_ID_AND_GROUP_ID_PATH = "/defendant/{defendantId}/grouped-offender-matches/{groupId}";
+    private static final String CREATE_GROUPED_OFFENDER_MATCHES_ENTITY_FOR_DEFENDANT_ID_PATH = "/defendant/{defendantId}/grouped-offender-matches";
 
 
 
     @Operation(description = "Creates a new offender-match entity associated with a case and a defendant ID")
     @PostMapping(value = "/case/{caseId}/defendant/{defendantId}/grouped-offender-matches", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
+    @Deprecated(forRemoval = true)
     public @ResponseBody
     Mono<ResponseEntity<Object>> createGroupedOffenderMatchesByDefendant(@PathVariable(value = "caseId") String caseId,
                                                                          @PathVariable(value = "defendantId") String defendantId,
@@ -68,7 +69,7 @@ public class OffenderMatchesController {
     }
 
     @Operation(description = "Gets an existing grouped-offender-match entity associated with a defendant and a group")
-    @GetMapping(value = GET_GROUPED_OFFENDER_MATCHES_BY_DEFENDANT_ID_AND_GROUP_ID_PATH, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = GET_GROUPED_OFFENDER_MATCHES_ENTITY_BY_DEFENDANT_ID_AND_GROUP_ID_PATH, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     Mono<GroupedOffenderMatchesEntity> getGroupedOffenderMatchesByDefendantIdAndGroupId(@PathVariable(value = DEFENDANT_ID_PARAM) String defendantId,
@@ -77,7 +78,7 @@ public class OffenderMatchesController {
     }
 
     @Operation(description = "Creates a new grouped-offender-match entity associated with a defendant")
-    @PostMapping(value = CREATE_GROUPED_OFFENDER_MATCHES_FOR_DEFENDANT_ID_PATH, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @PostMapping(value = CREATE_GROUPED_OFFENDER_MATCHES_ENTITY_FOR_DEFENDANT_ID_PATH, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     Mono<ResponseEntity<Object>> createGroupedOffenderMatchesByDefendant(@PathVariable(value = DEFENDANT_ID_PARAM) String defendantId,

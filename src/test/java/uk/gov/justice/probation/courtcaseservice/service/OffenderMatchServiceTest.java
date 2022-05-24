@@ -18,6 +18,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
@@ -63,11 +64,13 @@ class OffenderMatchServiceTest {
     private CourtCaseEntity courtCaseEntity;
 
     private OffenderMatchService service;
+    @Mock
+    private HearingRepository hearingRepository;
 
     @BeforeEach
     void setUp() {
         when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
-        service = new OffenderMatchService(courtCaseService, offenderMatchRepository, offenderRestClientFactory, courtCaseRepository);
+        service = new OffenderMatchService(courtCaseService, offenderMatchRepository, offenderRestClientFactory, courtCaseRepository, hearingRepository);
     }
 
     @ExtendWith(MockitoExtension.class)

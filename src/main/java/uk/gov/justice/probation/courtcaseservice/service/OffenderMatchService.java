@@ -40,7 +40,6 @@ public class OffenderMatchService {
     private final GroupedOffenderMatchRepository groupedOffenderMatchRepository;
     private final OffenderRestClient offenderRestClient;
     private final CourtCaseRepository courtCaseRepository;
-
     private final HearingRepository hearingRepository;
 
     @Autowired
@@ -51,6 +50,7 @@ public class OffenderMatchService {
         this.hearingRepository = hearingRepository;
     }
 
+    @Deprecated(forRemoval = true)
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     @Retryable(value = {CannotAcquireLockException.class, DataIntegrityViolationException.class})
     public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatchesByDefendant(String caseId, String defendantId, GroupedOffenderMatchesRequest offenderMatches) {
@@ -66,8 +66,9 @@ public class OffenderMatchService {
         return OffenderMatchMapper.newGroupedMatchesOf(defendantId, offenderMatches, courtCaseEntity);
     }
 
+    @Deprecated(forRemoval = true)
     public Mono<GroupedOffenderMatchesEntity> getGroupedMatchesByCaseId(String caseId, String defendantId, Long groupId) {
-     return Mono.justOrEmpty(groupedOffenderMatchRepository.findById(groupId))
+        return Mono.justOrEmpty(groupedOffenderMatchRepository.findById(groupId))
                 .map(groupedOffenderMatchesEntity -> {
                     if (!caseId.equals(groupedOffenderMatchesEntity.getCaseId())) {
                         throw new EntityNotFoundException(String.format("Grouped Matches %s not found for caseId %s", groupId, caseId));

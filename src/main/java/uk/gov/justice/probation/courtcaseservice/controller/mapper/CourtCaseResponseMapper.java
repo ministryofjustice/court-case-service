@@ -6,11 +6,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRespo
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -80,7 +76,7 @@ public class CourtCaseResponseMapper {
 
         // Populate the top level fields with the details from the single hearing
         builder.courtCode(targetHearing.getCourtCode())
-                .courtRoom(targetHearing.getCourtRoom())
+                .courtRoom(getNormalisedCourtRoom(targetHearing.getCourtRoom()))
                 .sessionStartTime(targetHearing.getSessionStartTime())
                 .session(targetHearing.getSession())
                 .listNo(targetHearing.getListNo());
@@ -95,6 +91,10 @@ public class CourtCaseResponseMapper {
                     .sessionStartTime(hearingDayEntity.getSessionStartTime())
                     .build())
             .collect(Collectors.toList()));
+    }
+
+    private static String getNormalisedCourtRoom(String courtRoom) {
+        return courtRoom.contains("Courtroom") ? courtRoom.replaceAll("[a-zA-Z 0]", "") : courtRoom.replace("([0]*)?", "");
     }
 
     private static List<OffenceResponse> mapOffencesFromDefendantOffences(List<OffenceEntity> offenceEntities) {

@@ -45,7 +45,7 @@ class CourtCaseResponseMapperTest {
     private static final String CASE_NO = "CASE_NO";
     private static final String URN = "URN001";
     private static final String COURT_CODE = "COURT_CODE";
-    private static final String COURT_ROOM = "COURT_ROOM";
+    private static final String COURT_ROOM = "Courtroom 02";
     private static final boolean SUSPENDED_SENTENCE_ORDER = true;
     private static final boolean BREACH = true;
     private static final boolean PRE_SENTENCE_ACTIVITY = true;
@@ -112,7 +112,7 @@ class CourtCaseResponseMapperTest {
                 HearingDayEntity.builder()
                         .day(HEARING_DATE.plusDays(1))
                         .time(SESSION_START_TIME.toLocalTime().plusHours(4))
-                        .courtRoom("02")
+                        .courtRoom("Courtroom 02")
                         .courtCode(COURT_CODE)
                         .listNo("91st")
                         .build()
@@ -314,7 +314,7 @@ class CourtCaseResponseMapperTest {
     private void assertHearingFields(CourtCaseResponse courtCaseResponse) {
         assertThat(courtCaseResponse.getHearingId()).isEqualTo(HEARING_ID);
         assertThat(courtCaseResponse.getCourtCode()).isEqualTo(COURT_CODE);
-        assertThat(courtCaseResponse.getCourtRoom()).isEqualTo(COURT_ROOM);
+        assertThat(courtCaseResponse.getCourtRoom()).isEqualTo("2");
         assertThat(courtCaseResponse.getListNo()).isEqualTo(LIST_NO);
         assertThat(courtCaseResponse.getSession()).isEqualTo(SESSION);
         assertThat(courtCaseResponse.getSessionStartTime()).isEqualTo(SESSION_START_TIME);

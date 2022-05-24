@@ -79,6 +79,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                         .courtCode("B10JQ")
                         .day(LocalDate.of(2021, 9, 11))
                         .time(LocalTime.of(9, 0))
+                        .courtRoom("Courtroom 02")
                         .build()))
                 .hearingDefendants(Collections.singletonList(HearingDefendantEntity.builder()
                         .defendant(DefendantEntity.builder()

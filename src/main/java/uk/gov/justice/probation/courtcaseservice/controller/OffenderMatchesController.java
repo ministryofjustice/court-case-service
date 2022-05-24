@@ -63,6 +63,13 @@ public class OffenderMatchesController {
         return offenderMatchService.getOffenderMatchDetailsByCaseIdAndDefendantId(caseId, defendantId);
     }
 
+    @Operation(description = "Returns all possible matches found for a given case and defendant ID")
+    @GetMapping(value = "/defendant/{defendantId}/matchesDetail", produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    OffenderMatchDetailResponse getOffenderMatchesDetailByDefendantId(@PathVariable(value = "defendantId") String defendantId) {
+        return offenderMatchService.getOffenderMatchDetailsByDefendantId(defendantId);
+    }
 
     @Operation(description = "Gets an existing grouped-offender-matches-entity associated with a defendant and a group")
     @GetMapping(value = GET_GROUPED_OFFENDER_MATCHES_BY_DEFENDANT_ID_AND_GROUP_ID_PATH, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)

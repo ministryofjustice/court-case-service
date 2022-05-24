@@ -87,6 +87,20 @@ public class OffenderMatchService {
         return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchDetails).build();
     }
 
+    public OffenderMatchDetailResponse getOffenderMatchDetailsByDefendantId(String defendantId) {
+        List<OffenderMatchDetail> offenderMatchDetails = offenderMatchRepository.findFirstByDefendantIdOrderByIdDesc(defendantId)
+            .map(GroupedOffenderMatchesEntity::getOffenderMatches)
+            .map(offenderMatchEntities -> offenderMatchEntities
+                .stream()
+                .map(OffenderMatchEntity::getCrn)
+                .map(this::getOffenderMatchDetail)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList())
+            ).orElseThrow(() -> new EntityNotFoundException(String.format("Defendant %s not found", defendantId)));
+
+        return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchDetails).build();
+    }
+
     private Optional<GroupedOffenderMatchesEntity> getOffenderMatchesByCaseIdAndDefendantId(String caseId, String defendantId) {
         return offenderMatchRepository.findByCaseIdAndDefendantId(caseId, defendantId);
     }

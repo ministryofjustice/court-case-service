@@ -50,8 +50,7 @@ class OffenderMatchServiceTest {
     private OffenderRestClientFactory offenderRestClientFactory;
     @Mock
     private OffenderRestClient offenderRestClient;
-    @Mock
-    private CourtCaseService courtCaseService;
+
     @Mock
     private GroupedOffenderMatchRepository offenderMatchRepository;
     @Mock
@@ -70,7 +69,7 @@ class OffenderMatchServiceTest {
     @BeforeEach
     void setUp() {
         when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
-        service = new OffenderMatchService(courtCaseService, offenderMatchRepository, offenderRestClientFactory, courtCaseRepository, hearingRepository);
+        service = new OffenderMatchService(offenderMatchRepository, offenderRestClientFactory, courtCaseRepository, hearingRepository);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -85,7 +84,7 @@ class OffenderMatchServiceTest {
             .build();
 
         @Test
-        void givenNoExistingCase_whenCreateOrUpdate_thenCreate() {
+        void givenNoExistingGroupedOffenderMatchEntity_whenCreateOrUpdate_thenCreate() {
             when(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.empty());
             when(courtCaseEntity.getCaseId()).thenReturn(CASE_ID);
             when(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.of(courtCaseEntity));
@@ -98,7 +97,7 @@ class OffenderMatchServiceTest {
         }
 
         @Test
-        void givenAnExistingCase_whenCreateOrUpdate_thenUpdate() {
+        void givenNoExistingGroupedOffenderMatchEntity_whenCreateOrUpdate_thenUpdate() {
 
             // Group has no defendant ID to start with. Prove that the update has happened by asserting on it later
             var groupEntity = GroupedOffenderMatchesEntity.builder().caseId(CASE_ID).offenderMatches(Collections.emptyList()).build();

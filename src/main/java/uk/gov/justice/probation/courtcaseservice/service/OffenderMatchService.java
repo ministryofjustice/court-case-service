@@ -147,7 +147,7 @@ public class OffenderMatchService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     @Retryable(value = {CannotAcquireLockException.class, DataIntegrityViolationException.class})
     public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatchesByDefendant(String defendantId, GroupedOffenderMatchesRequest groupedOffenderMatchesRequest) {
-        return Mono.justOrEmpty(hearingRepository.findFirstByHearingDefendantsContains(defendantId))
+        return Mono.justOrEmpty(hearingRepository.findFirstByHearingDefendants_DefendantId(defendantId))
                 .map(hearingEntity -> {
                     if (hearingEntity != null) {
                         return createOrUpdateGroupedMatchesByDefendant(hearingEntity, defendantId, groupedOffenderMatchesRequest);

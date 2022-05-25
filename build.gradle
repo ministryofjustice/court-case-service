@@ -30,7 +30,7 @@ project.targetCompatibility = JavaVersion.VERSION_16
 group = 'uk.gov.justice.probation'
 
 ext {
-    restAssuredVersion = '5.0.1'
+    restAssuredVersion = '5.1.0'
     pactVersion = '4.3.7'
 }
 
@@ -164,7 +164,7 @@ dependencies {
 
     runtimeOnly 'org.flywaydb:flyway-core'
     runtimeOnly "org.springframework.boot:spring-boot-devtools"
-    runtimeOnly 'org.postgresql:postgresql:42.3.5'
+    runtimeOnly 'org.postgresql:postgresql:42.3.6'
 
     implementation 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 

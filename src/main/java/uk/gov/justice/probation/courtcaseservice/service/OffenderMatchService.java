@@ -134,7 +134,6 @@ public class OffenderMatchService {
     }
 
     public Mono<GroupedOffenderMatchesEntity> getGroupedOffenderMatchesByDefendantIdAndGroupId(String defendantId, Long groupId) {
-        log.debug("Entered getGroupedMatchesByDefendantId with defendantId {} , groupId {}", defendantId, groupId);
         return Mono.justOrEmpty(groupedOffenderMatchRepository.findById(groupId))
                 .map(groupedOffenderMatchesEntity -> {
                     if (!defendantId.equals(groupedOffenderMatchesEntity.getDefendantId())) {
@@ -147,7 +146,7 @@ public class OffenderMatchService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     @Retryable(value = {CannotAcquireLockException.class, DataIntegrityViolationException.class})
     public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatchesByDefendant(String defendantId, GroupedOffenderMatchesRequest groupedOffenderMatchesRequest) {
-        return Mono.justOrEmpty(hearingRepository.findFirstByHearingDefendantsContains(defendantId))
+        return Mono.justOrEmpty(hearingRepository.findFirstByHearingDefendants_DefendantId(defendantId))
                 .map(hearingEntity -> {
                     if (hearingEntity != null) {
                         return createOrUpdateGroupedMatchesByDefendant(hearingEntity, defendantId, groupedOffenderMatchesRequest);

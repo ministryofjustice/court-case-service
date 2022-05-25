@@ -15,7 +15,7 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
 
     Optional<HearingEntity> findFirstByHearingIdOrderByIdDesc(String hearingId);
 
-    Optional<HearingEntity> findFirstByHearingDefendantsContains(String defendantId);
+    Optional<HearingEntity> findFirstByHearingDefendants_DefendantId(String defendantId);
 
 
     @Query(value = "select h.* from court_case cc " +

@@ -334,7 +334,7 @@ class OffenderMatchServiceTest {
                 //Given
                 var groupEntity = GroupedOffenderMatchesEntity.builder().caseId(CASE_ID).offenderMatches(Collections.emptyList()).build();
 
-                given(hearingRepository.findFirstByHearingDefendants_DefendantId(DEFENDANT_ID)).willReturn(Optional.of(hearingEntity));
+                given(hearingRepository.findFirstByHearingDefendantsDefendantId(DEFENDANT_ID)).willReturn(Optional.of(hearingEntity));
                 given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).willReturn(Optional.of(courtCaseEntity));
                 given(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).willReturn(Optional.empty());
                 given(offenderMatchRepository.save(groupEntity)).willReturn(groupEntity);
@@ -352,7 +352,7 @@ class OffenderMatchServiceTest {
                 // Given
                 var groupEntity = GroupedOffenderMatchesEntity.builder().caseId(CASE_ID).offenderMatches(Collections.emptyList()).build();
 
-                given(hearingRepository.findFirstByHearingDefendants_DefendantId(DEFENDANT_ID)).willReturn(Optional.of(hearingEntity));
+                given(hearingRepository.findFirstByHearingDefendantsDefendantId(DEFENDANT_ID)).willReturn(Optional.of(hearingEntity));
                 given(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).willReturn(Optional.of(groupEntity));
                 given(offenderMatchRepository.save(groupEntity)).willReturn(groupEntity);
 

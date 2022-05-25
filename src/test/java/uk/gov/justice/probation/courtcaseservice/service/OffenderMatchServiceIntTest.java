@@ -61,21 +61,21 @@ public class OffenderMatchServiceIntTest extends BaseIntTest {
 
     @Test
     public void givenCannotAcquireLockExceptionThrown__whenCreateOrUpdateGroupedMatchesByDefendant_thenRetry() {
-        given(hearingRepository.findFirstByHearingDefendants_DefendantId(any())).willThrow(CannotAcquireLockException.class);
+        given(hearingRepository.findFirstByHearingDefendantsDefendantId(any())).willThrow(CannotAcquireLockException.class);
 
         assertThatExceptionOfType(CannotAcquireLockException.class)
                 .isThrownBy(() -> offenderMatchService.createOrUpdateGroupedMatchesByDefendant("DEFENDANT_ID", GroupedOffenderMatchesRequest.builder().build()));
 
-        verify(hearingRepository, times(3)).findFirstByHearingDefendants_DefendantId(any());
+        verify(hearingRepository, times(3)).findFirstByHearingDefendantsDefendantId(any());
     }
 
     @Test
     public void givenDataIntegrityViolationExceptionExceptionThrown__whenCreateOrUpdateGroupedMatchesByDefendant_thenRetry() {
-        given(hearingRepository.findFirstByHearingDefendants_DefendantId(any())).willThrow(DataIntegrityViolationException.class);
+        given(hearingRepository.findFirstByHearingDefendantsDefendantId(any())).willThrow(DataIntegrityViolationException.class);
 
         assertThatExceptionOfType(DataIntegrityViolationException.class)
                 .isThrownBy(() -> offenderMatchService.createOrUpdateGroupedMatchesByDefendant("DEFENDANT_ID", GroupedOffenderMatchesRequest.builder().build()));
 
-        verify(hearingRepository, times(3)).findFirstByHearingDefendants_DefendantId(any());
+        verify(hearingRepository, times(3)).findFirstByHearingDefendantsDefendantId(any());
     }
 }

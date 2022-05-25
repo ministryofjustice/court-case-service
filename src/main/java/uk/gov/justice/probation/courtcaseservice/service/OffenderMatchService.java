@@ -73,6 +73,7 @@ public class OffenderMatchService {
         return map;
     }
 
+    @Deprecated(forRemoval = true)
     public OffenderMatchDetailResponse getOffenderMatchDetailsByCaseIdAndDefendantId(String caseId, String defendantId) {
         List<OffenderMatchDetail> offenderMatchDetails = getOffenderMatchesByCaseIdAndDefendantId(caseId, defendantId)
                 .map(GroupedOffenderMatchesEntity::getOffenderMatches)
@@ -87,7 +88,7 @@ public class OffenderMatchService {
         return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchDetails).build();
     }
 
-    public OffenderMatchDetailResponse getOffenderMatchDetailsByDefendantId(String defendantId) {
+    public List<OffenderMatchDetail> getOffenderMatchDetailsByDefendantId(String defendantId) {
         List<OffenderMatchDetail> offenderMatchDetails = offenderMatchRepository.findFirstByDefendantIdOrderByIdDesc(defendantId)
             .map(GroupedOffenderMatchesEntity::getOffenderMatches)
             .map(offenderMatchEntities -> offenderMatchEntities
@@ -98,7 +99,7 @@ public class OffenderMatchService {
                 .collect(Collectors.toList())
             ).orElseThrow(() -> new EntityNotFoundException(String.format("Defendant %s not found", defendantId)));
 
-        return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchDetails).build();
+        return offenderMatchDetails;
     }
 
     private Optional<GroupedOffenderMatchesEntity> getOffenderMatchesByCaseIdAndDefendantId(String caseId, String defendantId) {

@@ -54,6 +54,7 @@ public class OffenderMatchesController {
         return offenderMatchService.getGroupedMatchesByCaseId(caseId, defendantId, groupId);
     }
 
+    @Deprecated(forRemoval = true)
     @Operation(description = "Returns all possible matches found for a given case and defendant ID")
     @GetMapping(value = "/case/{caseId}/defendant/{defendantId}/matchesDetail", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
@@ -63,12 +64,13 @@ public class OffenderMatchesController {
         return offenderMatchService.getOffenderMatchDetailsByCaseIdAndDefendantId(caseId, defendantId);
     }
 
-    @Operation(description = "Returns all possible matches found for a given case and defendant ID")
+    @Operation(description = "Returns all possible matches found for a given defendant ID")
     @GetMapping(value = "/defendant/{defendantId}/matchesDetail", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     OffenderMatchDetailResponse getOffenderMatchesDetailByDefendantId(@PathVariable(value = "defendantId") String defendantId) {
-        return offenderMatchService.getOffenderMatchDetailsByDefendantId(defendantId);
+
+        return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchService.getOffenderMatchDetailsByDefendantId(defendantId)).build();
     }
 
     @Operation(description = "Gets an existing grouped-offender-matches-entity associated with a defendant and a group")

@@ -12,10 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
@@ -35,11 +32,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class OffenderMatchServiceTest {
@@ -80,8 +78,8 @@ class OffenderMatchServiceTest {
         private static final String DEFENDANT_ID = "378752d2-2a60-42d9-8f70-89d6fa022be4";
 
         GroupedOffenderMatchesRequest request = GroupedOffenderMatchesRequest.builder()
-            .matches(Collections.emptyList())
-            .build();
+                .matches(Collections.emptyList())
+                .build();
 
         @Test
         void givenNoExistingGroupedOffenderMatchEntity_whenCreateOrUpdate_thenCreate() {
@@ -97,7 +95,7 @@ class OffenderMatchServiceTest {
         }
 
         @Test
-        void givenNoExistingGroupedOffenderMatchEntity_whenCreateOrUpdate_thenUpdate() {
+        void givenExistingGroupedOffenderMatchEntity_whenCreateOrUpdate_thenUpdate() {
 
             // Group has no defendant ID to start with. Prove that the update has happened by asserting on it later
             var groupEntity = GroupedOffenderMatchesEntity.builder().caseId(CASE_ID).offenderMatches(Collections.emptyList()).build();
@@ -235,7 +233,7 @@ class OffenderMatchServiceTest {
             String crn2 = "X320742";
 
             when(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(
-                Optional.ofNullable(buildGroupedOffenderMatchesEntity(List.of(crn1, crn2))));
+                    Optional.ofNullable(buildGroupedOffenderMatchesEntity(List.of(crn1, crn2))));
 
             final var matchDetail1 = OffenderMatchDetail.builder().forename("Chris").build();
             final var matchDetail2 = OffenderMatchDetail.builder().forename("Dave").build();
@@ -253,11 +251,11 @@ class OffenderMatchServiceTest {
         void givenDefendantIdDoesNotExist_whenGetOffenderMatchDetailsByCaseIdAndDefendantId_thenThrow() {
 
             when(offenderMatchRepository.findByCaseIdAndDefendantId(anyString(), anyString())).thenReturn(
-                Optional.ofNullable(null));
+                    Optional.ofNullable(null));
 
             Exception actual = assertThrows(
-                EntityNotFoundException.class,
-                () ->  service.getOffenderMatchDetailsByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)
+                    EntityNotFoundException.class,
+                    () -> service.getOffenderMatchDetailsByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)
             );
             assertThat(actual.getMessage()).isEqualTo("Case 4d113429-e38c-4fbf-bd94-e1c3569319eb not found for defendant e19b2776-6646-4940-93af-6b86fa1b7416");
         }
@@ -317,11 +315,63 @@ class OffenderMatchServiceTest {
             }
         }
 
+        @ExtendWith(MockitoExtension.class)
+        @Nested
+        class CreateOrUpdateByDefendantId {
+
+            private static final String CASE_ID = "f1e1867f-94a5-45a2-81cf-92780a51564d";
+            private static final String DEFENDANT_ID = "378752d2-2a60-42d9-8f70-89d6fa022be4";
+
+            GroupedOffenderMatchesRequest request = GroupedOffenderMatchesRequest.builder()
+                    .matches(Collections.emptyList())
+                    .build();
+
+            HearingEntity hearingEntity = HearingEntity.builder()
+                    .build().withCourtCase(CourtCaseEntity.builder().caseId(CASE_ID).build());
+
+            @Test
+            void givenNoExistingGroupedOffenderMatchEntity_whenCreateOrUpdate_thenCreate() {
+                //Given
+                var groupEntity = GroupedOffenderMatchesEntity.builder().caseId(CASE_ID).offenderMatches(Collections.emptyList()).build();
+
+                given(hearingRepository.findFirstByHearingDefendantsContains(DEFENDANT_ID)).willReturn(Optional.of(hearingEntity));
+                given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).willReturn(Optional.of(courtCaseEntity));
+                given(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).willReturn(Optional.empty());
+                given(offenderMatchRepository.save(groupEntity)).willReturn(groupEntity);
+
+                // When
+                var match = service.createOrUpdateGroupedMatchesByDefendant(DEFENDANT_ID, request).blockOptional();
+
+                // Then
+                assertThat(match).isPresent();
+                assertThat(match.get()).isEqualTo(groupEntity);
+            }
+
+            @Test
+            void givenExistingGroupedOffenderMatchEntity_whenCreateOrUpdate_thenUpdate() {
+                // Given
+                var groupEntity = GroupedOffenderMatchesEntity.builder().caseId(CASE_ID).offenderMatches(Collections.emptyList()).build();
+
+                given(hearingRepository.findFirstByHearingDefendantsContains(DEFENDANT_ID)).willReturn(Optional.of(hearingEntity));
+                given(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).willReturn(Optional.of(groupEntity));
+                given(offenderMatchRepository.save(groupEntity)).willReturn(groupEntity);
+
+                // When
+                var match = service.createOrUpdateGroupedMatchesByDefendant(DEFENDANT_ID, request).blockOptional();
+
+                // Then
+                assertThat(match).isPresent();
+                assertThat(match.get()).isEqualTo(groupEntity);
+                assertThat(groupEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
+            }
+
+        }
+
         private GroupedOffenderMatchesEntity buildGroupedOffenderMatchesEntity(List<String> crns) {
 
             List<OffenderMatchEntity> offenderMatchEntities = crns.stream()
-                .map(crn -> OffenderMatchEntity.builder().crn(crn).build())
-                .collect(Collectors.toList());
+                    .map(crn -> OffenderMatchEntity.builder().crn(crn).build())
+                    .collect(Collectors.toList());
 
             return GroupedOffenderMatchesEntity.builder().offenderMatches(offenderMatchEntities).build();
         }
@@ -336,10 +386,10 @@ class OffenderMatchServiceTest {
             LocalDate date = LocalDate.of(2020, Month.JULY, 20);
             Sentence sentence = Sentence.builder().description(sentenceDesc).build();
             return Conviction.builder()
-                .active(active)
-                .convictionDate(date)
-                .sentence(sentence)
-                .build();
+                    .active(active)
+                    .convictionDate(date)
+                    .sentence(sentence)
+                    .build();
         }
     }
 

@@ -89,7 +89,7 @@ public class OffenderMatchService {
     }
 
     public List<OffenderMatchDetail> getOffenderMatchDetailsByDefendantId(String defendantId) {
-        List<OffenderMatchDetail> offenderMatchDetails = offenderMatchRepository.findFirstByDefendantIdOrderByIdDesc(defendantId)
+        var offenderMatchDetails = offenderMatchRepository.findFirstByDefendantIdOrderByIdDesc(defendantId)
             .map(GroupedOffenderMatchesEntity::getOffenderMatches)
             .map(offenderMatchEntities -> offenderMatchEntities
                 .stream()

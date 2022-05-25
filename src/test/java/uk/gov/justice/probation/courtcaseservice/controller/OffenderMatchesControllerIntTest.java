@@ -386,7 +386,7 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                 .body("offenderMatchDetails[0].matchIdentifiers.crn", equalTo("X980123"))
                 .body("offenderMatchDetails[0].probationStatus", equalTo("Previously known"))
                 .body("offenderMatchDetails[0].probationStatusActual", equalTo("PREVIOUSLY_KNOWN"))
-                .body("offenderMatchDetails[0].mostRecentEvent", equalTo(null))
+                .body("offenderMatchDetails[0].mostRecentEvent", equalTo(null));
         }
 
         @Test

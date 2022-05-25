@@ -68,7 +68,7 @@ public class OffenderMatchesController {
     @GetMapping(value = "/defendant/{defendantId}/matchesDetail", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
-    OffenderMatchDetailResponse getOffenderMatchesDetailByDefendantId(@PathVariable(value = "defendantId") String defendantId) {
+    OffenderMatchDetailResponse getOffenderMatchesDetailByDefendantId(@PathVariable String defendantId) {
 
         return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchService.getOffenderMatchDetailsByDefendantId(defendantId)).build();
     }

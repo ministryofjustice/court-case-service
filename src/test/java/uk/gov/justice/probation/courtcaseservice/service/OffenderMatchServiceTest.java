@@ -39,7 +39,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class OffenderMatchServiceTest {
@@ -227,6 +230,7 @@ class OffenderMatchServiceTest {
             verify(offenderRestClient).getProbationStatusByCrn(crn);
         }
 
+        @Deprecated(forRemoval = true)
         @Test
         void givenMultipleCrns_whenGetOffenderMatchDetailsByCaseAndDefendantId_thenReturn() {
 
@@ -249,6 +253,28 @@ class OffenderMatchServiceTest {
         }
 
         @Test
+        void givenMultipleCrns_whenGetOffenderMatchDetailsByDefendantId_thenReturn() {
+
+            String crn1 = "X320741";
+            String crn2 = "X320742";
+
+            when(offenderMatchRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(
+                Optional.ofNullable(buildGroupedOffenderMatchesEntity(List.of(crn1, crn2))));
+
+            final var matchDetail1 = OffenderMatchDetail.builder().forename("Chris").build();
+            final var matchDetail2 = OffenderMatchDetail.builder().forename("Dave").build();
+
+            mockOffenderDetailMatch(crn1, matchDetail1, Collections.emptyList());
+            mockOffenderDetailMatch(crn2, matchDetail2, List.of(inactiveConviction, activeConviction));
+
+            final var response = service.getOffenderMatchDetailsByDefendantId(DEFENDANT_ID);
+
+            assertThat(response).hasSize(2);
+            assertThat(response).extracting("forename").containsExactlyInAnyOrder("Chris", "Dave");
+        }
+
+        @Deprecated(forRemoval = true)
+        @Test
         void givenDefendantIdDoesNotExist_whenGetOffenderMatchDetailsByCaseIdAndDefendantId_thenThrow() {
 
             when(offenderMatchRepository.findByCaseIdAndDefendantId(anyString(), anyString())).thenReturn(
@@ -260,6 +286,20 @@ class OffenderMatchServiceTest {
             );
             assertThat(actual.getMessage()).isEqualTo("Case 4d113429-e38c-4fbf-bd94-e1c3569319eb not found for defendant e19b2776-6646-4940-93af-6b86fa1b7416");
         }
+
+        @Test
+        void givenDefendantIdDoesNotExist_whenGetOffenderMatchDetailsByAndDefendantId_thenThrow() {
+
+            when(offenderMatchRepository.findFirstByDefendantIdOrderByIdDesc(anyString())).thenReturn(
+                Optional.ofNullable(null));
+
+            Exception actual = assertThrows(
+                EntityNotFoundException.class,
+                () ->  service.getOffenderMatchDetailsByDefendantId(DEFENDANT_ID)
+            );
+            assertThat(actual.getMessage()).isEqualTo("Defendant e19b2776-6646-4940-93af-6b86fa1b7416 not found");
+        }
+
         @Test
         void givenDefendantIdMatch_whenGetOffenderMatchesEntityByDefendantId_thenReturn() {
             // given

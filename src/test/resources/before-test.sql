@@ -274,6 +274,16 @@ VALUES (false, false, '2234', '22345', 'NAME_DOB', '223456', 9999991);
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (true, false, 'X6666', '78654', 'NAME_DOB', '323456', 9999991);
 
+INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_ID, DEFENDANT_ID)
+VALUES (9999998, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'b6e663c5-d2be-434b-b597-3e98a112af9f');
+
+INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
+VALUES (false, false, 'X320741', '12345', 'NAME_DOB', '123456', 9999998);
+INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
+VALUES (false, false, '2234', '22345', 'NAME_DOB', '223456', 9999998);
+INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
+VALUES (true, false, 'X6666', '78654', 'NAME_DOB', '323456', 9999998);
+
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (false, true, '3234', '32345', 'NAME_DOB', '323456', 9999992);
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
@@ -283,6 +293,16 @@ INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_ID, DEFENDANT_ID)
 VALUES (9999993, '1000002', '40db17d6-04db-11ec-b2d8-0242ac130002');
 INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
 VALUES (false, false, 'X980123', 'CRO1', 'NAME_DOB', '323456', 9999993);
+
+INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_ID, DEFENDANT_ID)
+VALUES (9999995, '1000002', 'b6e663c5-d2be-434b-b597-3e98a112af9f');
+INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
+VALUES (false, false, 'X980123', 'CRO1', 'NAME_DOB', '323456', 9999995);
+
+INSERT INTO courtcaseservicetest.offender_match_group(ID, CASE_ID, DEFENDANT_ID)
+VALUES (9999996, '1000002', 'b3f7e2bc-c8f9-4031-9c0c-928c41193acd');
+INSERT INTO courtcaseservicetest.offender_match(CONFIRMED, REJECTED, CRN, CRO, MATCH_TYPE, PNC, GROUP_ID)
+VALUES (false, false, 'X980123', 'CRO1', 'NAME_DOB', '323456', 9999996);
 
 -- See CourtCaseControllerPutIntTest.whenUpdateCaseDataByCourtAndCaseNo_ThenUpdateProbationStatusOnCasesWithSameCrn()
 -- These records are used to test edge cases when returning court case list for a given date (midnight to 1 second before midnight the next day)

@@ -42,6 +42,7 @@ class OffenderMatchesControllerTest {
     private static final Long GROUP_ID = 1L;
     private static final String CASE_ID_GROUP_OFFENDER_MATCH_PATH = "/case/" + CASE_ID + "/defendant/" + DEFENDANT_ID + "/grouped-offender-matches/";
     protected static final String OFFENDER_MATCHES_DEFENDANT_DETAIL_PATH = "/case/%s/defendant/%s/matchesDetail";
+    protected static final String OFFENDER_MATCHES_BY_DEFENDANT_ID_DETAIL_PATH = "/defendant/%s/matchesDetail";
     private WebTestClient webTestClient;
 
     @Mock

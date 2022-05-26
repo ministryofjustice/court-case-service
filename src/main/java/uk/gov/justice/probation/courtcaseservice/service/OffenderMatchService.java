@@ -77,6 +77,7 @@ public class OffenderMatchService {
                 });
     }
 
+    @Deprecated(forRemoval = true)
     public OffenderMatchDetailResponse getOffenderMatchDetailsByCaseIdAndDefendantId(String caseId, String defendantId) {
         List<OffenderMatchDetail> offenderMatchDetails = getOffenderMatchesByCaseIdAndDefendantId(caseId, defendantId)
                 .map(GroupedOffenderMatchesEntity::getOffenderMatches)
@@ -89,6 +90,19 @@ public class OffenderMatchService {
                 ).orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found for defendant %s", caseId, defendantId)));
 
         return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchDetails).build();
+    }
+
+    public List<OffenderMatchDetail> getOffenderMatchDetailsByDefendantId(String defendantId) {
+
+        return groupedOffenderMatchRepository.findFirstByDefendantIdOrderByIdDesc(defendantId)
+            .map(GroupedOffenderMatchesEntity::getOffenderMatches)
+            .map(offenderMatchEntities -> offenderMatchEntities
+                .stream()
+                .map(OffenderMatchEntity::getCrn)
+                .map(this::getOffenderMatchDetail)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList())
+            ).orElseThrow(() -> new EntityNotFoundException(String.format("Defendant %s not found", defendantId)));
     }
 
     private Optional<GroupedOffenderMatchesEntity> getOffenderMatchesByCaseIdAndDefendantId(String caseId, String defendantId) {

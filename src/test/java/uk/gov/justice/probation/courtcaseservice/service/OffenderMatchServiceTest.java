@@ -226,6 +226,7 @@ class OffenderMatchServiceTest {
             verify(offenderRestClient).getProbationStatusByCrn(crn);
         }
 
+        @Deprecated(forRemoval = true)
         @Test
         void givenMultipleCrns_whenGetOffenderMatchDetailsByCaseAndDefendantId_thenReturn() {
 
@@ -247,6 +248,28 @@ class OffenderMatchServiceTest {
             assertThat(response.getOffenderMatchDetails()).extracting("forename").containsExactlyInAnyOrder("Chris", "Dave");
         }
 
+        @Test
+        void givenMultipleCrns_whenGetOffenderMatchDetailsByDefendantId_thenReturn() {
+
+            String crn1 = "X320741";
+            String crn2 = "X320742";
+
+            when(offenderMatchRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(
+                Optional.ofNullable(buildGroupedOffenderMatchesEntity(List.of(crn1, crn2))));
+
+            final var matchDetail1 = OffenderMatchDetail.builder().forename("Chris").build();
+            final var matchDetail2 = OffenderMatchDetail.builder().forename("Dave").build();
+
+            mockOffenderDetailMatch(crn1, matchDetail1, Collections.emptyList());
+            mockOffenderDetailMatch(crn2, matchDetail2, List.of(inactiveConviction, activeConviction));
+
+            final var response = service.getOffenderMatchDetailsByDefendantId(DEFENDANT_ID);
+
+            assertThat(response).hasSize(2);
+            assertThat(response).extracting("forename").containsExactlyInAnyOrder("Chris", "Dave");
+        }
+
+        @Deprecated(forRemoval = true)
         @Test
         void givenDefendantIdDoesNotExist_whenGetOffenderMatchDetailsByCaseIdAndDefendantId_thenThrow() {
 
@@ -307,7 +330,6 @@ class OffenderMatchServiceTest {
                 List<OffenderMatchEntity> offenderMatchEntities = List.of(OffenderMatchEntity.builder()
                         .id(groupId)
                         .build());
-
                 return GroupedOffenderMatchesEntity.builder().
                         offenderMatches(offenderMatchEntities)
                         .defendantId(defendantId)

@@ -264,6 +264,7 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                     .body("userMessage", equalTo("Case " + CASE_ID + " not found for defendant 90db99d6-04db-11ec-b2d8-0242ac130002"))
                     .body("developerMessage", equalTo("Case " + CASE_ID + " not found for defendant 90db99d6-04db-11ec-b2d8-0242ac130002"));
         }
+
         private void validate(ValidatableResponse validatableResponse) {
             validatableResponse.body("offenderMatchDetails", hasSize(1))
                     .body("offenderMatchDetails[0].title", equalTo(null))
@@ -446,6 +447,90 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                     .statusCode(404)
                     .body("developerMessage", equalTo(String.format("Grouped Matches %s not found for defendant %s", GROUP_ID, DEFENDANT_ID_NOT_EXIST)));
         }
+    }
+
+    @Nested
+    class CreateOrUpdateGroupedMatchesByDefendant {
+
+        private static final String DEFENDANT_ID = "40db17d6-04db-11ec-b2d8-0242ac130002";
+
+        @Test
+        void givenCourtCaseExistsWithNoPriorMatches_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {
+            String location = given()
+                    .auth()
+                    .oauth2(getToken())
+                    .accept(APPLICATION_JSON_VALUE)
+                    .contentType(APPLICATION_JSON_VALUE)
+                    .body(SINGLE_EXACT_MATCH_BODY)
+                    .when()
+                    .post("/defendant/" + DEFENDANT_ID + "/grouped-offender-matches")
+                    .then()
+                    .statusCode(201)
+                    .header("Location", matchesPattern("/defendant/" + DEFENDANT_ID + "/grouped-offender-matches/[0-9]+"))
+                    .extract()
+                    .header("Location");
+
+            given()
+                    .auth()
+                    .oauth2(getToken())
+                    .accept(APPLICATION_JSON_VALUE)
+                    .contentType(APPLICATION_JSON_VALUE)
+                    .when()
+                    .get(location)
+                    .then()
+                    .statusCode(200)
+                    .body("offenderMatches", hasSize(1))
+                    .body("offenderMatches[0].crn", equalTo("X346204"))
+                    .body("offenderMatches[0].pnc", equalTo("pnc123"))
+                    .body("offenderMatches[0].cro", equalTo("cro456"))
+                    .body("offenderMatches[0].matchType", equalTo("NAME_DOB"))
+                    .body("offenderMatches[0].confirmed", equalTo(true));
+        }
+
+        @Test
+        void givenCourtCaseExistsWithPriorMatches_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {
+
+
+            String defendantId = "40db17d6-04db-11ec-b2d8-0242ac130002";
+
+            String location = given()
+                    .auth()
+                    .oauth2(getToken())
+                    .accept(APPLICATION_JSON_VALUE)
+                    .contentType(APPLICATION_JSON_VALUE)
+                    .body(MULTIPLE_NON_EXACT_MATCH_BODY)
+                    .when()
+                    .post("/defendant/" + defendantId + "/grouped-offender-matches")
+                    .then()
+                    .statusCode(201)
+                    .header("Location", matchesPattern("/defendant/" + defendantId + "/grouped-offender-matches/[0-9]+"))
+                    .extract()
+                    .header("Location");
+
+            given()
+                    .auth()
+                    .oauth2(getToken())
+                    .accept(APPLICATION_JSON_VALUE)
+                    .contentType(APPLICATION_JSON_VALUE)
+                    .when()
+                    .get(location)
+                    .then()
+                    .statusCode(200)
+                    .body("offenderMatches", hasSize(3))
+                    .body("offenderMatches[0].crn", equalTo("X12345"))
+                    .body("offenderMatches[0].pnc", equalTo(null))
+                    .body("offenderMatches[0].cro", equalTo(null))
+                    .body("offenderMatches[0].matchType", equalTo("PARTIAL_NAME"))
+                    .body("offenderMatches[0].confirmed", equalTo(false))
+                    .body("offenderMatches[0].rejected", equalTo(false))
+                    .body("offenderMatches[1].matchType", equalTo("NAME_DOB_ALIAS"))
+                    .body("offenderMatches[2].matchType", equalTo("NAME_DOB_ALIAS"))
+                    .body("offenderMatches[2].aliases", hasSize(2))
+                    .body("offenderMatches[2].aliases[0].gender", equalTo("Male"))
+                    .body("offenderMatches[2].aliases[1].dateOfBirth", equalTo("1968-08-06"))
+            ;
+        }
+
     }
 
 }

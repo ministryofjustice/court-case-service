@@ -158,21 +158,6 @@ class OffenderMatchMapperTest {
     }
 
     @Test
-    void givenMultipleMatches_whenNewDefendant_thenMapAllFields() {
-        var groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
-                .matches(asList(matchRequest1, matchRequest2))
-                .build();
-        var matchesEntity = OffenderMatchMapper.newGroupedMatchesOf(DEFENDANT_ID, groupedOffenderMatchesRequest, CASE_ID);
-
-        assertThat(matchesEntity.getId()).isNull();
-        assertThat(matchesEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
-        assertThat(matchesEntity.getCaseId()).isEqualTo(CASE_ID);
-
-        assertThat(matchesEntity.getOffenderMatches()).hasSize(2);
-        checkMatches(matchesEntity.getOffenderMatches().get(0), matchesEntity.getOffenderMatches().get(1), matchesEntity);
-    }
-
-    @Test
     void givenMultipleMatches_whenNewGroupedMatches_thenMapAllFields() {
         var groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
                 .matches(asList(matchRequest1, matchRequest2))

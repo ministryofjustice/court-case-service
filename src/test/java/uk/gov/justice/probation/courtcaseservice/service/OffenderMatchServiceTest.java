@@ -357,7 +357,6 @@ class OffenderMatchServiceTest {
                 var groupEntity = GroupedOffenderMatchesEntity.builder().caseId(CASE_ID).offenderMatches(Collections.emptyList()).build();
 
                 given(hearingRepository.findFirstByHearingDefendantsDefendantId(DEFENDANT_ID)).willReturn(Optional.of(hearingEntity));
-                given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).willReturn(Optional.of(courtCaseEntity));
                 given(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).willReturn(Optional.empty());
                 given(offenderMatchRepository.save(groupEntity)).willReturn(groupEntity);
 

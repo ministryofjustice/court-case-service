@@ -29,28 +29,27 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class OffenderMatchesController {
     private final OffenderMatchService offenderMatchService;
 
-    private static final String GET_GROUPED_OFFENDER_MATCHES_BY_DEFENDANT_ID_AND_GROUP_ID_PATH = "/defendant/{defendantId}/grouped-offender-matches/{groupId}";
-
-
+    @Deprecated(forRemoval = true)
     @Operation(description = "Creates a new offender-match entity associated with a case and a defendant ID")
     @PostMapping(value = "/case/{caseId}/defendant/{defendantId}/grouped-offender-matches", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    Mono<ResponseEntity<Object>> createGroupedOffenderMatchesByDefendant(@PathVariable(value = "caseId") String caseId,
-                                                                         @PathVariable(value = "defendantId") String defendantId,
+    Mono<ResponseEntity<Object>> createGroupedOffenderMatchesByDefendant(@PathVariable String caseId,
+                                                                         @PathVariable String defendantId,
                                                                          @Valid @RequestBody GroupedOffenderMatchesRequest request) {
         return offenderMatchService.createOrUpdateGroupedMatchesByDefendant(caseId, defendantId, request)
                 .map(match -> ResponseEntity.created(URI.create(String.format("/case/%s/defendant/%s/grouped-offender-matches/%s", caseId, defendantId, match.getId())))
                         .build());
     }
 
+    @Deprecated(forRemoval = true)
     @Operation(description = "Gets an existing offender-match entity associated with a case")
     @GetMapping(value = "/case/{caseId}/defendant/{defendantId}/grouped-offender-matches/{groupId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
-    Mono<GroupedOffenderMatchesEntity> getOffenderMatchesByCaseId(@PathVariable(value = "caseId") String caseId,
-                                                                  @PathVariable(value = "defendantId") String defendantId,
-                                                                  @PathVariable(value = "groupId") Long groupId) {
+    Mono<GroupedOffenderMatchesEntity> getOffenderMatchesByCaseId(@PathVariable String caseId,
+                                                                  @PathVariable String defendantId,
+                                                                  @PathVariable Long groupId) {
         return offenderMatchService.getGroupedMatchesByCaseId(caseId, defendantId, groupId);
     }
 
@@ -59,8 +58,8 @@ public class OffenderMatchesController {
     @GetMapping(value = "/case/{caseId}/defendant/{defendantId}/matchesDetail", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
-    OffenderMatchDetailResponse getOffenderMatchesDetailByCaseAndDefendantId(@PathVariable(value = "caseId") String caseId,
-                                                                             @PathVariable(value = "defendantId") String defendantId) {
+    OffenderMatchDetailResponse getOffenderMatchesDetailByCaseAndDefendantId(@PathVariable String caseId,
+                                                                             @PathVariable String defendantId) {
         return offenderMatchService.getOffenderMatchDetailsByCaseIdAndDefendantId(caseId, defendantId);
     }
 
@@ -73,12 +72,24 @@ public class OffenderMatchesController {
         return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchService.getOffenderMatchDetailsByDefendantId(defendantId)).build();
     }
 
-    @Operation(description = "Gets an existing grouped-offender-matches-entity associated with a defendant and a group")
-    @GetMapping(value = GET_GROUPED_OFFENDER_MATCHES_BY_DEFENDANT_ID_AND_GROUP_ID_PATH, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+
+    @Operation(description = "Gets an existing grouped-offender-match entity associated with a defendant and a group")
+    @GetMapping(value = "/defendant/{defendantId}/grouped-offender-matches/{groupId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
-    Mono<GroupedOffenderMatchesEntity> getGroupedOffenderMatchesEntityByDefendantIdAndGroupId(@PathVariable(value = "defendantId") String defendantId,
-                                                                                              @PathVariable(value = "groupId") Long groupId) {
-        return offenderMatchService.getGroupedOffenderMatchesEntityByDefendantIdAndGroupId(defendantId, groupId);
+    Mono<GroupedOffenderMatchesEntity> getGroupedOffenderMatchesByDefendantIdAndGroupId(@PathVariable String defendantId,
+                                                                                        @PathVariable Long groupId) {
+        return offenderMatchService.getGroupedOffenderMatchesByDefendantIdAndGroupId(defendantId, groupId);
+    }
+
+    @Operation(description = "Creates a new grouped-offender-match entity associated with a defendant")
+    @PostMapping(value = "/defendant/{defendantId}/grouped-offender-matches", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public @ResponseBody
+    Mono<ResponseEntity<Object>> createGroupedOffenderMatchesByDefendant(@PathVariable String defendantId,
+                                                                         @Valid @RequestBody GroupedOffenderMatchesRequest request) {
+        return offenderMatchService.createOrUpdateGroupedMatchesByDefendant(defendantId, request)
+                .map(match -> ResponseEntity.created(URI.create(String.format("/defendant/%s/grouped-offender-matches/%s", defendantId, match.getId())))
+                        .build());
     }
 }

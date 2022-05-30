@@ -43,11 +43,11 @@ public class GroupedOffenderMatchesEntity extends BaseEntity implements Serializ
     private List<OffenderMatchEntity> offenderMatches;
 
     @Setter
-    @Column(name = "CASE_ID")
+    @Column(name = "CASE_ID", nullable = false)
     private String caseId;
 
     @Setter
-    @Column(name = "DEFENDANT_ID")
+    @Column(name = "DEFENDANT_ID", nullable = false)
     private String defendantId;
 
     public void clearOffenderMatches() {

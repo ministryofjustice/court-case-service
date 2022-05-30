@@ -175,6 +175,6 @@ public class OffenderMatchService {
         String caseId = hearingEntity.getCaseId();
         return groupedOffenderMatchRepository.findByCaseIdAndDefendantId(caseId, defendantId)
                 .map(existingGroup -> OffenderMatchMapper.update(caseId, defendantId, existingGroup, offenderMatches))
-                .orElseGet(() -> createForCaseAndDefendant(caseId, defendantId, offenderMatches));
+                .orElseGet(() -> OffenderMatchMapper.newGroupedMatchesOf(defendantId, offenderMatches, caseId));
     }
 }

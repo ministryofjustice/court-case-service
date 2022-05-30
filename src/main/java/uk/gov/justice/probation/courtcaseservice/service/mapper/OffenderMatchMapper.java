@@ -32,6 +32,15 @@ public class OffenderMatchMapper {
         return group;
     }
 
+    public static GroupedOffenderMatchesEntity newGroupedMatchesOf(String defendantId, GroupedOffenderMatchesRequest offenderMatches, String caseId) {
+        var group = GroupedOffenderMatchesEntity.builder()
+                .defendantId(defendantId)
+                .caseId(caseId)
+                .build();
+        group.setOffenderMatches(buildOffenderMatchEntities(offenderMatches.getMatches(), group));
+        return group;
+    }
+
     private static List<OffenderMatchEntity> buildOffenderMatchEntities(List<OffenderMatchRequest> offenderMatchRequests, GroupedOffenderMatchesEntity group) {
         return offenderMatchRequests.stream()
             .map(

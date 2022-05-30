@@ -4,7 +4,6 @@ import org.jetbrains.annotations.Nullable;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchAlias;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchRequest;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderAliasEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
@@ -19,15 +18,6 @@ public class OffenderMatchMapper {
     public static GroupedOffenderMatchesEntity newGroupedMatchesOf(GroupedOffenderMatchesRequest offenderMatches) {
         var group = GroupedOffenderMatchesEntity.builder()
             .build();
-        group.setOffenderMatches(buildOffenderMatchEntities(offenderMatches.getMatches(), group));
-        return group;
-    }
-
-    public static GroupedOffenderMatchesEntity newGroupedMatchesOf(String defendantId, GroupedOffenderMatchesRequest offenderMatches, CourtCaseEntity courtCase) {
-        var group = GroupedOffenderMatchesEntity.builder()
-                .defendantId(defendantId)
-                .caseId(courtCase.getCaseId())
-                .build();
         group.setOffenderMatches(buildOffenderMatchEntities(offenderMatches.getMatches(), group));
         return group;
     }

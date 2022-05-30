@@ -19,7 +19,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * See ADR 0009-handling-concurrent-db-updates.md for context
@@ -37,26 +36,6 @@ public class OffenderMatchServiceIntTest extends BaseIntTest {
         // Set request context to satisfy @RequestScope
         final var request = new MockHttpServletRequest();
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-    }
-
-    @Test
-    public void givenCannotAcquireLockExceptionThrown_whenCreateOrUpdateGroupedMatchesByDefendant_thenRetry() {
-        when(offenderMatchRepository.findByCaseIdAndDefendantId(any(), any())).thenThrow(CannotAcquireLockException.class);
-
-        assertThatExceptionOfType(CannotAcquireLockException.class)
-                .isThrownBy(() -> offenderMatchService.createOrUpdateGroupedMatchesByDefendant("CASE_ID", "DEFENDANT_ID", GroupedOffenderMatchesRequest.builder().build()));
-
-        verify(offenderMatchRepository, times(3)).findByCaseIdAndDefendantId(any(), any());
-    }
-
-    @Test
-    public void givenDataIntegrityViolationExceptionExceptionThrown_whenCreateOrUpdateGroupedMatchesByDefendant_thenRetry() {
-        when(offenderMatchRepository.findByCaseIdAndDefendantId(any(), any())).thenThrow(DataIntegrityViolationException.class);
-
-        assertThatExceptionOfType(DataIntegrityViolationException.class)
-                .isThrownBy(() -> offenderMatchService.createOrUpdateGroupedMatchesByDefendant("CASE_ID", "DEFENDANT_ID", GroupedOffenderMatchesRequest.builder().build()));
-
-        verify(offenderMatchRepository, times(3)).findByCaseIdAndDefendantId(any(), any());
     }
 
     @Test

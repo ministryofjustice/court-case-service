@@ -12,7 +12,6 @@ import org.springframework.web.context.annotation.RequestScope;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
-import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetailResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
@@ -29,7 +28,11 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,48 +53,6 @@ public class OffenderMatchService {
         this.hearingRepository = hearingRepository;
     }
 
-    @Deprecated(forRemoval = true)
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
-    @Retryable(value = {CannotAcquireLockException.class, DataIntegrityViolationException.class})
-    public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatchesByDefendant(String caseId, String defendantId, GroupedOffenderMatchesRequest offenderMatches) {
-        return Mono.just(groupedOffenderMatchRepository.findByCaseIdAndDefendantId(caseId, defendantId)
-                        .map(existingGroup -> OffenderMatchMapper.update(caseId, defendantId, existingGroup, offenderMatches))
-                        .orElseGet(() -> createForCaseAndDefendant(caseId, defendantId, offenderMatches)))
-                .map(groupedOffenderMatchesEntity -> groupedOffenderMatchRepository.save(groupedOffenderMatchesEntity));
-    }
-
-    private GroupedOffenderMatchesEntity createForCaseAndDefendant(String caseId, String defendantId, GroupedOffenderMatchesRequest offenderMatches) {
-        final var courtCaseEntity = courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found", caseId)));
-        return OffenderMatchMapper.newGroupedMatchesOf(defendantId, offenderMatches, courtCaseEntity);
-    }
-
-    @Deprecated(forRemoval = true)
-    public Mono<GroupedOffenderMatchesEntity> getGroupedMatchesByCaseId(String caseId, String defendantId, Long groupId) {
-        return Mono.justOrEmpty(groupedOffenderMatchRepository.findById(groupId))
-                .map(groupedOffenderMatchesEntity -> {
-                    if (!caseId.equals(groupedOffenderMatchesEntity.getCaseId())) {
-                        throw new EntityNotFoundException(String.format("Grouped Matches %s not found for caseId %s", groupId, caseId));
-                    }
-                    return groupedOffenderMatchesEntity;
-                });
-    }
-
-    @Deprecated(forRemoval = true)
-    public OffenderMatchDetailResponse getOffenderMatchDetailsByCaseIdAndDefendantId(String caseId, String defendantId) {
-        List<OffenderMatchDetail> offenderMatchDetails = getOffenderMatchesByCaseIdAndDefendantId(caseId, defendantId)
-                .map(GroupedOffenderMatchesEntity::getOffenderMatches)
-                .map(offenderMatchEntities -> offenderMatchEntities
-                        .stream()
-                        .map(OffenderMatchEntity::getCrn)
-                        .map(this::getOffenderMatchDetail)
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList())
-                ).orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found for defendant %s", caseId, defendantId)));
-
-        return OffenderMatchDetailResponse.builder().offenderMatchDetails(offenderMatchDetails).build();
-    }
-
     public List<OffenderMatchDetail> getOffenderMatchDetailsByDefendantId(String defendantId) {
 
         return groupedOffenderMatchRepository.findFirstByDefendantIdOrderByIdDesc(defendantId)
@@ -103,10 +64,6 @@ public class OffenderMatchService {
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList())
                 ).orElseThrow(() -> new EntityNotFoundException(String.format("Defendant %s not found", defendantId)));
-    }
-
-    private Optional<GroupedOffenderMatchesEntity> getOffenderMatchesByCaseIdAndDefendantId(String caseId, String defendantId) {
-        return groupedOffenderMatchRepository.findByCaseIdAndDefendantId(caseId, defendantId);
     }
 
     public Optional<Integer> getMatchCountByCaseIdAndDefendant(String caseId, String defendantId) {

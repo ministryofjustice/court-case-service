@@ -95,14 +95,14 @@ public class OffenderMatchService {
     public List<OffenderMatchDetail> getOffenderMatchDetailsByDefendantId(String defendantId) {
 
         return groupedOffenderMatchRepository.findFirstByDefendantIdOrderByIdDesc(defendantId)
-            .map(GroupedOffenderMatchesEntity::getOffenderMatches)
-            .map(offenderMatchEntities -> offenderMatchEntities
-                .stream()
-                .map(OffenderMatchEntity::getCrn)
-                .map(this::getOffenderMatchDetail)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList())
-            ).orElseThrow(() -> new EntityNotFoundException(String.format("Defendant %s not found", defendantId)));
+                .map(GroupedOffenderMatchesEntity::getOffenderMatches)
+                .map(offenderMatchEntities -> offenderMatchEntities
+                        .stream()
+                        .map(OffenderMatchEntity::getCrn)
+                        .map(this::getOffenderMatchDetail)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList())
+                ).orElseThrow(() -> new EntityNotFoundException(String.format("Defendant %s not found", defendantId)));
     }
 
     private Optional<GroupedOffenderMatchesEntity> getOffenderMatchesByCaseIdAndDefendantId(String caseId, String defendantId) {
@@ -160,13 +160,9 @@ public class OffenderMatchService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     @Retryable(value = {CannotAcquireLockException.class, DataIntegrityViolationException.class})
     public Mono<GroupedOffenderMatchesEntity> createOrUpdateGroupedMatchesByDefendant(String defendantId, GroupedOffenderMatchesRequest groupedOffenderMatchesRequest) {
-        return Mono.justOrEmpty(hearingRepository.findFirstByHearingDefendantsDefendantId(defendantId))
-                .map(hearingEntity -> {
-                    if (hearingEntity != null) {
-                        return createOrUpdateGroupedMatchesByDefendant(hearingEntity, defendantId, groupedOffenderMatchesRequest);
-                    }
-                    throw new EntityNotFoundException(String.format("Hearing  entity not found for defendant %s", defendantId));
-                })
+        var hearingEntity = hearingRepository.findFirstByHearingDefendantsDefendantId(defendantId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Hearing  entity not found for defendant %s", defendantId)));
+        return Mono.just(createOrUpdateGroupedMatchesByDefendant(hearingEntity, defendantId, groupedOffenderMatchesRequest))
                 .map(groupedOffenderMatchRepository::save);
 
     }

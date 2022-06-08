@@ -90,7 +90,7 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
     @Nested
     class PostMatchRequestCaseId {
         private static final String CASE_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a18";
-        private static final String DEFENDANT_ID = "3e94df33-8165-448b-ade9-14a28408e377";
+        private static final String DEFENDANT_ID = "3e94df33-8165-448b-ade9-14a28408e";
 
         @Test
         void givenCourtCaseExistsWithNoPriorMatches_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {
@@ -454,6 +454,8 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
 
         private static final String DEFENDANT_ID = "40db17d6-04db-11ec-b2d8-0242ac130002";
 
+        private static final String DEFENDANT_ID_NOT_EXIST = "40db17d6-04db-11ec-b2d8-0242ac130003";
+
         @Test
         void givenCourtCaseExistsWithNoPriorMatches_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {
             String location = given()
@@ -529,6 +531,22 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                     .body("offenderMatches[2].aliases[0].gender", equalTo("Male"))
                     .body("offenderMatches[2].aliases[1].dateOfBirth", equalTo("1968-08-06"))
             ;
+        }
+
+        @Test
+        void givenNoHearingEntityExistForDefendant_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {
+
+            given()
+                    .auth()
+                    .oauth2(getToken())
+                    .accept(APPLICATION_JSON_VALUE)
+                    .contentType(APPLICATION_JSON_VALUE)
+                    .body(SINGLE_EXACT_MATCH_BODY)
+                    .when()
+                    .post("/defendant/" + DEFENDANT_ID_NOT_EXIST + "/grouped-offender-matches")
+                    .then()
+                    .statusCode(404)
+                    .body("developerMessage", equalTo(String.format("Hearing  entity not found for defendant %s", DEFENDANT_ID_NOT_EXIST)));
         }
 
     }

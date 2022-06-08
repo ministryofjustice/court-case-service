@@ -11,12 +11,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.lang.Nullable;
+import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.endpoint.DefaultClientCredentialsTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -50,8 +50,6 @@ public class WebClientFactory {
     private ClientDetails clientDetails;
     @Autowired
     private ClientRegistrationRepository clientRegistrationRepository;
-    @Autowired
-    private OAuth2AuthorizedClientRepository authorizedClientRepository;
 
     public RestClientHelper buildCommunityRestClientHelper(@Nullable String username) {
         final var webClient = buildWebClient(communityApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE, username);
@@ -78,7 +76,7 @@ public class WebClientFactory {
                 .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(bufferByteCount))
                 .baseUrl(baseUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .apply(oauth2Client.oauth2Configuration())
+                .filter(oauth2Client)
                 .build();
     }
 
@@ -96,8 +94,8 @@ public class WebClientFactory {
                         builder.accessTokenResponseClient(clientCredentialsTokenResponseClient))
                 .build();
 
-        var authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
-                clientRegistrationRepository, authorizedClientRepository);
+        var authorizedClientManager = new AuthorizedClientServiceOAuth2AuthorizedClientManager(
+                clientRegistrationRepository, new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository));
         authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 
         return authorizedClientManager;

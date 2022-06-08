@@ -90,7 +90,7 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
     @Nested
     class PostMatchRequestCaseId {
         private static final String CASE_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a18";
-        private static final String DEFENDANT_ID = "3e94df33-8165-448b-ade9-14a28408e";
+        private static final String DEFENDANT_ID = "3e94df33-8165-448b-ade9-14a28408e377";
 
         @Test
         void givenCourtCaseExistsWithNoPriorMatches_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {

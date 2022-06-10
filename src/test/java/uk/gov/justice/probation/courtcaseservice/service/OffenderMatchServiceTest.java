@@ -1,12 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 
-import lombok.Data;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
@@ -33,7 +31,6 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -68,58 +65,6 @@ class OffenderMatchServiceTest {
     void setUp() {
         when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
         service = new OffenderMatchService(offenderMatchRepository, offenderRestClientFactory, courtCaseRepository, hearingRepository);
-    }
-
-    @ExtendWith(MockitoExtension.class)
-    @Nested
-    class CreateOrUpdateByCaseId {
-
-        private static final String CASE_ID = "f1e1867f-94a5-45a2-81cf-92780a51564d";
-        private static final String DEFENDANT_ID = "378752d2-2a60-42d9-8f70-89d6fa022be4";
-
-        GroupedOffenderMatchesRequest request = GroupedOffenderMatchesRequest.builder()
-                .matches(Collections.emptyList())
-                .build();
-
-        @Test
-        void givenNoExistingGroupedOffenderMatchEntity_whenCreateOrUpdate_thenCreate() {
-            when(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.empty());
-            when(courtCaseEntity.getCaseId()).thenReturn(CASE_ID);
-            when(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(CASE_ID)).thenReturn(Optional.of(courtCaseEntity));
-            when(offenderMatchRepository.save(argThat(new EntityMatcher(DEFENDANT_ID, CASE_ID)))).thenReturn(groupedOffenderMatchesEntity);
-
-            var match = service.createOrUpdateGroupedMatchesByDefendant(CASE_ID, DEFENDANT_ID, request).blockOptional();
-
-            assertThat(match).isPresent();
-            assertThat(match.get()).isEqualTo(groupedOffenderMatchesEntity);
-        }
-
-        @Test
-        void givenExistingGroupedOffenderMatchEntity_whenCreateOrUpdate_thenUpdate() {
-
-            // Group has no defendant ID to start with. Prove that the update has happened by asserting on it later
-            var groupEntity = GroupedOffenderMatchesEntity.builder().caseId(CASE_ID).offenderMatches(Collections.emptyList()).build();
-            when(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(groupEntity));
-            when(offenderMatchRepository.save(groupEntity)).thenReturn(groupEntity);
-
-            var match = service.createOrUpdateGroupedMatchesByDefendant(CASE_ID, DEFENDANT_ID, request).blockOptional();
-
-            assertThat(match).isPresent();
-            assertThat(match.get()).isEqualTo(groupEntity);
-            assertThat(groupEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
-        }
-
-        @Data
-        class EntityMatcher implements ArgumentMatcher<GroupedOffenderMatchesEntity> {
-
-            private final String defendantId;
-            private final String caseId;
-
-            @Override
-            public boolean matches(GroupedOffenderMatchesEntity argument) {
-                return defendantId.equals(argument.getDefendantId()) && caseId.equals(argument.getCaseId());
-            }
-        }
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -226,28 +171,6 @@ class OffenderMatchServiceTest {
             verify(offenderRestClient).getProbationStatusByCrn(crn);
         }
 
-        @Deprecated(forRemoval = true)
-        @Test
-        void givenMultipleCrns_whenGetOffenderMatchDetailsByCaseAndDefendantId_thenReturn() {
-
-            String crn1 = "X320741";
-            String crn2 = "X320742";
-
-            when(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(
-                    Optional.ofNullable(buildGroupedOffenderMatchesEntity(List.of(crn1, crn2))));
-
-            final var matchDetail1 = OffenderMatchDetail.builder().forename("Chris").build();
-            final var matchDetail2 = OffenderMatchDetail.builder().forename("Dave").build();
-
-            mockOffenderDetailMatch(crn1, matchDetail1, Collections.emptyList());
-            mockOffenderDetailMatch(crn2, matchDetail2, List.of(inactiveConviction, activeConviction));
-
-            final var response = service.getOffenderMatchDetailsByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
-
-            assertThat(response.getOffenderMatchDetails()).hasSize(2);
-            assertThat(response.getOffenderMatchDetails()).extracting("forename").containsExactlyInAnyOrder("Chris", "Dave");
-        }
-
         @Test
         void givenMultipleCrns_whenGetOffenderMatchDetailsByDefendantId_thenReturn() {
 
@@ -267,125 +190,6 @@ class OffenderMatchServiceTest {
 
             assertThat(response).hasSize(2);
             assertThat(response).extracting("forename").containsExactlyInAnyOrder("Chris", "Dave");
-        }
-
-        @Deprecated(forRemoval = true)
-        @Test
-        void givenDefendantIdDoesNotExist_whenGetOffenderMatchDetailsByCaseIdAndDefendantId_thenThrow() {
-
-            when(offenderMatchRepository.findByCaseIdAndDefendantId(anyString(), anyString())).thenReturn(
-                    Optional.ofNullable(null));
-
-            Exception actual = assertThrows(
-                    EntityNotFoundException.class,
-                    () -> service.getOffenderMatchDetailsByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)
-            );
-            assertThat(actual.getMessage()).isEqualTo("Case 4d113429-e38c-4fbf-bd94-e1c3569319eb not found for defendant e19b2776-6646-4940-93af-6b86fa1b7416");
-        }
-
-        @ExtendWith(MockitoExtension.class)
-        @Nested
-        class GetGroupedOffenderMatchesEntity {
-
-            @Test
-            void givenDefendantIdNotMatch_whenGetGroupedMatchesByDefendantId_thenThrowException() {
-                //given
-                var groupId = 1L;
-                var defendantId = "2";
-
-                given(offenderMatchRepository.findById(groupId)).willReturn(Optional.ofNullable(buildGroupedOffenderMatchesEntity("3", groupId)));
-
-                // when
-                assertThrows(EntityNotFoundException.class, () -> service.getGroupedOffenderMatchesByDefendantIdAndGroupId(defendantId, groupId).block());
-
-                // then
-                verify(offenderMatchRepository).findById(groupId);
-            }
-
-            @Test
-            void givenDefendantIdMatch_whenGetGroupedMatchesByDefendantId_thenReturn() {
-                //given
-                var groupId = 1L;
-                var defendantId = "2";
-
-                given(offenderMatchRepository.findById(groupId)).willReturn(Optional.ofNullable(buildGroupedOffenderMatchesEntity(defendantId, groupId)));
-
-                // when
-                var expectedOffenderMatchesEntity =
-                        service.getGroupedOffenderMatchesByDefendantIdAndGroupId(defendantId, groupId).block();
-
-                //then
-                verify(offenderMatchRepository).findById(groupId);
-
-                assertThat(expectedOffenderMatchesEntity).isNotNull();
-                assertThat(expectedOffenderMatchesEntity.getDefendantId()).isEqualTo(defendantId);
-
-                var expectedOffenderMatchEntity = OffenderMatchEntity.builder().id(groupId).build();
-                assertThat(expectedOffenderMatchesEntity.getOffenderMatches()).containsOnly(expectedOffenderMatchEntity);
-            }
-
-
-            private GroupedOffenderMatchesEntity buildGroupedOffenderMatchesEntity(String defendantId, Long groupId) {
-
-                List<OffenderMatchEntity> offenderMatchEntities = List.of(OffenderMatchEntity.builder()
-                        .id(groupId)
-                        .build());
-                return GroupedOffenderMatchesEntity.builder().
-                        offenderMatches(offenderMatchEntities)
-                        .defendantId(defendantId)
-                        .build();
-            }
-        }
-
-        @ExtendWith(MockitoExtension.class)
-        @Nested
-        class CreateOrUpdateByDefendantId {
-
-            private static final String CASE_ID = "f1e1867f-94a5-45a2-81cf-92780a51564d";
-            private static final String DEFENDANT_ID = "378752d2-2a60-42d9-8f70-89d6fa022be4";
-
-            GroupedOffenderMatchesRequest request = GroupedOffenderMatchesRequest.builder()
-                    .matches(Collections.emptyList())
-                    .build();
-
-            HearingEntity hearingEntity = HearingEntity.builder()
-                    .build().withCourtCase(CourtCaseEntity.builder().caseId(CASE_ID).build());
-
-            @Test
-            void givenNoExistingGroupedOffenderMatchEntity_whenCreateOrUpdate_thenCreate() {
-                //Given
-                var groupEntity = GroupedOffenderMatchesEntity.builder().caseId(CASE_ID).offenderMatches(Collections.emptyList()).build();
-
-                given(hearingRepository.findFirstByHearingDefendantsDefendantId(DEFENDANT_ID)).willReturn(Optional.of(hearingEntity));
-                given(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).willReturn(Optional.empty());
-                given(offenderMatchRepository.save(groupEntity)).willReturn(groupEntity);
-
-                // When
-                var match = service.createOrUpdateGroupedMatchesByDefendant(DEFENDANT_ID, request).blockOptional();
-
-                // Then
-                assertThat(match).isPresent();
-                assertThat(match.get()).isEqualTo(groupEntity);
-            }
-
-            @Test
-            void givenExistingGroupedOffenderMatchEntity_whenCreateOrUpdate_thenUpdate() {
-                // Given
-                var groupEntity = GroupedOffenderMatchesEntity.builder().caseId(CASE_ID).offenderMatches(Collections.emptyList()).build();
-
-                given(hearingRepository.findFirstByHearingDefendantsDefendantId(DEFENDANT_ID)).willReturn(Optional.of(hearingEntity));
-                given(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).willReturn(Optional.of(groupEntity));
-                given(offenderMatchRepository.save(groupEntity)).willReturn(groupEntity);
-
-                // When
-                var match = service.createOrUpdateGroupedMatchesByDefendant(DEFENDANT_ID, request).blockOptional();
-
-                // Then
-                assertThat(match).isPresent();
-                assertThat(match.get()).isEqualTo(groupEntity);
-                assertThat(groupEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
-            }
-
         }
 
         private GroupedOffenderMatchesEntity buildGroupedOffenderMatchesEntity(List<String> crns) {
@@ -412,6 +216,111 @@ class OffenderMatchServiceTest {
                     .sentence(sentence)
                     .build();
         }
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Nested
+    class GetGroupedOffenderMatchesEntity {
+
+        @Test
+        void givenDefendantIdNotMatch_whenGetGroupedMatchesByDefendantId_thenThrowException() {
+            //given
+            var groupId = 1L;
+            var defendantId = "2";
+
+            given(offenderMatchRepository.findById(groupId)).willReturn(Optional.ofNullable(buildGroupedOffenderMatchesEntity("3", groupId)));
+
+            // when
+            assertThrows(EntityNotFoundException.class, () -> service.getGroupedOffenderMatchesByDefendantIdAndGroupId(defendantId, groupId).block());
+
+            // then
+            verify(offenderMatchRepository).findById(groupId);
+        }
+
+        @Test
+        void givenDefendantIdMatch_whenGetGroupedMatchesByDefendantId_thenReturn() {
+            //given
+            var groupId = 1L;
+            var defendantId = "2";
+
+            given(offenderMatchRepository.findById(groupId)).willReturn(Optional.ofNullable(buildGroupedOffenderMatchesEntity(defendantId, groupId)));
+
+            // when
+            var expectedOffenderMatchesEntity =
+                service.getGroupedOffenderMatchesByDefendantIdAndGroupId(defendantId, groupId).block();
+
+            //then
+            verify(offenderMatchRepository).findById(groupId);
+
+            assertThat(expectedOffenderMatchesEntity).isNotNull();
+            assertThat(expectedOffenderMatchesEntity.getDefendantId()).isEqualTo(defendantId);
+
+            var expectedOffenderMatchEntity = OffenderMatchEntity.builder().id(groupId).build();
+            assertThat(expectedOffenderMatchesEntity.getOffenderMatches()).containsOnly(expectedOffenderMatchEntity);
+        }
+
+
+        private GroupedOffenderMatchesEntity buildGroupedOffenderMatchesEntity(String defendantId, Long groupId) {
+
+            List<OffenderMatchEntity> offenderMatchEntities = List.of(OffenderMatchEntity.builder()
+                .id(groupId)
+                .build());
+            return GroupedOffenderMatchesEntity.builder().
+                offenderMatches(offenderMatchEntities)
+                .defendantId(defendantId)
+                .build();
+        }
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Nested
+    class CreateOrUpdateByDefendantId {
+
+        private static final String CASE_ID = "f1e1867f-94a5-45a2-81cf-92780a51564d";
+        private static final String DEFENDANT_ID = "378752d2-2a60-42d9-8f70-89d6fa022be4";
+
+        GroupedOffenderMatchesRequest request = GroupedOffenderMatchesRequest.builder()
+            .matches(Collections.emptyList())
+            .build();
+
+        HearingEntity hearingEntity = HearingEntity.builder()
+            .build().withCourtCase(CourtCaseEntity.builder().caseId(CASE_ID).build());
+
+        @Test
+        void givenNoExistingGroupedOffenderMatchEntity_whenCreateOrUpdate_thenCreate() {
+            //Given
+            var groupEntity = GroupedOffenderMatchesEntity.builder().caseId(CASE_ID).offenderMatches(Collections.emptyList()).build();
+
+            given(hearingRepository.findFirstByHearingDefendantsDefendantId(DEFENDANT_ID)).willReturn(Optional.of(hearingEntity));
+            given(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).willReturn(Optional.empty());
+            given(offenderMatchRepository.save(groupEntity)).willReturn(groupEntity);
+
+            // When
+            var match = service.createOrUpdateGroupedMatchesByDefendant(DEFENDANT_ID, request).blockOptional();
+
+            // Then
+            assertThat(match).isPresent();
+            assertThat(match.get()).isEqualTo(groupEntity);
+        }
+
+        @Test
+        void givenExistingGroupedOffenderMatchEntity_whenCreateOrUpdate_thenUpdate() {
+            // Given
+            var groupEntity = GroupedOffenderMatchesEntity.builder().caseId(CASE_ID).offenderMatches(Collections.emptyList()).build();
+
+            given(hearingRepository.findFirstByHearingDefendantsDefendantId(DEFENDANT_ID)).willReturn(Optional.of(hearingEntity));
+            given(offenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).willReturn(Optional.of(groupEntity));
+            given(offenderMatchRepository.save(groupEntity)).willReturn(groupEntity);
+
+            // When
+            var match = service.createOrUpdateGroupedMatchesByDefendant(DEFENDANT_ID, request).blockOptional();
+
+            // Then
+            assertThat(match).isPresent();
+            assertThat(match.get()).isEqualTo(groupEntity);
+            assertThat(groupEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
+        }
+
     }
 
 }

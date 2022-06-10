@@ -13,7 +13,6 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.Address;
 import uk.gov.justice.probation.courtcaseservice.controller.model.Event;
 import uk.gov.justice.probation.courtcaseservice.controller.model.MatchIdentifiers;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
-import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetailResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
@@ -40,8 +39,7 @@ class OffenderMatchesControllerTest {
     private static final String CASE_ID = "cb2199b0-5a3e-4fea-858d-af23c998ac3d";
     private static final String DEFENDANT_ID = "1081ca4e-8aa4-42ec-8212-530dec781e56";
     private static final Long GROUP_ID = 1L;
-    private static final String CASE_ID_GROUP_OFFENDER_MATCH_PATH = "/case/" + CASE_ID + "/defendant/" + DEFENDANT_ID + "/grouped-offender-matches/";
-    protected static final String OFFENDER_MATCHES_DEFENDANT_DETAIL_PATH = "/case/%s/defendant/%s/matchesDetail";
+    private static final String CASE_ID_GROUP_OFFENDER_MATCH_PATH = "/defendant/" + DEFENDANT_ID + "/grouped-offender-matches/";
     protected static final String OFFENDER_MATCHES_BY_DEFENDANT_ID_DETAIL_PATH = "/defendant/%s/matchesDetail";
     private WebTestClient webTestClient;
 
@@ -60,7 +58,7 @@ class OffenderMatchesControllerTest {
 
     @Test
     void whenCreateByCaseId_thenReturnLocationHeader() {
-        when(offenderMatchService.createOrUpdateGroupedMatchesByDefendant(eq(CASE_ID), eq(DEFENDANT_ID), any())).thenReturn(Mono.just(entity));
+        when(offenderMatchService.createOrUpdateGroupedMatchesByDefendant(eq(DEFENDANT_ID), any())).thenReturn(Mono.just(entity));
         Long expectedGroupId = 1111L;
         when(entity.getId()).thenReturn(expectedGroupId);
         webTestClient.post()
@@ -90,20 +88,16 @@ class OffenderMatchesControllerTest {
         var detail1 = buildOffenderMatchDetail("Christopher", DefendantProbationStatus.PREVIOUSLY_KNOWN);
         var detail2 = buildOffenderMatchDetail("Christian", DefendantProbationStatus.CURRENT);
 
-        var response = OffenderMatchDetailResponse.builder()
-                .offenderMatchDetails(List.of(detail1, detail2))
-                .build();
-
-        when(offenderMatchService.getOffenderMatchDetailsByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(response);
+        when(offenderMatchService.getOffenderMatchDetailsByDefendantId(DEFENDANT_ID)).thenReturn(List.of(detail1, detail2));
 
         final var body = webTestClient.get()
-                .uri(String.format(OFFENDER_MATCHES_DEFENDANT_DETAIL_PATH, CASE_ID, DEFENDANT_ID))
+                .uri(String.format(OFFENDER_MATCHES_BY_DEFENDANT_ID_DETAIL_PATH, DEFENDANT_ID))
                 .accept(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody();
 
-        verify(offenderMatchService).getOffenderMatchDetailsByCaseIdAndDefendantId(CASE_ID, DEFENDANT_ID);
+        verify(offenderMatchService).getOffenderMatchDetailsByDefendantId(DEFENDANT_ID);
         verifyNoMoreInteractions(offenderMatchService);
         validateBody(body);
     }
@@ -167,15 +161,5 @@ class OffenderMatchesControllerTest {
                         .length(10)
                         .lengthUnits("Months").build())
                 .build();
-    }
-
-    private void assertBadRequestForBody(String body, String path) {
-        webTestClient.post()
-                .uri(path)
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .bodyValue(body)
-                .exchange()
-                .expectStatus().isBadRequest();
     }
 }

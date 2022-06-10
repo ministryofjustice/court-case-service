@@ -12,9 +12,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,6 +29,8 @@ public class OffenderMatchServiceIntTest extends BaseIntTest {
     private OffenderMatchService offenderMatchService;
     @MockBean
     private GroupedOffenderMatchRepository offenderMatchRepository;
+    @MockBean
+    private HearingRepository hearingRepository;
 
     @BeforeEach
     public void setUp() {
@@ -53,5 +57,25 @@ public class OffenderMatchServiceIntTest extends BaseIntTest {
                 .isThrownBy(() -> offenderMatchService.createOrUpdateGroupedMatchesByDefendant("CASE_ID", "DEFENDANT_ID", GroupedOffenderMatchesRequest.builder().build()));
 
         verify(offenderMatchRepository, times(3)).findByCaseIdAndDefendantId(any(), any());
+    }
+
+    @Test
+    public void givenCannotAcquireLockExceptionThrown__whenCreateOrUpdateGroupedMatchesByDefendant_thenRetry() {
+        given(hearingRepository.findFirstByHearingDefendantsDefendantId(any())).willThrow(CannotAcquireLockException.class);
+
+        assertThatExceptionOfType(CannotAcquireLockException.class)
+                .isThrownBy(() -> offenderMatchService.createOrUpdateGroupedMatchesByDefendant("DEFENDANT_ID", GroupedOffenderMatchesRequest.builder().build()));
+
+        verify(hearingRepository, times(3)).findFirstByHearingDefendantsDefendantId(any());
+    }
+
+    @Test
+    public void givenDataIntegrityViolationExceptionExceptionThrown__whenCreateOrUpdateGroupedMatchesByDefendant_thenRetry() {
+        given(hearingRepository.findFirstByHearingDefendantsDefendantId(any())).willThrow(DataIntegrityViolationException.class);
+
+        assertThatExceptionOfType(DataIntegrityViolationException.class)
+                .isThrownBy(() -> offenderMatchService.createOrUpdateGroupedMatchesByDefendant("DEFENDANT_ID", GroupedOffenderMatchesRequest.builder().build()));
+
+        verify(hearingRepository, times(3)).findFirstByHearingDefendantsDefendantId(any());
     }
 }

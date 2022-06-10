@@ -152,9 +152,8 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
         when(offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingId, defendantId))
                 .thenReturn(Optional.of(3));
 
-        when(offenderMatchService.getOffenderMatchDetailsByCaseIdAndDefendantId(hearingId, defendantId))
-                .thenReturn(OffenderMatchDetailResponse.builder()
-                        .offenderMatchDetails(Collections.singletonList(OffenderMatchDetail.builder()
+        when(offenderMatchService.getOffenderMatchDetailsByDefendantId(defendantId))
+                .thenReturn(Collections.singletonList(OffenderMatchDetail.builder()
                                 .title("Mr")
                                 .forename("Aadland")
                                 .middleNames(List.of("Felix", "Hope"))
@@ -180,8 +179,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                                         .lengthUnits("Years")
                                         .text("CJA - Indeterminate Public Prot.")
                                         .build())
-                                .build()))
-                        .build());
+                                .build()));
     }
 
     private HearingEntity buildCourtCaseEntity(String caseId, String hearingId, String defendantId) {

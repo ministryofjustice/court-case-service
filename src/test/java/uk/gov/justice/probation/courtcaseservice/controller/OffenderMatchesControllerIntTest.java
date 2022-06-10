@@ -184,6 +184,8 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
         private static final String GROUP_ID = "9999991";
         private static final String DEFENDANT_ID = "40db17d6-04db-11ec-b2d8-0242ac130002";
 
+        private static final String GROUP_ID_NOT_EXIST = "-1";
+
         private static final String DEFENDANT_ID_NOT_EXIST = "40db17d6-04db";
 
 
@@ -217,6 +219,21 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                     .then()
                     .statusCode(404)
                     .body("developerMessage", equalTo(String.format("Grouped Matches %s not found for defendant %s", GROUP_ID, DEFENDANT_ID_NOT_EXIST)));
+        }
+
+        @Test
+        void givenGroupIdDoesNotExist_whenGetOffenderDetailMatch_thenReturnNotFound() {
+            String path = String.format(GET_GROUPED_OFFENDER_MATCHES_BY_DEFENDANT_ID_AND_GROUP_ID_PATH, DEFENDANT_ID, GROUP_ID_NOT_EXIST);
+            given()
+                    .auth()
+                    .oauth2(getToken())
+                    .accept(APPLICATION_JSON_VALUE)
+                    .contentType(APPLICATION_JSON_VALUE)
+                    .when()
+                    .get(path)
+                    .then()
+                    .statusCode(404)
+                    .body("developerMessage", equalTo(String.format("Grouped Matches not found with id  %s", GROUP_ID_NOT_EXIST)));
         }
     }
 

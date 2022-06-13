@@ -125,9 +125,8 @@ public class OffenderRestClient {
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, resp -> clientHelper.handleConvictionError(crn, convictionId, resp))
                 .bodyToMono(CommunityApiNsiResponse.class)
-                .onErrorMap(e1 -> {
+                .doOnError(e1 -> {
                     log.error(String.format("Unexpected exception when retrieving breaches data for CRN '%s' and conviction id '%s'", crn, convictionId), e1);
-                    return e1;
                 })
                 .map(BreachMapper::breachesFrom);
     }

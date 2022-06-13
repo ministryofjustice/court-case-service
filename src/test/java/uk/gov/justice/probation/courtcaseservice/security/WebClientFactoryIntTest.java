@@ -40,7 +40,7 @@ class WebClientFactoryIntTest extends BaseIntTest {
 
     @BeforeEach
     void beforeEach(){
-        webClientFactory = new WebClientFactory(connectTimeoutMs, readTimeoutMs, writeTimeoutMs, communityApiBaseUrl, disableAuthentication, clientDetails, clientRegistrationRepository, authorizedClientRepository);
+        webClientFactory = new WebClientFactory(connectTimeoutMs, readTimeoutMs, writeTimeoutMs, communityApiBaseUrl, disableAuthentication, clientDetails, clientRegistrationRepository);
     }
 
     @Test

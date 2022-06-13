@@ -1,6 +1,6 @@
 feature:
   flags:
-    disable-auth: true
+    disable-auth: false
     fetch-sentence-data: true
 
 database:

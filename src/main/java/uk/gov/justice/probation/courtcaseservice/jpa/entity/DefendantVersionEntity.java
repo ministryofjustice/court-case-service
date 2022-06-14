@@ -1,0 +1,106 @@
+package uk.gov.justice.probation.courtcaseservice.jpa.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.With;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Type;
+import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.Table;
+import java.io.Serializable;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "DEFENDANT_VERSIONS")
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+@SuperBuilder
+@With
+@Getter
+@ToString
+public class DefendantVersionEntity extends BaseEntity implements Serializable {
+
+    @Id
+    @Column(name = "ID", updatable = false, nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
+    private final Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "FK_DEFENDANT_ID", referencedColumnName = "id", nullable = false)
+    private final DefendantEntity defendant;
+
+    @ManyToOne
+    @JoinColumn(name = "FK_HEARING_VERSION_ID", referencedColumnName = "id", nullable = false)
+    private final HearingVersionEntity hearingVersion;
+
+    @ManyToOne
+    @JoinColumn(name = "FK_OFFENDER_ID", referencedColumnName = "id", nullable = false)
+    private OffenderEntity offender;
+
+    @Column(name = "DEFENDANT_NAME", nullable = false)
+    private final String defendantName;
+
+    @Type(type = "jsonb")
+    @Column(columnDefinition = "jsonb", name = "NAME", nullable = false)
+    private final NamePropertiesEntity name;
+
+    @Column(name = "TYPE", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private final DefendantType type;
+
+    @Type(type = "jsonb")
+    @Column(columnDefinition = "jsonb", name = "ADDRESS")
+    private final AddressPropertiesEntity address;
+
+    @Column(name = "PNC")
+    private final String pnc;
+
+    @Column(name = "CRO")
+    private final String cro;
+
+    @Column(name = "DATE_OF_BIRTH")
+    private final LocalDate dateOfBirth;
+
+    @Column(name = "SEX", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private final Sex sex;
+
+    @Column(name = "NATIONALITY_1")
+    private final String nationality1;
+
+    @Column(name = "NATIONALITY_2")
+    private final String nationality2;
+
+    @Column(name = "manual_update", nullable = false, updatable = false)
+    private boolean manualUpdate;
+
+    @Column(name = "OFFENDER_CONFIRMED", nullable = false, updatable = false)
+    private boolean offenderConfirmed;
+
+    @Type(type = "jsonb")
+    @Column(columnDefinition = "jsonb", name = "PHONE_NUMBER")
+    private final PhoneNumberEntity phoneNumber;
+
+    @PrePersist
+    public void prePersistManualUpdate(){
+        manualUpdate = "prepare-a-case-for-court".equals(new ClientDetails().getClientId());
+        offenderConfirmed = offenderConfirmed || manualUpdate;
+    }
+}
+

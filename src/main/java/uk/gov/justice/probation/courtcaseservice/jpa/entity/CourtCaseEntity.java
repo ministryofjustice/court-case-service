@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,7 +12,6 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -38,8 +36,7 @@ import java.util.List;
 @Getter
 @With
 @Table(name = "COURT_CASE")
-@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
-public class CourtCaseEntity extends BaseImmutableEntity implements Serializable {
+public class CourtCaseEntity extends BaseEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)

@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -14,7 +13,6 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -29,9 +27,7 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 @Schema(description = "Hearing")
 @Entity
@@ -42,9 +38,8 @@ import java.util.Optional;
 @Getter
 @With
 @Table(name = "HEARING")
-@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @SuperBuilder
-public class HearingEntity extends BaseImmutableEntity implements Serializable {
+public class HearingEntity extends BaseEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -53,56 +48,26 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     private final Long id;
 
     @Column(name = "HEARING_ID", nullable = false)
-    @Setter // TODO: This was added to enable ImmutableCourtCaseService.enforceValidHearingId() as a precautionary measure and should be removed ASAP
+    @Setter
     private String hearingId;
+
+    @ToString.Exclude
+    @LazyCollection(value = LazyCollectionOption.FALSE)
+    @JsonIgnore
+    @OneToMany(mappedBy = "hearing", cascade = CascadeType.ALL, orphanRemoval=true)
+    @OrderBy("created DESC")
+    private final List<HearingVersionEntity> versions;
 
     @ManyToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "FK_COURT_CASE_ID", referencedColumnName = "id", nullable = false)
     @Setter
     private CourtCaseEntity courtCase;
 
-
-    // If you have more than one collection with fetch = FetchType.EAGER then there is an exception
-    // org.hibernate.loader.MultipleBagFetchException: cannot simultaneously fetch multiple bags
-    // After CP integration, we will need to look at session boundaries @LazyCollection is one solution
-    @ToString.Exclude
-    @LazyCollection(value = LazyCollectionOption.FALSE)
-    @JsonIgnore
-    @OneToMany(mappedBy = "hearing", cascade = CascadeType.ALL, orphanRemoval=true)
-    @OrderBy("day, time ASC")
-    private final List<HearingDayEntity> hearingDays;
-
-    @ToString.Exclude
-    @LazyCollection(value = LazyCollectionOption.FALSE)
-    @JsonIgnore
-    @OneToMany(mappedBy = "hearing", orphanRemoval=true, cascade = CascadeType.ALL)
-    private final List<HearingDefendantEntity> hearingDefendants;
-
-    @Column(name = "deleted", nullable = false, updatable = false)
-    private final boolean deleted;
-
     @Column(name = "first_created", insertable = false, updatable = false)
     private final LocalDateTime firstCreated;
 
-    public String getCaseId() {
-        return courtCase.getCaseId();
+    private HearingVersionEntity getLatestVersion() {
+        return versions.get(0);
     }
 
-    public String getCaseNo() {
-        return courtCase.getCaseNo();
-    }
-
-    public SourceType getSourceType() {
-        return courtCase.getSourceType();
-    }
-
-    public HearingDefendantEntity getHearingDefendant(String defendantId) {
-        return Optional.ofNullable(hearingDefendants)
-                .map(Collection::stream)
-                .flatMap(defendantEntityStream -> defendantEntityStream
-                    .filter(d ->  defendantId.equals(d.getDefendantId()))
-                    .findFirst()
-                )
-                .orElse(null);
-    }
 }

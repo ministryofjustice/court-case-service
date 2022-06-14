@@ -27,6 +27,10 @@ spring:
     properties:
       hibernate:
         format_sql: false
+  datasource:
+    url: jdbc:tc:postgresql:11.1:///courtcaseservicetest?currentSchema=courtcaseservicetest&stringtype=unspecified
+    username: ituser
+    password: itpass
 
 delius:
   base-url: https://ndelius.test.probation.service.justice.gov.uk

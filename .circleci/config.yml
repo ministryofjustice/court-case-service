@@ -96,6 +96,10 @@ executors:
           POSTGRES_PASSWORD: dev
     working_directory: ~/app
 
+  machine-builder:
+    machine:
+      image:  ubuntu-2204:2022.04.1
+
 orbs:
   aws-cli: circleci/aws-cli@0.1.13
   hmpps: ministryofjustice/hmpps@3.11.10
@@ -115,6 +119,11 @@ jobs:
   build_data_dictionary:
     executor: builder
     steps:
+      - run:
+          name: java versions
+          command: |
+            java --version
+            which gradle
       - checkout
       - restore_cache:
           keys:
@@ -129,8 +138,9 @@ jobs:
           root: .
           paths:
             - data_dictionary
+
   build:
-    executor: builder
+    executor: machine-builder
     steps:
       - checkout
       - restore_cache:
@@ -155,6 +165,32 @@ jobs:
       - jira/notify:
           token_name: JIRA_CIRCLE_TOKEN
           job_type: build
+#  build:
+#    executor: builder
+#    steps:
+#      - checkout
+#      - restore_cache:
+#          keys:
+#            - gradle-{{ checksum "build.gradle" }}
+#            - gradle-
+#      - run: ./gradlew build jacocoTestReport
+#      - set_app_version
+#      - save_cache:
+#          paths:
+#            - ~/.gradle
+#          key: gradle-{{ checksum "build.gradle" }}
+#      - store_test_results:
+#          path: build/test-results
+#      - store_artifacts:
+#          path: build/reports/tests
+#      - persist_to_workspace:
+#          root: .
+#          paths:
+#            - build/libs
+#            - build.gradle
+#      - jira/notify:
+#          token_name: JIRA_CIRCLE_TOKEN
+#          job_type: build
 
   pact-consumer-publish:
     executor: builder

@@ -8,6 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.context.ActiveProfiles;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import uk.gov.justice.probation.courtcaseservice.controller.CCSPostgresqlContainer;
 import uk.gov.justice.probation.courtcaseservice.wiremock.WiremockExtension;
 import uk.gov.justice.probation.courtcaseservice.wiremock.WiremockMockServer;
 
@@ -25,6 +28,9 @@ public abstract class BaseIntTest {
 
     @LocalServerPort
     protected int port;
+
+    @Container
+    public static PostgreSQLContainer postgresqlContainer = CCSPostgresqlContainer.getInstance();
 
     @BeforeAll
     public static void setupClass() throws Exception {

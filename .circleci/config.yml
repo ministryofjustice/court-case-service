@@ -166,14 +166,15 @@ jobs:
           job_type: build
 
   pact-consumer-publish:
-    executor: builder
+    executor: builder-machine
     steps:
       - checkout
       - restore_cache:
           keys:
             - gradle-{{ checksum "build.gradle" }}
             - gradle-
-      - run: PACTCONSUMER_VERSION=main ./gradlew -Dpact.writer.overwrite=true test pactPublish
+      - run: PACTCONSUMER_VERSION=main ./gradlew -Dpact.writer.overwrite=true test
+      - run: PACTCONSUMER_VERSION=main ./gradlew -Dpact.writer.overwrite=true pactPublish
 
   build_docker:
     executor: deployer

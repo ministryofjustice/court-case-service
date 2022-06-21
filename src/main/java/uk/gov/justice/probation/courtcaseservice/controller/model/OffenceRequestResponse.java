@@ -1,6 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class OffenceRequestResponse {
     @NotBlank
     private final String offenceTitle;
-    @NotBlank
+    @NotNull
     private final String offenceSummary;
     private final String act;
     private final Integer listNo;

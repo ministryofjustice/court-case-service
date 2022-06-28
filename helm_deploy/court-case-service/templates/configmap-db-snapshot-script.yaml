@@ -1,8 +1,9 @@
 ---
+{{ if .Values.takeDatabaseSnapshots }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: rds-snapshot-script
+  name: {{ .Release.Name }}-rds-snapshot-script
 data:
   entrypoint.sh: |-
     #!/bin/bash
@@ -25,3 +26,4 @@ data:
         aws rds wait db-snapshot-deleted --db-snapshot-identifier "${i}"
       done
     fi
+{{ end }}

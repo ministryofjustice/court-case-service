@@ -1,10 +1,10 @@
 # Scheduled RDS Snapshots
 
-This folder contains the following kubernetes config:
+The `./templates` folder contains the following kubernetes config:
 
-- `01-configmap-db-snapshot-script.yaml` Defines the bash script used to perform the rds snapshots, and clean up of older ones 
-- `02-cronjob.yaml` Defines the cronjob which launches the job on a scheduled basis (see cron value in this file)
-- `03-prometheus-alert.yaml` Define alert which will tell us if the snapshot job failed, alert sent to `#probation_in_court_alerts`
+- `configmap-db-snapshot-script.yaml` Defines the bash script used to perform the rds snapshots, and clean up of older ones 
+- `cronjob.yaml` Defines the cronjob which launches the job on a scheduled basis (see cron value in this file)
+- `prometheus-alert.yaml` Define alert which will tell us if the snapshot job failed, alert sent to `#probation_in_court_alerts`
 
 Also:
 
@@ -26,7 +26,7 @@ Also required module output is `rds_instance_address` which is mapped to env var
 
 ### Overview
 
-The snapshot job runs on a schedule determined in `02-cronjob.yaml`.  Two variables can be configured in the `01-configmap-db-snapshot-script.yaml`:
+The snapshot job runs on a schedule determined in `cronjob.yaml`.  Two variables can be configured in the `configmap-db-snapshot-script.yaml`:
 
 - `SNAPSHOT_PREFIX`, prefix for snapshot name, snapshot is postfixed with epoch timestamp.
 - `RETENTION`, the number of snapshots to keep.
@@ -34,14 +34,14 @@ The snapshot job runs on a schedule determined in `02-cronjob.yaml`.  Two variab
 ### Installation of cronjob
 
 ```bash
-kubectl -n [namespace] apply -f 01-configmap-db-snapshot-script.yaml
-kubectl -n [namespace] apply -f 02-cronjob.yaml
+kubectl -n [namespace] apply -f configmap-db-snapshot-script.yaml
+kubectl -n [namespace] apply -f cronjob.yaml
 ```
 
-Check that `03-prometheus-alert.yaml` has the correct namespace specified, update the the rule if needed:
+Check that `prometheus-alert.yaml` has the correct namespace specified, update the the rule if needed:
 
 ```bash
-kubectl -n [namespace] apply -f 03-prometheus-alert.yaml
+kubectl -n [namespace] apply -f prometheus-alert.yaml
 ```
 
 ### Run an adhoc RDS snapshot

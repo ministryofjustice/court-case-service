@@ -4,6 +4,7 @@
 minReplicaCount: 2
 maxReplicaCount: 8
 maxSurge: 2
+takeDatabaseSnapshots: false
 
 image:
   repository: quay.io/hmpps/court-case-service

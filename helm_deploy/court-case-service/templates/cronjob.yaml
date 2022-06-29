@@ -1,8 +1,9 @@
 ---
+{{ if .Values.takeDatabaseSnapshots }}
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: rds-snapshot-job
+  name: {{ .Release.Name }}-rds-snapshot-job
 spec:
   schedule: "0 4 1 * *"
   concurrencyPolicy: "Forbid"
@@ -50,3 +51,4 @@ spec:
             configMap:
               name: rds-snapshot-script
               defaultMode: 0755
+{{ end }}

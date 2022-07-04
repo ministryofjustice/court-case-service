@@ -97,6 +97,7 @@ public class ExtendedCourtCaseRequestResponse {
                                     .suspendedSentenceOrder(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::isSuspendedSentenceOrder).orElse(null))
                                     .previouslyKnownTerminationDate(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::getPreviouslyKnownTerminationDate).orElse(null))
                                     .phoneNumber(PhoneNumber.of(defendant.getPhoneNumber()))
+                                    .offender(Offender.builder().pnc(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::getPnc).orElse(null)).build())
                                     .offences(Optional.ofNullable(hearingDefendantEntity)
                                             .map(HearingDefendantEntity::getOffences)
                                             .orElse(Collections.emptyList()).stream()

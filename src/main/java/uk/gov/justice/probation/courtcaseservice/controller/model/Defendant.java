@@ -45,6 +45,7 @@ public class Defendant {
     private final Boolean preSentenceActivity;
     private final Boolean awaitingPsr;
     private final PhoneNumber phoneNumber;
+    private final Offender offender;
 
     @JsonProperty
     public String getSex() {

@@ -179,6 +179,7 @@ public class ExtendedCourtCaseRequestResponse {
                                 .breach(Optional.ofNullable(defendant.getBreach()).orElse(false))
                                 .preSentenceActivity(Optional.ofNullable(defendant.getPreSentenceActivity()).orElse(false))
                                 .suspendedSentenceOrder(Optional.ofNullable(defendant.getSuspendedSentenceOrder()).orElse(false))
+                                .pnc(Optional.ofNullable(defendant.getOffender()).map(Offender::getPnc).orElse(null))
                                 .build())
                     .orElse(null);
     }

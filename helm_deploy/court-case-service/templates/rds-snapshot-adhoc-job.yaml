@@ -1,8 +1,9 @@
 ---
+{{ if .Values.takeDatabaseSnapshots }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: rds-snapshot-script-adhoc
+  name: {{ .Release.Name }}-rds-snapshot-script-adhoc
 data:
   entrypoint.sh: |-
     #!/bin/bash
@@ -18,7 +19,7 @@ data:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: rds-snapshot
+  name: {{ .Release.Name }}-rds-snapshot
 spec:
   backoffLimit: 0
   activeDeadlineSeconds: 1200
@@ -60,3 +61,4 @@ spec:
         configMap:
           name: rds-snapshot-script-adhoc
           defaultMode: 0755
+{{ end }}

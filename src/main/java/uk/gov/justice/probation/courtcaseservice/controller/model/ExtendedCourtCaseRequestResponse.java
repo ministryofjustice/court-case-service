@@ -25,6 +25,7 @@ import javax.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -101,6 +102,7 @@ public class ExtendedCourtCaseRequestResponse {
                                     .offences(Optional.ofNullable(hearingDefendantEntity)
                                             .map(HearingDefendantEntity::getOffences)
                                             .orElse(Collections.emptyList()).stream()
+                                            .sorted(Comparator.comparingInt(OffenceEntity::getSequence))
                                             .map(offence ->  OffenceRequestResponse.builder()
                                                     .act(offence.getAct())
                                                     .offenceTitle(offence.getTitle())
@@ -108,6 +110,7 @@ public class ExtendedCourtCaseRequestResponse {
                                                     .listNo(offence.getListNo())
                                                     .build())
                                             .toList())
+
                                     .build();
                         })
                         .toList())

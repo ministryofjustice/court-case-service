@@ -318,16 +318,20 @@ class ExtendedCourtCaseRequestResponseTest {
                 .suspendedSentenceOrder(true)
                 .offender(Offender.builder().pnc(OFFENDER_PNC).build())
                 .offences(List.of(OffenceRequestResponse.builder()
-                                .act("act")
-                                .offenceSummary("summary")
-                                .offenceTitle("title")
-                                .listNo(11)
-                                .build(),
+                        .act("act2")
+                        .build(),
                         OffenceRequestResponse.builder()
-                                .act("act2")
-                                .build()))
+                            .act("act")
+                            .offenceSummary("summary")
+                            .offenceTitle("title")
+                            .listNo(11)
+                            .build()
+                        ))
                 .build());
         assertThat(actual.getDefendants().get(1).getDefendantId()).isEqualTo("DEFENDANT_ID_2");
+        // offences should be sorted by sequence number
+        assertThat(actual.getDefendants().get(0).getOffences().get(0).getAct()).isEqualTo("act2");
+        assertThat(actual.getDefendants().get(0).getOffences().get(1).getAct()).isEqualTo("act");
     }
 
     private HearingEntity buildEntity() {
@@ -387,11 +391,12 @@ class ExtendedCourtCaseRequestResponseTest {
                                                 .act("act")
                                                 .summary("summary")
                                                 .title("title")
-                                                .sequence(1)
+                                                .sequence(2)
                                                 .listNo(11)
                                                 .build(),
                                         OffenceEntity.builder()
                                                 .act("act2")
+                                                .sequence(1)
                                                 .build()
                                 ))
                                 .build(),

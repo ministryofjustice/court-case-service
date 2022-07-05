@@ -669,6 +669,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("defendants[0].offences", hasSize(2))
                 .body("defendants[0].offences[0].offenceTitle", equalTo("Theft from a shop"))
                 .body("defendants[0].offences[0].listNo", equalTo(10))
+                .body("defendants[0].offender.pnc", equalTo("PNCINT007"))
                 .body("hearingDays", hasSize(1))
                 .body("hearingDays[0].courtCode", equalTo(COURT_CODE))
                 .body("hearingDays[0].courtRoom", equalTo(COURT_ROOM))

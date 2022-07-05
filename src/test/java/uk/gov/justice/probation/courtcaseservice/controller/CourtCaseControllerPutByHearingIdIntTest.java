@@ -37,6 +37,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static org.springframework.util.StreamUtils.copyToString;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.OFFENDER_PNC;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
@@ -128,6 +129,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             assertThat(off.isBreach()).isTrue();
             assertThat(off.isPreSentenceActivity()).isTrue();
             assertThat(off.isSuspendedSentenceOrder()).isTrue();
+            assertThat(off.getPnc()).isEqualTo(OFFENDER_PNC);
             assertThat(off.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2018, Month.JUNE, 24));
         }, () -> fail("Offender values not updated as expected"));
 

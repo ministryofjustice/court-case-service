@@ -35,6 +35,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_PHONE_NUMBER_ENTITY;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NAME;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.OFFENDER_PNC;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PNC;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SESSION_START_TIME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.URN;
@@ -165,6 +166,7 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(offenderEntity.getProbationStatus()).isEqualTo(OffenderProbationStatus.CURRENT);
         assertThat(offenderEntity.isSuspendedSentenceOrder()).isEqualTo(Boolean.TRUE);
         assertThat(offenderEntity.getCrn()).isEqualTo(CRN);
+        assertThat(offenderEntity.getPnc()).isEqualTo(OFFENDER_PNC);
 
         final var offences = hearingDefendantEntity.getOffences();
         assertThat(offences).hasSize(2);
@@ -314,6 +316,7 @@ class ExtendedCourtCaseRequestResponseTest {
                 .probationStatus("CURRENT")
                 .sex(Sex.MALE.name())
                 .suspendedSentenceOrder(true)
+                .offender(Offender.builder().pnc(OFFENDER_PNC).build())
                 .offences(List.of(OffenceRequestResponse.builder()
                         .act("act2")
                         .build(),
@@ -371,6 +374,7 @@ class ExtendedCourtCaseRequestResponseTest {
                                                 .awaitingPsr(true)
                                                 .breach(true)
                                                 .probationStatus(OffenderProbationStatus.CURRENT)
+                                                .pnc(OFFENDER_PNC)
                                                 .build())
                                         .pnc("pnc")
                                         .cro("cro")
@@ -429,6 +433,7 @@ class ExtendedCourtCaseRequestResponseTest {
                 .suspendedSentenceOrder(Boolean.TRUE)
                 .type(DefendantType.PERSON)
                 .defendantId(DEFENDANT_ID)
+                .offender(Offender.builder().pnc(OFFENDER_PNC).build())
                 .offences(List.of(OffenceRequestResponse.builder()
                                 .offenceTitle("TITLE1")
                                 .offenceSummary("SUMMARY1")

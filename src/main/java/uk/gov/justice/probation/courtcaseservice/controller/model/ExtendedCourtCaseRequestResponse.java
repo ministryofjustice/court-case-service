@@ -98,6 +98,7 @@ public class ExtendedCourtCaseRequestResponse {
                                     .suspendedSentenceOrder(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::isSuspendedSentenceOrder).orElse(null))
                                     .previouslyKnownTerminationDate(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::getPreviouslyKnownTerminationDate).orElse(null))
                                     .phoneNumber(PhoneNumber.of(defendant.getPhoneNumber()))
+                                    .offender(Offender.builder().pnc(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::getPnc).orElse(null)).build())
                                     .offences(Optional.ofNullable(hearingDefendantEntity)
                                             .map(HearingDefendantEntity::getOffences)
                                             .orElse(Collections.emptyList()).stream()
@@ -182,6 +183,7 @@ public class ExtendedCourtCaseRequestResponse {
                                 .breach(Optional.ofNullable(defendant.getBreach()).orElse(false))
                                 .preSentenceActivity(Optional.ofNullable(defendant.getPreSentenceActivity()).orElse(false))
                                 .suspendedSentenceOrder(Optional.ofNullable(defendant.getSuspendedSentenceOrder()).orElse(false))
+                                .pnc(Optional.ofNullable(defendant.getOffender()).map(Offender::getPnc).orElse(null))
                                 .build())
                     .orElse(null);
     }

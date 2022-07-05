@@ -36,6 +36,7 @@ public class EntityHelper {
     public static final LocalDate DEFENDANT_DOB = LocalDate.of(1958, 12, 14);
     public static final String DEFENDANT_ID = "d1eefed2-04df-11ec-b2d8-0242ac130002";
     public static final String PNC = "PNC";
+    public static final String OFFENDER_PNC = "OFFENDER_PNC";
     public static final String CRO = "CRO/12334";
     public static final String DEFENDANT_SEX = "M";
     public static final PhoneNumberEntity DEFENDANT_PHONE_NUMBER_ENTITY = PhoneNumberEntity.builder().home("07000000013").work("07000000014").mobile("07000000015").build();

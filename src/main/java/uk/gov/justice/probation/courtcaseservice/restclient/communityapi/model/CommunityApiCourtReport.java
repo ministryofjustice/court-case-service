@@ -25,5 +25,6 @@ public class CommunityApiCourtReport {
     private final LocalDateTime sentToCourtDate;
     private final LocalDateTime receivedByCourtDate;
     private final KeyValue courtReportType;
+    private final KeyValue deliveredCourtReportType;
     private final List<CommunityApiReportManager> reportManagers;
 }

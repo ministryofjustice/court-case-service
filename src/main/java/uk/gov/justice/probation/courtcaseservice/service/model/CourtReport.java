@@ -23,6 +23,7 @@ public class CourtReport {
     private final LocalDate requiredDate;
     private final LocalDate completedDate;
     private final KeyValue courtReportType;
+    private final KeyValue deliveredCourtReportType;
     private final ReportAuthor author;
 
     @Builder

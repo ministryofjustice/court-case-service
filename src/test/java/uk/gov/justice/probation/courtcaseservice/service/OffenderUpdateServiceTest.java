@@ -143,7 +143,7 @@ class OffenderUpdateServiceTest {
                 .preSentenceActivity(false).build());
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(offenderRepositoryFacade).save(offenderEntity);
-        verify(defendantRepository).save(defendantEntity.withCrn(CRN));
+        verify(defendantRepository).save(defendantEntity.withCrn(CRN).withManualUpdate(true).withOffenderConfirmed(true));
     }
 
     @Test
@@ -165,7 +165,7 @@ class OffenderUpdateServiceTest {
                 .probationStatus(CURRENT).build());
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(offenderRepositoryFacade).save(offenderUpdate);
-        verify(defendantRepository).save(defendantEntity.withCrn(CRN));
+        verify(defendantRepository).save(defendantEntity.withCrn(CRN).withManualUpdate(true).withOffenderConfirmed(true));
     }
 
     @Test
@@ -189,6 +189,6 @@ class OffenderUpdateServiceTest {
                 .probationStatus(CURRENT).build());
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(offenderRepositoryFacade).save(offenderUpdate);
-        verify(defendantRepository).save(defendantEntity.withCrn(NEW_CRN));
+        verify(defendantRepository).save(defendantEntity.withCrn(NEW_CRN).withManualUpdate(true).withOffenderConfirmed(true));
     }
 }

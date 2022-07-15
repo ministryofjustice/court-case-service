@@ -59,7 +59,10 @@ public class OffenderUpdateService {
         final var updatedOffender = offenderRepositoryFacade.save(offenderUpdate);
 
         if (!StringUtils.equals(defendant.getCrn(), updatedOffender.getCrn())) {
-            final var updatedDefendant = defendant.withCrn(offenderUpdate.getCrn()).withId(null);
+            final var updatedDefendant = defendant.withCrn(offenderUpdate.getCrn())
+                                                                .withManualUpdate(true)
+                                                                .withOffenderConfirmed(true)
+                                                                .withId(null);
             defendantRepository.save(updatedDefendant);
         }
 

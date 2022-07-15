@@ -36,10 +36,7 @@ public class OffenderUpdateService {
     @Transactional
     public void removeDefendantOffenderAssociation(final String defendantId) {
         final var defendant = findDefendantOrElseThrow(defendantId);
-
-        if (!StringUtils.isEmpty(defendant.getCrn())) {
-            defendantRepository.save(defendant.withCrn(null).withId(null));
-        }
+        defendantRepository.save(defendant.withCrn(null).withManualUpdate(true).withOffenderConfirmed(true).withId(null));
     }
 
     public Mono<OffenderEntity> getDefendantOffenderByDefendantId(final String defendantId) {

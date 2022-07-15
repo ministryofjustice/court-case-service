@@ -114,6 +114,59 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
         }
 
         @Test
+        void GET_cases_givenDefendantIsConfirmedAsNoMatch_should_return_probation_status_as_No_Record() {
+
+            given()
+                .auth()
+                .oauth2(getToken())
+                .when()
+                .get("/court/{courtCode}/cases?date={date}", COURT_CODE, DECEMBER_14.format(DateTimeFormatter.ISO_DATE))
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .body("cases", hasSize(7))
+                .body("cases[0].defendantId", equalTo("7a320a46-037c-481c-ab1e-dbfab62af4d6"))
+                .body("cases[0].probationStatus", equalToIgnoringCase("Possible NDelius record"))
+            ;
+             given()
+                .auth()
+                .oauth2(getToken())
+                .when()
+                .delete("/defendant/7a320a46-037c-481c-ab1e-dbfab62af4d6/offender")
+                .then()
+                .assertThat()
+                .statusCode(200)
+            ;
+
+             // assert case list
+            given()
+                .auth()
+                .oauth2(getToken())
+                .when()
+                .get("/court/{courtCode}/cases?date={date}", COURT_CODE, DECEMBER_14.format(DateTimeFormatter.ISO_DATE))
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .body("cases", hasSize(7))
+                .body("cases[0].defendantId", equalTo("7a320a46-037c-481c-ab1e-dbfab62af4d6"))
+                .body("cases[0].probationStatus", equalToIgnoringCase("No record"))
+            ;
+
+            // assert defendant endpoint
+            given()
+                .auth()
+                .oauth2(getToken())
+                .when()
+                .get("/hearing/1f93aa0a-7e46-4885-a1cb-f25a4be33a56/defendant/7a320a46-037c-481c-ab1e-dbfab62af4d6")
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .body("defendantId", equalTo("7a320a46-037c-481c-ab1e-dbfab62af4d6"))
+                .body("probationStatus", equalToIgnoringCase("No record"))
+            ;
+        }
+
+        @Test
         void givenLastModifiedRecent_whenRequestCases_thenReturnLastModifiedHeader() {
 
             given()

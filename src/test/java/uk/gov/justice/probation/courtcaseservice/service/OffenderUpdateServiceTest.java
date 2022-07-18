@@ -104,7 +104,7 @@ class OffenderUpdateServiceTest {
     }
 
     @Test
-    void shouldRemoveDefendantOffenderAssociationWhenCrnPresentOnDefendant() {
+    void shouldClearCrn_And_SetManualUpdateAndOffenderConfirmedFlagsToTrue() {
         DefendantEntity defendantEntity = DefendantEntity.builder().crn(CRN).build();
         given(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID))
                 .willReturn(Optional.of(defendantEntity));
@@ -112,18 +112,7 @@ class OffenderUpdateServiceTest {
         offenderUpdateService.removeDefendantOffenderAssociation(DEFENDANT_ID);
 
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
-        verify(defendantRepository).save(defendantEntity.withCrn(null));
-    }
-
-    @Test
-    void shouldNotSaveDefendantIfDefendantWasNotAssociatedAlreadyOnRemoveOffenderRequest() {
-        DefendantEntity defendantEntity = DefendantEntity.builder().build();
-        given(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID))
-                .willReturn(Optional.of(defendantEntity));
-
-        offenderUpdateService.removeDefendantOffenderAssociation(DEFENDANT_ID);
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
-        verify(defendantRepository, times(0)).save(defendantEntity.withCrn(null));
+        verify(defendantRepository).save(defendantEntity.withCrn(null).withManualUpdate(true).withOffenderConfirmed(true));
     }
 
     @Test
@@ -154,7 +143,7 @@ class OffenderUpdateServiceTest {
                 .preSentenceActivity(false).build());
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(offenderRepositoryFacade).save(offenderEntity);
-        verify(defendantRepository).save(defendantEntity.withCrn(CRN));
+        verify(defendantRepository).save(defendantEntity.withCrn(CRN).withManualUpdate(true).withOffenderConfirmed(true));
     }
 
     @Test
@@ -176,7 +165,7 @@ class OffenderUpdateServiceTest {
                 .probationStatus(CURRENT).build());
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(offenderRepositoryFacade).save(offenderUpdate);
-        verify(defendantRepository).save(defendantEntity.withCrn(CRN));
+        verify(defendantRepository).save(defendantEntity.withCrn(CRN).withManualUpdate(true).withOffenderConfirmed(true));
     }
 
     @Test
@@ -200,6 +189,6 @@ class OffenderUpdateServiceTest {
                 .probationStatus(CURRENT).build());
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(offenderRepositoryFacade).save(offenderUpdate);
-        verify(defendantRepository).save(defendantEntity.withCrn(NEW_CRN));
+        verify(defendantRepository).save(defendantEntity.withCrn(NEW_CRN).withManualUpdate(true).withOffenderConfirmed(true));
     }
 }

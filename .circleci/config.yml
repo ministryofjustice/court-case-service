@@ -279,7 +279,7 @@ jobs:
           docker_layer_caching: true
       - snyk/scan:
           project: '${CIRCLE_PROJECT_REPONAME}-docker/${CIRCLE_BRANCH}'
-          docker-image-name: 'hmpps/<<parameters.image_name>>:latest'
+          docker-image-name: 'quay.io/hmpps/<<parameters.image_name>>:latest'
           target-file: '<<parameters.dockerfile>>'
           monitor-on-build: true
           <<: *snyk_options

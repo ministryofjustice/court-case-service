@@ -169,6 +169,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                                 .awaitingPsr(true)
                                                 .suspendedSentenceOrder(true)
                                                 .breach(true)
+                                                .pnc("offender_pnc")
                                                 .build())
                                         .cro("ACRO")
                                         .dateOfBirth(LocalDate.of(1975, 4, 3))

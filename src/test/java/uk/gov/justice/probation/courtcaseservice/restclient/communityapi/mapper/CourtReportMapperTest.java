@@ -40,6 +40,7 @@ class CourtReportMapperTest {
             .requiredDate(LocalDateTime.of(requiredDate, LocalTime.of(9,15)))
             .completedDate(LocalDateTime.of(completedDate, LocalTime.of(9,15)))
             .courtReportType(psrType)
+            .deliveredCourtReportType(KeyValue.builder().code("PSR").description("Pre-sentence report").build())
             .reportManagers(List.of(inactiveReportManager, activeReportManager))
             .build();
 
@@ -51,6 +52,8 @@ class CourtReportMapperTest {
         assertThat(courtReport.getCourtReportId()).isEqualTo(1);
         assertThat(courtReport.getCourtReportType().getCode()).isEqualTo(PSR_CODE);
         assertThat(courtReport.getCourtReportType().getDescription()).isEqualTo("Pre-Sentence Report - Fast");
+        assertThat(courtReport.getDeliveredCourtReportType().getCode()).isEqualTo("PSR");
+        assertThat(courtReport.getDeliveredCourtReportType().getDescription()).isEqualTo("Pre-sentence report");
         assertThat(courtReport.getAuthor().getSurname()).isEqualTo("Dickens");
         assertThat(courtReport.getAuthor().getForenames()).isEqualTo("Charles");
         assertThat(courtReport.getAuthor().isUnallocated()).isEqualTo(false);

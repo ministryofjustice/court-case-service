@@ -31,6 +31,7 @@ public class CourtReportMapper {
                                     .map(LocalDateTime::toLocalDate)
                                     .orElse(null))
             .courtReportType(courtReport.getCourtReportType())
+            .deliveredCourtReportType(courtReport.getDeliveredCourtReportType())
             .courtReportId(courtReport.getCourtReportId())
             .author(staffAuthorNameOf(courtReport.getReportManagers()))
             .build();

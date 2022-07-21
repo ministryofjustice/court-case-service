@@ -12,6 +12,10 @@
       "code": "CJF",
       "description": "Pre-Sentence Report - Fast"
     },
+    "deliveredCourtReportType": {
+      "code": "PSR",
+      "description": "Pre-Sentence Report"
+    },
     "reportManagers": [
       {
         "staff": {

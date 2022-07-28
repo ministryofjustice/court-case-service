@@ -108,11 +108,12 @@ public class CourtCaseController {
     }
 
     @Operation(description = "Returns a case's history.")
-    @GetMapping(value = "/cases/{caseId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
+    @GetMapping(value = "/cases/{caseId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     CourtCaseHistory getCaseHistory(@PathVariable(value = "caseId") String caseId) {
-        return courtCaseHistoryService.getCourtCaseHistory(caseId);
+        CourtCaseHistory courtCaseHistory = courtCaseHistoryService.getCourtCaseHistory(caseId);
+        return courtCaseHistory;
     }
 
     @Operation(description = "Returns extended court case data, by hearing id.")

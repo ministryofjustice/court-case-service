@@ -133,6 +133,10 @@ public class EntityHelper {
         return aDefendantEntity(DEFENDANT_ADDRESS, NAME, defendantId, crn);
     }
 
+    public static DefendantEntity aDefendantEntity() {
+        return aDefendantEntity(DEFENDANT_ID, CRN);
+    }
+
     private static DefendantEntity aDefendantEntity(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId, String crn) {
         return DefendantEntity.builder()
             .name(name)

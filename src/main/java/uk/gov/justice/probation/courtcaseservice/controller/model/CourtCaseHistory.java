@@ -31,6 +31,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Builder
@@ -58,7 +59,8 @@ public class CourtCaseHistory {
     }
 
     private static List<HearingHistory> getHearingHistory(CourtCaseEntity courtCaseEntity) {
-        return courtCaseEntity.getHearings().stream().collect(Collectors.groupingBy(HearingEntity::getHearingId))
+        Map<String, List<HearingEntity>> hearingsGroupedByHearingId = courtCaseEntity.getHearings().stream().collect(Collectors.groupingBy(HearingEntity::getHearingId));
+        return hearingsGroupedByHearingId
             .entrySet().stream().map(stringListEntry -> HearingHistory.of(stringListEntry.getKey(), stringListEntry.getValue()))
             .collect(Collectors.toList());
     }

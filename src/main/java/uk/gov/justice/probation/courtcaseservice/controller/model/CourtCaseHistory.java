@@ -1,25 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
-/*
-* {
-  case: {
-     caseId: foo,
-     hearings: [{
-       hearingId: bar,
-       hearingVersions: [
-          {
-            hearingDay: 2022-01-01,
-            courtCode: B10JQ,
-            defendant: {...}
-          },
-          ...
-       ],
-     }]
-  }
-}
-*
-* */
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -45,7 +25,7 @@ public class CourtCaseHistory {
     private String urn;
     private String source;
     private List<DefendantEntity> defendants; // hearing versions refer to these defendants using defendantIds
-    private List<HearingHistory> hearings; // list of hearings; each hearing pertains to 1 hearingId and holds info of it's update history (a hearing versions)
+    private List<HearingHistory> hearings; // list of hearings; each hearing pertains to 1 hearingId and holds list of updates based on this hearingId
 
     public static CourtCaseHistory of(CourtCaseEntity courtCaseEntity, List<DefendantEntity> defendantEntities) {
         return CourtCaseHistory.builder()

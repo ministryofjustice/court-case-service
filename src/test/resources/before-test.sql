@@ -47,8 +47,6 @@ VALUES (-1000012, 'Z320755', 'CURRENT', '2010-01-01', true, true, true, true, 'b
 -- START DEFINITION OF CASE NO 1600028913
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type, urn) VALUES (-1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 1600028913, now(), 'LIBRA', 'URN008');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created) VALUES (-1700028900, -1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', now());
-INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created) VALUES (-1700028899, -1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', now());
-INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created) VALUES (-1700028898, -1700028900, '2aa6f5e0-f842-4939-bc6a-01346abc09e7', now());
 
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
 VALUES (-1000000, -1700028900, 'B10JQ', 1, '2019-12-14', '09:00', '3rd');
@@ -57,23 +55,10 @@ VALUES (-1000000, '40db17d6-04db-11ec-b2d8-0242ac130002', 'Mr Johnny BALL', '{"t
 
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
 VALUES (-1000000, -1700028900, '40db17d6-04db-11ec-b2d8-0242ac130002');
-INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
-VALUES (-1000100, -1700028899, '40db17d6-04db-11ec-b2d8-0242ac130002');
-INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
-VALUES (-1000110, -1700028898, '40db17d6-04db-11ec-b2d8-0242ac130002');
-
 INSERT INTO courtcaseservicetest.OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, LIST_NO)
 VALUES (-1000000, -1000000, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, 10);
 INSERT INTO courtcaseservicetest.OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-1000001, -1000000, 'Theft from a different shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 2);
-
-INSERT INTO courtcaseservicetest.OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, LIST_NO)
-VALUES (-1000100, -1000110, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, 10);
-INSERT INTO courtcaseservicetest.OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
-VALUES (-1000101, -1000110, 'Theft from a different shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 2);
-
-INSERT INTO courtcaseservicetest.OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
-VALUES (-1000102, -1000100, 'Theft from a different shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 2);
 
 -- END DEFINITION OF 1600028913
 

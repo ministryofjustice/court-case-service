@@ -121,27 +121,35 @@ public class EntityHelper {
     private static HearingDefendantEntity aHearingDefendantEntity(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId, String crn) {
         final HearingDefendantEntity hearingDefendant = HearingDefendantEntity.builder()
                 .defendantId(defendantId)
-                .defendant(DefendantEntity.builder()
-                        .name(name)
-                        .defendantName(name.getFullName())
-                        .offender(anOffender(crn))
-                        .crn(CRN)
-                        .cro(CRO)
-                        .pnc(PNC)
-                        .type(DefendantType.PERSON)
-                        .address(defendantAddress)
-                        .dateOfBirth(DEFENDANT_DOB)
-                        .sex(Sex.fromString(DEFENDANT_SEX))
-                        .nationality1(NATIONALITY_1)
-                        .nationality2(NATIONALITY_2)
-                        .defendantId(defendantId)
-                        .phoneNumber(DEFENDANT_PHONE_NUMBER_ENTITY)
-                        .build())
+                .defendant(aDefendantEntity(defendantAddress, name, defendantId, crn))
                 .offences(List.of(aDefendantOffence()))
                 .build();
         hearingDefendant.getOffences()
                 .forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendant));
         return hearingDefendant;
+    }
+
+    public static DefendantEntity aDefendantEntity(String defendantId, String crn) {
+        return aDefendantEntity(DEFENDANT_ADDRESS, NAME, defendantId, crn);
+    }
+
+    private static DefendantEntity aDefendantEntity(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId, String crn) {
+        return DefendantEntity.builder()
+            .name(name)
+            .defendantName(name.getFullName())
+            .offender(anOffender(crn))
+            .crn(CRN)
+            .cro(CRO)
+            .pnc(PNC)
+            .type(DefendantType.PERSON)
+            .address(defendantAddress)
+            .dateOfBirth(DEFENDANT_DOB)
+            .sex(Sex.fromString(DEFENDANT_SEX))
+            .nationality1(NATIONALITY_1)
+            .nationality2(NATIONALITY_2)
+            .defendantId(defendantId)
+            .phoneNumber(DEFENDANT_PHONE_NUMBER_ENTITY)
+            .build();
     }
 
     public static OffenderEntity anOffender(String crn) {

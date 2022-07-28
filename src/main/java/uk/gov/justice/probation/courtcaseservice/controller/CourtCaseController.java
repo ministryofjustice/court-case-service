@@ -24,13 +24,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.*;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseHistory;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.service.CourtCaseHistoryService;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
@@ -69,9 +68,11 @@ public class CourtCaseController {
     private final OffenderMatchService offenderMatchService;
     private final OffenderUpdateService offenderUpdateService;
     private final boolean enableCacheableCaseList;
+    private final CourtCaseHistoryService courtCaseHistoryService;
 
     @Autowired
     public CourtCaseController(CourtCaseService courtCaseService,
+                               CourtCaseHistoryService courtCaseHistoryService,
                                OffenderMatchService offenderMatchService,
                                OffenderUpdateService offenderUpdateService,
                                @Value("${feature.flags.enable-cacheable-case-list:true}") boolean enableCacheableCaseList) {
@@ -79,6 +80,7 @@ public class CourtCaseController {
         this.offenderMatchService = offenderMatchService;
         this.offenderUpdateService = offenderUpdateService;
         this.enableCacheableCaseList = enableCacheableCaseList;
+        this.courtCaseHistoryService = courtCaseHistoryService;
     }
 
     @Operation(description = "Gets the court case data by hearing id and defendant id.")
@@ -103,6 +105,14 @@ public class CourtCaseController {
                                                                       @Valid @RequestBody ExtendedCourtCaseRequestResponse courtCaseRequest) {
         return courtCaseService.createHearingByHearingId(hearingId, courtCaseRequest.asHearingEntity())
                 .map(ExtendedCourtCaseRequestResponse::of);
+    }
+
+    @Operation(description = "Returns a case's history.")
+    @GetMapping(value = "/cases/{caseId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public @ResponseBody
+    CourtCaseHistory getCaseHistory(@PathVariable(value = "caseId") String caseId) {
+        return courtCaseHistoryService.getCourtCaseHistory(caseId);
     }
 
     @Operation(description = "Returns extended court case data, by hearing id.")

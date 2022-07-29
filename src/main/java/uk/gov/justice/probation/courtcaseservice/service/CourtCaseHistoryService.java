@@ -6,8 +6,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
 import java.util.List;
@@ -18,15 +17,12 @@ import java.util.stream.Collectors;
 public class CourtCaseHistoryService {
 
     private final CourtCaseRepository courtCaseRepository;
-    private final DefendantRepository defendantRepository;
-    private final OffenderRepository offenderRepository;
+    private final DefendantRepositoryFacade defendantRepositoryFacade;
 
     public CourtCaseHistoryService(CourtCaseRepository courtCaseRepository,
-                                   DefendantRepository defendantRepository,
-                                   OffenderRepository offenderRepository) {
+                                   DefendantRepositoryFacade defendantRepositoryFacade) {
         this.courtCaseRepository = courtCaseRepository;
-        this.defendantRepository = defendantRepository;
-        this.offenderRepository = offenderRepository;
+        this.defendantRepositoryFacade = defendantRepositoryFacade;
     }
 
     public CourtCaseHistory getCourtCaseHistory(String caseId) {
@@ -39,15 +35,8 @@ public class CourtCaseHistoryService {
         var uniqueDefendantIds = courtCaseEntity.getHearings().stream().map(HearingEntity::getHearingDefendants)
             .flatMap(List::stream).map(HearingDefendantEntity::getDefendantId).collect(Collectors.toSet());
 
-        var defendantEntities = uniqueDefendantIds.stream().map(s -> defendantRepository.findFirstByDefendantIdOrderByIdDesc(s))
-            .filter(Optional::isPresent).map(Optional::get).map(defendantEntity -> {
-                Optional.ofNullable(defendantEntity.getCrn())
-                    .map(crn -> offenderRepository.findByCrn(crn)
-                        .orElseThrow(() -> new RuntimeException(String.format("Unexpected state: Offender with CRN '%s' is specified on defendant '%s' but it does not exist", crn, defendantEntity.getDefendantId())))
-                    )
-                    .ifPresent(defendantEntity::setOffender);
-                return defendantEntity;
-            }).collect(Collectors.toList());
+        var defendantEntities = uniqueDefendantIds.stream().map(s -> defendantRepositoryFacade.findFirstByDefendantIdOrderByIdDesc(s))
+            .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
 
         return CourtCaseHistory.of(courtCaseEntity, defendantEntities);
     }

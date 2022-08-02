@@ -62,6 +62,12 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, orphanRemoval=true)
     private final List<HearingEntity> hearings;
 
+    @ToString.Exclude
+    @LazyCollection(value = LazyCollectionOption.TRUE)
+    @JsonIgnore
+    @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, orphanRemoval=true)
+    private final List<CaseCommentEntity> caseComments;
+
     @Column(name = "SOURCE_TYPE")
     @Enumerated(EnumType.STRING)
     private final SourceType sourceType;

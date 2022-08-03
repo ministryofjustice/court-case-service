@@ -28,7 +28,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListRespon
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseHistory;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearingRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
@@ -104,10 +104,10 @@ public class CourtCaseController {
     @PutMapping(value = "/hearing/{hearingId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    Mono<ExtendedCourtCaseRequestResponse> updateCourtCaseByHearingId(@PathVariable(value = "hearingId") String hearingId,
-                                                                      @Valid @RequestBody ExtendedCourtCaseRequestResponse courtCaseRequest) {
-        return courtCaseService.createHearingByHearingId(hearingId, courtCaseRequest.asHearingEntity())
-                .map(ExtendedCourtCaseRequestResponse::of);
+    Mono<ExtendedHearingRequestResponse> createOrUpdateHearingByHearingId(@PathVariable(value = "hearingId") String hearingId,
+                                                                          @Valid @RequestBody ExtendedHearingRequestResponse courtCaseRequest) {
+        return courtCaseService.createOrUpdateHearingByHearingId(hearingId, courtCaseRequest.asHearingEntity())
+                .map(ExtendedHearingRequestResponse::of);
     }
 
     @Operation(description = "Returns a case's history.")
@@ -115,17 +115,16 @@ public class CourtCaseController {
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     CourtCaseHistory getCaseHistory(@PathVariable(value = "caseId") String caseId) {
-        CourtCaseHistory courtCaseHistory = courtCaseHistoryService.getCourtCaseHistory(caseId);
-        return courtCaseHistory;
+        return courtCaseHistoryService.getCourtCaseHistory(caseId);
     }
 
     @Operation(description = "Returns extended court case data, by hearing id.")
     @GetMapping(value = "/hearing/{hearingId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
-    ExtendedCourtCaseRequestResponse getCourtCaseByHearingId(@PathVariable(value = "hearingId") String hearingId) {
-        final var courtCase = courtCaseService.getHearingByHearingId(hearingId);
-        return ExtendedCourtCaseRequestResponse.of(courtCase);
+    ExtendedHearingRequestResponse getHearingByHearingId(@PathVariable(value = "hearingId") String hearingId) {
+        final var hearingEntity = courtCaseService.getHearingByHearingId(hearingId);
+        return ExtendedHearingRequestResponse.of(hearingEntity);
     }
 
     @Operation(description = "Saves and returns the offender details by defendant id.")

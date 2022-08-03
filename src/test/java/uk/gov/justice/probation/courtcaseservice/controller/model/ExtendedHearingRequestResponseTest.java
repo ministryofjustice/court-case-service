@@ -22,7 +22,7 @@ import java.time.Month;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse.DEFAULT_SOURCE;
+import static uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearingRequestResponse.DEFAULT_SOURCE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
@@ -40,12 +40,12 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SESSION_START_TIME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.URN;
 
-class ExtendedCourtCaseRequestResponseTest {
+class ExtendedHearingRequestResponseTest {
 
     @Test
     void givenHearings_whenAsEntity_thenReturn() {
 
-        final var request = ExtendedCourtCaseRequestResponse.builder()
+        final var request = ExtendedHearingRequestResponse.builder()
                 .caseId("CASE_ID")
                 .hearingId("HEARING_ID")
                 .urn(URN)
@@ -84,7 +84,7 @@ class ExtendedCourtCaseRequestResponseTest {
     @Test
     void givenNoCaseId_whenAsEntity_thenReturnCaseIdAsHearingId() {
 
-        final var request = ExtendedCourtCaseRequestResponse.builder()
+        final var request = ExtendedHearingRequestResponse.builder()
                 .caseId("CASE_ID")
                 .urn(URN)
                 .hearingDays(List.of(
@@ -125,7 +125,7 @@ class ExtendedCourtCaseRequestResponseTest {
         final var previouslyKnownTerminationDate = LocalDate.of(2021, Month.MARCH, 20);
         final var defendant = buildDefendant("M");
 
-        final var request = ExtendedCourtCaseRequestResponse.builder()
+        final var request = ExtendedHearingRequestResponse.builder()
                 .defendants(List.of(defendant))
                 .build();
 
@@ -189,7 +189,7 @@ class ExtendedCourtCaseRequestResponseTest {
                 .type(DefendantType.PERSON)
                 .defendantId(DEFENDANT_ID)
                 .build();
-        final var request = ExtendedCourtCaseRequestResponse.builder()
+        final var request = ExtendedHearingRequestResponse.builder()
                 .defendants(List.of(defendant))
                 .build();
 
@@ -211,7 +211,7 @@ class ExtendedCourtCaseRequestResponseTest {
                 .defendantId(DEFENDANT_ID)
                 .crn("CRN")
                 .build();
-        final var request = ExtendedCourtCaseRequestResponse.builder()
+        final var request = ExtendedHearingRequestResponse.builder()
                 .defendants(List.of(defendant))
                 .build();
 
@@ -226,7 +226,7 @@ class ExtendedCourtCaseRequestResponseTest {
     @Test
     void givenNullHearingsAndDefendants_whenAsEntity_thenReturn() {
 
-        final var request = ExtendedCourtCaseRequestResponse.builder()
+        final var request = ExtendedHearingRequestResponse.builder()
                 .caseNo(CASE_NO)
                 .caseId(CASE_ID)
                 .build();
@@ -242,7 +242,7 @@ class ExtendedCourtCaseRequestResponseTest {
     @Test
     void givenVerboseSex_whenAsEntity_thenReturn() {
 
-        final var request = ExtendedCourtCaseRequestResponse.builder()
+        final var request = ExtendedHearingRequestResponse.builder()
                 .caseNo(CASE_NO)
                 .caseId(CASE_ID)
                 .defendants(List.of(buildDefendant("male")))
@@ -258,7 +258,7 @@ class ExtendedCourtCaseRequestResponseTest {
     @Test
     void givenNullSex_whenAsEntity_thenReturnAsNotKnown() {
 
-        final var request = ExtendedCourtCaseRequestResponse.builder()
+        final var request = ExtendedHearingRequestResponse.builder()
                 .caseNo(CASE_NO)
                 .caseId(CASE_ID)
                 .defendants(List.of(buildDefendant(null)))
@@ -276,7 +276,7 @@ class ExtendedCourtCaseRequestResponseTest {
 
         final var courtCaseEntity = buildEntity();
 
-        final var actual = ExtendedCourtCaseRequestResponse.of(courtCaseEntity);
+        final var actual = ExtendedHearingRequestResponse.of(courtCaseEntity);
 
         assertThat(actual.getSource()).isEqualTo("LIBRA");
         assertThat(actual.getCaseId()).isEqualTo(CASE_ID);

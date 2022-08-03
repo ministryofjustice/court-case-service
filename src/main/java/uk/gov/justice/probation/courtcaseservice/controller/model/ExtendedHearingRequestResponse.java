@@ -37,7 +37,7 @@ import java.util.stream.IntStream;
 @AllArgsConstructor
 @Slf4j
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ExtendedCourtCaseRequestResponse {
+public class ExtendedHearingRequestResponse {
     static final SourceType DEFAULT_SOURCE = SourceType.COMMON_PLATFORM;
     private final String caseNo;
     @NotBlank
@@ -52,8 +52,8 @@ public class ExtendedCourtCaseRequestResponse {
     @NotEmpty
     private final List<Defendant> defendants;
 
-    public static ExtendedCourtCaseRequestResponse of(HearingEntity hearing) {
-        return ExtendedCourtCaseRequestResponse.builder()
+    public static ExtendedHearingRequestResponse of(HearingEntity hearing) {
+        return ExtendedHearingRequestResponse.builder()
                 .caseNo(hearing.getCaseNo())
                 .caseId(hearing.getCaseId())
                 .hearingId(hearing.getHearingId())

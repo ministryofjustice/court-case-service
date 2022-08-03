@@ -7,8 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Optional;
 
 @Data
 @Builder
@@ -22,4 +25,15 @@ public class HearingDay {
     @NotNull
     private final LocalDateTime sessionStartTime;
     private final String listNo;
+
+    public static HearingDay of(HearingDayEntity hearingDayEntity) {
+        return HearingDay.builder()
+            .courtCode(hearingDayEntity.getCourtCode())
+            .courtRoom(hearingDayEntity.getCourtRoom())
+            .sessionStartTime(Optional.ofNullable(hearingDayEntity.getDay())
+                .map(day -> LocalDateTime.of(day, Optional.ofNullable(hearingDayEntity.getTime()).orElse(LocalTime.MIDNIGHT)))
+                .orElse(null))
+            .listNo(hearingDayEntity.getListNo())
+            .build();
+    }
 }

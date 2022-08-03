@@ -8,12 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -64,6 +59,7 @@ public class CourtCaseResponse {
     private final long numberOfPossibleMatches;
     private final Boolean awaitingPsr;
     private final List<HearingResponse> hearings;
+    private final List<CaseComment> caseComments;
 
     @JsonProperty
     public String getProbationStatus() {

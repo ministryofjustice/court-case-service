@@ -4,24 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -190,6 +173,9 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getProbationStatusActual()).isEqualTo("CURRENT");
 
         assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(3);
+        assertThat(courtCaseResponse.getCaseComments()).hasSize(2);
+        assertThat(courtCaseResponse.getCaseComments().get(0).getCommentId()).isEqualTo("case-comment-one");
+        assertThat(courtCaseResponse.getCaseComments().get(1).getCommentId()).isEqualTo("case-comment-two");
     }
 
     @Test
@@ -345,6 +331,9 @@ class CourtCaseResponseMapperTest {
                         .caseId(CASE_ID)
                         .created(CREATED)
                         .urn(URN)
+                        .caseComments(List.of(
+                            CaseCommentEntity.builder().commentId("case-comment-one").build(),
+                            CaseCommentEntity.builder().commentId("case-comment-two").build()))
                         .build())
                 .created(CREATED)
                 .firstCreated(firstCreated)

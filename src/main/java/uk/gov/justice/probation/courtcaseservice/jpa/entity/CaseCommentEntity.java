@@ -22,18 +22,22 @@ public class CaseCommentEntity extends BaseImmutableEntity {
     @JsonIgnore
     private final Long id;
 
+    @Column(name = "COMMENT_ID", updatable = false, nullable = false)
+    private final String commentId;
+
     @Column(name = "COMMENT", nullable = false)
     private final String comment;
 
     @ManyToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "COURT_CASE_ID", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "FK_COURT_CASE_ID", referencedColumnName = "id", nullable = false)
     @Setter
+    @JsonIgnore
     private CourtCaseEntity courtCase;
 
     @Column(name = "deleted", nullable = false, updatable = false)
     private final boolean deleted;
 
-    public void setCourtCaseEntity(CourtCaseEntity courtCaseEntity) {
+    public void setCourtCaseEntity(CourtCaseEntity courtCase) {
         this.courtCase = courtCase;
     }
 }

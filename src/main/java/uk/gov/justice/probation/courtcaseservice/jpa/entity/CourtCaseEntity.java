@@ -63,7 +63,7 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     private final List<HearingEntity> hearings;
 
     @ToString.Exclude
-    @LazyCollection(value = LazyCollectionOption.TRUE)
+    @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
     @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, orphanRemoval=true)
     private final List<CaseCommentEntity> caseComments;

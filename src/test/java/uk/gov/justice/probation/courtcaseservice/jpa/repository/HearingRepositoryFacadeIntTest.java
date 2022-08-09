@@ -69,9 +69,9 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
         List<CaseCommentEntity> caseComments = hearingEntity.getCourtCase().getCaseComments();
         assertThat(caseComments).hasSize(1);
         assertThat(caseComments.get(0).getCaseId()).isEqualTo("727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b");
-        assertThat(caseComments.get(0).getCommentId()).isEqualTo("ebe5606c-5c99-4bdd-9038-9c262e133d99");
+        assertThat(caseComments.get(0).getId()).isEqualTo(-1700028900);
         assertThat(caseComments.get(0).getComment()).isEqualTo("PSR in progress");
-        assertThat(caseComments.get(0).getCreatedBy()).isEqualTo("before-HearingRepositoryFacadeIntTest.sql");
+        assertThat(caseComments.get(0).getAuthor()).isEqualTo("Author One");
     }
 
     @Test

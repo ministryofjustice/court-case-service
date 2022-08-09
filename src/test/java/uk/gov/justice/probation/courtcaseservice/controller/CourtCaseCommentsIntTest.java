@@ -34,7 +34,8 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
     private static final String CASE_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
     private final String caseComment = "{\n" +
         "        \"caseId\": \"1f93aa0a-7e46-4885-a1cb-f25a4be33a00\",\n" +
-        "        \"comment\": \"PSR is delayed\"\n" +
+        "        \"comment\": \"PSR is delayed\",\n" +
+        "        \"author\": \"Test Author\"\n" +
         "    }";
 
     @Test
@@ -53,12 +54,13 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
             .statusCode(201)
             .body("caseId", equalTo(CASE_ID))
             .body("comment", equalTo("PSR is delayed"))
+            .body("author", equalTo("Test Author"))
             .body("created", notNullValue())
         ;
         var caseComment = caseCommentResponse.getBody().as(CaseCommentResponse.class, ObjectMapperType.JACKSON_2);
 
-        var actualComment = caseCommentsRepository.findByCaseIdAndCommentId(CASE_ID, caseComment.getCommentId());
-        assertThat(actualComment.getCommentId()).isEqualTo(caseComment.getCommentId());
+        var actualComment = caseCommentsRepository.findById(caseComment.getCommentId()).get();
+        assertThat(actualComment.getId()).isEqualTo(caseComment.getCommentId());
         assertThat(actualComment.isDeleted()).isFalse();
 
         Assertions.assertNotNull(actualComment);

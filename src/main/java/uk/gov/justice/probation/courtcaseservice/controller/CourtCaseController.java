@@ -138,7 +138,7 @@ public class CourtCaseController {
             throw new ConflictingInputException(String.format("Case Id '%s' provided in the path does not match the one in the case comment request body submitted '%s'",
                 caseId, caseCommentRequest.getCaseId()));
         }
-        var caseCommentEntity = caseCommentsService.createCaseComment(caseId,caseCommentRequest.asEntity());
+        var caseCommentEntity = caseCommentsService.createCaseComment(caseCommentRequest.asEntity());
         return CaseCommentResponse.of(caseCommentEntity);
     }
 

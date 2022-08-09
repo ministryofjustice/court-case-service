@@ -5,8 +5,8 @@ create index case_id_idx on court_case (case_id);
 CREATE TABLE CASE_COMMENTS (
    ID               SERIAL      PRIMARY KEY,
    CASE_ID          TEXT        NOT NULL,
-   COMMENT_ID       UUID        NOT NULL,
    COMMENT          TEXT        NOT NULL,
+   AUTHOR           TEXT        NOT NULL,
    CREATED          TIMESTAMP   NOT NULL DEFAULT now(),
    CREATED_BY       TEXT        NULL,
    LAST_UPDATED     TIMESTAMP   NOT NULL DEFAULT now(),

@@ -20,11 +20,14 @@ public class CaseCommentRequest {
     private final String caseId;
     @NotBlank
     private final String comment;
+    @NotBlank
+    private final String author;
 
     public CaseCommentEntity asEntity() {
         return CaseCommentEntity.builder()
             .comment(comment)
             .caseId(caseId)
+            .author(author)
             .build();
     }
 }

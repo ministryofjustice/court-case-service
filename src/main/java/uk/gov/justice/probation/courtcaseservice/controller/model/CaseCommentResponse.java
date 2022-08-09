@@ -16,19 +16,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CaseCommentResponse {
-    private final String commentId;
+    private final Long commentId;
     private final String caseId;
     private final String comment;
     private final LocalDateTime created;
-    private final String createdBy;
+    private final String author;
 
     public static CaseCommentResponse of(CaseCommentEntity caseCommentEntity) {
         return CaseCommentResponse.builder()
             .comment(caseCommentEntity.getComment())
-            .commentId(caseCommentEntity.getCommentId())
+            .commentId(caseCommentEntity.getId())
             .caseId(caseCommentEntity.getCaseId())
             .created(caseCommentEntity.getCreated())
-            .createdBy(caseCommentEntity.getCreatedBy())
+            .author(caseCommentEntity.getAuthor())
             .build();
     }
 }

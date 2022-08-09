@@ -7,6 +7,4 @@ import java.util.List;
 
 public interface CaseCommentsRepository extends CrudRepository<CaseCommentEntity, Long> {
     List<CaseCommentEntity> findAllByCaseIdAndDeletedFalse(String caseId);
-
-    CaseCommentEntity findByCaseIdAndCommentId(String caseId, String commentId);
 }

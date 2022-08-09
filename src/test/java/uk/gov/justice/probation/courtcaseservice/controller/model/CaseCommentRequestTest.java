@@ -9,15 +9,17 @@ class CaseCommentRequestTest {
 
     @Test
     void asEntity() {
+        var testComment = "awaiting PSR";
+        String testCaseId = "test-case-id";
         var caseCommentRequest = CaseCommentRequest.builder()
-            .comment("awaiting PSR")
-            .caseId("test-cae-id")
+            .comment(testComment)
+            .caseId(testCaseId)
             .build();
 
         assertThat(caseCommentRequest.asEntity())
             .isEqualTo(CaseCommentEntity.builder()
-                .comment(caseCommentRequest.getComment())
-                .caseId(caseCommentRequest.getCaseId())
+                .comment(testComment)
+                .caseId(testCaseId)
                 .build());
     }
 }

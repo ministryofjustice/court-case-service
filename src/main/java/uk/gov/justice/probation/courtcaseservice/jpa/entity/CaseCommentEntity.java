@@ -15,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "CASE_COMMENTS")
@@ -23,8 +24,8 @@ import javax.persistence.Table;
 @SuperBuilder
 @Getter
 @With
-@EqualsAndHashCode(callSuper = true)
-public class CaseCommentEntity extends BaseEntity {
+@EqualsAndHashCode(callSuper = false)
+public class CaseCommentEntity extends BaseEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -35,9 +36,9 @@ public class CaseCommentEntity extends BaseEntity {
     @Column(name = "CASE_ID", updatable = false, nullable = false)
     private final String caseId;
 
-    @Column(name = "COMMENT_ID", updatable = false, nullable = false)
-    private final String commentId;
-
     @Column(name = "COMMENT", nullable = false)
     private final String comment;
+
+    @Column(name = "AUTHOR", nullable = false)
+    private final String author;
 }

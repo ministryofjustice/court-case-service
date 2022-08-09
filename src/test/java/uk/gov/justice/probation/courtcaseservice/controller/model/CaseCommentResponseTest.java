@@ -11,21 +11,22 @@ class CaseCommentResponseTest {
 
     @Test
     void shouldMapCaseCommentEntityToModel() {
+        var now = LocalDateTime.now();
         final var caseCommentEntity = CaseCommentEntity.builder()
             .comment("PSR review")
-            .commentId("test-uuid")
+            .id(1234L)
             .caseId("case-id-1")
-            .created(LocalDateTime.now())
-            .createdBy("test-user")
+            .created(now)
+            .author("test-user")
             .build();
 
         assertThat(CaseCommentResponse.of(caseCommentEntity)).isEqualTo(
             CaseCommentResponse.builder()
-                .comment(caseCommentEntity.getComment())
-                .commentId(caseCommentEntity.getCommentId())
-                .caseId(caseCommentEntity.getCaseId())
-                .createdBy(caseCommentEntity.getCreatedBy())
-                .created(caseCommentEntity.getCreated())
+                .comment("PSR review")
+                .commentId(1234L)
+                .caseId("case-id-1")
+                .author("test-user")
+                .created(now)
                 .build()
         );
     }

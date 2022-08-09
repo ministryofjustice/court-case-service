@@ -6,8 +6,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CaseCommentsRepo
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
-import java.util.UUID;
-
 @Service
 public class CaseCommentsService {
 
@@ -19,11 +17,11 @@ public class CaseCommentsService {
         this.caseCommentsRepository = caseCommentsRepository;
     }
 
-    public CaseCommentEntity createCaseComment(String caseId, CaseCommentEntity caseCommentEntity) {
+    public CaseCommentEntity createCaseComment(CaseCommentEntity caseCommentEntity) {
 
-        CaseCommentEntity entity = caseCommentEntity.withCommentId(UUID.randomUUID().toString());
-        return courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId).map(
-            courtCaseEntity -> caseCommentsRepository.save(entity))
+        var caseId = caseCommentEntity.getCaseId();
+        return courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId)
+            .map(courtCaseEntity -> caseCommentsRepository.save(caseCommentEntity))
             .orElseThrow(() -> new EntityNotFoundException("Court case %s not found", caseId));
     }
 }

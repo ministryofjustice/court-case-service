@@ -192,8 +192,8 @@ class CourtCaseResponseMapperTest {
 
         assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(3);
         assertThat(courtCaseResponse.getCaseComments()).hasSize(2);
-        assertThat(courtCaseResponse.getCaseComments().get(0).getCommentId()).isEqualTo("case-comment-one");
-        assertThat(courtCaseResponse.getCaseComments().get(1).getCommentId()).isEqualTo("case-comment-two");
+        assertThat(courtCaseResponse.getCaseComments().get(0).getCommentId()).isEqualTo(1234L);
+        assertThat(courtCaseResponse.getCaseComments().get(1).getCommentId()).isEqualTo(5678L);
     }
 
     @Test
@@ -350,8 +350,8 @@ class CourtCaseResponseMapperTest {
                         .created(CREATED)
                         .urn(URN)
                         .caseComments(List.of(
-                            CaseCommentEntity.builder().commentId("case-comment-one").build(),
-                            CaseCommentEntity.builder().commentId("case-comment-two").build()))
+                            CaseCommentEntity.builder().id(1234L).build(),
+                            CaseCommentEntity.builder().id(5678L).build()))
                         .build())
                 .created(CREATED)
                 .firstCreated(firstCreated)

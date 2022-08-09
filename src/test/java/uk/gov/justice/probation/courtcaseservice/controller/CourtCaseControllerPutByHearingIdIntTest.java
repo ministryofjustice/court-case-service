@@ -94,6 +94,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             .body("hearingId", equalTo(JSON_HEARING_ID))
             .body("urn", equalTo(URN))
             .body("source", equalTo("COMMON_PLATFORM"))
+            .body("hearingEventType", equalTo("CONFIRMED_OR_UPDATED"))
             .body("defendants", hasSize(1))
             .body("defendants[0].offences",  hasSize(2))
             .body("defendants[0].type",  equalTo("PERSON"))
@@ -104,21 +105,24 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             .body("defendants[0].phoneNumber.home", equalTo("07000000013"))
             .body("defendants[0].phoneNumber.mobile", equalTo("07000000014"))
             .body("defendants[0].phoneNumber.work", equalTo("07000000015"))
+            .body("defendants[0].offences[0].judicialResults",  hasSize(3))
+            .body("defendants[0].offences[0].judicialResults[0].convictedResult", equalTo(false))
+            .body("defendants[0].offences[0].judicialResults[0].label", equalTo("Label-1"))
+            .body("defendants[0].offences[0].judicialResults[0].judicialResultType.description", equalTo("Description-1"))
+            .body("defendants[0].offences[0].judicialResults[0].judicialResultType.id", equalTo("ID-ONE"))
             .body("hearingDays", hasSize(1))
             .body("hearingDays[0].courtCode", equalTo("B14LO"))
             .body("hearingDays[0].courtRoom", equalTo("1"))
             .body("hearingDays[0].sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
-            .body("hearingDays", hasSize(1))
-            .body("hearingDays", hasSize(1))
-        ;
+            .body("hearingDays", hasSize(1));
 
         var cc = courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID);
-        cc.ifPresentOrElse(courtCaseEntity -> {
-            assertThat(courtCaseEntity.getCaseId()).isEqualTo(JSON_CASE_ID);
-            assertThat(courtCaseEntity.getHearingId()).isEqualTo(JSON_HEARING_ID);
-            assertThat(courtCaseEntity.getCourtCase().getUrn()).isEqualTo(URN);
-            assertThat(courtCaseEntity.getHearingDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
-            assertThat(courtCaseEntity.getHearingDefendants().get(0).getDefendant().getPhoneNumber()).isEqualTo(
+        cc.ifPresentOrElse(hearingEntity -> {
+            assertThat(hearingEntity.getCaseId()).isEqualTo(JSON_CASE_ID);
+            assertThat(hearingEntity.getHearingId()).isEqualTo(JSON_HEARING_ID);
+            assertThat(hearingEntity.getCourtCase().getUrn()).isEqualTo(URN);
+            assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
+            assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPhoneNumber()).isEqualTo(
                     PhoneNumberEntity.builder().home("07000000013").mobile("07000000014").work("07000000015").build());
         }, () -> fail("Court case not created as expected"));
 

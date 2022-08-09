@@ -105,8 +105,8 @@ public class CourtCaseController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     Mono<ExtendedHearingRequestResponse> createOrUpdateHearingByHearingId(@PathVariable(value = "hearingId") String hearingId,
-                                                                          @Valid @RequestBody ExtendedHearingRequestResponse courtCaseRequest) {
-        return courtCaseService.createOrUpdateHearingByHearingId(hearingId, courtCaseRequest.asHearingEntity())
+                                                                          @Valid @RequestBody ExtendedHearingRequestResponse putHearingRequest) {
+        return courtCaseService.createOrUpdateHearingByHearingId(hearingId, putHearingRequest.asHearingEntity())
                 .map(ExtendedHearingRequestResponse::of);
     }
 

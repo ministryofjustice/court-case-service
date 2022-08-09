@@ -19,6 +19,8 @@ import org.hibernate.annotations.TypeDef;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -83,6 +85,10 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
 
     @Column(name = "first_created", insertable = false, updatable = false)
     private final LocalDateTime firstCreated;
+
+    @Column(name = "HEARING_EVENT_TYPE")
+    @Enumerated(EnumType.STRING)
+    private final HearingEventType hearingEventType;
 
     public String getCaseId() {
         return courtCase.getCaseId();

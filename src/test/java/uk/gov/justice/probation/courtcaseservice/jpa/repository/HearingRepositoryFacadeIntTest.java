@@ -141,13 +141,6 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
                 .isEqualTo(hearingEntity);
     }
 
-/*    @Test
-    public void whenFindFirstByHearingIdOrderByIdDesc_thenReturnJudicialResultsWithCorrectOrder() {
-        final var actual = hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc("3db9d70b-10a2-49d1-b74d-379f2db75862");
-
-        assertJudicialResultsOrder(actual);
-    }*/
-
     private void assertIsCorrectCaseList(List<HearingEntity> actual) {
         assertThat(actual).extracting("hearingId").containsExactlyInAnyOrder(
                 "1bfff8b7-fbc6-413f-8545-8299c26f75bd",
@@ -217,7 +210,6 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
     }
 
     private void assertJudicialResultsOrder(Optional<HearingEntity> actual) {
-        var expectedJudicialResults = List.of(aJudicialResultEntity("id1"), aJudicialResultEntity("1d3"), aJudicialResultEntity("1d2"), aJudicialResultEntity("1d4"));
         assertThat(actual).isPresent();
 
         final var hearingEntity = actual.get();

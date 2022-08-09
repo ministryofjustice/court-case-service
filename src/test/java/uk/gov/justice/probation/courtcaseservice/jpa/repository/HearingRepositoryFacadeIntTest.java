@@ -24,8 +24,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.HEARING_ID;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus.CURRENT;
 
 @Sql(scripts = {
@@ -142,6 +141,13 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
                 .isEqualTo(hearingEntity);
     }
 
+/*    @Test
+    public void whenFindFirstByHearingIdOrderByIdDesc_thenReturnJudicialResultsWithCorrectOrder() {
+        final var actual = hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc("3db9d70b-10a2-49d1-b74d-379f2db75862");
+
+        assertJudicialResultsOrder(actual);
+    }*/
+
     private void assertIsCorrectCaseList(List<HearingEntity> actual) {
         assertThat(actual).extracting("hearingId").containsExactlyInAnyOrder(
                 "1bfff8b7-fbc6-413f-8545-8299c26f75bd",
@@ -195,6 +201,37 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
 
         assertThat(hearingDefendant.getOffences().size()).isEqualTo(1);
         assertThat(hearingDefendant.getOffences().get(0).getTitle()).isEqualTo("Theft from a garage");
+    }
+
+    @Test
+    public void whenFindFirstByHearingIdOrderByIdDesc_thenReturnJudicialResultsWithCorrectOrder() {
+        final var hearingEntity = EntityHelper.aHearingEntityWithJudicialResults("X340906", "4000033");
+
+        assertThat(hearingRepositoryFacade.save(hearingEntity)).isEqualTo(hearingEntity);
+
+        assertThat(hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(HEARING_ID).orElseThrow())
+                .usingRecursiveComparison().ignoringFields("created")
+                .isEqualTo(hearingEntity);
+
+        assertJudicialResultsOrder(Optional.ofNullable(hearingEntity));
+    }
+
+    private void assertJudicialResultsOrder(Optional<HearingEntity> actual) {
+        var expectedJudicialResults = List.of(aJudicialResultEntity("id1"), aJudicialResultEntity("1d3"), aJudicialResultEntity("1d2"), aJudicialResultEntity("1d4"));
+        assertThat(actual).isPresent();
+
+        final var hearingEntity = actual.get();
+        final var hearingDefendant = hearingEntity.getHearingDefendants().get(0);
+
+        assertThat(hearingDefendant.getOffences().size()).isEqualTo(1);
+        final var judicialResults = hearingDefendant.getOffences().get(0).getJudicialResults();
+        assertThat(judicialResults.size()).isEqualTo(4);
+
+        assertThat(judicialResults).extracting("label")
+                .containsExactly("id1", "id3", "id2", "id4");
+
+        assertThat(judicialResults).extracting("judicialResultType.id")
+                .containsExactly("id1", "id3", "id2", "id4");
     }
 
 }

@@ -143,8 +143,8 @@ class ExtendedHearingRequestResponseTest {
         assertThat(hearingEntity.getHearingDefendants()).hasSize(1);
 
         final var hearingDefendantEntity = hearingEntity.getHearingDefendants().get(0);
-         assertThat(hearingDefendantEntity.getHearing()).isSameAs(hearingEntity);
-         assertThat(hearingDefendantEntity.getDefendantId()).isSameAs(DEFENDANT_ID);
+        assertThat(hearingDefendantEntity.getHearing()).isSameAs(hearingEntity);
+        assertThat(hearingDefendantEntity.getDefendantId()).isSameAs(DEFENDANT_ID);
 
         final var defendantEntity = hearingDefendantEntity.getDefendant();
         assertThat(defendantEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
@@ -318,20 +318,48 @@ class ExtendedHearingRequestResponseTest {
                 .suspendedSentenceOrder(true)
                 .offender(Offender.builder().pnc(OFFENDER_PNC).build())
                 .offences(List.of(OffenceRequestResponse.builder()
-                        .act("act2")
-                        .build(),
+                                .act("act2")
+                                .build(),
                         OffenceRequestResponse.builder()
-                            .act("act")
-                            .offenceSummary("summary")
-                            .offenceTitle("title")
-                            .listNo(11)
-                            .build()
-                        ))
+                                .act("act")
+                                .offenceSummary("summary")
+                                .offenceTitle("title")
+                                .listNo(11)
+                                .build()
+                ))
                 .build());
         assertThat(actual.getDefendants().get(1).getDefendantId()).isEqualTo("DEFENDANT_ID_2");
         // offences should be sorted by sequence number
         assertThat(actual.getDefendants().get(0).getOffences().get(0).getAct()).isEqualTo("act2");
         assertThat(actual.getDefendants().get(0).getOffences().get(1).getAct()).isEqualTo("act");
+    }
+
+    @Test
+    void givenOffencesWithJudicialResults_whenAsEntity_thenReturn() {
+
+        final var defendant = buildDefendant("M");
+
+        final var request = ExtendedHearingRequestResponse.builder()
+                .defendants(List.of(defendant))
+                .build();
+
+        final var hearingEntity = request.asHearingEntity();
+
+        assertThat(hearingEntity.getHearingDefendants()).hasSize(1);
+
+        final var hearingDefendantEntity = hearingEntity.getHearingDefendants().get(0);
+        assertThat(hearingDefendantEntity.getHearing()).isSameAs(hearingEntity);
+        assertThat(hearingDefendantEntity.getDefendantId()).isSameAs(DEFENDANT_ID);
+
+        final var offences = hearingDefendantEntity.getOffences();
+        assertThat(offences).hasSize(2);
+        assertThat(offences.get(0).getJudicialResults()).isNotEmpty();
+        assertThat(offences.get(0).getJudicialResults().get(0).isConvictedResult()).isEqualTo(false);
+        assertThat(offences.get(0).getJudicialResults().get(0).getLabel()).isEqualTo("label");
+        assertThat(offences.get(0).getJudicialResults().get(0).getJudicialResultType()).isNotNull();
+        assertThat(offences.get(0).getJudicialResults().get(0).getJudicialResultType().getDescription()).isEqualTo("description");
+        assertThat(offences.get(0).getJudicialResults().get(0).getJudicialResultType().getId()).isEqualTo("id");
+        assertThat(offences.get(1).getJudicialResults()).isEmpty();
     }
 
     private HearingEntity buildEntity() {
@@ -439,6 +467,7 @@ class ExtendedHearingRequestResponseTest {
                                 .offenceSummary("SUMMARY1")
                                 .act("ACT1")
                                 .listNo(10)
+                                .judicialResults(List.of(buildJudicialResult()))
                                 .build(),
                         OffenceRequestResponse.builder()
                                 .offenceTitle("TITLE2")
@@ -448,4 +477,16 @@ class ExtendedHearingRequestResponseTest {
                                 .build()))
                 .build();
     }
+
+    private JudicialResult buildJudicialResult() {
+        return JudicialResult.builder()
+                .isConvictedResult(false)
+                .label("label")
+                .judicialResultType(JudicialResultType.builder()
+                        .description("description")
+                        .id("id")
+                        .build())
+                .build();
+    }
+
 }

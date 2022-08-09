@@ -7,6 +7,7 @@ TRUNCATE courtcaseservicetest.hearing_defendant CASCADE;
 TRUNCATE courtcaseservicetest.defendant CASCADE;
 TRUNCATE courtcaseservicetest.court_case CASCADE;
 TRUNCATE courtcaseservicetest.court CASCADE;
+TRUNCATE courtcaseservicetest.case_comments CASCADE;
 
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('North Shields', 'B10JQ');
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Sheffield', 'B14LO');
@@ -47,8 +48,9 @@ VALUES (-1000012, 'Z320755', 'CURRENT', '2010-01-01', true, true, true, true, 'b
 -- START DEFINITION OF CASE NO 1600028913
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type, urn) VALUES (-1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 1600028913, now(), 'LIBRA', 'URN008');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created) VALUES (-1700028900, -1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', now());
-INSERT INTO courtcaseservicetest.case_comments(id, fk_court_case_id, comment, created, created_by) VALUES (-1700028900, -1700028900, 'PSR in progress', now(), 'before-test.sql');
-INSERT INTO courtcaseservicetest.case_comments(id, fk_court_case_id, comment, created, created_by) VALUES (-1700028901, -1700028900, 'PSR completed', now(), 'before-test.sql');
+INSERT INTO courtcaseservicetest.case_comments(id, case_id, comment_id, comment, created, created_by) VALUES (-1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'ebe5606c-5c99-4bdd-9038-9c262e133d99', 'PSR in progress', now(), 'before-test.sql');
+INSERT INTO courtcaseservicetest.case_comments(id, case_id, comment_id, comment, created, deleted, created_by) VALUES (-1700028901, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', '5feb6d47-3684-4c57-85d0-8efbe17058b1', 'PSR completed', now(), true, 'before-test.sql');
+INSERT INTO courtcaseservicetest.case_comments(id, case_id, comment_id, comment, created, created_by) VALUES (-1700028902, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', '5feb6d47-3684-4c57-85d0-8efbe17058b1', 'PSR completed', now(), 'before-test.sql');
 
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
 VALUES (-1000000, -1700028900, 'B10JQ', 1, '2019-12-14', '09:00', '3rd');

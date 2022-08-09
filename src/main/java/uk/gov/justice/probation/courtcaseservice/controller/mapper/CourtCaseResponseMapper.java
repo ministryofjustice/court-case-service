@@ -2,11 +2,18 @@ package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import uk.gov.justice.probation.courtcaseservice.controller.model.*;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse.CourtCaseResponseBuilder;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -66,9 +73,9 @@ public class CourtCaseResponseMapper {
     }
 
     @NotNull
-    private static List<CaseComment> buildCaseComments(HearingEntity hearingEntity) {
+    private static List<CaseCommentResponse> buildCaseComments(HearingEntity hearingEntity) {
         return Optional.ofNullable(hearingEntity.getCourtCase().getCaseComments())
-            .map(caseCommentEntities -> caseCommentEntities.stream().map(CaseComment::of).collect(Collectors.toList()))
+            .map(caseCommentEntities -> caseCommentEntities.stream().map(CaseCommentResponse::of).collect(Collectors.toList()))
             .orElse(Collections.emptyList());
     }
 

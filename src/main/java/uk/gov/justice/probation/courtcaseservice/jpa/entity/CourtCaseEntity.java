@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
@@ -25,6 +26,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.io.Serializable;
 import java.util.List;
 
@@ -63,10 +65,9 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     private final List<HearingEntity> hearings;
 
     @ToString.Exclude
-    @LazyCollection(value = LazyCollectionOption.FALSE)
-    @JsonIgnore
-    @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, orphanRemoval=true)
-    private final List<CaseCommentEntity> caseComments;
+    @Transient
+    @Setter
+    private List<CaseCommentEntity> caseComments;
 
     @Column(name = "SOURCE_TYPE")
     @Enumerated(EnumType.STRING)

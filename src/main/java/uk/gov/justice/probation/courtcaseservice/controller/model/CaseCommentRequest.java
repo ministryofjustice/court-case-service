@@ -8,25 +8,23 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 
-import java.time.LocalDateTime;
+import javax.validation.constraints.NotBlank;
 
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CaseComment {
-    private final String commentId;
+public class CaseCommentRequest {
+    @NotBlank
+    private final String caseId;
+    @NotBlank
     private final String comment;
-    private final LocalDateTime created;
-    private final String createdBy;
 
-    public static CaseComment of(CaseCommentEntity caseCommentEntity) {
-        return CaseComment.builder()
-            .comment(caseCommentEntity.getComment())
-            .commentId(caseCommentEntity.getCommentId())
-            .created(caseCommentEntity.getCreated())
-            .createdBy(caseCommentEntity.getCreatedBy())
+    public CaseCommentEntity asEntity() {
+        return CaseCommentEntity.builder()
+            .comment(comment)
+            .caseId(caseId)
             .build();
     }
 }

@@ -1,10 +1,20 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.With;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "CASE_COMMENTS")
@@ -14,7 +24,7 @@ import javax.persistence.*;
 @Getter
 @With
 @EqualsAndHashCode(callSuper = true)
-public class CaseCommentEntity extends BaseImmutableEntity {
+public class CaseCommentEntity extends BaseEntity {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -22,22 +32,12 @@ public class CaseCommentEntity extends BaseImmutableEntity {
     @JsonIgnore
     private final Long id;
 
+    @Column(name = "CASE_ID", updatable = false, nullable = false)
+    private final String caseId;
+
     @Column(name = "COMMENT_ID", updatable = false, nullable = false)
     private final String commentId;
 
     @Column(name = "COMMENT", nullable = false)
     private final String comment;
-
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "FK_COURT_CASE_ID", referencedColumnName = "id", nullable = false)
-    @Setter
-    @JsonIgnore
-    private CourtCaseEntity courtCase;
-
-    @Column(name = "deleted", nullable = false, updatable = false)
-    private final boolean deleted;
-
-    public void setCourtCaseEntity(CourtCaseEntity courtCase) {
-        this.courtCase = courtCase;
-    }
 }

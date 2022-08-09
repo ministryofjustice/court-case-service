@@ -5,16 +5,17 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,7 +24,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRequest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseHistory;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
@@ -32,6 +36,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtC
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseHistoryService;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
@@ -72,18 +77,21 @@ public class CourtCaseController {
     private final OffenderUpdateService offenderUpdateService;
     private final boolean enableCacheableCaseList;
     private final CourtCaseHistoryService courtCaseHistoryService;
+    private final CaseCommentsService caseCommentsService;
 
     @Autowired
     public CourtCaseController(CourtCaseService courtCaseService,
                                CourtCaseHistoryService courtCaseHistoryService,
                                OffenderMatchService offenderMatchService,
                                OffenderUpdateService offenderUpdateService,
+                               CaseCommentsService caseCommentsService,
                                @Value("${feature.flags.enable-cacheable-case-list:true}") boolean enableCacheableCaseList) {
         this.courtCaseService = courtCaseService;
         this.offenderMatchService = offenderMatchService;
         this.offenderUpdateService = offenderUpdateService;
         this.enableCacheableCaseList = enableCacheableCaseList;
         this.courtCaseHistoryService = courtCaseHistoryService;
+        this.caseCommentsService = caseCommentsService;
     }
 
     @Operation(description = "Gets the court case data by hearing id and defendant id.")
@@ -101,7 +109,7 @@ public class CourtCaseController {
     }
 
     @Operation(description = "Saves and returns the court case data, by hearing id.")
-    @PutMapping(value = "/hearing/{hearingId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/hearing/{hearingId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     Mono<ExtendedCourtCaseRequestResponse> updateCourtCaseByHearingId(@PathVariable(value = "hearingId") String hearingId,
@@ -111,7 +119,7 @@ public class CourtCaseController {
     }
 
     @Operation(description = "Returns a case's history.")
-    @GetMapping(value = "/cases/{caseId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/cases/{caseId}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     CourtCaseHistory getCaseHistory(@PathVariable(value = "caseId") String caseId) {
@@ -119,8 +127,23 @@ public class CourtCaseController {
         return courtCaseHistory;
     }
 
+    @Operation(description = "Creates a comment on given court case.")
+    @PostMapping(value = "/cases/{caseId}/comments", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public @ResponseBody
+    CaseCommentResponse createCaseComment(@PathVariable(value = "caseId") String caseId,
+                                          @RequestBody CaseCommentRequest caseCommentRequest) {
+
+        if(!StringUtils.equals(caseId, caseCommentRequest.getCaseId())) {
+            throw new ConflictingInputException(String.format("Case Id '%s' provided in the path does not match the one in the case comment request body submitted '%s'",
+                caseId, caseCommentRequest.getCaseId()));
+        }
+        var caseCommentEntity = caseCommentsService.createCaseComment(caseId,caseCommentRequest.asEntity());
+        return CaseCommentResponse.of(caseCommentEntity);
+    }
+
     @Operation(description = "Returns extended court case data, by hearing id.")
-    @GetMapping(value = "/hearing/{hearingId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/hearing/{hearingId}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     ExtendedCourtCaseRequestResponse getCourtCaseByHearingId(@PathVariable(value = "hearingId") String hearingId) {
@@ -129,7 +152,7 @@ public class CourtCaseController {
     }
 
     @Operation(description = "Saves and returns the offender details by defendant id.")
-    @PutMapping(value = "/defendant/{defendantId}/offender", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/defendant/{defendantId}/offender", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     Mono<DefendantOffender> updateOffenderByDefendantId(@PathVariable(value = "defendantId") String defendantId,
@@ -138,14 +161,14 @@ public class CourtCaseController {
     }
 
     @Operation(description = "Removes defendant offender association by defendant id.")
-    @DeleteMapping(value = "/defendant/{defendantId}/offender", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/defendant/{defendantId}/offender", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public void deleteOffender(@PathVariable(value = "defendantId") String defendantId) {
         offenderUpdateService.removeDefendantOffenderAssociation(defendantId);
     }
 
     @Operation(description = "Returns the offender details by defendant id.")
-    @GetMapping(value = "/defendant/{defendantId}/offender", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/defendant/{defendantId}/offender", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     Mono<DefendantOffender> getOffenderByDefendantId(@PathVariable(value = "defendantId") String defendantId) {

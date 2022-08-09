@@ -6,7 +6,7 @@ plugins {
     id 'org.springframework.boot' version '2.7.2'
     id 'io.spring.dependency-management' version '1.0.12.RELEASE'
     id 'com.github.ben-manes.versions' version '0.42.0'
-    id "org.flywaydb.flyway" version "9.1.0"
+    id "org.flywaydb.flyway" version "9.1.2"
     id 'jacoco'
     id "au.com.dius.pact" version "4.3.13"
     id 'java-library'
@@ -202,7 +202,7 @@ dependencies {
     testImplementation("io.rest-assured:xml-path:$restAssuredVersion")
     testImplementation("io.rest-assured:rest-assured:$restAssuredVersion")
 
-    testImplementation(platform("org.junit:junit-bom:5.8.2"))
+    testImplementation(platform("org.junit:junit-bom:5.9.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
     testImplementation("com.github.tomakehurst:wiremock-jre8:2.33.2")

@@ -227,7 +227,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
         when(courtCaseService.getHearingByHearingId("8bbb4fe3-a899-45c7-bdd4-4ee25ac5a83f")).thenReturn(hearingEntity);
     }
 
-    @State({"a case will be PUT by id"})
+    @State({"a hearing will be PUT by id"})
     void mockPutCourtCaseExtended() {
         final Mono<HearingEntity> caseMono = Mono.just(EntityHelper.aHearingEntity("X340741", "1600028914"));
         when(courtCaseService.createOrUpdateHearingByHearingId(eq("ABCDD32D-3C80-41E8-846E-D274DC2B94A5"), any(HearingEntity.class))).thenReturn(caseMono);

@@ -23,6 +23,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultTypeEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
@@ -148,6 +150,14 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                         .act("Theft act")
                                         .summary("Did a theft")
                                         .title("Thievery")
+                                        .judicialResults(List.of(JudicialResultEntity.builder()
+                                                .isConvictedResult(false)
+                                                .label("label")
+                                                .judicialResultType(JudicialResultTypeEntity.builder()
+                                                        .description("description")
+                                                        .id("id")
+                                                        .build())
+                                                .build()))
                                         .build()))
                                 .build(),
                         HearingDefendantEntity.builder()
@@ -187,6 +197,14 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                         .act("Theft act")
                                         .summary("Did a theft")
                                         .title("Thievery")
+                                        .judicialResults(List.of(JudicialResultEntity.builder()
+                                                .isConvictedResult(false)
+                                                .label("label")
+                                                .judicialResultType(JudicialResultTypeEntity.builder()
+                                                        .description("description")
+                                                        .id("id")
+                                                        .build())
+                                                .build()))
                                         .build()))
                                 .build()))
 

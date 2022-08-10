@@ -201,12 +201,25 @@ public class EntityHelper {
     }
 
     public static OffenceEntity aDefendantOffence(String title, Integer seq) {
-        return OffenceEntity.builder()
-            .summary(OFFENCE_SUMMARY)
-            .title(title)
-            .act(OFFENCE_ACT)
-            .sequence(seq)
-            .build();
+        final var offenceEntity = OffenceEntity.builder()
+                .summary(OFFENCE_SUMMARY)
+                .title(title)
+                .act(OFFENCE_ACT)
+                .sequence(seq)
+                .judicialResults(List.of(JudicialResultEntity.builder()
+                        .isConvictedResult(false)
+                        .label("label")
+                        .judicialResultType(JudicialResultTypeEntity.builder()
+                                .description("description")
+                                .id("id")
+                                .build())
+                        .build()))
+                .build();
+
+        offenceEntity.getJudicialResults().forEach(judicialResultEntity -> {
+            judicialResultEntity.setOffence(offenceEntity);
+        });
+        return offenceEntity;
     }
 
 
@@ -256,7 +269,7 @@ public class EntityHelper {
 
 
     public static HearingEntity aHearingEntityWithJudicialResults(String crn, String caseNo) {
-        var hearingEntity =  aHearingEntity(crn, caseNo, List.of(aHearingDefendantEntityWithJudicialResults(DEFENDANT_ID, crn)));
+        var hearingEntity = aHearingEntity(crn, caseNo, List.of(aHearingDefendantEntityWithJudicialResults(DEFENDANT_ID, crn)));
 
         hearingEntity.getHearingDefendants()
                 .forEach(hearingDefendant -> hearingDefendant.setHearing(hearingEntity));

@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -319,12 +320,14 @@ class ExtendedHearingRequestResponseTest {
                 .offender(Offender.builder().pnc(OFFENDER_PNC).build())
                 .offences(List.of(OffenceRequestResponse.builder()
                                 .act("act2")
+                                .judicialResults(Collections.emptyList())
                                 .build(),
                         OffenceRequestResponse.builder()
                                 .act("act")
                                 .offenceSummary("summary")
                                 .offenceTitle("title")
                                 .listNo(11)
+                                .judicialResults(Collections.emptyList())
                                 .build()
                 ))
                 .build());

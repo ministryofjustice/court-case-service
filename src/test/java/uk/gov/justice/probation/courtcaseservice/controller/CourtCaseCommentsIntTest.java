@@ -35,7 +35,7 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
     private final String caseComment = "{\n" +
         "        \"caseId\": \"1f93aa0a-7e46-4885-a1cb-f25a4be33a00\",\n" +
         "        \"comment\": \"PSR is delayed\",\n" +
-        "        \"userUuid\": \"user-uuid\",\n" +
+        "        \"userUuid\": \"805843a0-caf4-45f7-9711-98b69ba01f83\",\n" +
         "        \"author\": \"Test Author\"\n" +
         "    }";
 

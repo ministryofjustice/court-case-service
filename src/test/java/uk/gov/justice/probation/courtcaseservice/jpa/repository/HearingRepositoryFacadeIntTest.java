@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
@@ -40,13 +41,15 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
     private HearingRepository hearingRepository;
     @Autowired
     private DefendantRepository defendantRepository;
+    @Autowired
+    private CaseCommentsRepository caseCommentsRepository;
 
     private HearingRepositoryFacade hearingRepositoryFacade;
 
     @BeforeEach
     public void setUp() {
         offenderRepositoryFacade = new OffenderRepositoryFacade(offenderRepository);
-        hearingRepositoryFacade = new HearingRepositoryFacade(offenderRepository, offenderRepositoryFacade, hearingRepository, defendantRepository);
+        hearingRepositoryFacade = new HearingRepositoryFacade(offenderRepository, offenderRepositoryFacade, hearingRepository, defendantRepository, caseCommentsRepository);
     }
 
     @Test
@@ -54,6 +57,22 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
         final var actual = hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc("5564cbfd-3d53-4f36-9508-437416b08738");
 
         assertIsFerrisBueller(actual);
+    }
+
+    @Test
+    public void whenFindByHearingIdAndDefendantId_thenReturnCorrectRecordWithOffender() {
+        final var actual = hearingRepositoryFacade.findByHearingIdAndDefendantId("5564cbfd-3d53-4f36-9508-437416b08738", "0048297a-fd9c-4c96-8c03-8122b802a54d");
+
+        assertIsFerrisBueller(actual);
+
+        var hearingEntity = actual.get();
+        List<CaseCommentEntity> caseComments = hearingEntity.getCourtCase().getCaseComments();
+        assertThat(caseComments).hasSize(1);
+        assertThat(caseComments.get(0).getCaseId()).isEqualTo("727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b");
+        assertThat(caseComments.get(0).getId()).isEqualTo(-1700028900);
+        assertThat(caseComments.get(0).getComment()).isEqualTo("PSR in progress");
+        assertThat(caseComments.get(0).getAuthor()).isEqualTo("Author One");
+        assertThat(caseComments.get(0).getCreatedByUuid()).isEqualTo("fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81");
     }
 
     @Test

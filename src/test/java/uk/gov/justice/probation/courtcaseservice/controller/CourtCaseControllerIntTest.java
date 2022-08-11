@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
@@ -468,6 +469,13 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("removed", equalTo(false))
                 .body("createdToday", equalTo(true))
                 .body("numberOfPossibleMatches", equalTo(3))
+                .body("caseComments", hasSize(2))
+                .body("caseComments[0].commentId", notNullValue())
+                .body("caseComments[0].comment", equalTo("PSR in progress"))
+                .body("caseComments[0].author", equalTo("Author One"))
+                .body("caseComments[1].commentId", notNullValue())
+                .body("caseComments[1].comment", equalTo("PSR completed"))
+                .body("caseComments[1].author", equalTo("Author Two"))
             ;
         }
 

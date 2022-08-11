@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -190,6 +191,9 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getProbationStatusActual()).isEqualTo("CURRENT");
 
         assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(3);
+        assertThat(courtCaseResponse.getCaseComments()).hasSize(2);
+        assertThat(courtCaseResponse.getCaseComments().get(0).getCommentId()).isEqualTo(1234L);
+        assertThat(courtCaseResponse.getCaseComments().get(1).getCommentId()).isEqualTo(5678L);
     }
 
     @Test
@@ -345,6 +349,9 @@ class CourtCaseResponseMapperTest {
                         .caseId(CASE_ID)
                         .created(CREATED)
                         .urn(URN)
+                        .caseComments(List.of(
+                            CaseCommentEntity.builder().id(1234L).build(),
+                            CaseCommentEntity.builder().id(5678L).build()))
                         .build())
                 .created(CREATED)
                 .firstCreated(firstCreated)

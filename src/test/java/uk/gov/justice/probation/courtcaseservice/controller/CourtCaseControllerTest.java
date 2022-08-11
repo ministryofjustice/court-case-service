@@ -1,19 +1,22 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRequest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseHistory;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -22,6 +25,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseHistoryService;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
@@ -74,6 +78,8 @@ class CourtCaseControllerTest {
     private OffenderUpdateService offenderUpdateService;
     @Mock
     private CourtCaseHistoryService courtCaseHistoryService;
+    @Mock
+    private CaseCommentsService caseCommentsService;
 
     private CourtCaseController courtCaseController;
     private final HearingEntity hearingEntity = HearingEntity.builder()
@@ -99,7 +105,7 @@ class CourtCaseControllerTest {
 
     @BeforeEach
     public void setUp() {
-        courtCaseController = new CourtCaseController(courtCaseService, courtCaseHistoryService, offenderMatchService, offenderUpdateService, true);
+        courtCaseController = new CourtCaseController(courtCaseService, courtCaseHistoryService, offenderMatchService, offenderUpdateService, caseCommentsService, true);
     }
 
     @Test
@@ -291,7 +297,8 @@ class CourtCaseControllerTest {
 
     @Test
     void givenCacheableCaseListDisabled_whenListIsNotModified_thenReturnFullList() {
-        final var nonCachingController = new CourtCaseController(courtCaseService, courtCaseHistoryService, offenderMatchService, offenderUpdateService, false);
+        final var nonCachingController = new CourtCaseController(courtCaseService, courtCaseHistoryService,
+            offenderMatchService, offenderUpdateService, caseCommentsService, false);
 
         final var courtCaseEntity = this.hearingEntity.withHearingDefendants(List.of(EntityHelper.aHearingDefendantEntity()))
                 .withHearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()
@@ -344,6 +351,39 @@ class CourtCaseControllerTest {
         verify(offenderUpdateService).updateDefendantOffender(DEFENDANT_ID, testDefendant.asEntity());
         assertThat(actual).isEqualTo(DefendantOffender.builder().crn(CRN).suspendedSentenceOrder(false)
             .breach(false).preSentenceActivity(false).build());
+    }
+
+    @Test
+    void whenCreateComment_shouldInvokeCaseCommentsService() {
+        var caseId = "case-id-one";
+        var caseCommentEntity = CaseCommentEntity.builder().comment("comment one").author("Author One").caseId(caseId).build();
+        Mockito.lenient().when(caseCommentsService.createCaseComment(any(CaseCommentEntity.class))).thenReturn(caseCommentEntity.withId(3456L));
+        final var actual = courtCaseController.createCaseComment(caseId,
+            CaseCommentRequest.builder()
+                .caseId(caseId)
+                .comment("comment-one")
+                .author("Test Author")
+                .build());
+
+        verify(caseCommentsService).createCaseComment(any(CaseCommentEntity.class));
+        assertThat(actual).isEqualTo(
+            CaseCommentResponse.builder()
+                .comment("comment one")
+                .caseId(caseId)
+                .author("Author One")
+                .commentId(3456L)
+                .build()
+        );
+    }
+
+    @Test
+    void givenCaseIdDoesNotMatchCaseCommentRequestCaseId_whenCreateComment_shouldThrowConflictingInputException() {
+
+        assertThrows(ConflictingInputException.class, () -> {
+            courtCaseController.createCaseComment("case-id-one", CaseCommentRequest.builder().caseId("invalid-case-id").build());
+        });
+
+        Mockito.verifyNoMoreInteractions(caseCommentsService);
     }
 
     @Test

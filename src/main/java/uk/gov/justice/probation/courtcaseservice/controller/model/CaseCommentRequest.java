@@ -19,6 +19,8 @@ public class CaseCommentRequest {
     @NotBlank
     private final String caseId;
     @NotBlank
+    private final String userUuid;
+    @NotBlank
     private final String comment;
     @NotBlank
     private final String author;
@@ -27,6 +29,7 @@ public class CaseCommentRequest {
         return CaseCommentEntity.builder()
             .comment(comment)
             .caseId(caseId)
+            .createdByUuid(userUuid)
             .author(author)
             .build();
     }

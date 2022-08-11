@@ -48,9 +48,9 @@ VALUES (-1000012, 'Z320755', 'CURRENT', '2010-01-01', true, true, true, true, 'b
 -- START DEFINITION OF CASE NO 1600028913
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type, urn) VALUES (-1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 1600028913, now(), 'LIBRA', 'URN008');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created) VALUES (-1700028900, -1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', now());
-INSERT INTO courtcaseservicetest.case_comments(id, case_id, comment, "author", created, created_by) VALUES (-1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR in progress', 'Author One', now(), 'before-test.sql');
-INSERT INTO courtcaseservicetest.case_comments(id, case_id, comment, "author", created, deleted, created_by) VALUES (-1700028901, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR completed', 'Author One', now(), true, 'before-test.sql');
-INSERT INTO courtcaseservicetest.case_comments(id, case_id, comment, "author", created, created_by) VALUES (-1700028902, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR completed', 'Author Two', now(), 'before-test.sql');
+INSERT INTO courtcaseservicetest.case_comments(id, case_id, comment, "author", created, created_by, created_by_uuid) VALUES (-1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR in progress', 'Author One', now(), 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
+INSERT INTO courtcaseservicetest.case_comments(id, case_id, comment, "author", created, deleted, created_by, created_by_uuid) VALUES (-1700028901, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR completed', 'Author One', now(), true, 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
+INSERT INTO courtcaseservicetest.case_comments(id, case_id, comment, "author", created, created_by, created_by_uuid) VALUES (-1700028902, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR completed', 'Author Two', now(), 'before-test.sql', '389fd9cf-390e-469a-b4cf-6c12024c4cae');
 
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
 VALUES (-1000000, -1700028900, 'B10JQ', 1, '2019-12-14', '09:00', '3rd');

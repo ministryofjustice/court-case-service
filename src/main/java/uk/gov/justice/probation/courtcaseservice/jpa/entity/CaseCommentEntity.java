@@ -36,6 +36,9 @@ public class CaseCommentEntity extends BaseEntity implements Serializable {
     @Column(name = "CASE_ID", updatable = false, nullable = false)
     private final String caseId;
 
+    @Column(name = "CREATED_BY_UUID", updatable = false, nullable = false)
+    private final String createdByUuid;
+
     @Column(name = "COMMENT", nullable = false)
     private final String comment;
 

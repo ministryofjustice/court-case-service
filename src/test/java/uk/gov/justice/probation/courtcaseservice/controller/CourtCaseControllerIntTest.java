@@ -472,10 +472,10 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("caseComments", hasSize(2))
                 .body("caseComments[0].commentId", notNullValue())
                 .body("caseComments[0].comment", equalTo("PSR in progress"))
-                .body("caseComments[0].createdBy", equalTo("before-test.sql"))
+                .body("caseComments[0].author", equalTo("Author One"))
                 .body("caseComments[1].commentId", notNullValue())
                 .body("caseComments[1].comment", equalTo("PSR completed"))
-                .body("caseComments[1].createdBy", equalTo("before-test.sql"))
+                .body("caseComments[1].author", equalTo("Author Two"))
             ;
         }
 

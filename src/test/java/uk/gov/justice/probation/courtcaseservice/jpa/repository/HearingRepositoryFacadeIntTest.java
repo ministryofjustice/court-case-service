@@ -72,6 +72,7 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
         assertThat(caseComments.get(0).getId()).isEqualTo(-1700028900);
         assertThat(caseComments.get(0).getComment()).isEqualTo("PSR in progress");
         assertThat(caseComments.get(0).getAuthor()).isEqualTo("Author One");
+        assertThat(caseComments.get(0).getCreatedByUuid()).isEqualTo("fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81");
     }
 
     @Test

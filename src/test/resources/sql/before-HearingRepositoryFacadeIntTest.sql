@@ -12,8 +12,8 @@ VALUES (-199, -199, '2022-03-23 16:59:59.000', '0048297a-fd9c-4c96-8c03-8122b802
 INSERT INTO courtcaseservicetest.OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)
 VALUES (-199, -199, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 16:59:59.000');
 
-INSERT INTO courtcaseservicetest.case_comments(id, case_id, comment, "author", created, created_by) VALUES (-1700028900, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', 'PSR in progress', 'Author One', now(), 'before-HearingRepositoryFacadeIntTest.sql');
-INSERT INTO courtcaseservicetest.case_comments(id, case_id, comment, "author", created, deleted, created_by) VALUES (-1700028901, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', 'PSR completed', 'Author Two', now(), true, 'before-HearingRepositoryFacadeIntTest.sql');
+INSERT INTO courtcaseservicetest.case_comments(id, case_id, comment, "author", created, created_by, created_by_uuid) VALUES (-1700028900, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', 'PSR in progress', 'Author One', now(), 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
+INSERT INTO courtcaseservicetest.case_comments(id, case_id, comment, "author", created, deleted, created_by, created_by_uuid) VALUES (-1700028901, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', 'PSR completed', 'Author One', now(), true, 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
 
 -- Update to Ferris Bueller
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)

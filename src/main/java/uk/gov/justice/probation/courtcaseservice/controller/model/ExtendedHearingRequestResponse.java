@@ -15,7 +15,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultTypeEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
@@ -120,12 +119,7 @@ public class ExtendedHearingRequestResponse {
                                                             .map(judicialResultEntity -> JudicialResult.builder()
                                                                     .isConvictedResult(judicialResultEntity.isConvictedResult())
                                                                     .label(judicialResultEntity.getLabel())
-                                                                    .judicialResultType(Optional.ofNullable(judicialResultEntity.getJudicialResultType()).map(
-                                                                            judicialResultTypeEntity -> JudicialResultType.builder()
-                                                                                    .description(judicialResultTypeEntity.getDescription())
-                                                                                    .id(judicialResultTypeEntity.getId())
-                                                                                    .build()
-                                                                    ).orElse(null))
+                                                                    .judicialResultTypeId(judicialResultEntity.getJudicialResultTypeId())
                                                                     .build())
                                                             .toList())
                                                     .build())
@@ -244,7 +238,7 @@ public class ExtendedHearingRequestResponse {
                     return JudicialResultEntity.builder()
                             .isConvictedResult(judicialResult.isConvictedResult())
                             .label(judicialResult.getLabel())
-                            .judicialResultType(judicialResult.getJudicialResultType().asEntity())
+                            .judicialResultTypeId(judicialResult.getJudicialResultTypeId())
                             .build();
                 })
                 .collect(Collectors.toList());

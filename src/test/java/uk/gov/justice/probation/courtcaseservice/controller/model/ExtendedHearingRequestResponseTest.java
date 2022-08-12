@@ -359,9 +359,7 @@ class ExtendedHearingRequestResponseTest {
         assertThat(offences.get(0).getJudicialResults()).isNotEmpty();
         assertThat(offences.get(0).getJudicialResults().get(0).isConvictedResult()).isEqualTo(false);
         assertThat(offences.get(0).getJudicialResults().get(0).getLabel()).isEqualTo("label");
-        assertThat(offences.get(0).getJudicialResults().get(0).getJudicialResultType()).isNotNull();
-        assertThat(offences.get(0).getJudicialResults().get(0).getJudicialResultType().getDescription()).isEqualTo("description");
-        assertThat(offences.get(0).getJudicialResults().get(0).getJudicialResultType().getId()).isEqualTo("id");
+        assertThat(offences.get(0).getJudicialResults().get(0).getJudicialResultTypeId()).isEqualTo("judicialResultTypeId");
         assertThat(offences.get(1).getJudicialResults()).isEmpty();
     }
 
@@ -485,10 +483,7 @@ class ExtendedHearingRequestResponseTest {
         return JudicialResult.builder()
                 .isConvictedResult(false)
                 .label("label")
-                .judicialResultType(JudicialResultType.builder()
-                        .description("description")
-                        .id("id")
-                        .build())
+                .judicialResultTypeId("judicialResultTypeId")
                 .build();
     }
 

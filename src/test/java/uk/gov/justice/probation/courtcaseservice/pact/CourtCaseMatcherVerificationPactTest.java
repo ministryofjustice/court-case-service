@@ -24,7 +24,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultTypeEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
@@ -153,10 +152,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                         .judicialResults(List.of(JudicialResultEntity.builder()
                                                 .isConvictedResult(false)
                                                 .label("label")
-                                                .judicialResultType(JudicialResultTypeEntity.builder()
-                                                        .description("description")
-                                                        .id("id")
-                                                        .build())
+                                                .judicialResultTypeId("judicialResultTypeId")
                                                 .build()))
                                         .build()))
                                 .build(),
@@ -200,10 +196,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                         .judicialResults(List.of(JudicialResultEntity.builder()
                                                 .isConvictedResult(false)
                                                 .label("label")
-                                                .judicialResultType(JudicialResultTypeEntity.builder()
-                                                        .description("description")
-                                                        .id("id")
-                                                        .build())
+                                                .judicialResultTypeId("judicialResultTypeId")
                                                 .build()))
                                         .build()))
                                 .build()))

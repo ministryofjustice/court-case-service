@@ -38,9 +38,8 @@ public class JudicialResultEntity extends BaseImmutableEntity implements Seriali
     @Column(name="IS_CONVICTED_RESULT")
     private boolean isConvictedResult;
 
-    @Type(type = "jsonb")
-    @Column(columnDefinition = "jsonb", name = "JUDICIAL_RESULT_TYPE")
-    private final JudicialResultTypeEntity judicialResultType;
+    @Column(name = "JUDICIAL_RESULT_TYPE_ID")
+    private final String judicialResultTypeId;
 
     @ManyToOne
     @JoinColumn(name = "OFFENCE_ID", referencedColumnName = "id")

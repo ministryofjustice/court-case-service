@@ -1,12 +1,18 @@
 package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse.CourtCaseResponseBuilder;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -58,10 +64,19 @@ public class CourtCaseResponseMapper {
             .hearingId(hearingEntity.getHearingId())
             .urn(hearingEntity.getCourtCase().getUrn())
             .source(hearingEntity.getSourceType().name())
-            .createdToday(LocalDate.now().isEqual(Optional.ofNullable(hearingEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()));
+            .createdToday(LocalDate.now().isEqual(Optional.ofNullable(hearingEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()))
+            .caseComments(buildCaseComments(hearingEntity));
+
         if (SourceType.LIBRA == hearingEntity.getSourceType()) {
             builder.caseNo(hearingEntity.getCaseNo());
         }
+    }
+
+    @NotNull
+    private static List<CaseCommentResponse> buildCaseComments(HearingEntity hearingEntity) {
+        return Optional.ofNullable(hearingEntity.getCourtCase().getCaseComments())
+            .map(caseCommentEntities -> caseCommentEntities.stream().map(CaseCommentResponse::of).collect(Collectors.toList()))
+            .orElse(Collections.emptyList());
     }
 
     static void buildHearings(CourtCaseResponseBuilder builder, HearingEntity hearingEntity, LocalDate hearingDate) {

@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
@@ -10,6 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,13 +31,17 @@ public class HearingRepositoryFacade {
     private final OffenderRepositoryFacade offenderRepositoryFacade;
     private final HearingRepository hearingRepository;
     private final DefendantRepository defendantRepository;
+    private final CaseCommentsRepository caseCommentsRepository;
 
     @Autowired
-    public HearingRepositoryFacade(OffenderRepository offenderRepository, OffenderRepositoryFacade offenderRepositoryFacade, HearingRepository hearingRepository, DefendantRepository defendantRepository) {
+    public HearingRepositoryFacade(OffenderRepository offenderRepository, OffenderRepositoryFacade offenderRepositoryFacade,
+                                   HearingRepository hearingRepository, DefendantRepository defendantRepository,
+                                   CaseCommentsRepository caseCommentsRepository) {
         this.offenderRepository = offenderRepository;
         this.offenderRepositoryFacade = offenderRepositoryFacade;
         this.hearingRepository = hearingRepository;
         this.defendantRepository = defendantRepository;
+        this.caseCommentsRepository = caseCommentsRepository;
     }
 
     public Optional<HearingEntity> findFirstByHearingIdOrderByIdDesc(String hearingId) {
@@ -51,7 +57,11 @@ public class HearingRepositoryFacade {
     public Optional<HearingEntity> findByHearingIdAndDefendantId(String hearingId, String defendantId) {
 
         return hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
-                .map(hearingEntity -> findDefendant(hearingEntity, defendantId).isPresent() ? updateWithDefendants(hearingEntity) : null);
+                .map(hearingEntity -> findDefendant(hearingEntity, defendantId).isPresent() ? updateWithDefendants(hearingEntity) : null)
+                .map(hearingEntity -> {
+                    hearingEntity.getCourtCase().setCaseComments(caseCommentsRepository.findAllByCaseIdAndDeletedFalse(hearingEntity.getCaseId()));
+                    return hearingEntity;
+                });
     }
 
     @Deprecated

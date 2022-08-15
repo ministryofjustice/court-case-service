@@ -24,7 +24,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultTypeEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
@@ -153,10 +152,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                         .judicialResults(List.of(JudicialResultEntity.builder()
                                                 .isConvictedResult(false)
                                                 .label("label")
-                                                .judicialResultType(JudicialResultTypeEntity.builder()
-                                                        .description("description")
-                                                        .id("id")
-                                                        .build())
+                                                .judicialResultTypeId("judicialResultTypeId")
                                                 .build()))
                                         .build()))
                                 .build(),
@@ -200,10 +196,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                         .judicialResults(List.of(JudicialResultEntity.builder()
                                                 .isConvictedResult(false)
                                                 .label("label")
-                                                .judicialResultType(JudicialResultTypeEntity.builder()
-                                                        .description("description")
-                                                        .id("id")
-                                                        .build())
+                                                .judicialResultTypeId("judicialResultTypeId")
                                                 .build()))
                                         .build()))
                                 .build()))
@@ -227,7 +220,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
         when(courtCaseService.getHearingByHearingId("8bbb4fe3-a899-45c7-bdd4-4ee25ac5a83f")).thenReturn(hearingEntity);
     }
 
-    @State({"a case will be PUT by id"})
+    @State({"a hearing will be PUT by id"})
     void mockPutCourtCaseExtended() {
         final Mono<HearingEntity> caseMono = Mono.just(EntityHelper.aHearingEntity("X340741", "1600028914"));
         when(courtCaseService.createOrUpdateHearingByHearingId(eq("ABCDD32D-3C80-41E8-846E-D274DC2B94A5"), any(HearingEntity.class))).thenReturn(caseMono);

@@ -15,5 +15,5 @@ import lombok.With;
 public class JudicialResult {
     private boolean isConvictedResult;
     private String label;
-    private JudicialResultType judicialResultType;
+    private String judicialResultTypeId;
 }

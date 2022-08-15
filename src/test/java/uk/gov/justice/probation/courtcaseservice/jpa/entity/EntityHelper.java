@@ -209,10 +209,7 @@ public class EntityHelper {
                 .judicialResults(List.of(JudicialResultEntity.builder()
                         .isConvictedResult(false)
                         .label("label")
-                        .judicialResultType(JudicialResultTypeEntity.builder()
-                                .description("description")
-                                .id("id")
-                                .build())
+                        .judicialResultTypeId("judicialResultTypeId")
                         .build()))
                 .build();
 
@@ -320,10 +317,7 @@ public class EntityHelper {
         return JudicialResultEntity.builder()
                 .isConvictedResult(false)
                 .label(label)
-                .judicialResultType(JudicialResultTypeEntity.builder()
-                        .description("description")
-                        .id(label)
-                        .build())
+                .judicialResultTypeId("judicialResultTypeId")
                 .build();
     }
 }

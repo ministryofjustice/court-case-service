@@ -66,6 +66,7 @@ public class OffenceEntity extends BaseImmutableEntity implements Serializable  
     @Column(name = "LIST_NO", nullable = false)
     private final Integer listNo;
 
+    // Order column is managed by hibernate
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
     @OneToMany(mappedBy = "offence", orphanRemoval=true, cascade = CascadeType.ALL)

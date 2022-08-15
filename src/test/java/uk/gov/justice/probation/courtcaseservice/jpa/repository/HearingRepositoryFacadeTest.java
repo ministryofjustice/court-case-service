@@ -7,6 +7,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
@@ -61,6 +62,8 @@ class HearingRepositoryFacadeTest {
 
                     .build()))
             .build();
+    private static final CaseCommentEntity CASE_COMMENT_ONE = CaseCommentEntity.builder().comment("comment one").build();
+
     private static final String DEFENDANT_ID_2 = "OTHER_DEFENDANT_ID";
     private static final String CRN_2 = "67890";
     private static final OffenderEntity OFFENDER_2 = OffenderEntity.builder()
@@ -86,6 +89,8 @@ class HearingRepositoryFacadeTest {
     private OffenderRepositoryFacade offenderRepositoryFacade;
     @Mock
     private DefendantRepository defendantRepository;
+    @Mock
+    private CaseCommentsRepository caseCommentsRepository;
 
     @Captor
     private ArgumentCaptor<HearingEntity> hearingCaptor;
@@ -126,13 +131,20 @@ class HearingRepositoryFacadeTest {
     }
 
     @Test
-    void whenFindByHearingIdAndDefendantId_thenReturnAHearingWithDefendant() {
+    void whenFindByHearingIdAndDefendantId_thenReturnAHearingWithDefendantAndCaseComments() {
         when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(HEARING));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
+        when(caseCommentsRepository.findAllByCaseIdAndDeletedFalse(COURT_CASE.getCaseId())).thenReturn(List.of(CASE_COMMENT_ONE));
 
         final var actual = facade.findByHearingIdAndDefendantId(HEARING_ID, DEFENDANT_ID);
-        assertThat(actual).get().isEqualTo(HEARING);
-        assertThat(actual.get().getHearingDefendant(DEFENDANT_ID).getDefendant()).isEqualTo(DEFENDANT);
+
+        verify(hearingRepository).findFirstByHearingIdOrderByIdDesc(HEARING_ID);
+        verify(caseCommentsRepository).findAllByCaseIdAndDeletedFalse(COURT_CASE.getCaseId());
+
+        HearingEntity hearing = actual.get();
+        assertThat(hearing).isEqualTo(HEARING);
+        assertThat(hearing.getHearingDefendant(DEFENDANT_ID).getDefendant()).isEqualTo(DEFENDANT);
+        assertThat(hearing.getCourtCase()).isEqualTo(COURT_CASE.withCaseComments(List.of(CASE_COMMENT_ONE)));
     }
 
     @Test

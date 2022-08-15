@@ -7,6 +7,7 @@ TRUNCATE courtcaseservicetest.hearing_defendant CASCADE;
 TRUNCATE courtcaseservicetest.defendant CASCADE;
 TRUNCATE courtcaseservicetest.court_case CASCADE;
 TRUNCATE courtcaseservicetest.court CASCADE;
+TRUNCATE courtcaseservicetest.case_comments CASCADE;
 
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('North Shields', 'B10JQ');
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Sheffield', 'B14LO');

@@ -189,6 +189,8 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3'
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
 
+    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:1.1.8")
+
     testAnnotationProcessor 'org.projectlombok:lombok'
     testRuntimeOnly("org.junit.platform:junit-platform-launcher") {
         because 'allows tests to run from IDEs that bundle older version of launcher'

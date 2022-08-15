@@ -12,6 +12,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 
 import java.time.LocalDate;
@@ -53,9 +55,11 @@ class HearingRepositoryFacadeTest {
     private static final HearingEntity HEARING = HearingEntity.builder()
             .hearingId(HEARING_ID)
             .courtCase(COURT_CASE)
+            .hearingEventType(HearingEventType.CONFIRMED_OR_UPDATED)
             .hearingDefendants(List.of(HearingDefendantEntity.builder()
                     .defendantId(DEFENDANT_ID)
                     .defendant(DEFENDANT)
+
                     .build()))
             .build();
     private static final CaseCommentEntity CASE_COMMENT_ONE = CaseCommentEntity.builder().comment("comment one").build();

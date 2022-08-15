@@ -27,7 +27,7 @@ public class CourtCaseHistoryService {
 
     public CourtCaseHistory getCourtCaseHistory(String caseId) {
         return courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId)
-            .map(courtCaseEntity -> getCourtCaseHistory(courtCaseEntity))
+            .map(this::getCourtCaseHistory)
             .orElseThrow(() -> new EntityNotFoundException("Court case with id {} does not exist", caseId));
     }
 
@@ -35,7 +35,7 @@ public class CourtCaseHistoryService {
         var uniqueDefendantIds = courtCaseEntity.getHearings().stream().map(HearingEntity::getHearingDefendants)
             .flatMap(List::stream).map(HearingDefendantEntity::getDefendantId).collect(Collectors.toSet());
 
-        var defendantEntities = uniqueDefendantIds.stream().map(s -> defendantRepositoryFacade.findFirstByDefendantIdOrderByIdDesc(s))
+        var defendantEntities = uniqueDefendantIds.stream().map(defendantRepositoryFacade::findFirstByDefendantIdOrderByIdDesc)
             .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
 
         return CourtCaseHistory.of(courtCaseEntity, defendantEntities);

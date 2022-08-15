@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
@@ -20,4 +22,6 @@ public class OffenceRequestResponse {
     private final String offenceSummary;
     private final String act;
     private final Integer listNo;
+    private List<JudicialResult> judicialResults;
+
 }

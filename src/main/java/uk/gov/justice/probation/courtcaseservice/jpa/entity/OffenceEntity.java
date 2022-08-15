@@ -10,7 +10,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,9 +21,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Table(name = "OFFENCE")
@@ -28,7 +33,6 @@ import java.io.Serializable;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @Getter
-@ToString(exclude = "hearingDefendant")
 @EqualsAndHashCode(callSuper = true, exclude = "hearingDefendant")
 public class OffenceEntity extends BaseImmutableEntity implements Serializable  {
 
@@ -42,6 +46,7 @@ public class OffenceEntity extends BaseImmutableEntity implements Serializable  
     @JoinColumn(name = "FK_HEARING_DEFENDANT_ID", referencedColumnName = "id")
     @Setter
     @JsonIgnore
+    @ToString.Exclude
     private HearingDefendantEntity hearingDefendant;
 
     @Column(name = "TITLE", nullable = false)
@@ -60,4 +65,12 @@ public class OffenceEntity extends BaseImmutableEntity implements Serializable  
 
     @Column(name = "LIST_NO", nullable = false)
     private final Integer listNo;
+
+    // Order column is managed by hibernate
+    @LazyCollection(value = LazyCollectionOption.FALSE)
+    @JsonIgnore
+    @OneToMany(mappedBy = "offence", orphanRemoval=true, cascade = CascadeType.ALL)
+    @OrderColumn(name = "JUDICIAL_RESULTS_ORDER", nullable = false)
+    @ToString.Exclude
+    private final List<JudicialResultEntity> judicialResults;
 }

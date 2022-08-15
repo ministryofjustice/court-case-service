@@ -2,7 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearingRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingDay;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceRequestResponse;
 
@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Custom constraint validator on @{@link ExtendedCourtCaseRequestResponse} to cross validate listNo from hearingDays
+ * Custom constraint validator on @{@link ExtendedHearingRequestResponse} to cross validate listNo from hearingDays
  * with that of listNo from defendants[].offences[].
  * request with no hearingDays.listNo with defendants[].offence[].listNo is accepted
  * request with hearingDays.listNo and no defendants[].offence[].listNo is accepted
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * request with both is rejected
  */
 @Slf4j
-public class ListNoValidator implements ConstraintValidator<ValidateListNo, ExtendedCourtCaseRequestResponse> {
+public class ListNoValidator implements ConstraintValidator<ValidateListNo, ExtendedHearingRequestResponse> {
 
     @Override
     public void initialize(ValidateListNo constraintAnnotation) {
@@ -32,9 +32,9 @@ public class ListNoValidator implements ConstraintValidator<ValidateListNo, Exte
     }
 
     @Override
-    public boolean isValid(ExtendedCourtCaseRequestResponse extendedCourtCaseRequestResponse,
+    public boolean isValid(ExtendedHearingRequestResponse extendedHearingRequestResponse,
                            ConstraintValidatorContext context) {
-        var validationError = validateListNo(extendedCourtCaseRequestResponse);
+        var validationError = validateListNo(extendedHearingRequestResponse);
         return validationError.map(message -> {
             context.buildConstraintViolationWithTemplate(message)
                     .addConstraintViolation();
@@ -42,14 +42,14 @@ public class ListNoValidator implements ConstraintValidator<ValidateListNo, Exte
         }).orElse(true);
     }
 
-    private List<OffenceRequestResponse> getAllOffences(ExtendedCourtCaseRequestResponse courtCase) {
+    private List<OffenceRequestResponse> getAllOffences(ExtendedHearingRequestResponse courtCase) {
         return Optional.ofNullable(courtCase.getDefendants())
                 .orElse(Collections.emptyList())
                 .stream().map(defendant -> Optional.ofNullable(defendant.getOffences()).orElse(Collections.emptyList()))
                 .flatMap(Collection::stream).collect(Collectors.toList());
     }
 
-    private Optional<String> validateListNo(ExtendedCourtCaseRequestResponse courtCase) {
+    private Optional<String> validateListNo(ExtendedHearingRequestResponse courtCase) {
 
         List<HearingDay> hearingDays = Optional.ofNullable(courtCase.getHearingDays())
                 .orElse(Collections.emptyList());

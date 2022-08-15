@@ -13,8 +13,8 @@ public class EntityHelper {
     public static final String CASE_ID = "ac24a1be-939b-49a4-a524-21a3d228f8bc";
     public static final String HEARING_ID = "75e63d6c-5487-4244-a5bc-7cf8a38992db";
     public static final String COURT_CODE = "B10JQ";
-    public static final String CRN  = "X340906";
-    public static final String URN  = "URN001";
+    public static final String CRN = "X340906";
+    public static final String URN = "URN001";
     public static final String CASE_NO = "1001";
 
     public static final String COURT_ROOM = "1";
@@ -27,10 +27,10 @@ public class EntityHelper {
     public static final String LIST_NO = "1st";
 
     public static final NamePropertiesEntity NAME = NamePropertiesEntity.builder()
-        .forename1("Gordon")
-        .surname("BENNETT")
-        .title("Mr")
-        .build();
+            .forename1("Gordon")
+            .surname("BENNETT")
+            .title("Mr")
+            .build();
     public static final String DEFENDANT_NAME = NAME.getFullName();
     public static final AddressPropertiesEntity DEFENDANT_ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "AB21 3ES", "Bangor", null, null);
     public static final LocalDate DEFENDANT_DOB = LocalDate.of(1958, 12, 14);
@@ -70,12 +70,12 @@ public class EntityHelper {
 
     public static HearingEntity aHearingEntityWithCrn(String crn) {
         return populateBasics(crn)
-            .courtCase(CourtCaseEntity.builder()
-                    .caseId(CASE_ID)
-                    .caseNo(CASE_NO)
-                    .sourceType(SOURCE)
-                    .build())
-            .build();
+                .courtCase(CourtCaseEntity.builder()
+                        .caseId(CASE_ID)
+                        .caseNo(CASE_NO)
+                        .sourceType(SOURCE)
+                        .build())
+                .build();
     }
 
     public static HearingEntity aHearingEntity(String crn, String caseNo) {
@@ -84,14 +84,14 @@ public class EntityHelper {
 
     public static HearingEntity aHearingEntity(String crn, String caseNo, List<HearingDefendantEntity> defendants) {
         return populateBasics(crn)
-            .courtCase(CourtCaseEntity.builder()
-                .caseId(CASE_ID)
-                .caseNo(caseNo)
-                .urn(URN)
-                .sourceType(SOURCE)
-            .build())
-            .hearingDefendants(defendants)
-            .build();
+                .courtCase(CourtCaseEntity.builder()
+                        .caseId(CASE_ID)
+                        .caseNo(caseNo)
+                        .urn(URN)
+                        .sourceType(SOURCE)
+                        .build())
+                .hearingDefendants(defendants)
+                .build();
     }
 
     public static HearingDefendantEntity aHearingDefendantEntity() {
@@ -139,36 +139,36 @@ public class EntityHelper {
 
     private static DefendantEntity aDefendantEntity(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId, String crn) {
         return DefendantEntity.builder()
-            .name(name)
-            .defendantName(name.getFullName())
-            .offender(anOffender(crn))
-            .crn(CRN)
-            .cro(CRO)
-            .pnc(PNC)
-            .type(DefendantType.PERSON)
-            .address(defendantAddress)
-            .dateOfBirth(DEFENDANT_DOB)
-            .sex(Sex.fromString(DEFENDANT_SEX))
-            .nationality1(NATIONALITY_1)
-            .nationality2(NATIONALITY_2)
-            .defendantId(defendantId)
-            .phoneNumber(DEFENDANT_PHONE_NUMBER_ENTITY)
-            .build();
+                .name(name)
+                .defendantName(name.getFullName())
+                .offender(anOffender(crn))
+                .crn(CRN)
+                .cro(CRO)
+                .pnc(PNC)
+                .type(DefendantType.PERSON)
+                .address(defendantAddress)
+                .dateOfBirth(DEFENDANT_DOB)
+                .sex(Sex.fromString(DEFENDANT_SEX))
+                .nationality1(NATIONALITY_1)
+                .nationality2(NATIONALITY_2)
+                .defendantId(defendantId)
+                .phoneNumber(DEFENDANT_PHONE_NUMBER_ENTITY)
+                .build();
     }
 
     public static OffenderEntity anOffender(String crn) {
         return Optional.ofNullable(crn)
-            .map(str -> OffenderEntity.builder()
-                    .crn(str)
-                    .awaitingPsr(AWAITING_PSR)
-                    .breach(BREACH)
-                    .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
-                    .previouslyKnownTerminationDate(TERMINATION_DATE)
-                    .probationStatus(OffenderProbationStatus.of(PROBATION_STATUS))
-                    .suspendedSentenceOrder(SUSPENDED_SENTENCE)
-                    .id(OFFENDER_ID)
-                    .build())
-            .orElse(null);
+                .map(str -> OffenderEntity.builder()
+                        .crn(str)
+                        .awaitingPsr(AWAITING_PSR)
+                        .breach(BREACH)
+                        .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
+                        .previouslyKnownTerminationDate(TERMINATION_DATE)
+                        .probationStatus(OffenderProbationStatus.of(PROBATION_STATUS))
+                        .suspendedSentenceOrder(SUSPENDED_SENTENCE)
+                        .id(OFFENDER_ID)
+                        .build())
+                .orElse(null);
     }
 
     public static HearingDayEntity aHearingDayEntity() {
@@ -178,22 +178,22 @@ public class EntityHelper {
 
     public static HearingDayEntity aHearingDayEntity(LocalDateTime sessionStartTime) {
         return HearingDayEntity.builder()
-            .listNo(LIST_NO)
-            .day(sessionStartTime.toLocalDate())
-            .time(sessionStartTime.toLocalTime())
-            .courtRoom(COURT_ROOM)
-            .courtCode(COURT_CODE)
-            .build();
+                .listNo(LIST_NO)
+                .day(sessionStartTime.toLocalDate())
+                .time(sessionStartTime.toLocalTime())
+                .courtRoom(COURT_ROOM)
+                .courtCode(COURT_CODE)
+                .build();
     }
 
     private static HearingEntity.HearingEntityBuilder populateBasics(String crn) {
         var defendant = aHearingDefendantEntity(DEFENDANT_ID, crn);
         return HearingEntity.builder()
-            .hearingId(HEARING_ID)
-            .deleted(false)
-            .firstCreated(LocalDateTime.now())
-            .hearingDefendants(List.of(defendant))
-            .hearingDays(List.of(aHearingDayEntity()));
+                .hearingId(HEARING_ID)
+                .deleted(false)
+                .firstCreated(LocalDateTime.now())
+                .hearingDefendants(List.of(defendant))
+                .hearingDays(List.of(aHearingDayEntity()));
     }
 
     public static OffenceEntity aDefendantOffence() {
@@ -201,13 +201,24 @@ public class EntityHelper {
     }
 
     public static OffenceEntity aDefendantOffence(String title, Integer seq) {
-        return OffenceEntity.builder()
-            .summary(OFFENCE_SUMMARY)
-            .title(title)
-            .act(OFFENCE_ACT)
-            .sequence(seq)
-            .build();
+        final var offenceEntity = OffenceEntity.builder()
+                .summary(OFFENCE_SUMMARY)
+                .title(title)
+                .act(OFFENCE_ACT)
+                .sequence(seq)
+                .judicialResults(List.of(JudicialResultEntity.builder()
+                        .isConvictedResult(false)
+                        .label("label")
+                        .judicialResultTypeId("judicialResultTypeId")
+                        .build()))
+                .build();
+
+        offenceEntity.getJudicialResults().forEach(judicialResultEntity -> {
+            judicialResultEntity.setOffence(offenceEntity);
+        });
+        return offenceEntity;
     }
+
 
     public static HearingDefendantEntity aHearingDefendant(NamePropertiesEntity name) {
         final var offender = anOffender(CRN);
@@ -251,5 +262,62 @@ public class EntityHelper {
 
     public static HearingDefendantEntity aHearingDefendantEntity(long id, String defendantId) {
         return aHearingDefendant(NAME, anOffender(CRN), id, defendantId);
+    }
+
+
+    public static HearingEntity aHearingEntityWithJudicialResults(String crn, String caseNo) {
+        var hearingEntity = aHearingEntity(crn, caseNo, List.of(aHearingDefendantEntityWithJudicialResults(DEFENDANT_ID, crn)));
+
+        hearingEntity.getHearingDefendants()
+                .forEach(hearingDefendant -> hearingDefendant.setHearing(hearingEntity));
+
+        hearingEntity.getHearingDays()
+                .forEach(hearingDay -> hearingDay.setHearing(hearingEntity));
+        return hearingEntity;
+    }
+
+    public static HearingDefendantEntity aHearingDefendantEntityWithJudicialResults(String defendantId, String crn) {
+        return aHearingDefendantEntityWithJudicialResults(DEFENDANT_ADDRESS, NAME, defendantId, crn);
+    }
+
+    private static HearingDefendantEntity aHearingDefendantEntityWithJudicialResults(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId, String crn) {
+        final HearingDefendantEntity hearingDefendant = HearingDefendantEntity.builder()
+                .defendantId(defendantId)
+                .defendant(aDefendantEntity(defendantAddress, name, defendantId, crn))
+                .offences(List.of(aDefendantOffenceWithJudicialResults()))
+                .build();
+
+
+        hearingDefendant.getOffences()
+                .forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendant));
+        return hearingDefendant;
+    }
+
+    public static OffenceEntity aDefendantOffenceWithJudicialResults() {
+        return aDefendantOffenceWithJudicialResults(OFFENCE_TITLE, 1);
+    }
+
+    public static OffenceEntity aDefendantOffenceWithJudicialResults(String title, Integer seq) {
+        final OffenceEntity offenceEntity = OffenceEntity.builder()
+                .summary(OFFENCE_SUMMARY)
+                .title(title)
+                .act(OFFENCE_ACT)
+                .sequence(seq)
+                .judicialResults(List.of(aJudicialResultEntity("id1"), aJudicialResultEntity("id3"), aJudicialResultEntity("id2"), aJudicialResultEntity("id4")))
+                .build();
+
+        offenceEntity.getJudicialResults().forEach(judicialResultEntity -> {
+            judicialResultEntity.setOffence(offenceEntity);
+        });
+
+        return offenceEntity;
+    }
+
+    public static JudicialResultEntity aJudicialResultEntity(String label) {
+        return JudicialResultEntity.builder()
+                .isConvictedResult(false)
+                .label(label)
+                .judicialResultTypeId("judicialResultTypeId")
+                .build();
     }
 }

@@ -22,7 +22,6 @@ public class OffenceRequestResponse {
     private final String offenceSummary;
     private final String act;
     private final Integer listNo;
-
     private List<JudicialResult> judicialResults;
 
 }

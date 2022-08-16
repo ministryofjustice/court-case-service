@@ -85,4 +85,42 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
             .body("userMessage", equalTo(String.format("Court case %s not found", notFoundCaseId)))
         ;
     }
+
+    @Test
+    void givenCaseIdAndCommentId_whenDeleteComment_shouldMarkCommentAsDeleted() {
+
+        var commentId = -1700028902L;
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .when()
+            .delete("/cases/{caseId}/comments/{commentId}", CASE_ID, commentId)
+            .then()
+            .statusCode(200)
+        ;
+
+        var actualComment = caseCommentsRepository.findById(commentId).get();
+        assertThat(actualComment.isDeleted()).isTrue();
+    }
+
+    @Test
+    void givenNonExistingCommentId_whenDeleteComment_shouldThrowEntityNotFound() {
+
+        var commentId = 123L;
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .when()
+            .delete("/cases/{caseId}/comments/{commentId}", CASE_ID, commentId)
+            .then()
+            .statusCode(404)
+            .body("userMessage", equalTo(String.format("Comment %d not found", commentId)))
+        ;
+    }
 }

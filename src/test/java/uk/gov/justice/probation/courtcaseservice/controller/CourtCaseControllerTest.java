@@ -406,6 +406,14 @@ class CourtCaseControllerTest {
         verify(courtCaseHistoryService).getCourtCaseHistory(caseId);
     }
 
+    @Test
+    void givenCaseIdAndCommentId_shouldInvokeDeleteCommentService() {
+        var caseId = "test-case-id";
+        var commentId = 1234L;
+        courtCaseController.deleteCaseComment(caseId, commentId);
+        verify(caseCommentsService).deleteCaseComment(caseId, commentId);
+    }
+
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, NamePropertiesEntity defendantName, LocalDateTime sessionTime) {
         assertThat(cases.get(position).getCourtRoom()).isEqualTo(courtRoom);
         assertThat(cases.get(position).getName()).isEqualTo(defendantName);

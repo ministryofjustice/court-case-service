@@ -141,6 +141,15 @@ public class CourtCaseController {
         return CaseCommentResponse.of(caseCommentEntity);
     }
 
+    @Operation(description = "Creates a comment on given court case.")
+    @DeleteMapping(value = "/cases/{caseId}/comments/{commentId}")
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    void deleteCaseComment(@PathVariable(value = "caseId") String caseId,
+                           @PathVariable(value = "commentId") Long commentId) {
+        caseCommentsService.deleteCaseComment(caseId, commentId);
+    }
+
     @Operation(description = "Returns extended court case data, by hearing id.")
     @GetMapping(value = "/hearing/{hearingId}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)

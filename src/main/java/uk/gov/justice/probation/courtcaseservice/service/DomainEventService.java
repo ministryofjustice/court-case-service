@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.justice.hmpps.sqs.HmppsQueueService;
 import uk.gov.justice.hmpps.sqs.HmppsTopic;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEventType;
 
@@ -28,7 +29,7 @@ public class DomainEventService {
         return hmppsQueueService.findByTopicId("hmpps-domain-events");
     }
 
-    void emitSentencedEvent() throws JsonProcessingException {
+    void emitSentencedEvent(HearingEntity hearingEntity) throws JsonProcessingException {
         //TODO add required parameters.
 
         var hmppsTopic = getDomainEventTopic();
@@ -36,7 +37,7 @@ public class DomainEventService {
         var sentencedEventMessage = DomainEventMessage.builder()
                 .eventType(DomainEventType.SENTENCED_EVENT_TYPE.getEventTypeName())
                 .version(1)
-                .detailUrl(generateDetailUrl("path", "host", "param")) //TODO
+                .detailUrl(generateDetailUrl("/hearing/", "host", hearingEntity.getHearingId())) //TODO
                 .occurredAt(LocalDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
                 .build();
 

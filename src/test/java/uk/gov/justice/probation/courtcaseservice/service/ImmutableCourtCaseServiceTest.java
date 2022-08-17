@@ -70,6 +70,9 @@ class ImmutableCourtCaseServiceTest {
     private TelemetryService telemetryService;
 
     private ImmutableCourtCaseService service;
+    @Mock
+    private DomainEventService domainEventService;
+
 
     @ExtendWith(MockitoExtension.class)
     @Nested
@@ -82,7 +85,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository);
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService);
             lenient().when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             incomingHearing = EntityHelper.aHearingEntity(CRN, CASE_NO);
             offender = OffenderEntity.builder().crn("X99999").probationStatus(OffenderProbationStatus.of(PROBATION_STATUS)).build();
@@ -109,7 +112,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository);
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService);
             lenient().when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             hearing = EntityHelper.aHearingEntity(CRN, CASE_NO);
         }
@@ -256,7 +259,7 @@ class ImmutableCourtCaseServiceTest {
             verify(courtRepository).findByCourtCode(COURT_CODE);
             verifyNoMoreInteractions(courtRepository, hearingRepositoryFacade, telemetryService);
             assertThat(exception.getMessage()).isEqualTo(String.format("Case Id %s does not match with value from body %s",
-                CASE_ID, "xcx"));
+                    CASE_ID, "xcx"));
         }
     }
 
@@ -269,7 +272,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository);
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService);
             lenient().when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             hearing = EntityHelper.aHearingEntity(CRN, CASE_NO);
         }
@@ -402,20 +405,20 @@ class ImmutableCourtCaseServiceTest {
         void givenCaseIdMismatch_whenCreateOrUpdateCase_thenThrowException() {
             String invalidHearingId = "non-matching-hearing-id";
             hearing = HearingEntity.builder()
-                .hearingId(invalidHearingId)
+                    .hearingId(invalidHearingId)
                     .hearingDays(List.of(
                             HearingDayEntity.builder()
                                     .courtCode(COURT_CODE)
                                     .build()
                     ))
-                .build();
+                    .build();
             final var exception = Assertions.assertThrows(ConflictingInputException.class, () -> {
                 service.createOrUpdateHearingByHearingId(HEARING_ID, hearing).block();
             });
             verify(courtRepository).findByCourtCode(COURT_CODE);
             verifyNoMoreInteractions(courtRepository, hearingRepositoryFacade, telemetryService);
             assertThat(exception.getMessage()).isEqualTo(String.format("Hearing Id %s does not match with value from body %s",
-                HEARING_ID, invalidHearingId));
+                    HEARING_ID, invalidHearingId));
         }
     }
 
@@ -431,7 +434,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository);
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService);
         }
 
         @Test
@@ -450,7 +453,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenUseExtendedCases_filterByHearingDayShouldRetrieveCourtCasesFromRepository() {
-            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository);
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService);
             when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             when(courtEntity.getCourtCode()).thenReturn(COURT_CODE);
             when(hearingRepositoryFacade.findByCourtCodeAndHearingDay(COURT_CODE, SEARCH_DATE, CREATED_AFTER, CREATED_BEFORE))
@@ -516,7 +519,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository);
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService);
         }
 
         @Test
@@ -562,7 +565,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository);
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService);
         }
 
         @Test
@@ -630,13 +633,13 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository);
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService);
         }
 
         @Test
         void giveHearingExistWithHearingId_whenGetByHearingId_thenReturnHearingEntity() {
             when(hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(HEARING_ID))
-                .thenReturn(Optional.of(HearingEntity.builder().build()));
+                    .thenReturn(Optional.of(HearingEntity.builder().build()));
             final var actual = service.getHearingByHearingId(HEARING_ID);
             verify(hearingRepositoryFacade).findFirstByHearingIdOrderByIdDesc(HEARING_ID);
             assertThat(actual).isEqualTo(HearingEntity.builder().build());
@@ -645,8 +648,8 @@ class ImmutableCourtCaseServiceTest {
         @Test
         void giveHearingDoesNoeExistWithHearingId_whenGetByHearingId_thenThrowEntityNotFoundException() {
             when(hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(HEARING_ID))
-                .thenReturn(Optional.ofNullable(null));
-            final var exception =  assertThrows(EntityNotFoundException.class, () -> service.getHearingByHearingId(HEARING_ID));
+                    .thenReturn(Optional.ofNullable(null));
+            final var exception = assertThrows(EntityNotFoundException.class, () -> service.getHearingByHearingId(HEARING_ID));
             assertThat(exception.getMessage()).isEqualTo(String.format("Hearing %s not found", HEARING_ID));
         }
     }

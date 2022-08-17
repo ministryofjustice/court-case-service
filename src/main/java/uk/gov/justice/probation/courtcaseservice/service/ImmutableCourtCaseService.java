@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,15 +35,19 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private final TelemetryService telemetryService;
     private final GroupedOffenderMatchRepository matchRepository;
 
+    private final DomainEventService domainEventService;
+
     @Autowired
     public ImmutableCourtCaseService(CourtRepository courtRepository,
                                      HearingRepositoryFacade hearingRepository,
                                      TelemetryService telemetryService,
-                                     GroupedOffenderMatchRepository matchRepository) {
+                                     GroupedOffenderMatchRepository matchRepository,
+                                     DomainEventService domainEventService) {
         this.courtRepository = courtRepository;
         this.hearingRepository = hearingRepository;
         this.telemetryService = telemetryService;
         this.matchRepository = matchRepository;
+        this.domainEventService = domainEventService;
     }
 
     @Override
@@ -61,7 +66,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         validateCourtCode(updatedHearing);
         if (!StringUtils.equals(hearingId, updatedHearing.getHearingId())) {
             throw new ConflictingInputException(String.format("Hearing Id %s does not match with value from body %s",
-                hearingId, updatedHearing.getHearingId()));
+                    hearingId, updatedHearing.getHearingId()));
         }
 
         return createOrUpdateHearing(hearingId, updatedHearing);
@@ -79,7 +84,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     public HearingEntity getHearingByHearingId(String hearingId) throws EntityNotFoundException {
         log.info("Court case requested for hearing ID {}", hearingId);
         return hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
-            .orElseThrow(() -> new EntityNotFoundException(String.format("Hearing %s not found", hearingId)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Hearing %s not found", hearingId)));
     }
 
     @Override
@@ -103,20 +108,36 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     private Mono<HearingEntity> createOrUpdateHearing(String hearingId, HearingEntity updatedHearing) {
         hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
-            .ifPresentOrElse(
-                existingHearing -> {
-                    updatedHearing.getHearingDefendants()
-                        .stream().map(HearingDefendantEntity::getDefendant)
-                        .forEach(defendantEntity -> updateOffenderMatches(existingHearing, updatedHearing, defendantEntity.getDefendantId()));
-                    trackUpdateEvents(existingHearing, updatedHearing);
-                },
-                () -> trackCreateEvents(updatedHearing));
+                .ifPresentOrElse(
+                        existingHearing -> {
+                            updatedHearing.getHearingDefendants()
+                                    .stream().map(HearingDefendantEntity::getDefendant)
+                                    .forEach(defendantEntity -> updateOffenderMatches(existingHearing, updatedHearing, defendantEntity.getDefendantId()));
+                            trackUpdateEvents(existingHearing, updatedHearing);
+                        },
+                        () -> trackCreateEvents(updatedHearing));
+
+        if (hasSentencedEventType(updatedHearing)) {
+            emitSentencedEvent(updatedHearing);
+        }
 
         return Mono.just(updatedHearing)
-            .map(hearingEntity -> {
-                log.debug("Saving hearing with ID {}", hearingId);
-                return hearingRepository.save(hearingEntity);
-            });
+                .map(hearingEntity -> {
+                    log.debug("Saving hearing with ID {}", hearingId);
+                    return hearingRepository.save(hearingEntity);
+                });
+    }
+
+    private boolean hasSentencedEventType(HearingEntity hearingEntity) {
+        return hearingEntity.getHearingEventType() != null && hearingEntity.getHearingEventType().equals(HearingEventType.RESULTED);
+    }
+
+    private void emitSentencedEvent(HearingEntity hearingEntity) {
+        try {
+            domainEventService.emitSentencedEvent(hearingEntity);
+        } catch (JsonProcessingException e) {
+            log.error("Emit sentenced event failed {}", e.getMessage());
+        }
     }
 
     private void trackCreateEvents(HearingEntity createdCase) {
@@ -126,7 +147,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                     if (hearingDefendantEntity.getDefendant().getOffender() != null) {
                         telemetryService.trackCourtCaseDefendantEvent(TelemetryEventType.DEFENDANT_LINKED, hearingDefendantEntity, createdCase.getCaseId());
                     }
-        }));
+                }));
     }
 
     private void trackUpdateEvents(HearingEntity existingCase, HearingEntity updatedCase) {
@@ -238,9 +259,9 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                     match.getId(), defendantId, match.getCro(),
                     Optional.ofNullable(existingCase.getHearingDefendants())
                             .map(defendantEntities -> defendantEntities.stream()
-                                .map(HearingDefendantEntity::getDefendant)
-                                .map(DefendantEntity::getCro)
-                                .collect(Collectors.toList())).orElse(null)
+                                    .map(HearingDefendantEntity::getDefendant)
+                                    .map(DefendantEntity::getCro)
+                                    .collect(Collectors.toList())).orElse(null)
             );
         }
     }

@@ -8,6 +8,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
@@ -49,6 +50,7 @@ class ExtendedHearingRequestResponseTest {
         final var request = ExtendedHearingRequestResponse.builder()
                 .caseId("CASE_ID")
                 .hearingId("HEARING_ID")
+                .hearingEventType("ConfirmedOrUpdated")
                 .urn(URN)
                 .hearingDays(List.of(
                         HearingDay.builder()
@@ -65,21 +67,21 @@ class ExtendedHearingRequestResponseTest {
                                 .build()))
                 .build();
 
-        final var courtCaseEntity = request.asHearingEntity();
+        final var hearingEntity = request.asHearingEntity();
 
-        assertThat(courtCaseEntity.getCaseId()).isEqualTo("CASE_ID");
-        assertThat(courtCaseEntity.getHearingId()).isEqualTo("HEARING_ID");
-        assertThat(courtCaseEntity.getCourtCase().getUrn()).isEqualTo(URN);
-
-        assertThat(courtCaseEntity.getHearingDays()).hasSize(2);
-        assertThat(courtCaseEntity.getHearingDays()).extracting("listNo").contains("1st", "2nd");
-        assertThat(courtCaseEntity.getHearingDays()).extracting("courtCode").containsOnly(COURT_CODE);
-        assertThat(courtCaseEntity.getHearingDays()).extracting("courtRoom").containsOnly(COURT_ROOM);
-        assertThat(courtCaseEntity.getHearingDays()).extracting("courtRoom").containsOnly(COURT_ROOM);
-        assertThat(courtCaseEntity.getHearingDays()).extracting("day").containsOnly(SESSION_START_TIME.toLocalDate());
+        assertThat(hearingEntity.getCaseId()).isEqualTo("CASE_ID");
+        assertThat(hearingEntity.getHearingId()).isEqualTo("HEARING_ID");
+        assertThat(hearingEntity.getCourtCase().getUrn()).isEqualTo(URN);
+        assertThat(hearingEntity.getHearingEventType()).isEqualTo(HearingEventType.CONFIRMED_OR_UPDATED);
+        assertThat(hearingEntity.getHearingDays()).hasSize(2);
+        assertThat(hearingEntity.getHearingDays()).extracting("listNo").contains("1st", "2nd");
+        assertThat(hearingEntity.getHearingDays()).extracting("courtCode").containsOnly(COURT_CODE);
+        assertThat(hearingEntity.getHearingDays()).extracting("courtRoom").containsOnly(COURT_ROOM);
+        assertThat(hearingEntity.getHearingDays()).extracting("courtRoom").containsOnly(COURT_ROOM);
+        assertThat(hearingEntity.getHearingDays()).extracting("day").containsOnly(SESSION_START_TIME.toLocalDate());
         final var localTime = SESSION_START_TIME.toLocalTime();
-        assertThat(courtCaseEntity.getHearingDays()).extracting("time").containsOnly(localTime, localTime.plusMinutes(30));
-        assertThat(courtCaseEntity.getHearingDays().get(0).getHearing()).isSameAs(courtCaseEntity);
+        assertThat(hearingEntity.getHearingDays()).extracting("time").containsOnly(localTime, localTime.plusMinutes(30));
+        assertThat(hearingEntity.getHearingDays().get(0).getHearing()).isSameAs(hearingEntity);
     }
 
     @Test
@@ -103,21 +105,21 @@ class ExtendedHearingRequestResponseTest {
                                 .build()))
                 .build();
 
-        final var courtCaseEntity = request.asHearingEntity();
+        final var hearingEntity = request.asHearingEntity();
 
-        assertThat(courtCaseEntity.getCaseId()).isEqualTo("CASE_ID");
-        assertThat(courtCaseEntity.getHearingId()).isEqualTo("CASE_ID");
-        assertThat(courtCaseEntity.getCourtCase().getUrn()).isEqualTo(URN);
+        assertThat(hearingEntity.getCaseId()).isEqualTo("CASE_ID");
+        assertThat(hearingEntity.getHearingId()).isEqualTo("CASE_ID");
+        assertThat(hearingEntity.getCourtCase().getUrn()).isEqualTo(URN);
 
-        assertThat(courtCaseEntity.getHearingDays()).hasSize(2);
-        assertThat(courtCaseEntity.getHearingDays()).extracting("listNo").contains("1st", "2nd");
-        assertThat(courtCaseEntity.getHearingDays()).extracting("courtCode").containsOnly(COURT_CODE);
-        assertThat(courtCaseEntity.getHearingDays()).extracting("courtRoom").containsOnly(COURT_ROOM);
-        assertThat(courtCaseEntity.getHearingDays()).extracting("courtRoom").containsOnly(COURT_ROOM);
-        assertThat(courtCaseEntity.getHearingDays()).extracting("day").containsOnly(SESSION_START_TIME.toLocalDate());
+        assertThat(hearingEntity.getHearingDays()).hasSize(2);
+        assertThat(hearingEntity.getHearingDays()).extracting("listNo").contains("1st", "2nd");
+        assertThat(hearingEntity.getHearingDays()).extracting("courtCode").containsOnly(COURT_CODE);
+        assertThat(hearingEntity.getHearingDays()).extracting("courtRoom").containsOnly(COURT_ROOM);
+        assertThat(hearingEntity.getHearingDays()).extracting("courtRoom").containsOnly(COURT_ROOM);
+        assertThat(hearingEntity.getHearingDays()).extracting("day").containsOnly(SESSION_START_TIME.toLocalDate());
         final var localTime = SESSION_START_TIME.toLocalTime();
-        assertThat(courtCaseEntity.getHearingDays()).extracting("time").containsOnly(localTime, localTime.plusMinutes(30));
-        assertThat(courtCaseEntity.getHearingDays().get(0).getHearing()).isSameAs(courtCaseEntity);
+        assertThat(hearingEntity.getHearingDays()).extracting("time").containsOnly(localTime, localTime.plusMinutes(30));
+        assertThat(hearingEntity.getHearingDays().get(0).getHearing()).isSameAs(hearingEntity);
     }
 
     @Test
@@ -194,11 +196,11 @@ class ExtendedHearingRequestResponseTest {
                 .defendants(List.of(defendant))
                 .build();
 
-        final var courtCaseEntity = request.asHearingEntity();
+        final var hearingEntity = request.asHearingEntity();
 
-        assertThat(courtCaseEntity.getHearingDefendants()).hasSize(1);
-        assertThat(courtCaseEntity.getHearingDefendants().get(0).getOffences()).isEmpty();
-        assertThat(courtCaseEntity.getHearingDefendants().get(0).getDefendant().getOffender()).isNull();
+        assertThat(hearingEntity.getHearingDefendants()).hasSize(1);
+        assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).isEmpty();
+        assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getOffender()).isNull();
     }
 
     @Test
@@ -216,8 +218,8 @@ class ExtendedHearingRequestResponseTest {
                 .defendants(List.of(defendant))
                 .build();
 
-        final var courtCaseEntity = request.asHearingEntity();
-        final var offender = courtCaseEntity.getHearingDefendants().get(0).getDefendant().getOffender();
+        final var hearingEntity = request.asHearingEntity();
+        final var offender = hearingEntity.getHearingDefendants().get(0).getDefendant().getOffender();
         assertThat(offender).isNotNull();
         assertThat(offender.isBreach()).isEqualTo(false);
         assertThat(offender.isPreSentenceActivity()).isEqualTo(false);
@@ -232,12 +234,12 @@ class ExtendedHearingRequestResponseTest {
                 .caseId(CASE_ID)
                 .build();
 
-        final var courtCaseEntity = request.asHearingEntity();
+        final var hearingEntity = request.asHearingEntity();
 
-        assertThat(courtCaseEntity.getHearingDays()).isEmpty();
-        assertThat(courtCaseEntity.getHearingDefendants()).isEmpty();
-        assertThat(courtCaseEntity.getCaseNo()).isEqualTo(CASE_NO);
-        assertThat(courtCaseEntity.getSourceType()).isEqualTo(DEFAULT_SOURCE);
+        assertThat(hearingEntity.getHearingDays()).isEmpty();
+        assertThat(hearingEntity.getHearingDefendants()).isEmpty();
+        assertThat(hearingEntity.getCaseNo()).isEqualTo(CASE_NO);
+        assertThat(hearingEntity.getSourceType()).isEqualTo(DEFAULT_SOURCE);
     }
 
     @Test
@@ -249,11 +251,11 @@ class ExtendedHearingRequestResponseTest {
                 .defendants(List.of(buildDefendant("male")))
                 .build();
 
-        final var courtCaseEntity = request.asHearingEntity();
+        final var hearingEntity = request.asHearingEntity();
 
-        assertThat(courtCaseEntity.getHearingDays()).isEmpty();
-        assertThat(courtCaseEntity.getHearingDefendants()).hasSize(1);
-        assertThat(courtCaseEntity.getHearingDefendants().get(0).getDefendant().getSex()).isEqualTo(Sex.MALE);
+        assertThat(hearingEntity.getHearingDays()).isEmpty();
+        assertThat(hearingEntity.getHearingDefendants()).hasSize(1);
+        assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getSex()).isEqualTo(Sex.MALE);
     }
 
     @Test
@@ -265,25 +267,26 @@ class ExtendedHearingRequestResponseTest {
                 .defendants(List.of(buildDefendant(null)))
                 .build();
 
-        final var courtCaseEntity = request.asHearingEntity();
+        final var hearingEntity = request.asHearingEntity();
 
-        assertThat(courtCaseEntity.getHearingDays()).isEmpty();
-        assertThat(courtCaseEntity.getHearingDefendants()).hasSize(1);
-        assertThat(courtCaseEntity.getHearingDefendants().get(0).getDefendant().getSex()).isEqualTo(Sex.NOT_KNOWN);
+        assertThat(hearingEntity.getHearingDays()).isEmpty();
+        assertThat(hearingEntity.getHearingDefendants()).hasSize(1);
+        assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getSex()).isEqualTo(Sex.NOT_KNOWN);
     }
 
     @Test
     void whenOfCourtCase_thenReturn() {
 
-        final var courtCaseEntity = buildEntity();
+        final var hearingEntity = buildEntity();
 
-        final var actual = ExtendedHearingRequestResponse.of(courtCaseEntity);
+        final var actual = ExtendedHearingRequestResponse.of(hearingEntity);
 
         assertThat(actual.getSource()).isEqualTo("LIBRA");
         assertThat(actual.getCaseId()).isEqualTo(CASE_ID);
         assertThat(actual.getUrn()).isEqualTo(URN);
         assertThat(actual.getHearingId()).isEqualTo("HEARING_ID");
         assertThat(actual.getCaseNo()).isEqualTo(CASE_NO);
+        assertThat(actual.getHearingEventType()).isEqualTo("ConfirmedOrUpdated");
         assertThat(actual.getHearingDays().get(0)).isEqualTo(HearingDay.builder()
                 .courtRoom(COURT_ROOM)
                 .courtCode(COURT_CODE)
@@ -366,6 +369,7 @@ class ExtendedHearingRequestResponseTest {
     private HearingEntity buildEntity() {
         return HearingEntity.builder()
                 .hearingId("HEARING_ID")
+                .hearingEventType(HearingEventType.CONFIRMED_OR_UPDATED)
                 .courtCase(CourtCaseEntity.builder()
                         .sourceType(SourceType.LIBRA)
                         .caseId(CASE_ID)

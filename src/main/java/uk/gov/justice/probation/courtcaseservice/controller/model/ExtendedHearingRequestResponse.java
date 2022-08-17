@@ -63,7 +63,7 @@ public class ExtendedHearingRequestResponse {
                 .hearingId(hearing.getHearingId())
                 .urn(hearing.getCourtCase().getUrn())
                 .source(hearing.getSourceType().name())
-                .hearingEventType(Optional.ofNullable(hearing.getHearingEventType()).map(Enum::name).orElse(null))
+                .hearingEventType(Optional.ofNullable(hearing.getHearingEventType()).map(HearingEventType::getName).orElse(null))
                 .hearingDays(hearing.getHearingDays().stream()
                         .map(hearingEntity -> HearingDay.builder()
                                 .courtCode(hearingEntity.getCourtCode())

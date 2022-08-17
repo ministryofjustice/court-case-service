@@ -94,7 +94,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             .body("hearingId", equalTo(JSON_HEARING_ID))
             .body("urn", equalTo(URN))
             .body("source", equalTo("COMMON_PLATFORM"))
-            .body("hearingEventType", equalTo("CONFIRMED_OR_UPDATED"))
+            .body("hearingEventType", equalTo("ConfirmedOrUpdated"))
             .body("defendants", hasSize(1))
             .body("defendants[0].offences",  hasSize(2))
             .body("defendants[0].type",  equalTo("PERSON"))
@@ -120,6 +120,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             assertThat(hearingEntity.getCaseId()).isEqualTo(JSON_CASE_ID);
             assertThat(hearingEntity.getHearingId()).isEqualTo(JSON_HEARING_ID);
             assertThat(hearingEntity.getCourtCase().getUrn()).isEqualTo(URN);
+            assertThat(hearingEntity.getHearingEventType().getName()).isEqualTo("ConfirmedOrUpdated");
             assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
             assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPhoneNumber()).isEqualTo(
                     PhoneNumberEntity.builder().home("07000000013").mobile("07000000014").work("07000000015").build());

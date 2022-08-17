@@ -8,7 +8,7 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.42.0'
     id "org.flywaydb.flyway" version "9.1.5"
     id 'jacoco'
-    id "au.com.dius.pact" version "4.3.13"
+    id "au.com.dius.pact" version "4.3.14"
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm' version '1.7.10'
 }
@@ -31,7 +31,7 @@ group = 'uk.gov.justice.probation'
 
 ext {
     restAssuredVersion = '5.1.1'
-    pactVersion = '4.3.13'
+    pactVersion = '4.3.14'
 }
 
 def today = Instant.now()
@@ -187,7 +187,7 @@ dependencies {
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.4'
     implementation 'net.logstash.logback:logstash-logback-encoder:7.2'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3'
-    implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.10'
 
     testAnnotationProcessor 'org.projectlombok:lombok'
     testRuntimeOnly("org.junit.platform:junit-platform-launcher") {

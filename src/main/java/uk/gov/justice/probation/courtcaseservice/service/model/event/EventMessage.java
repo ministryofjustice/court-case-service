@@ -22,7 +22,7 @@ public class EventMessage {
     private final String detailUrl;
     @NotBlank
     private final String occurredAt;
-    private final String additionalInformation;
-    private final String personReference;
+    private final AdditionalInformation additionalInformation;
+    private final PersonReference personReference;
 
 }

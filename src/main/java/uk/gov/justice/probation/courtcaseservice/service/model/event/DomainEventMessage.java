@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class EventMessage {
+public class DomainEventMessage {
     @NotBlank
     private final String eventType;
     @NotBlank

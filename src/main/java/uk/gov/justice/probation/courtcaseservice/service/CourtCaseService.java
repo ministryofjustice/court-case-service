@@ -20,7 +20,7 @@ public interface CourtCaseService {
     Mono<HearingEntity> createHearing(String caseId, HearingEntity updatedCase)
         throws EntityNotFoundException, InputMismatchException;
 
-    Mono<HearingEntity> createHearingByHearingId(String hearingId, HearingEntity updatedHearing) throws EntityNotFoundException, InputMismatchException;
+    Mono<HearingEntity> createOrUpdateHearingByHearingId(String hearingId, HearingEntity updatedHearing) throws EntityNotFoundException, InputMismatchException;
 
     List<HearingEntity> filterHearings(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore);
 

@@ -4,6 +4,7 @@
   "hearingId": "75e63d6c-5487-4244-a5bc-7cf8a38992db",
   "urn": "URN007",
   "source": "COMMON_PLATFORM",
+  "hearingEventType": "ConfirmedOrUpdated",
   "hearingDays": [
     {
       "courtCode": "B14LO",
@@ -51,7 +52,33 @@
           "offenceTitle": "Theft from a shop",
           "offenceSummary": "On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.",
           "act": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
-          "listNo": 5
+          "listNo": 5,
+          "judicialResults": [
+            {
+              "isConvictedResult": false,
+              "label": "Label-1",
+              "judicialResultType": {
+                "description": "Description-1",
+                "id": "ID-ONE"
+              }
+            },
+            {
+              "isConvictedResult": false,
+              "label": "Label-2",
+              "judicialResultType": {
+                "description": "Description-2",
+                "id": "ID-TWO"
+              }
+            },
+            {
+              "isConvictedResult": false,
+              "label": "Label-3",
+              "judicialResultType": {
+                "description": "Description-3",
+                "id": "ID 3"
+              }
+            }
+          ]
         },
         {
           "offenceTitle": "Theft from a different shop",

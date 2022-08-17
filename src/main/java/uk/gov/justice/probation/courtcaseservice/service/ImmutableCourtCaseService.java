@@ -51,20 +51,20 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     public Mono<HearingEntity> createHearing(String caseId, HearingEntity updatedHearing) throws EntityNotFoundException, InputMismatchException {
         validateEntity(caseId, updatedHearing);
 
-        return createHearingInternal(Optional.ofNullable(updatedHearing.getHearingId()).orElse(caseId), updatedHearing);
+        return createOrUpdateHearing(Optional.ofNullable(updatedHearing.getHearingId()).orElse(caseId), updatedHearing);
     }
 
     @Override
     @Retryable(value = CannotAcquireLockException.class)
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public Mono<HearingEntity> createHearingByHearingId(String hearingId, HearingEntity updatedHearing) throws EntityNotFoundException, InputMismatchException {
+    public Mono<HearingEntity> createOrUpdateHearingByHearingId(String hearingId, HearingEntity updatedHearing) throws EntityNotFoundException, InputMismatchException {
         validateCourtCode(updatedHearing);
         if (!StringUtils.equals(hearingId, updatedHearing.getHearingId())) {
             throw new ConflictingInputException(String.format("Hearing Id %s does not match with value from body %s",
                 hearingId, updatedHearing.getHearingId()));
         }
 
-        return createHearingInternal(hearingId, updatedHearing);
+        return createOrUpdateHearing(hearingId, updatedHearing);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         return hearingRepository.findLastModifiedByHearingDay(courtCode, searchDate);
     }
 
-    private Mono<HearingEntity> createHearingInternal(String hearingId, HearingEntity updatedHearing) {
+    private Mono<HearingEntity> createOrUpdateHearing(String hearingId, HearingEntity updatedHearing) {
         hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
             .ifPresentOrElse(
                 existingHearing -> {
@@ -114,7 +114,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
         return Mono.just(updatedHearing)
             .map(hearingEntity -> {
-                log.debug("Saving case ID {}", hearingId);
+                log.debug("Saving hearing with ID {}", hearingId);
                 return hearingRepository.save(hearingEntity);
             });
     }

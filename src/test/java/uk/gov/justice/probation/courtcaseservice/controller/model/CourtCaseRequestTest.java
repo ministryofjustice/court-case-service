@@ -11,6 +11,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.AWAITING_PSR;
@@ -51,8 +53,8 @@ class CourtCaseRequestTest {
                 .breach(BREACH)
                 .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
                 .offences(Arrays.asList(
-                                new OffenceRequestResponse("OFFENCE_TITLE1", "OFFENCE_SUMMARY1", "ACT1", 10),
-                                new OffenceRequestResponse("OFFENCE_TITLE2", "OFFENCE_SUMMARY2", "ACT2", 20)
+                                new OffenceRequestResponse("OFFENCE_TITLE1", "OFFENCE_SUMMARY1", "ACT1", 10, Collections.emptyList()),
+                                new OffenceRequestResponse("OFFENCE_TITLE2", "OFFENCE_SUMMARY2", "ACT2", 20, Collections.emptyList())
                         )
                 )
                 .defendantDob(DEFENDANT_DOB)

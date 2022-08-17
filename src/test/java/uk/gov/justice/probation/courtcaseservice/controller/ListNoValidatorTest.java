@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.controller.model.Defendant;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearingRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingDay;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
@@ -64,7 +64,7 @@ class ListNoValidatorTest {
     @Test
     void whenListNoInNeitherOfHearingDaysAndDefendantOffences_thenFailValidation() {
 
-        var courtCase = ExtendedCourtCaseRequestResponse.builder()
+        var courtCase = ExtendedHearingRequestResponse.builder()
                 .hearingDays(HEARING_DAYS_WITHOUT_LIST_NO).defendants(
                         List.of(Defendant.builder().offences(OFFENCES_WITHOUT_LIST_NO).build(),
                         Defendant.builder().offences(OFFENCES_WITHOUT_LIST_NO).build())).build();
@@ -78,7 +78,7 @@ class ListNoValidatorTest {
     @Test
     void whenListNoIsInBothHearingDaysAndDefendantOffences_thenFailValidation() {
 
-        var courtCase = ExtendedCourtCaseRequestResponse.builder()
+        var courtCase = ExtendedHearingRequestResponse.builder()
                 .hearingDays(HEARING_DAYS_WITH_LIST_NO).defendants(
                         List.of(Defendant.builder().offences(OFFENCES_WITH_LIST_NO).build())).build();
 
@@ -93,7 +93,7 @@ class ListNoValidatorTest {
         var hearingDays = new ArrayList<HearingDay>(List.of(HearingDay.builder().build()));
         hearingDays.addAll(HEARING_DAYS_WITH_LIST_NO);
 
-        var courtCase = ExtendedCourtCaseRequestResponse.builder()
+        var courtCase = ExtendedHearingRequestResponse.builder()
                 .hearingDays(hearingDays).defendants(List.of(Defendant.builder().offences(OFFENCES_WITHOUT_LIST_NO).build())).build();
 
         assertThat(LIST_NO_VALIDATOR.isValid(courtCase, constraintValidatorContext)).isFalse();
@@ -108,7 +108,7 @@ class ListNoValidatorTest {
                 HearingDay.builder().build(),
                 HearingDay.builder().build());
 
-        var courtCase = ExtendedCourtCaseRequestResponse.builder()
+        var courtCase = ExtendedHearingRequestResponse.builder()
                 .hearingDays(hearingDays).defendants(
                         List.of(Defendant.builder().offences(OFFENCES_WITH_LIST_NO).build(),
                                 Defendant.builder().offences(OFFENCES_WITHOUT_LIST_NO).build())
@@ -122,7 +122,7 @@ class ListNoValidatorTest {
     @Test
     void givenPutWith_NoListNoInHearingDays_WithListNoInDefendantOffences_Accepted() {
 
-        var courtCase = ExtendedCourtCaseRequestResponse.builder()
+        var courtCase = ExtendedHearingRequestResponse.builder()
                 .hearingDays(HEARING_DAYS_WITHOUT_LIST_NO).defendants(
                         List.of(Defendant.builder().name(NamePropertiesEntity.builder().forename1("Foreone").surname("Surone").build())
                                         .offences(OFFENCES_WITH_LIST_NO).build(),
@@ -137,7 +137,7 @@ class ListNoValidatorTest {
     @Test
     void whenNoListNoInDefendantOffences_WithListNoInHearingDays_Accepted() {
 
-        var courtCase = ExtendedCourtCaseRequestResponse.builder()
+        var courtCase = ExtendedHearingRequestResponse.builder()
                 .hearingDays(HEARING_DAYS_WITH_LIST_NO).defendants(
                         List.of(Defendant.builder().name(NamePropertiesEntity.builder().forename1("Foreone").surname("Surone").build())
                                         .offences(OFFENCES_WITHOUT_LIST_NO).build(),

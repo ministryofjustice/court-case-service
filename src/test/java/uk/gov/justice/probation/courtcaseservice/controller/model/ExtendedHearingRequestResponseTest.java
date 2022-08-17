@@ -19,10 +19,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedCourtCaseRequestResponse.DEFAULT_SOURCE;
+import static uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearingRequestResponse.DEFAULT_SOURCE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
@@ -40,12 +41,12 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SESSION_START_TIME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.URN;
 
-class ExtendedCourtCaseRequestResponseTest {
+class ExtendedHearingRequestResponseTest {
 
     @Test
     void givenHearings_whenAsEntity_thenReturn() {
 
-        final var request = ExtendedCourtCaseRequestResponse.builder()
+        final var request = ExtendedHearingRequestResponse.builder()
                 .caseId("CASE_ID")
                 .hearingId("HEARING_ID")
                 .urn(URN)
@@ -84,7 +85,7 @@ class ExtendedCourtCaseRequestResponseTest {
     @Test
     void givenNoCaseId_whenAsEntity_thenReturnCaseIdAsHearingId() {
 
-        final var request = ExtendedCourtCaseRequestResponse.builder()
+        final var request = ExtendedHearingRequestResponse.builder()
                 .caseId("CASE_ID")
                 .urn(URN)
                 .hearingDays(List.of(
@@ -125,7 +126,7 @@ class ExtendedCourtCaseRequestResponseTest {
         final var previouslyKnownTerminationDate = LocalDate.of(2021, Month.MARCH, 20);
         final var defendant = buildDefendant("M");
 
-        final var request = ExtendedCourtCaseRequestResponse.builder()
+        final var request = ExtendedHearingRequestResponse.builder()
                 .defendants(List.of(defendant))
                 .build();
 
@@ -143,8 +144,8 @@ class ExtendedCourtCaseRequestResponseTest {
         assertThat(hearingEntity.getHearingDefendants()).hasSize(1);
 
         final var hearingDefendantEntity = hearingEntity.getHearingDefendants().get(0);
-         assertThat(hearingDefendantEntity.getHearing()).isSameAs(hearingEntity);
-         assertThat(hearingDefendantEntity.getDefendantId()).isSameAs(DEFENDANT_ID);
+        assertThat(hearingDefendantEntity.getHearing()).isSameAs(hearingEntity);
+        assertThat(hearingDefendantEntity.getDefendantId()).isSameAs(DEFENDANT_ID);
 
         final var defendantEntity = hearingDefendantEntity.getDefendant();
         assertThat(defendantEntity.getDefendantId()).isEqualTo(DEFENDANT_ID);
@@ -189,7 +190,7 @@ class ExtendedCourtCaseRequestResponseTest {
                 .type(DefendantType.PERSON)
                 .defendantId(DEFENDANT_ID)
                 .build();
-        final var request = ExtendedCourtCaseRequestResponse.builder()
+        final var request = ExtendedHearingRequestResponse.builder()
                 .defendants(List.of(defendant))
                 .build();
 
@@ -211,7 +212,7 @@ class ExtendedCourtCaseRequestResponseTest {
                 .defendantId(DEFENDANT_ID)
                 .crn("CRN")
                 .build();
-        final var request = ExtendedCourtCaseRequestResponse.builder()
+        final var request = ExtendedHearingRequestResponse.builder()
                 .defendants(List.of(defendant))
                 .build();
 
@@ -226,7 +227,7 @@ class ExtendedCourtCaseRequestResponseTest {
     @Test
     void givenNullHearingsAndDefendants_whenAsEntity_thenReturn() {
 
-        final var request = ExtendedCourtCaseRequestResponse.builder()
+        final var request = ExtendedHearingRequestResponse.builder()
                 .caseNo(CASE_NO)
                 .caseId(CASE_ID)
                 .build();
@@ -242,7 +243,7 @@ class ExtendedCourtCaseRequestResponseTest {
     @Test
     void givenVerboseSex_whenAsEntity_thenReturn() {
 
-        final var request = ExtendedCourtCaseRequestResponse.builder()
+        final var request = ExtendedHearingRequestResponse.builder()
                 .caseNo(CASE_NO)
                 .caseId(CASE_ID)
                 .defendants(List.of(buildDefendant("male")))
@@ -258,7 +259,7 @@ class ExtendedCourtCaseRequestResponseTest {
     @Test
     void givenNullSex_whenAsEntity_thenReturnAsNotKnown() {
 
-        final var request = ExtendedCourtCaseRequestResponse.builder()
+        final var request = ExtendedHearingRequestResponse.builder()
                 .caseNo(CASE_NO)
                 .caseId(CASE_ID)
                 .defendants(List.of(buildDefendant(null)))
@@ -276,7 +277,7 @@ class ExtendedCourtCaseRequestResponseTest {
 
         final var courtCaseEntity = buildEntity();
 
-        final var actual = ExtendedCourtCaseRequestResponse.of(courtCaseEntity);
+        final var actual = ExtendedHearingRequestResponse.of(courtCaseEntity);
 
         assertThat(actual.getSource()).isEqualTo("LIBRA");
         assertThat(actual.getCaseId()).isEqualTo(CASE_ID);
@@ -318,20 +319,48 @@ class ExtendedCourtCaseRequestResponseTest {
                 .suspendedSentenceOrder(true)
                 .offender(Offender.builder().pnc(OFFENDER_PNC).build())
                 .offences(List.of(OffenceRequestResponse.builder()
-                        .act("act2")
-                        .build(),
+                                .act("act2")
+                                .judicialResults(Collections.emptyList())
+                                .build(),
                         OffenceRequestResponse.builder()
-                            .act("act")
-                            .offenceSummary("summary")
-                            .offenceTitle("title")
-                            .listNo(11)
-                            .build()
-                        ))
+                                .act("act")
+                                .offenceSummary("summary")
+                                .offenceTitle("title")
+                                .listNo(11)
+                                .judicialResults(Collections.emptyList())
+                                .build()
+                ))
                 .build());
         assertThat(actual.getDefendants().get(1).getDefendantId()).isEqualTo("DEFENDANT_ID_2");
         // offences should be sorted by sequence number
         assertThat(actual.getDefendants().get(0).getOffences().get(0).getAct()).isEqualTo("act2");
         assertThat(actual.getDefendants().get(0).getOffences().get(1).getAct()).isEqualTo("act");
+    }
+
+    @Test
+    void givenOffencesWithJudicialResults_whenAsEntity_thenReturn() {
+
+        final var defendant = buildDefendant("M");
+
+        final var request = ExtendedHearingRequestResponse.builder()
+                .defendants(List.of(defendant))
+                .build();
+
+        final var hearingEntity = request.asHearingEntity();
+
+        assertThat(hearingEntity.getHearingDefendants()).hasSize(1);
+
+        final var hearingDefendantEntity = hearingEntity.getHearingDefendants().get(0);
+        assertThat(hearingDefendantEntity.getHearing()).isSameAs(hearingEntity);
+        assertThat(hearingDefendantEntity.getDefendantId()).isSameAs(DEFENDANT_ID);
+
+        final var offences = hearingDefendantEntity.getOffences();
+        assertThat(offences).hasSize(2);
+        assertThat(offences.get(0).getJudicialResults()).isNotEmpty();
+        assertThat(offences.get(0).getJudicialResults().get(0).isConvictedResult()).isEqualTo(false);
+        assertThat(offences.get(0).getJudicialResults().get(0).getLabel()).isEqualTo("label");
+        assertThat(offences.get(0).getJudicialResults().get(0).getJudicialResultTypeId()).isEqualTo("judicialResultTypeId");
+        assertThat(offences.get(1).getJudicialResults()).isEmpty();
     }
 
     private HearingEntity buildEntity() {
@@ -439,6 +468,7 @@ class ExtendedCourtCaseRequestResponseTest {
                                 .offenceSummary("SUMMARY1")
                                 .act("ACT1")
                                 .listNo(10)
+                                .judicialResults(List.of(buildJudicialResult()))
                                 .build(),
                         OffenceRequestResponse.builder()
                                 .offenceTitle("TITLE2")
@@ -448,4 +478,13 @@ class ExtendedCourtCaseRequestResponseTest {
                                 .build()))
                 .build();
     }
+
+    private JudicialResult buildJudicialResult() {
+        return JudicialResult.builder()
+                .isConvictedResult(false)
+                .label("label")
+                .judicialResultTypeId("judicialResultTypeId")
+                .build();
+    }
+
 }

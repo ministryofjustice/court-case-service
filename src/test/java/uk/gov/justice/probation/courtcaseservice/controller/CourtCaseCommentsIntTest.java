@@ -12,6 +12,7 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CaseCommentsRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
+import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +36,6 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
     private final String caseComment = "{\n" +
         "        \"caseId\": \"1f93aa0a-7e46-4885-a1cb-f25a4be33a00\",\n" +
         "        \"comment\": \"PSR is delayed\",\n" +
-        "        \"userUuid\": \"805843a0-caf4-45f7-9711-98b69ba01f83\",\n" +
         "        \"author\": \"Test Author\"\n" +
         "    }";
 
@@ -56,12 +56,14 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
             .body("caseId", equalTo(CASE_ID))
             .body("comment", equalTo("PSR is delayed"))
             .body("author", equalTo("Test Author"))
+            .body("createdByUuid", equalTo(TokenHelper.TEST_UUID))
             .body("created", notNullValue())
         ;
         var caseComment = caseCommentResponse.getBody().as(CaseCommentResponse.class, ObjectMapperType.JACKSON_2);
 
         var actualComment = caseCommentsRepository.findById(caseComment.getCommentId()).get();
         assertThat(actualComment.getId()).isEqualTo(caseComment.getCommentId());
+        assertThat(actualComment.getCreatedByUuid()).isEqualTo(caseComment.getCreatedByUuid());
         assertThat(actualComment.isDeleted()).isFalse();
 
         Assertions.assertNotNull(actualComment);
@@ -83,6 +85,63 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
             .then()
             .statusCode(404)
             .body("userMessage", equalTo(String.format("Court case %s not found", notFoundCaseId)))
+        ;
+    }
+
+    @Test
+    void givenCaseIdAndCommentId_whenDeleteComment_shouldMarkCommentAsDeleted() {
+
+        var commentId = -1700028902L;
+
+        given()
+            .auth()
+            .oauth2(getToken("389fd9cf-390e-469a-b4cf-6c12024c4cae"))
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .when()
+            .delete("/cases/{caseId}/comments/{commentId}", CASE_ID, commentId)
+            .then()
+            .statusCode(200)
+        ;
+
+        var actualComment = caseCommentsRepository.findById(commentId).get();
+        assertThat(actualComment.isDeleted()).isTrue();
+    }
+
+    @Test
+    void givenNonExistingCommentId_whenDeleteComment_shouldThrowEntityNotFound() {
+
+        var commentId = 123L;
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .when()
+            .delete("/cases/{caseId}/comments/{commentId}", CASE_ID, commentId)
+            .then()
+            .statusCode(404)
+            .body("userMessage", equalTo(String.format("Comment %d not found", commentId)))
+        ;
+    }
+
+    @Test
+    void givenCaseIdCommentIdAndUserUuid_AndUserUuidDoesNotMatchCommentUserUuid_shouldReturnForbidden() {
+
+        var commentId = -1700028902L;
+        var invalidUUid = "4f7772a9-e42a-493a-a8f0-82caf83c6419";
+
+        given()
+            .auth()
+            .oauth2(getToken(invalidUUid))
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .when()
+            .delete("/cases/{caseId}/comments/{commentId}", CASE_ID, commentId)
+            .then()
+            .statusCode(403)
+            .body("userMessage", equalTo("User 4f7772a9-e42a-493a-a8f0-82caf83c6419 does not have permissions to delete comment -1700028902"))
         ;
     }
 }

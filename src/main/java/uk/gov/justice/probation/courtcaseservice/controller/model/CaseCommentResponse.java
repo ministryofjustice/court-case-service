@@ -21,6 +21,7 @@ public class CaseCommentResponse {
     private final String comment;
     private final LocalDateTime created;
     private final String author;
+    private final String createdByUuid;
 
     public static CaseCommentResponse of(CaseCommentEntity caseCommentEntity) {
         return CaseCommentResponse.builder()
@@ -29,6 +30,7 @@ public class CaseCommentResponse {
             .caseId(caseCommentEntity.getCaseId())
             .created(caseCommentEntity.getCreated())
             .author(caseCommentEntity.getAuthor())
+            .createdByUuid(caseCommentEntity.getCreatedByUuid())
             .build();
     }
 }

@@ -17,10 +17,9 @@ class CaseCommentRequestTest {
             .comment(testComment)
             .caseId(testCaseId)
             .author(author)
-            .userUuid(userUuid)
             .build();
 
-        assertThat(caseCommentRequest.asEntity())
+        assertThat(caseCommentRequest.asEntity(userUuid))
             .isEqualTo(CaseCommentEntity.builder()
                 .comment(testComment)
                 .caseId(testCaseId)

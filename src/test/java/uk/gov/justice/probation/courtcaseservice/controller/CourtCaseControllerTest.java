@@ -25,6 +25,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.security.AuthAwareAuthenticationToken;
 import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseHistoryService;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
@@ -51,6 +52,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.probation.courtcaseservice.Constants.USER_UUID_CLAIM_NAME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
@@ -66,6 +68,8 @@ class CourtCaseControllerTest {
     private static final LocalDate DATE = LocalDate.of(2020, 2, 24);
     private static final LocalDateTime CREATED_AFTER = LocalDateTime.of(2020, 2, 23, 0, 0);
     private static final LocalDateTime CREATED_BEFORE = LocalDateTime.of(2020, 3, 23, 0, 0);
+    private static final String testUuid = "test-uuid";
+
     @Mock
     private WebRequest webRequest;
     @Mock
@@ -80,6 +84,9 @@ class CourtCaseControllerTest {
     private CourtCaseHistoryService courtCaseHistoryService;
     @Mock
     private CaseCommentsService caseCommentsService;
+
+    @Mock
+    private AuthAwareAuthenticationToken principal;
 
     private CourtCaseController courtCaseController;
     private final HearingEntity hearingEntity = HearingEntity.builder()
@@ -358,12 +365,15 @@ class CourtCaseControllerTest {
         var caseId = "case-id-one";
         var caseCommentEntity = CaseCommentEntity.builder().comment("comment one").author("Author One").caseId(caseId).build();
         Mockito.lenient().when(caseCommentsService.createCaseComment(any(CaseCommentEntity.class))).thenReturn(caseCommentEntity.withId(3456L));
+        given(principal.getTokenAttributes()).willReturn(Collections.singletonMap(USER_UUID_CLAIM_NAME, testUuid));
+
         final var actual = courtCaseController.createCaseComment(caseId,
             CaseCommentRequest.builder()
                 .caseId(caseId)
                 .comment("comment-one")
                 .author("Test Author")
-                .build());
+                .build(),
+            principal);
 
         verify(caseCommentsService).createCaseComment(any(CaseCommentEntity.class));
         assertThat(actual).isEqualTo(
@@ -380,7 +390,7 @@ class CourtCaseControllerTest {
     void givenCaseIdDoesNotMatchCaseCommentRequestCaseId_whenCreateComment_shouldThrowConflictingInputException() {
 
         assertThrows(ConflictingInputException.class, () -> {
-            courtCaseController.createCaseComment("case-id-one", CaseCommentRequest.builder().caseId("invalid-case-id").build());
+            courtCaseController.createCaseComment("case-id-one", CaseCommentRequest.builder().caseId("invalid-case-id").build(), principal);
         });
 
         Mockito.verifyNoMoreInteractions(caseCommentsService);
@@ -404,6 +414,16 @@ class CourtCaseControllerTest {
 
         assertThrows(EntityNotFoundException.class, () -> courtCaseController.getCaseHistory(caseId));
         verify(courtCaseHistoryService).getCourtCaseHistory(caseId);
+    }
+
+    @Test
+    void givenCaseIdAndCommentId_shouldInvokeDeleteCommentService() {
+        var caseId = "test-case-id";
+        var commentId = 1234L;
+        given(principal.getTokenAttributes()).willReturn(Collections.singletonMap(USER_UUID_CLAIM_NAME, testUuid));
+
+        courtCaseController.deleteCaseComment(caseId, commentId, principal);
+        verify(caseCommentsService).deleteCaseComment(caseId, commentId, testUuid);
     }
 
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, NamePropertiesEntity defendantName, LocalDateTime sessionTime) {

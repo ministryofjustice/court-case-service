@@ -10,6 +10,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CaseCommentsRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
 import java.util.Optional;
@@ -33,8 +34,9 @@ class CaseCommentsServiceTest {
     @InjectMocks
     private CaseCommentsService caseCommentsService;
 
-    String testCaseId = "test-case-id";
-    CaseCommentEntity caseComment = CaseCommentEntity.builder().caseId(testCaseId).author("test author").build();
+    private static String testCaseId = "test-case-id";
+    private static String createdByUuid = "created-by-uuid";
+    CaseCommentEntity caseComment = CaseCommentEntity.builder().caseId(testCaseId).author("test author").createdByUuid("created-by-uuid").build();
     CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().caseId(testCaseId).build();
 
     @Test
@@ -64,7 +66,7 @@ class CaseCommentsServiceTest {
         given(caseCommentsRepository.findById(commentId)).willReturn(Optional.of(caseComment.withId(commentId)));
         given(caseCommentsRepository.save(any(CaseCommentEntity.class))).willReturn(caseComment);
 
-        caseCommentsService.deleteCaseComment(testCaseId, commentId);
+        caseCommentsService.deleteCaseComment(testCaseId, commentId, createdByUuid);
 
         verify(caseCommentsRepository).findById(commentId);
         var expected = caseComment.withId(commentId);
@@ -78,8 +80,19 @@ class CaseCommentsServiceTest {
         given(caseCommentsRepository.findById(commentId)).willReturn(Optional.of(caseComment.withId(commentId)));
 
         var invalidCaseId = "invalid-case-id";
-        Exception e = assertThrows(ConflictingInputException.class, () -> caseCommentsService.deleteCaseComment(invalidCaseId, commentId));
-        assertThat(e.getMessage()).isEqualTo("Comment 1234 not found for case invalid-case-id");
+        assertThrows(ConflictingInputException.class, () -> caseCommentsService.deleteCaseComment(invalidCaseId, commentId, createdByUuid),
+            "Comment 1234 not found for case invalid-case-id");
+        verify(caseCommentsRepository).findById(commentId);
+        verify(caseCommentsRepository, times(0)).save(any(CaseCommentEntity.class));
+    }
+
+    @Test
+    void givenCaseIdCommentIdAndUserUuid_AndUserUuidDoesNotMatchCommentUserUuid_shouldThrowForbiddenException() {
+        var commentId = 1234L;
+        String invalidCreatedByUuid = "invalid-user-uuid";
+        given(caseCommentsRepository.findById(commentId)).willReturn(Optional.of(caseComment.withId(commentId)));
+        assertThrows(ForbiddenException.class, () -> caseCommentsService.deleteCaseComment(testCaseId, commentId, invalidCreatedByUuid),
+            "User invalid-user-uuid does not have permissions to delete comment 1234");
         verify(caseCommentsRepository).findById(commentId);
         verify(caseCommentsRepository, times(0)).save(any(CaseCommentEntity.class));
     }
@@ -88,8 +101,8 @@ class CaseCommentsServiceTest {
     void givenNonExistingCommentId_shouldThrowEntityNotFound() {
         var commentId = 1234L;
         given(caseCommentsRepository.findById(commentId)).willReturn(Optional.empty());
-        Exception e = assertThrows(EntityNotFoundException.class, () -> caseCommentsService.deleteCaseComment(testCaseId, commentId));
-        assertThat(e.getMessage()).isEqualTo("Comment 1234 not found");
+        assertThrows(EntityNotFoundException.class, () -> caseCommentsService.deleteCaseComment(testCaseId, commentId, createdByUuid),
+            "Comment 1234 not found");
         verify(caseCommentsRepository).findById(commentId);
         verify(caseCommentsRepository, times(0)).save(any(CaseCommentEntity.class));
     }

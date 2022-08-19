@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Long>{
-    Optional<CourtCaseEntity> findFirstByCaseIdOrderByIdDesc(String hearingId);
+    Optional<CourtCaseEntity> findFirstByCaseIdOrderByIdDesc(String caseId);
 }

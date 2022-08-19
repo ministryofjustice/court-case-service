@@ -9,6 +9,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 import uk.gov.justice.probation.courtcaseservice.controller.CourtCaseControllerIntTest;
 
@@ -24,13 +25,19 @@ import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
 
+import static uk.gov.justice.probation.courtcaseservice.Constants.USER_UUID_CLAIM_NAME;
+
 public class TokenHelper {
     private static String cachedToken = null;
+    private static String cachedTokenUuid = null;
 
-    public static String getToken() {
-        if (cachedToken == null) {
+    public static String TEST_UUID = "fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81";
+
+    public static String getToken(final String uuid) {
+        if (cachedToken == null || !StringUtils.equals(uuid, cachedTokenUuid)) {
             try {
-                cachedToken = createToken();
+                cachedToken = createToken(uuid);
+                cachedTokenUuid = uuid;
             } catch (IOException | ParseException | NoSuchAlgorithmException | InvalidKeySpecException | JOSEException e) {
                 throw new RuntimeException(e);
             }
@@ -38,7 +45,11 @@ public class TokenHelper {
         return cachedToken;
     }
 
-    public static String createToken() throws IOException, ParseException, NoSuchAlgorithmException, InvalidKeySpecException, JOSEException {
+    public static String getToken() {
+        return getToken(TEST_UUID);
+    }
+
+    public static String createToken(final String uuid) throws IOException, ParseException, NoSuchAlgorithmException, InvalidKeySpecException, JOSEException {
         JWKSet localKeys = JWKSet.load(new ClassPathResource("mocks/test_keypair_jwks.json").getFile());
         RSAKey jwk = (RSAKey) localKeys.getKeyByKeyId(CourtCaseControllerIntTest.KEY_ID);
 
@@ -53,6 +64,7 @@ public class TokenHelper {
                 .subject("TEST.USER")
                 .issuer("http://localhost:8090/auth/issuer")
                 .claim("authorities", Collections.singletonList("ROLE_PREPARE_A_CASE"))
+                .claim(USER_UUID_CLAIM_NAME, uuid)
                 .expirationTime(new Date(new Date().getTime() + 60 * 1000))
                 .build();
 

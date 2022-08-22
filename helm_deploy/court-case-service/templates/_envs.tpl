@@ -96,4 +96,22 @@ env:
       secretKeyRef:
         name: court-case-service-secrets
         key: APPINSIGHTS_INSTRUMENTATIONKEY
+
+  - name: HMPPS_SQS_TOPICS_HMPPS_DOMAIN_EVENTS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: hmpps-domain-events-topic
+        key: access_key_id
+
+  - name: HMPPS_SQS_TOPICS_HMPPS_DOMAIN_EVENTS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: hmpps-domain-events-topic
+        key: secret_access_key
+
+  - name: HMPPS_SQS_TOPICS_HMPPS_DOMAIN_EVENTS_TOPIC_ARN
+    valueFrom:
+      secretKeyRef:
+        name: hmpps-domain-events-topic
+        key: topic_arn
 {{- end -}}

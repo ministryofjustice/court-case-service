@@ -164,7 +164,7 @@ dependencies {
 
     runtimeOnly 'org.flywaydb:flyway-core'
     runtimeOnly "org.springframework.boot:spring-boot-devtools"
-    runtimeOnly 'org.postgresql:postgresql:42.4.1'
+    runtimeOnly 'org.postgresql:postgresql:42.4.2'
 
     implementation 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 
@@ -187,7 +187,7 @@ dependencies {
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.4'
     implementation 'net.logstash.logback:logstash-logback-encoder:7.2'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3'
-    implementation 'org.springdoc:springdoc-openapi-ui:1.6.10'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.11'
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:1.1.8")
 

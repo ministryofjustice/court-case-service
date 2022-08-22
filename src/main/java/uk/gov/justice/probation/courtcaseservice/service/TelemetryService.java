@@ -4,6 +4,7 @@ import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
@@ -59,6 +60,21 @@ public class TelemetryService {
                             .collect(Collectors.joining(","));
                     properties.put("hearings", hearingsString);
                 });
+
+        addRequestProperties(properties);
+
+        telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
+    }
+
+    void trackCourtCaseCommentEvent(TelemetryEventType eventType, CaseCommentEntity caseCommentEntity) {
+
+        Map<String, String> properties = new HashMap<>();
+
+        properties.put("caseId", caseCommentEntity.getCaseId());
+        properties.put("createdByUuid", caseCommentEntity.getCreatedByUuid());
+        properties.put("commentId", caseCommentEntity.getId().toString());
+        properties.put("createdDateTime", caseCommentEntity.getCreated().toString());
+        properties.put("userName", caseCommentEntity.getCreatedBy());
 
         addRequestProperties(properties);
 

@@ -11,6 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenE
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+import static uk.gov.justice.probation.courtcaseservice.service.TelemetryEventType.CASE_COMMENT_ADDED;
 
 @Service
 public class CaseCommentsService {
@@ -19,10 +20,13 @@ public class CaseCommentsService {
 
     private final CourtCaseRepository courtCaseRepository;
     private final CaseCommentsRepository caseCommentsRepository;
+    private final TelemetryService telemetryService;
 
-    public CaseCommentsService(CourtCaseRepository courtCaseRepository, CaseCommentsRepository caseCommentsRepository) {
+    public CaseCommentsService(CourtCaseRepository courtCaseRepository, CaseCommentsRepository caseCommentsRepository,
+                               TelemetryService telemetryService) {
         this.courtCaseRepository = courtCaseRepository;
         this.caseCommentsRepository = caseCommentsRepository;
+        this.telemetryService = telemetryService;
     }
 
     public CaseCommentEntity createCaseComment(CaseCommentEntity caseCommentEntity) {
@@ -30,6 +34,10 @@ public class CaseCommentsService {
         var caseId = caseCommentEntity.getCaseId();
         return courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId)
             .map(courtCaseEntity -> caseCommentsRepository.save(caseCommentEntity))
+            .map(savedCaseComment -> {
+                telemetryService.trackCourtCaseCommentEvent(CASE_COMMENT_ADDED, savedCaseComment);
+                return savedCaseComment;
+            })
             .orElseThrow(() -> new EntityNotFoundException("Court case %s not found", caseId));
     }
 

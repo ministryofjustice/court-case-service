@@ -217,12 +217,12 @@ class TelemetryServiceTest {
         verify(telemetryClient).trackEvent(eq("PicCourtCaseCommentAdded"), properties.capture(), metricsCaptor.capture());
 
         var properties = this.properties.getValue();
-        assertThat(properties).hasSize(3);
+        assertThat(properties).hasSize(5);
         assertThat(properties.get("caseId")).isEqualTo(CASE_ID);
         assertThat(properties.get("createdByUuid")).isEqualTo(createdByUuid);
         assertThat(properties.get("commentId")).isEqualTo("1234");
         assertThat(properties.get("createdDateTime")).isEqualTo(now.toString());
-        assertThat(properties.get("userName")).isEqualTo(createdBy);
+        assertThat(properties.get("username")).isEqualTo(createdBy);
 
         assertThat(metricsCaptor.getValue()).isEmpty();
     }

@@ -52,6 +52,7 @@ public class CaseCommentsService {
             }
             caseCommentEntity.setDeleted(true);
             caseCommentsRepository.save(caseCommentEntity);
+            telemetryService.trackCourtCaseCommentEvent(TelemetryEventType.CASE_COMMENT_DELETED, caseCommentEntity);
         }, () -> {
             throw new EntityNotFoundException("Comment %d not found", commentId);
         });

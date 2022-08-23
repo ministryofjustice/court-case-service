@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
@@ -18,6 +19,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -195,6 +197,34 @@ class TelemetryServiceTest {
         var properties = Map.of("caseId", "caseId", "defendantId", DEFENDANT_ID, "pnc", PNC);
 
         verify(telemetryClient).trackEvent(TelemetryEventType.DEFENDANT_UNLINKED.eventName, properties, Collections.emptyMap());
+    }
+
+    @Test
+    void giveCaseComment_whenTrackCourtCaseCommentEvent_thenEmitTelemetryEvent() {
+        String createdByUuid = "created-uuid";
+        LocalDateTime now = LocalDateTime.now();
+        String createdBy = "created-user-name";
+        var courtCase = CaseCommentEntity.builder()
+            .caseId(CASE_ID)
+            .createdByUuid(createdByUuid)
+            .created(now)
+            .createdBy(createdBy)
+            .id(1234L)
+            .build();
+
+        service.trackCourtCaseCommentEvent(TelemetryEventType.CASE_COMMENT_ADDED, courtCase);
+
+        verify(telemetryClient).trackEvent(eq("PicCourtCaseCommentAdded"), properties.capture(), metricsCaptor.capture());
+
+        var properties = this.properties.getValue();
+        assertThat(properties).hasSize(5);
+        assertThat(properties.get("caseId")).isEqualTo(CASE_ID);
+        assertThat(properties.get("createdByUuid")).isEqualTo(createdByUuid);
+        assertThat(properties.get("commentId")).isEqualTo("1234");
+        assertThat(properties.get("createdDateTime")).isEqualTo(now.toString());
+        assertThat(properties.get("username")).isEqualTo(createdBy);
+
+        assertThat(metricsCaptor.getValue()).isEmpty();
     }
 
     private HearingEntity buildHearing() {

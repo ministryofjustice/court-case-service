@@ -22,6 +22,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static uk.gov.justice.probation.courtcaseservice.service.TelemetryEventType.CASE_COMMENT_ADDED;
+import static uk.gov.justice.probation.courtcaseservice.service.TelemetryEventType.CASE_COMMENT_DELETED;
 
 @ExtendWith(MockitoExtension.class)
 class CaseCommentsServiceTest {
@@ -30,6 +32,8 @@ class CaseCommentsServiceTest {
     private CourtCaseRepository courtCaseRepository;
     @Mock
     private CaseCommentsRepository caseCommentsRepository;
+    @Mock
+    private TelemetryService telemetryService;
 
     @InjectMocks
     private CaseCommentsService caseCommentsService;
@@ -47,6 +51,7 @@ class CaseCommentsServiceTest {
         caseCommentsService.createCaseComment(caseComment);
         verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
         verify(caseCommentsRepository).save(caseComment);
+        verify(telemetryService).trackCourtCaseCommentEvent(CASE_COMMENT_ADDED, caseComment);
     }
 
     @Test
@@ -72,6 +77,7 @@ class CaseCommentsServiceTest {
         var expected = caseComment.withId(commentId);
         expected.setDeleted(true);
         verify(caseCommentsRepository).save(expected);
+        verify(telemetryService).trackCourtCaseCommentEvent(CASE_COMMENT_DELETED, expected);
     }
 
     @Test

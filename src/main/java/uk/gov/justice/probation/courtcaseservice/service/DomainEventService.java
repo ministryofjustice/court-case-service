@@ -5,51 +5,79 @@ import com.amazonaws.services.sns.model.PublishRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.justice.hmpps.sqs.HmppsQueueService;
 import uk.gov.justice.hmpps.sqs.HmppsTopic;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEventType;
+import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReference;
+import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.List;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class DomainEventService {
 
     private final HmppsQueueService hmppsQueueService;
     private final ObjectMapper objectMapper;
-    private final String EVENT_TYPE = "eventType";
+    private final String EVENT_TYPE_KEY = "eventType";
+    @Value("${INGRES_URL}")
+    private String host;
+
+    private String HEARING_BY_HEARING_ID_TEMPLATE = "https://%s/hearing/%s";
 
     private HmppsTopic getDomainEventTopic() {
         return hmppsQueueService.findByTopicId("hmpps-domain-events");
     }
 
-    void emitSentencedEvent(HearingEntity hearingEntity) throws JsonProcessingException {
-        //TODO add required parameters.
+    void emitSentencedEvent(HearingEntity hearingEntity) {
 
         var hmppsTopic = getDomainEventTopic();
 
-        var sentencedEventMessage = DomainEventMessage.builder()
-                .eventType(DomainEventType.SENTENCED_EVENT_TYPE.getEventTypeName())
-                .version(1)
-                .detailUrl(generateDetailUrl("/hearing/", "host", hearingEntity.getHearingId())) //TODO
-                .occurredAt(LocalDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
-                .build();
+        var evtType = DomainEventType.SENTENCED_EVENT_TYPE;
+        var detailUrl = String.format(HEARING_BY_HEARING_ID_TEMPLATE, host, hearingEntity.getHearingId());
+        var occurredAt = LocalDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 
-        var sentencedEventMessageAttribute = new MessageAttributeValue().withDataType("String").withStringValue(sentencedEventMessage.getEventType());
+        hearingEntity.getHearingDefendants()
+                .forEach(hearingDefendantEntity -> {
 
-        var publishRequest = new PublishRequest(hmppsTopic.getArn(), objectMapper.writeValueAsString(sentencedEventMessage))
-                .withMessageAttributes(Collections.singletonMap(EVENT_TYPE, sentencedEventMessageAttribute));
+                    var sentencedEventMessage = DomainEventMessage.builder()
+                            .eventType(evtType.getEventTypeName())
+                            .version(1)
+                            .detailUrl(detailUrl)
+                            .occurredAt(occurredAt)
+                            .personReference(PersonReference.builder()
+                                    .identifiers(buildDefendantIdentifiers(hearingDefendantEntity.getDefendant()))
+                                    .build())
+                            .build();
 
-        hmppsTopic.getSnsClient().publish(publishRequest);
+                    var sentencedEventMessageAttribute = new MessageAttributeValue().withDataType("String").withStringValue(sentencedEventMessage.getEventType());
+
+                    try {
+                        PublishRequest publishRequest = new PublishRequest(hmppsTopic.getArn(), objectMapper.writeValueAsString(sentencedEventMessage))
+                                .withMessageAttributes(Collections.singletonMap(EVENT_TYPE_KEY, sentencedEventMessageAttribute));
+
+                        hmppsTopic.getSnsClient().publish(publishRequest);
+                    } catch (JsonProcessingException e) {
+                        log.error("Failed to emit a sentenced event %s", e);
+                    }
+                });
     }
 
-    private String generateDetailUrl(String path, String host, String parameter) { //TODO
-        return UriComponentsBuilder.newInstance().scheme("https").host(host).path(path).buildAndExpand(parameter).toUriString();
+    private List<PersonReferenceType> buildDefendantIdentifiers(DefendantEntity defendant) {
+        return List.of(
+                PersonReferenceType.builder().type("CRN").value(defendant.getCrn()).build(),
+                PersonReferenceType.builder().type("CRO").value(defendant.getCro()).build(),
+                PersonReferenceType.builder().type("PNC").value(defendant.getPnc()).build()
+        );
     }
 }

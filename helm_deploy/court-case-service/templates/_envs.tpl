@@ -114,4 +114,7 @@ env:
       secretKeyRef:
         name: hmpps-domain-events-topic
         key: topic_arn
+
+  - name: INGRES_URL
+      value: "{{ .Values.ingress.hosts[0].host }}"
 {{- end -}}

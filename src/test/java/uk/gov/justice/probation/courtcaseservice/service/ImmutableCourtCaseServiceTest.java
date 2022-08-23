@@ -21,6 +21,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
@@ -419,6 +420,22 @@ class ImmutableCourtCaseServiceTest {
             verifyNoMoreInteractions(courtRepository, hearingRepositoryFacade, telemetryService);
             assertThat(exception.getMessage()).isEqualTo(String.format("Hearing Id %s does not match with value from body %s",
                     HEARING_ID, invalidHearingId));
+        }
+
+        @Test
+        void givenExistingCase_whenCreateOrUpdateCaseCalled_WithResultedHearingEventType_thenEmitSentencedEvent() {
+            HearingEntity resultedHearingEntity = EntityHelper.aHearingEntity(CRN, CASE_NO)
+                    .withHearingEventType(HearingEventType.RESULTED);
+            when(hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(resultedHearingEntity));
+            when(hearingRepositoryFacade.save(resultedHearingEntity)).thenReturn(resultedHearingEntity);
+
+            var savedCourtCase = service.createOrUpdateHearingByHearingId(HEARING_ID, resultedHearingEntity).block();
+
+            verify(telemetryService).trackCourtCaseEvent(TelemetryEventType.COURT_CASE_UPDATED, resultedHearingEntity);
+            verify(domainEventService).emitSentencedEvent(resultedHearingEntity);
+            verify(hearingRepositoryFacade).save(resultedHearingEntity);
+            assertThat(savedCourtCase).isNotNull();
+            verifyNoMoreInteractions(telemetryService, domainEventService, hearingRepositoryFacade);
         }
     }
 

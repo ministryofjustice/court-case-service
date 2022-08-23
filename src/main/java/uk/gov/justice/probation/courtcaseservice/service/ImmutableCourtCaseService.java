@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +12,18 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.*;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
 import java.time.LocalDate;
@@ -118,7 +127,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                         () -> trackCreateEvents(updatedHearing));
 
         if (hasSentencedEventType(updatedHearing)) {
-            emitSentencedEvent(updatedHearing);
+            domainEventService.emitSentencedEvent(updatedHearing);
         }
 
         return Mono.just(updatedHearing)
@@ -130,14 +139,6 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     private boolean hasSentencedEventType(HearingEntity hearingEntity) {
         return hearingEntity.getHearingEventType() != null && hearingEntity.getHearingEventType().equals(HearingEventType.RESULTED);
-    }
-
-    private void emitSentencedEvent(HearingEntity hearingEntity) {
-        try {
-            domainEventService.emitSentencedEvent(hearingEntity);
-        } catch (JsonProcessingException e) {
-            log.error("Emit sentenced event failed {}", e.getMessage());
-        }
     }
 
     private void trackCreateEvents(HearingEntity createdCase) {

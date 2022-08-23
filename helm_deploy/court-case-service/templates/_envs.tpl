@@ -115,6 +115,6 @@ env:
         name: hmpps-domain-events-topic
         key: topic_arn
 
-  - name: INGRES_URL
+  - name: INGRESS_URL
       value: "{{ .Values.ingress.hosts[0].host }}"
 {{- end -}}

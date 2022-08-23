@@ -30,7 +30,7 @@ public class DomainEventService {
     private final HmppsQueueService hmppsQueueService;
     private final ObjectMapper objectMapper;
     private final String EVENT_TYPE_KEY = "eventType";
-    @Value("${INGRES_URL}")
+    @Value("${INGRESS_URL}")
     private String host;
 
     private String HEARING_BY_HEARING_ID_TEMPLATE = "https://%s/hearing/%s";
@@ -43,7 +43,7 @@ public class DomainEventService {
 
         var hmppsTopic = getDomainEventTopic();
 
-        var evtType = DomainEventType.SENTENCED_EVENT_TYPE;
+        var sentencedEventType = DomainEventType.SENTENCED_EVENT_TYPE;
         var detailUrl = String.format(HEARING_BY_HEARING_ID_TEMPLATE, host, hearingEntity.getHearingId());
         var occurredAt = LocalDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 
@@ -51,7 +51,7 @@ public class DomainEventService {
                 .forEach(hearingDefendantEntity -> {
 
                     var sentencedEventMessage = DomainEventMessage.builder()
-                            .eventType(evtType.getEventTypeName())
+                            .eventType(sentencedEventType.getEventTypeName())
                             .version(1)
                             .detailUrl(detailUrl)
                             .occurredAt(occurredAt)

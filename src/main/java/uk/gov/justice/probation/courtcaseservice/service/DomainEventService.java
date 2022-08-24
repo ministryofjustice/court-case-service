@@ -5,7 +5,9 @@ import com.amazonaws.services.sns.model.PublishRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.hmpps.sqs.HmppsQueueService;
@@ -24,16 +26,21 @@ import java.util.List;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@NoArgsConstructor
 public class DomainEventService {
-
-    private final HmppsQueueService hmppsQueueService;
-    private final ObjectMapper objectMapper;
+    private HmppsQueueService hmppsQueueService;
+    private  ObjectMapper objectMapper;
     @Value("${ingress.url}")
-    private String host;
+    private  String host;
     private final String EVENT_TYPE_KEY = "eventType";
 
    final String HEARING_BY_HEARING_ID_TEMPLATE = "https://%s/hearing/%s";
+
+    @Autowired
+    public DomainEventService(HmppsQueueService hmppsQueueService, ObjectMapper objectMapper) {
+        this.hmppsQueueService = hmppsQueueService;
+        this.objectMapper = objectMapper;
+    }
 
     private HmppsTopic getDomainEventTopic() {
         return hmppsQueueService.findByTopicId("hmpps-domain-events");

@@ -14,6 +14,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
@@ -388,6 +389,60 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                     .filter(defendantEntity -> defendantEntity.getOffender() != null)
                     .toList()).isEmpty();
             }, () -> fail("Case should exist"));
+    }
+
+    @Test
+    void givenExistingCaseWithConfirmedOrUpdateType_whenUpdateWithResultedHearingEventType_thenUpdateSuccessfully() throws IOException {
+
+        final var crn = "X723999";
+        final var createHearingJason = FileUtils.readFileToString(caseDetailsExtendedUpdate, "UTF-8");
+
+        given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(createHearingJason)
+                .when()
+                .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+                .then()
+                .statusCode(201)
+                .body("caseId", equalTo("3db9d70b-10a2-49d1-b74d-379f2db74862"))
+                .body("hearingId", equalTo(JSON_HEARING_ID))
+                .body("hearingEventType", equalTo("ConfirmedOrUpdated"));
+        ;
+
+        courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID)
+                .ifPresentOrElse(theCase -> {
+                    assertThat(theCase.getHearingEventType()).isEqualTo(HearingEventType.CONFIRMED_OR_UPDATED);
+
+                }, () -> fail("Hearing event type should be ConfirmedOrUpdated"));
+
+        final var resultedHearingEventType = "Resulted";
+
+        final var updatedHearingJson = FileUtils.readFileToString(caseDetailsExtendedUpdate, "UTF-8")
+                .replace("\"hearingEventType\": \"ConfirmedOrUpdated\"", "\"hearingEventType\": \"" + resultedHearingEventType + "\"")
+                ;
+
+        given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(updatedHearingJson)
+                .when()
+                .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+                .then()
+                .statusCode(201)
+                .body("caseId", equalTo("3db9d70b-10a2-49d1-b74d-379f2db74862"))
+                .body("hearingId", equalTo(JSON_HEARING_ID))
+                .body("hearingEventType", equalTo(resultedHearingEventType));
+
+        courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID)
+                .ifPresentOrElse(theCase -> {
+                    assertThat(theCase.getHearingEventType()).isEqualTo(HearingEventType.RESULTED);
+
+                }, () -> fail("Hearing event type should be Resulted"));
     }
 
 }

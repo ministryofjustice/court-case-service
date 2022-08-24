@@ -29,7 +29,7 @@ public class DomainEventService {
 
     private final HmppsQueueService hmppsQueueService;
     private final ObjectMapper objectMapper;
-    @Value("${INGRESS_URL}")
+    @Value("${ingress.url}")
     private String host;
     private final String EVENT_TYPE_KEY = "eventType";
 

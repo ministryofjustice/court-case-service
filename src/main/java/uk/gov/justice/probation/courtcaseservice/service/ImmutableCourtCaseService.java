@@ -43,7 +43,6 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private final HearingRepositoryFacade hearingRepository;
     private final TelemetryService telemetryService;
     private final GroupedOffenderMatchRepository matchRepository;
-
     private final DomainEventService domainEventService;
 
     @Autowired

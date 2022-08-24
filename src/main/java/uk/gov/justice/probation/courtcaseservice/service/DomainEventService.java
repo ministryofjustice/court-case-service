@@ -29,11 +29,11 @@ public class DomainEventService {
 
     private final HmppsQueueService hmppsQueueService;
     private final ObjectMapper objectMapper;
-    private final String EVENT_TYPE_KEY = "eventType";
     @Value("${INGRESS_URL}")
     private String host;
+    private final String EVENT_TYPE_KEY = "eventType";
 
-    private String HEARING_BY_HEARING_ID_TEMPLATE = "https://%s/hearing/%s";
+   final String HEARING_BY_HEARING_ID_TEMPLATE = "https://%s/hearing/%s";
 
     private HmppsTopic getDomainEventTopic() {
         return hmppsQueueService.findByTopicId("hmpps-domain-events");

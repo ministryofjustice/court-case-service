@@ -2,7 +2,7 @@
 {{- $fullName := include "app.fullname" . -}}
 {{- $ingressPath := .Values.ingress.path -}}
 {{- $serviceName := .Values.ingress.service -}}
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
@@ -33,14 +33,20 @@ spec:
       http:
         paths:
           - path: {{ $ingressPath }}
+            pathType: ImplementationSpecific
             backend:
-              serviceName: {{ $serviceName }}
-              servicePort: http
+              service:
+                name: {{ $serviceName }}
+                port:
+                  name: http
         {{- if $.Values.data_dictionary }}
           - path: /meta/schema
+            pathType: ImplementationSpecific
             backend:
-              serviceName: pic-data-dictionary
-              servicePort: http
+              service:
+                name: pic-data-dictionary
+                port:
+                  name: http
         {{- end }}
   {{- end }}
 {{- end }}

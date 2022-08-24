@@ -52,7 +52,7 @@ public class DomainEventService {
 
         var sentencedEventType = DomainEventType.SENTENCED_EVENT_TYPE;
         var detailUrl = String.format(HEARING_BY_HEARING_ID_TEMPLATE, host, hearingEntity.getHearingId());
-        var occurredAt = LocalDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        var occurredAt = LocalDateTime.now();
 
         hearingEntity.getHearingDefendants()
                 .forEach(hearingDefendantEntity -> {
@@ -61,7 +61,7 @@ public class DomainEventService {
                             .eventType(sentencedEventType.getEventTypeName())
                             .version(1)
                             .detailUrl(detailUrl)
-                            .occurredAt(occurredAt)
+                            .occurredAt(occurredAt.toString())
                             .personReference(PersonReference.builder()
                                     .identifiers(buildDefendantIdentifiers(hearingDefendantEntity.getDefendant()))
                                     .build())

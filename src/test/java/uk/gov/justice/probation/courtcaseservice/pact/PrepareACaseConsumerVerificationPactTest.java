@@ -22,25 +22,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.Event;
 import uk.gov.justice.probation.courtcaseservice.controller.model.MatchIdentifiers;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetailResponse;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
-import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
-import uk.gov.justice.probation.courtcaseservice.service.CustodyService;
-import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
-import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
-import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
+import uk.gov.justice.probation.courtcaseservice.service.*;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
@@ -103,6 +86,8 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
     private CourtCaseService courtCaseService;
     @MockBean
     private OffenderUpdateService offenderUpdateService;
+    @MockBean
+    private CaseCommentsService caseCommentsService;
 
     @BeforeEach
     void setupTestTarget(PactVerificationContext context) {
@@ -133,7 +118,8 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
 
     @State({"a case exists with the given case id and defendant id",
             "the defendant has possible matches with existing offender records",
-            "an offender exists with the given defendantId"
+            "an offender exists with the given defendantId",
+            "a case exists with the given case id"
     })
     void existingCaseAndDefendant() {
         mockCase(CASE_ID, HEARING_ID, DEFENDANT_ID);
@@ -180,6 +166,16 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                                         .text("CJA - Indeterminate Public Prot.")
                                         .build())
                                 .build()));
+
+        when(caseCommentsService.createCaseComment(any(CaseCommentEntity.class)))
+            .thenReturn(CaseCommentEntity.builder()
+                .createdBy("TEST.USER")
+                .createdByUuid("cc2285f2-91b0-4e00-bd5e-9bdc35896bb6")
+                .caseId(CASE_ID)
+                .id(1234L)
+                .created(LocalDateTime.now())
+                .author("Adam Sandler")
+                .build());
     }
 
     private HearingEntity buildCourtCaseEntity(String caseId, String hearingId, String defendantId) {

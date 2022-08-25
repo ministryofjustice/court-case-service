@@ -9,8 +9,4 @@ export PAGER=
 # The topic that the receiver writes to
 aws --endpoint-url=http://localhost:4566 sns create-topic --name hmpps-domain-events
 
-# This queue is needed so we can receive from it in tests and so confirm the topic was posted to
-aws --endpoint-url http://localhost:4566 sqs create-queue --queue-name test-queue
-aws --endpoint-url=http://localhost:4566 sns subscribe --topic-arn "arn:aws:sns:eu-west-2:000000000000:hmpps-domain-events" --protocol "sqs" --notification-endpoint "http://localhost:4566/000000000000/test-queue"
-
 echo "SNS Configured"

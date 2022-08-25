@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
-import uk.gov.justice.probation.courtcaseservice.Constants;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRequest;
@@ -37,7 +36,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearin
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.security.AuthAwareAuthenticationToken;
+import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper;
 import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseHistoryService;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
@@ -58,7 +57,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static uk.gov.justice.probation.courtcaseservice.Constants.USER_UUID_CLAIM_NAME;
 
 @OpenAPIDefinition(info =
 @Info(
@@ -82,6 +80,7 @@ public class CourtCaseController {
     private final boolean enableCacheableCaseList;
     private final CourtCaseHistoryService courtCaseHistoryService;
     private final CaseCommentsService caseCommentsService;
+    private final AuthenticationHelper authenticationHelper;
 
     @Autowired
     public CourtCaseController(CourtCaseService courtCaseService,
@@ -89,6 +88,7 @@ public class CourtCaseController {
                                OffenderMatchService offenderMatchService,
                                OffenderUpdateService offenderUpdateService,
                                CaseCommentsService caseCommentsService,
+                               AuthenticationHelper authenticationHelper,
                                @Value("${feature.flags.enable-cacheable-case-list:true}") boolean enableCacheableCaseList) {
         this.courtCaseService = courtCaseService;
         this.offenderMatchService = offenderMatchService;
@@ -96,6 +96,7 @@ public class CourtCaseController {
         this.enableCacheableCaseList = enableCacheableCaseList;
         this.courtCaseHistoryService = courtCaseHistoryService;
         this.caseCommentsService = caseCommentsService;
+        this.authenticationHelper = authenticationHelper;
     }
 
     @Operation(description = "Gets the court case data by hearing id and defendant id.")
@@ -142,23 +143,18 @@ public class CourtCaseController {
             throw new ConflictingInputException(String.format("Case Id '%s' provided in the path does not match the one in the case comment request body submitted '%s'",
                 caseId, caseCommentRequest.getCaseId()));
         }
-        var caseCommentEntity = caseCommentsService.createCaseComment(caseCommentRequest.asEntity(getUserUuid(principal)));
+        var caseCommentEntity = caseCommentsService.createCaseComment(caseCommentRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
         return CaseCommentResponse.of(caseCommentEntity);
     }
 
-    @Operation(description = "Creates a comment on given court case.")
+    @Operation(description = "Deletes a comment from a given court case.")
     @DeleteMapping(value = "/cases/{caseId}/comments/{commentId}")
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     void deleteCaseComment(@PathVariable(value = "caseId") String caseId,
                            @PathVariable(value = "commentId") Long commentId,
                            Principal principal) {
-        var userUuid = getUserUuid(principal);
-        caseCommentsService.deleteCaseComment(caseId, commentId, userUuid);
-    }
-
-    private String getUserUuid(Principal principal) {
-        return ((AuthAwareAuthenticationToken)principal).getTokenAttributes().get(USER_UUID_CLAIM_NAME).toString();
+        caseCommentsService.deleteCaseComment(caseId, commentId, authenticationHelper.getAuthUserUuid(principal));
     }
 
     @Operation(description = "Returns extended court case data, by hearing id.")

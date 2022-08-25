@@ -49,3 +49,10 @@ pactbroker:
 #        type:
 #          descriptor:
 #            sql: trace
+
+
+hmpps.sqs:
+  provider: localstack
+  topics:
+    hmpps-domain-events:
+      arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}

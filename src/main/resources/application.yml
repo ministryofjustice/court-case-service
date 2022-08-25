@@ -145,3 +145,6 @@ feature:
   flags:
     enable-cacheable-case-list: true
 
+ingress:
+  url: "localhost"
+

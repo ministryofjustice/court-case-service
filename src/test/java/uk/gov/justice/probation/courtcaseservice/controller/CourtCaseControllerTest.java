@@ -26,6 +26,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.security.AuthAwareAuthenticationToken;
+import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper;
 import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseHistoryService;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
@@ -33,6 +34,7 @@ import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -87,6 +89,8 @@ class CourtCaseControllerTest {
 
     @Mock
     private AuthAwareAuthenticationToken principal;
+    @Mock
+    private AuthenticationHelper authenticationHelper;
 
     private CourtCaseController courtCaseController;
     private final HearingEntity hearingEntity = HearingEntity.builder()
@@ -112,7 +116,8 @@ class CourtCaseControllerTest {
 
     @BeforeEach
     public void setUp() {
-        courtCaseController = new CourtCaseController(courtCaseService, courtCaseHistoryService, offenderMatchService, offenderUpdateService, caseCommentsService, true);
+        courtCaseController = new CourtCaseController(courtCaseService, courtCaseHistoryService, offenderMatchService,
+            offenderUpdateService, caseCommentsService, authenticationHelper, true);
     }
 
     @Test
@@ -305,7 +310,7 @@ class CourtCaseControllerTest {
     @Test
     void givenCacheableCaseListDisabled_whenListIsNotModified_thenReturnFullList() {
         final var nonCachingController = new CourtCaseController(courtCaseService, courtCaseHistoryService,
-            offenderMatchService, offenderUpdateService, caseCommentsService, false);
+            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, false);
 
         final var courtCaseEntity = this.hearingEntity.withHearingDefendants(List.of(EntityHelper.aHearingDefendantEntity()))
                 .withHearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()
@@ -365,7 +370,7 @@ class CourtCaseControllerTest {
         var caseId = "case-id-one";
         var caseCommentEntity = CaseCommentEntity.builder().comment("comment one").author("Author One").caseId(caseId).build();
         Mockito.lenient().when(caseCommentsService.createCaseComment(any(CaseCommentEntity.class))).thenReturn(caseCommentEntity.withId(3456L));
-        given(principal.getTokenAttributes()).willReturn(Collections.singletonMap(USER_UUID_CLAIM_NAME, testUuid));
+        given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
 
         final var actual = courtCaseController.createCaseComment(caseId,
             CaseCommentRequest.builder()
@@ -373,7 +378,8 @@ class CourtCaseControllerTest {
                 .comment("comment-one")
                 .author("Test Author")
                 .build(),
-            principal);
+                principal
+                );
 
         verify(caseCommentsService).createCaseComment(any(CaseCommentEntity.class));
         assertThat(actual).isEqualTo(
@@ -420,7 +426,7 @@ class CourtCaseControllerTest {
     void givenCaseIdAndCommentId_shouldInvokeDeleteCommentService() {
         var caseId = "test-case-id";
         var commentId = 1234L;
-        given(principal.getTokenAttributes()).willReturn(Collections.singletonMap(USER_UUID_CLAIM_NAME, testUuid));
+        given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
 
         courtCaseController.deleteCaseComment(caseId, commentId, principal);
         verify(caseCommentsService).deleteCaseComment(caseId, commentId, testUuid);

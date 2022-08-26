@@ -56,6 +56,8 @@ public class ExtendedHearingRequestResponse {
 
     private final String hearingEventType;
 
+    private final String hearingType;
+
     public static ExtendedHearingRequestResponse of(HearingEntity hearing) {
         return ExtendedHearingRequestResponse.builder()
                 .caseNo(hearing.getCaseNo())
@@ -64,6 +66,7 @@ public class ExtendedHearingRequestResponse {
                 .urn(hearing.getCourtCase().getUrn())
                 .source(hearing.getSourceType().name())
                 .hearingEventType(Optional.ofNullable(hearing.getHearingEventType()).map(HearingEventType::getName).orElse(null))
+                .hearingType(hearing.getHearingType())
                 .hearingDays(hearing.getHearingDays().stream()
                         .map(hearingEntity -> HearingDay.builder()
                                 .courtCode(hearingEntity.getCourtCode())
@@ -201,6 +204,7 @@ public class ExtendedHearingRequestResponse {
                         .build())
                 .hearingId(Optional.ofNullable(hearingId).orElse(caseId))
                 .hearingEventType(HearingEventType.fromString(hearingEventType))
+                .hearingType(hearingType)
                 .build();
 
         hearingDayEntities.forEach(hearingDayEntity -> hearingDayEntity.setHearing(hearingEntity));

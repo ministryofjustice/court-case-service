@@ -189,6 +189,7 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.now());
         assertThat(courtCaseResponse.getProbationStatus().toUpperCase()).isEqualTo("CURRENT");
         assertThat(courtCaseResponse.getProbationStatusActual()).isEqualTo("CURRENT");
+        assertThat(courtCaseResponse.getHearingType()).isEqualTo("sentence");
 
         assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(3);
         assertThat(courtCaseResponse.getCaseComments()).hasSize(2);
@@ -343,6 +344,7 @@ class CourtCaseResponseMapperTest {
         return HearingEntity.builder()
                 .id(ID)
                 .hearingId(HEARING_ID)
+                .hearingType("sentence")
                 .courtCase(CourtCaseEntity.builder()
                         .sourceType(SourceType.COMMON_PLATFORM)
                         .caseNo(CASE_NO)

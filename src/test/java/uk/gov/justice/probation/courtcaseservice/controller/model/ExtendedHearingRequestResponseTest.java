@@ -51,6 +51,7 @@ class ExtendedHearingRequestResponseTest {
                 .caseId("CASE_ID")
                 .hearingId("HEARING_ID")
                 .hearingEventType("ConfirmedOrUpdated")
+                .hearingType("sentence")
                 .urn(URN)
                 .hearingDays(List.of(
                         HearingDay.builder()
@@ -72,6 +73,7 @@ class ExtendedHearingRequestResponseTest {
         assertThat(hearingEntity.getCaseId()).isEqualTo("CASE_ID");
         assertThat(hearingEntity.getHearingId()).isEqualTo("HEARING_ID");
         assertThat(hearingEntity.getCourtCase().getUrn()).isEqualTo(URN);
+        assertThat(hearingEntity.getHearingType()).isEqualTo("sentence");
         assertThat(hearingEntity.getHearingEventType()).isEqualTo(HearingEventType.CONFIRMED_OR_UPDATED);
         assertThat(hearingEntity.getHearingDays()).hasSize(2);
         assertThat(hearingEntity.getHearingDays()).extracting("listNo").contains("1st", "2nd");

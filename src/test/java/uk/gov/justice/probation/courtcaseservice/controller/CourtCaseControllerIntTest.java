@@ -426,6 +426,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             response
                 .body("caseId", equalTo(CASE_ID))
                 .body("hearingId", equalTo(HEARING_ID))
+                .body("hearingType", equalTo("sentence"))
                 .body("urn", equalTo("URN008"))
                 .body("offences", hasSize(2))
                 .body("offences[0].offenceTitle", equalTo("Theft from a shop"))

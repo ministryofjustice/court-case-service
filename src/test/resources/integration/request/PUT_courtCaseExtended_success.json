@@ -5,6 +5,7 @@
   "urn": "URN007",
   "source": "COMMON_PLATFORM",
   "hearingEventType": "ConfirmedOrUpdated",
+  "hearingType": "sentenced",
   "hearingDays": [
     {
       "courtCode": "B14LO",

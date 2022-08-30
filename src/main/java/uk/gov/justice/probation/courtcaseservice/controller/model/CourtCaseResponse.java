@@ -32,6 +32,7 @@ public class CourtCaseResponse {
 
     private final String caseId;
     private final String hearingId;
+    private final String hearingType;
     private final String caseNo;
     private final String crn;
     private final String urn;

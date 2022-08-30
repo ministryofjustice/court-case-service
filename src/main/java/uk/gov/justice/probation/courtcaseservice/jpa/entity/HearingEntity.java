@@ -90,6 +90,9 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     private final HearingEventType hearingEventType;
 
+    @Column(name = "HEARING_TYPE")
+    private final String hearingType;
+
     public String getCaseId() {
         return courtCase.getCaseId();
     }

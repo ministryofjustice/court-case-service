@@ -61,6 +61,7 @@ public class CourtCaseResponseMapper {
     private static void buildCaseFields(CourtCaseResponseBuilder builder, HearingEntity hearingEntity) {
         // Case-based fields
         builder.caseId(hearingEntity.getCaseId())
+            .hearingType(hearingEntity.getHearingType())
             .hearingId(hearingEntity.getHearingId())
             .urn(hearingEntity.getCourtCase().getUrn())
             .source(hearingEntity.getSourceType().name())

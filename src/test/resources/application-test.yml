@@ -53,6 +53,14 @@ pactbroker:
 
 hmpps.sqs:
   provider: localstack
+  queues:
+    picprobationoffendereventsqueue:
+      queueName: pic_probation_offender_events_queue
+      dlqName: pic_probation_offender_events_dlq
+      subscribeTopicId: probation-offender-events
+      subscribeFilter: '{"eventType":[ "SENTENCE_CHANGED", "CONVICTION_CHANGED"] }'
   topics:
     hmpps-domain-events:
+      arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
+    probation-offender-events:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}

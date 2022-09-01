@@ -67,7 +67,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.document.Document
 import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.ReportDocumentDates;
 
-import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -86,7 +85,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 @Provider("court-case-service")
-@PactBroker(consumerVersionSelectors = @VersionSelector(consumer = "prepare-a-case"))
+@PactBroker(consumerVersionSelectors = @VersionSelector(consumer = "prepare-a-case", tag = "main"))
 @ActiveProfiles("unsecured")
 class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
 

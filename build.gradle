@@ -110,7 +110,7 @@ task integrationTest(type: Test) {
     }
 }
 
-task pactTestPublish(type: Test) {
+task pactVerifyPublish(type: Test) {
     useJUnitPlatform()
     filter {
         excludeTestsMatching '*IntTest'
@@ -136,6 +136,8 @@ task pactTestPublish(type: Test) {
         }
     }
 }
+
+task pactTestPublish dependsOn pactVerifyPublish
 
 task unitTest(type: Test) {
     useJUnitPlatform()

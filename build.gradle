@@ -3,7 +3,7 @@ import java.time.LocalDate
 
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.7.2'
+    id 'org.springframework.boot' version '2.7.3'
     id 'io.spring.dependency-management' version '1.0.13.RELEASE'
     id 'com.github.ben-manes.versions' version '0.42.0'
     id "org.flywaydb.flyway" version "9.2.0"
@@ -30,7 +30,7 @@ project.targetCompatibility = JavaVersion.VERSION_16
 group = 'uk.gov.justice.probation'
 
 ext {
-    restAssuredVersion = '5.1.1'
+    restAssuredVersion = '4.5.1'
     pactVersion = '4.3.14'
 }
 
@@ -153,6 +153,12 @@ task wipTest(type: Test) {
 }
 
 dependencies {
+    modules {
+        module("org.codehaus.groovy:groovy") {
+            replacedBy("org.apache.groovy:groovy", "conflicts in current rest-assured version")
+        }
+    }
+
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3") {
         because("2.13.1 has vulnerabilities")
     }
@@ -168,7 +174,9 @@ dependencies {
 
     implementation 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 
-    implementation ('org.springframework.boot:spring-boot-starter-webflux')
+    implementation ('org.springframework.boot:spring-boot-starter-webflux') {
+        implementation('org.yaml:snakeyaml:1.31')
+    }
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "org.springframework.boot:spring-boot-starter-security"

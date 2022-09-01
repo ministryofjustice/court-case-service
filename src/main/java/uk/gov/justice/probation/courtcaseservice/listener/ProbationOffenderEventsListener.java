@@ -31,11 +31,10 @@ public class ProbationOffenderEventsListener {
 
     @JmsListener(destination = "picprobationoffendereventsqueue", containerFactory = "hmppsQueueContainerFactoryProxy")
     private void processMessage(String rawMessage) {
-        //TODO
-        // 1) extract the message
-        // 2) check crn present
-        // 3) If yes update the offender probation status
-
+        ProbationOffenderEvent probationOffenderEvent = getProbationOffenderEvent(rawMessage);
+        if (probationOffenderEvent != null && probationOffenderEvent.getCrn() != null) {
+            updateOffenderProbationStatus(probationOffenderEvent.getCrn());
+        }
     }
 
     private ProbationOffenderEvent getProbationOffenderEvent(String message) {
@@ -52,21 +51,22 @@ public class ProbationOffenderEventsListener {
                 .orElseThrow(() -> new EntityNotFoundException("Offender with crn %s does not exist", crn));
     }
 
-    //TODO better move this to offender service
     private OffenderEntity updateOffenderProbationStatus(String crn) {
         ProbationStatusDetail probationStatusDetail = offenderService.getProbationStatus(crn).block();
         if (probationStatusDetail == null) {
             log.error("Probation status details not available for {}", crn);
             return null;
-
         }
         OffenderEntity offender = getOffender(crn);
+        updateProbationStatusDetails(probationStatusDetail, offender);
+        return offenderRepository.save(offender);
+    }
+
+    private void updateProbationStatusDetails(ProbationStatusDetail probationStatusDetail, OffenderEntity offender) {
         offender.setProbationStatus(OffenderProbationStatus.of(probationStatusDetail.getStatus()));
         offender.setPreviouslyKnownTerminationDate(probationStatusDetail.getPreviouslyKnownTerminationDate());
         offender.setBreach(probationStatusDetail.getInBreach());
         offender.setAwaitingPsr(probationStatusDetail.getAwaitingPsr());
         offender.setPreSentenceActivity(probationStatusDetail.isPreSentenceActivity());
-        return offenderRepository.save(offender);
-
     }
 }

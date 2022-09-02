@@ -29,7 +29,6 @@ import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResp
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseHistory;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearingRequestResponse;
@@ -38,7 +37,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper;
 import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
-import uk.gov.justice.probation.courtcaseservice.service.CourtCaseHistoryService;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
@@ -78,13 +76,11 @@ public class CourtCaseController {
     private final OffenderMatchService offenderMatchService;
     private final OffenderUpdateService offenderUpdateService;
     private final boolean enableCacheableCaseList;
-    private final CourtCaseHistoryService courtCaseHistoryService;
     private final CaseCommentsService caseCommentsService;
     private final AuthenticationHelper authenticationHelper;
 
     @Autowired
     public CourtCaseController(CourtCaseService courtCaseService,
-                               CourtCaseHistoryService courtCaseHistoryService,
                                OffenderMatchService offenderMatchService,
                                OffenderUpdateService offenderUpdateService,
                                CaseCommentsService caseCommentsService,
@@ -94,7 +90,6 @@ public class CourtCaseController {
         this.offenderMatchService = offenderMatchService;
         this.offenderUpdateService = offenderUpdateService;
         this.enableCacheableCaseList = enableCacheableCaseList;
-        this.courtCaseHistoryService = courtCaseHistoryService;
         this.caseCommentsService = caseCommentsService;
         this.authenticationHelper = authenticationHelper;
     }
@@ -121,14 +116,6 @@ public class CourtCaseController {
                                                                           @Valid @RequestBody ExtendedHearingRequestResponse putHearingRequest) {
         return courtCaseService.createOrUpdateHearingByHearingId(hearingId, putHearingRequest.asHearingEntity())
                 .map(ExtendedHearingRequestResponse::of);
-    }
-
-    @Operation(description = "Returns a case's history.")
-    @GetMapping(value = "/cases/{caseId}", produces = APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody
-    CourtCaseHistory getCaseHistory(@PathVariable(value = "caseId") String caseId) {
-        return courtCaseHistoryService.getCourtCaseHistory(caseId);
     }
 
     @Operation(description = "Creates a comment on given court case.")

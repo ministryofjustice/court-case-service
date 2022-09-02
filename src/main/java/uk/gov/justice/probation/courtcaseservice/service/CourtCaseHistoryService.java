@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Deprecated(forRemoval = true)
 public class CourtCaseHistoryService {
 
     private final CourtCaseRepository courtCaseRepository;

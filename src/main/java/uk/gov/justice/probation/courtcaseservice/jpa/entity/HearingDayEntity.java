@@ -18,6 +18,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -31,7 +32,7 @@ import java.time.LocalTime;
 @SuperBuilder
 @Getter
 @With
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = "court")
 public class HearingDayEntity extends BaseImmutableEntity implements Serializable {
 
     @Id
@@ -53,6 +54,10 @@ public class HearingDayEntity extends BaseImmutableEntity implements Serializabl
 
     @Column(name = "COURT_CODE", nullable = false)
     private final String courtCode;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "COURT_CODE", referencedColumnName = "COURT_CODE")
+    private final CourtEntity court;
 
     @Column(name = "COURT_ROOM", nullable = false)
     private final String courtRoom;

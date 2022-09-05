@@ -60,7 +60,7 @@ hmpps.sqs:
       subscribeTopicId: probation-offender-events
       subscribeFilter: '{"eventType":[ "SENTENCE_CHANGED", "CONVICTION_CHANGED"] }'
   topics:
-    hmpps-domain-events:
+    hmppsdomainevents:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
     probation-offender-events:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}

@@ -11,7 +11,7 @@ import java.util.Optional;
 public class QueueConfig {
     @Bean
     public HmppsTopic hmppsDomainEventsTopic(HmppsQueueService hmppsQueueService) {
-        return Optional.ofNullable(hmppsQueueService.findByTopicId("hmpps-domain-events"))
-                .orElseThrow(() -> new RuntimeException("Fatal error: The hmpps-domain-events topic does not exist. The environment configuration may be faulty."));
+        return Optional.ofNullable(hmppsQueueService.findByTopicId("hmppsdomainevents"))
+                .orElseThrow(() -> new RuntimeException("Fatal error: The hmppsdomainevents topic does not exist. The environment configuration may be faulty."));
     }
 }

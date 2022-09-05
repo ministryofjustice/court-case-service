@@ -26,6 +26,6 @@ public class HealthCheckIntTest extends BaseIntTest {
         assertThatJson(response).node("components.communityApi.status").isEqualTo("UP");
         assertThatJson(response).node("components.nomisAuth.status").isEqualTo("UP");
         assertThatJson(response).node("components.nomisAuth.status").isEqualTo("UP");
-        assertThatJson(response).node("components.hmpps-domain-events-health.status").isEqualTo("UP");
+        assertThatJson(response).node("components.hmppsdomainevents-health.status").isEqualTo("UP");
     }
 }

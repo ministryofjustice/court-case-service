@@ -54,5 +54,5 @@ pactbroker:
 hmpps.sqs:
   provider: localstack
   topics:
-    hmpps-domain-events:
+    hmppsdomainevents:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}

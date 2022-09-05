@@ -152,6 +152,6 @@ hmpps:
   sqs:
     queueAdminRole: ROLE_QUEUE_WORKLOAD_ADMIN
     queues:
-      pic-probation-offender-events-queue:
+      picprobationoffendereventsqueue:
         asyncQueueClient: true
 

@@ -29,7 +29,7 @@ public class ProbationOffenderEventsListener {
         this.objectMapper = objectMapper;
     }
 
-    @JmsListener(destination = "pic-probation-offender-events-queue", containerFactory = "hmppsQueueContainerFactoryProxy")
+    @JmsListener(destination = "picprobationoffendereventsqueue", containerFactory = "hmppsQueueContainerFactoryProxy")
     private void processMessage(String rawMessage) {
         ProbationOffenderEvent probationOffenderEvent = getProbationOffenderEvent(rawMessage);
         if (probationOffenderEvent != null && probationOffenderEvent.getCrn() != null) {

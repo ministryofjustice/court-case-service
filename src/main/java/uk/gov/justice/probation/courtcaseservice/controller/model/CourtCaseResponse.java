@@ -14,6 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationSt
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -64,7 +65,7 @@ public class CourtCaseResponse {
     private final boolean removed;
     private final long numberOfPossibleMatches;
     private final Boolean awaitingPsr;
-    private final List<HearingResponse> hearings;
+    private final List<CaseProgressHearing> hearings;
     private final List<CaseCommentResponse> caseComments;
 
     @JsonProperty

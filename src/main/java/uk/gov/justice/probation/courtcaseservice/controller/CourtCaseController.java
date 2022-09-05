@@ -35,11 +35,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearin
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper;
-import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
-import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
-import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
-import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
+import uk.gov.justice.probation.courtcaseservice.service.*;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
 import javax.validation.Valid;
 import java.security.Principal;
@@ -78,6 +75,7 @@ public class CourtCaseController {
     private final boolean enableCacheableCaseList;
     private final CaseCommentsService caseCommentsService;
     private final AuthenticationHelper authenticationHelper;
+    private final CaseProgressService caseProgressService;
 
     @Autowired
     public CourtCaseController(CourtCaseService courtCaseService,
@@ -85,6 +83,7 @@ public class CourtCaseController {
                                OffenderUpdateService offenderUpdateService,
                                CaseCommentsService caseCommentsService,
                                AuthenticationHelper authenticationHelper,
+                               CaseProgressService caseProgressService,
                                @Value("${feature.flags.enable-cacheable-case-list:true}") boolean enableCacheableCaseList) {
         this.courtCaseService = courtCaseService;
         this.offenderMatchService = offenderMatchService;
@@ -92,13 +91,16 @@ public class CourtCaseController {
         this.enableCacheableCaseList = enableCacheableCaseList;
         this.caseCommentsService = caseCommentsService;
         this.authenticationHelper = authenticationHelper;
+        this.caseProgressService = caseProgressService;
     }
 
     @Operation(description = "Gets the court case data by hearing id and defendant id.")
     @GetMapping(value = "/hearing/{hearingId}/defendant/{defendantId}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCaseByHearingIdAndDefendantId(@PathVariable String hearingId, @PathVariable String defendantId) {
-        return this.buildCourtCaseResponseForCaseIdAndDefendantId(courtCaseService.getHearingByHearingIdAndDefendantId(hearingId, defendantId), defendantId);
+        HearingEntity hearingByHearingIdAndDefendantId = courtCaseService.getHearingByHearingIdAndDefendantId(hearingId, defendantId);
+        List<CaseProgressHearing> caseHearingProgress = caseProgressService.getCaseHearingProgress(hearingByHearingIdAndDefendantId.getCaseId());
+        return this.buildCourtCaseResponseForCaseIdAndDefendantId(hearingByHearingIdAndDefendantId, defendantId, caseHearingProgress);
     }
 
     @Operation(description = "Gets the court case data by case number.")
@@ -230,11 +232,10 @@ public class CourtCaseController {
                 .body(CaseListResponse.builder().cases(courtCaseResponses).build());
     }
 
-    private CourtCaseResponse buildCourtCaseResponseForCaseIdAndDefendantId(HearingEntity hearingEntity, String defendantId) {
+    private CourtCaseResponse buildCourtCaseResponseForCaseIdAndDefendantId(HearingEntity hearingEntity, String defendantId, List<CaseProgressHearing> caseHearings) {
         final var offenderMatchesCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingEntity.getCaseId(), defendantId)
                 .orElse(0);
-
-        return CourtCaseResponseMapper.mapFrom(hearingEntity, defendantId, offenderMatchesCount);
+        return CourtCaseResponseMapper.mapFrom(hearingEntity, defendantId, offenderMatchesCount, caseHearings);
     }
 
     private CourtCaseResponse buildCourtCaseResponse(HearingEntity hearingEntity) {
@@ -244,7 +245,7 @@ public class CourtCaseController {
                 .map(DefendantEntity::getDefendantId)
                 .orElseThrow(() -> new IllegalStateException(String.format("Court case with id %s does not have any defendants.", hearingEntity.getCaseId())));
 
-        return buildCourtCaseResponseForCaseIdAndDefendantId(hearingEntity, defendantId);
+        return buildCourtCaseResponseForCaseIdAndDefendantId(hearingEntity, defendantId, null);
     }
 
     private List<CourtCaseResponse> buildCourtCaseResponses(HearingEntity hearingEntity, LocalDate hearingDate) {
@@ -261,6 +262,4 @@ public class CourtCaseController {
                 })
                 .toList();
     }
-
-
 }

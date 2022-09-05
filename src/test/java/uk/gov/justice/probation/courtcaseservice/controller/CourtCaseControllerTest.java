@@ -27,9 +27,11 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.security.AuthAwareAuthenticationToken;
 import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper;
 import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
+import uk.gov.justice.probation.courtcaseservice.service.CaseProgressService;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
 import java.security.Principal;
 import java.time.LocalDate;
@@ -68,6 +70,9 @@ class CourtCaseControllerTest {
     private static final LocalDateTime CREATED_BEFORE = LocalDateTime.of(2020, 3, 23, 0, 0);
     private static final String testUuid = "test-uuid";
 
+    private final List<CaseProgressHearing> caseProgressHearings = List.of(CaseProgressHearing.builder().hearingId("test-hearing-one").build(),
+        CaseProgressHearing.builder().hearingId("test-hearing-two").build());
+
     @Mock
     private WebRequest webRequest;
     @Mock
@@ -85,6 +90,8 @@ class CourtCaseControllerTest {
     private AuthAwareAuthenticationToken principal;
     @Mock
     private AuthenticationHelper authenticationHelper;
+    @Mock
+    private CaseProgressService caseProgressService;
 
     private CourtCaseController courtCaseController;
     private final HearingEntity hearingEntity = HearingEntity.builder()
@@ -111,7 +118,7 @@ class CourtCaseControllerTest {
     @BeforeEach
     public void setUp() {
         courtCaseController = new CourtCaseController(courtCaseService, offenderMatchService,
-            offenderUpdateService, caseCommentsService, authenticationHelper, true);
+            offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, true);
     }
 
     @Test
@@ -304,7 +311,7 @@ class CourtCaseControllerTest {
     @Test
     void givenCacheableCaseListDisabled_whenListIsNotModified_thenReturnFullList() {
         final var nonCachingController = new CourtCaseController(courtCaseService,
-            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, false);
+            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, false);
 
         final var courtCaseEntity = this.hearingEntity.withHearingDefendants(List.of(EntityHelper.aHearingDefendantEntity()))
                 .withHearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()

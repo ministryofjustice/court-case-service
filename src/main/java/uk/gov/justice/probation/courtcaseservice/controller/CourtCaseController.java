@@ -35,7 +35,12 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearin
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.service.*;
+import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper;
+import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
+import uk.gov.justice.probation.courtcaseservice.service.CaseProgressService;
+import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
+import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
+import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
 import javax.validation.Valid;

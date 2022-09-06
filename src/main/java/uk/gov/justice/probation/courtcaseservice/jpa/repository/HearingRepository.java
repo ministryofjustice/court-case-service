@@ -84,5 +84,5 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
         "cc.case_id = :caseId " +
         "and h.fk_court_case_id = cc.id group by h.hearing_id)",
         nativeQuery = true)
-    List<HearingEntity> findHearingsByCaseId(String caseId);
+    Optional<List<HearingEntity>> findHearingsByCaseId(String caseId);
 }

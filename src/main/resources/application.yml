@@ -147,11 +147,3 @@ feature:
 
 ingress:
   url: "localhost"
-
-hmpps:
-  sqs:
-    queueAdminRole: ROLE_QUEUE_WORKLOAD_ADMIN
-    queues:
-      picprobationoffendereventsqueue:
-        asyncQueueClient: true
-

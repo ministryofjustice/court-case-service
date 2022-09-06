@@ -227,6 +227,9 @@ dependencies {
 
     agentDeps 'com.microsoft.azure:applicationinsights-agent:3.3.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+    // Spring ignores constructor binding on Kotlin data classes without this which in turn breaks hmpps-sqs-spring-boot-starter autoconfiguration
+    runtimeOnly 'org.jetbrains.kotlin:kotlin-reflect:1.7.10'
 }
 
 jacoco {

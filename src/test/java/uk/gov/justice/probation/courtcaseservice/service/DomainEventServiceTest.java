@@ -1,18 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClient;
-import com.amazonaws.services.sns.AmazonSNSClientBuilder;
-import com.amazonaws.services.sns.model.MessageAttributeValue;
 import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.services.sns.model.PublishResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,11 +13,6 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 import uk.gov.justice.hmpps.sqs.HmppsTopic;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -37,7 +24,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonRefer
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,14 +31,9 @@ import static org.mockito.Mockito.*;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM;
 
 @ExtendWith(MockitoExtension.class)
-//@Import(DomainEventServiceTest.DomainEventServiceConfig.class)
 public class DomainEventServiceTest {
 
-   // @Autowired
     private DomainEventService domainEventService;
-
-
-   private HmppsTopic hmppsTopic;
 
     @Mock
     private ObjectMapper objectMapper;
@@ -65,20 +46,16 @@ public class DomainEventServiceTest {
 
     @BeforeEach
     public void beforeClass() {
-/*        snsClient = (AmazonSNSClient) AmazonSNSClientBuilder.standard()
-                //.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration("http://localhost:4556", "eu-west-2"))
-                .withRegion(Regions.EU_WEST_2)
-                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("any", "any")))
-                .build();*/
-        hmppsTopic = new HmppsTopic("id", "arn", snsClient);
+        HmppsTopic hmppsTopic = new HmppsTopic("id", "arn", snsClient);
         domainEventService = new DomainEventService(objectMapper, hmppsTopic);
     }
 
 
     @Test
     public void shouldEmit_SentencedEvent_ForEachDefendant() throws JsonProcessingException {
-
-        var sentencedEventMessageAttribute = new MessageAttributeValue().withDataType("String").withStringValue(DomainEventType.SENTENCED_EVENT_TYPE.getEventTypeName());
+        when(objectMapper.writeValueAsString(any())).thenReturn
+                        (String.valueOf(buildDomainEventMessage("crn1", "cro1", "pnc1")))
+                .thenReturn(String.valueOf(buildDomainEventMessage("crn2", "cro2", "pnc2")));
 
         var hearingEntity = buildHearingEntity();
 
@@ -90,24 +67,23 @@ public class DomainEventServiceTest {
 
         verify(snsClient, times(2)).publish(publishRequestArgumentCaptor.capture());
 
-        var expectedPublishRequest1 = new PublishRequest("arn", String.valueOf(buildDomainEventMessage("crn1", "cro1", "pnc1")))
-                .withMessageAttributes(Collections.singletonMap("eventType", sentencedEventMessageAttribute));
-
-        var expectedPublishRequest2 = new PublishRequest("arn", String.valueOf(buildDomainEventMessage("crn2", "cro2", "pnc2")))
-                .withMessageAttributes(Collections.singletonMap("eventType", sentencedEventMessageAttribute));
-
         var actualPublishedRequest1 = publishRequestArgumentCaptor.getAllValues().get(0);
         var actualPublishedRequest2 = publishRequestArgumentCaptor.getAllValues().get(1);
 
-        assertThat(actualPublishedRequest1)
-                .usingRecursiveComparison()
-                .ignoringFields("occurredAt")
-                .isEqualTo(expectedPublishRequest1);
+        assertThat(actualPublishedRequest1.getMessageAttributes().get("eventType").getDataType()).isEqualTo("String");
+        assertThat(actualPublishedRequest1.getMessageAttributes().get("eventType").getStringValue()).isEqualTo("court.case.sentenced");
 
-        assertThat(actualPublishedRequest2)
-                .usingRecursiveComparison()
-                .ignoringFields("occurredAt")
-                .isEqualTo(expectedPublishRequest2);
+        assertThat(actualPublishedRequest1.getMessage()).contains("crn1");
+        assertThat(actualPublishedRequest1.getMessage()).contains("cro1");
+        assertThat(actualPublishedRequest1.getMessage()).contains("pnc1");
+
+
+        assertThat(actualPublishedRequest2.getMessageAttributes().get("eventType").getDataType()).isEqualTo("String");
+        assertThat(actualPublishedRequest2.getMessageAttributes().get("eventType").getStringValue()).isEqualTo("court.case.sentenced");
+
+        assertThat(actualPublishedRequest2.getMessage()).contains("crn2");
+        assertThat(actualPublishedRequest2.getMessage()).contains("cro2");
+        assertThat(actualPublishedRequest2.getMessage()).contains("pnc2");
     }
 
     private HearingEntity buildHearingEntity() {
@@ -156,28 +132,5 @@ public class DomainEventServiceTest {
                         .build())
                 .build();
     }
-
-/*    @TestConfiguration
-    class DomainEventServiceConfig {
-
-        @MockBean
-        private AmazonSNS amazonSNS;
-
-        @Bean
-        public ObjectMapper objectMapper() {
-            return new ObjectMapper();
-        }
-
-        @Bean
-        public HmppsTopic hmppsTopic() {
-            return new HmppsTopic("id", "arn", amazonSNS);
-        }
-
-        @Bean
-        public DomainEventService domainEventService(){
-            return new DomainEventService(objectMapper(),hmppsTopic());
-        }
-    }*/
-
 
 }

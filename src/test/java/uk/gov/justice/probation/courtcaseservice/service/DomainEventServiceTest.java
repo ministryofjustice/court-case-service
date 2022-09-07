@@ -57,7 +57,7 @@ public class DomainEventServiceTest {
     @Mock
     private ObjectMapper objectMapper;
 
-   // @Autowired
+    @Mock
     private AmazonSNSClient snsClient;
 
     @Captor
@@ -65,11 +65,11 @@ public class DomainEventServiceTest {
 
     @BeforeEach
     public void beforeClass() {
-        snsClient = (AmazonSNSClient) AmazonSNSClientBuilder.standard()
+/*        snsClient = (AmazonSNSClient) AmazonSNSClientBuilder.standard()
                 //.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration("http://localhost:4556", "eu-west-2"))
                 .withRegion(Regions.EU_WEST_2)
                 .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("any", "any")))
-                .build();
+                .build();*/
         hmppsTopic = new HmppsTopic("id", "arn", snsClient);
         domainEventService = new DomainEventService(objectMapper, hmppsTopic);
     }
@@ -84,7 +84,7 @@ public class DomainEventServiceTest {
 
         var result = new PublishResult().withMessageId("messageId");
 
-       // when(snsClient.publish(ArgumentMatchers.any(PublishRequest.class))).thenReturn(result);
+        when(snsClient.publish(ArgumentMatchers.any(PublishRequest.class))).thenReturn(result);
 
         domainEventService.emitSentencedEvent(hearingEntity);
 

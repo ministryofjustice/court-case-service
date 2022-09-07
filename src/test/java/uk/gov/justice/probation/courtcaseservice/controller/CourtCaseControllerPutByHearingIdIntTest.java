@@ -56,11 +56,6 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
     ObjectMapper objectMapper;
 
-
-    //AmazonSQSClient emittedEventsQueueSqsClient;
-
-
-
     private static final String CRN = "X320741";
     private static final AddressPropertiesEntity ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "Bangor", null, null, "ad21 5dr");
     private static final String NOT_FOUND_COURT_CODE = "LPL";
@@ -408,6 +403,8 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     void givenExistingCaseWithConfirmedOrUpdateType_whenUpdateWithResultedHearingEventType_thenUpdateSuccessfully() throws IOException {
 
         final var crn = "X723999";
+        var url = getEmittedEventsQueueUrl();
+
         final var createHearingJason = FileUtils.readFileToString(caseDetailsExtendedUpdate, "UTF-8");
 
         given()
@@ -430,6 +427,8 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                     assertThat(theCase.getHearingEventType()).isEqualTo(HearingEventType.CONFIRMED_OR_UPDATED);
 
                 }, () -> fail("Hearing event type should be ConfirmedOrUpdated"));
+
+        assertThat(getEmittedEventsQueueSqsClient().receiveMessage(url).getMessages()).isEmpty();
 
         final var resultedHearingEventType = "Resulted";
 
@@ -458,8 +457,6 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 }, () -> fail("Hearing event type should be Resulted"));
 
         await().atLeast(Duration.ofMillis(100));
-
-        var url = getEmittedEventsQueueUrl();
 
         var rawMessage = objectMapper.readValue(getEmittedEventsQueueSqsClient().receiveMessage(url).getMessages().get(0).getBody(), EventMessage.class);
         assertThat(rawMessage).isNotNull();

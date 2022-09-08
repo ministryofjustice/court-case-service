@@ -67,7 +67,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
     }
 
 
-    @State({"a hearing exists for court B10JQ and case number 1600028913"})
+    @State({"a hearing exists for court B10JQ, case number 1600028913 and list number 2nd"})
     void getHearingByCaseNumber() {
         var hearingEntity = HearingEntity.builder()
                 .hearingId("8bbb4fe3-a899-45c7-bdd4-4ee25ac5a83f")

@@ -54,10 +54,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.probation.courtcaseservice.Constants.USER_UUID_CLAIM_NAME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM;
 
 @ExtendWith(MockitoExtension.class)
@@ -122,9 +122,9 @@ class CourtCaseControllerTest {
 
     @Test
     void getCourtCase_shouldReturnCourtCaseResponse() {
-        when(courtCaseService.getHearingByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(hearingEntity);
+        when(courtCaseService.getHearingByCaseNumber(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(hearingEntity);
         when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(3));
-        var courtCase = courtCaseController.getCourtCase(COURT_CODE, CASE_NO);
+        var courtCase = courtCaseController.getCourtCase(COURT_CODE, CASE_NO, LIST_NO);
         assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCase.getCaseNo()).isNull();
         assertThat(courtCase.getSource()).isEqualTo("COMMON_PLATFORM");
@@ -132,17 +132,17 @@ class CourtCaseControllerTest {
         assertThat(courtCase.getSession()).isSameAs(session);
         assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(3);
 
-        verify(courtCaseService).getHearingByCaseNumber(COURT_CODE, CASE_NO);
+        verify(courtCaseService).getHearingByCaseNumber(COURT_CODE, CASE_NO, LIST_NO);
         verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 
     @Test
     void givenNoDefendants_whenGetCourtCase_thenShouldThrowExceptionWithCaseId() {
-        when(courtCaseService.getHearingByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(hearingEntity.withHearingDefendants(Collections.emptyList()));
+        when(courtCaseService.getHearingByCaseNumber(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(hearingEntity.withHearingDefendants(Collections.emptyList()));
 
         assertThatExceptionOfType(IllegalStateException.class)
-                .isThrownBy(() -> courtCaseController.getCourtCase(COURT_CODE, CASE_NO))
+                .isThrownBy(() -> courtCaseController.getCourtCase(COURT_CODE, CASE_NO, LIST_NO))
                 .withMessageContaining(hearingEntity.getCaseId());
 
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);

@@ -99,7 +99,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                 .build())
                         .build()))
                 .build();
-        when(courtCaseService.getHearingByCaseNumber("B10JQ", "1600028913")).thenReturn(hearingEntity);
+        when(courtCaseService.getHearingByCaseNumber("B10JQ", "1600028913", "2nd")).thenReturn(hearingEntity);
     }
 
     @State({"a hearing exists for hearingId 8bbb4fe3-a899-45c7-bdd4-4ee25ac5a83f"})

@@ -79,4 +79,10 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
         nativeQuery = true)
     Optional<LocalDateTime> findLastModifiedByHearingDay(String courtCode, LocalDate hearingDay);
 
+    @Query(value = "select * from hearing where id in (" +
+        "select max(h.id) from hearing h, court_case cc where " +
+        "cc.case_id = :caseId " +
+        "and h.fk_court_case_id = cc.id group by h.hearing_id)",
+        nativeQuery = true)
+    Optional<List<HearingEntity>> findHearingsByCaseId(String caseId);
 }

@@ -59,8 +59,11 @@ public class ProbationOffenderEventsListener {
             return null;
         }
         OffenderEntity offender = getOffender(crn);
-        updateProbationStatusDetails(probationStatusDetail, offender);
-        return offenderRepository.save(offender);
+        if (offender != null) {
+            updateProbationStatusDetails(probationStatusDetail, offender);
+            return offenderRepository.save(offender);
+        }
+        return null;
     }
 
     private void updateProbationStatusDetails(ProbationStatusDetail probationStatusDetail, OffenderEntity offender) {

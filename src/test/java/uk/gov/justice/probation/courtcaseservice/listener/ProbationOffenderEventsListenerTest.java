@@ -15,6 +15,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
+import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.ProbationOffenderEvent;
 
@@ -23,6 +24,7 @@ import java.time.Month;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -102,6 +104,7 @@ public class ProbationOffenderEventsListenerTest {
         probationOffenderEventsListener.processMessage(offenderEventMessage);
 
         verify(offenderService).getProbationStatus("crn");
+        verify(offenderRepository).findByCrn("crn");
 
         verify(offenderRepository).save(offenderEntityArgumentCaptor.capture());
 
@@ -111,6 +114,34 @@ public class ProbationOffenderEventsListenerTest {
         assertThat(offenderEntityToUpdate.isBreach()).isEqualTo(true);
         assertThat(offenderEntityToUpdate.isPreSentenceActivity()).isEqualTo(true);
         assertThat(offenderEntityToUpdate.getAwaitingPsr()).isEqualTo(true);
-        assertThat(offenderEntityToUpdate.getPreviouslyKnownTerminationDate()).isSameAs(LocalDate.of(2025, Month.SEPTEMBER, 1));
+        assertThat(offenderEntityToUpdate.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2025, Month.SEPTEMBER, 1));
+    }
+
+    @Test
+    public void shouldNot_updateOffenderProbationStatus_whenOffenderEventMessageHasNoCrn() throws JsonProcessingException {
+        when(objectMapper.readValue(anyString(), eq(EventMessage.class))).thenReturn(EventMessage.builder().message(offenderEventMessage).build());
+        when(objectMapper.readValue(anyString(), eq(ProbationOffenderEvent.class))).thenReturn(ProbationOffenderEvent.builder().crn("").build());
+
+        probationOffenderEventsListener.processMessage(offenderEventMessage);
+
+        verify(offenderService, times(0)).getProbationStatus("crn");
+        verify(offenderRepository, times(0)).findByCrn("crn");
+        verify(offenderRepository, times(0)).save(offenderEntityArgumentCaptor.capture());
+    }
+
+    @Test
+    void shouldNot_updateOffenderProbationStatus_whenNoOffenderExistForTheCrn() throws JsonProcessingException {
+        when(objectMapper.readValue(anyString(), eq(EventMessage.class))).thenReturn(EventMessage.builder().message(offenderEventMessage).build());
+        when(objectMapper.readValue(anyString(), eq(ProbationOffenderEvent.class))).thenReturn(ProbationOffenderEvent.builder().crn("crn").build());
+
+        when(offenderService.getProbationStatus(anyString())).thenReturn(Mono.just(probationStatusDetail));
+        when(offenderRepository.findByCrn(anyString())).thenReturn(Optional.empty());
+
+        Exception e = assertThrows(EntityNotFoundException.class, () -> probationOffenderEventsListener.processMessage("something"));
+
+        verify(offenderService).getProbationStatus("crn");
+        verify(offenderRepository).findByCrn("crn");
+        verify(offenderRepository, times(0)).save(offenderEntityArgumentCaptor.capture());
+
     }
 }

@@ -59,6 +59,10 @@ hmpps.sqs:
       dlqName: pic_probation_offender_events_dlq
       subscribeTopicId: probation-offender-events
       subscribeFilter: '{"eventType":[ "SENTENCE_CHANGED", "CONVICTION_CHANGED"] }'
+    emittedeventsqueue:
+      queueName: emitted_events_queue
+      subscribeTopicId: hmppsdomainevents
+      subscribeFilter: '{"eventType":[ "court.case.sentenced"] }'
   topics:
     hmppsdomainevents:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}

@@ -11,6 +11,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
@@ -19,11 +20,14 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationSta
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
+import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEventMessage;
+import uk.gov.justice.probation.courtcaseservice.testUtil.EventMessage;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -32,12 +36,11 @@ import java.time.format.DateTimeFormatter;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static org.springframework.util.StreamUtils.copyToString;
+import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.OFFENDER_PNC;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
@@ -50,6 +53,8 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
     @Autowired
     OffenderRepository offenderRepository;
+
+    ObjectMapper objectMapper;
 
     private static final String CRN = "X320741";
     private static final AddressPropertiesEntity ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "Bangor", null, null, "ad21 5dr");
@@ -75,6 +80,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
     @BeforeEach
     void beforeEach() throws Exception {
+        objectMapper = new ObjectMapper();
         caseDetailsExtendedJson = Files.readString(caseDetailsExtendedResource.getFile().toPath());
     }
 
@@ -397,6 +403,8 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     void givenExistingCaseWithConfirmedOrUpdateType_whenUpdateWithResultedHearingEventType_thenUpdateSuccessfully() throws IOException {
 
         final var crn = "X723999";
+        var url = getEmittedEventsQueueUrl();
+
         final var createHearingJason = FileUtils.readFileToString(caseDetailsExtendedUpdate, "UTF-8");
 
         given()
@@ -419,6 +427,8 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                     assertThat(theCase.getHearingEventType()).isEqualTo(HearingEventType.CONFIRMED_OR_UPDATED);
 
                 }, () -> fail("Hearing event type should be ConfirmedOrUpdated"));
+
+        assertThat(getEmittedEventsQueueSqsClient().receiveMessage(url).getMessages()).isEmpty();
 
         final var resultedHearingEventType = "Resulted";
 
@@ -445,6 +455,22 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                     assertThat(theCase.getHearingEventType()).isEqualTo(HearingEventType.RESULTED);
 
                 }, () -> fail("Hearing event type should be Resulted"));
-    }
 
+        await().atLeast(Duration.ofMillis(100));
+
+        var rawMessage = objectMapper.readValue(getEmittedEventsQueueSqsClient().receiveMessage(url).getMessages().get(0).getBody(), EventMessage.class);
+        assertThat(rawMessage).isNotNull();
+
+        var sentencedDomainEventMessage = objectMapper.readValue(rawMessage.getMessage(), DomainEventMessage.class);
+        assertThat(sentencedDomainEventMessage).isNotNull();
+
+        assertThat(sentencedDomainEventMessage.getEventType()).isEqualTo("court.case.sentenced");
+        assertThat(sentencedDomainEventMessage.getDetailUrl()).isEqualTo("https://localhost/hearing/75e63d6c-5487-4244-a5bc-7cf8a38992db");
+        assertThat(sentencedDomainEventMessage.getPersonReference().getIdentifiers().get(0).getType()).isEqualTo("CRN");
+        assertThat(sentencedDomainEventMessage.getPersonReference().getIdentifiers().get(0).getValue()).isEqualTo("X320741");
+        assertThat(sentencedDomainEventMessage.getPersonReference().getIdentifiers().get(1).getType()).isEqualTo("CRO");
+        assertThat(sentencedDomainEventMessage.getPersonReference().getIdentifiers().get(1).getValue()).isEqualTo("99999");
+        assertThat(sentencedDomainEventMessage.getPersonReference().getIdentifiers().get(2).getType()).isEqualTo("PNC");
+        assertThat(sentencedDomainEventMessage.getPersonReference().getIdentifiers().get(2).getValue()).isEqualTo("A/1234560BA");
+    }
 }

@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.URN;
 
 @Provider("court-case-service")
-@PactBroker(consumerVersionSelectors = @VersionSelector(consumer = "court-case-matcher"))
+@PactBroker(consumerVersionSelectors = @VersionSelector(consumer = "court-case-matcher", tag="${PACT_CONSUMER_TAG}"))
 @PactFolder("src/test/resources/pact")
 @ActiveProfiles("unsecured")
 class CourtCaseMatcherVerificationPactTest extends BaseIntTest {

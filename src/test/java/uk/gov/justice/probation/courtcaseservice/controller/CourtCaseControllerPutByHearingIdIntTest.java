@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import com.amazonaws.services.sqs.model.PurgeQueueRequest;
 import com.microsoft.applicationinsights.boot.dependencies.apachecommons.io.FileUtils;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
@@ -82,6 +83,8 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     void beforeEach() throws Exception {
         objectMapper = new ObjectMapper();
         caseDetailsExtendedJson = Files.readString(caseDetailsExtendedResource.getFile().toPath());
+        getEmittedEventsQueueSqsClient().purgeQueue(new PurgeQueueRequest(getEmittedEventsQueueUrl()));
+
     }
 
     @Test

@@ -11,6 +11,7 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 import uk.gov.justice.probation.courtcaseservice.testUtil.OffenderEvent;
+import com.amazonaws.services.sqs.model.PurgeQueueRequest;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -27,6 +28,7 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
     @BeforeEach
     public void setUp(){
         objectMapper = new ObjectMapper();
+        getOffenderEventReceiverQueueSqsClient().purgeQueue(new PurgeQueueRequest(getOffenderEventReceiverQueueUrl()));
     }
 
     @Test

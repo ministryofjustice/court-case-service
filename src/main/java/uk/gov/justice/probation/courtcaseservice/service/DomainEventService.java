@@ -59,7 +59,7 @@ public class DomainEventService {
                                     .build())
                             .build();
 
-                    var sentencedEventMessageAttribute = new MessageAttributeValue().withDataType("String").withStringValue(sentencedEventMessage.getEventType());
+                    var sentencedEventMessageAttribute = new MessageAttributeValue().withDataType("String").withStringValue(sentencedEventType.getEventTypeName());
 
                     try {
                         PublishRequest publishRequest = new PublishRequest(topic.getArn(), objectMapper.writeValueAsString(sentencedEventMessage))

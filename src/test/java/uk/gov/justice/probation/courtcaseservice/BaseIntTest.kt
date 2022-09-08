@@ -49,6 +49,12 @@ abstract class BaseIntTest {
 
   protected val emittedEventsQueueUrl by lazy { emittedEventsQueue.queueUrl }
 
+  protected val offenderEventTopic by lazy { hmppsQueueService.findByTopicId("probationoffenderevents") ?: throw MissingQueueException("probationoffenderevents topis not found") }
+
+  protected val offenderEventReceiverQueue by lazy { hmppsQueueService.findByQueueId("picprobationoffendereventsqueue") ?: throw MissingQueueException("picprobationoffendereventsqueue not found") }
+  protected val offenderEventReceiverQueueSqsClient by lazy { offenderEventReceiverQueue.sqsClient }
+  protected val offenderEventReceiverQueueUrl by lazy { offenderEventReceiverQueue.queueUrl }
+
   companion object {
     private val localStackContainer = LocalStackHelper.instance
 

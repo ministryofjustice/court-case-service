@@ -20,8 +20,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationSta
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
+import uk.gov.justice.probation.courtcaseservice.listener.EventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEventMessage;
-import uk.gov.justice.probation.courtcaseservice.testUtil.EventMessage;
 
 import java.io.File;
 import java.io.IOException;

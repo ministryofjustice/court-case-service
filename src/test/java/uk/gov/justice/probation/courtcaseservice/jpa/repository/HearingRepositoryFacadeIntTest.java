@@ -76,7 +76,7 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
 
     @Test
     public void whenFindByCourtCodeAndCaseNo_thenReturnCorrectRecordWithOffender() {
-        final var actual = hearingRepositoryFacade.findByCourtCodeAndCaseNo("B33HU", "1600028888");
+        final var actual = hearingRepositoryFacade.findByCourtCodeAndCaseNo("B33HU", "1600028888", "3rd");
 
         assertIsFerrisBueller(actual);
     }

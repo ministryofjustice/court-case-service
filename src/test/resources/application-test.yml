@@ -53,6 +53,11 @@ pactbroker:
 
 hmpps.sqs:
   provider: localstack
+  queues:
+    emittedeventsqueue:
+      queueName: emitted_events_queue
+      subscribeTopicId: hmppsdomainevents
+      subscribeFilter: '{"eventType":[ "court.case.sentenced"] }'
   topics:
-    hmpps-domain-events:
+    hmppsdomainevents:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}

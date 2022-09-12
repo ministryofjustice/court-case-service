@@ -1,22 +1,3 @@
 #!/bin/bash
 
-do_exit=false
-
-pwd
-
-if ! grep 'tag = "main"' "./src/test/java/uk/gov/justice/probation/courtcaseservice/pact/CourtCaseMatcherVerificationPactTest.java" ; then
-  echo "❌  Unexpected change to CourtCaseMatcherVerificationPactTest.java, it looks like the consumer tag has been set to something other than 'tag = main'. The default configuration should always be run against the main branch so please fix and retry."
-  do_exit=true
-fi
-
-if ! grep 'tag = "main"' "./src/test/java/uk/gov/justice/probation/courtcaseservice/pact/PrepareACaseConsumerVerificationPactTest.java" ; then
-  echo "❌  Unexpected change to PrepareACaseVerificationPactTest.java, it looks like the consumer tag has been set to something other than 'tag = main'. The default configuration should always be run against the main branch so please fix and retry."
-  do_exit=true
-fi
-
-if [ $do_exit = "true" ]; then
-  echo "👋 Exiting"
-  exit 1
-fi
-
 ./gradlew unitTest

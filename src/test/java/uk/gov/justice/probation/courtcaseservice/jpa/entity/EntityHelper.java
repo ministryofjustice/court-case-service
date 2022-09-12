@@ -190,7 +190,6 @@ public class EntityHelper {
         var defendant = aHearingDefendantEntity(DEFENDANT_ID, crn);
         return HearingEntity.builder()
                 .hearingId(HEARING_ID)
-                .hearingEventType(HearingEventType.RESULTED)
                 .deleted(false)
                 .firstCreated(LocalDateTime.now())
                 .hearingDefendants(List.of(defendant))

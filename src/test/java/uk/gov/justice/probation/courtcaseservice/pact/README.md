@@ -17,13 +17,11 @@ PACTBROKER_URL=https://pact-broker-prod.apps.live-1.cloud-platform.service.justi
 
 ## 🌳 Verifying changes on a consumer branch
 
-To make sure that these tests don't fail in the pipeline you can run the consumer contracts tagged with a branch name on your local machine before pushing it to the remote repository. To do this you need to amend the following line in the relevant `VerificationPactTest`  to set the tag to the specific branch name that you want to test against. The specific contract will be fetched from the [Pact Broker](https://pact-broker-prod.apps.live-1.cloud-platform.service.justice.gov.uk) so check here that the tag you expect exists if you hit problems.
+To make sure that these tests don't fail in the pipeline you can run the consumer contracts tagged with a branch name on your local machine before pushing it to the remote repository. To do this specify a `PACT_CONSUMER_TAG` environmental variable to set the tag to the specific branch name that you want to test against. The following line of code in the PactTest configures the specific contract which will be fetched from the [Pact Broker](https://pact-broker-prod.apps.live-1.cloud-platform.service.justice.gov.uk).
 
 ```
-@PactBroker(consumerVersionSelectors = @VersionSelector(consumer = "court-case-matcher", tag = "PIC-2290-fix"))
+@PactBroker(consumerVersionSelectors = @VersionSelector(consumer = "court-case-matcher", tag="${PACT_CONSUMER_TAG}", fallbackTag = "main"))
 ```
-
-JE Note: This is not a particularly great way of doing it as it runs the risk of committing the new tag instead of `main` which should be our default. Unfortunately having tried getting it to work with env vars I had no success as Pact just doesn't pick them up. Please feel free to have a go yourself as it's almost certainly a really simple thing that's wrong. As a next best effort I've added a check on the `pre-commit` git hook that will fail if `tag = "main"` is not present in these files. You can run `./gradlew installGitHooks` to update your git hooks to include this check.
 
 When you then run `./gradlew pactTestPublish` you can then confirm it has found the right version by checking that the following notice is printed to the console and has the correct value after `latest version of <consumer> tagged '<tag>'`.
 
@@ -35,9 +33,9 @@ e.g.
 
 ## 💥 The verification failed! 
 
-Part of the challenge with contract testing is understanding which link in the chain has broken so you can focus on that part and ignore the many other parts. Taking a few minutes before you dive in to get this clear in your head is well worthwhile and a very good starting point.
+Part of the challenge with contract testing is understanding which link in the chain has broken so you can focus on that part and ignore the many other parts. Taking a few minutes before you dive in to get this clear in your head is well worthwhile.
 
-That being the case, a failure at this stage tells us that the consumer has a well-defined contract and its tests are passing against that contract, if this wasn't the case then the consumer wouldn't have been able to publish to the Pact Broker. In other words, the consumer might be expecting the wrong thing of the provider but its consistent with its own expectations. So starting with the assumption that the consumer probably is asking for the right thing, we need to check the provider (`court-case-service`) is actually providing what it's supposed to, if the consumer's expectations are wrong then this will usually become apparent when we find the problem. 
+That being the case, a failure at the `verification` stage tells us that the consumer has a well-defined contract and its tests are passing against that contract, if this wasn't the case then the consumer wouldn't have been able to publish to the Pact Broker. In other words, the consumer might be expecting the wrong thing of the provider but its consistent with its own expectations. So starting with the assumption that the consumer is probably asking for the right thing, we need to check the provider (`court-case-service`) is actually providing what it's supposed to, if the consumer's expectations are wrong then this will usually become apparent when we find the problem. 
 
 Typical failures at this stage are:
 - A **state** that the consumer is expecting doesn't exist or has a different name

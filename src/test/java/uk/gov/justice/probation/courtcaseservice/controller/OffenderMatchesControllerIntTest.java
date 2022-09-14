@@ -1,6 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
+import io.restassured.config.JsonConfig;
+import io.restassured.config.RestAssuredConfig;
+import io.restassured.path.json.config.JsonPathConfig;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.jdbc.Sql;
@@ -34,7 +37,8 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
             "            },\n" +
             "            \"matchType\": \"NAME_DOB\",\n" +
             "            \"confirmed\": \"true\",\n" +
-            "            \"rejected\": \"false\"\n" +
+            "            \"rejected\": \"false\",\n" +
+            "            \"matchProbability\": 0.9876" +
             "        }\n" +
             "    ]\n" +
             "}";
@@ -47,7 +51,8 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
             "      },\n" +
             "      \"matchType\": \"PARTIAL_NAME\",\n" +
             "      \"confirmed\": \"false\",\n" +
-            "      \"rejected\": \"false\"\n" +
+            "      \"rejected\": \"false\",\n" +
+            "      \"matchProbability\": 0.1234" +
             "    },\n" +
             "    {\n" +
             "      \"matchIdentifiers\": {\n" +
@@ -55,7 +60,8 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
             "      },\n" +
             "      \"matchType\": \"NAME_DOB_ALIAS\",\n" +
             "      \"confirmed\": \"false\",\n" +
-            "      \"rejected\": \"false\"\n" +
+            "      \"rejected\": \"false\",\n" +
+            "      \"matchProbability\": 0.5678" +
             "    },\n" +
             "    {\n" +
             "      \"matchIdentifiers\": {\n" +
@@ -79,10 +85,15 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
             "      },\n" +
             "      \"matchType\": \"NAME_DOB_ALIAS\",\n" +
             "      \"confirmed\": true,\n" +
-            "      \"rejected\": false\n" +
+            "      \"rejected\": false,\n" +
+            "      \"matchProbability\": 0.9876" +
             "    }\n" +
             "  ]\n" +
             "}";
+    private static final RestAssuredConfig JSON_DOUBLE_FOR_NUMBERS = RestAssuredConfig.config()
+            .jsonConfig(JsonConfig.jsonConfig()
+                    .with()
+                    .numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE));
 
     @Nested
     class MatchDetailByDefendantId {
@@ -104,33 +115,31 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                     .statusCode(200);
 
             validatableResponse.body("offenderMatchDetails", hasSize(1))
-                .body("offenderMatchDetails[0].title", equalTo("Mr."))
-                .body("offenderMatchDetails[0].forename", equalTo("Aadland"))
-                .body("offenderMatchDetails[0].middleNames", hasSize(2))
-                .body("offenderMatchDetails[0].middleNames[0]", equalTo("Felix"))
-                .body("offenderMatchDetails[0].middleNames[1]", equalTo("Hope"))
-                .body("offenderMatchDetails[0].surname", equalTo("Bertrand"))
-                .body("offenderMatchDetails[0].dateOfBirth", equalTo("2000-07-19"))
-                .body("offenderMatchDetails[0].address.addressNumber", equalTo("19"))
-                .body("offenderMatchDetails[0].address.streetName", equalTo("Junction Road"))
-                .body("offenderMatchDetails[0].address.district", equalTo("Blackheath"))
-                .body("offenderMatchDetails[0].address.town", equalTo("Sheffield"))
-                .body("offenderMatchDetails[0].address.county", equalTo("South Yorkshire"))
-                .body("offenderMatchDetails[0].address.postcode", equalTo("S10 2NA"))
-                .body("offenderMatchDetails[0].matchIdentifiers.crn", equalTo("X320741"))
-                .body("offenderMatchDetails[0].matchIdentifiers.pnc", equalTo("2004/0712343H"))
-                .body("offenderMatchDetails[0].matchIdentifiers.cro", equalTo("123456/04A"))
-                .body("offenderMatchDetails[0].probationStatus", equalTo("Previously known"))
-                .body("offenderMatchDetails[0].probationStatusActual", equalTo("PREVIOUSLY_KNOWN"))
-                .body("offenderMatchDetails[0].mostRecentEvent.text", equalTo("CJA - Indeterminate Public Prot."))
-                .body("offenderMatchDetails[0].mostRecentEvent.length", equalTo(5))
-                .body("offenderMatchDetails[0].mostRecentEvent.lengthUnits", equalTo("Years"))
-                .body("offenderMatchDetails[0].mostRecentEvent.startDate", equalTo("2014-01-01"))
-                .body("offenderMatchDetails[0].matchIdentifiers.aliases", hasSize(2))
-                .body("offenderMatchDetails[0].matchIdentifiers.aliases[0].gender", equalTo("Male"))
-                .body("offenderMatchDetails[0].matchIdentifiers.aliases[0].firstName", equalTo("Aliasone"))
-                .body("offenderMatchDetails[0].matchIdentifiers.aliases[1].firstName", equalTo("Aliastwo"))
-                .body("offenderMatchDetails[0].matchIdentifiers.aliases[1].dateOfBirth", equalTo("2022-05-17"))
+                    .body("offenderMatchDetails[0].title", equalTo("Mr."))
+                    .body("offenderMatchDetails[0].forename", equalTo("Aadland"))
+                    .body("offenderMatchDetails[0].middleNames", hasSize(2))
+                    .body("offenderMatchDetails[0].middleNames[0]", equalTo("Felix"))
+                    .body("offenderMatchDetails[0].middleNames[1]", equalTo("Hope"))
+                    .body("offenderMatchDetails[0].surname", equalTo("Bertrand"))                .body("offenderMatchDetails[0].address.addressNumber", equalTo("19"))
+                    .body("offenderMatchDetails[0].address.streetName", equalTo("Junction Road"))
+                    .body("offenderMatchDetails[0].address.district", equalTo("Blackheath"))
+                    .body("offenderMatchDetails[0].address.town", equalTo("Sheffield"))
+                    .body("offenderMatchDetails[0].address.county", equalTo("South Yorkshire"))
+                    .body("offenderMatchDetails[0].address.postcode", equalTo("S10 2NA"))
+                    .body("offenderMatchDetails[0].matchIdentifiers.crn", equalTo("X320741"))
+                    .body("offenderMatchDetails[0].matchIdentifiers.pnc", equalTo("2004/0712343H"))
+                    .body("offenderMatchDetails[0].matchIdentifiers.cro", equalTo("123456/04A"))
+                    .body("offenderMatchDetails[0].probationStatus", equalTo("Previously known"))
+                    .body("offenderMatchDetails[0].probationStatusActual", equalTo("PREVIOUSLY_KNOWN"))
+                    .body("offenderMatchDetails[0].mostRecentEvent.text", equalTo("CJA - Indeterminate Public Prot."))
+                    .body("offenderMatchDetails[0].mostRecentEvent.length", equalTo(5))
+                    .body("offenderMatchDetails[0].mostRecentEvent.lengthUnits", equalTo("Years"))
+                    .body("offenderMatchDetails[0].mostRecentEvent.startDate", equalTo("2014-01-01"))
+                    .body("offenderMatchDetails[0].matchIdentifiers.aliases", hasSize(2))
+                    .body("offenderMatchDetails[0].matchIdentifiers.aliases[0].gender", equalTo("Male"))
+                    .body("offenderMatchDetails[0].matchIdentifiers.aliases[0].firstName", equalTo("Aliasone"))
+                    .body("offenderMatchDetails[0].matchIdentifiers.aliases[1].firstName", equalTo("Aliastwo"))
+                    .body("offenderMatchDetails[0].matchIdentifiers.aliases[1].dateOfBirth", equalTo("2022-05-17"))
             ;
         }
 
@@ -149,16 +158,16 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                     .statusCode(200);
 
             validatableResponse.body("offenderMatchDetails", hasSize(1))
-                .body("offenderMatchDetails[0].title", equalTo(null))
-                .body("offenderMatchDetails[0].forename", equalTo("Nic"))
-                .body("offenderMatchDetails[0].middleNames", hasSize(0))
-                .body("offenderMatchDetails[0].surname", equalTo("Cage"))
-                .body("offenderMatchDetails[0].dateOfBirth", equalTo("1965-07-19"))
-                .body("offenderMatchDetails[0].address", equalTo(null))
-                .body("offenderMatchDetails[0].matchIdentifiers.crn", equalTo("X980123"))
-                .body("offenderMatchDetails[0].probationStatus", equalTo("Previously known"))
-                .body("offenderMatchDetails[0].probationStatusActual", equalTo("PREVIOUSLY_KNOWN"))
-                .body("offenderMatchDetails[0].mostRecentEvent", equalTo(null));
+                    .body("offenderMatchDetails[0].title", equalTo(null))
+                    .body("offenderMatchDetails[0].forename", equalTo("Nic"))
+                    .body("offenderMatchDetails[0].middleNames", hasSize(0))
+                    .body("offenderMatchDetails[0].surname", equalTo("Cage"))
+                    .body("offenderMatchDetails[0].dateOfBirth", equalTo("1965-07-19"))
+                    .body("offenderMatchDetails[0].address", equalTo(null))
+                    .body("offenderMatchDetails[0].matchIdentifiers.crn", equalTo("X980123"))
+                    .body("offenderMatchDetails[0].probationStatus", equalTo("Previously known"))
+                    .body("offenderMatchDetails[0].probationStatusActual", equalTo("PREVIOUSLY_KNOWN"))
+                    .body("offenderMatchDetails[0].mostRecentEvent", equalTo(null));
         }
 
         @Test
@@ -261,6 +270,7 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                     .header("Location");
 
             given()
+                    .config(JSON_DOUBLE_FOR_NUMBERS)
                     .auth()
                     .oauth2(getToken())
                     .accept(APPLICATION_JSON_VALUE)
@@ -274,7 +284,8 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                     .body("offenderMatches[0].pnc", equalTo("pnc123"))
                     .body("offenderMatches[0].cro", equalTo("cro456"))
                     .body("offenderMatches[0].matchType", equalTo("NAME_DOB"))
-                    .body("offenderMatches[0].confirmed", equalTo(true));
+                    .body("offenderMatches[0].confirmed", equalTo(true))
+                    .body("offenderMatches[0].matchProbability", equalTo(0.9876d));
         }
 
         @Test
@@ -298,6 +309,7 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                     .header("Location");
 
             given()
+                    .config(JSON_DOUBLE_FOR_NUMBERS)
                     .auth()
                     .oauth2(getToken())
                     .accept(APPLICATION_JSON_VALUE)
@@ -313,11 +325,14 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
                     .body("offenderMatches[0].matchType", equalTo("PARTIAL_NAME"))
                     .body("offenderMatches[0].confirmed", equalTo(false))
                     .body("offenderMatches[0].rejected", equalTo(false))
+                    .body("offenderMatches[0].matchProbability", equalTo(0.1234d))
                     .body("offenderMatches[1].matchType", equalTo("NAME_DOB_ALIAS"))
+                    .body("offenderMatches[1].matchProbability", equalTo(0.5678d))
                     .body("offenderMatches[2].matchType", equalTo("NAME_DOB_ALIAS"))
                     .body("offenderMatches[2].aliases", hasSize(2))
                     .body("offenderMatches[2].aliases[0].gender", equalTo("Male"))
                     .body("offenderMatches[2].aliases[1].dateOfBirth", equalTo("1968-08-06"))
+                    .body("offenderMatches[2].matchProbability", equalTo(0.9876d))
             ;
         }
 

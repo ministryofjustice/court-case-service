@@ -12,7 +12,6 @@ import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseHistory;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
@@ -28,11 +27,11 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.security.AuthAwareAuthenticationToken;
 import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper;
 import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
-import uk.gov.justice.probation.courtcaseservice.service.CourtCaseHistoryService;
+import uk.gov.justice.probation.courtcaseservice.service.CaseProgressService;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
-import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
 import java.security.Principal;
 import java.time.LocalDate;
@@ -54,10 +53,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.probation.courtcaseservice.Constants.USER_UUID_CLAIM_NAME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,6 +71,9 @@ class CourtCaseControllerTest {
     private static final LocalDateTime CREATED_BEFORE = LocalDateTime.of(2020, 3, 23, 0, 0);
     private static final String testUuid = "test-uuid";
 
+    private final List<CaseProgressHearing> caseProgressHearings = List.of(CaseProgressHearing.builder().hearingId("test-hearing-one").build(),
+        CaseProgressHearing.builder().hearingId("test-hearing-two").build());
+
     @Mock
     private WebRequest webRequest;
     @Mock
@@ -83,14 +85,14 @@ class CourtCaseControllerTest {
     @Mock
     private OffenderUpdateService offenderUpdateService;
     @Mock
-    private CourtCaseHistoryService courtCaseHistoryService;
-    @Mock
     private CaseCommentsService caseCommentsService;
 
     @Mock
     private AuthAwareAuthenticationToken principal;
     @Mock
     private AuthenticationHelper authenticationHelper;
+    @Mock
+    private CaseProgressService caseProgressService;
 
     private CourtCaseController courtCaseController;
     private final HearingEntity hearingEntity = HearingEntity.builder()
@@ -116,15 +118,15 @@ class CourtCaseControllerTest {
 
     @BeforeEach
     public void setUp() {
-        courtCaseController = new CourtCaseController(courtCaseService, courtCaseHistoryService, offenderMatchService,
-            offenderUpdateService, caseCommentsService, authenticationHelper, true);
+        courtCaseController = new CourtCaseController(courtCaseService, offenderMatchService,
+            offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, true);
     }
 
     @Test
     void getCourtCase_shouldReturnCourtCaseResponse() {
-        when(courtCaseService.getHearingByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(hearingEntity);
+        when(courtCaseService.getHearingByCaseNumber(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(hearingEntity);
         when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(3));
-        var courtCase = courtCaseController.getCourtCase(COURT_CODE, CASE_NO);
+        var courtCase = courtCaseController.getCourtCase(COURT_CODE, CASE_NO, LIST_NO);
         assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCase.getCaseNo()).isNull();
         assertThat(courtCase.getSource()).isEqualTo("COMMON_PLATFORM");
@@ -132,17 +134,17 @@ class CourtCaseControllerTest {
         assertThat(courtCase.getSession()).isSameAs(session);
         assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(3);
 
-        verify(courtCaseService).getHearingByCaseNumber(COURT_CODE, CASE_NO);
+        verify(courtCaseService).getHearingByCaseNumber(COURT_CODE, CASE_NO, LIST_NO);
         verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 
     @Test
     void givenNoDefendants_whenGetCourtCase_thenShouldThrowExceptionWithCaseId() {
-        when(courtCaseService.getHearingByCaseNumber(COURT_CODE, CASE_NO)).thenReturn(hearingEntity.withHearingDefendants(Collections.emptyList()));
+        when(courtCaseService.getHearingByCaseNumber(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(hearingEntity.withHearingDefendants(Collections.emptyList()));
 
         assertThatExceptionOfType(IllegalStateException.class)
-                .isThrownBy(() -> courtCaseController.getCourtCase(COURT_CODE, CASE_NO))
+                .isThrownBy(() -> courtCaseController.getCourtCase(COURT_CODE, CASE_NO, LIST_NO))
                 .withMessageContaining(hearingEntity.getCaseId());
 
         verifyNoMoreInteractions(courtCaseService, offenderMatchService);
@@ -309,8 +311,8 @@ class CourtCaseControllerTest {
 
     @Test
     void givenCacheableCaseListDisabled_whenListIsNotModified_thenReturnFullList() {
-        final var nonCachingController = new CourtCaseController(courtCaseService, courtCaseHistoryService,
-            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, false);
+        final var nonCachingController = new CourtCaseController(courtCaseService,
+            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, false);
 
         final var courtCaseEntity = this.hearingEntity.withHearingDefendants(List.of(EntityHelper.aHearingDefendantEntity()))
                 .withHearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()
@@ -400,26 +402,6 @@ class CourtCaseControllerTest {
         });
 
         Mockito.verifyNoMoreInteractions(caseCommentsService);
-    }
-
-    @Test
-    void givenCaseIdShouldReturnCourtCaseHistory() {
-        String caseId = "test-case-id";
-        CourtCaseHistory courtCaseHistory = CourtCaseHistory.builder().build();
-        given(courtCaseHistoryService.getCourtCaseHistory(caseId)).willReturn(courtCaseHistory);
-
-        var actual = courtCaseController.getCaseHistory(caseId);
-        verify(courtCaseHistoryService).getCourtCaseHistory(caseId);
-        assertThat(actual).isEqualTo(courtCaseHistory);
-    }
-
-    @Test
-    void givenCourtCaseHistoryServiceThrowsExceptionShouldCascadeIt() {
-        String caseId = "test-case-id";
-        given(courtCaseHistoryService.getCourtCaseHistory(caseId)).willThrow(new EntityNotFoundException("caseId not found"));
-
-        assertThrows(EntityNotFoundException.class, () -> courtCaseController.getCaseHistory(caseId));
-        verify(courtCaseHistoryService).getCourtCaseHistory(caseId);
     }
 
     @Test

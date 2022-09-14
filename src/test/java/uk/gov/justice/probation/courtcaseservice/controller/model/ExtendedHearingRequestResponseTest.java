@@ -72,6 +72,7 @@ class ExtendedHearingRequestResponseTest {
 
         assertThat(hearingEntity.getCaseId()).isEqualTo("CASE_ID");
         assertThat(hearingEntity.getHearingId()).isEqualTo("HEARING_ID");
+        assertThat(hearingEntity.getListNo()).isEqualTo(LIST_NO);
         assertThat(hearingEntity.getCourtCase().getUrn()).isEqualTo(URN);
         assertThat(hearingEntity.getHearingType()).isEqualTo("sentence");
         assertThat(hearingEntity.getHearingEventType()).isEqualTo(HearingEventType.CONFIRMED_OR_UPDATED);

@@ -51,6 +51,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.HEARING_ID;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
 
 @ExtendWith(MockitoExtension.class)
@@ -542,19 +543,19 @@ class ImmutableCourtCaseServiceTest {
         @Test
         void getCourtCaseShouldRetrieveCaseFromRepository() {
             when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-            when(hearingRepositoryFacade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(EntityHelper.aHearingEntity(CRN, CASE_NO)));
+            when(hearingRepositoryFacade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(Optional.of(EntityHelper.aHearingEntity(CRN, CASE_NO)));
 
-            service.getHearingByCaseNumber(COURT_CODE, CASE_NO);
-            verify(hearingRepositoryFacade).findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO);
+            service.getHearingByCaseNumber(COURT_CODE, CASE_NO, LIST_NO);
+            verify(hearingRepositoryFacade).findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, LIST_NO);
         }
 
         @Test
         void getCourtCaseShouldThrowNotFoundException() {
             when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
-            when(hearingRepositoryFacade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.empty());
+            when(hearingRepositoryFacade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(Optional.empty());
 
             var exception = catchThrowable(() ->
-                    service.getHearingByCaseNumber(COURT_CODE, CASE_NO)
+                    service.getHearingByCaseNumber(COURT_CODE, CASE_NO, LIST_NO)
             );
             assertThat(exception).isInstanceOf(EntityNotFoundException.class)
                     .hasMessageContaining("Case " + CASE_NO + " not found for court " + COURT_CODE);
@@ -565,7 +566,7 @@ class ImmutableCourtCaseServiceTest {
             when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.empty());
 
             var exception = catchThrowable(() ->
-                    service.getHearingByCaseNumber(COURT_CODE, CASE_NO)
+                    service.getHearingByCaseNumber(COURT_CODE, CASE_NO, LIST_NO)
             );
             assertThat(exception).isInstanceOf(EntityNotFoundException.class)
                     .hasMessageContaining("Court " + COURT_CODE + " not found");

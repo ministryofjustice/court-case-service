@@ -68,13 +68,13 @@ public class ExtendedHearingRequestResponse {
                 .hearingEventType(Optional.ofNullable(hearing.getHearingEventType()).map(HearingEventType::getName).orElse(null))
                 .hearingType(hearing.getHearingType())
                 .hearingDays(hearing.getHearingDays().stream()
-                        .map(hearingEntity -> HearingDay.builder()
-                                .courtCode(hearingEntity.getCourtCode())
-                                .courtRoom(hearingEntity.getCourtRoom())
-                                .sessionStartTime(Optional.ofNullable(hearingEntity.getDay())
-                                        .map(day -> LocalDateTime.of(day, Optional.ofNullable(hearingEntity.getTime()).orElse(LocalTime.MIDNIGHT)))
+                        .map(hearingDayEntity -> HearingDay.builder()
+                                .courtCode(hearingDayEntity.getCourtCode())
+                                .courtRoom(hearingDayEntity.getCourtRoom())
+                                .sessionStartTime(Optional.ofNullable(hearingDayEntity.getDay())
+                                        .map(day -> LocalDateTime.of(day, Optional.ofNullable(hearingDayEntity.getTime()).orElse(LocalTime.MIDNIGHT)))
                                         .orElse(null))
-                                .listNo(hearingEntity.getListNo())
+                                .listNo(hearingDayEntity.getListNo())
                                 .build())
                         .toList())
                 .defendants(hearing.getHearingDefendants().stream()
@@ -205,6 +205,7 @@ public class ExtendedHearingRequestResponse {
                 .hearingId(Optional.ofNullable(hearingId).orElse(caseId))
                 .hearingEventType(HearingEventType.fromString(hearingEventType))
                 .hearingType(hearingType)
+                .listNo(hearingDayEntities.size() > 0 ? hearingDayEntities.get(0).getListNo() : null)
                 .build();
 
         hearingDayEntities.forEach(hearingDayEntity -> hearingDayEntity.setHearing(hearingEntity));

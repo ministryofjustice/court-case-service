@@ -85,7 +85,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 @Provider("court-case-service")
-@PactBroker(consumerVersionSelectors = @VersionSelector(consumer = "prepare-a-case", tag="${PACT_CONSUMER_TAG}"))
+@PactBroker(consumerVersionSelectors = @VersionSelector(consumer = "prepare-a-case", tag="${PACT_CONSUMER_TAG}", fallbackTag = "main"))
 @ActiveProfiles("unsecured")
 class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
 

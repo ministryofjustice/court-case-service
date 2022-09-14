@@ -130,6 +130,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         cc.ifPresentOrElse(hearingEntity -> {
             assertThat(hearingEntity.getCaseId()).isEqualTo(JSON_CASE_ID);
             assertThat(hearingEntity.getHearingId()).isEqualTo(JSON_HEARING_ID);
+            assertThat(hearingEntity.getListNo()).isEqualTo("4");
             assertThat(hearingEntity.getCourtCase().getUrn()).isEqualTo(URN);
             assertThat(hearingEntity.getHearingEventType().getName()).isEqualTo("ConfirmedOrUpdated");
             assertThat(hearingEntity.getHearingType()).isEqualTo("sentenced");

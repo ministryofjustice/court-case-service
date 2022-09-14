@@ -93,6 +93,9 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     @Column(name = "HEARING_TYPE")
     private final String hearingType;
 
+    @Column(name = "LIST_NO")
+    private final String listNo;
+
     public String getCaseId() {
         return courtCase.getCaseId();
     }

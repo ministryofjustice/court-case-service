@@ -36,6 +36,7 @@ class HearingRepositoryFacadeTest {
 
     private static final String COURT_CODE = "courtCode";
     private static final String CASE_NO = "caseNo";
+    private static final String LIST_NO = "listNo";
     private static final LocalDate A_DATE = LocalDate.of(2022, 3, 11);
     private static final LocalDateTime A_DATETIME = LocalDateTime.of(A_DATE, LocalTime.MIDNIGHT);
     private static final String HEARING_ID = "hearingId";
@@ -117,14 +118,14 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void whenFindByCourtCodeAndCaseNo_thenReturnDefendants() {
-        when(hearingRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
+        when(hearingRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
 
-        final var actual = facade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO);
+        final var actual = facade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, LIST_NO);
 
         assertThat(actual).get().isEqualTo(HEARING_WITH_MULTIPLE_DEFENDANTS);
-        verify(hearingRepository).findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO);
+        verify(hearingRepository).findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, LIST_NO);
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);

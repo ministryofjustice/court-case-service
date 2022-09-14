@@ -23,6 +23,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -84,6 +85,9 @@ class CourtCaseResponseMapperTest {
             .forename3("Stapp")
             .surname("Earp")
             .build();
+
+    private final List<CaseProgressHearing> caseProgressHearings = List.of(CaseProgressHearing.builder().hearingId("test-hearing-one").build(),
+        CaseProgressHearing.builder().hearingId("test-hearing-two").build());
 
     @BeforeEach
     void setUp() {
@@ -206,12 +210,13 @@ class CourtCaseResponseMapperTest {
 
         var courtCase = hearingEntity.withHearingDefendants(List.of(defendant1, defendant2));
 
-        var response = CourtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5);
+        var response = CourtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5, caseProgressHearings);
 
         assertCaseFields(response, null);
         assertThat(response.getNumberOfPossibleMatches()).isEqualTo(5);
         assertThat(response.getCrn()).isEqualTo("D99999");
         assertThat(response.getName()).isEqualTo(newName);
+        assertThat(response.getHearings()).isEqualTo(caseProgressHearings);
     }
 
     @Test
@@ -230,7 +235,7 @@ class CourtCaseResponseMapperTest {
 
         var courtCase = hearingEntity.withHearingDefendants(List.of(defendant));
 
-        var response = CourtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5);
+        var response = CourtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5, caseProgressHearings);
 
         assertThat(response.getProbationStatus()).isEqualTo("Previously known");
         assertThat(response.getCrn()).isEqualTo("W99999");
@@ -239,6 +244,7 @@ class CourtCaseResponseMapperTest {
         assertThat(response.getBreach()).isTrue();
         assertThat(response.getPreSentenceActivity()).isFalse();
         assertThat(response.getSuspendedSentenceOrder()).isTrue();
+        assertThat(response.getHearings()).isEqualTo(caseProgressHearings);
     }
 
     private HearingDefendantEntity buildDefendant(NamePropertiesEntity name, OffenderEntity offender) {
@@ -323,7 +329,7 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getListNo()).isEqualTo(LIST_NO);
         assertThat(courtCaseResponse.getSession()).isEqualTo(SESSION);
         assertThat(courtCaseResponse.getSessionStartTime()).isEqualTo(SESSION_START_TIME);
-        assertThat(courtCaseResponse.getHearings()).hasSize(2);
+        assertThat(courtCaseResponse.getHearings()).isNull();
     }
 
     private void assertCaseFields(CourtCaseResponse courtCaseResponse, String caseNo, SourceType sourceType) {

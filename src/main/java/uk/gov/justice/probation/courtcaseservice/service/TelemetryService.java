@@ -10,6 +10,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
 import java.util.Collections;
@@ -86,13 +87,13 @@ public class TelemetryService {
         Map<String, String> properties = new HashMap<>();
 
         ofNullable(defendantEntity.getDefendant().getDefendantId())
-            .ifPresent(id -> properties.put("defendantId", id));
+                .ifPresent(id -> properties.put("defendantId", id));
         ofNullable(defendantEntity.getDefendant().getOffender())
-            .ifPresent(offender -> properties.put("crn", offender.getCrn()));
+                .ifPresent(offender -> properties.put("crn", offender.getCrn()));
         ofNullable(defendantEntity.getDefendant().getPnc())
-            .ifPresent(pnc -> properties.put("pnc", pnc));
+                .ifPresent(pnc -> properties.put("pnc", pnc));
         ofNullable(caseId)
-            .ifPresent(id -> properties.put("caseId", id));
+                .ifPresent(id -> properties.put("caseId", id));
 
         addRequestProperties(properties);
 
@@ -133,6 +134,39 @@ public class TelemetryService {
         addRequestProperties(properties);
 
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
+    }
+
+    void trackOffenderProbationStatusUpdateEvent(OffenderEntity offenderEntity) {
+
+        Map<String, String> properties = new HashMap<>();
+
+        ofNullable(offenderEntity)
+                .map(OffenderEntity::getCrn)
+                .ifPresent((crn) -> properties.put("crn", crn));
+
+        ofNullable(offenderEntity)
+                .map(OffenderEntity::getProbationStatus)
+                .ifPresent((probationStatus) -> properties.put("status", probationStatus.getName()));
+
+        ofNullable(offenderEntity)
+                .map(OffenderEntity::getPreviouslyKnownTerminationDate)
+                .ifPresent((date) -> properties.put("previouslyKnownTerminationDate", date.toString()));
+
+        ofNullable(offenderEntity)
+                .map(OffenderEntity::isBreach)
+                .ifPresent((isBreach) -> properties.put("inBreach", isBreach.toString()));
+
+        ofNullable(offenderEntity)
+                .map(OffenderEntity::isPreSentenceActivity)
+                .ifPresent((preSentenceActivity) -> properties.put("preSentenceActivity", preSentenceActivity.toString()));
+
+        ofNullable(offenderEntity)
+                .map(OffenderEntity::getAwaitingPsr)
+                .ifPresent((awaitingPsr) -> properties.put("awaitingPsr", awaitingPsr.toString()));
+
+        addRequestProperties(properties);
+
+        telemetryClient.trackEvent(TelemetryEventType.OFFENDER_PROBATION_STATUS_UPDATED.eventName, properties, Collections.emptyMap());
     }
 
     private void addRequestProperties(Map<String, String> properties) {

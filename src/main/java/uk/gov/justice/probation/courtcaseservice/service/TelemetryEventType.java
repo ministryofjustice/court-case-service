@@ -10,7 +10,8 @@ public enum TelemetryEventType {
     DEFENDANT_UNLINKED("PiCDefendantUnlinked"),
     GRACEFUL_DEGRADE("PiCGracefulDegrade"),
     CASE_COMMENT_ADDED("PicCourtCaseCommentAdded"),
-    CASE_COMMENT_DELETED("PicCourtCaseCommentDeleted")
+    CASE_COMMENT_DELETED("PicCourtCaseCommentDeleted"),
+    OFFENDER_PROBATION_STATUS_UPDATED("PiCOffenderProbationStatusUpdated")
     ;
 
     final String eventName;

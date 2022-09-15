@@ -16,9 +16,12 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.anOffender;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.LIBRA;
 
@@ -223,6 +227,36 @@ class TelemetryServiceTest {
         assertThat(properties.get("commentId")).isEqualTo("1234");
         assertThat(properties.get("createdDateTime")).isEqualTo(now.toString());
         assertThat(properties.get("username")).isEqualTo(createdBy);
+
+        assertThat(metricsCaptor.getValue()).isEmpty();
+    }
+
+    @Test
+    void giveOffenderProbationStatusUpdate_whenTrackOffenderProbationStatusUpdateEvent_thenEmitTelemetryEvent() {
+
+        var date = LocalDate.now();
+
+        var offenderEntity = OffenderEntity.builder()
+                .crn(CRN)
+                .probationStatus(OffenderProbationStatus.CURRENT)
+                .previouslyKnownTerminationDate(date)
+                .breach(true)
+                .awaitingPsr(true)
+                .preSentenceActivity(true)
+                .build();
+
+        service.trackOffenderProbationStatusUpdateEvent(offenderEntity);
+
+        verify(telemetryClient).trackEvent(eq("PiCOffenderProbationStatusUpdated"), properties.capture(), metricsCaptor.capture());
+
+        var properties = this.properties.getValue();
+        assertThat(properties).hasSize(6);
+        assertThat(properties.get("crn")).isEqualTo(CRN);
+        assertThat(properties.get("status")).isEqualTo(OffenderProbationStatus.CURRENT.getName());
+        assertThat(properties.get("previouslyKnownTerminationDate")).isEqualTo(date.toString());
+        assertThat(properties.get("inBreach")).isEqualTo(Boolean.TRUE.toString());
+        assertThat(properties.get("preSentenceActivity")).isEqualTo(Boolean.TRUE.toString());
+        assertThat(properties.get("awaitingPsr")).isEqualTo(Boolean.TRUE.toString());
 
         assertThat(metricsCaptor.getValue()).isEmpty();
     }

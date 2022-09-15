@@ -3,7 +3,10 @@ package uk.gov.justice.probation.courtcaseservice.application;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.reactive.function.client.WebClient;
+import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
+import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper;
 
 @Configuration
@@ -33,9 +36,20 @@ public class WebClientConfig {
     @Value("${web.client.document-byte-buffer-size}")
     private int documentBufferByteSize;
 
+
     @Bean
     public RestClientHelper documentApiClient(WebClient documentWebClient) {
         return new RestClientHelper(documentWebClient, "community-api-client", disableAuthentication);
+    }
+    @Bean
+    @RequestScope
+    public OffenderRestClient userAwareOffenderRestClient(OffenderRestClientFactory offenderRestClientFactory){
+      return  offenderRestClientFactory.buildUserAwareOffenderRestClient();
+    }
+
+    @Bean
+    public OffenderRestClient userAgnosticOffenderRestClient(OffenderRestClientFactory offenderRestClientFactory){
+        return  offenderRestClientFactory.buildUserAgnosticOffenderRestClient();
     }
 
     @Bean

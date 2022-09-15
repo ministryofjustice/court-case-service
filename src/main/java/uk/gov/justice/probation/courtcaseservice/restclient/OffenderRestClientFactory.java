@@ -66,13 +66,26 @@ public class OffenderRestClientFactory {
      *
      * @return An OffenderRestClient authenticated on behalf of the current user
      */
-    public OffenderRestClient build() {
+    public OffenderRestClient buildUserAwareOffenderRestClient() {
         if(mandatedUsernameClientIds.contains(clientDetails.getClientId()) && StringUtil.isNullOrEmpty(clientDetails.getUsername())) {
             final var message = String.format("Unable to request client-credentials grant for service call as username was not provided " +
                     "in the incoming token and username is mandatory for clientId '%s'", clientDetails.getClientId());
             throw new UnableToGetTokenOnBehalfOfUserException(message);
         }
         final var restClientHelper = webClientFactory.buildCommunityRestClientHelper(clientDetails.getUsername());
+        return new OffenderRestClient(offenderUrlTemplate, offenderAllUrlTemplate, offenderManagersUrlTemplate, convictionsUrlTemplate, requirementsUrlTemplate, pssRequirementsUrlTemplate, licenceConditionsUrlTemplate, registrationsUrlTemplate, nsisTemplate, courtAppearancesTemplate, probationStatusTemplate, nsiCodesParam, nsiBreachCodes, addressCode, restClientHelper);
+    }
+
+    /**
+     * Create a new OffenderRestClient without any restrictions.
+     *
+     * This factory method can be called from the non @RequestScoped bean like the one used in the {@link uk.gov.justice.probation.courtcaseservice.listener.ProbationOffenderEventsListener}
+     *
+     * @return An OffenderRestClient authenticated on behalf of the current user
+     */
+
+    public OffenderRestClient buildUserAgnosticOffenderRestClient() {
+        final var restClientHelper = webClientFactory.buildCommunityRestClientHelper(null);
         return new OffenderRestClient(offenderUrlTemplate, offenderAllUrlTemplate, offenderManagersUrlTemplate, convictionsUrlTemplate, requirementsUrlTemplate, pssRequirementsUrlTemplate, licenceConditionsUrlTemplate, registrationsUrlTemplate, nsisTemplate, courtAppearancesTemplate, probationStatusTemplate, nsiCodesParam, nsiBreachCodes, addressCode, restClientHelper);
     }
 }

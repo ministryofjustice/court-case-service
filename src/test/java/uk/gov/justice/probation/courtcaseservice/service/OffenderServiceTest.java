@@ -7,13 +7,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Qualifier;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
-import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiOffenderResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.OtherIds;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
@@ -58,7 +59,7 @@ import static uk.gov.justice.probation.courtcaseservice.service.model.document.D
 
 @DisplayName("OffenderService tests")
 @ExtendWith(MockitoExtension.class)
-class  OffenderServiceTest {
+class OffenderServiceTest {
 
     private static final String CRN = "CRN";
     private static final Long CONVICTION_ID = 123L;
@@ -67,7 +68,7 @@ class  OffenderServiceTest {
     private static final String PSS_DESC_TO_KEEP = "specified activity";
 
     private final DocumentTypeFilter documentTypeFilter
-        = new DocumentTypeFilter(singletonList(COURT_REPORT_DOCUMENT), singletonList("CJF"));
+            = new DocumentTypeFilter(singletonList(COURT_REPORT_DOCUMENT), singletonList("CJF"));
 
     @Mock
     private TelemetryService telemetryService;
@@ -76,13 +77,19 @@ class  OffenderServiceTest {
     @Mock
     private ConvictionRestClient convictionRestClient;
     @Mock
-    private OffenderRestClientFactory offenderRestClientFactory;
+    @Qualifier("userAwareOffenderRestClient")
+    private OffenderRestClient userAwareOffenderRestClient;
+
     @Mock
-    private OffenderRestClient offenderRestClient;
+    @Qualifier("userAgnosticOffenderRestClient")
+    private OffenderRestClient userAgnosticOffenderRestClient;
     @Mock
     private DocumentRestClient documentRestClient;
 
     private OffenderService service;
+    @Mock
+    private OffenderRepository offenderRepository;
+
 
     @ExtendWith(MockitoExtension.class)
     @Nested
@@ -100,43 +107,42 @@ class  OffenderServiceTest {
         @BeforeEach
         void beforeEach() {
             var courtReportDocumentDetail = OffenderDocumentDetail.builder()
-                .documentName("PSR")
-                .type(COURT_REPORT_DOCUMENT)
-                .subType(new KeyValue("CJF", "Pre-Sentence Report - Fast"))
-                .build();
+                    .documentName("PSR")
+                    .type(COURT_REPORT_DOCUMENT)
+                    .subType(new KeyValue("CJF", "Pre-Sentence Report - Fast"))
+                    .build();
             var cpsPackDocumentDetail = OffenderDocumentDetail.builder()
-                .documentName("CPS")
-                .type(DocumentType.CPSPACK_DOCUMENT)
-                .build();
+                    .documentName("CPS")
+                    .type(DocumentType.CPSPACK_DOCUMENT)
+                    .build();
             var documents = ConvictionDocuments.builder()
-                .convictionId(CONVICTION_ID.toString())
-                .documents(Arrays.asList(courtReportDocumentDetail, cpsPackDocumentDetail))
-                .build();
+                    .convictionId(CONVICTION_ID.toString())
+                    .documents(Arrays.asList(courtReportDocumentDetail, cpsPackDocumentDetail))
+                    .build();
             this.groupedDocuments = GroupedDocuments.builder()
-                .convictions(singletonList(documents))
-                .documents(Collections.emptyList())
-                .build();
+                    .convictions(singletonList(documents))
+                    .documents(Collections.emptyList())
+                    .build();
             this.breach = Breach.builder()
-                .breachId(2500020697L)
-                .description("Community Order")
-                .status("Breach Initiated")
-                .started(LocalDate.of(2020,4,23))
-                .statusDate(LocalDate.of(2020, Month.APRIL, 23))
-                .build();
+                    .breachId(2500020697L)
+                    .description("Community Order")
+                    .status("Breach Initiated")
+                    .started(LocalDate.of(2020, 4, 23))
+                    .statusDate(LocalDate.of(2020, Month.APRIL, 23))
+                    .build();
             this.requirement = getRequirement(LocalDate.of(2020, Month.APRIL, 23), true);
             this.conviction = Conviction.builder()
-                .convictionId(CONVICTION_ID.toString())
-                .sentence(Sentence.builder().startDate(LocalDate.now()).build())
-                .active(Boolean.TRUE)
-                .build();
+                    .convictionId(CONVICTION_ID.toString())
+                    .sentence(Sentence.builder().startDate(LocalDate.now()).build())
+                    .active(Boolean.TRUE)
+                    .build();
             this.assessment = Assessment.builder()
-                .type("OLDER_COMPLETE_ASSESSMENT")
-                .completed(LocalDateTime.of(2018,4,23,10,5,20))
-                .status("COMPLETE")
-                .build();
-            when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
+                    .type("OLDER_COMPLETE_ASSESSMENT")
+                    .completed(LocalDateTime.of(2018, 4, 23, 10, 5, 20))
+                    .status("COMPLETE")
+                    .build();
             this.communityApiOffenderResponse = CommunityApiOffenderResponse.builder().build();
-            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
+            service = new OffenderService(userAwareOffenderRestClient, userAgnosticOffenderRestClient, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService, offenderRepository);
             service.setAssessmentStatuses(List.of("COMPLETE"));
             service.setPssRqmntDescriptionsKeepSubType(List.of(PSS_DESC_TO_KEEP));
             service.setPsrTypeCodes(List.of("CJF", "CJO", "CJS"));
@@ -146,20 +152,20 @@ class  OffenderServiceTest {
         @Test
         void whenGetOffender_returnOffenderWithConvictionsDocumentsNotFiltered() {
             var breachMostRecent = Breach.builder()
-                .breachId(101L)
-                .description("Community Order")
-                .status("Breach Initiated")
-                .started(LocalDate.of(2021, Month.APRIL,23))
-                .statusDate(LocalDate.of(2021, Month.JULY, 23))
-                .build();
+                    .breachId(101L)
+                    .description("Community Order")
+                    .status("Breach Initiated")
+                    .started(LocalDate.of(2021, Month.APRIL, 23))
+                    .statusDate(LocalDate.of(2021, Month.JULY, 23))
+                    .build();
             var breachNullStatusDate = Breach.builder()
-                .breachId(100L)
-                .description("Community Order")
-                .status("Breach Initiated")
-                .started(LocalDate.of(2020, Month.APRIL,23))
-                .build();
+                    .breachId(100L)
+                    .description("Community Order")
+                    .status("Breach Initiated")
+                    .started(LocalDate.of(2020, Month.APRIL, 23))
+                    .build();
             mockForStandardClientCalls(List.of(breach, breachMostRecent, breachNullStatusDate));
-            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(this.requirement)));
+            when(userAwareOffenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(this.requirement)));
 
             var probationRecord = service.getProbationRecord(CRN, false);
 
@@ -178,11 +184,11 @@ class  OffenderServiceTest {
             assertThat(conviction.getLicenceConditions()).isEmpty();
             assertThat(conviction.getPsrReports()).isEmpty();
             assertThat(probationRecord.getAssessment().getType()).isEqualTo("OLDER_COMPLETE_ASSESSMENT");
-            verify(offenderRestClient).getOffenderManagers(CRN);
-            verify(offenderRestClient).getConvictionsByCrn(CRN);
+            verify(userAwareOffenderRestClient).getOffenderManagers(CRN);
+            verify(userAwareOffenderRestClient).getConvictionsByCrn(CRN);
             verify(documentRestClient).getDocumentsByCrn(CRN);
             verify(assessmentsRestClient).getAssessmentsByCrn(CRN);
-            verifyNoMoreInteractions(offenderRestClient, convictionRestClient);
+            verifyNoMoreInteractions(userAwareOffenderRestClient, convictionRestClient);
         }
 
         @DisplayName("An offender on post sentence supervision has PSS requirements with no subtype description and but no licence conditions")
@@ -193,15 +199,15 @@ class  OffenderServiceTest {
             var pssRqmnt2 = getPssRequirement("specified activity", null, false);
             var pssRqmnt3 = getPssRequirement("description 3", "sub type description 3", true);
             var convictionPss = Conviction.builder()
-                .convictionId(CONVICTION_ID.toString())
-                .sentence(Sentence.builder().startDate(LocalDate.now()).build())
-                .active(Boolean.TRUE)
-                .custodialType(KeyValue.builder().code(POST_SENTENCE_SUPERVISION.getCode()).build())
-                .build();
+                    .convictionId(CONVICTION_ID.toString())
+                    .sentence(Sentence.builder().startDate(LocalDate.now()).build())
+                    .active(Boolean.TRUE)
+                    .custodialType(KeyValue.builder().code(POST_SENTENCE_SUPERVISION.getCode()).build())
+                    .build();
 
             mockForStandardClientCalls(convictionPss);
-            when(offenderRestClient.getConvictionRequirements(eq(CRN), any(Long.class))).thenReturn(Mono.just(List.of(requirement)));
-            when(offenderRestClient.getConvictionPssRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(pssRqmnt1, pssRqmnt2, pssRqmnt3)));
+            when(userAwareOffenderRestClient.getConvictionRequirements(eq(CRN), any(Long.class))).thenReturn(Mono.just(List.of(requirement)));
+            when(userAwareOffenderRestClient.getConvictionPssRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(pssRqmnt1, pssRqmnt2, pssRqmnt3)));
 
             var probationRecord = service.getProbationRecord(CRN, false);
 
@@ -221,14 +227,14 @@ class  OffenderServiceTest {
             var licenceCondition1 = getLicenceCondition("description 1", true);
             var licenceCondition2 = getLicenceCondition("description 2", false);
             var convictionOnLicence = Conviction.builder()
-                .convictionId(CONVICTION_ID.toString())
-                .sentence(Sentence.builder().startDate(LocalDate.now()).build())
-                .active(Boolean.TRUE)
-                .custodialType(KeyValue.builder().code(CustodialStatus.RELEASED_ON_LICENCE.getCode()).description("On Licence").build())
-                .build();
+                    .convictionId(CONVICTION_ID.toString())
+                    .sentence(Sentence.builder().startDate(LocalDate.now()).build())
+                    .active(Boolean.TRUE)
+                    .custodialType(KeyValue.builder().code(CustodialStatus.RELEASED_ON_LICENCE.getCode()).description("On Licence").build())
+                    .build();
             mockForStandardClientCalls(convictionOnLicence);
-            when(offenderRestClient.getConvictionRequirements(eq(CRN), any(Long.class))).thenReturn(Mono.just(List.of(requirement)));
-            when(offenderRestClient.getConvictionLicenceConditions(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(licenceCondition1, licenceCondition2)));
+            when(userAwareOffenderRestClient.getConvictionRequirements(eq(CRN), any(Long.class))).thenReturn(Mono.just(List.of(requirement)));
+            when(userAwareOffenderRestClient.getConvictionLicenceConditions(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(licenceCondition1, licenceCondition2)));
 
             var probationRecord = service.getProbationRecord(CRN, false);
 
@@ -243,18 +249,18 @@ class  OffenderServiceTest {
         @Test
         public void whenGetOffender_returnOffenderWithConvictionsFilterDocuments() {
             mockForStandardClientCalls(singletonList(conviction), singletonList(assessment));
-            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(requirement)));
+            when(userAwareOffenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(requirement)));
 
             var probationRecord = service.getProbationRecord(CRN, true);
 
             var conviction = probationRecord.getConvictions().get(0);
             assertThat(conviction.getDocuments()).hasSize(1);
             assertThat(conviction.getDocuments().stream().filter(doc -> COURT_REPORT_DOCUMENT.equals(doc.getType())).findFirst().get().getDocumentName())
-                .isEqualTo("PSR");
-            verify(offenderRestClient).getOffenderManagers(CRN);
-            verify(offenderRestClient).getConvictionsByCrn(CRN);
+                    .isEqualTo("PSR");
+            verify(userAwareOffenderRestClient).getOffenderManagers(CRN);
+            verify(userAwareOffenderRestClient).getConvictionsByCrn(CRN);
             verify(documentRestClient).getDocumentsByCrn(CRN);
-            verifyNoMoreInteractions(offenderRestClient);
+            verifyNoMoreInteractions(userAwareOffenderRestClient);
         }
 
         @DisplayName("Convictions being sorted in the response. Active then inactive.")
@@ -267,56 +273,56 @@ class  OffenderServiceTest {
             var conviction3 = Conviction.builder().convictionId("123").active(Boolean.FALSE).sentence(sentence3).build();
 
             mockForStandardClientCalls(List.of(conviction2, conviction3, conviction), singletonList(assessment));
-            when(offenderRestClient.getConvictionRequirements(CRN, 123L)).thenReturn(Mono.just(emptyList()));
+            when(userAwareOffenderRestClient.getConvictionRequirements(CRN, 123L)).thenReturn(Mono.just(emptyList()));
 
             var probationRecord = service.getProbationRecord(CRN, true);
 
             assertThat(probationRecord.getConvictions()).hasSize(3);
             assertThat(probationRecord.getConvictions()).containsExactly(conviction, conviction2, conviction3);
-            verify(offenderRestClient).getOffenderManagers(CRN);
-            verify(offenderRestClient).getConvictionsByCrn(CRN);
+            verify(userAwareOffenderRestClient).getOffenderManagers(CRN);
+            verify(userAwareOffenderRestClient).getConvictionsByCrn(CRN);
             verify(documentRestClient).getDocumentsByCrn(CRN);
-            verifyNoMoreInteractions(offenderRestClient);
+            verifyNoMoreInteractions(userAwareOffenderRestClient);
         }
 
         @DisplayName("Getting offender throws exception when CRN not found, even if other calls succeed")
         @Test
         void givenOffenderNotFound_whenGetOffender_thenThrowException() {
-            when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
-            when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
-            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
+            when(userAwareOffenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
+            when(userAwareOffenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
+            when(userAwareOffenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
-            when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
-            when(offenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
+            when(userAwareOffenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
+            when(userAwareOffenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
             when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.empty());
 
             assertThatExceptionOfType(OffenderNotFoundException.class)
-                .isThrownBy(() -> service.getProbationRecord(CRN, true))
-                .withMessageContaining(CRN);
+                    .isThrownBy(() -> service.getProbationRecord(CRN, true))
+                    .withMessageContaining(CRN);
         }
 
         @DisplayName("Getting offender convictions throws exception when CRN not found, even if other calls succeed")
         @Test
         void givenConvictionsNotFound_whenGetOffender_thenThrowException() {
-            when(offenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
-            when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
+            when(userAwareOffenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
+            when(userAwareOffenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
-            when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
+            when(userAwareOffenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
             when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.empty());
 
             assertThatExceptionOfType(OffenderNotFoundException.class)
-                .isThrownBy(() -> service.getProbationRecord(CRN, true))
-                .withMessageContaining(CRN);
+                    .isThrownBy(() -> service.getProbationRecord(CRN, true))
+                    .withMessageContaining(CRN);
         }
 
         @DisplayName("Getting probation record does not throw exception when oasys assessment data is missing")
         @Test
         void givenAssessmentNotFound_whenGetOffender_thenDoNotThrowException() {
-            when(offenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
-            when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
-            when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
-            when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
-            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
+            when(userAwareOffenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
+            when(userAwareOffenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
+            when(userAwareOffenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
+            when(userAwareOffenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
+            when(userAwareOffenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
             // throw OffenderNotFoundException to simulate a 404 returned by assessments api
             when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
@@ -333,20 +339,20 @@ class  OffenderServiceTest {
             assertThat(conviction.getDocuments()).hasSize(2);
 
             verify(telemetryService)
-                .trackApplicationDegradationEvent(eq("assessment data missing from probation record (CRN '" + CRN + "' not found in oasys)"),
-                                                any(OffenderNotFoundException.class),
-                                                eq(CRN));
+                    .trackApplicationDegradationEvent(eq("assessment data missing from probation record (CRN '" + CRN + "' not found in oasys)"),
+                            any(OffenderNotFoundException.class),
+                            eq(CRN));
         }
 
         @DisplayName("Getting probation record does not throw exception when assessment api fails for any reason")
         @Test
         void givenAssessmentRequestFails_whenGetOffender_thenDoNotThrowException() {
-            when(offenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
-            when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
-            when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
+            when(userAwareOffenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
+            when(userAwareOffenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
+            when(userAwareOffenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(singletonList(breach)));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
-            when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
-            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
+            when(userAwareOffenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
+            when(userAwareOffenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
             // throw ConnectException to simulate server side connection issues
             when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.error(new ConnectException("Connection refused")));
 
@@ -362,9 +368,9 @@ class  OffenderServiceTest {
             assertThat(conviction.getDocuments()).hasSize(2);
 
             verify(telemetryService)
-                .trackApplicationDegradationEvent(eq("call failed to get assessment data for for CRN '" + CRN + "'"),
-                    any(Exception.class),
-                    eq(CRN));
+                    .trackApplicationDegradationEvent(eq("call failed to get assessment data for for CRN '" + CRN + "'"),
+                            any(Exception.class),
+                            eq(CRN));
         }
 
         @DisplayName("Get the most recent COMPLETE assessment, ignore the more recent PENDING one")
@@ -372,17 +378,17 @@ class  OffenderServiceTest {
         void givenAssessmentsRequests_whenGetOffender_thenFilterForMostRecentComplete() {
 
             var assessmentPending = Assessment.builder()
-                .status("PENDING")
-                .completed(LocalDateTime.now())
-                .build();
+                    .status("PENDING")
+                    .completed(LocalDateTime.now())
+                    .build();
             var assessmentComplete = Assessment.builder()
-                .status("COMPLETE")
-                .type("NEWEST_COMPLETE_ASSESSMENT")
-                .completed(LocalDateTime.now().minusMinutes(1))
-                .build();
+                    .status("COMPLETE")
+                    .type("NEWEST_COMPLETE_ASSESSMENT")
+                    .completed(LocalDateTime.now().minusMinutes(1))
+                    .build();
 
             mockForStandardClientCalls(List.of(conviction), List.of(assessmentPending, assessment, assessmentComplete));
-            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
+            when(userAwareOffenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
 
             var probationRecord = service.getProbationRecord(CRN, false);
 
@@ -394,12 +400,12 @@ class  OffenderServiceTest {
         void givenNoCompleteAssessments_whenGetOffender_thenFieldIsNull() {
 
             var assessmentPending = Assessment.builder()
-                .status("PENDING")
-                .completed(LocalDateTime.now())
-                .build();
+                    .status("PENDING")
+                    .completed(LocalDateTime.now())
+                    .build();
 
             mockForStandardClientCalls(List.of(conviction), List.of(assessmentPending));
-            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
+            when(userAwareOffenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
 
             var probationRecord = service.getProbationRecord(CRN, false);
 
@@ -411,7 +417,7 @@ class  OffenderServiceTest {
         void givenNoAssessments_whenGetOffender_thenFieldIsNull() {
 
             mockForStandardClientCalls(List.of(conviction), List.of());
-            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(emptyList()));
+            when(userAwareOffenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(emptyList()));
 
             var probationRecord = service.getProbationRecord(CRN, false);
 
@@ -422,37 +428,37 @@ class  OffenderServiceTest {
         @Test
         void givenBreachRequestFailsWith404_whenGetOffender_thenThrowException() {
             // all these are normal return values
-            when(offenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
-            when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
+            when(userAwareOffenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
+            when(userAwareOffenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
-            when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
+            when(userAwareOffenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
             when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.empty());
-            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
+            when(userAwareOffenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(Collections.emptyList()));
 
             // OffenderNotFound returned on 404 from community api
-            when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
+            when(userAwareOffenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.error(new OffenderNotFoundException(CRN)));
 
             assertThatExceptionOfType(OffenderNotFoundException.class)
-                .isThrownBy(() -> service.getProbationRecord(CRN, true))
-                .withMessageContaining(CRN);
+                    .isThrownBy(() -> service.getProbationRecord(CRN, true))
+                    .withMessageContaining(CRN);
         }
 
         @DisplayName("get probation record propagates connection errors from getBreaches()")
         @Test
         void givenBreachRequestFailsWithConnectionIssue_whenGetOffender_thenThrowException() {
             // all these are normal return values
-            when(offenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
-            when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
+            when(userAwareOffenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
+            when(userAwareOffenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(singletonList(conviction)));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
             when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.empty());
 
             // throw ConnectException to simulate server side connection issues
-            when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.error(new ConnectException("Connection refused")));
+            when(userAwareOffenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.error(new ConnectException("Connection refused")));
 
             // this actually throws `<reactor.core.Exceptions$ReactiveException: java.net.ConnectException: Connection refused>`
             // but i can't figure out how to test for that
             assertThatExceptionOfType(RuntimeException.class)
-                .isThrownBy(() -> service.getProbationRecord(CRN, true));
+                    .isThrownBy(() -> service.getProbationRecord(CRN, true));
         }
 
         @DisplayName("An offender which is awaiting PST will include PSR reports in the conviction")
@@ -460,24 +466,24 @@ class  OffenderServiceTest {
         void givenConvictionAwaitsPsr_whenGetProbationRecord_thenReturnPsrCourtReports() {
 
             var psrCourtReport = CourtReport.builder()
-                .courtReportId(1L)
-                .courtReportType(KeyValue.builder().code("CJF").description("Pre-Sentence Report - Fast").build())
-                .author(ReportAuthor.builder().surname("Faulkner").forenames("Chris").build())
-                .build();
+                    .courtReportId(1L)
+                    .courtReportType(KeyValue.builder().code("CJF").description("Pre-Sentence Report - Fast").build())
+                    .author(ReportAuthor.builder().surname("Faulkner").forenames("Chris").build())
+                    .build();
             var nonPsrCourtReport = CourtReport.builder()
-                .courtReportId(2L)
-                .courtReportType(KeyValue.builder().code("XX").description("Some other report").build())
-                .author(ReportAuthor.builder().surname("Faulkner").forenames("Chris").build())
-                .build();
+                    .courtReportId(2L)
+                    .courtReportType(KeyValue.builder().code("XX").description("Some other report").build())
+                    .author(ReportAuthor.builder().surname("Faulkner").forenames("Chris").build())
+                    .build();
             var convictionPsrAwaits = Conviction.builder()
-                .convictionId(CONVICTION_ID.toString())
-                .sentence(Sentence.builder().startDate(LocalDate.now()).build())
-                .active(Boolean.TRUE)
-                .awaitingPsr(true)
-                .build();
+                    .convictionId(CONVICTION_ID.toString())
+                    .sentence(Sentence.builder().startDate(LocalDate.now()).build())
+                    .active(Boolean.TRUE)
+                    .awaitingPsr(true)
+                    .build();
             mockForStandardClientCalls(convictionPsrAwaits);
             when(convictionRestClient.getCourtReports(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(nonPsrCourtReport, psrCourtReport)));
-            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(emptyList()));
+            when(userAwareOffenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(emptyList()));
 
             var probationRecord = service.getProbationRecord(CRN, false);
 
@@ -502,11 +508,11 @@ class  OffenderServiceTest {
         private void mockForStandardClientCalls(List<Conviction> convictions,
                                                 List<Assessment> assessments,
                                                 List<Breach> breaches) {
-            when(offenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
-            when(offenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(convictions));
-            when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(breaches));
+            when(userAwareOffenderRestClient.getOffenderManagers(CRN)).thenReturn(Mono.just(Collections.emptyList()));
+            when(userAwareOffenderRestClient.getConvictionsByCrn(CRN)).thenReturn(Mono.just(convictions));
+            when(userAwareOffenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(breaches));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
-            when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
+            when(userAwareOffenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
             when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.just(assessments));
         }
     }
@@ -524,30 +530,29 @@ class  OffenderServiceTest {
         void beforeEach() {
 
             var courtReportDocumentDetail = OffenderDocumentDetail.builder()
-                .documentName("PSR")
-                .type(COURT_REPORT_DOCUMENT)
-                .subType(new KeyValue("CJF", "Pre-Sentence Report - Fast"))
-                .build();
+                    .documentName("PSR")
+                    .type(COURT_REPORT_DOCUMENT)
+                    .subType(new KeyValue("CJF", "Pre-Sentence Report - Fast"))
+                    .build();
             var nonCourtReport = OffenderDocumentDetail.builder()
-                .documentName("PSR")
-                .type(INSTITUTION_REPORT_DOCUMENT)
-                .subType(new KeyValue("CJF", "Pre-Sentence Report - Fast"))
-                .build();
+                    .documentName("PSR")
+                    .type(INSTITUTION_REPORT_DOCUMENT)
+                    .subType(new KeyValue("CJF", "Pre-Sentence Report - Fast"))
+                    .build();
             this.groupedDocuments = GroupedDocuments.builder()
-                .convictions(List.of(ConvictionDocuments.builder()
-                                        .convictionId(CONVICTION_ID.toString())
-                                        .documents(List.of(courtReportDocumentDetail))
-                                        .build(),
-                                    ConvictionDocuments.builder()
-                                        .convictionId("83472343")
-                                        .documents(List.of(nonCourtReport))
-                                        .build()))
-                .documents(Collections.emptyList())
-                .build();
+                    .convictions(List.of(ConvictionDocuments.builder()
+                                    .convictionId(CONVICTION_ID.toString())
+                                    .documents(List.of(courtReportDocumentDetail))
+                                    .build(),
+                            ConvictionDocuments.builder()
+                                    .convictionId("83472343")
+                                    .documents(List.of(nonCourtReport))
+                                    .build()))
+                    .documents(Collections.emptyList())
+                    .build();
             this.conviction = Conviction.builder().convictionId(CONVICTION_ID.toString()).sentence(Sentence.builder().startDate(LocalDate.now()).build()).active(Boolean.TRUE).build();
             this.requirement = getRequirement(LocalDate.of(2018, Month.SEPTEMBER, 29), true);
-            when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
-            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
+            service = new OffenderService(userAwareOffenderRestClient, userAgnosticOffenderRestClient, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService, offenderRepository);
             service.setPssRqmntDescriptionsKeepSubType(List.of(PSS_DESC_TO_KEEP));
         }
 
@@ -559,9 +564,9 @@ class  OffenderServiceTest {
             var breach1 = getBreach(null);
             var breach2 = getBreach(LocalDate.of(2018, Month.SEPTEMBER, 29));
             var breach3 = getBreach(LocalDate.of(2019, Month.SEPTEMBER, 29));
-            when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(breach1, breach2, breach3)));
+            when(userAwareOffenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(breach1, breach2, breach3)));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
-            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(requirement, inactiveRequirement)));
+            when(userAwareOffenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(requirement, inactiveRequirement)));
 
             var conviction = service.getConviction(CRN, CONVICTION_ID).block();
 
@@ -580,20 +585,20 @@ class  OffenderServiceTest {
         @Test
         void givenOnLicenceStatus_whenGetConviction_thenReturnOnlyActiveLicenceConditions() {
             var convictionOnLicence = Conviction.builder()
-                .convictionId(CONVICTION_ID.toString())
-                .sentence(Sentence.builder().startDate(LocalDate.now()).build())
-                .active(Boolean.TRUE)
-                .custodialType(KeyValue.builder().code(CustodialStatus.RELEASED_ON_LICENCE.getCode()).build())
-                .build();
+                    .convictionId(CONVICTION_ID.toString())
+                    .sentence(Sentence.builder().startDate(LocalDate.now()).build())
+                    .active(Boolean.TRUE)
+                    .custodialType(KeyValue.builder().code(CustodialStatus.RELEASED_ON_LICENCE.getCode()).build())
+                    .build();
             var licenceCondition1 = getLicenceCondition("description", true);
             var licenceCondition2 = getLicenceCondition("description inactive", false);
             var emptyGroupedDocuments = GroupedDocuments.builder().documents(emptyList()).convictions(emptyList()).build();
 
             when(convictionRestClient.getConviction(CRN, CONVICTION_ID)).thenReturn(Mono.just(convictionOnLicence));
-            when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(emptyList()));
+            when(userAwareOffenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(emptyList()));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(emptyGroupedDocuments));
-            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(requirement)));
-            when(offenderRestClient.getConvictionLicenceConditions(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(licenceCondition1, licenceCondition2)));
+            when(userAwareOffenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(requirement)));
+            when(userAwareOffenderRestClient.getConvictionLicenceConditions(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(licenceCondition1, licenceCondition2)));
 
             var conviction = service.getConviction(CRN, CONVICTION_ID).block();
 
@@ -610,21 +615,21 @@ class  OffenderServiceTest {
         @Test
         void givenPssStatus_whenGetConviction_thenReturn() {
             var convictionPss = Conviction.builder()
-                .convictionId(CONVICTION_ID.toString())
-                .sentence(Sentence.builder().startDate(LocalDate.now()).build())
-                .active(Boolean.TRUE)
-                .custodialType(KeyValue.builder().code(POST_SENTENCE_SUPERVISION.getCode()).build())
-                .build();
+                    .convictionId(CONVICTION_ID.toString())
+                    .sentence(Sentence.builder().startDate(LocalDate.now()).build())
+                    .active(Boolean.TRUE)
+                    .custodialType(KeyValue.builder().code(POST_SENTENCE_SUPERVISION.getCode()).build())
+                    .build();
             var pssRqmnt1 = getPssRequirement("SPECIFIED ACTIVITY", "sub type desc", true);
             var pssRqmnt2 = getPssRequirement("specified activity", null, false);
             var pssRqmnt3 = getPssRequirement("description 3", "sub type description 3", true);
             var emptyGroupedDocuments = GroupedDocuments.builder().documents(emptyList()).convictions(emptyList()).build();
 
             when(convictionRestClient.getConviction(CRN, CONVICTION_ID)).thenReturn(Mono.just(convictionPss));
-            when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(emptyList()));
+            when(userAwareOffenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.just(emptyList()));
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(emptyGroupedDocuments));
-            when(offenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(requirement)));
-            when(offenderRestClient.getConvictionPssRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(pssRqmnt1, pssRqmnt2, pssRqmnt3)));
+            when(userAwareOffenderRestClient.getConvictionRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(requirement)));
+            when(userAwareOffenderRestClient.getConvictionPssRequirements(CRN, CONVICTION_ID)).thenReturn(Mono.just(List.of(pssRqmnt1, pssRqmnt2, pssRqmnt3)));
 
             var conviction = service.getConviction(CRN, CONVICTION_ID).block();
 
@@ -646,8 +651,7 @@ class  OffenderServiceTest {
 
         @BeforeEach
         void beforeEach() {
-            when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
-            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
+            service = new OffenderService(userAwareOffenderRestClient, userAgnosticOffenderRestClient, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService, offenderRepository);
         }
 
         @DisplayName("Simple get of offender detail")
@@ -663,8 +667,8 @@ class  OffenderServiceTest {
                     .status(PROBATION_STATUS)
                     .build();
 
-            when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
-            when(offenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
+            when(userAwareOffenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
+            when(userAwareOffenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
 
             var detail = service.getOffenderDetail(CRN).block();
 
@@ -679,15 +683,14 @@ class  OffenderServiceTest {
 
         @BeforeEach
         void beforeEach() {
-            when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
-            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
+            service = new OffenderService(userAwareOffenderRestClient, userAgnosticOffenderRestClient, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService, offenderRepository);
         }
 
         @DisplayName("Simple get of offender registrations")
         @Test
         void whenGetOffenderRegistrations_thenReturnSame() {
             var registration = Registration.builder().build();
-            when(offenderRestClient.getOffenderRegistrations(CRN)).thenReturn(Mono.just(List.of(registration)));
+            when(userAwareOffenderRestClient.getOffenderRegistrations(CRN)).thenReturn(Mono.just(List.of(registration)));
 
             var registrations = service.getOffenderRegistrations(CRN).block();
 
@@ -701,14 +704,13 @@ class  OffenderServiceTest {
 
         @BeforeEach
         void beforeEach() {
-            when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
-            service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
+            service = new OffenderService(userAwareOffenderRestClient, userAgnosticOffenderRestClient, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService, offenderRepository);
         }
 
         @Test
         void whenGetProbationStatus_thenReturn() {
             var probationStatus = ProbationStatusDetail.builder().status(DefendantProbationStatus.CURRENT.name()).build();
-            when(offenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatus));
+            when(userAwareOffenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatus));
 
             var probationStatusDetail = service.getProbationStatus(CRN).blockOptional();
 
@@ -718,37 +720,37 @@ class  OffenderServiceTest {
 
     private Breach getBreach(LocalDate statusDate) {
         return Breach.builder()
-            .breachId(2500020697L)
-            .description("Community Order")
-            .status("Breach Initiated")
-            .started(LocalDate.of(2020, 4, 23))
-            .statusDate(statusDate)
-            .build();
+                .breachId(2500020697L)
+                .description("Community Order")
+                .status("Breach Initiated")
+                .started(LocalDate.of(2020, 4, 23))
+                .statusDate(statusDate)
+                .build();
     }
 
     private Requirement getRequirement(LocalDate startDate, boolean active) {
         return Requirement.builder()
-            .active(active)
-            .startDate(startDate)
-            .length(2L)
-            .lengthUnit("months")
-            .build();
+                .active(active)
+                .startDate(startDate)
+                .length(2L)
+                .lengthUnit("months")
+                .build();
     }
 
     private PssRequirement getPssRequirement(String description, String subTypeDescription, boolean active) {
         return PssRequirement.builder()
-            .description(description)
-            .subTypeDescription(subTypeDescription)
-            .active(active)
-            .build();
+                .description(description)
+                .subTypeDescription(subTypeDescription)
+                .active(active)
+                .build();
     }
 
     private LicenceCondition getLicenceCondition(String description, boolean active) {
         return LicenceCondition.builder()
-            .description(description)
-            .subTypeDescription("sub type desc")
-            .active(active)
-            .build();
+                .description(description)
+                .subTypeDescription("sub type desc")
+                .active(active)
+                .build();
     }
 
 }

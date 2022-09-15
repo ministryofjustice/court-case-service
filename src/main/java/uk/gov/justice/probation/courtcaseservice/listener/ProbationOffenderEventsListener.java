@@ -33,7 +33,7 @@ public class ProbationOffenderEventsListener {
     public void processMessage(String rawMessage) {
         ProbationOffenderEvent probationOffenderEvent = getProbationOffenderEvent(rawMessage);
         if (probationOffenderEvent != null && !probationOffenderEvent.getCrn().isBlank()) {
-            updateOffenderProbationStatus(probationOffenderEvent.getCrn());
+            offenderService.updateOffenderProbationStatus(probationOffenderEvent.getCrn());
         }
     }
 
@@ -47,23 +47,14 @@ public class ProbationOffenderEventsListener {
         }
     }
 
-    private OffenderEntity getOffender(String crn) {
+/*    private OffenderEntity getOffender(String crn) {
         return offenderRepository.findByCrn(crn)
                 .orElseThrow(() -> new EntityNotFoundException("Offender with crn %s does not exist", crn));
     }
 
     private OffenderEntity updateOffenderProbationStatus(String crn) {
-        ProbationStatusDetail probationStatusDetail = offenderService.getProbationStatus(crn).block();
-        if (probationStatusDetail == null) {
-            log.error("Probation status details not available for {}", crn);
-            return null;
-        }
-        OffenderEntity offender = getOffender(crn);
-        if (offender != null) {
-            updateProbationStatusDetails(probationStatusDetail, offender);
-            return offenderRepository.save(offender);
-        }
-        return null;
+        return offenderService.updateOffenderProbationStatus(crn);
+
     }
 
     private void updateProbationStatusDetails(ProbationStatusDetail probationStatusDetail, OffenderEntity offender) {
@@ -72,5 +63,5 @@ public class ProbationOffenderEventsListener {
         offender.setBreach(probationStatusDetail.getInBreach());
         offender.setAwaitingPsr(probationStatusDetail.getAwaitingPsr());
         offender.setPreSentenceActivity(probationStatusDetail.isPreSentenceActivity());
-    }
+    }*/
 }

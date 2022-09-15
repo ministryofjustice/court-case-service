@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.service;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
@@ -10,13 +11,16 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple3;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
-import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
 import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
@@ -47,16 +51,21 @@ import static java.util.Collections.emptyList;
 @SuppressWarnings("ALL")
 @Service
 @Slf4j
-@RequestScope
 public class OffenderService {
 
-    private final OffenderRestClient offenderRestClient;
+
+    private final OffenderRestClient userAwareOffenderRestClient;
+
+    private final OffenderRestClient userAgnosticOffenderRestClient;
     private final AssessmentsRestClient assessmentsClient;
     private final DocumentRestClient documentRestClient;
     private final ConvictionRestClient convictionRestClient;
     private final TelemetryService telemetryService;
 
     private final Predicate<OffenderDocumentDetail> documentTypeFilter;
+
+    private final OffenderRepository offenderRepository;
+
 
     @Setter
     @Value("#{'${offender-service.assessment.included-statuses}'.split(',')}")
@@ -70,23 +79,26 @@ public class OffenderService {
     @Value("#{'${offender-service.psr-report-codes}'.split(',')}")
     private List<String> psrTypeCodes;
 
-    public OffenderService(final OffenderRestClientFactory offenderRestClientFactory,
+    public OffenderService(final   @Qualifier("userAwareOffenderRestClient") OffenderRestClient userAwareOffenderRestClient,
+                           final   @Qualifier("userAgnosticOffenderRestClient") OffenderRestClient userAgnosticOffenderRestClient,
                            final AssessmentsRestClient assessmentsClient,
                            final ConvictionRestClient convictionRestClient,
                            final DocumentRestClient documentRestClient,
                            final DocumentTypeFilter documentTypeFilter,
-                           final TelemetryService telemetryService) {
-        this.offenderRestClient = offenderRestClientFactory.build();
+                           final TelemetryService telemetryService, OffenderRepository offenderRepository) {
+        this.userAwareOffenderRestClient = userAwareOffenderRestClient;
+        this.userAgnosticOffenderRestClient = userAgnosticOffenderRestClient;
         this.convictionRestClient = convictionRestClient;
         this.assessmentsClient = assessmentsClient;
         this.documentRestClient = documentRestClient;
         this.documentTypeFilter = documentTypeFilter;
         this.telemetryService = telemetryService;
+        this.offenderRepository = offenderRepository;
     }
 
     public ProbationRecord getProbationRecord(String crn, boolean applyDocumentFilter) {
         // This Mono resolves to a list of convictions including a list of breaches for each conviction
-        var convictions = offenderRestClient.getConvictionsByCrn(crn)
+        var convictions = userAwareOffenderRestClient.getConvictionsByCrn(crn)
             .flatMapMany(Flux::fromIterable)
             .flatMap(conviction -> {
                 log.debug("getting breaches, requirements and PSR detail for crn {} and conviction id {}", crn, conviction.getConvictionId());
@@ -99,10 +111,10 @@ public class OffenderService {
         // As a check against exclusions only we call getOffender which will return 403 status
         var zippedResponses = Mono.zip(
             convictions,
-            offenderRestClient.getOffenderManagers(crn),
+            userAwareOffenderRestClient.getOffenderManagers(crn),
             documentRestClient.getDocumentsByCrn(crn),
             getAssessments(crn),
-            offenderRestClient.getOffender(crn)
+            userAwareOffenderRestClient.getOffender(crn)
         ).blockOptional()
             .orElseThrow(() -> new OffenderNotFoundException(crn));
 
@@ -132,7 +144,7 @@ public class OffenderService {
 
         var convictionId = Long.valueOf(conviction.getConvictionId());
         var enrichedConvictionMono = Mono.zip(
-            offenderRestClient.getBreaches(crn, convictionId),
+            userAwareOffenderRestClient.getBreaches(crn, convictionId),
             getConvictionRequirements(crn, conviction),
             getPsrDetail(crn, conviction));
 
@@ -164,7 +176,7 @@ public class OffenderService {
     public Mono<Conviction> getConviction(final String crn, final Long convictionId) {
         Mono<Tuple3<Conviction, List<Breach>, GroupedDocuments>> convictionMono = Mono.zip(
             convictionRestClient.getConviction(crn, convictionId),
-            offenderRestClient.getBreaches(crn, convictionId),
+            userAwareOffenderRestClient.getBreaches(crn, convictionId),
             documentRestClient.getDocumentsByCrn(crn));
 
         return convictionMono.map(tuple3 -> {
@@ -208,12 +220,12 @@ public class OffenderService {
     }
 
     public Mono<OffenderDetail> getOffenderDetail(String crn) {
-        return Mono.zip(offenderRestClient.getOffender(crn), offenderRestClient.getProbationStatusByCrn(crn))
+        return Mono.zip(userAwareOffenderRestClient.getOffender(crn), userAwareOffenderRestClient.getProbationStatusByCrn(crn))
                 .map((tuple2) -> OffenderMapper.offenderDetailFrom(tuple2.getT1(), tuple2.getT2()));
     }
 
     public Mono<List<Registration>> getOffenderRegistrations(String crn) {
-        return offenderRestClient.getOffenderRegistrations(crn);
+        return userAwareOffenderRestClient.getOffenderRegistrations(crn);
     }
 
     private Optional<Assessment> findMostRecentByStatus(List<Assessment> assessments) {
@@ -223,7 +235,7 @@ public class OffenderService {
     }
 
     public Mono<ProbationStatusDetail> getProbationStatus(String crn) {
-        return offenderRestClient.getProbationStatusByCrn(crn);
+        return userAwareOffenderRestClient.getProbationStatusByCrn(crn);
     }
 
     private Mono<Conviction> applyRequirementsToConviction(String crn, Conviction conviction) {
@@ -242,17 +254,17 @@ public class OffenderService {
             final Mono<RequirementsResponse> res;
             switch (custodialStatus) {
                 case POST_SENTENCE_SUPERVISION -> {
-                    res = Mono.zip(offenderRestClient.getConvictionRequirements(crn, convictionId),
-                        offenderRestClient.getConvictionPssRequirements(crn, convictionId))
+                    res = Mono.zip(userAwareOffenderRestClient.getConvictionRequirements(crn, convictionId),
+                        userAwareOffenderRestClient.getConvictionPssRequirements(crn, convictionId))
                         .map(this::buildPssRequirements);
                 }
                 case RELEASED_ON_LICENCE -> {
-                    res = Mono.zip(offenderRestClient.getConvictionRequirements(crn, convictionId),
-                        offenderRestClient.getConvictionLicenceConditions(crn, convictionId))
+                    res = Mono.zip(userAwareOffenderRestClient.getConvictionRequirements(crn, convictionId),
+                        userAwareOffenderRestClient.getConvictionLicenceConditions(crn, convictionId))
                         .map(this::buildLicenceConditions);
                 }
                 default -> {
-                    res = offenderRestClient.getConvictionRequirements(crn, convictionId)
+                    res = userAwareOffenderRestClient.getConvictionRequirements(crn, convictionId)
                         .map(rqmnts -> RequirementsResponse.builder().requirements(rqmnts).build());
                 }
             }
@@ -268,6 +280,37 @@ public class OffenderService {
                 .map(this::buildCourtReports);
         }
         return Mono.just(emptyList());
+    }
+
+    private Mono<ProbationStatusDetail> getProbationStatusWithoutRestrictions(String crn) {
+        return userAgnosticOffenderRestClient.getProbationStatusByCrn(crn);
+    }
+
+    private OffenderEntity getOffender(String crn) {
+        return offenderRepository.findByCrn(crn)
+                .orElseThrow(() -> new EntityNotFoundException("Offender with crn %s does not exist", crn));
+    }
+
+    public OffenderEntity updateOffenderProbationStatus(String crn) {
+        ProbationStatusDetail probationStatusDetail = getProbationStatusWithoutRestrictions(crn).block();
+        if (probationStatusDetail == null) {
+            log.error("Probation status details not available for {}", crn);
+            return null;
+        }
+        OffenderEntity offender = getOffender(crn);
+        if (offender != null) {
+            updateProbationStatusDetails(probationStatusDetail, offender);
+            return offenderRepository.save(offender);
+        }
+        return null;
+    }
+
+    private void updateProbationStatusDetails(ProbationStatusDetail probationStatusDetail, OffenderEntity offender) {
+        offender.setProbationStatus(OffenderProbationStatus.of(probationStatusDetail.getStatus()));
+        offender.setPreviouslyKnownTerminationDate(probationStatusDetail.getPreviouslyKnownTerminationDate());
+        offender.setBreach(probationStatusDetail.getInBreach());
+        offender.setAwaitingPsr(probationStatusDetail.getAwaitingPsr());
+        offender.setPreSentenceActivity(probationStatusDetail.isPreSentenceActivity());
     }
 
     List<CourtReport> buildCourtReports(List<CourtReport> courtReports) {

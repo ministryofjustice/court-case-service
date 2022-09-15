@@ -32,6 +32,20 @@ VALUES (-198, -198, 'Theft from a garage', 'On 01/01/2015 at own, stole article,
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by, version)
 VALUES (-100, 'X25829', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test', 1);
 
+-- For null listNo int test
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
+VALUES (-184, 'fe657c3a-b674-4e17-8772-7281c99e4f9f', '1600028888', '2022-03-23 17:59:59.000', 'COMMON_PLATFORM');
+INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
+VALUES (-184, -184, 'fe657c3a-b674-4e17-8772-7281c99e4f9f', '2022-03-23 17:59:59.000');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
+VALUES (-184, -184, 'B33HU', 1, '2022-3-25', '09:00', '1st', '2022-03-23 17:59:59.000');
+INSERT INTO courtcaseservicetest.DEFENDANT (id, DEFENDANT_ID, defendant_name, name, address, type, date_of_birth, crn, sex, created)
+VALUES (-184, '0048297a-fd9c-4c96-8c03-8122b802a54d', 'Mr Ferris BUELLER', '{"title": "Mr", "surname": "BUELLER", "forename1": "Ferris", "forename2": "Antimony"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', 'X25829', 'MALE', '2022-03-23 17:59:59.000');
+INSERT INTO courtcaseservicetest.HEARING_DEFENDANT (id, fk_hearing_id, created, defendant_id)
+VALUES (-184, -184, '2022-03-23 16:59:59.000', '0048297a-fd9c-4c96-8c03-8122b802a54d');
+INSERT INTO courtcaseservicetest.OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)
+VALUES (-184, -184, 'Theft from a garage', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 17:59:59.000');
+
 -- Initial creation of Royston Vasey - Error case - offender referenced by CRN does not exist
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
 VALUES (-197, '2d85ba01-676e-409f-9336-815c4ce90f04', '1600028913', '2022-03-23 16:59:59.000', 'COMMON_PLATFORM');

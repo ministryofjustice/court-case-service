@@ -13,6 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,9 +26,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CourtCaseResponseMapper {
 
-    public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, String defendantId, int matchCount) {
+    public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, String defendantId, int matchCount, List<CaseProgressHearing> caseHearings) {
         // Core case-based
-        final var builder = CourtCaseResponse.builder();
+        final var builder = CourtCaseResponse.builder()
+            .hearings(caseHearings);
 
         buildCaseFields(builder, hearingEntity);
         buildHearings(builder, hearingEntity, null);
@@ -96,17 +98,6 @@ public class CourtCaseResponseMapper {
                 .sessionStartTime(targetHearing.getSessionStartTime())
                 .session(targetHearing.getSession())
                 .listNo(targetHearing.getListNo());
-
-        builder.hearings(
-            hearings.stream()
-                .map(hearingDayEntity -> HearingResponse.builder()
-                    .courtCode(hearingDayEntity.getCourtCode())
-                    .courtRoom(hearingDayEntity.getCourtRoom())
-                    .listNo(hearingDayEntity.getListNo())
-                    .session(hearingDayEntity.getSession())
-                    .sessionStartTime(hearingDayEntity.getSessionStartTime())
-                    .build())
-            .collect(Collectors.toList()));
     }
 
     private static String getNormalisedCourtRoom(String courtRoom) {

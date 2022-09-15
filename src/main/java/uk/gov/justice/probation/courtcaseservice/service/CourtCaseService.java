@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CourtCaseService {
-    HearingEntity getHearingByCaseNumber(String courtCode, String caseNo) throws EntityNotFoundException;
+    HearingEntity getHearingByCaseNumber(String courtCode, String caseNo, String listNo) throws EntityNotFoundException;
 
     HearingEntity getHearingByHearingId(String hearingId) throws EntityNotFoundException;
 

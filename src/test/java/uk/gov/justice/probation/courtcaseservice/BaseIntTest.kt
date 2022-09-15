@@ -18,6 +18,7 @@ import org.testcontainers.containers.localstack.LocalStackContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.utility.DockerImageName
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
+import uk.gov.justice.hmpps.sqs.MissingQueueException
 import uk.gov.justice.probation.courtcaseservice.controller.CCSPostgresqlContainer
 import uk.gov.justice.probation.courtcaseservice.testcontainers.LocalStackHelper
 import uk.gov.justice.probation.courtcaseservice.testcontainers.LocalStackHelper.setLocalStackProperties
@@ -38,8 +39,15 @@ abstract class BaseIntTest {
   @Autowired
   protected lateinit var hmppsQueueService: HmppsQueueService
 
+
   @SpyBean
   protected lateinit var inboundMessageServiceSpy: HmppsQueueService
+
+  private val emittedEventsQueue by lazy { hmppsQueueService.findByQueueId("emittedeventsqueue") ?: throw MissingQueueException("HmppsQueue emittedeventsqueue not found") }
+
+  protected val emittedEventsQueueSqsClient by lazy { emittedEventsQueue.sqsClient }
+
+  protected val emittedEventsQueueUrl by lazy { emittedEventsQueue.queueUrl }
 
   companion object {
     private val localStackContainer = LocalStackHelper.instance

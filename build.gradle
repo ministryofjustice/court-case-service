@@ -30,7 +30,7 @@ project.targetCompatibility = JavaVersion.VERSION_16
 group = 'uk.gov.justice.probation'
 
 ext {
-    restAssuredVersion = '4.5.1'
+    restAssuredVersion = '5.2.0'
     pactVersion = '4.3.14'
 }
 
@@ -161,7 +161,7 @@ dependencies {
         }
     }
 
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3") {
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.4") {
         because("2.13.1 has vulnerabilities")
     }
 

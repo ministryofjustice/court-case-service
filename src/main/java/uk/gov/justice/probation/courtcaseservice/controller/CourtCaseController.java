@@ -111,7 +111,7 @@ public class CourtCaseController {
     @Operation(description = "Gets the court case data by case number.")
     @GetMapping(value = "/court/{courtCode}/case/{caseNo}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
-    CourtCaseResponse getCourtCase(@PathVariable String courtCode, @PathVariable String caseNo, @RequestParam String listNo) {
+    CourtCaseResponse getCourtCase(@PathVariable String courtCode, @PathVariable String caseNo, @RequestParam(required = false) String listNo) {
         return buildCourtCaseResponse(courtCaseService.getHearingByCaseNumber(courtCode, caseNo, listNo));
     }
 

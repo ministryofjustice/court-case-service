@@ -75,10 +75,17 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
     }
 
     @Test
-    public void whenFindByCourtCodeAndCaseNo_thenReturnCorrectRecordWithOffender() {
+    public void whenFindByCourtCodeCaseNoAndListNo_thenReturnCorrectRecordWithOffender() {
         final var actual = hearingRepositoryFacade.findByCourtCodeAndCaseNo("B33HU", "1600028888", "3rd");
 
         assertIsFerrisBueller(actual);
+    }
+
+    @Test
+    public void whenFindByCourtCodeAndCaseNo_andNoListNo_thenReturnCorrectRecordWithOffender() {
+        final var actual = hearingRepositoryFacade.findByCourtCodeAndCaseNo("B33HU", "1600028888", null);
+
+        assertIsFerrisBueller(actual, "fe657c3a-b674-4e17-8772-7281c99e4f9f", "fe657c3a-b674-4e17-8772-7281c99e4f9f");
     }
 
     @Test
@@ -191,11 +198,16 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private void assertIsFerrisBueller(Optional<HearingEntity> actual) {
+        assertIsFerrisBueller(actual, "5564cbfd-3d53-4f36-9508-437416b08738", "727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b");
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private void assertIsFerrisBueller(Optional<HearingEntity> actual, String hearingId, String caseId) {
         assertThat(actual).isPresent();
 
         final var hearingEntity = actual.get();
-        assertThat(hearingEntity.getHearingId()).isEqualTo("5564cbfd-3d53-4f36-9508-437416b08738");
-        assertThat(hearingEntity.getCaseId()).isEqualTo("727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b");
+        assertThat(hearingEntity.getHearingId()).isEqualTo(hearingId);
+        assertThat(hearingEntity.getCaseId()).isEqualTo(caseId);
         assertThat(hearingEntity.getCaseNo()).isEqualTo("1600028888");
         assertThat(hearingEntity.getHearingDefendants().size()).isEqualTo(1);
 

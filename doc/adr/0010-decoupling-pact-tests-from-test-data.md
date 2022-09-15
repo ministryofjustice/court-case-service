@@ -1,4 +1,4 @@
-# 9. Handling concurrent DB updates
+# 10. Decoupling Pact tests from test data
 
 Date: 2022-01-13
 

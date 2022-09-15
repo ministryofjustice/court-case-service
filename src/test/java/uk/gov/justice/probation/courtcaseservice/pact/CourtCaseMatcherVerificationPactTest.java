@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.URN;
 
 @Provider("court-case-service")
-@PactBroker(consumerVersionSelectors = @VersionSelector(consumer = "court-case-matcher", tag="${PACT_CONSUMER_TAG}"))
+@PactBroker(consumerVersionSelectors = @VersionSelector(consumer = "court-case-matcher", tag="${PACT_CONSUMER_TAG}", fallbackTag = "main"))
 @PactFolder("src/test/resources/pact")
 @ActiveProfiles("unsecured")
 class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
@@ -67,10 +67,11 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
     }
 
 
-    @State({"a hearing exists for court B10JQ and case number 1600028913"})
+    @State({"a hearing exists for court B10JQ, case number 1600028913 and list number 2nd"})
     void getHearingByCaseNumber() {
         var hearingEntity = HearingEntity.builder()
                 .hearingId("8bbb4fe3-a899-45c7-bdd4-4ee25ac5a83f")
+                .listNo("2nd")
                 .courtCase(CourtCaseEntity.builder()
                         .caseNo("1600028913")
                         .sourceType(SourceType.LIBRA)
@@ -99,7 +100,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                 .build())
                         .build()))
                 .build();
-        when(courtCaseService.getHearingByCaseNumber("B10JQ", "1600028913")).thenReturn(hearingEntity);
+        when(courtCaseService.getHearingByCaseNumber("B10JQ", "1600028913", "2nd")).thenReturn(hearingEntity);
     }
 
     @State({"a hearing exists for hearingId 8bbb4fe3-a899-45c7-bdd4-4ee25ac5a83f"})

@@ -26,13 +26,14 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
             "   join hearing_day on hearing.id = hearing_day.fk_hearing_id " +
             "   where court_case.case_no = :caseNo " +
             "   and hearing_day.court_code = :courtCode " +
+            "   and hearing_day.list_no = :listNo " +
             "   group by court_case.case_no, hearing_day.court_code) grouped_cases " +
             "on cc.id = grouped_cases.max_id " +
             "and cc.case_no = grouped_cases.case_no " +
             "where cc.deleted = false " +
             "order by cc.id desc limit 1",
             nativeQuery = true)
-    Optional<HearingEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo);
+    Optional<HearingEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo, String listNo);
 
     @Query(value = "select h.* as first_created " +
         "from hearing h " +
@@ -79,4 +80,10 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
         nativeQuery = true)
     Optional<LocalDateTime> findLastModifiedByHearingDay(String courtCode, LocalDate hearingDay);
 
+    @Query(value = "select * from hearing where id in (" +
+        "select max(h.id) from hearing h, court_case cc where " +
+        "cc.case_id = :caseId " +
+        "and h.fk_court_case_id = cc.id group by h.hearing_id)",
+        nativeQuery = true)
+    Optional<List<HearingEntity>> findHearingsByCaseId(String caseId);
 }

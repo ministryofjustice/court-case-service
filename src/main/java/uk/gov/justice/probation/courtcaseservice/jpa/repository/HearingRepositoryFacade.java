@@ -49,8 +49,8 @@ public class HearingRepositoryFacade {
                 .map(this::updateWithDefendants);
     }
 
-    public Optional<HearingEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo) {
-        return hearingRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
+    public Optional<HearingEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo, String listNo) {
+        return hearingRepository.findByCourtCodeAndCaseNo(courtCode, caseNo, listNo)
                 .map(this::updateWithDefendants);
     }
 

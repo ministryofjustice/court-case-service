@@ -6,7 +6,7 @@ plugins {
     id 'org.springframework.boot' version '2.7.3'
     id 'io.spring.dependency-management' version '1.0.13.RELEASE'
     id 'com.github.ben-manes.versions' version '0.42.0'
-    id "org.flywaydb.flyway" version "9.2.2"
+    id "org.flywaydb.flyway" version "9.2.3"
     id 'jacoco'
     id "au.com.dius.pact" version "4.3.14"
     id 'java-library'
@@ -110,7 +110,7 @@ task integrationTest(type: Test) {
     }
 }
 
-task pactTestPublish(type: Test) {
+task pactVerifyPublish(type: Test) {
     useJUnitPlatform()
     filter {
         excludeTestsMatching '*IntTest'
@@ -137,6 +137,8 @@ task pactTestPublish(type: Test) {
     }
 }
 
+task pactTestPublish dependsOn pactVerifyPublish
+
 task unitTest(type: Test) {
     useJUnitPlatform()
     filter {
@@ -159,7 +161,7 @@ dependencies {
         }
     }
 
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3") {
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.4") {
         because("2.13.1 has vulnerabilities")
     }
 
@@ -194,7 +196,7 @@ dependencies {
     implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.4'
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.4'
     implementation 'net.logstash.logback:logstash-logback-encoder:7.2'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.4'
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.11'
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:1.1.8")

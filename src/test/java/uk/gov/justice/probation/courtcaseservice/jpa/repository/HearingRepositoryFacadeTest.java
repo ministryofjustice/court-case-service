@@ -13,7 +13,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 
 import java.time.LocalDate;
@@ -117,15 +116,31 @@ class HearingRepositoryFacadeTest {
     }
 
     @Test
-    void whenFindByCourtCodeAndCaseNo_thenReturnDefendants() {
-        when(hearingRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
+    void whenFindByCourtCodeCaseNoAndListNo_thenReturnDefendants() {
+        when(hearingRepository.findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
 
         final var actual = facade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, LIST_NO);
 
         assertThat(actual).get().isEqualTo(HEARING_WITH_MULTIPLE_DEFENDANTS);
-        verify(hearingRepository).findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, LIST_NO);
+        verify(hearingRepository).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO);
+        verify(hearingRepository, times(0)).findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO);
+        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
+        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository);
+    }
+
+    @Test
+    void whenFindByCourtCodeCaseNoAnd_NoListNoProvided_thenReturnDefendants() {
+        when(hearingRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
+        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
+        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
+
+        final var actual = facade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, null);
+
+        assertThat(actual).get().isEqualTo(HEARING_WITH_MULTIPLE_DEFENDANTS);
+        verify(hearingRepository).findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO);
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
         verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);

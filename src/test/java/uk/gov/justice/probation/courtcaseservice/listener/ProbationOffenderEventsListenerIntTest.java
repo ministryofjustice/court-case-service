@@ -5,11 +5,14 @@ import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.services.sns.model.PublishResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
+import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
+import uk.gov.justice.probation.courtcaseservice.service.UserAgnosticOffenderService;
 import uk.gov.justice.probation.courtcaseservice.testUtil.OffenderEvent;
 import com.amazonaws.services.sqs.model.PurgeQueueRequest;
 
@@ -17,13 +20,16 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
 public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
 
     @SpyBean
-    OffenderRepository offenderRepository;
+    UserAgnosticOffenderService offenderService;
 
     ObjectMapper objectMapper;
+
+    ArgumentCaptor<String> crnArgumentCaptor;
 
     @BeforeEach
     public void setUp(){
@@ -45,6 +51,9 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
 
         assertThat(result.getSdkHttpMetadata().getHttpStatusCode()).isEqualTo(200);
         assertThat(result.getMessageId()).isNotNull();
+
+      //  verify(offenderService).updateOffenderProbationStatus(crnArgumentCaptor.capture());
+       // assertThat(crnArgumentCaptor.getValue()).isEqualTo("X320741");
     }
 
     private PublishResult publishOffenderEvent(OffenderEvent offenderEvent) throws JsonProcessingException {

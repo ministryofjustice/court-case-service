@@ -34,7 +34,7 @@ public class ConvictionService {
                              final OffenderRestClientFactory offenderRestClientFactory,
                              @Value("${delius.contact-list-url-template}") final String deliusContactListUrlTemplate) {
         this.convictionRestClient = client;
-        this.offenderRestClient = offenderRestClientFactory.build();
+        this.offenderRestClient = offenderRestClientFactory.buildUserAwareOffenderRestClient();
         this.deliusContactListUrlTemplate = deliusContactListUrlTemplate;
     }
 

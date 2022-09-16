@@ -1,9 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
@@ -50,8 +50,13 @@ public class HearingRepositoryFacade {
     }
 
     public Optional<HearingEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo, String listNo) {
-        return hearingRepository.findByCourtCodeAndCaseNo(courtCode, caseNo, listNo)
-                .map(this::updateWithDefendants);
+        Optional<HearingEntity> hearing;
+        if(StringUtils.isEmpty(listNo)) {
+            hearing = hearingRepository.findByCourtCodeAndCaseNo(courtCode, caseNo);
+        } else {
+            hearing = hearingRepository.findByCourtCodeCaseNoAndListNo(courtCode, caseNo, listNo);
+        }
+        return hearing.map(this::updateWithDefendants);
     }
 
     public Optional<HearingEntity> findByHearingIdAndDefendantId(String hearingId, String defendantId) {

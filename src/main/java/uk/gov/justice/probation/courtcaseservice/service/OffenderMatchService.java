@@ -48,7 +48,7 @@ public class OffenderMatchService {
     @Autowired
     public OffenderMatchService(GroupedOffenderMatchRepository groupedOffenderMatchRepository, OffenderRestClientFactory offenderRestClientFactory, CourtCaseRepository courtCaseRepository, HearingRepository hearingRepository) {
         this.groupedOffenderMatchRepository = groupedOffenderMatchRepository;
-        this.offenderRestClient = offenderRestClientFactory.build();
+        this.offenderRestClient = offenderRestClientFactory.buildUserAwareOffenderRestClient();
         this.courtCaseRepository = courtCaseRepository;
         this.hearingRepository = hearingRepository;
     }

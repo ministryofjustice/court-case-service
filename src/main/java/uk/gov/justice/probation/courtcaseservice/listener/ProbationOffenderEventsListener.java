@@ -6,19 +6,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
+import uk.gov.justice.probation.courtcaseservice.service.UserAgnosticOffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.ProbationOffenderEvent;
 
 @Slf4j
 @Component
 public class ProbationOffenderEventsListener {
 
-    private final OffenderService offenderService;
+    private final UserAgnosticOffenderService offenderService;
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public ProbationOffenderEventsListener(OffenderService offenderService, ObjectMapper objectMapper) {
+    public ProbationOffenderEventsListener(UserAgnosticOffenderService offenderService, ObjectMapper objectMapper) {
         this.offenderService = offenderService;
         this.objectMapper = objectMapper;
     }

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.probation.courtcaseservice.service.OffenderService;
+import uk.gov.justice.probation.courtcaseservice.service.UserAgnosticOffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.ProbationOffenderEvent;
 
 import static org.mockito.ArgumentMatchers.anyString;
@@ -24,7 +24,7 @@ public class ProbationOffenderEventsListenerTest {
     private ObjectMapper objectMapper;
 
     @Mock
-    private OffenderService offenderService;
+    private UserAgnosticOffenderService offenderService;
 
     private String offenderEventMessage;
 

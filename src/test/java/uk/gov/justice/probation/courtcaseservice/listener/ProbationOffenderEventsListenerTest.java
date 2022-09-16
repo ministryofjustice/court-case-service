@@ -47,6 +47,7 @@ public class ProbationOffenderEventsListenerTest {
         probationOffenderEventsListener.processMessage(offenderEventMessage);
 
         verify(offenderService).updateOffenderProbationStatus("crn");
+        verifyNoMoreInteractions(offenderService);
     }
 
     @Test

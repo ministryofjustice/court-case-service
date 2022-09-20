@@ -9,6 +9,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationSta
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 
@@ -28,13 +29,13 @@ public class UserAgnosticOffenderService {
     }
 
 
-    private Mono<ProbationStatusDetail> getProbationStatusWithoutRestrictions(String crn) {
+    public Mono<ProbationStatusDetail> getProbationStatusWithoutRestrictions(String crn) {
         return userAgnosticOffenderRestClient.getProbationStatusByCrn(crn);
     }
 
     private OffenderEntity getOffender(String crn) {
         return offenderRepository.findByCrn(crn)
-                .orElseThrow(() -> new EntityNotFoundException("Offender with crn %s does not exist", crn));
+                .orElse(null);
     }
 
     public OffenderEntity updateOffenderProbationStatus(String crn) {

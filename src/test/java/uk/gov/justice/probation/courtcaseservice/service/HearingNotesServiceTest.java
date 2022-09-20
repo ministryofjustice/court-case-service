@@ -43,6 +43,7 @@ class HearingNotesServiceTest {
 
         verify(hearingRepository).findFirstByHearingIdOrderByIdDesc("hearingId");
         verify(hearingNotesRepository).save(hearingNoteEntity);
+        verify(telemetryService).trackCreateHearingNoteEvent(TelemetryEventType.HEARING_NOTE_ADDED, hearingNoteEntity);
     }
 
     @Test

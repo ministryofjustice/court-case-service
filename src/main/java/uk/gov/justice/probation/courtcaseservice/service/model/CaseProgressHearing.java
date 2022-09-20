@@ -8,11 +8,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.With;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.List;
 
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM;
 
@@ -21,6 +24,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.CO
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
+@With
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CaseProgressHearing {
     private final String hearingId;
@@ -29,6 +33,8 @@ public class CaseProgressHearing {
     private final String session;
     private final String hearingTypeLabel;
     private final LocalDateTime hearingDateTime;
+
+    private final List<HearingNoteResponse> notes;
 
     public static CaseProgressHearing of(HearingEntity hearingEntity) {
         var hearingDay = getHearingDay(hearingEntity);

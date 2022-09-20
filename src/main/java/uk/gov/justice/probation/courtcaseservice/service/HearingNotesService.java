@@ -26,6 +26,10 @@ public class HearingNotesService {
 
         return hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
             .map(hearingEntity -> hearingNotesRepository.save(hearingNoteEntity))
+            .map(hearingNote -> {
+                telemetryService.trackCreateHearingNoteEvent(TelemetryEventType.HEARING_NOTE_ADDED, hearingNote);
+                return hearingNote;
+            })
             .orElseThrow(() -> new EntityNotFoundException("Hearing %s not found", hearingId));
     }
 

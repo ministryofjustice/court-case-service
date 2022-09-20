@@ -15,6 +15,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRes
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
@@ -22,15 +23,11 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.security.AuthAwareAuthenticationToken;
-import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper;
-import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
-import uk.gov.justice.probation.courtcaseservice.service.CaseProgressService;
-import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
-import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
-import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
+import uk.gov.justice.probation.courtcaseservice.service.*;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
 import java.security.Principal;
@@ -50,9 +47,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
@@ -93,6 +88,8 @@ class CourtCaseControllerTest {
     private AuthenticationHelper authenticationHelper;
     @Mock
     private CaseProgressService caseProgressService;
+    @Mock
+    private HearingNotesService hearingNotesService;
 
     private CourtCaseController courtCaseController;
     private final HearingEntity hearingEntity = HearingEntity.builder()
@@ -119,7 +116,7 @@ class CourtCaseControllerTest {
     @BeforeEach
     public void setUp() {
         courtCaseController = new CourtCaseController(courtCaseService, offenderMatchService,
-            offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, true);
+            offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, true);
     }
 
     @Test
@@ -312,7 +309,7 @@ class CourtCaseControllerTest {
     @Test
     void givenCacheableCaseListDisabled_whenListIsNotModified_thenReturnFullList() {
         final var nonCachingController = new CourtCaseController(courtCaseService,
-            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, false);
+            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, false);
 
         final var courtCaseEntity = this.hearingEntity.withHearingDefendants(List.of(EntityHelper.aHearingDefendantEntity()))
                 .withHearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()
@@ -412,6 +409,42 @@ class CourtCaseControllerTest {
 
         courtCaseController.deleteCaseComment(caseId, commentId, principal);
         verify(caseCommentsService).deleteCaseComment(caseId, commentId, testUuid);
+    }
+
+
+    @Test
+    void givenHearingIdAndHearingNote_shouldInvokeHearingNotesService() {
+
+        HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder()
+            .hearingId("test-hearing-id")
+            .author("Author One")
+            .note("Note one")
+            .createdByUuid(testUuid).build();
+
+        var hearingNoteRequest = HearingNoteRequest.builder().hearingId("test-hearing-id").note("Note one").author("Author One").build();
+
+        given(hearingNotesService.createHearingNote(any(HearingNoteEntity.class))).willReturn(hearingNoteEntity);
+
+        courtCaseController.createHearingNote("test-hearing-id", hearingNoteRequest, principal);
+
+        verify(hearingNotesService).createHearingNote(any(HearingNoteEntity.class));
+    }
+
+    @Test
+    void givenHearingIdInPathDoesNotMatchHearingNoteEntity_shouldThrowConflictingInputexception() {
+
+        HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder()
+            .hearingId("test-hearing-id")
+            .author("Author One")
+            .note("Note one")
+            .createdByUuid(testUuid).build();
+
+        var hearingNoteRequest = HearingNoteRequest.builder().hearingId("test-hearing-id").note("Note one").author("Author One").build();
+
+        assertThrows(ConflictingInputException.class, () -> courtCaseController.createHearingNote("invalid-hearing-id", hearingNoteRequest, principal),
+            "Hearing Id 'invalid-hearing-id' provided in the path does not match the one in the hearing note request body submitted 'test-hearing-id'");
+
+        verifyNoInteractions(hearingNotesService);
     }
 
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, NamePropertiesEntity defendantName, LocalDateTime sessionTime) {

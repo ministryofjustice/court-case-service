@@ -81,7 +81,7 @@ public class OffenderRestClientFactory {
      *
      * This factory method can be called from the non @RequestScoped bean like the one used in the {@link uk.gov.justice.probation.courtcaseservice.listener.ProbationOffenderEventsListener}
      *
-     * @return An OffenderRestClient authenticated on behalf of the current user
+     * @return An OffenderRestClient with no user details
      */
 
     public OffenderRestClient buildUserAgnosticOffenderRestClient() {

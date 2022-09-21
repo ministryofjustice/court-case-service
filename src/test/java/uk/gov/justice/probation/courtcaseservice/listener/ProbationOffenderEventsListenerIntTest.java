@@ -51,13 +51,16 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
 
     @Test
     public void shouldProcess_OffenderEventChangedMessage_AndUpdateOffenderProbationStatus() throws JsonProcessingException, InterruptedException {
-
         var offenderEntity = OffenderEntity.builder()
+                .id(Long.valueOf(-1000001))
+                .cro("CROINT007")
                 .crn("X320741")
-                .probationStatus(OffenderProbationStatus.NOT_SENTENCED)
-                .awaitingPsr(false)
-                .breach(false)
-                .preSentenceActivity(false)
+                .pnc("PNCINT007")
+                .probationStatus(OffenderProbationStatus.CURRENT)
+                .previouslyKnownTerminationDate(LocalDate.of(2010, 1, 1))
+                .awaitingPsr(true)
+                .breach(true)
+                .preSentenceActivity(true)
                 .build();
 
         when(offenderRepository.findByCrn("X320741")).thenReturn(Optional.ofNullable(offenderEntity));

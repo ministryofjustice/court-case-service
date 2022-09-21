@@ -1,5 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice
 
+import com.amazonaws.services.sqs.AmazonSQS
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.matches
+import org.awaitility.kotlin.untilCallTo
 import org.junit.ClassRule
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -29,6 +33,7 @@ import uk.gov.justice.probation.courtcaseservice.wiremock.WiremockMockServer
 @ActiveProfiles("test")
 @EnableRetry
 abstract class BaseIntTest {
+
   @JvmField
   @LocalServerPort
   protected var port = 0
@@ -38,7 +43,6 @@ abstract class BaseIntTest {
   }
   @Autowired
   protected lateinit var hmppsQueueService: HmppsQueueService
-
 
   @SpyBean
   protected lateinit var inboundMessageServiceSpy: HmppsQueueService
@@ -55,6 +59,18 @@ abstract class BaseIntTest {
   protected val offenderEventReceiverQueueSqsClient by lazy { offenderEventReceiverQueue.sqsClient }
   protected val offenderEventReceiverQueueUrl by lazy { offenderEventReceiverQueue.queueUrl }
 
+  private fun AmazonSQS.countMessagesOnQueue(queueUrl: String): Int {
+
+    val attributeKeys = listOf("ApproximateNumberOfMessages")
+    val queueAttributesResult = this.getQueueAttributes(queueUrl, attributeKeys)
+    return queueAttributesResult.let {
+      it.attributes["ApproximateNumberOfMessages"]?.toInt() ?: 0
+    }
+  }
+
+  fun assertOffenderEventReceiverQueueHasProcessedMessages() {
+    await untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl) } matches { it == 0 }
+  }
   companion object {
     private val localStackContainer = LocalStackHelper.instance
 
@@ -91,6 +107,6 @@ abstract class BaseIntTest {
     @AfterAll
     fun afterAll() {
       MOCK_SERVER.stop()
-    }
+   }
   }
 }

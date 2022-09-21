@@ -15,6 +15,7 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
+import uk.gov.justice.probation.courtcaseservice.service.TelemetryService;
 import uk.gov.justice.probation.courtcaseservice.service.UserAgnosticOffenderService;
 import uk.gov.justice.probation.courtcaseservice.testUtil.OffenderEvent;
 
@@ -34,6 +35,9 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
 
     @SpyBean
     OffenderRepository offenderRepository;
+
+    @SpyBean
+    TelemetryService telemetryService;
 
     ObjectMapper objectMapper;
     @Captor
@@ -87,6 +91,8 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
         verify(offenderRepository).findByCrn(crnArgumentCaptor.capture());
 
         verify(offenderRepository).save(offenderEntityArgumentCaptor.capture());
+
+        verify(telemetryService).trackOffenderProbationStatusUpdateEvent(offenderEntityArgumentCaptor.capture());
 
         var offenderEntityToUpdate = offenderEntityArgumentCaptor.getValue();
         assertThat(offenderEntityToUpdate.getCrn()).isEqualTo("X320741");

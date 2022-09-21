@@ -136,7 +136,7 @@ public class TelemetryService {
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }
 
-    void trackOffenderProbationStatusUpdateEvent(OffenderEntity offenderEntity) {
+    public void trackOffenderProbationStatusUpdateEvent(OffenderEntity offenderEntity) {
 
         Map<String, String> properties = new HashMap<>();
 

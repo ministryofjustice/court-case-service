@@ -9,8 +9,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationSta
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
-import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
-import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 
 @Service
@@ -21,11 +19,14 @@ public class UserAgnosticOffenderService {
 
     private final OffenderRepository offenderRepository;
 
+    private final TelemetryService telemetryService;
+
     @Autowired
     public UserAgnosticOffenderService(final OffenderRestClientFactory offenderRestClientFactory,
-                                       final OffenderRepository offenderRepository) {
+                                       final OffenderRepository offenderRepository, TelemetryService telemetryService) {
         this.userAgnosticOffenderRestClient = offenderRestClientFactory.buildUserAgnosticOffenderRestClient();
         this.offenderRepository = offenderRepository;
+        this.telemetryService = telemetryService;
     }
 
 
@@ -47,7 +48,9 @@ public class UserAgnosticOffenderService {
         OffenderEntity offender = getOffender(crn);
         if (offender != null) {
             updateProbationStatusDetails(probationStatusDetail, offender);
-            return offenderRepository.save(offender);
+            var updatedOffenderEntity =  offenderRepository.save(offender);
+            telemetryService.trackOffenderProbationStatusUpdateEvent(updatedOffenderEntity);
+            return updatedOffenderEntity;
         }
         return null;
     }

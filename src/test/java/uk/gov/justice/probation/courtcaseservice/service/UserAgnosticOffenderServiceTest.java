@@ -37,6 +37,8 @@ public class UserAgnosticOffenderServiceTest {
 
     @Mock
     private OffenderRestClient userAgnosticOffenderRestClient;
+    @Mock
+    private TelemetryService telemetryService;
 
     private UserAgnosticOffenderService service;
 
@@ -46,7 +48,7 @@ public class UserAgnosticOffenderServiceTest {
     @BeforeEach
     void beforeEach() {
         when(offenderRestClientFactory.buildUserAgnosticOffenderRestClient()).thenReturn(userAgnosticOffenderRestClient);
-        service = new UserAgnosticOffenderService(offenderRestClientFactory, offenderRepository);
+        service = new UserAgnosticOffenderService(offenderRestClientFactory, offenderRepository, telemetryService);
     }
 
     @Test
@@ -87,7 +89,39 @@ public class UserAgnosticOffenderServiceTest {
         verify(userAgnosticOffenderRestClient).getProbationStatusByCrn(CRN);
         verify(offenderRepository).findByCrn(CRN);
         verify(offenderRepository).save(offenderEntityArgumentCaptor.capture());
+        var entityToUpdate = offenderEntityArgumentCaptor.getValue();
 
+        assertThat(entityToUpdate.getProbationStatus()).isEqualTo(OffenderProbationStatus.CURRENT);
+        assertThat(entityToUpdate.getAwaitingPsr()).isEqualTo(true);
+        assertThat(entityToUpdate.getPreviouslyKnownTerminationDate()).isEqualTo(date);
+        assertThat(entityToUpdate.getCrn()).isEqualTo(CRN);
+        assertThat(entityToUpdate.isPreSentenceActivity()).isEqualTo(true);
+        assertThat(entityToUpdate.isBreach()).isEqualTo(true);
+    }
+
+    @Test
+    void shouldUpdateOffenderProbationStatus_AndEmitTelemetryEvent() {
+
+        var date = LocalDate.now();
+
+        final var probationStatusDetail = ProbationStatusDetail.builder()
+                .status(OffenderProbationStatus.CURRENT.getName())
+                .inBreach(true)
+                .awaitingPsr(true)
+                .previouslyKnownTerminationDate(date)
+                .preSentenceActivity(true)
+                .build();
+        final var offenderEntity = OffenderEntity.builder()
+                .crn(CRN)
+                .probationStatus(OffenderProbationStatus.NOT_SENTENCED)
+                .build();
+
+        when(userAgnosticOffenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
+        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.ofNullable(offenderEntity));
+        when(offenderRepository.save(any(OffenderEntity.class))).thenReturn(offenderEntity);
+
+        var detail = service.updateOffenderProbationStatus(CRN);
+        verify(telemetryService).trackOffenderProbationStatusUpdateEvent(offenderEntityArgumentCaptor.capture());
         var entityToUpdate = offenderEntityArgumentCaptor.getValue();
 
         assertThat(entityToUpdate.getProbationStatus()).isEqualTo(OffenderProbationStatus.CURRENT);

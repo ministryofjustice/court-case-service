@@ -23,6 +23,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
@@ -99,6 +100,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                 .pnc("A/1234560BA")
                                 .build())
                         .build()))
+                .hearingEventType(HearingEventType.RESULTED)
                 .build();
         when(courtCaseService.getHearingByCaseNumber("B10JQ", "1600028913", "2nd")).thenReturn(hearingEntity);
     }

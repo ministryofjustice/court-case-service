@@ -12,6 +12,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEnt
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
@@ -67,6 +68,7 @@ public class CourtCaseResponse {
     private final Boolean awaitingPsr;
     private final List<CaseProgressHearing> hearings;
     private final List<CaseCommentResponse> caseComments;
+    private final HearingEventType hearingEventType;
 
     @JsonProperty
     public String getProbationStatus() {

@@ -4,7 +4,11 @@ package uk.gov.justice.probation.courtcaseservice.service.model;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteResponse;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;

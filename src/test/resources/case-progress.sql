@@ -7,6 +7,16 @@ INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, hear
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, hearing_type, created) VALUES (-1700028899, -1700028600, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'Sentence', TO_TIMESTAMP('2019-11-14 9:00:00', 'YYYY-MM-DD HH:MI:SS'));
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, hearing_type, created) VALUES (-1700028898, -1700028600, '2aa6f5e0-f842-4939-bc6a-01346abc09e7', 'Hearing', TO_TIMESTAMP('2019-10-14 9:00:00', 'YYYY-MM-DD HH:MI:SS'));
 
+INSERT INTO courtcaseservicetest.hearing_notes(id, hearing_id, note, "author", created, created_by, created_by_uuid)
+VALUES (-1700028800, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'Judge heard', 'Author One', now(), 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
+INSERT INTO courtcaseservicetest.hearing_notes(id, hearing_id, note, "author", created, deleted, created_by, created_by_uuid)
+VALUES (-1700028801, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'Judge sentenced', 'Author two', now(), true, 'before-test.sql', '389fd9cf-390e-469a-b4cf-6c12024c4cae');
+INSERT INTO courtcaseservicetest.hearing_notes(id, hearing_id, note, "author", created, deleted, created_by, created_by_uuid)
+VALUES (-1700028802, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'Judge sentenced', 'Author three', now(), false, 'before-test.sql', '389fd9cf-390e-469a-b4cf-6c12024c4cae');
+
+INSERT INTO courtcaseservicetest.hearing_notes(id, hearing_id, note, "author", created, created_by, created_by_uuid)
+VALUES (-1700028803, '2aa6f5e0-f842-4939-bc6a-01346abc09e7', 'Judge requested PSR', 'Author Three', now(), 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
+
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
 VALUES (-1000000, -1700028600, 'B10JQ', 2, '2019-11-14', '09:00');
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)

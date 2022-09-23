@@ -1,7 +1,11 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 
 import java.time.LocalDateTime;

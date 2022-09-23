@@ -27,7 +27,13 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.security.AuthAwareAuthenticationToken;
-import uk.gov.justice.probation.courtcaseservice.service.*;
+import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper;
+import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
+import uk.gov.justice.probation.courtcaseservice.service.CaseProgressService;
+import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
+import uk.gov.justice.probation.courtcaseservice.service.HearingNotesService;
+import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
+import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
 import java.security.Principal;
@@ -47,7 +53,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
@@ -121,8 +126,8 @@ class CourtCaseControllerTest {
 
     @Test
     void getCourtCase_shouldReturnCourtCaseResponse() {
-        when(courtCaseService.getHearingByCaseNumber(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(hearingEntity);
-        when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(3));
+        Mockito.when(courtCaseService.getHearingByCaseNumber(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(hearingEntity);
+        Mockito.when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(3));
         var courtCase = courtCaseController.getCourtCase(COURT_CODE, CASE_NO, LIST_NO);
         assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCase.getCaseNo()).isNull();
@@ -131,27 +136,27 @@ class CourtCaseControllerTest {
         assertThat(courtCase.getSession()).isSameAs(session);
         assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(3);
 
-        verify(courtCaseService).getHearingByCaseNumber(COURT_CODE, CASE_NO, LIST_NO);
-        verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
-        verifyNoMoreInteractions(courtCaseService, offenderMatchService);
+        Mockito.verify(courtCaseService).getHearingByCaseNumber(COURT_CODE, CASE_NO, LIST_NO);
+        Mockito.verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
+        Mockito.verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 
     @Test
     void givenNoDefendants_whenGetCourtCase_thenShouldThrowExceptionWithCaseId() {
-        when(courtCaseService.getHearingByCaseNumber(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(hearingEntity.withHearingDefendants(Collections.emptyList()));
+        Mockito.when(courtCaseService.getHearingByCaseNumber(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(hearingEntity.withHearingDefendants(Collections.emptyList()));
 
         assertThatExceptionOfType(IllegalStateException.class)
                 .isThrownBy(() -> courtCaseController.getCourtCase(COURT_CODE, CASE_NO, LIST_NO))
                 .withMessageContaining(hearingEntity.getCaseId());
 
-        verifyNoMoreInteractions(courtCaseService, offenderMatchService);
+        Mockito.verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 
     @Test
     void getCourtCaseByHearingIdAndDefendantId_shouldReturnCourtCaseResponseNoCaseNo() {
 
-        when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(2));
-        when(courtCaseService.getHearingByHearingIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(hearingEntity);
+        Mockito.when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(2));
+        Mockito.when(courtCaseService.getHearingByHearingIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(hearingEntity);
 
         var courtCase = courtCaseController.getCourtCaseByHearingIdAndDefendantId(CASE_ID, DEFENDANT_ID);
         assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
@@ -160,16 +165,16 @@ class CourtCaseControllerTest {
         assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(2);
         assertThat(courtCase.getSession()).isSameAs(session);
 
-        verify(courtCaseService).getHearingByHearingIdAndDefendantId(CASE_ID, DEFENDANT_ID);
-        verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
-        verifyNoMoreInteractions(courtCaseService, offenderMatchService);
+        Mockito.verify(courtCaseService).getHearingByHearingIdAndDefendantId(CASE_ID, DEFENDANT_ID);
+        Mockito.verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
+        Mockito.verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }
 
     @Test
     void getCaseList_shouldReturnCourtCaseResponse() {
 
         var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
-        when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
+        Mockito.when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
 
         final var courtCaseEntity = this.hearingEntity.withHearingDefendants(List.of(EntityHelper.aHearingDefendantEntity()))
                 .withHearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()
@@ -177,7 +182,7 @@ class CourtCaseControllerTest {
                         .withTime(LocalTime.of(9, 0))
                         .withCourtCode(COURT_CODE)
                 ));
-        when(courtCaseService.filterHearings(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE))
+        Mockito.when(courtCaseService.filterHearings(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE))
                 .thenReturn(Collections.singletonList(courtCaseEntity));
         var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE, webRequest);
 
@@ -204,8 +209,8 @@ class CourtCaseControllerTest {
                 .build();
 
         var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
-        when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
-        when(courtCaseService.filterHearings(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE)).thenReturn(Collections.singletonList(courtCaseEntity));
+        Mockito.when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
+        Mockito.when(courtCaseService.filterHearings(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE)).thenReturn(Collections.singletonList(courtCaseEntity));
 
         var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE, webRequest);
 
@@ -222,7 +227,7 @@ class CourtCaseControllerTest {
     @Test
     void getCaseList_sorted() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
-        when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
+        Mockito.when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
 
         final var mornSession = LocalDateTime.of(DATE, LocalTime.of(9, 30));
         final var aftSession = LocalDateTime.of(DATE, LocalTime.of(14, 0));
@@ -260,7 +265,7 @@ class CourtCaseControllerTest {
 
         // Add in reverse order
         final var createdAfter = LocalDateTime.now().minus(1, ChronoUnit.DAYS);
-        when(courtCaseService.filterHearings(COURT_CODE, DATE, createdAfter, CREATED_BEFORE)).thenReturn(List.of(entity5, entity4, entity3, entity2, entity1));
+        Mockito.when(courtCaseService.filterHearings(COURT_CODE, DATE, createdAfter, CREATED_BEFORE)).thenReturn(List.of(entity5, entity4, entity3, entity2, entity1));
         var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, createdAfter, CREATED_BEFORE, webRequest);
 
         final var cases = responseEntity.getBody().getCases();
@@ -277,28 +282,28 @@ class CourtCaseControllerTest {
     @Test
     void whenCreatedAfterIsNull_thenDefaultToALongTimeAgo() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
-        when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
+        Mockito.when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
         final LocalDateTime createdAfter = LocalDateTime.of(-4712, 1, 1, 0, 0);
         courtCaseController.getCaseList(COURT_CODE, DATE, null, CREATED_BEFORE, webRequest);
 
-        verify(courtCaseService).filterHearings(COURT_CODE, DATE, createdAfter, CREATED_BEFORE);
+        Mockito.verify(courtCaseService).filterHearings(COURT_CODE, DATE, createdAfter, CREATED_BEFORE);
     }
 
     @Test
     void whenCreatedBeforeIsNull_thenDefaultToMaxDate() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
-        when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
+        Mockito.when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
         final LocalDateTime createdBefore = LocalDateTime.of(294276, 12, 31, 23, 59);
         courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
 
-        verify(courtCaseService).filterHearings(COURT_CODE, DATE, CREATED_AFTER, createdBefore);
+        Mockito.verify(courtCaseService).filterHearings(COURT_CODE, DATE, CREATED_AFTER, createdBefore);
     }
 
     @Test
     void whenListIsNotModified_thenReturn() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
-        when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
-        when(webRequest.checkNotModified(lastModified.get().toInstant(ZoneOffset.UTC).toEpochMilli())).thenReturn(true);
+        Mockito.when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
+        Mockito.when(webRequest.checkNotModified(lastModified.get().toInstant(ZoneOffset.UTC).toEpochMilli())).thenReturn(true);
 
         var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
 
@@ -317,7 +322,7 @@ class CourtCaseControllerTest {
                         .withTime(LocalTime.of(9, 0))
                         .withCourtCode(COURT_CODE)
                 ));
-        when(courtCaseService.filterHearings(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE))
+        Mockito.when(courtCaseService.filterHearings(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE))
                 .thenReturn(Collections.singletonList(courtCaseEntity));
         var responseEntity = nonCachingController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE, webRequest);
 
@@ -328,8 +333,8 @@ class CourtCaseControllerTest {
 
     @Test
     void whenListHasNeverBeenModified_thenReturnNeverModifiedDate() {
-        when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(Optional.empty());
-        when(webRequest.checkNotModified(any(Long.class))).thenReturn(false);
+        Mockito.when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(Optional.empty());
+        Mockito.when(webRequest.checkNotModified(any(Long.class))).thenReturn(false);
 
         var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
 
@@ -340,9 +345,9 @@ class CourtCaseControllerTest {
     @Test
     void whenGetOffenderByDefendantId_shouldReturnOffender() {
         OffenderEntity offenderEntity = OffenderEntity.builder().crn(CRN).build();
-        when(offenderUpdateService.getDefendantOffenderByDefendantId(DEFENDANT_ID)).thenReturn(Mono.just(offenderEntity));
+        Mockito.when(offenderUpdateService.getDefendantOffenderByDefendantId(DEFENDANT_ID)).thenReturn(Mono.just(offenderEntity));
         var actual = courtCaseController.getOffenderByDefendantId(DEFENDANT_ID).block();
-        verify(offenderUpdateService).getDefendantOffenderByDefendantId(DEFENDANT_ID);
+        Mockito.verify(offenderUpdateService).getDefendantOffenderByDefendantId(DEFENDANT_ID);
         assertThat(actual).isEqualTo(DefendantOffender.builder().crn(CRN).suspendedSentenceOrder(false)
             .breach(false).preSentenceActivity(false).build());
     }
@@ -350,16 +355,16 @@ class CourtCaseControllerTest {
     @Test
     void whenDeleteOffenderByDefendantId_shouldInvokeDeleteOffender() {
         courtCaseController.deleteOffender(DEFENDANT_ID);
-        verify(offenderUpdateService).removeDefendantOffenderAssociation(DEFENDANT_ID);
+        Mockito.verify(offenderUpdateService).removeDefendantOffenderAssociation(DEFENDANT_ID);
     }
 
     @Test
     void whenUpdateOffenderByDefendantId_shouldInvokeUpdateOffender() {
         DefendantOffender testDefendant = DefendantOffender.builder().crn(CRN).build();
-        when(offenderUpdateService.updateDefendantOffender(DEFENDANT_ID, testDefendant.asEntity())).
+        Mockito.when(offenderUpdateService.updateDefendantOffender(DEFENDANT_ID, testDefendant.asEntity())).
             thenReturn(Mono.just(OffenderEntity.builder().crn(CRN).build()));
         final var actual = courtCaseController.updateOffenderByDefendantId(DEFENDANT_ID, testDefendant).block();
-        verify(offenderUpdateService).updateDefendantOffender(DEFENDANT_ID, testDefendant.asEntity());
+        Mockito.verify(offenderUpdateService).updateDefendantOffender(DEFENDANT_ID, testDefendant.asEntity());
         assertThat(actual).isEqualTo(DefendantOffender.builder().crn(CRN).suspendedSentenceOrder(false)
             .breach(false).preSentenceActivity(false).build());
     }
@@ -380,7 +385,7 @@ class CourtCaseControllerTest {
                 principal
                 );
 
-        verify(caseCommentsService).createCaseComment(any(CaseCommentEntity.class));
+        Mockito.verify(caseCommentsService).createCaseComment(any(CaseCommentEntity.class));
         assertThat(actual).isEqualTo(
             CaseCommentResponse.builder()
                 .comment("comment one")
@@ -408,7 +413,7 @@ class CourtCaseControllerTest {
         given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
 
         courtCaseController.deleteCaseComment(caseId, commentId, principal);
-        verify(caseCommentsService).deleteCaseComment(caseId, commentId, testUuid);
+        Mockito.verify(caseCommentsService).deleteCaseComment(caseId, commentId, testUuid);
     }
 
 
@@ -427,7 +432,7 @@ class CourtCaseControllerTest {
 
         courtCaseController.createHearingNote("test-hearing-id", hearingNoteRequest, principal);
 
-        verify(hearingNotesService).createHearingNote(any(HearingNoteEntity.class));
+        Mockito.verify(hearingNotesService).createHearingNote(any(HearingNoteEntity.class));
     }
 
     @Test
@@ -444,7 +449,7 @@ class CourtCaseControllerTest {
         assertThrows(ConflictingInputException.class, () -> courtCaseController.createHearingNote("invalid-hearing-id", hearingNoteRequest, principal),
             "Hearing Id 'invalid-hearing-id' provided in the path does not match the one in the hearing note request body submitted 'test-hearing-id'");
 
-        verifyNoInteractions(hearingNotesService);
+        Mockito.verifyNoInteractions(hearingNotesService);
     }
 
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, NamePropertiesEntity defendantName, LocalDateTime sessionTime) {

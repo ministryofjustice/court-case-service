@@ -49,6 +49,7 @@ public class UserAgnosticOffenderService {
             updateProbationStatusDetails(probationStatusDetail, offender);
             return offenderRepository.save(offender);
         }
+        log.warn("Offender not found for  {}", crn);
         return null;
     }
 

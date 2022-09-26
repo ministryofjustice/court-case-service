@@ -41,8 +41,17 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
 
     @Test
     public void shouldProcess_OffenderEventChangedMessage_AndUpdateOffenderProbationStatus() throws JsonProcessingException {
-
         String crnForTest = "X781345";
+
+        var offenderEntityBeforeUpdate = offenderRepository.findByCrn(crnForTest).get();
+
+        assertThat(offenderEntityBeforeUpdate.getCrn()).isEqualTo(crnForTest);
+        assertThat(offenderEntityBeforeUpdate.getProbationStatus()).isEqualTo(OffenderProbationStatus.CURRENT);
+        assertThat(offenderEntityBeforeUpdate.isBreach()).isEqualTo(true);
+        assertThat(offenderEntityBeforeUpdate.isPreSentenceActivity()).isEqualTo(true);
+        assertThat(offenderEntityBeforeUpdate.getAwaitingPsr()).isEqualTo(true);
+
+
         OffenderEvent sentencedEvent = OffenderEvent.builder()
             .crn(crnForTest)
             .offenderId(1L)
@@ -51,24 +60,24 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
             .eventDateTime(LocalDateTime.now())
             .build();
 
-        var result = publishOffenderEvent(sentencedEvent);
+        var result = publishOffenderProbationStatusChangeEvent(sentencedEvent);
 
         assertThat(result.getSdkHttpMetadata().getHttpStatusCode()).isEqualTo(200);
         assertThat(result.getMessageId()).isNotNull();
 
         assertOffenderEventReceiverQueueHasProcessedMessages();
 
-        var offenderEntityToUpdate = offenderRepository.findByCrn(crnForTest).get();
+        var updatedOffenderEntity = offenderRepository.findByCrn(crnForTest).get();
 
-        assertThat(offenderEntityToUpdate.getCrn()).isEqualTo(crnForTest);
-        assertThat(offenderEntityToUpdate.getProbationStatus()).isEqualTo(OffenderProbationStatus.PREVIOUSLY_KNOWN);
-        assertThat(offenderEntityToUpdate.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2010, 4, 5));
-        assertThat(offenderEntityToUpdate.isBreach()).isEqualTo(false);
-        assertThat(offenderEntityToUpdate.isPreSentenceActivity()).isEqualTo(true);
-        assertThat(offenderEntityToUpdate.getAwaitingPsr()).isEqualTo(false);
+        assertThat(updatedOffenderEntity.getCrn()).isEqualTo(crnForTest);
+        assertThat(updatedOffenderEntity.getProbationStatus()).isEqualTo(OffenderProbationStatus.PREVIOUSLY_KNOWN);
+        assertThat(updatedOffenderEntity.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2010, 4, 5));
+        assertThat(updatedOffenderEntity.isBreach()).isEqualTo(true);
+        assertThat(updatedOffenderEntity.isPreSentenceActivity()).isEqualTo(true);
+        assertThat(updatedOffenderEntity.getAwaitingPsr()).isEqualTo(false);
     }
 
-    private PublishResult publishOffenderEvent(OffenderEvent offenderEvent) throws JsonProcessingException {
+    private PublishResult publishOffenderProbationStatusChangeEvent(OffenderEvent offenderEvent) throws JsonProcessingException {
 
         var messageAttribute = new MessageAttributeValue().withDataType("String").withStringValue("SENTENCE_CHANGED");
         var eventJson = objectMapper.writeValueAsString(offenderEvent);

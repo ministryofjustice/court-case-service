@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
@@ -32,6 +33,7 @@ public enum HearingEventType {
         }
     }
 
+    @JsonValue
     public String getName() {
         return name;
     }

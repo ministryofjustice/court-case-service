@@ -52,6 +52,7 @@ public class UserAgnosticOffenderService {
             telemetryService.trackOffenderProbationStatusUpdateEvent(updatedOffenderEntity);
             return updatedOffenderEntity;
         }
+        log.warn("Offender not found for  {}", crn);
         return null;
     }
 

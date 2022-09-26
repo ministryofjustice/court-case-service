@@ -63,7 +63,7 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
         assertThat(offenderEntityToUpdate.getCrn()).isEqualTo(crnForTest);
         assertThat(offenderEntityToUpdate.getProbationStatus()).isEqualTo(OffenderProbationStatus.PREVIOUSLY_KNOWN);
         assertThat(offenderEntityToUpdate.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2010, 4, 5));
-        assertThat(offenderEntityToUpdate.isBreach()).isEqualTo(false);
+        assertThat(offenderEntityToUpdate.isBreach()).isEqualTo(true);
         assertThat(offenderEntityToUpdate.isPreSentenceActivity()).isEqualTo(true);
         assertThat(offenderEntityToUpdate.getAwaitingPsr()).isEqualTo(false);
     }

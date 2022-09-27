@@ -38,7 +38,7 @@ public class UserAgnosticOffenderService {
                 .map(offenderEntity -> {
                     ProbationStatusDetail probationStatusDetail = getProbationStatusWithoutRestrictions(crn).block();
                     return updateProbationStatusDetails(probationStatusDetail, offenderEntity);
-                })                .map(offenderRepository::save);
+                }).map(offenderRepository::save);
     }
 
     private OffenderEntity updateProbationStatusDetails(ProbationStatusDetail probationStatusDetail, OffenderEntity offender) {

@@ -84,7 +84,7 @@ public class UserAgnosticOffenderServiceTest {
         when(userAgnosticOffenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
         when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.ofNullable(offenderEntity));
 
-        var detail = service.updateOffenderProbationStatus(CRN);
+        service.updateOffenderProbationStatus(CRN);
 
         verify(userAgnosticOffenderRestClient).getProbationStatusByCrn(CRN);
         verify(offenderRepository).findByCrn(CRN);
@@ -129,7 +129,7 @@ public class UserAgnosticOffenderServiceTest {
         when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.ofNullable(offenderEntity));
         when(offenderRepository.save(any(OffenderEntity.class))).thenReturn(updatedOffender);
 
-        var detail = service.updateOffenderProbationStatus(CRN);
+        service.updateOffenderProbationStatus(CRN);
         verify(telemetryService).trackOffenderProbationStatusUpdateEvent(offenderEntityArgumentCaptor.capture());
         var entityToUpdate = offenderEntityArgumentCaptor.getValue();
 

@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.service.UserAgnosticOffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.ProbationOffenderEvent;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -56,6 +57,17 @@ public class ProbationOffenderEventsListenerTest {
         when(objectMapper.readValue(anyString(), eq(ProbationOffenderEvent.class))).thenReturn(ProbationOffenderEvent.builder().crn("").build());
 
         probationOffenderEventsListener.processMessage(offenderEventMessage);
+
+        verify(offenderService, times(0)).updateOffenderProbationStatus("crn");
+    }
+
+    @Test
+    public void shouldNot_updateOffenderProbationStatus_whenExceptionThrown() throws JsonProcessingException {
+        when(objectMapper.readValue(anyString(), eq(EventMessage.class))).thenReturn(EventMessage.builder().message(offenderEventMessage).build());
+        when(objectMapper.readValue(anyString(), eq(ProbationOffenderEvent.class))).thenThrow(JsonProcessingException.class);
+
+        assertThatExceptionOfType(JsonProcessingException.class)
+                .isThrownBy(() -> probationOffenderEventsListener.processMessage(offenderEventMessage));
 
         verify(offenderService, times(0)).updateOffenderProbationStatus("crn");
     }

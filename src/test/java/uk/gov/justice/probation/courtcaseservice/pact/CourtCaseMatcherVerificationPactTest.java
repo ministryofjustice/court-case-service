@@ -15,22 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
@@ -72,6 +57,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
     void getHearingByCaseNumber() {
         var hearingEntity = HearingEntity.builder()
                 .hearingId("8bbb4fe3-a899-45c7-bdd4-4ee25ac5a83f")
+                .hearingEventType(HearingEventType.RESULTED)
                 .listNo("2nd")
                 .courtCase(CourtCaseEntity.builder()
                         .caseNo("1600028913")
@@ -100,7 +86,6 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                 .pnc("A/1234560BA")
                                 .build())
                         .build()))
-                .hearingEventType(HearingEventType.RESULTED)
                 .build();
         when(courtCaseService.getHearingByCaseNumber("B10JQ", "1600028913", "2nd")).thenReturn(hearingEntity);
     }

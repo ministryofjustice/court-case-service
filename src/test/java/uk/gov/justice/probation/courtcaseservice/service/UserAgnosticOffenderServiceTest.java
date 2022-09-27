@@ -116,9 +116,18 @@ public class UserAgnosticOffenderServiceTest {
                 .probationStatus(OffenderProbationStatus.NOT_SENTENCED)
                 .build();
 
+        final var updatedOffender = OffenderEntity.builder()
+                .crn(CRN)
+                .awaitingPsr(true)
+                .previouslyKnownTerminationDate(date)
+                .preSentenceActivity(true)
+                .breach(true)
+                .probationStatus(OffenderProbationStatus.CURRENT)
+                .build();
+
         when(userAgnosticOffenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
         when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.ofNullable(offenderEntity));
-        when(offenderRepository.save(any(OffenderEntity.class))).thenReturn(offenderEntity);
+        when(offenderRepository.save(any(OffenderEntity.class))).thenReturn(updatedOffender);
 
         var detail = service.updateOffenderProbationStatus(CRN);
         verify(telemetryService).trackOffenderProbationStatusUpdateEvent(offenderEntityArgumentCaptor.capture());

@@ -44,7 +44,11 @@ public class UserAgnosticOffenderService {
         }
         return offenderRepository.findByCrn(crn)
                 .map(offenderEntity -> updateProbationStatusDetails(probationStatusDetail, offenderEntity))
-                .map(offenderRepository::save);
+                .map(offenderRepository::save)
+                .map(updatedOffender -> {
+                    telemetryService.trackOffenderProbationStatusUpdateEvent(updatedOffender);
+                    return updatedOffender;
+                });
     }
 
     private OffenderEntity updateProbationStatusDetails(ProbationStatusDetail probationStatusDetail, OffenderEntity offender) {

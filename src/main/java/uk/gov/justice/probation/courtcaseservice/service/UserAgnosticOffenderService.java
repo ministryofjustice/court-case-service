@@ -33,11 +33,6 @@ public class UserAgnosticOffenderService {
         return userAgnosticOffenderRestClient.getProbationStatusByCrn(crn);
     }
 
-    private OffenderEntity getOffender(String crn) {
-        return offenderRepository.findByCrn(crn)
-                .orElse(null);
-    }
-
     public Optional<OffenderEntity> updateOffenderProbationStatus(String crn) {
         ProbationStatusDetail probationStatusDetail = getProbationStatusWithoutRestrictions(crn).block();
         if (probationStatusDetail == null) {

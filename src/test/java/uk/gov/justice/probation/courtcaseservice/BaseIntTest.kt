@@ -59,18 +59,22 @@ abstract class BaseIntTest {
   protected val offenderEventReceiverQueueSqsClient by lazy { offenderEventReceiverQueue.sqsClient }
   protected val offenderEventReceiverQueueUrl by lazy { offenderEventReceiverQueue.queueUrl }
 
-  private fun AmazonSQS.countMessagesOnQueue(queueUrl: String): Int {
+  private fun AmazonSQS.countMessagesOnQueue(queueUrl: String, queueAttribute: String): Int {
 
-    val attributeKeys = listOf("ApproximateNumberOfMessages")
+    val attributeKeys = listOf(queueAttribute)
     val queueAttributesResult = this.getQueueAttributes(queueUrl, attributeKeys)
     return queueAttributesResult.let {
-      it.attributes["ApproximateNumberOfMessages"]?.toInt() ?: 0
+      it.attributes[queueAttribute]?.toInt() ?: 0
     }
   }
 
   fun assertOffenderEventReceiverQueueHasProcessedMessages() {
-    await untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl) } matches { it == 0 }
+    // ApproximateNumberOfMessagesNotVisible represents messages in flight. So for this case if this is 1 means the message has been consumed but still not deleted until then the value will be 1 and ApproximateNumberOfMessages is zero as the message is inflight.
+    // We need to ensure the inflight message is processed before checking for ApproximateNumberOfMessages.
+    await untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl, "ApproximateNumberOfMessagesNotVisible") } matches { it == 0 }
+    await untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl, "ApproximateNumberOfMessages") } matches { it == 0 }
   }
+
   companion object {
     private val localStackContainer = LocalStackHelper.instance
 

@@ -23,20 +23,15 @@ public class ProbationOffenderEventsListener {
     }
 
     @JmsListener(destination = "picprobationoffendereventsqueue", containerFactory = "hmppsQueueContainerFactoryProxy")
-    public void processMessage(String rawMessage) {
+    public void processMessage(String rawMessage) throws JsonProcessingException {
         ProbationOffenderEvent probationOffenderEvent = getProbationOffenderEvent(rawMessage);
         if (probationOffenderEvent != null && !probationOffenderEvent.getCrn().isBlank()) {
             offenderService.updateOffenderProbationStatus(probationOffenderEvent.getCrn());
         }
     }
 
-    private ProbationOffenderEvent getProbationOffenderEvent(String rawMessage) {
-        try {
+    private ProbationOffenderEvent getProbationOffenderEvent(String rawMessage) throws JsonProcessingException {
             var eventMessage = objectMapper.readValue(rawMessage, EventMessage.class);
             return objectMapper.readValue(eventMessage.getMessage(), ProbationOffenderEvent.class);
-        } catch (JsonProcessingException e) {
-            log.error("Failed to read event message {}", e.getMessage());
-            return null;
-        }
     }
 }

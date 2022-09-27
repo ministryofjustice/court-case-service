@@ -37,14 +37,11 @@ public class UserAgnosticOffenderService {
     }
 
     public Optional<OffenderEntity> updateOffenderProbationStatus(String crn) {
-        ProbationStatusDetail probationStatusDetail = getProbationStatusWithoutRestrictions(crn).block();
-        if (probationStatusDetail == null) {
-            log.error("Probation status details not available for {}", crn);
-            return Optional.empty();
-        }
         return offenderRepository.findByCrn(crn)
-                .map(offenderEntity -> updateProbationStatusDetails(probationStatusDetail, offenderEntity))
-                .map(offenderRepository::save)
+                .map(offenderEntity -> {
+                    ProbationStatusDetail probationStatusDetail = getProbationStatusWithoutRestrictions(crn).block();
+                    return updateProbationStatusDetails(probationStatusDetail, offenderEntity);
+                }).map(offenderRepository::save)
                 .map(updatedOffender -> {
                     telemetryService.trackOffenderProbationStatusUpdateEvent(updatedOffender);
                     return updatedOffender;

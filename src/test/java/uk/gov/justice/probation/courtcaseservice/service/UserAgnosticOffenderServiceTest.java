@@ -143,26 +143,12 @@ public class UserAgnosticOffenderServiceTest {
 
     @Test
     void shouldNotUpdateOffenderProbationStatus_givenOffenderNotFoundForTheCrn() {
-        // all these are normal return values
-
-        var date = LocalDate.now();
-
-        final var probationStatusDetail = ProbationStatusDetail.builder()
-                .status(OffenderProbationStatus.CURRENT.getName())
-                .inBreach(true)
-                .awaitingPsr(true)
-                .previouslyKnownTerminationDate(date)
-                .preSentenceActivity(true)
-                .build();
-
-
-        when(userAgnosticOffenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
         when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.empty());
 
-        var detail = service.updateOffenderProbationStatus(CRN);
+        service.updateOffenderProbationStatus(CRN);
 
-        verify(userAgnosticOffenderRestClient).getProbationStatusByCrn(CRN);
         verify(offenderRepository).findByCrn(CRN);
+        verify(userAgnosticOffenderRestClient,times(0)).getProbationStatusByCrn(CRN);
         verify(offenderRepository,times(0)).save(offenderEntityArgumentCaptor.capture());
     }
 }

@@ -10,6 +10,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
@@ -76,6 +77,21 @@ public class TelemetryService {
         properties.put("commentId", caseCommentEntity.getId().toString());
         properties.put("createdDateTime", caseCommentEntity.getCreated().toString());
         properties.put("username", caseCommentEntity.getCreatedBy());
+
+        addRequestProperties(properties);
+
+        telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
+    }
+
+    void trackCreateHearingNoteEvent(TelemetryEventType eventType, HearingNoteEntity hearingNoteEntity) {
+
+        Map<String, String> properties = new HashMap<>();
+
+        properties.put("hearingId", hearingNoteEntity.getHearingId());
+        properties.put("createdByUuid", hearingNoteEntity.getCreatedByUuid());
+        properties.put("noteId", hearingNoteEntity.getId().toString());
+        properties.put("createdDateTime", hearingNoteEntity.getCreated().toString());
+        properties.put("username", hearingNoteEntity.getCreatedBy());
 
         addRequestProperties(properties);
 

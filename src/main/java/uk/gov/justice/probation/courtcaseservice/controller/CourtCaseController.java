@@ -32,13 +32,17 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListRespon
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearingRequestResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteRequest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper;
 import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
 import uk.gov.justice.probation.courtcaseservice.service.CaseProgressService;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
+import uk.gov.justice.probation.courtcaseservice.service.HearingNotesService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
@@ -81,6 +85,7 @@ public class CourtCaseController {
     private final CaseCommentsService caseCommentsService;
     private final AuthenticationHelper authenticationHelper;
     private final CaseProgressService caseProgressService;
+    private final HearingNotesService hearingNotesService;
 
     @Autowired
     public CourtCaseController(CourtCaseService courtCaseService,
@@ -89,6 +94,7 @@ public class CourtCaseController {
                                CaseCommentsService caseCommentsService,
                                AuthenticationHelper authenticationHelper,
                                CaseProgressService caseProgressService,
+                               HearingNotesService hearingNotesService,
                                @Value("${feature.flags.enable-cacheable-case-list:true}") boolean enableCacheableCaseList) {
         this.courtCaseService = courtCaseService;
         this.offenderMatchService = offenderMatchService;
@@ -97,6 +103,7 @@ public class CourtCaseController {
         this.caseCommentsService = caseCommentsService;
         this.authenticationHelper = authenticationHelper;
         this.caseProgressService = caseProgressService;
+        this.hearingNotesService = hearingNotesService;
     }
 
     @Operation(description = "Gets the court case data by hearing id and defendant id.")
@@ -123,6 +130,23 @@ public class CourtCaseController {
                                                                           @Valid @RequestBody ExtendedHearingRequestResponse putHearingRequest) {
         return courtCaseService.createOrUpdateHearingByHearingId(hearingId, putHearingRequest.asHearingEntity())
                 .map(ExtendedHearingRequestResponse::of);
+    }
+
+    @Operation(description = "Creates a hearing note for a given hearing")
+    @PostMapping(value = "/hearing/{hearingId}/notes", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public @ResponseBody
+    HearingNoteResponse createHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                                           @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
+                                                           Principal principal) {
+
+        if (!StringUtils.equals(hearingId, hearingNoteRequest.getHearingId())) {
+            throw new ConflictingInputException(String.format("Hearing Id '%s' provided in the path does not match the one in the hearing note request body submitted '%s'",
+                hearingId, hearingNoteRequest.getHearingId()));
+        }
+
+        HearingNoteEntity hearingNote = hearingNotesService.createHearingNote(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
+        return HearingNoteResponse.of(hearingNote);
     }
 
     @Operation(description = "Creates a comment on given court case.")

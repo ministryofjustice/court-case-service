@@ -33,7 +33,7 @@ public class CustodyService {
     public CustodyService(ConvictionRestClient convictionRestClient, OffenderRestClientFactory offenderRestClientFactory, CustodyRestClient custodyRestClient) {
         this.convictionRestClient = convictionRestClient;
         this.custodyRestClient = custodyRestClient;
-        this.offenderRestClient = offenderRestClientFactory.build();
+        this.offenderRestClient = offenderRestClientFactory.buildUserAwareOffenderRestClient();
     }
 
     public Mono<Custody> getCustody(String crn, Long convictionId) {

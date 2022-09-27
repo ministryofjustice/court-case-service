@@ -16,6 +16,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
@@ -324,6 +325,7 @@ class CourtCaseResponseMapperTest {
 
     private void assertHearingFields(CourtCaseResponse courtCaseResponse) {
         assertThat(courtCaseResponse.getHearingId()).isEqualTo(HEARING_ID);
+        assertThat(courtCaseResponse.getHearingEventType()).isEqualTo(HearingEventType.RESULTED);
         assertThat(courtCaseResponse.getCourtCode()).isEqualTo(COURT_CODE);
         assertThat(courtCaseResponse.getCourtRoom()).isEqualTo("2");
         assertThat(courtCaseResponse.getListNo()).isEqualTo(LIST_NO);
@@ -351,6 +353,7 @@ class CourtCaseResponseMapperTest {
                 .id(ID)
                 .hearingId(HEARING_ID)
                 .hearingType("sentence")
+                .hearingEventType(HearingEventType.RESULTED)
                 .courtCase(CourtCaseEntity.builder()
                         .sourceType(SourceType.COMMON_PLATFORM)
                         .caseNo(CASE_NO)

@@ -19,7 +19,10 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.justice.probation.courtcaseservice.service.TelemetryEventType.HEARING_NOTE_DELETED;
 
 @ExtendWith(MockitoExtension.class)
@@ -79,19 +82,19 @@ class HearingNotesServiceTest {
         verify(hearingNotesRepository).findById(noteId);
         var expected = hearingNote.withId(noteId);
         expected.setDeleted(true);
-        verify(hearingNotesRepository).delete(expected);
+        verify(hearingNotesRepository).save(expected);
         verify(telemetryService).trackDeleteHearingNoteEvent(HEARING_NOTE_DELETED, expected);
     }
 
     @Test
     void givenHearingIdAndNoteId_andHearingIdDoesNotMatchNoteHearingId_shouldThrowComflictingInput() {
-        var commentId = 1234L;
-        given(hearingNotesRepository.findById(commentId)).willReturn(Optional.of(hearingNote.withId(commentId)));
+        var noteId = 1234L;
+        given(hearingNotesRepository.findById(noteId)).willReturn(Optional.of(hearingNote.withId(noteId)));
 
         var invalidHearingId = "invalid-hearing-id";
-        assertThrows(ConflictingInputException.class, () -> hearingNotesService.deleteHearingNote(invalidHearingId, commentId, createdByUuid),
+        assertThrows(ConflictingInputException.class, () -> hearingNotesService.deleteHearingNote(invalidHearingId, noteId, createdByUuid),
             "Note 1234 not found for hearing invalid-hearing-id");
-        verify(hearingNotesRepository).findById(commentId);
+        verify(hearingNotesRepository).findById(noteId);
         verifyNoMoreInteractions(hearingNotesRepository);
     }
 
@@ -101,7 +104,7 @@ class HearingNotesServiceTest {
         String invalidCreatedByUuid = "invalid-user-uuid";
         given(hearingNotesRepository.findById(noteId)).willReturn(Optional.of(hearingNote.withId(noteId)));
         assertThrows(ForbiddenException.class, () -> hearingNotesService.deleteHearingNote(testHearingId, noteId, invalidCreatedByUuid),
-            "User invalid-user-uuid does not have permissions to delete comment 1234");
+            "User invalid-user-uuid does not have permissions to delete note 1234 on hearing test-hearing-id");
         verify(hearingNotesRepository).findById(noteId);
         verify(hearingNotesRepository, times(0)).save(any(HearingNoteEntity.class));
     }

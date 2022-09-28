@@ -45,10 +45,11 @@ public class HearingNotesService {
             throw new ConflictingInputException(String.format("Note %d not found for hearing %s", noteId, hearingId));
         }
         if(!equalsIgnoreCase(hearingNoteEntity.getCreatedByUuid(), userUuid)) {
-            log.warn("User {} illegal attempt to delete comment {}", userUuid, noteId);
+            log.warn("User {} illegal attempt to delete note {} on hearing {}", userUuid, noteId, hearingId);
             throw new ForbiddenException(String.format("User %s does not have permissions to delete note %s on hearing %s", userUuid, noteId, hearingId));
         }
-        hearingNotesRepository.delete(hearingNoteEntity);
+        hearingNoteEntity.setDeleted(true);
+        hearingNotesRepository.save(hearingNoteEntity);
         telemetryService.trackDeleteHearingNoteEvent(TelemetryEventType.HEARING_NOTE_DELETED, hearingNoteEntity);
     }, () -> {
         throw new EntityNotFoundException("Note %s not found for hearing %s", noteId, hearingId);

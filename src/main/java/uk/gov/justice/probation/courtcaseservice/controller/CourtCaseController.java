@@ -150,10 +150,10 @@ public class CourtCaseController {
     }
 
     @Operation(description = "Delete a hearing note for a given hearing and note id")
-    @PostMapping(value = "/hearing/{hearingId}/notes/{noteId}", consumes = APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/hearing/{hearingId}/notes/{noteId}", consumes = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public void deleteHearingNote(@PathVariable(value = "hearingId") String hearingId,
-                                  @PathVariable(value = "hearingId") Long noteId,
+                                  @PathVariable(value = "noteId") Long noteId,
                                   Principal principal) {
 
         hearingNotesService.deleteHearingNote(hearingId, noteId, authenticationHelper.getAuthUserUuid(principal));

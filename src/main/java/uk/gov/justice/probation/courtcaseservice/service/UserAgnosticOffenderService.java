@@ -21,11 +21,14 @@ public class UserAgnosticOffenderService {
 
     private final OffenderRepository offenderRepository;
 
+    private final TelemetryService telemetryService;
+
     @Autowired
     public UserAgnosticOffenderService(final OffenderRestClientFactory offenderRestClientFactory,
-                                       final OffenderRepository offenderRepository) {
+                                       final OffenderRepository offenderRepository, TelemetryService telemetryService) {
         this.userAgnosticOffenderRestClient = offenderRestClientFactory.buildUserAgnosticOffenderRestClient();
         this.offenderRepository = offenderRepository;
+        this.telemetryService = telemetryService;
     }
 
 
@@ -38,7 +41,11 @@ public class UserAgnosticOffenderService {
                 .map(offenderEntity -> {
                     ProbationStatusDetail probationStatusDetail = getProbationStatusWithoutRestrictions(crn).block();
                     return updateProbationStatusDetails(probationStatusDetail, offenderEntity);
-                }).map(offenderRepository::save);
+                }).map(offenderRepository::save)
+                .map(updatedOffender -> {
+                    telemetryService.trackOffenderProbationStatusUpdateEvent(updatedOffender);
+                    return updatedOffender;
+                });
     }
 
     private OffenderEntity updateProbationStatusDetails(ProbationStatusDetail probationStatusDetail, OffenderEntity offender) {

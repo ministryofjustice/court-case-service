@@ -590,6 +590,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
     private void validateResponse(ValidatableResponse validatableResponse, String startTime, String caseId) {
         validatableResponse
             .body("caseNo", equalTo(CASE_NO))
+            .body("hearingEventType", equalTo("Resulted"))
             .body("caseId", equalTo(caseId))
             .body("offences", hasSize(2))
             .body("offences[0].offenceTitle", equalTo("Theft from a shop"))

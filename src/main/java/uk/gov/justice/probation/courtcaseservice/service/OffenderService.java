@@ -76,7 +76,7 @@ public class OffenderService {
                            final DocumentRestClient documentRestClient,
                            final DocumentTypeFilter documentTypeFilter,
                            final TelemetryService telemetryService) {
-        this.offenderRestClient = offenderRestClientFactory.build();
+        this.offenderRestClient = offenderRestClientFactory.buildUserAwareOffenderRestClient();
         this.convictionRestClient = convictionRestClient;
         this.assessmentsClient = assessmentsClient;
         this.documentRestClient = documentRestClient;

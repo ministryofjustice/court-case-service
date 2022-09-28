@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse.CourtCaseResponseBuilder;
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
@@ -64,6 +63,7 @@ public class CourtCaseResponseMapper {
         // Case-based fields
         builder.caseId(hearingEntity.getCaseId())
             .hearingType(hearingEntity.getHearingType())
+            .hearingEventType(hearingEntity.getHearingEventType())
             .hearingId(hearingEntity.getHearingId())
             .urn(hearingEntity.getCourtCase().getUrn())
             .source(hearingEntity.getSourceType().name())

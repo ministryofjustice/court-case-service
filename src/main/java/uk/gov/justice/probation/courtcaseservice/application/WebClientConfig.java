@@ -33,6 +33,7 @@ public class WebClientConfig {
     @Value("${web.client.document-byte-buffer-size}")
     private int documentBufferByteSize;
 
+
     @Bean
     public RestClientHelper documentApiClient(WebClient documentWebClient) {
         return new RestClientHelper(documentWebClient, "community-api-client", disableAuthentication);

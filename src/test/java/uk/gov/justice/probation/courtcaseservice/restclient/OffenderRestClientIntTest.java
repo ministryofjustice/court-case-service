@@ -31,7 +31,7 @@ class OffenderRestClientIntTest extends BaseIntTest {
 
     @BeforeEach
     void beforeEach() {
-        offenderRestClient = offenderRestClientFactory.build();
+        offenderRestClient = offenderRestClientFactory.buildUserAwareOffenderRestClient();
     }
 
     @Nested

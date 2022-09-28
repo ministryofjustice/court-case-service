@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -63,7 +62,7 @@ class OffenderMatchServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
+        when(offenderRestClientFactory.buildUserAwareOffenderRestClient()).thenReturn(offenderRestClient);
         service = new OffenderMatchService(offenderMatchRepository, offenderRestClientFactory, courtCaseRepository, hearingRepository);
     }
 

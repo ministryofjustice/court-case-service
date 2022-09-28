@@ -74,7 +74,7 @@ class ConvictionServiceTest {
         final Sentence sentence = Sentence.builder().unpaidWork(UnpaidWork.builder().acceptableAbsences(100).build()).build();
         conviction = Conviction.builder().convictionId(String.valueOf(SOME_CONVICTION_ID)).sentence(sentence).build();
 
-        when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
+        when(offenderRestClientFactory.buildUserAwareOffenderRestClient()).thenReturn(offenderRestClient);
         service = new ConvictionService(convictionRestClient, offenderRestClientFactory, DELIUS_LINK_TEMPLATE);
     }
 

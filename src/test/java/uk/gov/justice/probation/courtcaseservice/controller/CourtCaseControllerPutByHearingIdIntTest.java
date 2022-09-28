@@ -1,5 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import com.amazonaws.services.sqs.model.PurgeQueueRequest;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.microsoft.applicationinsights.boot.dependencies.apachecommons.io.FileUtils;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,8 +22,10 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationSta
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
+import uk.gov.justice.probation.courtcaseservice.listener.EventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEventMessage;
-import uk.gov.justice.probation.courtcaseservice.testUtil.EventMessage;
+import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReference;
+import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +36,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,46 +88,48 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     void beforeEach() throws Exception {
         objectMapper = new ObjectMapper();
         caseDetailsExtendedJson = Files.readString(caseDetailsExtendedResource.getFile().toPath());
+        getEmittedEventsQueueSqsClient().purgeQueue(new PurgeQueueRequest(getEmittedEventsQueueUrl()));
+
     }
 
     @Test
     void whenCreateCaseByHearingId_thenCreateNewRecord() {
 
         given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(caseDetailsExtendedJson)
-            .when()
-            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
-            .then()
-            .statusCode(201)
-            .body("caseId", equalTo(JSON_CASE_ID))
-            .body("hearingId", equalTo(JSON_HEARING_ID))
-            .body("urn", equalTo(URN))
-            .body("source", equalTo("COMMON_PLATFORM"))
-            .body("hearingType", equalTo("sentenced"))
-            .body("hearingEventType", equalTo("ConfirmedOrUpdated"))
-            .body("defendants", hasSize(1))
-            .body("defendants[0].offences",  hasSize(2))
-            .body("defendants[0].type",  equalTo("PERSON"))
-            .body("defendants[0].defendantId",  equalTo("d1eefed2-04df-11ec-b2d8-0242ac130002"))
-            .body("defendants[0].probationStatus", equalTo("PREVIOUSLY_KNOWN"))
-            .body("defendants[0].sex", equalTo("M"))
-            .body("defendants[0].name.forename1", equalTo("Dylan"))
-            .body("defendants[0].phoneNumber.home", equalTo("07000000013"))
-            .body("defendants[0].phoneNumber.mobile", equalTo("07000000014"))
-            .body("defendants[0].phoneNumber.work", equalTo("07000000015"))
-            .body("defendants[0].offences[0].judicialResults",  hasSize(3))
-            .body("defendants[0].offences[0].judicialResults[0].convictedResult", equalTo(false))
-            .body("defendants[0].offences[0].judicialResults[0].label", equalTo("Label-1"))
-            .body("defendants[0].offences[0].judicialResults[0].judicialResultTypeId", equalTo(null))
-            .body("hearingDays", hasSize(1))
-            .body("hearingDays[0].courtCode", equalTo("B14LO"))
-            .body("hearingDays[0].courtRoom", equalTo("1"))
-            .body("hearingDays[0].sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
-            .body("hearingDays", hasSize(1));
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(caseDetailsExtendedJson)
+                .when()
+                .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+                .then()
+                .statusCode(201)
+                .body("caseId", equalTo(JSON_CASE_ID))
+                .body("hearingId", equalTo(JSON_HEARING_ID))
+                .body("urn", equalTo(URN))
+                .body("source", equalTo("COMMON_PLATFORM"))
+                .body("hearingType", equalTo("sentenced"))
+                .body("hearingEventType", equalTo("ConfirmedOrUpdated"))
+                .body("defendants", hasSize(1))
+                .body("defendants[0].offences", hasSize(2))
+                .body("defendants[0].type", equalTo("PERSON"))
+                .body("defendants[0].defendantId", equalTo("d1eefed2-04df-11ec-b2d8-0242ac130002"))
+                .body("defendants[0].probationStatus", equalTo("PREVIOUSLY_KNOWN"))
+                .body("defendants[0].sex", equalTo("M"))
+                .body("defendants[0].name.forename1", equalTo("Dylan"))
+                .body("defendants[0].phoneNumber.home", equalTo("07000000013"))
+                .body("defendants[0].phoneNumber.mobile", equalTo("07000000014"))
+                .body("defendants[0].phoneNumber.work", equalTo("07000000015"))
+                .body("defendants[0].offences[0].judicialResults", hasSize(3))
+                .body("defendants[0].offences[0].judicialResults[0].convictedResult", equalTo(false))
+                .body("defendants[0].offences[0].judicialResults[0].label", equalTo("Label-1"))
+                .body("defendants[0].offences[0].judicialResults[0].judicialResultTypeId", equalTo(null))
+                .body("hearingDays", hasSize(1))
+                .body("hearingDays[0].courtCode", equalTo("B14LO"))
+                .body("hearingDays[0].courtRoom", equalTo("1"))
+                .body("hearingDays[0].sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("hearingDays", hasSize(1));
 
         var cc = courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID);
         cc.ifPresentOrElse(hearingEntity -> {
@@ -154,16 +162,16 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     void whenCreateCaseByHearingIdWithInvalidListNo_thenReturnBadRequest() throws IOException {
 
         given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(copyToString(caseDetailsExtendedInvalidListNoResource.getInputStream(), Charset.defaultCharset()))
-            .when()
-            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
-            .then()
-            .statusCode(400)
-            .body("userMessage", containsString("Only one of hearingDays[].listNo and defendants[].offences[].listNo must be provided"));
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(copyToString(caseDetailsExtendedInvalidListNoResource.getInputStream(), Charset.defaultCharset()))
+                .when()
+                .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+                .then()
+                .statusCode(400)
+                .body("userMessage", containsString("Only one of hearingDays[].listNo and defendants[].offences[].listNo must be provided"));
     }
 
     @Test
@@ -174,19 +182,18 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .replace("\"crn\": \"X320741\"", "\"crn\": \"" + crn + "\"")
                 .replace("\"breach\": true,\n", "")
                 .replace("\"preSentenceActivity\": true,\n", "")
-                .replace("\"suspendedSentenceOrder\": true,\n", "")
-                ;
+                .replace("\"suspendedSentenceOrder\": true,\n", "");
 
         given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(updatedJson)
-            .when()
-            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
-            .then()
-            .statusCode(201)
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(updatedJson)
+                .when()
+                .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+                .then()
+                .statusCode(201)
         ;
 
         offenderRepository.findByCrn(crn).ifPresentOrElse(off -> {
@@ -200,23 +207,22 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     void givenExistingCase_whenCreateCaseByHearingIdUpdateCrn_thenCreateNewRecordUpdateCreateNewOffender() throws IOException {
         final var crn = "X721999";
         final var updatedJson = FileUtils.readFileToString(caseDetailsExtendedUpdate, "UTF-8")
-            .replace("\"crn\": \"X320741\"", "\"crn\": \"" + crn + "\"")
-            ;
+                .replace("\"crn\": \"X320741\"", "\"crn\": \"" + crn + "\"");
 
         assertThat(offenderRepository.findByCrn(crn)).isNotPresent();
 
         given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(updatedJson)
-            .when()
-            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
-            .then()
-            .statusCode(201)
-            .body("caseId", equalTo("3db9d70b-10a2-49d1-b74d-379f2db74862"))
-            .body("hearingId", equalTo(JSON_HEARING_ID))
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(updatedJson)
+                .when()
+                .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+                .then()
+                .statusCode(201)
+                .body("caseId", equalTo("3db9d70b-10a2-49d1-b74d-379f2db74862"))
+                .body("hearingId", equalTo(JSON_HEARING_ID))
         ;
 
         offenderRepository.findByCrn(crn).ifPresentOrElse(off -> {
@@ -232,19 +238,18 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     @Test
     void givenUnknownCourt_whenCreateCourtCaseByHearingId_ThenOk() {
         var updatedJson = caseDetailsExtendedJson
-            .replace("\"courtCode\": \"B14LO\"", "\"courtCode\": \"" + NOT_FOUND_COURT_CODE + "\"")
-            ;
+                .replace("\"courtCode\": \"B14LO\"", "\"courtCode\": \"" + NOT_FOUND_COURT_CODE + "\"");
 
         given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(updatedJson)
-            .when()
-            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
-            .then()
-            .statusCode(201);
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(updatedJson)
+                .when()
+                .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+                .then()
+                .statusCode(201);
     }
 
     @Test
@@ -252,16 +257,16 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
         final var ALTERNATIVE_HEARING_ID = "6eb32e9f-ae7a-4d13-a026-b4a6f8e8731a";
         given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(caseDetailsExtendedJson)
-            .when()
-            .put(PUT_BY_HEARING_ID_ENDPOINT, ALTERNATIVE_HEARING_ID)
-            .then()
-            .statusCode(400)
-            .body("developerMessage", equalTo("Hearing Id " + ALTERNATIVE_HEARING_ID + " does not match with value from body " + JSON_HEARING_ID))
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(caseDetailsExtendedJson)
+                .when()
+                .put(PUT_BY_HEARING_ID_ENDPOINT, ALTERNATIVE_HEARING_ID)
+                .then()
+                .statusCode(400)
+                .body("developerMessage", equalTo("Hearing Id " + ALTERNATIVE_HEARING_ID + " does not match with value from body " + JSON_HEARING_ID))
         ;
     }
 
@@ -271,15 +276,15 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         final var invalidJson = Files.readString(invalidExtendedCaseResource.getFile().toPath());
 
         given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(invalidJson)
-            .when()
-            .put(PUT_BY_HEARING_ID_ENDPOINT, "1db2c76c-31a5-4b53-a46a-00681809515e")
-            .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(invalidJson)
+                .when()
+                .put(PUT_BY_HEARING_ID_ENDPOINT, "1db2c76c-31a5-4b53-a46a-00681809515e")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
         ;
     }
 
@@ -289,33 +294,32 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         final var defendantId = "d49323c0-04da-11ec-b2d8-0242ac130002";
         final var newCrn = "X212786";
         final var updatedJson = caseDetailsExtendedJson
-            .replace("\"caseId\": \"ac24a1be-939b-49a4-a524-21a3d228f8bc\"", "\"caseId\": \"" + caseId + "\"")
-            .replace("\"defendantId\": \"d1eefed2-04df-11ec-b2d8-0242ac130002\"", "\"defendantId\": \"" + defendantId + "\"")
-            .replace("\"crn\": \"X320741\"", "\"crn\": \""+ newCrn + "\"")
-            ;
+                .replace("\"caseId\": \"ac24a1be-939b-49a4-a524-21a3d228f8bc\"", "\"caseId\": \"" + caseId + "\"")
+                .replace("\"defendantId\": \"d1eefed2-04df-11ec-b2d8-0242ac130002\"", "\"defendantId\": \"" + defendantId + "\"")
+                .replace("\"crn\": \"X320741\"", "\"crn\": \"" + newCrn + "\"");
 
         assertThat(offenderRepository.findByCrn(newCrn)).isNotPresent();
 
         given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(updatedJson)
-            .when()
-            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
-            .then()
-            .statusCode(201)
-            .body("caseId", equalTo(caseId))
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(updatedJson)
+                .when()
+                .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+                .then()
+                .statusCode(201)
+                .body("caseId", equalTo(caseId))
         ;
 
         // The correct offender is now associated
         courtCaseRepository.findFirstByHearingIdOrderByIdDesc(caseId)
-            .ifPresentOrElse(theCase -> {
-                var defendants = theCase.getHearingDefendants();
-                assertThat(defendants).hasSize(1);
-                assertThat(defendants.get(0).getDefendant().getOffender().getCrn()).isEqualTo(newCrn);
-            }, () -> fail("Case should exist"));
+                .ifPresentOrElse(theCase -> {
+                    var defendants = theCase.getHearingDefendants();
+                    assertThat(defendants).hasSize(1);
+                    assertThat(defendants.get(0).getDefendant().getOffender().getCrn()).isEqualTo(newCrn);
+                }, () -> fail("Case should exist"));
 
         offenderRepository.findByCrn(newCrn).ifPresentOrElse(off -> {
             assertThat(off.getProbationStatus()).isEqualTo(OffenderProbationStatus.PREVIOUSLY_KNOWN);
@@ -333,71 +337,69 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         final var caseId = "ac24a1be-939b-49a4-a524-21a3d2230000";
         final var defendantId = "d49323c0-04da-11ec-b2d8-0242ac130002";
         final var updatedJson = caseDetailsExtendedJson
-            .replace("\"caseId\": \"ac24a1be-939b-49a4-a524-21a3d228f8bc\"", "\"caseId\": \"" + caseId + "\"")
-            .replace("\"defendantId\": \"d1eefed2-04df-11ec-b2d8-0242ac130002\"", "\"defendantId\": \"" + defendantId + "\"")
-            ;
+                .replace("\"caseId\": \"ac24a1be-939b-49a4-a524-21a3d228f8bc\"", "\"caseId\": \"" + caseId + "\"")
+                .replace("\"defendantId\": \"d1eefed2-04df-11ec-b2d8-0242ac130002\"", "\"defendantId\": \"" + defendantId + "\"");
 
         // No offenders associated with the defendants
         courtCaseRepository.findFirstByHearingIdOrderByIdDesc(caseId)
-            .ifPresentOrElse(theCase -> {
-                var defendants = theCase.getHearingDefendants();
-                assertThat(defendants).hasSize(1);
-                assertThat(defendants.get(0).getDefendant().getOffender()).isNull();
-            }, () -> fail("Case should exist"));
+                .ifPresentOrElse(theCase -> {
+                    var defendants = theCase.getHearingDefendants();
+                    assertThat(defendants).hasSize(1);
+                    assertThat(defendants.get(0).getDefendant().getOffender()).isNull();
+                }, () -> fail("Case should exist"));
 
         given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(updatedJson)
-            .when()
-            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
-            .then()
-            .statusCode(201)
-            .body("caseId", equalTo(caseId))
-            .body("hearingId", equalTo(JSON_HEARING_ID))
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(updatedJson)
+                .when()
+                .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+                .then()
+                .statusCode(201)
+                .body("caseId", equalTo(caseId))
+                .body("hearingId", equalTo(JSON_HEARING_ID))
         ;
 
         // The correct offender is now associated
         courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID)
-            .ifPresentOrElse(theCase -> {
-                var defendants = theCase.getHearingDefendants();
-                assertThat(defendants).hasSize(1);
-                assertThat(defendants.get(0).getDefendant().getOffender().getCrn()).isEqualTo(CRN);
-            }, () -> fail("Case should exist"));
+                .ifPresentOrElse(theCase -> {
+                    var defendants = theCase.getHearingDefendants();
+                    assertThat(defendants).hasSize(1);
+                    assertThat(defendants.get(0).getDefendant().getOffender().getCrn()).isEqualTo(CRN);
+                }, () -> fail("Case should exist"));
     }
 
     @Test
     void givenExistingCaseWithOffenders_whenRemoveOffender_thenDetachOffenders() throws IOException {
         final var updatedJson = FileUtils.readFileToString(caseDetailsExtendedUpdate, "UTF-8")
-            .replace("\"crn\": \"X320741\"", "\"crn\": null")
-            .replace("\"crn\": \"X320742\"", "\"crn\": null")
-            ;
+                .replace("\"crn\": \"X320741\"", "\"crn\": null")
+                .replace("\"crn\": \"X320742\"", "\"crn\": null");
 
         given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(updatedJson)
-            .when()
-            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
-            .then()
-            .statusCode(201)
-            .body("caseId", equalTo("3db9d70b-10a2-49d1-b74d-379f2db74862"))
-            .body("hearingId", equalTo(JSON_HEARING_ID))
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(updatedJson)
+                .when()
+                .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+                .then()
+                .statusCode(201)
+                .body("caseId", equalTo("3db9d70b-10a2-49d1-b74d-379f2db74862"))
+                .body("hearingId", equalTo(JSON_HEARING_ID))
         ;
 
         // No offenders associated with the defendants
         courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID)
-            .ifPresentOrElse(theCase -> {
-                assertThat(theCase.getHearingDefendants()
-                    .stream()
-                    .map(HearingDefendantEntity::getDefendant)
-                    .filter(defendantEntity -> defendantEntity.getOffender() != null)
-                    .toList()).isEmpty();
-            }, () -> fail("Case should exist"));
+                .ifPresentOrElse(theCase -> {
+                    assertThat(theCase.getHearingDefendants()
+                            .stream()
+                            .map(HearingDefendantEntity::getDefendant)
+                            .filter(defendantEntity -> defendantEntity.getOffender() != null)
+                            .toList()).isEmpty();
+                }, () -> fail("Case should exist"));
     }
 
     @Test
@@ -434,8 +436,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         final var resultedHearingEventType = "Resulted";
 
         final var updatedHearingJson = FileUtils.readFileToString(caseDetailsExtendedUpdate, "UTF-8")
-                .replace("\"hearingEventType\": \"ConfirmedOrUpdated\"", "\"hearingEventType\": \"" + resultedHearingEventType + "\"")
-                ;
+                .replace("\"hearingEventType\": \"ConfirmedOrUpdated\"", "\"hearingEventType\": \"" + resultedHearingEventType + "\"");
 
         given()
                 .auth()
@@ -459,19 +460,60 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
         await().atLeast(Duration.ofMillis(100));
 
-        var rawMessage = objectMapper.readValue(getEmittedEventsQueueSqsClient().receiveMessage(url).getMessages().get(0).getBody(), EventMessage.class);
-        assertThat(rawMessage).isNotNull();
+        assertEmittedEventMessages();
 
-        var sentencedDomainEventMessage = objectMapper.readValue(rawMessage.getMessage(), DomainEventMessage.class);
-        assertThat(sentencedDomainEventMessage).isNotNull();
+    }
 
-        assertThat(sentencedDomainEventMessage.getEventType()).isEqualTo("court.case.sentenced");
-        assertThat(sentencedDomainEventMessage.getDetailUrl()).isEqualTo("https://localhost/hearing/75e63d6c-5487-4244-a5bc-7cf8a38992db");
-        assertThat(sentencedDomainEventMessage.getPersonReference().getIdentifiers().get(0).getType()).isEqualTo("CRN");
-        assertThat(sentencedDomainEventMessage.getPersonReference().getIdentifiers().get(0).getValue()).isEqualTo("X320741");
-        assertThat(sentencedDomainEventMessage.getPersonReference().getIdentifiers().get(1).getType()).isEqualTo("CRO");
-        assertThat(sentencedDomainEventMessage.getPersonReference().getIdentifiers().get(1).getValue()).isEqualTo("99999");
-        assertThat(sentencedDomainEventMessage.getPersonReference().getIdentifiers().get(2).getType()).isEqualTo("PNC");
-        assertThat(sentencedDomainEventMessage.getPersonReference().getIdentifiers().get(2).getValue()).isEqualTo("A/1234560BA");
+    private void assertEmittedEventMessages() throws IOException {
+        // Must use this class when receiving more than one messages from a queue if not we always receive just 1
+        var receiveMessageRequest = new ReceiveMessageRequest().withMaxNumberOfMessages(2).withQueueUrl(getEmittedEventsQueueUrl());
+
+        var rawMessages = getEmittedEventsQueueSqsClient().receiveMessage(receiveMessageRequest).getMessages();
+        assertThat(rawMessages).isNotNull();
+        assertThat(rawMessages).size().isEqualTo(2);
+
+        var rawMessage1 = objectMapper.readValue(rawMessages.get(0).getBody(), EventMessage.class);
+        assertThat(rawMessage1).isNotNull();
+
+        var rawMessage2 = objectMapper.readValue(rawMessages.get(1).getBody(), EventMessage.class);
+        assertThat(rawMessage2).isNotNull();
+
+        var receivedSentencedDomainEventMessage1 = objectMapper.readValue(rawMessage1.getMessage(), DomainEventMessage.class);
+        assertThat(receivedSentencedDomainEventMessage1).isNotNull();
+
+        var receivedSentencedDomainEventMessage2 = objectMapper.readValue(rawMessage2.getMessage(), DomainEventMessage.class);
+        assertThat(receivedSentencedDomainEventMessage2).isNotNull();
+
+
+        var receivedDomainEventMessages = Arrays.asList(receivedSentencedDomainEventMessage1, receivedSentencedDomainEventMessage2);
+
+        DomainEventMessage expectedDomainEventMessage1 = DomainEventMessage.builder()
+                .eventType("court.case.sentenced")
+                .detailUrl("https://localhost/hearing/75e63d6c-5487-4244-a5bc-7cf8a38992db")
+                .version(1)
+                .personReference(PersonReference.builder()
+                        .identifiers(buildDefendantIdentifiers("X320741", "99999", "A/1234560BA"))
+                        .build())
+                .build();
+        DomainEventMessage expectedDomainEventMessage2 = DomainEventMessage.builder()
+                .eventType("court.case.sentenced")
+                .detailUrl("https://localhost/hearing/75e63d6c-5487-4244-a5bc-7cf8a38992db")
+                .version(1)
+                .personReference(PersonReference.builder()
+                        .identifiers(buildDefendantIdentifiers("X320742", "100000", "A/1234560BB"))
+                        .build())
+                .build();
+
+        assertThat(receivedDomainEventMessages)
+                .usingRecursiveFieldByFieldElementComparatorIgnoringFields("occurredAt")
+                .containsExactlyInAnyOrder(expectedDomainEventMessage1, expectedDomainEventMessage2);
+    }
+
+    private List<PersonReferenceType> buildDefendantIdentifiers(String crn, String cro, String pnc) {
+        return List.of(
+                PersonReferenceType.builder().type("CRN").value(crn).build(),
+                PersonReferenceType.builder().type("CRO").value(cro).build(),
+                PersonReferenceType.builder().type("PNC").value(pnc).build()
+        );
     }
 }

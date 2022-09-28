@@ -177,7 +177,7 @@ dependencies {
     implementation 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 
     implementation ('org.springframework.boot:spring-boot-starter-webflux') {
-        implementation('org.yaml:snakeyaml:1.32')
+        implementation('org.yaml:snakeyaml:1.33')
     }
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"

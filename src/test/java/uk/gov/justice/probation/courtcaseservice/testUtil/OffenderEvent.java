@@ -1,19 +1,22 @@
 package uk.gov.justice.probation.courtcaseservice.testUtil;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @AllArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class EventMessage {
-     @JsonProperty("Message")
-     final String message;
+public class OffenderEvent {
+    private final Long offenderId;
+    private String crn;
+    private String nomsNumber;
+    private Long sourceId;
+    private final LocalDateTime eventDateTime ;
+
 }

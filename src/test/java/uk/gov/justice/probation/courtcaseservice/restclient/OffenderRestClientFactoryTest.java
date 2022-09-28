@@ -53,7 +53,7 @@ class OffenderRestClientFactoryTest {
     public void givenClientIdIsNull_andUsernameAvailable_whenBuild_thenPassUsername() {
         when(clientDetails.getClientId()).thenReturn(null);
         when(clientDetails.getUsername()).thenReturn("username");
-        clientFactory.build();
+        clientFactory.buildUserAwareOffenderRestClient();
         verify(webClientFactory).buildCommunityRestClientHelper("username");
         verifyNoMoreInteractions(webClientFactory, clientDetails);
     }
@@ -62,7 +62,7 @@ class OffenderRestClientFactoryTest {
     public void givenClientIdIsNull_andUsernameIsNull_whenBuild_thenPassNullUsername() {
         when(clientDetails.getClientId()).thenReturn(null);
         when(clientDetails.getUsername()).thenReturn(null);
-        clientFactory.build();
+        clientFactory.buildUserAwareOffenderRestClient();
         verify(webClientFactory).buildCommunityRestClientHelper(null);
         verifyNoMoreInteractions(webClientFactory, clientDetails);
     }
@@ -71,7 +71,7 @@ class OffenderRestClientFactoryTest {
     public void givenClientIdNotInRequireUsernameList_andUsernameIsNull_whenBuild_thenPassNullUsername() {
         when(clientDetails.getClientId()).thenReturn("some other client id");
         when(clientDetails.getUsername()).thenReturn(null);
-        clientFactory.build();
+        clientFactory.buildUserAwareOffenderRestClient();
         verify(webClientFactory).buildCommunityRestClientHelper(null);
         verifyNoMoreInteractions(webClientFactory, clientDetails);
     }
@@ -80,7 +80,7 @@ class OffenderRestClientFactoryTest {
     public void givenClientIdNotInRequireUsernameList_andUsernameAvailable_whenBuild_thenPassUsername() {
         when(clientDetails.getClientId()).thenReturn("some other client id");
         when(clientDetails.getUsername()).thenReturn("username");
-        clientFactory.build();
+        clientFactory.buildUserAwareOffenderRestClient();
         verify(webClientFactory).buildCommunityRestClientHelper("username");
         verifyNoMoreInteractions(webClientFactory, clientDetails);
     }
@@ -89,7 +89,7 @@ class OffenderRestClientFactoryTest {
     public void givenClientIdInRequireUsernameList_andUsernameAvailable_whenBuild_thenPassUsername() {
         when(clientDetails.getClientId()).thenReturn("mandatory-username");
         when(clientDetails.getUsername()).thenReturn("username");
-        clientFactory.build();
+        clientFactory.buildUserAwareOffenderRestClient();
         verify(webClientFactory).buildCommunityRestClientHelper("username");
         verifyNoMoreInteractions(webClientFactory, clientDetails);
     }
@@ -100,7 +100,7 @@ class OffenderRestClientFactoryTest {
         when(clientDetails.getUsername()).thenReturn(null);
 
         assertThatExceptionOfType(UnableToGetTokenOnBehalfOfUserException.class)
-                .isThrownBy(() -> clientFactory.build())
+                .isThrownBy(() -> clientFactory.buildUserAwareOffenderRestClient())
                 .withMessage("Unable to request client-credentials grant for service call as username was not provided " +
                         "in the incoming token and username is mandatory for clientId 'mandatory-username'");
 
@@ -113,7 +113,7 @@ class OffenderRestClientFactoryTest {
         when(clientDetails.getUsername()).thenReturn("");
 
         assertThatExceptionOfType(UnableToGetTokenOnBehalfOfUserException.class)
-                .isThrownBy(() -> clientFactory.build())
+                .isThrownBy(() -> clientFactory.buildUserAwareOffenderRestClient())
                 .withMessage("Unable to request client-credentials grant for service call as username was not provided " +
                         "in the incoming token and username is mandatory for clientId 'mandatory-username'");
 

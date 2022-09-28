@@ -134,7 +134,7 @@ class  OffenderServiceTest {
                 .completed(LocalDateTime.of(2018,4,23,10,5,20))
                 .status("COMPLETE")
                 .build();
-            when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
+            when(offenderRestClientFactory.buildUserAwareOffenderRestClient()).thenReturn(offenderRestClient);
             this.communityApiOffenderResponse = CommunityApiOffenderResponse.builder().build();
             service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
             service.setAssessmentStatuses(List.of("COMPLETE"));
@@ -546,7 +546,7 @@ class  OffenderServiceTest {
                 .build();
             this.conviction = Conviction.builder().convictionId(CONVICTION_ID.toString()).sentence(Sentence.builder().startDate(LocalDate.now()).build()).active(Boolean.TRUE).build();
             this.requirement = getRequirement(LocalDate.of(2018, Month.SEPTEMBER, 29), true);
-            when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
+            when(offenderRestClientFactory.buildUserAwareOffenderRestClient()).thenReturn(offenderRestClient);
             service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
             service.setPssRqmntDescriptionsKeepSubType(List.of(PSS_DESC_TO_KEEP));
         }
@@ -646,7 +646,7 @@ class  OffenderServiceTest {
 
         @BeforeEach
         void beforeEach() {
-            when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
+            when(offenderRestClientFactory.buildUserAwareOffenderRestClient()).thenReturn(offenderRestClient);
             service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
         }
 
@@ -679,7 +679,7 @@ class  OffenderServiceTest {
 
         @BeforeEach
         void beforeEach() {
-            when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
+            when(offenderRestClientFactory.buildUserAwareOffenderRestClient()).thenReturn(offenderRestClient);
             service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
         }
 
@@ -701,7 +701,7 @@ class  OffenderServiceTest {
 
         @BeforeEach
         void beforeEach() {
-            when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
+            when(offenderRestClientFactory.buildUserAwareOffenderRestClient()).thenReturn(offenderRestClient);
             service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
         }
 

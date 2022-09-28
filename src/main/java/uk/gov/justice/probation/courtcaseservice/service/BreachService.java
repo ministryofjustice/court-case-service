@@ -42,7 +42,7 @@ public class BreachService {
         this.nsiRestClient = nsiRestClient;
         this.convictionRestClient = convictionRestClient;
         this.documentRestClient = documentRestClient;
-        this.offenderRestClient = offenderRestClientFactory.build();
+        this.offenderRestClient = offenderRestClientFactory.buildUserAwareOffenderRestClient();
         this.nsiBreachCodes = nsiBreachCodes;
         this.sentenceAppearanceCode = sentenceAppearanceCode;
     }

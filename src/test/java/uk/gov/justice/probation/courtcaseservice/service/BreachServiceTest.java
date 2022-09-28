@@ -69,7 +69,7 @@ class BreachServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(offenderRestClientFactory.build()).thenReturn(offenderRestClient);
+        when(offenderRestClientFactory.buildUserAwareOffenderRestClient()).thenReturn(offenderRestClient);
         breachService = new BreachService(nsiRestClient, convictionRestClient, documentRestClient, offenderRestClientFactory, Arrays.asList("BRE", "BRES"), "S");
     }
 

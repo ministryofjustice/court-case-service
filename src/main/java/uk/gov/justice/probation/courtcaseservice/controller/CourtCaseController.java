@@ -149,6 +149,16 @@ public class CourtCaseController {
         return HearingNoteResponse.of(hearingNote);
     }
 
+    @Operation(description = "Delete a hearing note for a given hearing and note id")
+    @PostMapping(value = "/hearing/{hearingId}/notes/{noteId}", consumes = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                  @PathVariable(value = "hearingId") Long noteId,
+                                  Principal principal) {
+
+        hearingNotesService.deleteHearingNote(hearingId, noteId, authenticationHelper.getAuthUserUuid(principal));
+    }
+
     @Operation(description = "Creates a comment on given court case.")
     @PostMapping(value = "/cases/{caseId}/comments", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)

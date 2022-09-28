@@ -85,16 +85,22 @@ public class TelemetryService {
 
     void trackCreateHearingNoteEvent(TelemetryEventType eventType, HearingNoteEntity hearingNoteEntity) {
 
-        Map<String, String> properties = new HashMap<>();
+        trackHearingNoteEvent(eventType, hearingNoteEntity);
+    }
 
+    void trackDeleteHearingNoteEvent(TelemetryEventType eventType, HearingNoteEntity hearingNoteEntity) {
+
+        trackHearingNoteEvent(eventType, hearingNoteEntity);
+    }
+
+    private void trackHearingNoteEvent(TelemetryEventType eventType, HearingNoteEntity hearingNoteEntity) {
+        Map<String, String> properties = new HashMap<>();
         properties.put("hearingId", hearingNoteEntity.getHearingId());
         properties.put("createdByUuid", hearingNoteEntity.getCreatedByUuid());
         properties.put("noteId", hearingNoteEntity.getId().toString());
         properties.put("createdDateTime", hearingNoteEntity.getCreated().toString());
         properties.put("username", hearingNoteEntity.getCreatedBy());
-
         addRequestProperties(properties);
-
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }
 
@@ -103,13 +109,13 @@ public class TelemetryService {
         Map<String, String> properties = new HashMap<>();
 
         ofNullable(defendantEntity.getDefendant().getDefendantId())
-                .ifPresent(id -> properties.put("defendantId", id));
+            .ifPresent(id -> properties.put("defendantId", id));
         ofNullable(defendantEntity.getDefendant().getOffender())
-                .ifPresent(offender -> properties.put("crn", offender.getCrn()));
+            .ifPresent(offender -> properties.put("crn", offender.getCrn()));
         ofNullable(defendantEntity.getDefendant().getPnc())
-                .ifPresent(pnc -> properties.put("pnc", pnc));
+            .ifPresent(pnc -> properties.put("pnc", pnc));
         ofNullable(caseId)
-                .ifPresent(id -> properties.put("caseId", id));
+            .ifPresent(id -> properties.put("caseId", id));
 
         addRequestProperties(properties);
 

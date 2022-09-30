@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtcaseservice.controller.model;
+package uk.gov.justice.probation.courtcaseservice.controller;
 
 import io.restassured.http.ContentType;
 import io.restassured.mapper.ObjectMapperType;
@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingNotesRepository;
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper;
 
@@ -149,5 +150,26 @@ public class CaseProgressIntTest extends BaseIntTest {
         assertThat(hearingNoteEntity.isDeleted()).isFalse();
 
         Assertions.assertNotNull(hearingNoteEntity);
+    }
+
+    @Test
+    void givenExistingHearingIdAndNoteId_whenDeleteHearingNote_shouldUpdateNoteAsDeleted() {
+
+        var noteId = -1700028800L;
+        Response hearingNoteResponse = given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(hearingNote)
+            .when()
+            .delete("/hearing/{hearingId}/notes/{noteId}", HEARING_ID, noteId);
+        hearingNoteResponse
+            .then()
+            .statusCode(200);
+        ;
+
+        var hearingNoteEntity = hearingNotesRepository.findById(noteId).get();
+        assertThat(hearingNoteEntity.isDeleted()).isTrue();
     }
 }

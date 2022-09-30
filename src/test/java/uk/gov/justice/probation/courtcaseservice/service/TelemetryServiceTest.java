@@ -17,6 +17,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
@@ -227,6 +228,58 @@ class TelemetryServiceTest {
         assertThat(properties.get("commentId")).isEqualTo("1234");
         assertThat(properties.get("createdDateTime")).isEqualTo(now.toString());
         assertThat(properties.get("username")).isEqualTo(createdBy);
+
+        assertThat(metricsCaptor.getValue()).isEmpty();
+    }
+
+    @Test
+    void giveHearingNote_whenTrackCreateHearingNoteEvent_thenEmitTelemetryEvent() {
+        String createdByUuid = "created-uuid";
+        LocalDateTime now = LocalDateTime.now();
+        String createdBy = "created-user-name";
+        var hearingNoteEntity = HearingNoteEntity.builder()
+            .hearingId(HEARING_ID)
+            .createdByUuid(createdByUuid)
+            .created(now)
+            .createdBy(createdBy)
+            .id(1234L)
+            .build();
+
+        service.trackCreateHearingNoteEvent(TelemetryEventType.HEARING_NOTE_ADDED, hearingNoteEntity);
+
+        verify(telemetryClient).trackEvent(eq("PicHearingNoteCreated"), properties.capture(), metricsCaptor.capture());
+
+        assertHearingNoteEvent(createdByUuid, now, createdBy);
+    }
+
+    @Test
+    void giveHearingNote_whenTrackDeleteHearingNoteEvent_thenEmitTelemetryEvent() {
+        String createdByUuid = "created-uuid";
+        LocalDateTime now = LocalDateTime.now();
+        String createdBy = "created-user-name";
+        var hearingNoteEntity = HearingNoteEntity.builder()
+            .hearingId(HEARING_ID)
+            .createdByUuid(createdByUuid)
+            .created(now)
+            .createdBy(createdBy)
+            .id(1234L)
+            .build();
+
+        service.trackDeleteHearingNoteEvent(TelemetryEventType.HEARING_NOTE_DELETED, hearingNoteEntity);
+
+        verify(telemetryClient).trackEvent(eq("PicHearingNoteDeleted"), properties.capture(), metricsCaptor.capture());
+
+        assertHearingNoteEvent(createdByUuid, now, createdBy);
+    }
+
+    private void assertHearingNoteEvent(String createdByUuid, LocalDateTime now, String createdBy) {
+        var properties = this.properties.getValue();
+        assertThat(properties).hasSize(5);
+        assertThat(properties).containsEntry("hearingId", HEARING_ID);
+        assertThat(properties).containsEntry("createdByUuid", createdByUuid);
+        assertThat(properties).containsEntry("noteId", "1234");
+        assertThat(properties).containsEntry("createdDateTime", now.toString());
+        assertThat(properties).containsEntry("username", createdBy);
 
         assertThat(metricsCaptor.getValue()).isEmpty();
     }

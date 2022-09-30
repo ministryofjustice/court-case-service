@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,6 +20,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "HEARING_NOTES")
+@SQLDelete(sql = "UPDATE HEARING_NOTES SET deleted = true WHERE ID = ?")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @SuperBuilder

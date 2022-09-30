@@ -53,6 +53,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
@@ -450,6 +451,14 @@ class CourtCaseControllerTest {
             "Hearing Id 'invalid-hearing-id' provided in the path does not match the one in the hearing note request body submitted 'test-hearing-id'");
 
         Mockito.verifyNoInteractions(hearingNotesService);
+    }
+
+    @Test
+    void givenHearingIdAndNoteId_invokeDeleteNoteOnService() {
+        var noteId = 1234L;
+        given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
+        courtCaseController.deleteHearingNote(HEARING_ID, noteId, principal);
+        verify(hearingNotesService).deleteHearingNote(HEARING_ID, noteId, testUuid );
     }
 
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, NamePropertiesEntity defendantName, LocalDateTime sessionTime) {

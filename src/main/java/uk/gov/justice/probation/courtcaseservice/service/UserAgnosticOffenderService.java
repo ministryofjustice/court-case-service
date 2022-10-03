@@ -49,11 +49,12 @@ public class UserAgnosticOffenderService {
     }
 
     private OffenderEntity updateProbationStatusDetails(ProbationStatusDetail probationStatusDetail, OffenderEntity offender) {
-        return offender.withProbationStatus(OffenderProbationStatus.of(probationStatusDetail.getStatus()))
-                .withPreviouslyKnownTerminationDate(probationStatusDetail.getPreviouslyKnownTerminationDate())
-                .withBreach(probationStatusDetail.getInBreach())
-                .withAwaitingPsr(probationStatusDetail.getAwaitingPsr())
-                .withPreSentenceActivity(probationStatusDetail.isPreSentenceActivity());
+        offender.setProbationStatus(OffenderProbationStatus.of(probationStatusDetail.getStatus()));
+        offender.setPreviouslyKnownTerminationDate(probationStatusDetail.getPreviouslyKnownTerminationDate());
+        offender.setBreach(probationStatusDetail.getInBreach());
+        offender.setAwaitingPsr(probationStatusDetail.getAwaitingPsr());
+        offender.setPreSentenceActivity(probationStatusDetail.isPreSentenceActivity());
+        return offender;
     }
 
 }

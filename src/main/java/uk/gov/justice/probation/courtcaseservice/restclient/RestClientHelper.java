@@ -13,7 +13,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.CommunityApiError;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ConvictionNotFoundException;
-import uk.gov.justice.probation.courtcaseservice.restclient.exception.CustodialStatusNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.NsiNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
@@ -86,13 +85,6 @@ public class RestClientHelper {
         return handleError(clientResponse);
     }
 
-    public Mono<? extends Throwable> handleCustodialStatusError(final String crn, Long convictionId, Long sentenceId, final ClientResponse clientResponse) {
-        if (HttpStatus.NOT_FOUND.equals(clientResponse.statusCode())) {
-            return Mono.error(new CustodialStatusNotFoundException(crn, convictionId, sentenceId));
-        }
-        return handleError(clientResponse);
-    }
-
     public Mono<? extends Throwable> handleNsiError(String crn, Long convictionId, final Long nsiId, final ClientResponse clientResponse) {
         if (HttpStatus.NOT_FOUND.equals(clientResponse.statusCode())) {
             return Mono.error(new NsiNotFoundException(crn, convictionId, nsiId));
@@ -102,10 +94,11 @@ public class RestClientHelper {
 
     private Mono<? extends Throwable> handleError(ClientResponse clientResponse) {
         final HttpStatus httpStatus = clientResponse.statusCode();
-        throw WebClientResponseException.create(httpStatus.value(),
-            httpStatus.name(),
-            clientResponse.headers().asHttpHeaders(),
-            clientResponse.toString().getBytes(),
-            StandardCharsets.UTF_8);
+
+        return Mono.error(WebClientResponseException.create(httpStatus.value(),
+                httpStatus.name(),
+                clientResponse.headers().asHttpHeaders(),
+                clientResponse.toString().getBytes(),
+                StandardCharsets.UTF_8));
     }
 }

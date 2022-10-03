@@ -26,6 +26,8 @@ class OffenderRestClientFactoryTest {
     private OffenderRestClientFactory clientFactory;
     private final List<String> nsiBreachCodes = Collections.singletonList("BRE");
     private final List<String> mandatesUsernameClientIds = Collections.singletonList("mandatory-username");
+    @Mock
+    private RestClientHelper restClientHelper;
 
     @BeforeEach
     public void setUp() {
@@ -46,7 +48,9 @@ class OffenderRestClientFactoryTest {
                 "addressCode",
                 mandatesUsernameClientIds,
                 webClientFactory,
-                clientDetails);
+                clientDetails,
+                restClientHelper
+                );
     }
 
     @Test

@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.restclient;
 import io.netty.util.internal.StringUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
@@ -49,10 +50,13 @@ public class OffenderRestClientFactory {
     private final WebClientFactory webClientFactory;
     private ClientDetails clientDetails;
 
+    private RestClientHelper userAgnosticClientHelper;
+
     @Autowired
-    public OffenderRestClientFactory(WebClientFactory webClientFactory, ClientDetails clientDetails) {
+    public OffenderRestClientFactory(WebClientFactory webClientFactory, ClientDetails clientDetails, @Qualifier("communityApiClient") RestClientHelper restClientHelper) {
         this.webClientFactory = webClientFactory;
         this.clientDetails = clientDetails;
+        this.userAgnosticClientHelper = restClientHelper;
     }
 
     /**
@@ -85,7 +89,6 @@ public class OffenderRestClientFactory {
      */
 
     public OffenderRestClient buildUserAgnosticOffenderRestClient() {
-        final var restClientHelper = webClientFactory.buildCommunityRestClientHelper(null);
-        return new OffenderRestClient(offenderUrlTemplate, offenderAllUrlTemplate, offenderManagersUrlTemplate, convictionsUrlTemplate, requirementsUrlTemplate, pssRequirementsUrlTemplate, licenceConditionsUrlTemplate, registrationsUrlTemplate, nsisTemplate, courtAppearancesTemplate, probationStatusTemplate, nsiCodesParam, nsiBreachCodes, addressCode, restClientHelper);
+        return new OffenderRestClient(offenderUrlTemplate, offenderAllUrlTemplate, offenderManagersUrlTemplate, convictionsUrlTemplate, requirementsUrlTemplate, pssRequirementsUrlTemplate, licenceConditionsUrlTemplate, registrationsUrlTemplate, nsisTemplate, courtAppearancesTemplate, probationStatusTemplate, nsiCodesParam, nsiBreachCodes, addressCode, userAgnosticClientHelper);
     }
 }

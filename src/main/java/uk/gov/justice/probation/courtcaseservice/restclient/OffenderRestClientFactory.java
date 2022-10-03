@@ -81,7 +81,7 @@ public class OffenderRestClientFactory {
     }
 
     /**
-     * Create a new OffenderRestClient without any restrictions.
+     * Create a new OffenderRestClient with default credentials.
      *
      * This factory method can be called from the non @RequestScoped bean like the one used in the {@link uk.gov.justice.probation.courtcaseservice.listener.ProbationOffenderEventsListener}
      *

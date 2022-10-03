@@ -13,9 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OffenderRestClientFactoryTest {
@@ -122,6 +120,14 @@ class OffenderRestClientFactoryTest {
                         "in the incoming token and username is mandatory for clientId 'mandatory-username'");
 
         verifyNoMoreInteractions(webClientFactory, clientDetails);
+    }
+
+    @Test
+    public void givenNoUserInvolved_whenBuild_thenNotThrowAnyException() {
+        clientFactory.buildUserAgnosticOffenderRestClient();
+        verify(webClientFactory,times(0)).buildCommunityRestClientHelper(anyString());
+        verify(clientDetails,times(0)).getClientId();
+        verify(clientDetails,times(0)).getUsername();
     }
 
 }

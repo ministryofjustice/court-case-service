@@ -151,4 +151,44 @@ public class UserAgnosticOffenderServiceTest {
         verify(userAgnosticOffenderRestClient,times(0)).getProbationStatusByCrn(CRN);
         verify(offenderRepository,times(0)).save(offenderEntityArgumentCaptor.capture());
     }
+
+    @Test
+    void shouldNotUpdateOffenderProbationStatusFields_givenProbationStatusHasNullValues() {
+
+        var date = LocalDate.now();
+
+        final var probationStatusDetail = ProbationStatusDetail.builder()
+                .status(OffenderProbationStatus.CURRENT.getName())
+                .inBreach(null)
+                .awaitingPsr(null)
+                .previouslyKnownTerminationDate(date)
+                .preSentenceActivity(true)
+                .build();
+        final var offenderEntity = OffenderEntity.builder()
+                .crn(CRN)
+                .probationStatus(OffenderProbationStatus.NOT_SENTENCED)
+                .breach(false)
+                .awaitingPsr(false)
+                .build();
+
+        when(userAgnosticOffenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
+        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.ofNullable(offenderEntity));
+
+        service.updateOffenderProbationStatus(CRN);
+
+        verify(userAgnosticOffenderRestClient).getProbationStatusByCrn(CRN);
+        verify(offenderRepository).findByCrn(CRN);
+        verify(offenderRepository).save(offenderEntityArgumentCaptor.capture());
+        var entityToUpdate = offenderEntityArgumentCaptor.getValue();
+
+        //no update due to null values
+        assertThat(entityToUpdate.getAwaitingPsr()).isEqualTo(false);
+        assertThat(entityToUpdate.isBreach()).isEqualTo(false);
+
+        //new values from the probation status detail
+        assertThat(entityToUpdate.getProbationStatus()).isEqualTo(OffenderProbationStatus.CURRENT);
+        assertThat(entityToUpdate.getPreviouslyKnownTerminationDate()).isEqualTo(date);
+        assertThat(entityToUpdate.getCrn()).isEqualTo(CRN);
+        assertThat(entityToUpdate.isPreSentenceActivity()).isEqualTo(true);
+    }
 }

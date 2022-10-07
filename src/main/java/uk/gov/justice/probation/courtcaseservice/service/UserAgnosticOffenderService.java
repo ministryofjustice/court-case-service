@@ -13,6 +13,8 @@ import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDe
 
 import java.util.Optional;
 
+import static uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetailComparator.hasProbationStatusDetailsChanged;
+
 @Service
 @Slf4j
 public class UserAgnosticOffenderService {
@@ -40,11 +42,17 @@ public class UserAgnosticOffenderService {
         return offenderRepository.findByCrn(crn)
                 .map(offenderEntity -> {
                     ProbationStatusDetail probationStatusDetail = getProbationStatusWithoutRestrictions(crn).block();
-                    return updateProbationStatusDetails(probationStatusDetail, offenderEntity);
-                }).map(offenderRepository::save)
-                .map(updatedOffender -> {
-                    telemetryService.trackOffenderProbationStatusUpdateEvent(updatedOffender);
-                    return updatedOffender;
+                    if (hasProbationStatusDetailsChanged(probationStatusDetail, offenderEntity.getProbationStatusDetail())) {
+                        updateProbationStatusDetails(probationStatusDetail, offenderEntity);
+                        Optional.of(offenderRepository.save(offenderEntity))
+                                .map(updatedOffender -> {
+                                    telemetryService.trackOffenderProbationStatusUpdateEvent(updatedOffender);
+                                    return updatedOffender;
+                                });
+                    } else {
+                        telemetryService.trackOffenderProbationStatusNotUpdateEvent(offenderEntity);
+                    }
+                    return offenderEntity;
                 });
     }
 

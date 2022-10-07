@@ -11,6 +11,7 @@ import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
 import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
+import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -68,5 +69,15 @@ public class OffenderEntity extends BaseEntity implements Serializable {
 
     @Column(name = "PREVIOUSLY_KNOWN_TERMINATION_DATE")
     private LocalDate previouslyKnownTerminationDate;
+
+    public ProbationStatusDetail getProbationStatusDetail() {
+        return ProbationStatusDetail.builder()
+                .status(getProbationStatus().getName())
+                .previouslyKnownTerminationDate(getPreviouslyKnownTerminationDate())
+                .inBreach(isBreach())
+                .preSentenceActivity(isPreSentenceActivity())
+                .awaitingPsr(getAwaitingPsr())
+                .build();
+    }
 
 }

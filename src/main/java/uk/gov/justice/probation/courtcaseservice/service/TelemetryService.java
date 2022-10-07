@@ -191,6 +191,40 @@ public class TelemetryService {
         telemetryClient.trackEvent(TelemetryEventType.OFFENDER_PROBATION_STATUS_UPDATED.eventName, properties, Collections.emptyMap());
     }
 
+
+    public void trackOffenderProbationStatusNotUpdateEvent(OffenderEntity offenderEntity) {
+
+        Map<String, String> properties = new HashMap<>();
+
+        ofNullable(offenderEntity)
+                .map(OffenderEntity::getCrn)
+                .ifPresent((crn) -> properties.put("crn", crn));
+
+        ofNullable(offenderEntity)
+                .map(OffenderEntity::getProbationStatus)
+                .ifPresent((probationStatus) -> properties.put("status", probationStatus.getName()));
+
+        ofNullable(offenderEntity)
+                .map(OffenderEntity::getPreviouslyKnownTerminationDate)
+                .ifPresent((date) -> properties.put("previouslyKnownTerminationDate", date.toString()));
+
+        ofNullable(offenderEntity)
+                .map(OffenderEntity::isBreach)
+                .ifPresent((isBreach) -> properties.put("inBreach", isBreach.toString()));
+
+        ofNullable(offenderEntity)
+                .map(OffenderEntity::isPreSentenceActivity)
+                .ifPresent((preSentenceActivity) -> properties.put("preSentenceActivity", preSentenceActivity.toString()));
+
+        ofNullable(offenderEntity)
+                .map(OffenderEntity::getAwaitingPsr)
+                .ifPresent((awaitingPsr) -> properties.put("awaitingPsr", awaitingPsr.toString()));
+
+        addRequestProperties(properties);
+
+        telemetryClient.trackEvent(TelemetryEventType.OFFENDER_PROBATION_STATUS_NOT_UPDATED.eventName, properties, Collections.emptyMap());
+    }
+
     private void addRequestProperties(Map<String, String> properties) {
         Optional.ofNullable(clientDetails.getUsername())
                 .ifPresent((caseNo) -> properties.put("username", caseNo));

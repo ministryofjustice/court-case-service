@@ -168,7 +168,7 @@ public class UserAgnosticOffenderServiceTest {
                 .build();
         final var offenderEntity = OffenderEntity.builder()
                 .crn(CRN)
-                .probationStatus(null)
+                .probationStatus(OffenderProbationStatus.NOT_SENTENCED)
                 .breach(false)
                 .awaitingPsr(false)
                 .build();

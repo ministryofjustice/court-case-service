@@ -13,8 +13,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDe
 
 import java.util.Optional;
 
-import static uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetailComparator.hasProbationStatusDetailsChanged;
-
 @Service
 @Slf4j
 public class UserAgnosticOffenderService {
@@ -42,7 +40,7 @@ public class UserAgnosticOffenderService {
         return offenderRepository.findByCrn(crn)
                 .map(offenderEntity -> {
                     ProbationStatusDetail probationStatusDetail = getProbationStatusWithoutRestrictions(crn).block();
-                    if (hasProbationStatusDetailsChanged(probationStatusDetail, offenderEntity.getProbationStatusDetail())) {
+                    if (probationStatusDetail != null && !probationStatusDetail.equals(offenderEntity.getProbationStatusDetail())) {
                         updateProbationStatusDetails(probationStatusDetail, offenderEntity);
                         Optional.of(offenderRepository.save(offenderEntity))
                                 .map(updatedOffender -> {

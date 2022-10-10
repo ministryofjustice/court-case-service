@@ -196,7 +196,7 @@ public class UserAgnosticOffenderServiceTest {
     }
 
     @Test
-    void shouldNotUpdateOffenderProbationStatus_whenNochangeIndetails_AndEmitCorrectTelemetryEvent() {
+    void shouldNotUpdateOffenderProbationStatus_whenNoChangeInDetails_AndEmitCorrectTelemetryEvent() {
 
         var date = LocalDate.now();
 
@@ -217,6 +217,37 @@ public class UserAgnosticOffenderServiceTest {
                 .build();
 
         when(userAgnosticOffenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
+        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.ofNullable(offenderEntity));
+
+        service.updateOffenderProbationStatus(CRN);
+        verify(telemetryService).trackOffenderProbationStatusNotUpdateEvent(offenderEntityArgumentCaptor.capture());
+        verify(offenderRepository,times(0)).save(offenderEntityArgumentCaptor.capture());
+        var entityToUpdate = offenderEntityArgumentCaptor.getValue();
+
+        assertThat(entityToUpdate.getProbationStatus()).isEqualTo(OffenderProbationStatus.CURRENT);
+        assertThat(entityToUpdate.getAwaitingPsr()).isEqualTo(true);
+        assertThat(entityToUpdate.getPreviouslyKnownTerminationDate()).isEqualTo(date);
+        assertThat(entityToUpdate.getCrn()).isEqualTo(CRN);
+        assertThat(entityToUpdate.isPreSentenceActivity()).isEqualTo(true);
+        assertThat(entityToUpdate.isBreach()).isEqualTo(true);
+    }
+
+    @Test
+    void shouldNotUpdateOffenderProbationStatus_whenProbationStatusDetailsIsNull_AndEmitCorrectTelemetryEvent() {
+
+        var date = LocalDate.now();
+
+
+        final var offenderEntity = OffenderEntity.builder()
+                .crn(CRN)
+                .probationStatus(OffenderProbationStatus.CURRENT)
+                .breach(true)
+                .awaitingPsr(true)
+                .previouslyKnownTerminationDate(date)
+                .preSentenceActivity(true)
+                .build();
+
+        when(userAgnosticOffenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.empty());
         when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.ofNullable(offenderEntity));
 
         service.updateOffenderProbationStatus(CRN);

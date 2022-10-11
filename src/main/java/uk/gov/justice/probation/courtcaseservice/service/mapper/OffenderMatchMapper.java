@@ -44,6 +44,7 @@ public class OffenderMatchMapper {
                         .pnc(offenderMatchRequest.getMatchIdentifiers().getPnc())
                         .cro(offenderMatchRequest.getMatchIdentifiers().getCro())
                         .aliases(mapAliases(offenderMatchRequest.getMatchIdentifiers().getAliases()))
+                        .matchProbability(offenderMatchRequest.getMatchProbability())
                         .build()
             )
             .collect(Collectors.toList());
@@ -84,6 +85,7 @@ public class OffenderMatchMapper {
                         .pnc(offenderMatchRequest.getMatchIdentifiers().getPnc())
                         .cro(offenderMatchRequest.getMatchIdentifiers().getCro())
                         .aliases(mapAliases(offenderMatchRequest.getMatchIdentifiers().getAliases()))
+                        .matchProbability(offenderMatchRequest.getMatchProbability())
                         .build()
             )
             .forEach(newMatch -> group.getOffenderMatches().add(newMatch));

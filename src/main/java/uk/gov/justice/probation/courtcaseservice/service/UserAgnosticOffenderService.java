@@ -40,9 +40,9 @@ public class UserAgnosticOffenderService {
     public Optional<OffenderEntity> updateOffenderProbationStatus(String crn) {
         return offenderRepository.findByCrn(crn)
                 .map(offenderEntity -> {
-                    ProbationStatusDetail probationStatusDetail = getProbationStatusWithoutRestrictions(crn).block();
-                    if (probationStatusDetail != null && !Objects.equals(probationStatusDetail, offenderEntity.getProbationStatusDetail())) {
-                        updateProbationStatusDetails(probationStatusDetail, offenderEntity);
+                    ProbationStatusDetail probationStatusDetailFromCommunityApi = getProbationStatusWithoutRestrictions(crn).block();
+                    if (probationStatusDetailFromCommunityApi != null && !Objects.equals(probationStatusDetailFromCommunityApi, offenderEntity.getProbationStatusDetail())) {
+                        updateProbationStatusDetails(probationStatusDetailFromCommunityApi, offenderEntity);
                         Optional.of(offenderRepository.save(offenderEntity))
                                 .map(updatedOffender -> {
                                     telemetryService.trackOffenderProbationStatusUpdateEvent(updatedOffender);

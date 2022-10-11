@@ -38,6 +38,7 @@ class OffenderMatchMapperTest {
             .confirmed(true)
             .rejected(false)
             .matchIdentifiers(new MatchIdentifiers("CRN1", "PNC1", "CRO1", null))
+            .matchProbability(0.1234d)
             .build();
 
     private static final OffenderMatchRequest matchRequest2 = OffenderMatchRequest.builder()
@@ -45,6 +46,7 @@ class OffenderMatchMapperTest {
         .confirmed(false)
         .rejected(true)
         .matchIdentifiers(new MatchIdentifiers("CRN2", "PNC2", "CRO2", List.of(offenderMatchAlias)))
+        .matchProbability(0.9876d)
         .build();
 
     @Test
@@ -82,6 +84,7 @@ class OffenderMatchMapperTest {
             .crn("CRN2")
             .cro("CRO2")
             .pnc("PNC2")
+            .matchProbability(0.1234d)
             .build();
         var existingEntity = GroupedOffenderMatchesEntity.builder()
             .id(99L)
@@ -104,6 +107,7 @@ class OffenderMatchMapperTest {
         assertThat(first.getPnc()).isEqualTo("PNC1");
         assertThat(first.getCro()).isEqualTo("CRO1");
         assertThat(first.getMatchType()).isEqualTo(MatchType.NAME);
+        assertThat(first.getMatchProbability()).isEqualTo(0.1234d);
     }
 
     @Test
@@ -115,6 +119,7 @@ class OffenderMatchMapperTest {
             .crn("CRN2")
             .cro("CRO2")
             .pnc("PNC2")
+            .matchProbability(0.1234d)
             .build();
         var existingEntity = GroupedOffenderMatchesEntity.builder()
             .id(99L)
@@ -139,6 +144,7 @@ class OffenderMatchMapperTest {
         assertThat(first.getPnc()).isEqualTo("PNC1");
         assertThat(first.getCro()).isEqualTo("CRO1");
         assertThat(first.getMatchType()).isEqualTo(MatchType.NAME);
+        assertThat(first.getMatchProbability()).isEqualTo(0.1234d);
     }
 
     @Test
@@ -164,6 +170,7 @@ class OffenderMatchMapperTest {
         assertThat(match1.getPnc()).isEqualTo("PNC1");
         assertThat(match1.getCro()).isEqualTo("CRO1");
         assertThat(match1.getMatchType()).isEqualTo(MatchType.NAME);
+        assertThat(match1.getMatchProbability()).isEqualTo(0.1234d);
 
         assertThat(match2.getGroup()).isSameAs(group);
         assertThat(match2.getConfirmed()).isEqualTo(false);
@@ -172,5 +179,6 @@ class OffenderMatchMapperTest {
         assertThat(match2.getPnc()).isEqualTo("PNC2");
         assertThat(match2.getCro()).isEqualTo("CRO2");
         assertThat(match2.getMatchType()).isEqualTo(MatchType.NAME);
+        assertThat(match2.getMatchProbability()).isEqualTo(0.9876d);
     }
 }

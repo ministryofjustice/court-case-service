@@ -15,9 +15,27 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
+import uk.gov.justice.probation.courtcaseservice.service.model.MatchType;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -212,5 +230,21 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
     void mockPutCourtCaseExtended() {
         final Mono<HearingEntity> caseMono = Mono.just(EntityHelper.aHearingEntity("X340741", "1600028914"));
         when(courtCaseService.createOrUpdateHearingByHearingId(eq("ABCDD32D-3C80-41E8-846E-D274DC2B94A5"), any(HearingEntity.class))).thenReturn(caseMono);
+    }
+
+    @State({"offender matches will be PUT"})
+    void mockPutOffenderMatches() {
+        when(offenderMatchService.createOrUpdateGroupedMatchesByDefendant(any(), any())).thenReturn(Mono.just(GroupedOffenderMatchesEntity.builder()
+                .caseId("9b44418d-21a8-417d-a11a-dfe20164abaf")
+                .defendantId("1df61bcb-7482-49b2-8f99-569458fb3203")
+                        .offenderMatches(List.of(OffenderMatchEntity.builder()
+                                        .matchProbability(0.12345d)
+                                        .crn("X12340")
+                                        .cro("12345")
+                                        .pnc("2020/12345")
+                                        .matchType(MatchType.NAME_DOB)
+                                        .aliases(Collections.emptyList())
+                                .build()))
+                .build()));
     }
 }

@@ -145,6 +145,7 @@ task unitTest(type: Test) {
         excludeTestsMatching '*IntTest'
         excludeTestsMatching '*SmokeTest'
         excludeTestsMatching '*WIP*'
+        excludeTestsMatching '*VerificationPactTest'
     }
 }
 

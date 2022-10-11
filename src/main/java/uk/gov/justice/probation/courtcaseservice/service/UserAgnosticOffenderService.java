@@ -11,6 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -40,7 +41,7 @@ public class UserAgnosticOffenderService {
         return offenderRepository.findByCrn(crn)
                 .map(offenderEntity -> {
                     ProbationStatusDetail probationStatusDetail = getProbationStatusWithoutRestrictions(crn).block();
-                    if (probationStatusDetail != null && !probationStatusDetail.equals(offenderEntity.getProbationStatusDetail())) {
+                    if (probationStatusDetail != null && !Objects.equals(probationStatusDetail, offenderEntity.getProbationStatusDetail())) {
                         updateProbationStatusDetails(probationStatusDetail, offenderEntity);
                         Optional.of(offenderRepository.save(offenderEntity))
                                 .map(updatedOffender -> {

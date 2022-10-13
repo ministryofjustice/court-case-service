@@ -319,6 +319,7 @@ class ExtendedHearingRequestResponseTest {
                         .surname("surname")
                         .build())
                 .defendantId("defendantId")
+                .personId("PersonId-1")
                 .preSentenceActivity(true)
                 .previouslyKnownTerminationDate(LocalDate.of(2001, 1, 1))
                 .probationStatus("CURRENT")
@@ -342,6 +343,9 @@ class ExtendedHearingRequestResponseTest {
         // offences should be sorted by sequence number
         assertThat(actual.getDefendants().get(0).getOffences().get(0).getAct()).isEqualTo("act2");
         assertThat(actual.getDefendants().get(0).getOffences().get(1).getAct()).isEqualTo("act");
+        assertThat(actual.getDefendants().get(1).getPersonId()).isEqualTo("PersonId-2");
+
+
     }
 
     @Test
@@ -463,6 +467,7 @@ class ExtendedHearingRequestResponseTest {
                                                 .surname("surname")
                                                 .build())
                                         .defendantId("defendantId")
+                                        .personId("PersonId-1")
                                         .sex(Sex.MALE)
                                         .build())
                                 .offences(List.of(OffenceEntity.builder()
@@ -481,6 +486,7 @@ class ExtendedHearingRequestResponseTest {
                         HearingDefendantEntity.builder()
                                 .defendant(DefendantEntity.builder()
                                         .defendantId("DEFENDANT_ID_2")
+                                        .personId("PersonId-2")
                                         .build())
                                 .build()))
                 .build();

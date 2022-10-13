@@ -75,6 +75,8 @@ public class CourtCaseRequest {
     private final String nationality2;
     private final Boolean awaitingPsr;
     private final PhoneNumber phoneNumber;
+    public static final String PERSON_ID = "45316811-6d65-4deb-a876-a6582e6566f7";
+
 
     public HearingEntity asEntity() {
 
@@ -145,6 +147,7 @@ public class CourtCaseRequest {
                 .cro(cro)
                 .pnc(pnc)
                 .phoneNumber(Optional.ofNullable(phoneNumber).map(PhoneNumber::asEntity).orElse(null))
+                .personId(PERSON_ID)
                 .build())
             .offences(offences)
             .build();

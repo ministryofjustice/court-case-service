@@ -52,7 +52,7 @@ public class EntityHelper {
     public static final String OFFENCE_ACT = "OFFENCE ACT";
     public static final Long OFFENDER_ID = 199L;
 
-    public static final String PERSON_ID = "45316811-6d65-4deb-a876-a6582e6566f7";
+    public static final String PERSON_ID = "d1eefed2-04df-11ec-b2d8-0242ac130002";
 
 
     public static HearingEntity aHearingEntity(String caseId) {
@@ -156,7 +156,7 @@ public class EntityHelper {
                 .nationality2(NATIONALITY_2)
                 .defendantId(defendantId)
                 .phoneNumber(DEFENDANT_PHONE_NUMBER_ENTITY)
-                .personId(UUID.randomUUID().toString())
+                .personId(PERSON_ID)
                 .build();
     }
 

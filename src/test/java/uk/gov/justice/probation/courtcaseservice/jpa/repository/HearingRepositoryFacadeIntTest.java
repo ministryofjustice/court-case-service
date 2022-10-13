@@ -82,6 +82,13 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
     }
 
     @Test
+    public void givenNoCaseWithListNo_whenFindByCourtCodeCaseNoAndListNo_fallbackAndReadCaseWithoutListNo() {
+        final var actual = hearingRepositoryFacade.findByCourtCodeAndCaseNo("B33HU", "1600028888", "10th");
+
+        assertIsFerrisBueller(actual, null, "fe657c3a-b674-4e17-8772-7281c99e4f9f");
+    }
+
+    @Test
     public void whenFindByCourtCodeAndCaseNo_andNoListNo_thenReturnCorrectRecordWithOffender() {
         final var actual = hearingRepositoryFacade.findByCourtCodeAndCaseNo("B33HU", "1600028888", null);
 

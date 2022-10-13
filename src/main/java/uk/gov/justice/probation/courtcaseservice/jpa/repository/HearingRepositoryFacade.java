@@ -11,7 +11,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -54,7 +53,10 @@ public class HearingRepositoryFacade {
         if(StringUtils.isEmpty(listNo)) {
             hearing = hearingRepository.findByCourtCodeAndCaseNo(courtCode, caseNo);
         } else {
-            hearing = hearingRepository.findByCourtCodeCaseNoAndListNo(courtCode, caseNo, listNo);
+            hearing = hearingRepository.findByCourtCodeCaseNoAndListNo(courtCode, caseNo, listNo)
+                .or(
+                    () -> hearingRepository.findByCourtCodeAndCaseNo(courtCode, caseNo).map(hearingEntity -> hearingEntity.withHearingId(null))
+                );
         }
         return hearing.map(this::updateWithDefendants);
     }

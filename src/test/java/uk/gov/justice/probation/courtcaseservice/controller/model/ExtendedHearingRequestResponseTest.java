@@ -25,22 +25,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearingRequestResponse.DEFAULT_SOURCE;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_NO;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_ROOM;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRO;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_DOB;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_PHONE_NUMBER;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_PHONE_NUMBER_ENTITY;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NAME;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.OFFENDER_PNC;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PNC;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SESSION_START_TIME;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.URN;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*;
 
 class ExtendedHearingRequestResponseTest {
 
@@ -367,6 +352,47 @@ class ExtendedHearingRequestResponseTest {
         assertThat(offences.get(0).getJudicialResults().get(0).getLabel()).isEqualTo("label");
         assertThat(offences.get(0).getJudicialResults().get(0).getJudicialResultTypeId()).isEqualTo("judicialResultTypeId");
         assertThat(offences.get(1).getJudicialResults()).isEmpty();
+    }
+
+    @Test
+    void givenDefendantWithoutPersonId_whenAsEntity_thenReturnWithPersonIdPopulated() {
+
+        final var defendant = Defendant.builder()
+                .name(NAME)
+                .pnc(PNC)
+                .sex("M")
+                .type(DefendantType.PERSON)
+                .defendantId(DEFENDANT_ID)
+                .build();
+        final var request = ExtendedHearingRequestResponse.builder()
+                .defendants(List.of(defendant))
+                .build();
+
+        final var hearingEntity = request.asHearingEntity();
+
+        assertThat(hearingEntity.getHearingDefendants()).hasSize(1);
+        assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPersonId()).isNotBlank();
+    }
+
+    @Test
+    void givenDefendantWithPersonId_whenAsEntity_thenReturnWithPersonIdPopulated() {
+
+        final var defendant = Defendant.builder()
+                .name(NAME)
+                .pnc(PNC)
+                .sex("M")
+                .type(DefendantType.PERSON)
+                .defendantId(DEFENDANT_ID)
+                .personId(PERSON_ID)
+                .build();
+        final var request = ExtendedHearingRequestResponse.builder()
+                .defendants(List.of(defendant))
+                .build();
+
+        final var hearingEntity = request.asHearingEntity();
+
+        assertThat(hearingEntity.getHearingDefendants()).hasSize(1);
+        assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPersonId()).isEqualTo(PERSON_ID);
     }
 
     private HearingEntity buildEntity() {

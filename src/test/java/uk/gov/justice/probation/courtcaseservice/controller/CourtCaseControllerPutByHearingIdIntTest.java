@@ -20,6 +20,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 import uk.gov.justice.probation.courtcaseservice.listener.EventMessage;
@@ -59,6 +60,9 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
     @Autowired
     OffenderRepository offenderRepository;
+
+    @Autowired
+    DefendantRepository defendantRepository;
 
     ObjectMapper objectMapper;
 
@@ -142,6 +146,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
             assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPhoneNumber()).isEqualTo(
                     PhoneNumberEntity.builder().home("07000000013").mobile("07000000014").work("07000000015").build());
+            assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPersonId()).isNotBlank();
         }, () -> fail("Court case not created as expected"));
 
         offenderRepository.findByCrn(CRN).ifPresentOrElse(off -> {
@@ -515,5 +520,40 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 PersonReferenceType.builder().type("CRO").value(cro).build(),
                 PersonReferenceType.builder().type("PNC").value(pnc).build()
         );
+    }
+
+    @Test
+    void shouldPersistGivenPersonId_andCreateOneIfNotGiven_whenCreateOrUpdateHearingByHearingId() throws IOException {
+        //Person id given for defendant 1
+        String defendantId1 =   "1263de26-4a81-42d3-a798-bad802433318";
+        String personIdForDefendant1 = "45316811-6d65-4deb-a876-a6582e6566f7";
+
+        //No person id for defendant 2
+        String defendantId2 =   "6f014c2e-8be3-4a12-a551-8377bd31a7b8";
+
+        final var createHearingJason = FileUtils.readFileToString(caseDetailsExtendedUpdate, "UTF-8");
+
+        given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(createHearingJason)
+                .when()
+                .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+                .then()
+                .statusCode(201);
+
+        // known person id
+        defendantRepository.findFirstByDefendantIdOrderByIdDesc(defendantId1)
+                .ifPresentOrElse(defendantEntity -> {
+                    assertThat(defendantEntity.getPersonId()).isEqualTo(personIdForDefendant1);
+                }, () -> fail("Person id not matching"));
+
+        // person id unknown so check if exist
+        defendantRepository.findFirstByDefendantIdOrderByIdDesc(defendantId2)
+                .ifPresentOrElse(defendantEntity -> {
+                    assertThat(defendantEntity.getPersonId()).isNotBlank();
+                }, () -> fail("Person id should not be blank"));
     }
 }

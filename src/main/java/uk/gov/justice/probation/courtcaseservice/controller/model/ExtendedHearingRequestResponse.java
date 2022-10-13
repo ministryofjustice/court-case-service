@@ -82,6 +82,7 @@ public class ExtendedHearingRequestResponse {
                             final var defendant = hearingDefendantEntity.getDefendant();
                             return Defendant.builder()
                                     .defendantId(defendant.getDefendantId())
+                                    .personId(defendant.getPersonId())
                                     .name(defendant.getName())
                                     .dateOfBirth(defendant.getDateOfBirth())
                                     .address(Optional.ofNullable(defendant.getAddress())
@@ -154,6 +155,7 @@ public class ExtendedHearingRequestResponse {
                         .type(defendant.getType())
                         .defendantId(defendant.getDefendantId())
                         .phoneNumber(Optional.ofNullable(defendant.getPhoneNumber()).map(PhoneNumber::asEntity).orElse(null))
+                        .personId(defendant.getPersonId())
                         .build())
                 .offences(offences)
                 .build();

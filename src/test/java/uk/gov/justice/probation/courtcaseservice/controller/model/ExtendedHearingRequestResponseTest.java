@@ -25,7 +25,23 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearingRequestResponse.DEFAULT_SOURCE;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_NO;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_ROOM;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRO;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_DOB;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_PHONE_NUMBER;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_PHONE_NUMBER_ENTITY;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NAME;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.OFFENDER_PNC;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PERSON_ID;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PNC;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SESSION_START_TIME;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.URN;
 
 class ExtendedHearingRequestResponseTest {
 
@@ -375,7 +391,7 @@ class ExtendedHearingRequestResponseTest {
     }
 
     @Test
-    void givenDefendantWithPersonId_whenAsEntity_thenReturnWithPersonIdPopulated() {
+    void givenDefendantWithPersonId_whenAsEntity_thenReturnWithSamePersonId() {
 
         final var defendant = Defendant.builder()
                 .name(NAME)

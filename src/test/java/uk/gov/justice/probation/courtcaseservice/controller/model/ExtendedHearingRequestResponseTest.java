@@ -42,6 +42,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PNC;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SESSION_START_TIME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.URN;
+import static uk.gov.justice.probation.courtcaseservice.testUtil.TestUtils.UUID_REGEX;
 
 class ExtendedHearingRequestResponseTest {
 
@@ -391,7 +392,7 @@ class ExtendedHearingRequestResponseTest {
         final var hearingEntity = request.asHearingEntity();
 
         assertThat(hearingEntity.getHearingDefendants()).hasSize(1);
-        assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPersonId()).isNotBlank();
+        assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPersonId()).matches(UUID_REGEX);
     }
 
     @Test

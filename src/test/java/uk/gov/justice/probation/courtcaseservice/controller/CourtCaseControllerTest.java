@@ -12,7 +12,6 @@ import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteRequest;
@@ -79,8 +78,6 @@ class CourtCaseControllerTest {
     private WebRequest webRequest;
     @Mock
     private CourtCaseService courtCaseService;
-    @Mock
-    private CourtCaseRequest courtCaseUpdate;
     @Mock
     private OffenderMatchService offenderMatchService;
     @Mock

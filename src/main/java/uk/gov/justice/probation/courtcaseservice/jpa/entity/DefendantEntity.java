@@ -100,7 +100,7 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Column(columnDefinition = "jsonb", name = "PHONE_NUMBER")
     private final PhoneNumberEntity phoneNumber;
 
-    @Column(name = "PERSON_ID")
+    @Column(name = "PERSON_ID", nullable = false)
     private final String personId;
 
     @PrePersist

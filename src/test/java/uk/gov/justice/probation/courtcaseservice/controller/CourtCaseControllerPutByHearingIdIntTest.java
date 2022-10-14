@@ -27,6 +27,7 @@ import uk.gov.justice.probation.courtcaseservice.listener.EventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReference;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType;
+import uk.gov.justice.probation.courtcaseservice.testUtil.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,6 +50,7 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 import static org.springframework.util.StreamUtils.copyToString;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.OFFENDER_PNC;
+import static uk.gov.justice.probation.courtcaseservice.testUtil.TestUtils.UUID_REGEX;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
@@ -525,11 +527,11 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     @Test
     void shouldPersistGivenPersonId_andCreateOneIfNotGiven_whenCreateOrUpdateHearingByHearingId() throws IOException {
         //Person id given for defendant 1
-        String defendantId1 =   "1263de26-4a81-42d3-a798-bad802433318";
-        String personIdForDefendant1 = "45316811-6d65-4deb-a876-a6582e6566f7";
+        var defendantId1 =   "1263de26-4a81-42d3-a798-bad802433318";
+        var personIdForDefendant1 = "45316811-6d65-4deb-a876-a6582e6566f7";
 
         //No person id for defendant 2
-        String defendantId2 =   "6f014c2e-8be3-4a12-a551-8377bd31a7b8";
+        var defendantId2 =   "6f014c2e-8be3-4a12-a551-8377bd31a7b8";
 
         final var createHearingJason = FileUtils.readFileToString(caseDetailsExtendedUpdate, "UTF-8");
 
@@ -553,7 +555,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         // person id unknown so check if exist
         defendantRepository.findFirstByDefendantIdOrderByIdDesc(defendantId2)
                 .ifPresentOrElse(defendantEntity -> {
-                    assertThat(defendantEntity.getPersonId()).isNotBlank();
+                    assertThat(defendantEntity.getPersonId()).matches(UUID_REGEX);
                 }, () -> fail("Person id should not be blank"));
     }
 }

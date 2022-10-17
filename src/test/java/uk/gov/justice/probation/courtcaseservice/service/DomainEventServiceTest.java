@@ -54,8 +54,8 @@ public class DomainEventServiceTest {
     @Test
     public void shouldEmit_SentencedEvent_ForEachDefendant() throws JsonProcessingException {
         when(objectMapper.writeValueAsString(any())).thenReturn
-                        (String.valueOf(buildDomainEventMessage("crn1", "cro1", "pnc1")))
-                .thenReturn(String.valueOf(buildDomainEventMessage("crn2", "cro2", "pnc2")));
+                        (String.valueOf(buildDomainEventMessage("crn1", "cro1", "pnc1","personId1")))
+                .thenReturn(String.valueOf(buildDomainEventMessage("crn2", "cro2", "pnc2","personId2")));
 
         var hearingEntity = buildHearingEntity();
 
@@ -76,6 +76,7 @@ public class DomainEventServiceTest {
         assertThat(actualPublishedRequest1.getMessage()).contains("crn1");
         assertThat(actualPublishedRequest1.getMessage()).contains("cro1");
         assertThat(actualPublishedRequest1.getMessage()).contains("pnc1");
+        assertThat(actualPublishedRequest1.getMessage()).contains("personId1");
 
 
         assertThat(actualPublishedRequest2.getMessageAttributes().get("eventType").getDataType()).isEqualTo("String");
@@ -83,7 +84,7 @@ public class DomainEventServiceTest {
 
         assertThat(actualPublishedRequest2.getMessage()).contains("crn2");
         assertThat(actualPublishedRequest2.getMessage()).contains("cro2");
-        assertThat(actualPublishedRequest2.getMessage()).contains("pnc2");
+        assertThat(actualPublishedRequest2.getMessage()).contains("personId2");
     }
 
     private HearingEntity buildHearingEntity() {
@@ -93,6 +94,7 @@ public class DomainEventServiceTest {
                         .crn("crn1")
                         .cro("cro1")
                         .pnc("pnc1")
+                        .personId("personId1")
                         .build())
                 .build();
 
@@ -101,6 +103,7 @@ public class DomainEventServiceTest {
                         .crn("crn2")
                         .cro("cro2")
                         .pnc("pnc2")
+                        .personId("personId2")
                         .build())
                 .build();
         return HearingEntity.builder()
@@ -113,22 +116,23 @@ public class DomainEventServiceTest {
                 .build();
     }
 
-    private List<PersonReferenceType> buildDefendantIdentifiers(String crn, String cro, String pnc) {
+    private List<PersonReferenceType> buildDefendantIdentifiers(String crn, String cro, String pnc,String personId) {
         return List.of(
                 PersonReferenceType.builder().type("CRN").value(crn).build(),
                 PersonReferenceType.builder().type("CRO").value(cro).build(),
-                PersonReferenceType.builder().type("PNC").value(pnc).build()
+                PersonReferenceType.builder().type("PNC").value(pnc).build(),
+                PersonReferenceType.builder().type("PERSONID").value(personId).build()
         );
     }
 
-    private DomainEventMessage buildDomainEventMessage(String crn, String cro, String pnc) {
+    private DomainEventMessage buildDomainEventMessage(String crn, String cro, String pnc,String personId) {
         return DomainEventMessage.builder()
                 .eventType(DomainEventType.SENTENCED_EVENT_TYPE.getEventTypeName())
                 .version(1)
                 .detailUrl("http://localhost/hearing/abc123")
                 .occurredAt(LocalDateTime.now().toString())
                 .personReference(PersonReference.builder()
-                        .identifiers(buildDefendantIdentifiers(crn, cro, pnc))
+                        .identifiers(buildDefendantIdentifiers(crn, cro, pnc,personId))
                         .build())
                 .build();
     }

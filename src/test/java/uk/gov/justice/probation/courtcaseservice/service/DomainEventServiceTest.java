@@ -84,6 +84,7 @@ public class DomainEventServiceTest {
 
         assertThat(actualPublishedRequest2.getMessage()).contains("crn2");
         assertThat(actualPublishedRequest2.getMessage()).contains("cro2");
+        assertThat(actualPublishedRequest2.getMessage()).contains("pnc2");
         assertThat(actualPublishedRequest2.getMessage()).contains("personId2");
     }
 

@@ -84,6 +84,7 @@ public class CourtCaseMapper {
                 .sex(defendantEntity.getSex())
                 .nationality1(defendantEntity.getNationality1())
                 .nationality2(defendantEntity.getNationality2())
+                .personId(defendantEntity.getPersonId())
             .build())
             .offences(Optional.ofNullable(hearingDefendantEntity.getOffences()).orElse(Collections.emptyList())
                 .stream()

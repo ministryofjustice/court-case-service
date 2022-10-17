@@ -38,9 +38,11 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.NAME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.OFFENDER_PNC;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PERSON_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PNC;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.SESSION_START_TIME;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.URN;
+import static uk.gov.justice.probation.courtcaseservice.testUtil.TestUtils.UUID_REGEX;
 
 class ExtendedHearingRequestResponseTest {
 
@@ -318,6 +320,7 @@ class ExtendedHearingRequestResponseTest {
                         .surname("surname")
                         .build())
                 .defendantId("defendantId")
+                .personId("PersonId-1")
                 .preSentenceActivity(true)
                 .previouslyKnownTerminationDate(LocalDate.of(2001, 1, 1))
                 .probationStatus("CURRENT")
@@ -341,6 +344,9 @@ class ExtendedHearingRequestResponseTest {
         // offences should be sorted by sequence number
         assertThat(actual.getDefendants().get(0).getOffences().get(0).getAct()).isEqualTo("act2");
         assertThat(actual.getDefendants().get(0).getOffences().get(1).getAct()).isEqualTo("act");
+        assertThat(actual.getDefendants().get(1).getPersonId()).isEqualTo("PersonId-2");
+
+
     }
 
     @Test
@@ -367,6 +373,47 @@ class ExtendedHearingRequestResponseTest {
         assertThat(offences.get(0).getJudicialResults().get(0).getLabel()).isEqualTo("label");
         assertThat(offences.get(0).getJudicialResults().get(0).getJudicialResultTypeId()).isEqualTo("judicialResultTypeId");
         assertThat(offences.get(1).getJudicialResults()).isEmpty();
+    }
+
+    @Test
+    void givenDefendantWithoutPersonId_whenAsEntity_thenReturnWithPersonIdPopulated() {
+
+        final var defendant = Defendant.builder()
+                .name(NAME)
+                .pnc(PNC)
+                .sex("M")
+                .type(DefendantType.PERSON)
+                .defendantId(DEFENDANT_ID)
+                .build();
+        final var request = ExtendedHearingRequestResponse.builder()
+                .defendants(List.of(defendant))
+                .build();
+
+        final var hearingEntity = request.asHearingEntity();
+
+        assertThat(hearingEntity.getHearingDefendants()).hasSize(1);
+        assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPersonId()).matches(UUID_REGEX);
+    }
+
+    @Test
+    void givenDefendantWithPersonId_whenAsEntity_thenReturnWithSamePersonId() {
+
+        final var defendant = Defendant.builder()
+                .name(NAME)
+                .pnc(PNC)
+                .sex("M")
+                .type(DefendantType.PERSON)
+                .defendantId(DEFENDANT_ID)
+                .personId(PERSON_ID)
+                .build();
+        final var request = ExtendedHearingRequestResponse.builder()
+                .defendants(List.of(defendant))
+                .build();
+
+        final var hearingEntity = request.asHearingEntity();
+
+        assertThat(hearingEntity.getHearingDefendants()).hasSize(1);
+        assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPersonId()).isEqualTo(PERSON_ID);
     }
 
     private HearingEntity buildEntity() {
@@ -421,6 +468,7 @@ class ExtendedHearingRequestResponseTest {
                                                 .surname("surname")
                                                 .build())
                                         .defendantId("defendantId")
+                                        .personId("PersonId-1")
                                         .sex(Sex.MALE)
                                         .build())
                                 .offences(List.of(OffenceEntity.builder()
@@ -439,6 +487,7 @@ class ExtendedHearingRequestResponseTest {
                         HearingDefendantEntity.builder()
                                 .defendant(DefendantEntity.builder()
                                         .defendantId("DEFENDANT_ID_2")
+                                        .personId("PersonId-2")
                                         .build())
                                 .build()))
                 .build();

@@ -21,6 +21,7 @@ import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -147,6 +148,7 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
                         .surname("Bueller")
                         .build())
                 .type(DefendantType.PERSON)
+                .personId(UUID.randomUUID().toString())
                 .offender(offenderEntity)
                 .build();
 

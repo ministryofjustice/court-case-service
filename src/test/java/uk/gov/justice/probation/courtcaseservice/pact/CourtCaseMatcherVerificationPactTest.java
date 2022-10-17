@@ -212,14 +212,12 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                 .courtRoom("4")
                                 .time(LocalTime.of(10, 16, 51))
                                 .day(LocalDate.of(2021, 8, 16))
-                                .listNo("4")
                                 .build(),
                         HearingDayEntity.builder()
                                 .courtCode("B10JQ")
                                 .courtRoom("3")
                                 .time(LocalTime.of(10, 16, 51))
                                 .day(LocalDate.of(2021, 8, 17))
-                                .listNo("3")
                                 .build()))
                 .build();
 

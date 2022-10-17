@@ -47,13 +47,13 @@ VALUES (-1000012, 'Z320755', 'CURRENT', '2010-01-01', true, true, true, true, 'b
 
 -- START DEFINITION OF CASE NO 1600028913
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type, urn) VALUES (-1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 1600028913, now(), 'LIBRA', 'URN008');
-INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, hearing_type, created, hearing_event_type) VALUES (-1700028900, -1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'sentence', now(), 'RESULTED');
+INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, hearing_type, created, hearing_event_type, list_no) VALUES (-1700028900, -1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'sentence', now(), 'RESULTED', '3rd');
 INSERT INTO courtcaseservicetest.case_comments(id, case_id, comment, "author", created, created_by, created_by_uuid) VALUES (-1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR in progress', 'Author One', now(), 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
 INSERT INTO courtcaseservicetest.case_comments(id, case_id, comment, "author", created, deleted, created_by, created_by_uuid) VALUES (-1700028901, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR completed', 'Author One', now(), true, 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
 INSERT INTO courtcaseservicetest.case_comments(id, case_id, comment, "author", created, created_by, created_by_uuid) VALUES (-1700028902, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR completed', 'Author Two', now(), 'before-test.sql', '389fd9cf-390e-469a-b4cf-6c12024c4cae');
 
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-1000000, -1700028900, 'B10JQ', 1, '2019-12-14', '09:00', '3rd');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
+VALUES (-1000000, -1700028900, 'B10JQ', 1, '2019-12-14', '09:00');
 INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID,PERSON_ID, defendant_name, name, address, type, date_of_birth, crn, pnc, cro, sex, nationality_1, nationality_2, phone_number)
 VALUES (-1000000, '40db17d6-04db-11ec-b2d8-0242ac130002','b875f962-4b95-11ed-bdc3-0242ac120002', 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', 'X320741', 'A/1234560BA', '311462/13E', 'MALE', 'British', 'Polish', '{"home": "07000000013", "mobile": "07000000007", "work": "07000000015"}');
 
@@ -72,10 +72,10 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, sour
 VALUES (-1700029901, '1f93aa0a-7e46-4885-a1cb-f25a4be33a56', 1600028914, now(), 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-1700029901, -1700029901, '1f93aa0a-7e46-4885-a1cb-f25a4be33a56', now());
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-1700029901, -1700029901, 'B10JQ', 1, '2019-12-14', '07:00', '3rd');
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-1700029902, -1700029901, 'B10JQ', 2, '2019-12-15', '13:00', '4th');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
+VALUES (-1700029901, -1700029901, 'B10JQ', 1, '2019-12-14', '07:00');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
+VALUES (-1700029902, -1700029901, 'B10JQ', 2, '2019-12-15', '13:00');
 INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, type, date_of_birth, pnc, cro, sex, nationality_1, nationality_2, phone_number)
 VALUES (-1700029902, '7a319a46-037c-481c-ab1e-dbfab62af4d6', 'fdbaa5d6-4b95-11ed-bdc3-0242ac120002', 'Mr Billy ZANE', '{"title": "Mr", "surname": "ZANE", "forename1": "Billy"}', '{"line1": "Billy Place", "line2": "Zane Pla", "postcode": "z12 8gt 5dr"}', 'PERSON', '1987-10-10', 'A/1234560BA', '311462/13E', 'MALE', 'British', 'Polish', '{"home": "07000000013", "mobile": "07000000008", "work": "07000000015"}');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
@@ -95,8 +95,8 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, sour
 VALUES (-1700028902, '1f93aa0a-7e46-4885-a1cb-f25a4be33a57', 1600028915, now(), 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-1700028902, -1700028902,'1f93aa0a-7e46-4885-a1cb-f25a4be33a57', now());
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-1700028902, -1700028902, 'B10JQ', 1, '2019-12-14', '23:59:59', '3rd');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
+VALUES (-1700028902, -1700028902, 'B10JQ', 1, '2019-12-14', '23:59:59');
 INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID,PERSON_ID, defendant_name, name, crn, type, sex)
 VALUES (-1700028902, 'f15bd32c-119d-447e-bbb6-02b56c36f133',  '1b1a6c96-4b97-11ed-bdc3-0242ac120002', 'Mr Nicholas CAGE', '{"title": "Mr", "surname": "CAGE", "forename1": "Nicholas"}', 'X320743', 'PERSON', 'MALE');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
@@ -108,8 +108,8 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, sour
 VALUES (-1700028903, '1f93aa0a-7e46-4885-a1cb-f25a4be33a58', 1600028916, '2020-09-01 16:59:59', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-1700028903, -1700028903, '1f93aa0a-7e46-4885-a1cb-f25a4be33a58', '2020-09-01 16:59:59');
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-1700028903, -1700028903, 'B10JQ', 1, '2019-12-14', '12:59:59', '3rd');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
+VALUES (-1700028903, -1700028903, 'B10JQ', 1, '2019-12-14', '12:59:59');
 INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID,PERSON_ID, defendant_name, name, crn, type, sex)
 VALUES (-1700028903, '44817de0-cc89-460a-8f07-0b06ef45982a', '1b1a6c96-4b97-11ed-bdc3-0242ac120002', 'Mr Mads MIKKELSEN', '{"title": "Mr", "surname": "MIKKELSEN", "forename1": "Mads"}', 'X320744', 'PERSON', 'MALE');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
@@ -119,15 +119,15 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, sour
 VALUES (-1700028954, '1f93aa0a-7e46-4885-a1cb-f25a4be33a59', 1600028917, '2020-10-01 16:59:59', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-1700028954, -1700028954, '1f93aa0a-7e46-4885-a1cb-f25a4be33a59', '2020-10-01 16:59:59');
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-1700028954, -1700028954, 'B10JQ', 1, '2019-12-14', '12:59:59', '3rd');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
+VALUES (-1700028954, -1700028954, 'B10JQ', 1, '2019-12-14', '12:59:59');
 
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
 VALUES (-1700028905, '1f93aa0a-7e46-4885-a1cb-f25a4be33a59', 1600028917, '2020-10-01 18:59:59', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-1700028905, -1700028905, '1f93aa0a-7e46-4885-a1cb-f25a4be33a59', '2020-10-01 18:59:59');
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-1700028905, -1700028905, 'B10JQ', 1, '2019-12-14', '12:59:59', '3rd');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
+VALUES (-1700028905, -1700028905, 'B10JQ', 1, '2019-12-14', '12:59:59');
 INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID,PERSON_ID, defendant_name, name, crn, type, sex)
 VALUES (-1700028905, '965c0391-8929-4fff-b88c-2f813cf16d43', '1b1a6c96-4b97-11ed-bdc3-0242ac120002', 'Mr Hideo KOJIMA', '{"title": "Mr", "surname": "KOJIMA", "forename1": "Hideo"}', 'X320745', 'PERSON', 'MALE');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
@@ -139,8 +139,8 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, sour
 VALUES (-1700028906, '1f93aa0a-7e46-4885-a1cb-f25a4be33a30', 1600028930, '2020-05-01 18:59:59', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-1700028906, -1700028906, '1f93aa0a-7e46-4885-a1cb-f25a4be33a30', '2020-05-01 18:59:59');
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-1700028906, -1700028906, 'B10JQ', 1, '2020-05-01', '12:59:59', '3rd');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
+VALUES (-1700028906, -1700028906, 'B10JQ', 1, '2020-05-01', '12:59:59');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
 VALUES (-1700028906, -1700028906, '965c0391-8929-4fff-b88c-2f813cf16d43');
 
@@ -150,8 +150,8 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, sour
 VALUES (-1700028957, '1f93aa0a-7e46-4885-a1cb-f25a4be33a18', 1600028918, '2020-10-01 16:59:59', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-1700028957, -1700028957, '1f93aa0a-7e46-4885-a1cb-f25a4be33a18', '2020-10-01 16:59:59');
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
-VALUES (-1700028957, -1700028957, 'B10JQ', 2, '2019-12-14', '13:00:00', '3rd', '2020-10-01 16:59:59');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
+VALUES (-1700028957, -1700028957, 'B10JQ', 2, '2019-12-14', '13:00:00', '2020-10-01 16:59:59');
 
 INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID,PERSON_ID, defendant_name, name, crn, type, sex)
 VALUES (-1700028958, '3e94df33-8165-448b-ade9-14a28408e377', '1b1a6c96-4b97-11ed-bdc3-0242ac120002', 'Mr David BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'X320746', 'PERSON', 'MALE');
@@ -162,8 +162,8 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, sour
 VALUES (-1700028908, '1f93aa0a-7e46-4885-a1cb-f25a4be33a18', 1600028918, now(), 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created, first_created)
 VALUES (-1700028908, -1700028908, '1f93aa0a-7e46-4885-a1cb-f25a4be33a18', now(), '2020-10-01 16:59:59');
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
-VALUES (-1700028908, -1700028908, 'B10JQ', 2, '2019-12-14', '13:00:00', '3rd', now());
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
+VALUES (-1700028908, -1700028908, 'B10JQ', 2, '2019-12-14', '13:00:00', now());
 INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID,PERSON_ID, defendant_name, name, crn, type, sex)
 VALUES (-1700028908, '3bf70cd8-7e9d-4d29-b9b2-f8f7f898cb32', 'e6adb0c0-4b97-11ed-bdc3-0242ac120002', 'Mr David BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'X320746', 'PERSON', 'MALE');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
@@ -173,8 +173,8 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, sour
 VALUES (-1800028909, 'c4dee5e1-3cd9-4a2d-9e39-ccdacefc92b9', 1700028918, now(), 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created, first_created)
 VALUES (-1800028909, -1800028909, '682da1fb-cdce-476c-adff-0a2bd9f8355a', now(), '2020-10-01 16:59:59');
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
-VALUES (-1800028909, -1800028909, 'C10JQ', 2, '2019-12-14', '13:00:00', '3rd', now());
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
+VALUES (-1800028909, -1800028909, 'C10JQ', 2, '2019-12-14', '13:00:00', now());
 INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, PERSON_ID, defendant_name, name, crn, type, sex)
 VALUES (-1800028909, '9c2f11b0-1bca-4b24-85a1-315d67020b2c', 'f6144056-4b97-11ed-bdc3-0242ac120002', 'Mr David BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', 'Y320741', 'PERSON', 'MALE');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
@@ -193,8 +193,8 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, crea
 VALUES (-1700028909, 'e652eaae-1114-4593-8f56-659eb2baffcf', 1600028919, '2020-10-01 16:59:59', 'TURANGALEE(prepare-a-case-for-court)', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created, created_by)
 VALUES (-1700028909, -1700028909, 'e652eaae-1114-4593-8f56-659eb2baffcf', '2020-10-01 16:59:59', 'TURANGALEE(prepare-a-case-for-court)');
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
-VALUES (-1700028909, -1700028909, 'B30NY', 1, '2200-12-14', '12:59:59', '3rd', '2020-10-01 16:59:59');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
+VALUES (-1700028909, -1700028909, 'B30NY', 1, '2200-12-14', '12:59:59', '2020-10-01 16:59:59');
 INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, type, date_of_birth, pnc, sex, crn)
 VALUES (-1700028909, 'c15475ce-9748-4a60-b42b-02ce78523c95', '2bbfaf60-4b98-11ed-bdc3-0242ac120002', 'Mr Hubert FARNSWORTH', '{"title": "Mr", "surname": "FARNSWORTH", "forename1": "Hubert"}', '{"line1": "Anfield", "line2": "Walton Breck Road", "postcode": "L5 2DE 5dr"}', 'PERSON', '1940-05-01', 'A/1234560BA', 'MALE', 'X320654');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
@@ -204,20 +204,20 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, dele
 VALUES (-1700028910, '1f93aa0a-7e46-4885-a1cb-f25a4be33a60', 1600128919, '2020-10-01 16:59:59', false, 'LIBRA');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created, deleted)
 VALUES (-1700028910, -1700028910, '1f93aa0a-7e46-4885-a1cb-f25a4be33a60', '2020-10-01 16:59:59', false);
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
-VALUES (-1700028910, -1700028910, 'B14LO', 1, '2021-06-01', '13:00:00', '3rd', '2020-10-01 16:59:59');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
+VALUES (-1700028910, -1700028910, 'B14LO', 1, '2021-06-01', '13:00:00', '2020-10-01 16:59:59');
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, deleted, source_type)
 VALUES (-1700028911, '1f93aa0a-7e46-4885-a1cb-f25a4be33a60', 1600128919, '2020-10-01 16:59:59', false, 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created, deleted)
 VALUES (-1700028911, -1700028911, '1f93aa0a-7e46-4885-a1cb-f25a4be33a60', '2020-10-01 16:59:59', false);
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
-VALUES (-1700028911, -1700028911, 'B14LO', 2, '2021-06-01', '13:00:00', '3rd', '2020-10-01 16:59:59');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
+VALUES (-1700028911, -1700028911, 'B14LO', 2, '2021-06-01', '13:00:00', '2020-10-01 16:59:59');
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, deleted, source_type)
 VALUES (-1700028912, '1f93aa0a-7e46-4885-a1cb-f25a4be33a20', 1600128920, '2021-06-01 16:59:59', false, 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created, deleted)
 VALUES (-1700028912, -1700028912, '1f93aa0a-7e46-4885-a1cb-f25a4be33a20', '2021-06-01 16:59:59', false);
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
-VALUES (-1700028912, -1700028912, 'B14LO', 2, '2021-06-01', '13:00:00', '3rd', '2021-06-01 16:59:59');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
+VALUES (-1700028912, -1700028912, 'B14LO', 2, '2021-06-01', '13:00:00', '2021-06-01 16:59:59');
 INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, PERSON_ID, defendant_name, name, crn, type, sex)
 VALUES (-1700028912, '03137ac2-8c92-471a-aed2-c92ea6e4963e', '3d24be4e-4b98-11ed-bdc3-0242ac120002', 'Mr George O''DOWD', '{"title": "Mr", "surname": "O''DOWD", "forename1": "George"}', 'X320746', 'PERSON', 'MALE');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
@@ -343,8 +343,8 @@ INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, crea
 (16001, 16001, '2243231a-7810-496c-bd41-cb01ceb1fe0b', now(), 'ChrisFaulkner(manual-PIC-959)');
 
 -- 683bcde4-611f-4487-9833-f68090507b74 - Hearing / defendants / defendant offences for case id
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-16000, 16000, 'B10JQ', 1, '2020-02-29', '14:00:00', '1st');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
+VALUES (-16000, 16000, 'B10JQ', 1, '2020-02-29', '14:00:00');
 INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, type, date_of_birth, crn, pnc, sex, nationality_1, nationality_2, phone_number)
 VALUES (-16000, '005ae89b-46e9-4fa5-bb5e-d117011cab32','14bb6708-4b95-11ed-bdc3-0242ac120002', 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": "line4", "line5": "line5"}', 'PERSON', '1958-10-10', 'C16000', 'A/160000BA', 'MALE', 'British', 'Polish', '{"home": "07000000013", "mobile": "07000000008", "work": "07000000015"}');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
@@ -360,8 +360,8 @@ INSERT INTO courtcaseservicetest.OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SU
 VALUES (-16001, -16001, 'Offence Title 16001', 'Offence Summary 16001', 'Offence ACT 16001', 1);
 
 -- 2243231a-7810-496c-bd41-cb01ceb1fe0b - Hearing / defendants / defendant offences for case id
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-16001, 16001, 'B10JQ', 10, '2020-02-29', '14:00:00', '1st');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
+VALUES (-16001, 16001, 'B10JQ', 10, '2020-02-29', '14:00:00');
 INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, sex, type)
 VALUES (-16002, 'bfd7df09-4177-475e-b16f-0ace34a5ef2f', '412b0b7c-4b9a-11ed-bdc3-0242ac120002', 'ACME MOTORS LTD', '{"surname": "ACME MOTORS LTD"}', '{"line1": "Freemans Common", "line2": "Someplace", "postcode": "XX1 1XX", "line3": "Leicester"}', 'NOT_KNOWN', 'ORGANISATION');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
@@ -379,15 +379,15 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, sour
 VALUES (-1700030050, 'ac24a1be-939b-49a4-a524-21a3d2230000', '1700030000', '2010-01-01', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-1700030050, -1700030050, 'ac24a1be-939b-49a4-a524-21a3d2230000', '2010-01-01');
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
-VALUES (-1700030050, -1700030050, 'B14LO', 1, '2019-12-14', '09:00:00', '3rd', now() - interval '2 hours');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
+VALUES (-1700030050, -1700030050, 'B14LO', 1, '2019-12-14', '09:00:00', now() - interval '2 hours');
 
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
 VALUES (-1700030001, 'ac24a1be-939b-49a4-a524-21a3d2230000', '1700030000', now(), 'COMMON_PLATFORM');
-INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
-VALUES (-1700030001, -1700030001, 'ac24a1be-939b-49a4-a524-21a3d2230000', now());
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no, created)
-VALUES (-1700030001, -1700030001, 'B14LO', 1, '2019-12-14', '09:00', '3rd', now());
+INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created, list_no)
+VALUES (-1700030001, -1700030001, 'ac24a1be-939b-49a4-a524-21a3d2230000', now(), '3rd');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
+VALUES (-1700030001, -1700030001, 'B14LO', 1, '2019-12-14', '09:00', now());
 
 INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, type, date_of_birth, crn, pnc, cro, sex, nationality_1, nationality_2)
 VALUES (-2000000, 'd49323c0-04da-11ec-b2d8-0242ac130002', '5dbbb502-4b9a-11ed-bdc3-0242ac120002', 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', null, 'A/1234560BA', '311462/13E', 'MALE', 'British', 'Polish');
@@ -406,10 +406,10 @@ VALUES (-1800028900, '3db9d70b-10a2-49d1-b74d-379f2db74862', 1800028900, now(), 
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-1800028900, -1800028900, '3db9d70b-10a2-49d1-b74d-379f2db74862', now());
 
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-3000000, -1800028900, 'B33HU', 1, '2019-12-14', '09:00', '3rd');
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-3000001, -1800028900, 'B33HU', 1, '2019-12-15', '13:00', '3rd');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
+VALUES (-3000000, -1800028900, 'B33HU', 1, '2019-12-14', '09:00');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
+VALUES (-3000001, -1800028900, 'B33HU', 1, '2019-12-15', '13:00');
 
 INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, type, date_of_birth, pnc, cro, sex, nationality_1, nationality_2)
 VALUES (-3000000, '1263de26-4a81-42d3-a798-bad802433318', '7a11e9c4-4b9a-11ed-bdc3-0242ac120002','Mr John PEEL', '{"title": "Mr", "surname": "PEEL", "forename1": "John", "forename2": "Jonny", "forename3": "Jon"}', '{"line1": "10", "line2": "Margrave", "postcode": "SU11 1AA", "line3": "Suffolk", "line4": null, "line5": null}', 'PERSON', '1939-10-10', 'A/1234560YY', '888888/13E', 'MALE', 'British', 'Irish');
@@ -447,8 +447,8 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, source_type, 
 VALUES (4000000, 'ce84bb2d-e44a-4554-a1a8-795accaac4d8', 4000000, 'COMMON_PLATFORM', NOW() - INTERVAL '3 day');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (4000000, 4000000, 'ce84bb2d-e44a-4554-a1a8-795accaac4d8', NOW() - INTERVAL '3 day');
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-4000000, 4000000, 'B63AD', 1, '2100-12-15', '13:00', '3rd');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
+VALUES (-4000000, 4000000, 'B63AD', 1, '2100-12-15', '13:00');
 INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, PERSON_ID,defendant_name, name, type, crn, sex, created)
 VALUES (-4000000, '27457a3e-fc49-49d3-af22-bf980df4a805', '9f86ed26-4b9a-11ed-bdc3-0242ac120002', 'Ms Nicole KIDMAN', '{"title": "Ms", "surname": "KIDMAN", "forename1": "Nicole"}', 'PERSON', 'X320741', 'FEMALE', NOW() - INTERVAL '3 day');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
@@ -474,8 +474,8 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, source_type, 
 VALUES (4000001, 'ce84bb2d-e44a-4554-a1a8-795accaac4d8', 4000001, 'COMMON_PLATFORM', NOW() - INTERVAL '1 day');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (4000001, 4000001, 'ce84bb2d-e44a-4554-a1a8-795accaac4d8', NOW() - INTERVAL '1 day');
-INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, list_no)
-VALUES (-4000001, 4000001, 'B63AD', 1, '2100-12-15', '13:00', '3rd');
+INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
+VALUES (-4000001, 4000001, 'B63AD', 1, '2100-12-15', '13:00');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
 VALUES (-4000002, 4000001, '27457a3e-fc49-49d3-af22-bf980df4a805');
 INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)

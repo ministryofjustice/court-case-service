@@ -113,14 +113,12 @@ class CourtCaseResponseMapperTest {
                         .time(SESSION_START_TIME.toLocalTime())
                         .courtRoom(COURT_ROOM)
                         .courtCode(COURT_CODE)
-                        .listNo(LIST_NO)
                         .build(),
                 HearingDayEntity.builder()
                         .day(HEARING_DATE.plusDays(1))
                         .time(SESSION_START_TIME.toLocalTime().plusHours(4))
                         .courtRoom("Courtroom 02")
                         .courtCode(COURT_CODE)
-                        .listNo("91st")
                         .build()
         );
 
@@ -353,6 +351,7 @@ class CourtCaseResponseMapperTest {
                 .id(ID)
                 .hearingId(HEARING_ID)
                 .hearingType("sentence")
+                .listNo(LIST_NO)
                 .hearingEventType(HearingEventType.RESULTED)
                 .courtCase(CourtCaseEntity.builder()
                         .sourceType(SourceType.COMMON_PLATFORM)

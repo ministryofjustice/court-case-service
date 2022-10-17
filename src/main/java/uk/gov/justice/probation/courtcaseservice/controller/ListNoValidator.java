@@ -54,7 +54,7 @@ public class ListNoValidator implements ConstraintValidator<ValidateListNo, Exte
         List<HearingDay> hearingDays = Optional.ofNullable(courtCase.getHearingDays())
                 .orElse(Collections.emptyList());
 
-        var hearingDaysWitListNo = hearingDays.stream().filter(hearingDay -> StringUtils.isNotBlank(hearingDay.getListNo())).count();
+        var hearingDaysWitListNo = hearingDays.stream().filter(hearingDay -> StringUtils.isNotBlank(hearingDay.getCourtCode())).count();
 
         if (hearingDaysWitListNo > 0) {
             if (hearingDaysWitListNo != hearingDays.size()) {

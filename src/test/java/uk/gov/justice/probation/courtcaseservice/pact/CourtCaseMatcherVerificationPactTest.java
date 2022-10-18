@@ -112,12 +112,11 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
     void getHearingByHearingId() {
         var hearingEntity = HearingEntity.builder()
                 .hearingId("8bbb4fe3-a899-45c7-bdd4-4ee25ac5a83f")
-                .listNo("4")
                 .courtCase(CourtCaseEntity.builder()
                         .caseId("D517D32D-3C80-41E8-846E-D274DC2B94A5")
                         .caseNo("D517D32D-3C80-41E8-846E-D274DC2B94A5")
                         .urn(URN)
-                        .sourceType(SourceType.LIBRA)
+                        .sourceType(SourceType.COMMON_PLATFORM)
                         .build())
                 .hearingDefendants(List.of(HearingDefendantEntity.builder()
                                 .defendant(DefendantEntity.builder()

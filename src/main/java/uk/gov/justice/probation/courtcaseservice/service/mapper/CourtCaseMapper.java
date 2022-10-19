@@ -48,20 +48,19 @@ public class CourtCaseMapper {
             .forEach(hearingDayEntity -> hearingDayEntity.setHearing(hearingToSave));
     }
 
-    public static HearingDayEntity createHearing(HearingDayEntity hearing) {
+    public static HearingDayEntity createHearingDayEntity(HearingDayEntity hearing) {
         return HearingDayEntity.builder()
             .courtCode(hearing.getCourtCode())
             .time(hearing.getTime())
             .day(hearing.getDay())
             .courtRoom(hearing.getCourtRoom())
-            .listNo(hearing.getListNo())
             .build();
     }
 
     static List<HearingDayEntity> createHearings(List<HearingDayEntity> hearings) {
         return Optional.ofNullable(hearings).orElse(Collections.emptyList())
             .stream()
-            .map(CourtCaseMapper::createHearing)
+            .map(CourtCaseMapper::createHearingDayEntity)
             .collect(Collectors.toList());
     }
 
@@ -84,6 +83,7 @@ public class CourtCaseMapper {
                 .sex(defendantEntity.getSex())
                 .nationality1(defendantEntity.getNationality1())
                 .nationality2(defendantEntity.getNationality2())
+                .personId(defendantEntity.getPersonId())
             .build())
             .offences(Optional.ofNullable(hearingDefendantEntity.getOffences()).orElse(Collections.emptyList())
                 .stream()

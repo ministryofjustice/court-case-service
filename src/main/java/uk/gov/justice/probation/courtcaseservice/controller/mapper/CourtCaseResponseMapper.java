@@ -97,7 +97,7 @@ public class CourtCaseResponseMapper {
                 .courtRoom(getNormalisedCourtRoom(targetHearing.getCourtRoom()))
                 .sessionStartTime(targetHearing.getSessionStartTime())
                 .session(targetHearing.getSession())
-                .listNo(targetHearing.getListNo());
+                .listNo(hearingEntity.getListNo());
     }
 
     private static String getNormalisedCourtRoom(String courtRoom) {

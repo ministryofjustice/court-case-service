@@ -115,13 +115,13 @@ env:
         name: hmpps-domain-events-topic
         key: topic_arn
 
-  - name: HMPPS_SQS_QUEUES_PICPROBATIONOFFENDEREVENTSQUEUE_ACCESS_KEY_ID
+  - name: HMPPS_SQS_QUEUES_PICPROBATIONOFFENDEREVENTSQUEUE_QUEUE_ACCESS_KEY_ID
     valueFrom:
       secretKeyRef:
         name: probation-offender-events-court-case-service-main-queue
         key: access_key_id
 
-  - name: HMPPS_SQS_QUEUES_PICPROBATIONOFFENDEREVENTSQUEUE_SECRET_ACCESS_KEY
+  - name: HMPPS_SQS_QUEUES_PICPROBATIONOFFENDEREVENTSQUEUE_QUEUE_SECRET_ACCESS_KEY
     valueFrom:
       secretKeyRef:
         name: probation-offender-events-court-case-service-main-queue

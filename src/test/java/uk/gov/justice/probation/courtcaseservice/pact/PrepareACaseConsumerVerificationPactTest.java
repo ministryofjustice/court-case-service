@@ -213,7 +213,6 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                         .sourceType(SourceType.LIBRA)
                         .build())
                 .hearingDays(Collections.singletonList(HearingDayEntity.builder()
-                        .listNo("3rd")
                         .courtCode("B10JQ")
                         .courtRoom("1")
                         .time(LocalTime.of(9, 0))

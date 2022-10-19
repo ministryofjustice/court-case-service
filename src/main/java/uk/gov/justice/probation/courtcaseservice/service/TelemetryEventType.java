@@ -11,7 +11,10 @@ public enum TelemetryEventType {
     GRACEFUL_DEGRADE("PiCGracefulDegrade"),
     CASE_COMMENT_ADDED("PicCourtCaseCommentAdded"),
     CASE_COMMENT_DELETED("PicCourtCaseCommentDeleted"),
-    HEARING_NOTE_ADDED("PicHearingNoteCreated")
+    HEARING_NOTE_ADDED("PicHearingNoteCreated"),
+    HEARING_NOTE_DELETED("PicHearingNoteDeleted"),
+    OFFENDER_PROBATION_STATUS_UPDATED("PiCOffenderProbationStatusUpdated"),
+    OFFENDER_PROBATION_STATUS_NOT_UPDATED("PiCOffenderProbationStatusNotUpdated")
     ;
 
     final String eventName;

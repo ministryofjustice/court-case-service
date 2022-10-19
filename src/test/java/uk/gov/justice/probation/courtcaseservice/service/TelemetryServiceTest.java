@@ -16,9 +16,13 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.anOffender;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.LIBRA;
 
@@ -223,6 +228,88 @@ class TelemetryServiceTest {
         assertThat(properties.get("commentId")).isEqualTo("1234");
         assertThat(properties.get("createdDateTime")).isEqualTo(now.toString());
         assertThat(properties.get("username")).isEqualTo(createdBy);
+
+        assertThat(metricsCaptor.getValue()).isEmpty();
+    }
+
+    @Test
+    void giveHearingNote_whenTrackCreateHearingNoteEvent_thenEmitTelemetryEvent() {
+        String createdByUuid = "created-uuid";
+        LocalDateTime now = LocalDateTime.now();
+        String createdBy = "created-user-name";
+        var hearingNoteEntity = HearingNoteEntity.builder()
+            .hearingId(HEARING_ID)
+            .createdByUuid(createdByUuid)
+            .created(now)
+            .createdBy(createdBy)
+            .id(1234L)
+            .build();
+
+        service.trackCreateHearingNoteEvent(TelemetryEventType.HEARING_NOTE_ADDED, hearingNoteEntity);
+
+        verify(telemetryClient).trackEvent(eq("PicHearingNoteCreated"), properties.capture(), metricsCaptor.capture());
+
+        assertHearingNoteEvent(createdByUuid, now, createdBy);
+    }
+
+    @Test
+    void giveHearingNote_whenTrackDeleteHearingNoteEvent_thenEmitTelemetryEvent() {
+        String createdByUuid = "created-uuid";
+        LocalDateTime now = LocalDateTime.now();
+        String createdBy = "created-user-name";
+        var hearingNoteEntity = HearingNoteEntity.builder()
+            .hearingId(HEARING_ID)
+            .createdByUuid(createdByUuid)
+            .created(now)
+            .createdBy(createdBy)
+            .id(1234L)
+            .build();
+
+        service.trackDeleteHearingNoteEvent(TelemetryEventType.HEARING_NOTE_DELETED, hearingNoteEntity);
+
+        verify(telemetryClient).trackEvent(eq("PicHearingNoteDeleted"), properties.capture(), metricsCaptor.capture());
+
+        assertHearingNoteEvent(createdByUuid, now, createdBy);
+    }
+
+    private void assertHearingNoteEvent(String createdByUuid, LocalDateTime now, String createdBy) {
+        var properties = this.properties.getValue();
+        assertThat(properties).hasSize(5);
+        assertThat(properties).containsEntry("hearingId", HEARING_ID);
+        assertThat(properties).containsEntry("createdByUuid", createdByUuid);
+        assertThat(properties).containsEntry("noteId", "1234");
+        assertThat(properties).containsEntry("createdDateTime", now.toString());
+        assertThat(properties).containsEntry("username", createdBy);
+
+        assertThat(metricsCaptor.getValue()).isEmpty();
+    }
+
+    @Test
+    void giveOffenderProbationStatusUpdate_whenTrackOffenderProbationStatusUpdateEvent_thenEmitTelemetryEvent() {
+
+        var date = LocalDate.now();
+
+        var offenderEntity = OffenderEntity.builder()
+                .crn(CRN)
+                .probationStatus(OffenderProbationStatus.CURRENT)
+                .previouslyKnownTerminationDate(date)
+                .breach(true)
+                .awaitingPsr(true)
+                .preSentenceActivity(true)
+                .build();
+
+        service.trackOffenderProbationStatusUpdateEvent(offenderEntity);
+
+        verify(telemetryClient).trackEvent(eq("PiCOffenderProbationStatusUpdated"), properties.capture(), metricsCaptor.capture());
+
+        var properties = this.properties.getValue();
+        assertThat(properties).hasSize(6);
+        assertThat(properties.get("crn")).isEqualTo(CRN);
+        assertThat(properties.get("status")).isEqualTo(OffenderProbationStatus.CURRENT.getName());
+        assertThat(properties.get("previouslyKnownTerminationDate")).isEqualTo(date.toString());
+        assertThat(properties.get("inBreach")).isEqualTo(Boolean.TRUE.toString());
+        assertThat(properties.get("preSentenceActivity")).isEqualTo(Boolean.TRUE.toString());
+        assertThat(properties.get("awaitingPsr")).isEqualTo(Boolean.TRUE.toString());
 
         assertThat(metricsCaptor.getValue()).isEmpty();
     }

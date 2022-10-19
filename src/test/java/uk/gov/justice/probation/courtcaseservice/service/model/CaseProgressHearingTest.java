@@ -57,13 +57,14 @@ class CaseProgressHearingTest {
     @Test
     void givenLibraCase_shouldMapToCaseProgressHearing() {
         var hearingDayEntity1 = EntityHelper.aHearingDayEntity(LocalDateTime.of(2022, 2, 26, 9, 0))
-                                                    .withCourtRoom("Room 1").withListNo("1st").withCourt(CourtEntity.builder().name("Leeds mags court").build());
+                                                    .withCourtRoom("Room 1").withCourt(CourtEntity.builder().name("Leeds mags court").build());
         var hearingDayEntity2 = EntityHelper.aHearingDayEntity(LocalDateTime.of(2022, 5, 5, 9, 0))
-                                                    .withCourtRoom("Room 2").withListNo("2nd").withCourt(CourtEntity.builder().name("Sheffield mags court").build());;
+                                                    .withCourtRoom("Room 2").withCourt(CourtEntity.builder().name("Sheffield mags court").build());;
 
         var hearingEntity = HearingEntity.builder()
             .hearingId("test-hearing-id")
             .hearingType("Sentence")
+            .listNo("1st")
             .courtCase(CourtCaseEntity.builder().sourceType(LIBRA).build())
             .hearingDays(List.of(hearingDayEntity2, hearingDayEntity1))
             .build();

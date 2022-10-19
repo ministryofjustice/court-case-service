@@ -1,0 +1,7 @@
+BEGIN;
+    alter table DEFENDANT add column PERSON_ID UUID NULL;
+
+    update DEFENDANT SET PERSON_ID = uuid_generate_v4() where PERSON_ID is null;
+
+    ALTER TABLE DEFENDANT ALTER COLUMN PERSON_ID SET NOT NULL;
+COMMIT;

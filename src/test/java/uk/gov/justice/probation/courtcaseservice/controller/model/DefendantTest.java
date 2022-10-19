@@ -38,5 +38,13 @@ class DefendantTest {
         assertThat(Defendant.builder().sex("NOT_SPECIFIED").build().getSex()).isEqualTo("NS");
         assertThat(Defendant.builder().sex("NS").build().getSex()).isEqualTo("NS");
     }
+    @Test
+    void givenNullPersonId_whenGet_thenReturnWithPersonId(){
+        assertThat(Defendant.builder().personId(null).build().getPersonId()).isNotBlank();
+    }
+    @Test
+    void givenPersonId_whenGet_thenReturnSamePersonId(){
+        assertThat(Defendant.builder().personId("1").build().getPersonId()).isEqualTo("1");
+    }
 
 }

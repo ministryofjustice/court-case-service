@@ -62,9 +62,6 @@ public class HearingDayEntity extends BaseImmutableEntity implements Serializabl
     @Column(name = "COURT_ROOM", nullable = false)
     private final String courtRoom;
 
-    @Column(name = "LIST_NO")
-    private final String listNo;
-
     public CourtSession getSession() {
         return CourtSession.from(time);
     }

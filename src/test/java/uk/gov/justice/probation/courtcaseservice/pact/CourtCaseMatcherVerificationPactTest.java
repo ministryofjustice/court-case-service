@@ -116,7 +116,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                         .caseId("D517D32D-3C80-41E8-846E-D274DC2B94A5")
                         .caseNo("D517D32D-3C80-41E8-846E-D274DC2B94A5")
                         .urn(URN)
-                        .sourceType(SourceType.LIBRA)
+                        .sourceType(SourceType.COMMON_PLATFORM)
                         .build())
                 .hearingDefendants(List.of(HearingDefendantEntity.builder()
                                 .defendant(DefendantEntity.builder()
@@ -212,14 +212,12 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                 .courtRoom("4")
                                 .time(LocalTime.of(10, 16, 51))
                                 .day(LocalDate.of(2021, 8, 16))
-                                .listNo("4")
                                 .build(),
                         HearingDayEntity.builder()
                                 .courtCode("B10JQ")
                                 .courtRoom("3")
                                 .time(LocalTime.of(10, 16, 51))
                                 .day(LocalDate.of(2021, 8, 17))
-                                .listNo("3")
                                 .build()))
                 .build();
 

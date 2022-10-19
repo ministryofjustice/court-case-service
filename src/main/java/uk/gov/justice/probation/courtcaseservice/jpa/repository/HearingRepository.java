@@ -25,8 +25,8 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
             "   join hearing on court_case.id = hearing.fk_court_case_id " +
             "   join hearing_day on hearing.id = hearing_day.fk_hearing_id " +
             "   where court_case.case_no = :caseNo " +
+            "   and hearing.list_no = :listNo " +
             "   and hearing_day.court_code = :courtCode " +
-            "   and hearing_day.list_no = :listNo " +
             "   group by court_case.case_no, hearing_day.court_code) grouped_cases " +
             "on cc.id = grouped_cases.max_id " +
             "and cc.case_no = grouped_cases.case_no " +

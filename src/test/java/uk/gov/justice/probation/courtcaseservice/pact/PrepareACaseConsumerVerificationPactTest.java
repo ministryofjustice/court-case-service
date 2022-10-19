@@ -206,6 +206,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
     private HearingEntity buildCourtCaseEntity(String caseId, String hearingId, String defendantId) {
         var courtCaseEntity = HearingEntity.builder()
                 .hearingId(hearingId)
+                .listNo("3rd")
                 .courtCase(CourtCaseEntity.builder()
                         .caseId(caseId)
                         .caseNo("1600028913")
@@ -213,7 +214,6 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                         .sourceType(SourceType.LIBRA)
                         .build())
                 .hearingDays(Collections.singletonList(HearingDayEntity.builder()
-                        .listNo("3rd")
                         .courtCode("B10JQ")
                         .courtRoom("1")
                         .time(LocalTime.of(9, 0))

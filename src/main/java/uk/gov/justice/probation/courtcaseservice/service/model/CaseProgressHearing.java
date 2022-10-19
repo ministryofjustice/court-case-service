@@ -45,7 +45,7 @@ public class CaseProgressHearing {
             .hearingId(hearingEntity.getHearingId())
             .hearingDateTime(hearingDay.getSessionStartTime())
             .session(hearingDay.getSession().name())
-            .hearingTypeLabel(getHearingTypeLabel(hearingEntity, hearingDay))
+            .hearingTypeLabel(getHearingTypeLabel(hearingEntity))
             .court(hearingDay.getCourt().getName())
             .courtRoom(hearingDay.getCourtRoom())
             .notes(notes.map(hearingNoteEntities -> hearingNoteEntities.stream().map(HearingNoteResponse::of).collect(Collectors.toList())).orElse(null))
@@ -57,7 +57,7 @@ public class CaseProgressHearing {
         return hearingEntity.getHearingDays().stream().min(Comparator.comparing(HearingDayEntity::getSessionStartTime)).get();
     }
 
-    private static String getHearingTypeLabel(HearingEntity hearingEntity, HearingDayEntity hearingDay) {
-        return hearingEntity.getSourceType() == COMMON_PLATFORM ? hearingEntity.getHearingType() : String.format("%s hearing", hearingDay.getListNo());
+    private static String getHearingTypeLabel(HearingEntity hearingEntity) {
+        return hearingEntity.getSourceType() == COMMON_PLATFORM ? hearingEntity.getHearingType() : String.format("%s hearing", hearingEntity.getListNo());
     }
 }

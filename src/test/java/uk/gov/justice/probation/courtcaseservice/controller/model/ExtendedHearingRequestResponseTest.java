@@ -79,7 +79,6 @@ class ExtendedHearingRequestResponseTest {
         assertThat(hearingEntity.getHearingType()).isEqualTo("sentence");
         assertThat(hearingEntity.getHearingEventType()).isEqualTo(HearingEventType.CONFIRMED_OR_UPDATED);
         assertThat(hearingEntity.getHearingDays()).hasSize(2);
-        assertThat(hearingEntity.getHearingDays()).extracting("listNo").contains("1st", "2nd");
         assertThat(hearingEntity.getHearingDays()).extracting("courtCode").containsOnly(COURT_CODE);
         assertThat(hearingEntity.getHearingDays()).extracting("courtRoom").containsOnly(COURT_ROOM);
         assertThat(hearingEntity.getHearingDays()).extracting("courtRoom").containsOnly(COURT_ROOM);
@@ -87,6 +86,36 @@ class ExtendedHearingRequestResponseTest {
         final var localTime = SESSION_START_TIME.toLocalTime();
         assertThat(hearingEntity.getHearingDays()).extracting("time").containsOnly(localTime, localTime.plusMinutes(30));
         assertThat(hearingEntity.getHearingDays().get(0).getHearing()).isSameAs(hearingEntity);
+    }
+
+    @Test
+    void givenHearingAndListNoAsTopLevel_whenAsEntity_thenMapListNoFromHearing() {
+
+        final var request = ExtendedHearingRequestResponse.builder()
+                .caseId("CASE_ID")
+                .hearingId("HEARING_ID")
+                .hearingEventType("ConfirmedOrUpdated")
+                .hearingType("sentence")
+                .urn(URN)
+                .listNo("top-level-list-no")
+                .hearingDays(List.of(
+                        HearingDay.builder()
+                                .listNo(LIST_NO)
+                                .sessionStartTime(SESSION_START_TIME)
+                                .courtRoom(COURT_ROOM)
+                                .courtCode(COURT_CODE)
+                                .build(),
+                        HearingDay.builder()
+                                .listNo("2nd")
+                                .sessionStartTime(SESSION_START_TIME.plusMinutes(30))
+                                .courtRoom(COURT_ROOM)
+                                .courtCode(COURT_CODE)
+                                .build()))
+                .build();
+
+        final var hearingEntity = request.asHearingEntity();
+
+        assertThat(hearingEntity.getListNo()).isEqualTo("top-level-list-no");
     }
 
     @Test
@@ -117,7 +146,6 @@ class ExtendedHearingRequestResponseTest {
         assertThat(hearingEntity.getCourtCase().getUrn()).isEqualTo(URN);
 
         assertThat(hearingEntity.getHearingDays()).hasSize(2);
-        assertThat(hearingEntity.getHearingDays()).extracting("listNo").contains("1st", "2nd");
         assertThat(hearingEntity.getHearingDays()).extracting("courtCode").containsOnly(COURT_CODE);
         assertThat(hearingEntity.getHearingDays()).extracting("courtRoom").containsOnly(COURT_ROOM);
         assertThat(hearingEntity.getHearingDays()).extracting("courtRoom").containsOnly(COURT_ROOM);
@@ -298,7 +326,7 @@ class ExtendedHearingRequestResponseTest {
                 .sessionStartTime(LocalDateTime.of(2021, 10, 5, 15, 15, 15))
                 .listNo("1")
                 .build());
-        assertThat(actual.getHearingDays().get(1).getListNo()).isEqualTo("2");
+        assertThat(actual.getHearingDays().get(1).getListNo()).isEqualTo("1");
         assertThat(actual.getDefendants().get(0)).isEqualTo(Defendant.builder()
                 .address(AddressRequestResponse.builder()
                         .line1("line1")
@@ -420,6 +448,7 @@ class ExtendedHearingRequestResponseTest {
         return HearingEntity.builder()
                 .hearingId("HEARING_ID")
                 .hearingEventType(HearingEventType.CONFIRMED_OR_UPDATED)
+                .listNo("1")
                 .courtCase(CourtCaseEntity.builder()
                         .sourceType(SourceType.LIBRA)
                         .caseId(CASE_ID)
@@ -431,11 +460,9 @@ class ExtendedHearingRequestResponseTest {
                                 .courtRoom(COURT_ROOM)
                                 .day(LocalDate.of(2021, 10, 5))
                                 .time(LocalTime.of(15, 15, 15))
-                                .listNo("1")
                                 .build(),
                         HearingDayEntity.builder()
                                 .courtCode(COURT_CODE)
-                                .listNo("2")
                                 .build()
                 ))
                 .hearingDefendants(List.of(HearingDefendantEntity.builder()

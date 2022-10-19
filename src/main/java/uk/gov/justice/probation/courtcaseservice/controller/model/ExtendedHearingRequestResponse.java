@@ -57,12 +57,14 @@ public class ExtendedHearingRequestResponse {
     private final String hearingEventType;
 
     private final String hearingType;
+    private final String listNo;
 
     public static ExtendedHearingRequestResponse of(HearingEntity hearing) {
         return ExtendedHearingRequestResponse.builder()
                 .caseNo(hearing.getCaseNo())
                 .caseId(hearing.getCaseId())
                 .hearingId(hearing.getHearingId())
+                .listNo(hearing.getListNo())
                 .urn(hearing.getCourtCase().getUrn())
                 .source(hearing.getSourceType().name())
                 .hearingEventType(Optional.ofNullable(hearing.getHearingEventType()).map(HearingEventType::getName).orElse(null))
@@ -74,7 +76,7 @@ public class ExtendedHearingRequestResponse {
                                 .sessionStartTime(Optional.ofNullable(hearingDayEntity.getDay())
                                         .map(day -> LocalDateTime.of(day, Optional.ofNullable(hearingDayEntity.getTime()).orElse(LocalTime.MIDNIGHT)))
                                         .orElse(null))
-                                .listNo(hearingDayEntity.getListNo())
+                                .listNo(hearing.getListNo())
                                 .build())
                         .toList())
                 .defendants(hearing.getHearingDefendants().stream()
@@ -186,9 +188,10 @@ public class ExtendedHearingRequestResponse {
 
     public HearingEntity asHearingEntity() {
 
-        final var hearingDayEntities = Optional.ofNullable(hearingDays).orElse(Collections.emptyList())
+        List<HearingDay> hearingDays = Optional.ofNullable(this.hearingDays).orElse(Collections.emptyList());
+        final var hearingDayEntities = hearingDays
                 .stream()
-                .map(this::buildHearing)
+                .map(this::buildHearingDayEntity)
                 .toList();
         final var hearingDefendantEntities = Optional.ofNullable(defendants).orElse(Collections.emptyList())
                 .stream()
@@ -207,7 +210,11 @@ public class ExtendedHearingRequestResponse {
                 .hearingId(Optional.ofNullable(hearingId).orElse(caseId))
                 .hearingEventType(HearingEventType.fromString(hearingEventType))
                 .hearingType(hearingType)
-                .listNo(hearingDayEntities.size() > 0 ? hearingDayEntities.get(0).getListNo() : null)
+                .listNo(
+                    Optional.ofNullable(this.getListNo()).orElseGet(
+                        () -> hearingDays.size() > 0 ? hearingDays.get(0).getListNo() : null
+                    )
+                )
                 .build();
 
         hearingDayEntities.forEach(hearingDayEntity -> hearingDayEntity.setHearing(hearingEntity));
@@ -251,11 +258,10 @@ public class ExtendedHearingRequestResponse {
                 .collect(Collectors.toList());
     }
 
-    private HearingDayEntity buildHearing(HearingDay hearingDay) {
+    private HearingDayEntity buildHearingDayEntity(HearingDay hearingDay) {
         return HearingDayEntity.builder()
                 .courtCode(hearingDay.getCourtCode())
                 .courtRoom(hearingDay.getCourtRoom())
-                .listNo(hearingDay.getListNo())
                 .time(hearingDay.getSessionStartTime().toLocalTime())
                 .day(hearingDay.getSessionStartTime().toLocalDate())
                 .build();

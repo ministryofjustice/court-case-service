@@ -16,7 +16,6 @@ class HearingDayEntityTest {
                 .time(LocalTime.of(9, 30))
                 .courtRoom("Court room 1")
                 .courtCode("B10JQ")
-                .listNo("1st")
                 .build();
 
         assertThat(hearing.loggableString()).isEqualTo("B10JQ|Court room 1|2021-11-01T09:30");

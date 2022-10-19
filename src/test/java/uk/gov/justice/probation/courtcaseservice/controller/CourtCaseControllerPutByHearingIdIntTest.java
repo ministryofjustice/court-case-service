@@ -516,7 +516,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 PersonReferenceType.builder().type("CRN").value(crn).build(),
                 PersonReferenceType.builder().type("CRO").value(cro).build(),
                 PersonReferenceType.builder().type("PNC").value(pnc).build(),
-                PersonReferenceType.builder().type("PERSONID").value(personId).build()
+                PersonReferenceType.builder().type("PERSON_ID").value(personId).build()
 
         );
     }

@@ -26,6 +26,7 @@ import javax.persistence.Transient;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 
 @Entity
 @Table(name = "DEFENDANT")
@@ -98,6 +99,9 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "PHONE_NUMBER")
     private final PhoneNumberEntity phoneNumber;
+
+    @Column(name = "PERSON_ID", nullable = false)
+    private final String personId;
 
     @PrePersist
     public void prePersistManualUpdate(){

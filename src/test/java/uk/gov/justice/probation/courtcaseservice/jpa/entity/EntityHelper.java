@@ -52,6 +52,9 @@ public class EntityHelper {
     public static final String OFFENCE_ACT = "OFFENCE ACT";
     public static final Long OFFENDER_ID = 199L;
 
+    public static final String PERSON_ID = "d1eefed2-04df-11ec-b2d8-0242ac130002";
+
+
     public static HearingEntity aHearingEntity(String caseId) {
         final var hearingEntity = populateBasics(CRN)
                 .courtCase(CourtCaseEntity.builder()
@@ -153,6 +156,7 @@ public class EntityHelper {
                 .nationality2(NATIONALITY_2)
                 .defendantId(defendantId)
                 .phoneNumber(DEFENDANT_PHONE_NUMBER_ENTITY)
+                .personId(PERSON_ID)
                 .build();
     }
 
@@ -178,7 +182,6 @@ public class EntityHelper {
 
     public static HearingDayEntity aHearingDayEntity(LocalDateTime sessionStartTime) {
         return HearingDayEntity.builder()
-                .listNo(LIST_NO)
                 .day(sessionStartTime.toLocalDate())
                 .time(sessionStartTime.toLocalTime())
                 .courtRoom(COURT_ROOM)

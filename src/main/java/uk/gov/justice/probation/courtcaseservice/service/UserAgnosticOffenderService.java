@@ -11,6 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -39,21 +40,28 @@ public class UserAgnosticOffenderService {
     public Optional<OffenderEntity> updateOffenderProbationStatus(String crn) {
         return offenderRepository.findByCrn(crn)
                 .map(offenderEntity -> {
-                    ProbationStatusDetail probationStatusDetail = getProbationStatusWithoutRestrictions(crn).block();
-                    return updateProbationStatusDetails(probationStatusDetail, offenderEntity);
-                }).map(offenderRepository::save)
-                .map(updatedOffender -> {
-                    telemetryService.trackOffenderProbationStatusUpdateEvent(updatedOffender);
-                    return updatedOffender;
+                    ProbationStatusDetail probationStatusDetailFromCommunityApi = getProbationStatusWithoutRestrictions(crn).block();
+                    if (probationStatusDetailFromCommunityApi != null && !Objects.equals(probationStatusDetailFromCommunityApi, offenderEntity.getProbationStatusDetail())) {
+                        updateProbationStatusDetails(probationStatusDetailFromCommunityApi, offenderEntity);
+                        Optional.of(offenderRepository.save(offenderEntity))
+                                .map(updatedOffender -> {
+                                    telemetryService.trackOffenderProbationStatusUpdateEvent(updatedOffender);
+                                    return updatedOffender;
+                                });
+                    } else {
+                        telemetryService.trackOffenderProbationStatusNotUpdateEvent(offenderEntity);
+                    }
+                    return offenderEntity;
                 });
     }
 
     private OffenderEntity updateProbationStatusDetails(ProbationStatusDetail probationStatusDetail, OffenderEntity offender) {
-        return offender.withProbationStatus(OffenderProbationStatus.of(probationStatusDetail.getStatus()))
-                .withPreviouslyKnownTerminationDate(probationStatusDetail.getPreviouslyKnownTerminationDate())
-                .withBreach(probationStatusDetail.getInBreach())
-                .withAwaitingPsr(probationStatusDetail.getAwaitingPsr())
-                .withPreSentenceActivity(probationStatusDetail.isPreSentenceActivity());
+        offender.setProbationStatus(OffenderProbationStatus.of(probationStatusDetail.getStatus()));
+        offender.setPreviouslyKnownTerminationDate(probationStatusDetail.getPreviouslyKnownTerminationDate());
+        Optional.ofNullable(probationStatusDetail.getInBreach()).ifPresent(offender::setBreach);
+        Optional.ofNullable(probationStatusDetail.getAwaitingPsr()).ifPresent(offender::setAwaitingPsr);
+        offender.setPreSentenceActivity(probationStatusDetail.isPreSentenceActivity());
+        return offender;
     }
 
 }

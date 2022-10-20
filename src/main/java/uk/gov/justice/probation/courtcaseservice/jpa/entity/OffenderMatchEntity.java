@@ -77,4 +77,7 @@ public class OffenderMatchEntity extends BaseEntity {
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "ALIASES")
     private List<OffenderAliasEntity> aliases;
+
+    @Column(name = "MATCH_PROBABILITY")
+    private Double matchProbability;
 }

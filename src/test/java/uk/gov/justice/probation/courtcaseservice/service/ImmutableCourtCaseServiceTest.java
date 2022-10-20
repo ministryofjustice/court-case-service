@@ -100,6 +100,7 @@ class ImmutableCourtCaseServiceTest {
                     .defendant(DefendantEntity.builder()
                             .defendantId(defendantId)
                             .offender(offender)
+                            .personId("1")
                             .build())
                     .build();
         }

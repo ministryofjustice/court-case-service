@@ -18,6 +18,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -46,6 +47,7 @@ public class Defendant {
     private final Boolean awaitingPsr;
     private final PhoneNumber phoneNumber;
     private final Offender offender;
+    private final String personId;
 
     @JsonProperty
     public String getSex() {
@@ -55,4 +57,8 @@ public class Defendant {
     @Valid
     @NotEmpty
     private final List<OffenceRequestResponse> offences;
+
+    public String getPersonId(){
+        return Optional.ofNullable(personId).orElse(UUID.randomUUID().toString());
+    }
 }

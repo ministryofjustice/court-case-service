@@ -20,12 +20,14 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 import uk.gov.justice.probation.courtcaseservice.listener.EventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReference;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType;
+import uk.gov.justice.probation.courtcaseservice.testUtil.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +50,7 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 import static org.springframework.util.StreamUtils.copyToString;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.OFFENDER_PNC;
+import static uk.gov.justice.probation.courtcaseservice.testUtil.TestUtils.UUID_REGEX;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
@@ -59,6 +62,9 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
     @Autowired
     OffenderRepository offenderRepository;
+
+    @Autowired
+    DefendantRepository defendantRepository;
 
     ObjectMapper objectMapper;
 
@@ -142,6 +148,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
             assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPhoneNumber()).isEqualTo(
                     PhoneNumberEntity.builder().home("07000000013").mobile("07000000014").work("07000000015").build());
+            assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPersonId()).isNotBlank();
         }, () -> fail("Court case not created as expected"));
 
         offenderRepository.findByCrn(CRN).ifPresentOrElse(off -> {
@@ -393,13 +400,11 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
         // No offenders associated with the defendants
         courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID)
-                .ifPresentOrElse(theCase -> {
-                    assertThat(theCase.getHearingDefendants()
-                            .stream()
-                            .map(HearingDefendantEntity::getDefendant)
-                            .filter(defendantEntity -> defendantEntity.getOffender() != null)
-                            .toList()).isEmpty();
-                }, () -> fail("Case should exist"));
+                .ifPresentOrElse(theCase -> assertThat(theCase.getHearingDefendants()
+                        .stream()
+                        .map(HearingDefendantEntity::getDefendant)
+                        .filter(defendantEntity -> defendantEntity.getOffender() != null)
+                        .toList()).isEmpty(), () -> fail("Case should exist"));
     }
 
     @Test
@@ -426,10 +431,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         ;
 
         courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID)
-                .ifPresentOrElse(theCase -> {
-                    assertThat(theCase.getHearingEventType()).isEqualTo(HearingEventType.CONFIRMED_OR_UPDATED);
-
-                }, () -> fail("Hearing event type should be ConfirmedOrUpdated"));
+                .ifPresentOrElse(theCase -> assertThat(theCase.getHearingEventType()).isEqualTo(HearingEventType.CONFIRMED_OR_UPDATED), () -> fail("Hearing event type should be ConfirmedOrUpdated"));
 
         assertThat(getEmittedEventsQueueSqsClient().receiveMessage(url).getMessages()).isEmpty();
 
@@ -453,10 +455,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .body("hearingEventType", equalTo(resultedHearingEventType));
 
         courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID)
-                .ifPresentOrElse(theCase -> {
-                    assertThat(theCase.getHearingEventType()).isEqualTo(HearingEventType.RESULTED);
-
-                }, () -> fail("Hearing event type should be Resulted"));
+                .ifPresentOrElse(theCase -> assertThat(theCase.getHearingEventType()).isEqualTo(HearingEventType.RESULTED), () -> fail("Hearing event type should be Resulted"));
 
         await().atLeast(Duration.ofMillis(100));
 
@@ -487,12 +486,15 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
         var receivedDomainEventMessages = Arrays.asList(receivedSentencedDomainEventMessage1, receivedSentencedDomainEventMessage2);
 
+        var defendant1 =  defendantRepository.findFirstByDefendantIdOrderByIdDesc("1263de26-4a81-42d3-a798-bad802433318").get();
+        var defendant2 =  defendantRepository.findFirstByDefendantIdOrderByIdDesc("6f014c2e-8be3-4a12-a551-8377bd31a7b8").get();
+
         DomainEventMessage expectedDomainEventMessage1 = DomainEventMessage.builder()
                 .eventType("court.case.sentenced")
                 .detailUrl("https://localhost/hearing/75e63d6c-5487-4244-a5bc-7cf8a38992db")
                 .version(1)
                 .personReference(PersonReference.builder()
-                        .identifiers(buildDefendantIdentifiers("X320741", "99999", "A/1234560BA"))
+                        .identifiers(buildDefendantIdentifiers(defendant1.getCrn(), defendant1.getCro(), defendant1.getPnc(),defendant1.getPersonId()))
                         .build())
                 .build();
         DomainEventMessage expectedDomainEventMessage2 = DomainEventMessage.builder()
@@ -500,7 +502,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .detailUrl("https://localhost/hearing/75e63d6c-5487-4244-a5bc-7cf8a38992db")
                 .version(1)
                 .personReference(PersonReference.builder()
-                        .identifiers(buildDefendantIdentifiers("X320742", "100000", "A/1234560BB"))
+                        .identifiers(buildDefendantIdentifiers(defendant2.getCrn(), defendant2.getCro(), defendant2.getPnc(),defendant2.getPersonId()))
                         .build())
                 .build();
 
@@ -509,11 +511,44 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .containsExactlyInAnyOrder(expectedDomainEventMessage1, expectedDomainEventMessage2);
     }
 
-    private List<PersonReferenceType> buildDefendantIdentifiers(String crn, String cro, String pnc) {
+    private List<PersonReferenceType> buildDefendantIdentifiers(String crn, String cro, String pnc,String personId) {
         return List.of(
                 PersonReferenceType.builder().type("CRN").value(crn).build(),
                 PersonReferenceType.builder().type("CRO").value(cro).build(),
-                PersonReferenceType.builder().type("PNC").value(pnc).build()
+                PersonReferenceType.builder().type("PNC").value(pnc).build(),
+                PersonReferenceType.builder().type("PERSON_ID").value(personId).build()
+
         );
+    }
+
+    @Test
+    void shouldPersistGivenPersonId_andCreateOneIfNotGiven_whenCreateOrUpdateHearingByHearingId() throws IOException {
+        //Person id given for defendant 1
+        var defendantId1 =   "1263de26-4a81-42d3-a798-bad802433318";
+        var personIdForDefendant1 = "45316811-6d65-4deb-a876-a6582e6566f7";
+
+        //No person id for defendant 2
+        var defendantId2 =   "6f014c2e-8be3-4a12-a551-8377bd31a7b8";
+
+        final var createHearingJason = FileUtils.readFileToString(caseDetailsExtendedUpdate, "UTF-8");
+
+        given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(createHearingJason)
+                .when()
+                .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+                .then()
+                .statusCode(201);
+
+        // known person id
+        defendantRepository.findFirstByDefendantIdOrderByIdDesc(defendantId1)
+                .ifPresentOrElse(defendantEntity -> assertThat(defendantEntity.getPersonId()).isEqualTo(personIdForDefendant1), () -> fail("Person id not matching"));
+
+        // person id unknown so check if exist
+        defendantRepository.findFirstByDefendantIdOrderByIdDesc(defendantId2)
+                .ifPresentOrElse(defendantEntity -> assertThat(defendantEntity.getPersonId()).matches(UUID_REGEX), () -> fail("Person id should not be blank"));
     }
 }

@@ -76,7 +76,9 @@ public class DomainEventService {
         return List.of(
                 PersonReferenceType.builder().type("CRN").value(defendant.getCrn()).build(),
                 PersonReferenceType.builder().type("CRO").value(defendant.getCro()).build(),
-                PersonReferenceType.builder().type("PNC").value(defendant.getPnc()).build()
+                PersonReferenceType.builder().type("PNC").value(defendant.getPnc()).build(),
+                PersonReferenceType.builder().type("PERSON_ID").value(defendant.getPersonId()).build()
+
         );
     }
 }

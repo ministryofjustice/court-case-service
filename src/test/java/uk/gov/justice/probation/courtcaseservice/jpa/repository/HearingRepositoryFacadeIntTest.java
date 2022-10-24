@@ -129,6 +129,29 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
     }
 
     @Test
+    public void givenMultipleNewDefendantsWithSameOffender_whenSave_thenPersistHearingAndDefendantsAndUniqueOffender() {
+        String crn = "CRN007";
+        var DEFENDANT_ID_1 = "8121bb1f-3c63-457e-a47a-00863eb6a540";
+        var DEFENDANT_ID_2 = "2b38874c-068c-4dde-bc42-f487b2c0b71c";
+        String HEARING_ID = "45f198f6-9208-41c3-b765-66b5a358723c";
+        final var hearingEntity = EntityHelper.aHearingEntityWithCrn(crn)
+            .withHearingId(HEARING_ID)
+            .withHearingDefendants(List.of(
+                aHearingDefendantEntity(DEFENDANT_ID_1, crn),
+                aHearingDefendantEntity(DEFENDANT_ID_2, crn)
+            ));
+
+        hearingEntity.getHearingDays().stream().forEach(hearingDay -> hearingDay.setHearing(hearingEntity));
+        hearingEntity.getHearingDefendants().stream().forEach(hearingDefendantEntity -> hearingDefendantEntity.setHearing(hearingEntity));
+
+        assertThat(hearingRepositoryFacade.save(hearingEntity)).isEqualTo(hearingEntity);
+
+        assertThat(hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(HEARING_ID).orElseThrow())
+                .usingRecursiveComparison().ignoringFields("created")
+                .isEqualTo(hearingEntity);
+    }
+
+    @Test
     public void givenAnExistingOffender_whenSave_thenPersistOffender() {
 
         final var offenderEntity = OffenderEntity.builder()

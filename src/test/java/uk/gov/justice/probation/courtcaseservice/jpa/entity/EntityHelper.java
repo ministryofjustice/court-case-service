@@ -145,7 +145,7 @@ public class EntityHelper {
                 .name(name)
                 .defendantName(name.getFullName())
                 .offender(anOffender(crn))
-                .crn(CRN)
+                .crn(crn)
                 .cro(CRO)
                 .pnc(PNC)
                 .type(DefendantType.PERSON)

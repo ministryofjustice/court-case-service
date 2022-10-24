@@ -121,6 +121,8 @@ public class HearingRepositoryFacade {
         return changedDefendantEntities.stream()
                 .map(DefendantEntity::getOffender)
                 .filter(Objects::nonNull)
+                .collect(Collectors.toSet())
+                .stream()
                 .filter(offenderEntity -> offenderRepository.findByCrn(offenderEntity.getCrn())
                         .map(existing -> !existing.equals(offenderEntity))
                         .orElse(true))

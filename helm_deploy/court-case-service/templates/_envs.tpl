@@ -133,6 +133,12 @@ env:
         name: probation-offender-events-court-case-service-main-queue
         key: sqs_queue_name
 
+  - name: HMPPS_SQS_QUEUES_PICPROBATIONOFFENDEREVENTSQUEUE_QUEUE_ENDPOINT_URL
+    valueFrom:
+      secretKeyRef:
+        name: probation-offender-events-court-case-service-main-queue
+        key: sqs_id
+
   - name: HMPPS_SQS_QUEUES_PICPROBATIONOFFENDEREVENTSQUEUE_DLQ_ACCESS_KEY_ID
     valueFrom:
       secretKeyRef:
@@ -150,6 +156,12 @@ env:
       secretKeyRef:
         name: probation-offender-events-court-case-service-dead-letter-queue
         key: sqs_queue_name
+
+  - name: HMPPS_SQS_QUEUES_PICPROBATIONOFFENDEREVENTSQUEUE_DLQ_ENDPOINT_URL
+    valueFrom:
+      secretKeyRef:
+        name: probation-offender-events-court-case-service-dead-letter-queue
+        key: sqs_id
 
   {{- with (index .Values.ingress.hosts 0)}}
   - name: INGRESS_URL

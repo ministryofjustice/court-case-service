@@ -312,6 +312,34 @@ class HearingRepositoryFacadeTest {
     }
 
     @Test
+    void givenMultipleDefendantsWitSameOffender_whenSave_thenSaveHearing_Offender_AndDefendant() {
+        when(offenderRepositoryFacade.updateOffenderIfItExists(OFFENDER)).thenReturn(OFFENDER);
+        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.empty());
+        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.empty());
+        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.empty());
+
+        DefendantEntity DEFENDANT_2 = DEFENDANT.withDefendantId(DEFENDANT_ID_2);
+        facade.save(HEARING.withHearingDefendants(
+                List.of(HearingDefendantEntity.builder()
+                    .defendantId(DEFENDANT_ID)
+                    .defendant(DEFENDANT)
+                    .build(),
+                    HearingDefendantEntity.builder()
+                    .defendantId(DEFENDANT_ID_2)
+                    .defendant(DEFENDANT_2)
+                    .build())
+            )
+        );
+
+        verify(offenderRepositoryFacade, times(2)).updateOffenderIfItExists(any(OffenderEntity.class));
+        verify(offenderRepository).findByCrn(CRN);
+        verify(offenderRepository).saveAll(List.of(OFFENDER));
+        verify(defendantRepository).saveAll(List.of(DEFENDANT, DEFENDANT_2));
+        verify(hearingRepository).save(HEARING);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository, offenderRepository);
+    }
+
+    @Test
     void whenSave_andOffenderAndDefendantUnchanged_thenSaveHearing_Only() {
         when(offenderRepositoryFacade.updateOffenderIfItExists(OFFENDER)).thenReturn(OFFENDER);
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));

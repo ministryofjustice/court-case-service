@@ -2,8 +2,11 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,10 +118,14 @@ public class CourtCaseController {
         return this.buildCourtCaseResponseForCaseIdAndDefendantId(hearingByHearingIdAndDefendantId, defendantId, caseHearingProgress);
     }
 
-    @Operation(description = "Gets the court case data by case number.")
+    @Operation(description = "Gets the court case and hearing data by Libra caseNo. As Libra cases have no hearingId, the listNo of the Libra case is used to differentiate between hearings.")
     @GetMapping(value = "/court/{courtCode}/case/{caseNo}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
-    CourtCaseResponse getCourtCase(@PathVariable String courtCode, @PathVariable String caseNo, @RequestParam(required = false) String listNo) {
+    CourtCaseResponse getCourtCase(
+            @PathVariable String courtCode,
+            @PathVariable String caseNo,
+            @Parameter(in = ParameterIn.PATH, name = "listNo", schema = @Schema(type = "string"), description = "If listNo is provided then the endpoint will return the latest hearing with matching listNo if it exists. If the case exists, but a hearing with the provided listNo does not, then the endpoint will return the most recent hearing but will <em>omit</em> the hearingId. This indicates to the caller that they should generate a new hearingId when PUTting to create a new hearing entity. This is required to allow Libra case progress to be tracked, see <a href='https://dsdmoj.atlassian.net/browse/PIC-2293'>PIC-2293</a> for more information.")
+            @RequestParam(required = false) String listNo) {
         return buildCourtCaseResponse(courtCaseService.getHearingByCaseNumber(courtCode, caseNo, listNo));
     }
 
@@ -137,12 +144,12 @@ public class CourtCaseController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     HearingNoteResponse createHearingNote(@PathVariable(value = "hearingId") String hearingId,
-                                                           @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
-                                                           Principal principal) {
+                                          @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
+                                          Principal principal) {
 
         if (!StringUtils.equals(hearingId, hearingNoteRequest.getHearingId())) {
             throw new ConflictingInputException(String.format("Hearing Id '%s' provided in the path does not match the one in the hearing note request body submitted '%s'",
-                hearingId, hearingNoteRequest.getHearingId()));
+                    hearingId, hearingNoteRequest.getHearingId()));
         }
 
         HearingNoteEntity hearingNote = hearingNotesService.createHearingNote(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
@@ -167,9 +174,9 @@ public class CourtCaseController {
                                           @RequestBody CaseCommentRequest caseCommentRequest,
                                           Principal principal) {
 
-        if(!StringUtils.equals(caseId, caseCommentRequest.getCaseId())) {
+        if (!StringUtils.equals(caseId, caseCommentRequest.getCaseId())) {
             throw new ConflictingInputException(String.format("Case Id '%s' provided in the path does not match the one in the case comment request body submitted '%s'",
-                caseId, caseCommentRequest.getCaseId()));
+                    caseId, caseCommentRequest.getCaseId()));
         }
         var caseCommentEntity = caseCommentsService.createCaseComment(caseCommentRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
         return CaseCommentResponse.of(caseCommentEntity);

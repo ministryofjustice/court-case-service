@@ -58,6 +58,11 @@ abstract class BaseIntTest {
   protected val offenderEventReceiverQueue by lazy { hmppsQueueService.findByQueueId("picprobationoffendereventsqueue") ?: throw MissingQueueException("picprobationoffendereventsqueue not found") }
   protected val offenderEventReceiverQueueSqsClient by lazy { offenderEventReceiverQueue.sqsClient }
   protected val offenderEventReceiverQueueUrl by lazy { offenderEventReceiverQueue.queueUrl }
+  protected val offenderEventReceiverDlqQueueUrl by lazy { offenderEventReceiverQueue.dlqUrl }
+  private val offenderEventReceiverDlqQueueClient by lazy { offenderEventReceiverQueue.sqsDlqClient as AmazonSQS }
+
+
+
 
   private fun AmazonSQS.countMessagesOnQueue(queueUrl: String, queueAttribute: String): Int {
 

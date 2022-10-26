@@ -147,3 +147,7 @@ feature:
 
 ingress:
   url: "localhost"
+
+hmpps:
+  sqs:
+    queueAdminRole: COURT_CASE_SERVICE_QUEUE_ADMIN

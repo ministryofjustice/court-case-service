@@ -19,6 +19,13 @@ metadata:
     {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
+    # Secure the retry probation offender events dlq endpoint from outside the Kubernetes ingress
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      server_tokens off;
+      location /{{ template "app.fullname" . }}/queue-admin/retry-probationOffenderEvents-dlq {
+        deny all;
+        return 401;
+      }
 spec:
   tls:
   {{- range .Values.ingress.hosts }}

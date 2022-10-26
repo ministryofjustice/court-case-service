@@ -28,7 +28,8 @@ public class OAuth2SecurityConfig extends WebSecurityConfigurerAdapter {
                                 "/ping",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/queue-admin/retry-probationOffenderEvents-dlq"
                         ).permitAll()
                         .anyRequest().hasRole("PREPARE_A_CASE")
                 ).oauth2ResourceServer().jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());

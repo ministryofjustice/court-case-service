@@ -15,7 +15,7 @@ public class SqsAdminController {
         this.sqsAdminService = sqsAdminService;
     }
 
-    @PutMapping("/retry-probationOffenderEvents-dlqs")
+    @PutMapping("/retry-probationOffenderEvents-dlq")
     public void replayDlqMessages() {
         sqsAdminService.retryProbationOffenderEventsDlqMessages();
     }

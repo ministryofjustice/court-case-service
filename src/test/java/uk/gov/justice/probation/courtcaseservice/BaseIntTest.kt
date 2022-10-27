@@ -59,7 +59,7 @@ abstract class BaseIntTest {
   protected val offenderEventReceiverQueueSqsClient by lazy { offenderEventReceiverQueue.sqsClient }
   protected val offenderEventReceiverQueueUrl by lazy { offenderEventReceiverQueue.queueUrl }
   protected val offenderEventReceiverDlqQueueUrl by lazy { offenderEventReceiverQueue.dlqUrl }
-  private val offenderEventReceiverDlqQueueClient by lazy { offenderEventReceiverQueue.sqsDlqClient as AmazonSQS }
+  protected val offenderEventReceiverDlqQueueClient by lazy { offenderEventReceiverQueue.sqsDlqClient as AmazonSQS }
 
 
 

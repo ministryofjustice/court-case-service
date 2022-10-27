@@ -24,18 +24,18 @@ public class QueueConfig {
 
     @Primary
     @Bean(name = "probationOffenderEventsQueue")
-    public AmazonSQSAsync probationOffenderEventsQueue(@Value("${aws.region-name}") final String regionName,
-                                                   @Value("${hmpps_sqs_queues_picprobationoffendereventsqueue_queue_endpoint_url}") final String awsEndpointUrl,
-                                                   @Value("${hmpps_sqs_queues_picprobationoffendereventsqueue_queue_access_key_id}") final String awsAccessKeyId,
-                                                   @Value("${hmpps_sqs_queues_picprobationoffendereventsqueue_queue_secret_access_key}") final String awsSecretAccessKey) {
+    public AmazonSQSAsync probationOffenderEventsQueue(@Value("${hmpps.sqs.region-name}") final String regionName,
+                                                   @Value("${hmpps.sqs.queues.picprobationoffendereventsqueue.queue_endpoint_url}") final String awsEndpointUrl,
+                                                   @Value("${hmpps.sqs.queues.picprobationoffendereventsqueue.queue_access_key_id}") final String awsAccessKeyId,
+                                                   @Value("${hmpps.sqs.queues.picprobationoffendereventsqueue.queue_secret_access_key}") final String awsSecretAccessKey) {
         return getAmazonSQSAsync(awsAccessKeyId, awsSecretAccessKey, awsEndpointUrl, regionName);
     }
 
     @Bean(name = "probationOffenderEventsDlq")
-    public AmazonSQSAsync probationOffenderEventsDlq(@Value("${aws.region-name}") final String regionName,
-                                                 @Value("${hmpps_sqs_queues_picprobationoffendereventsqueue_dlq_endpoint_url}") final String awsEndpointUrl,
-                                                 @Value("${hmpps_sqs_queues_picprobationoffendereventsqueue_dlq_access_key_id}") final String awsAccessKeyId,
-                                                 @Value("${hmpps_sqs_queues_picprobationoffendereventsqueue_dlq_secret_access_key}") final String awsSecretAccessKey) {
+    public AmazonSQSAsync probationOffenderEventsDlq(@Value("${hmpps.sqs.region-name}") final String regionName,
+                                                 @Value("${hmpps.sqs.queues.picprobationoffendereventsqueue.dlq_endpoint_url}") final String awsEndpointUrl,
+                                                 @Value("${hmpps.sqs.queues.picprobationoffendereventsqueue.dlq_access_key_id}") final String awsAccessKeyId,
+                                                 @Value("${hmpps.sqs.queues.picprobationoffendereventsqueue.dlq_secret_access_key}") final String awsSecretAccessKey) {
         return getAmazonSQSAsync(awsAccessKeyId, awsSecretAccessKey, awsEndpointUrl, regionName);
     }
 

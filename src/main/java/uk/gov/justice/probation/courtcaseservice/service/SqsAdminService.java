@@ -29,8 +29,8 @@ public class SqsAdminService {
 
     public SqsAdminService(@Qualifier("probationOffenderEventsDlq") AmazonSQSAsync probationOffenderEventsDlq,
                            @Qualifier("probationOffenderEventsQueue") AmazonSQSAsync probationOffenderEventsQueue,
-                           @Value("${hmpps_sqs_queues_picprobationoffendereventsqueue_dlq_endpoint_url}") String probationOffenderEventsDlqUrl,
-                           @Value("${hmpps_sqs_queues_picprobationoffendereventsqueue_queue_endpoint_url}") String probationOffenderEventsQueueUrl
+                           @Value("${hmpps.sqs.queues.picprobationoffendereventsqueue.dlq_endpoint_url}") String probationOffenderEventsDlqUrl,
+                           @Value("${hmpps.sqs.queues.picprobationoffendereventsqueue.queue_endpoint_url}") String probationOffenderEventsQueueUrl
     ) {
         this.probationOffenderEventsDlq = probationOffenderEventsDlq;
         this.probationOffenderEventsQueue = probationOffenderEventsQueue;

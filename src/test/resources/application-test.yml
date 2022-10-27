@@ -53,11 +53,18 @@ pactbroker:
 
 hmpps.sqs:
   provider: localstack
+  region_name: eu-west-2
   queues:
     picprobationoffendereventsqueue:
       queueName: pic_probation_offender_events_queue
       subscribeTopicId: probationoffenderevents
       subscribeFilter: '{"eventType":[ "SENTENCE_CHANGED", "CONVICTION_CHANGED"] }'
+      queue_endpoint_url: "http://localhost:4566"
+      queue_access_key_id: foobar1
+      queue_secret_access_key:  foobar1
+      dlq_endpoint_url: "http://localhost:4566"
+      dlq_access_key_id: foobar2
+      dlq_secret_access_key: foobar2
     emittedeventsqueue:
       queueName: emitted_events_queue
       subscribeTopicId: hmppsdomainevents

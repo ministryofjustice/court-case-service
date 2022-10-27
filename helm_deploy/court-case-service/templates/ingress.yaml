@@ -22,7 +22,7 @@ metadata:
     # Secure the retry probation offender events dlq endpoint from outside the Kubernetes ingress
     nginx.ingress.kubernetes.io/configuration-snippet: |
       server_tokens off;
-      location /{{ template "app.fullname" . }}/queue-admin/retry-probationOffenderEvents-dlq {
+      location /{{ template "app.fullname" . }}/queue-admin/retry-all-dlqs {
         deny all;
         return 401;
       }

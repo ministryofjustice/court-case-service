@@ -2,10 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +11,10 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +48,7 @@ public class Defendant {
     private final PhoneNumber phoneNumber;
     private final Offender offender;
     private final String personId;
+    private final Boolean confirmedOffender;
 
     @JsonProperty
     public String getSex() {

@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ADDRESS;
@@ -92,20 +93,6 @@ class CourtCaseResponseMapperTest {
 
     @BeforeEach
     void setUp() {
-        List<HearingDefendantEntity> defendants = Arrays.asList(
-                HearingDefendantEntity.builder()
-                        .defendant(DefendantEntity.builder()
-                                .defendantName(DEFENDANT_NAME)
-                                .name(namePropertiesEntity)
-                                .sex(DEFENDANT_SEX)
-                                .nationality1(NATIONALITY_1)
-                                .nationality2(NATIONALITY_2)
-                                .dateOfBirth(DEFENDANT_DOB)
-                                .pnc(PNC)
-                                .defendantId(DEFENDANT_ID)
-                                .build())
-                        .build()
-        );
 
         var hearings = Arrays.asList(
                 HearingDayEntity.builder()
@@ -122,7 +109,7 @@ class CourtCaseResponseMapperTest {
                         .build()
         );
 
-        hearingEntity = buildCourtCaseEntity(defendants, hearings, FIRST_CREATED);
+        hearingEntity = buildCourtCaseEntity(emptyList(), hearings, FIRST_CREATED);
     }
 
     @Test
@@ -160,6 +147,7 @@ class CourtCaseResponseMapperTest {
                     .defendantId(defendantUuid)
                     .type(DefendantType.PERSON)
                     .nationality1("Romanian")
+                    .offenderConfirmed(true)
                 .build())
                 .offences(singletonList(defendantOffence))
                 .build();
@@ -198,6 +186,7 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getCaseComments()).hasSize(2);
         assertThat(courtCaseResponse.getCaseComments().get(0).getCommentId()).isEqualTo(1234L);
         assertThat(courtCaseResponse.getCaseComments().get(1).getCommentId()).isEqualTo(5678L);
+        assertThat(courtCaseResponse.getConfirmedOffender()).isTrue();
     }
 
     @Test
@@ -216,6 +205,7 @@ class CourtCaseResponseMapperTest {
         assertThat(response.getCrn()).isEqualTo("D99999");
         assertThat(response.getName()).isEqualTo(newName);
         assertThat(response.getHearings()).isEqualTo(caseProgressHearings);
+        assertThat(response.getConfirmedOffender()).isTrue();
     }
 
     @Test
@@ -262,6 +252,7 @@ class CourtCaseResponseMapperTest {
                         .nationality1(NATIONALITY_1)
                         .nationality2(NATIONALITY_2)
                         .defendantId("bd1f71e5-939b-4580-8354-7d6061a58032")
+                        .offenderConfirmed(true)
                         .build())
                 .offences(List.of(aDefendantOffence()))
                 .build();
@@ -307,7 +298,7 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getNationality1()).isEqualTo(NATIONALITY_1);
         assertThat(courtCaseResponse.getNationality2()).isEqualTo(NATIONALITY_2);
         assertThat(courtCaseResponse.getNumberOfPossibleMatches()).isEqualTo(20);
-        assertThat(courtCaseResponse.getAwaitingPsr()).isEqualTo(true);
+        assertThat(courtCaseResponse.getAwaitingPsr()).isTrue();
 
         assertThat(courtCaseResponse.getOffences()).hasSize(2);
         assertOffenceFields(courtCaseResponse.getOffences().get(0));

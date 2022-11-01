@@ -61,7 +61,7 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
-    @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, orphanRemoval=true)
+    @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL)
     private final List<HearingEntity> hearings;
 
     @ToString.Exclude
@@ -72,4 +72,9 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "SOURCE_TYPE")
     @Enumerated(EnumType.STRING)
     private final SourceType sourceType;
+
+    public void addHearing(HearingEntity hearingEntity) {
+        hearingEntity.setCourtCase(this);
+        this.hearings.add(hearingEntity);
+    }
 }

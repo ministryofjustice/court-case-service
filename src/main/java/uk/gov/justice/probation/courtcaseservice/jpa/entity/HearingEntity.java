@@ -33,7 +33,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Schema(description = "Hearing")
 @Entity
@@ -63,7 +65,6 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     @Setter
     private CourtCaseEntity courtCase;
 
-
     // If you have more than one collection with fetch = FetchType.EAGER then there is an exception
     // org.hibernate.loader.MultipleBagFetchException: cannot simultaneously fetch multiple bags
     // After CP integration, we will need to look at session boundaries @LazyCollection is one solution
@@ -81,20 +82,20 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     private final List<HearingDefendantEntity> hearingDefendants;
 
     @Column(name = "deleted", nullable = false, updatable = false)
-    private final boolean deleted;
+    private boolean deleted;
 
     @Column(name = "first_created", insertable = false, updatable = false)
-    private final LocalDateTime firstCreated;
+    private LocalDateTime firstCreated;
 
     @Column(name = "HEARING_EVENT_TYPE")
     @Enumerated(EnumType.STRING)
-    private final HearingEventType hearingEventType;
+    private HearingEventType hearingEventType;
 
     @Column(name = "HEARING_TYPE")
-    private final String hearingType;
+    private String hearingType;
 
     @Column(name = "LIST_NO")
-    private final String listNo;
+    private String listNo;
 
     public String getCaseId() {
         return courtCase.getCaseId();
@@ -116,5 +117,48 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
                     .findFirst()
                 )
                 .orElse(null);
+    }
+
+    public HearingEntity update(HearingEntity hearingUpdate) {
+        this.listNo = hearingUpdate.listNo;
+        this.hearingType = hearingUpdate.hearingType;
+        this.hearingEventType = hearingUpdate.hearingEventType;
+
+        updateHearingDays(hearingUpdate);
+        updateHearingDefendant(hearingUpdate);
+
+        return this;
+    }
+
+    private void updateHearingDays(HearingEntity hearingUpdate) {
+        this.hearingDays.forEach(hearingDay -> hearingDay.setHearing(null));
+        this.hearingDays.clear();
+
+        this.hearingDays.addAll(hearingUpdate.getHearingDays());
+        this.hearingDays.forEach(hearingDay -> hearingDay.setHearing(this));
+    }
+
+    private void updateHearingDefendant(HearingEntity hearingUpdate) {
+        // remove hearing defendants that are not on the hearing update
+        this.hearingDefendants.stream().filter(
+            hearingDefendantEntity -> Objects.isNull(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId())))
+            .collect(Collectors.toList())
+            .forEach(this::removeHearingDefendant);
+
+        // add new hearing defendants
+        hearingUpdate.hearingDefendants.stream().filter(
+            hearingDefendantEntityUpdate -> Objects.isNull(this.getHearingDefendant(hearingDefendantEntityUpdate.getDefendantId())))
+            .collect(Collectors.toList())
+            .forEach(this::addHearingDefendant);
+    }
+
+    private void addHearingDefendant(HearingDefendantEntity hearingDefendantEntity) {
+        hearingDefendantEntity.setHearing(this);
+        this.hearingDefendants.add(hearingDefendantEntity);
+    }
+
+    private void removeHearingDefendant(HearingDefendantEntity toRemove) {
+        this.hearingDefendants.remove(toRemove);
+        toRemove.setHearing(null);
     }
 }

@@ -2,10 +2,12 @@ package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.getMutableList;
 
 class HearingEntityTest {
 
@@ -40,8 +42,85 @@ class HearingEntityTest {
     @Test
     void givenHearingWithNoDefendants_thenReturnNull() {
         var courtCase = HearingEntity.builder().build();
-
         assertThat(courtCase.getHearingDefendant("XXX")).isNull();
     }
+    
+    @Test
+    void givenHearingToUpdate_shouldUpdateHearingDays() {
+        HearingDayEntity dbHearingDayEntity = HearingDayEntity.builder().hearing(HearingEntity.builder().build()).courtCode("Court-1").build();
+        var dbHearing = HearingEntity.builder()
+            .hearingDefendants(Collections.emptyList())
+            .hearingType("Trial")
+            .hearingEventType(HearingEventType.UNKNOWN)
+            .hearingDays(getMutableList(List.of(dbHearingDayEntity)))
+            .listNo("1")
+            .build();
 
+        HearingDayEntity newHearingDay = HearingDayEntity.builder().hearing(HearingEntity.builder().build()).courtCode("Court-2").build();
+        var hearingUpdate = HearingEntity.builder()
+            .hearingDefendants(Collections.emptyList())
+            .hearingType("Sentenced")
+            .hearingEventType(HearingEventType.CONFIRMED_OR_UPDATED)
+            .hearingDays(getMutableList(List.of(newHearingDay)))
+            .listNo("2")
+            .build();
+
+        dbHearing.update(hearingUpdate);
+        assertThat(dbHearing).isEqualTo(hearingUpdate);
+        assertThat(dbHearingDayEntity.getHearing()).isNull();
+        assertThat(newHearingDay.getHearing()).isEqualTo(hearingUpdate);
+    }
+
+    @Test
+    void givenHearingWithRemovedDefendant_shouldRemoveHearingDefendantFromExistingHearing() {
+        var dbHearingDefendant1 = HearingDefendantEntity.builder().hearing(HearingEntity.builder().build()).defendantId("existing-defendant-1").build();
+        var dbHearingDefendant2 = HearingDefendantEntity.builder().hearing(HearingEntity.builder().build()).defendantId("existing-defendant-2").build();
+        var dbHearingEntity = HearingEntity.builder()
+            .hearingDays(Collections.emptyList())
+            .hearingType("Trial")
+            .hearingEventType(HearingEventType.UNKNOWN)
+            .hearingDefendants(getMutableList(List.of(dbHearingDefendant1, dbHearingDefendant2)))
+            .listNo("1")
+            .build();
+
+        var hearingUpdate = HearingEntity.builder()
+            .hearingDays(Collections.emptyList())
+            .hearingType("Trial")
+            .hearingEventType(HearingEventType.UNKNOWN)
+            .hearingDefendants(getMutableList(List.of(dbHearingDefendant1)))
+            .listNo("1")
+            .build();
+
+        dbHearingEntity.update(hearingUpdate);
+
+        assertThat(dbHearingEntity.getHearingDefendants()).isEqualTo(List.of(dbHearingDefendant1));
+        assertThat(dbHearingDefendant2.getHearing()).isNull();
+    }
+    @Test
+    void givenHearingWithNewDefendant_addNewHearingDefendant_shouldAddNewHearingDefendant() {
+        var dbHearingEntity = HearingEntity.builder()
+            .hearingDays(Collections.emptyList())
+            .hearingType("Trial")
+            .hearingEventType(HearingEventType.UNKNOWN)
+            .listNo("1")
+            .build();
+
+        var hearingUpdate = HearingEntity.builder()
+            .hearingDays(Collections.emptyList())
+            .hearingType("Trial")
+            .hearingEventType(HearingEventType.UNKNOWN)
+            .listNo("1")
+            .build();
+
+        var dbHearingDefendant1 = HearingDefendantEntity.builder().hearing(dbHearingEntity).defendantId("existing-defendant-1").build();
+        var newHearingDefendant = HearingDefendantEntity.builder().defendantId("existing-defendant-2").build();
+
+        dbHearingEntity = dbHearingEntity.withHearingDefendants(getMutableList(List.of(dbHearingDefendant1)));
+        hearingUpdate =  hearingUpdate.withHearingDefendants(getMutableList(List.of(dbHearingDefendant1, newHearingDefendant)));
+
+        dbHearingEntity.update(hearingUpdate);
+
+        assertThat(dbHearingEntity.getHearingDefendants()).isEqualTo(getMutableList(List.of(dbHearingDefendant1, newHearingDefendant)));
+        assertThat(newHearingDefendant.getHearing()).isEqualTo(dbHearingEntity);
+    }
 }

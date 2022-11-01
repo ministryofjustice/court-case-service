@@ -55,7 +55,7 @@ public class HearingDayEntity extends BaseImmutableEntity implements Serializabl
     @Column(name = "COURT_CODE", nullable = false)
     private final String courtCode;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "COURT_CODE", referencedColumnName = "COURT_CODE", insertable = false, updatable = false)
     private final CourtEntity court;
 

@@ -26,7 +26,6 @@ import javax.persistence.Transient;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.UUID;
 
 @Entity
 @Table(name = "DEFENDANT")
@@ -36,7 +35,7 @@ import java.util.UUID;
 @With
 @Getter
 @ToString
-@EqualsAndHashCode(exclude = "hearingDefendant")
+@EqualsAndHashCode(exclude = {"hearingDefendant", "offender", "id"})
 public class DefendantEntity extends BaseImmutableEntity implements Serializable {
 
     @Id

@@ -77,5 +77,4 @@ public class HearingDefendantEntity extends BaseImmutableEntity implements Seria
     public DefendantProbationStatus getProbationStatusForDisplay() {
         return defendant.getProbationStatusForDisplay();
     }
-
 }

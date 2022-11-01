@@ -4,6 +4,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -54,9 +55,18 @@ public class EntityHelper {
 
     public static final String PERSON_ID = "d1eefed2-04df-11ec-b2d8-0242ac130002";
 
+    public static <E> ArrayList<E> getMutableList(List<E> mutableList) {
+        return new ArrayList<E>(mutableList);
+    }
 
     public static HearingEntity aHearingEntity(String caseId) {
-        final var hearingEntity = populateBasics(CRN)
+        return aHearingEntityWithHearingId(caseId, HEARING_ID, DEFENDANT_ID);
+    }
+
+    public static HearingEntity aHearingEntityWithHearingId(String caseId, String hearingId, String defendantId) {
+        final var hearingEntity = populateBasics(CRN, hearingId, defendantId)
+                .hearingId(hearingId)
+                .hearingEventType(HearingEventType.UNKNOWN)
                 .courtCase(CourtCaseEntity.builder()
                         .caseId(caseId)
                         .caseNo(CASE_NO)
@@ -82,7 +92,7 @@ public class EntityHelper {
     }
 
     public static HearingEntity aHearingEntity(String crn, String caseNo) {
-        return aHearingEntity(crn, caseNo, List.of(aHearingDefendantEntity(DEFENDANT_ID, crn)));
+        return aHearingEntity(crn, caseNo, getMutableList(List.of(aHearingDefendantEntity(DEFENDANT_ID, crn))));
     }
 
     public static HearingEntity aHearingEntity(String crn, String caseNo, List<HearingDefendantEntity> defendants) {
@@ -125,7 +135,7 @@ public class EntityHelper {
         final HearingDefendantEntity hearingDefendant = HearingDefendantEntity.builder()
                 .defendantId(defendantId)
                 .defendant(aDefendantEntity(defendantAddress, name, defendantId, crn))
-                .offences(List.of(aDefendantOffence()))
+                .offences(getMutableList(List.of(aDefendantOffence())))
                 .build();
         hearingDefendant.getOffences()
                 .forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendant));
@@ -190,13 +200,16 @@ public class EntityHelper {
     }
 
     private static HearingEntity.HearingEntityBuilder populateBasics(String crn) {
-        var defendant = aHearingDefendantEntity(DEFENDANT_ID, crn);
+        return populateBasics(crn, HEARING_ID, DEFENDANT_ID);
+    }
+    private static HearingEntity.HearingEntityBuilder populateBasics(String crn, String hearingId, String defendantId) {
+        var defendant = aHearingDefendantEntity(defendantId, crn);
         return HearingEntity.builder()
-                .hearingId(HEARING_ID)
+                .hearingId(hearingId)
                 .deleted(false)
                 .firstCreated(LocalDateTime.now())
-                .hearingDefendants(List.of(defendant))
-                .hearingDays(List.of(aHearingDayEntity()));
+                .hearingDefendants(getMutableList(List.of(defendant)))
+                .hearingDays(getMutableList(List.of(aHearingDayEntity())));
     }
 
     public static OffenceEntity aDefendantOffence() {
@@ -209,11 +222,11 @@ public class EntityHelper {
                 .title(title)
                 .act(OFFENCE_ACT)
                 .sequence(seq)
-                .judicialResults(List.of(JudicialResultEntity.builder()
+                .judicialResults(getMutableList(List.of(JudicialResultEntity.builder()
                         .isConvictedResult(false)
                         .label("label")
                         .judicialResultTypeId("judicialResultTypeId")
-                        .build()))
+                        .build())))
                 .build();
 
         offenceEntity.getJudicialResults().forEach(judicialResultEntity -> {
@@ -255,7 +268,7 @@ public class EntityHelper {
                         .nationality1(NATIONALITY_1)
                         .nationality2(NATIONALITY_2)
                         .build())
-                .offences(List.of(aDefendantOffence()))
+                .offences(getMutableList(List.of(aDefendantOffence())))
                 .build();
     }
 
@@ -269,7 +282,7 @@ public class EntityHelper {
 
 
     public static HearingEntity aHearingEntityWithJudicialResults(String crn, String caseNo) {
-        var hearingEntity = aHearingEntity(crn, caseNo, List.of(aHearingDefendantEntityWithJudicialResults(DEFENDANT_ID, crn)));
+        var hearingEntity = aHearingEntity(crn, caseNo, getMutableList(List.of(aHearingDefendantEntityWithJudicialResults(DEFENDANT_ID, crn))));
 
         hearingEntity.getHearingDefendants()
                 .forEach(hearingDefendant -> hearingDefendant.setHearing(hearingEntity));
@@ -287,7 +300,7 @@ public class EntityHelper {
         final HearingDefendantEntity hearingDefendant = HearingDefendantEntity.builder()
                 .defendantId(defendantId)
                 .defendant(aDefendantEntity(defendantAddress, name, defendantId, crn))
-                .offences(List.of(aDefendantOffenceWithJudicialResults()))
+                .offences(getMutableList(List.of(aDefendantOffenceWithJudicialResults())))
                 .build();
 
 
@@ -306,7 +319,7 @@ public class EntityHelper {
                 .title(title)
                 .act(OFFENCE_ACT)
                 .sequence(seq)
-                .judicialResults(List.of(aJudicialResultEntity("id1"), aJudicialResultEntity("id3"), aJudicialResultEntity("id2"), aJudicialResultEntity("id4")))
+                .judicialResults(getMutableList(List.of(aJudicialResultEntity("id1"), aJudicialResultEntity("id3"), aJudicialResultEntity("id2"), aJudicialResultEntity("id4"))))
                 .build();
 
         offenceEntity.getJudicialResults().forEach(judicialResultEntity -> {

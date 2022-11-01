@@ -300,7 +300,7 @@ class HearingRepositoryFacadeTest {
         when(offenderRepositoryFacade.updateOffenderIfItExists(OFFENDER)).thenReturn(OFFENDER);
         when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
-
+        when(hearingRepository.save(any(HearingEntity.class))).thenReturn(HearingEntity.builder().build());
         facade.save(HEARING);
 
         verify(offenderRepositoryFacade).updateOffenderIfItExists(any(OffenderEntity.class));
@@ -317,6 +317,7 @@ class HearingRepositoryFacadeTest {
         when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.empty());
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.empty());
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.empty());
+        when(hearingRepository.save(any(HearingEntity.class))).thenReturn(HearingEntity.builder().build());
 
         DefendantEntity DEFENDANT_2 = DEFENDANT.withDefendantId(DEFENDANT_ID_2);
         facade.save(HEARING.withHearingDefendants(
@@ -343,6 +344,7 @@ class HearingRepositoryFacadeTest {
     void whenSave_andOffenderAndDefendantUnchanged_thenSaveHearing_Only() {
         when(offenderRepositoryFacade.updateOffenderIfItExists(OFFENDER)).thenReturn(OFFENDER);
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
+        when(hearingRepository.save(any(HearingEntity.class))).thenReturn(HearingEntity.builder().build());
 
         facade.save(HEARING);
 
@@ -362,6 +364,7 @@ class HearingRepositoryFacadeTest {
         when(offenderRepository.findByCrn(CRN_2)).thenReturn(Optional.of(OFFENDER_2.withProbationStatus(NOT_SENTENCED)));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
+        when(hearingRepository.save(any(HearingEntity.class))).thenReturn(HearingEntity.builder().build());
 
         facade.save(HEARING_WITH_MULTIPLE_DEFENDANTS);
 
@@ -389,6 +392,7 @@ class HearingRepositoryFacadeTest {
             .withPreSentenceActivity(true);
 
         when(offenderRepositoryFacade.updateOffenderIfItExists(updatedOffender)).thenReturn(updatedOffender.withId(1L));
+        when(hearingRepository.save(any(HearingEntity.class))).thenReturn(HearingEntity.builder().build());
 
         final var updatedHearing = HEARING.withHearingDefendants(List.of(HearingDefendantEntity.builder()
                 .defendantId(DEFENDANT_ID)

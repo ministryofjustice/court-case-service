@@ -104,16 +104,30 @@ public class HearingRepositoryFacade {
 
         offenderRepository.saveAll(getChangedOffenders(changedDefendants));
         defendantRepository.saveAll(changedDefendants);
-        return hearingRepository.save(hearingEntity);
+        HearingEntity save = hearingRepository.save(hearingEntity);
+        Optional.ofNullable(save.getHearingDefendants()).ifPresent(hearingDefendantEntities -> hearingDefendantEntities.forEach(this::populateDefendants));
+        return save;
+    }
+
+    private void populateDefendants(HearingDefendantEntity hearingDefendantEntity) {
+        hearingDefendantEntity.setDefendant(
+            defendantRepository.findFirstByDefendantIdOrderByIdDesc(hearingDefendantEntity.getDefendantId())
+                .map(defendantEntity -> {
+                    Optional.ofNullable(defendantEntity.getCrn())
+                        .flatMap(this.offenderRepository::findByCrn)
+                        .ifPresent(offenderEntity -> defendantEntity.setOffender(offenderEntity));
+                    return defendantEntity;
+                })
+                .orElse(null)
+        );
     }
 
     private void updateWithExistingEntities(HearingEntity hearingEntity) {
         hearingEntity.getHearingDefendants().forEach((HearingDefendantEntity hearingDefendantEntity) -> {
-            hearingDefendantEntity.setDefendant(
-                    hearingDefendantEntity.getDefendant()
-                            .withOffender(Optional.ofNullable(hearingDefendantEntity.getDefendant().getOffender())
-                                    .map(offenderRepositoryFacade::updateOffenderIfItExists)
-                                    .orElse(null)));
+            DefendantEntity defendant = hearingDefendantEntity.getDefendant();
+            defendant.setOffender(Optional.ofNullable(hearingDefendantEntity.getDefendant().getOffender())
+                    .map(offenderRepositoryFacade::updateOffenderIfItExists)
+                    .orElse(null));
         });
     }
 
@@ -131,12 +145,15 @@ public class HearingRepositoryFacade {
 
     private List<DefendantEntity> getChangedDefendants(HearingEntity hearingEntity) {
         return hearingEntity.getHearingDefendants()
-                .stream()
-                .map(HearingDefendantEntity::getDefendant)
-                .filter(existingDefendant -> defendantRepository.findFirstByDefendantIdOrderByIdDesc(existingDefendant.getDefendantId())
-                        .map(existing -> !existing.equals(existingDefendant))
-                        .orElse(true))
-                .collect(Collectors.toList());
+            .stream()
+            .map(HearingDefendantEntity::getDefendant)
+            .filter(defendantUpdate -> defendantRepository.findFirstByDefendantIdOrderByIdDesc(defendantUpdate.getDefendantId())
+                .map(existing -> {
+                    var b = !existing.equals(defendantUpdate);
+                    return b;
+                })
+                .orElse(true))
+            .collect(Collectors.toList());
     }
 
     private boolean canIgnoreCreatedDates(LocalDateTime createdAfter, LocalDateTime createdBefore) {
@@ -152,10 +169,10 @@ public class HearingRepositoryFacade {
     }
 
     private HearingEntity updateWithDefendants(HearingEntity hearingEntity) {
-        return hearingEntity.withHearingDefendants(hearingEntity.getHearingDefendants()
+         hearingEntity.getHearingDefendants()
                 .stream()
-                .map(this::updateDefendantAndOffender)
-                .collect(Collectors.toList()));
+                .forEach(this::updateDefendantAndOffender);
+         return hearingEntity;
     }
 
     private HearingDefendantEntity updateDefendantAndOffender(HearingDefendantEntity hearingDefendantEntity) {

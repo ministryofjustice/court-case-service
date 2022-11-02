@@ -142,6 +142,7 @@ public class CourtCaseResponseMapper {
             .pnc(defendant.getPnc())
             .crn(hearingDefendantEntity.getCrn())
             .probationStatus(hearingDefendantEntity.getProbationStatusForDisplay())
+            .confirmedOffender(defendant.isOffenderConfirmed())
         ;
 
         // Offences

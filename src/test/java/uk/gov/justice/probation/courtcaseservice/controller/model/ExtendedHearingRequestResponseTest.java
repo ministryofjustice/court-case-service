@@ -367,6 +367,7 @@ class ExtendedHearingRequestResponseTest {
                                 .judicialResults(Collections.emptyList())
                                 .build()
                 ))
+                .confirmedOffender(true)
                 .build());
         assertThat(actual.getDefendants().get(1).getDefendantId()).isEqualTo("DEFENDANT_ID_2");
         // offences should be sorted by sequence number
@@ -497,6 +498,7 @@ class ExtendedHearingRequestResponseTest {
                                         .defendantId("defendantId")
                                         .personId("PersonId-1")
                                         .sex(Sex.MALE)
+                                        .offenderConfirmed(true)
                                         .build())
                                 .offences(List.of(OffenceEntity.builder()
                                                 .act("act")

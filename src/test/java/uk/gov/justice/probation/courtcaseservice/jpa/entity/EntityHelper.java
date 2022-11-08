@@ -63,10 +63,22 @@ public class EntityHelper {
         return aHearingEntityWithHearingId(caseId, HEARING_ID, DEFENDANT_ID);
     }
 
+    public static void refreshMappings(HearingEntity hearingEntity) {
+        hearingEntity.getHearingDefendants().forEach(hearingDefendantEntity -> {
+            hearingDefendantEntity.setHearing(hearingEntity);
+            hearingDefendantEntity.getOffences().forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendantEntity));
+        });
+
+        hearingEntity.getHearingDays().forEach(hearingDay -> hearingDay.setHearing(hearingEntity));
+        Optional.ofNullable(hearingEntity.getCourtCase().getHearings())
+            .ifPresent(hearings -> hearings.forEach(hearingEntity1 -> hearingEntity1.setCourtCase(hearingEntity.getCourtCase())));
+    }
+
     public static HearingEntity aHearingEntityWithHearingId(String caseId, String hearingId, String defendantId) {
         final var hearingEntity = populateBasics(CRN, hearingId, defendantId)
                 .hearingId(hearingId)
                 .hearingEventType(HearingEventType.UNKNOWN)
+                .hearingType("Unknown")
                 .courtCase(CourtCaseEntity.builder()
                         .caseId(caseId)
                         .caseNo(CASE_NO)
@@ -202,14 +214,18 @@ public class EntityHelper {
     private static HearingEntity.HearingEntityBuilder populateBasics(String crn) {
         return populateBasics(crn, HEARING_ID, DEFENDANT_ID);
     }
-    private static HearingEntity.HearingEntityBuilder populateBasics(String crn, String hearingId, String defendantId) {
+    private static HearingEntity.HearingEntityBuilder populateBasics(String crn, String hearingId, String defendantId, HearingEventType hearingEventType) {
         var defendant = aHearingDefendantEntity(defendantId, crn);
         return HearingEntity.builder()
-                .hearingId(hearingId)
-                .deleted(false)
-                .firstCreated(LocalDateTime.now())
-                .hearingDefendants(getMutableList(List.of(defendant)))
-                .hearingDays(getMutableList(List.of(aHearingDayEntity())));
+            .hearingId(hearingId)
+            .hearingEventType(hearingEventType)
+            .deleted(false)
+            .firstCreated(LocalDateTime.now())
+            .hearingDefendants(getMutableList(List.of(defendant)))
+            .hearingDays(getMutableList(List.of(aHearingDayEntity())));
+    }
+    private static HearingEntity.HearingEntityBuilder populateBasics(String crn, String hearingId, String defendantId) {
+        return populateBasics(crn, hearingId, defendantId, HearingEventType.UNKNOWN);
     }
 
     public static OffenceEntity aDefendantOffence() {

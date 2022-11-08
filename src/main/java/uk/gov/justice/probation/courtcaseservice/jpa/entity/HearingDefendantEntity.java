@@ -12,6 +12,7 @@ import lombok.With;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -37,6 +38,7 @@ import java.util.Optional;
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = true, exclude = "hearing")
+@Audited
 public class HearingDefendantEntity extends BaseImmutableEntity implements Serializable {
 
     @Id
@@ -62,7 +64,7 @@ public class HearingDefendantEntity extends BaseImmutableEntity implements Seria
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @OneToMany(mappedBy = "hearingDefendant", cascade = CascadeType.ALL, orphanRemoval=true)
-    private final List<OffenceEntity> offences;
+    private List<OffenceEntity> offences;
 
     public String getDefendantSurname() {
         return Optional.ofNullable(defendant)
@@ -76,5 +78,15 @@ public class HearingDefendantEntity extends BaseImmutableEntity implements Seria
 
     public DefendantProbationStatus getProbationStatusForDisplay() {
         return defendant.getProbationStatusForDisplay();
+    }
+
+    public void update(HearingDefendantEntity hearingDefendant) {
+        this.offences.forEach(offenceEntity -> offenceEntity.setHearingDefendant(null));
+        this.offences.clear();
+
+        this.offences.addAll(hearingDefendant.getOffences());
+        this.offences.forEach(offenceEntity -> offenceEntity.setHearingDefendant(this));
+
+        this.defendant = hearingDefendant.getDefendant();
     }
 }

@@ -69,6 +69,8 @@ spring:
         jdbc:
           lob:
             non_contextual_creation: true
+        hbm2ddl:
+          auto: update
     open-in-view: false
 
 # Uncomment the following lines to generate create.sql on build

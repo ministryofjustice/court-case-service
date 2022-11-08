@@ -15,6 +15,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.TypeDef;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -48,6 +49,7 @@ import java.util.stream.Collectors;
 @Table(name = "HEARING")
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @SuperBuilder
+@Audited
 public class HearingEntity extends BaseImmutableEntity implements Serializable {
 
     @Id
@@ -89,6 +91,7 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
 
     @Column(name = "HEARING_EVENT_TYPE")
     @Enumerated(EnumType.STRING)
+    @Audited
     private HearingEventType hearingEventType;
 
     @Column(name = "HEARING_TYPE")
@@ -144,6 +147,13 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
             hearingDefendantEntity -> Objects.isNull(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId())))
             .collect(Collectors.toList())
             .forEach(this::removeHearingDefendant);
+
+        // update existing
+        this.hearingDefendants.stream().filter(
+            hearingDefendantEntity -> Objects.nonNull(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId())))
+            .forEach(hearingDefendantEntity -> {
+                hearingDefendantEntity.update(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId()));
+            });
 
         // add new hearing defendants
         hearingUpdate.hearingDefendants.stream().filter(

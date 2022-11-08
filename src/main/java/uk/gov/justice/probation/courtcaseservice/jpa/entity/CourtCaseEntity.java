@@ -15,6 +15,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.TypeDef;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -41,6 +42,7 @@ import java.util.List;
 @With
 @Table(name = "COURT_CASE")
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
+@Audited
 public class CourtCaseEntity extends BaseImmutableEntity implements Serializable {
 
     @Id

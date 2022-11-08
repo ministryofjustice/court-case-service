@@ -5,6 +5,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import groovy.lang.Tuple3;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,12 +18,15 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 
 import javax.persistence.EntityManager;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -83,15 +87,50 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
         HearingEntity savedHearing = courtCaseService.createOrUpdateHearingByHearingId(newHearingEntity.getHearingId(), newHearingEntity).block();
         assertThat(savedHearing.withId(null)).isEqualTo(newHearingEntity.withId(null));
 
-        var dbData = assertThatHearingIsNotImmutable(caseId, hearingId, DEFENDANT_ID_1);
-        // update
-        var hearingUpdate = EntityHelper.aHearingEntityWithHearingId(caseId, hearingId, DEFENDANT_ID_1).withHearingEventType(HearingEventType.RESULTED);
+        assertThatHearingIsNotImmutable(caseId, hearingId, DEFENDANT_ID_1);
+        var hearingAudits = findAllAuditByHearingId(hearingId);
+        assertThat(hearingAudits).hasSize(1);
+
+        // update - 1
+        HearingEntity hearingUpdate = getHearingUpdate(newHearingEntity);
 
         HearingEntity savedUpdate = courtCaseService.createOrUpdateHearingByHearingId(hearingUpdate.getHearingId(), hearingUpdate).block();
         assertThat(savedUpdate.withId(null)).isEqualTo(hearingUpdate);
 
         var updatedData = assertThatHearingIsNotImmutable(caseId, hearingId, DEFENDANT_ID_1);
         assertThat(updatedData.getV1().getHearingEventType()).isEqualTo(HearingEventType.RESULTED);
+        assertThat(updatedData.getV3().getDefendantName()).isEqualTo("Mr. Updated Name");
+
+        HearingEntity hearingUpdateTwo = EntityHelper.aHearingEntityWithHearingId(caseId, hearingId, DEFENDANT_ID_1).withHearingEventType(HearingEventType.CONFIRMED_OR_UPDATED);
+        EntityHelper.refreshMappings(hearingUpdateTwo);
+        courtCaseService.createOrUpdateHearingByHearingId(newHearingEntity.getHearingId(), hearingUpdateTwo).block();
+
+        hearingAudits = findAllAuditByHearingId(hearingId);
+        assertThat(hearingAudits).hasSize(3);
+    }
+
+    @NotNull
+    private HearingEntity getHearingUpdate(HearingEntity hearingEntity) {
+
+        var updatedSession = LocalDateTime.of(2040, 8, 6, 11, 30);
+        ArrayList<HearingDayEntity> updatedHearingDays = EntityHelper.getMutableList(List.of(HearingDayEntity.builder()
+            .day(updatedSession.toLocalDate())
+            .time(updatedSession.toLocalTime())
+            .courtRoom("7")
+            .courtCode("B33HU")
+            .build()));
+
+        var defendant = hearingEntity.getHearingDefendants().get(0).getDefendant();
+        var hearingDefendant = EntityHelper.aHearingDefendantEntity(defendant.getDefendantId(), defendant.getCrn())
+            .withOffences(List.of(EntityHelper.aDefendantOffence("Updated offence title", 1)))
+            .withDefendant(defendant.withDefendantName("Mr. Updated Name"));
+
+        var hearingUpdate = EntityHelper.aHearingEntityWithHearingId(hearingEntity.getCaseId(), hearingEntity.getHearingId(), DEFENDANT_ID_1)
+            .withHearingEventType(HearingEventType.RESULTED)
+            .withHearingDefendants(EntityHelper.getMutableList(List.of(hearingDefendant)))
+            .withHearingDays(updatedHearingDays);
+        EntityHelper.refreshMappings(hearingUpdate);
+        return hearingUpdate;
     }
 
     @Test
@@ -209,6 +248,11 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
 
     private List<HearingEntity> findAllByHearingId(String hearingId) {
         return entityManager.createQuery("select h from HearingEntity h where h.hearingId = :hearingId", HearingEntity.class)
+            .setParameter("hearingId", hearingId)
+            .getResultList();
+    }
+    private List findAllAuditByHearingId(String hearingId) {
+        return entityManager.createNativeQuery("select * from hearing_AUD h where h.hearing_id = :hearingId")
             .setParameter("hearingId", hearingId)
             .getResultList();
     }

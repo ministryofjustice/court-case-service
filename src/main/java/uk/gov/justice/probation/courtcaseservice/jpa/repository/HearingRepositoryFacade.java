@@ -11,6 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -144,16 +145,20 @@ public class HearingRepositoryFacade {
     }
 
     private List<DefendantEntity> getChangedDefendants(HearingEntity hearingEntity) {
-        return hearingEntity.getHearingDefendants()
+        var changedDefendants = new ArrayList<DefendantEntity>();
+        hearingEntity.getHearingDefendants()
             .stream()
             .map(HearingDefendantEntity::getDefendant)
-            .filter(defendantUpdate -> defendantRepository.findFirstByDefendantIdOrderByIdDesc(defendantUpdate.getDefendantId())
-                .map(existing -> {
-                    var b = !existing.equals(defendantUpdate);
-                    return b;
-                })
-                .orElse(true))
-            .collect(Collectors.toList());
+            .forEach(defendantUpdate ->
+                defendantRepository.findFirstByDefendantIdOrderByIdDesc(defendantUpdate.getDefendantId())
+                    .ifPresentOrElse(dbDefendant -> {
+                        if (!dbDefendant.equals(defendantUpdate)) {
+                            dbDefendant.update(defendantUpdate);
+                            changedDefendants.add(dbDefendant);
+                        }
+                    }, () -> changedDefendants.add(defendantUpdate)));
+
+        return changedDefendants;
     }
 
     private boolean canIgnoreCreatedDates(LocalDateTime createdAfter, LocalDateTime createdBefore) {

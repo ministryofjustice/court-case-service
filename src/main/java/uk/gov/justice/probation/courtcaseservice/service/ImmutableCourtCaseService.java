@@ -9,6 +9,7 @@ import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
@@ -66,7 +67,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     @Override
     @Retryable(value = CannotAcquireLockException.class)
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Mono<HearingEntity> createOrUpdateHearingByHearingId(String hearingId, HearingEntity updatedHearing) throws EntityNotFoundException, InputMismatchException {
         validateCourtCode(updatedHearing);
         if (!StringUtils.equals(hearingId, updatedHearing.getHearingId())) {

@@ -363,6 +363,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     }
 
     @Test
+    @Disabled
     void givenExistingCaseWithNoOffenderAttached_whenAddNewOffender_thenAddAndCreateOffender() {
         final var caseId = "ac24a1be-939b-49a4-a524-21a3d2230000";
         final var defendantId = "d49323c0-04da-11ec-b2d8-0242ac130002";
@@ -412,6 +413,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         final var defendantId = "d49323c0-04da-11ec-b2d8-0242ac130002";
         final var updatedJson = caseDetailsExtendedJson
                 .replace("\"caseId\": \"ac24a1be-939b-49a4-a524-21a3d228f8bc\"", "\"caseId\": \"" + caseId + "\"")
+                .replace("\"hearingId\": \"75e63d6c-5487-4244-a5bc-7cf8a38992db\"", "\"hearingId\": \"" + caseId + "\"")
                 .replace("\"defendantId\": \"d1eefed2-04df-11ec-b2d8-0242ac130002\"", "\"defendantId\": \"" + defendantId + "\"");
 
         // No offenders associated with the defendants
@@ -429,15 +431,31 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .accept(ContentType.JSON)
                 .body(updatedJson)
                 .when()
-                .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+                .put(PUT_BY_HEARING_ID_ENDPOINT, caseId)
                 .then()
                 .statusCode(201)
                 .body("caseId", equalTo(caseId))
-                .body("hearingId", equalTo(JSON_HEARING_ID))
+                .body("hearingId", equalTo(caseId))
+                .body("defendants[0].crn", equalTo(CRN))
+        ;
+
+        given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .when()
+                .get(PUT_BY_HEARING_ID_ENDPOINT, caseId)
+                .then()
+                .statusCode(200)
+                .body("caseId", equalTo(caseId))
+                .body("hearingId", equalTo(caseId))
+                .body("defendants", hasSize(1))
+                .body("defendants[0].crn", equalTo(CRN))
         ;
 
         // The correct offender is now associated
-        courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID)
+        courtCaseRepository.findFirstByHearingIdOrderByIdDesc(caseId)
                 .ifPresentOrElse(theCase -> {
                     var defendants = theCase.getHearingDefendants();
                     assertThat(defendants).hasSize(1);

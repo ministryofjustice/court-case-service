@@ -363,7 +363,6 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     }
 
     @Test
-    @Disabled
     void givenExistingCaseWithNoOffenderAttached_whenAddNewOffender_thenAddAndCreateOffender() {
         final var caseId = "ac24a1be-939b-49a4-a524-21a3d2230000";
         final var defendantId = "d49323c0-04da-11ec-b2d8-0242ac130002";
@@ -405,7 +404,6 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             assertThat(off.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2018, Month.JUNE, 24));
         }, () -> fail("Offender values not updated as expected for crn " + newCrn));
     }
-
 
     @Test
     void givenExistingCaseWithNoOffenderAttached_whenAddExistingOffender_thenAdd() {

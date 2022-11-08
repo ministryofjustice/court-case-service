@@ -51,7 +51,7 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Setter
     private OffenderEntity offender;
 
-    @Column(name = "CRN", nullable = false, updatable = false)
+    @Column(name = "CRN", nullable = false)
     private String crn;
 
     @Column(name = "DEFENDANT_ID", nullable = false)
@@ -91,10 +91,10 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Column(name = "NATIONALITY_2")
     private String nationality2;
 
-    @Column(name = "manual_update", nullable = false, updatable = false)
+    @Column(name = "manual_update", nullable = false)
     private boolean manualUpdate;
 
-    @Column(name = "OFFENDER_CONFIRMED", nullable = false, updatable = false)
+    @Column(name = "OFFENDER_CONFIRMED", nullable = false)
     private boolean offenderConfirmed;
 
     @Type(type = "jsonb")

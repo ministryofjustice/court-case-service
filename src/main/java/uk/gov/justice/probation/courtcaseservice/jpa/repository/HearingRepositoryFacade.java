@@ -155,6 +155,7 @@ public class HearingRepositoryFacade {
                         if (!dbDefendant.equals(defendantUpdate)) {
                             dbDefendant.update(defendantUpdate);
                             changedDefendants.add(dbDefendant);
+                            hearingEntity.getHearingDefendant(dbDefendant.getDefendantId()).setDefendant(dbDefendant);
                         }
                     }, () -> changedDefendants.add(defendantUpdate)));
 

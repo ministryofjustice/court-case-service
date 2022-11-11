@@ -47,7 +47,7 @@ class HearingEntityTest {
     
     @Test
     void givenHearingToUpdate_shouldUpdateHearingDays() {
-        HearingDayEntity dbHearingDayEntity = HearingDayEntity.builder().hearing(HearingEntity.builder().build()).courtCode("Court-1").build();
+        var dbHearingDayEntity = HearingDayEntity.builder().hearing(HearingEntity.builder().build()).courtCode("Court-1").build();
         var dbHearing = HearingEntity.builder()
             .hearingDefendants(Collections.emptyList())
             .hearingType("Trial")
@@ -56,7 +56,7 @@ class HearingEntityTest {
             .listNo("1")
             .build();
 
-        HearingDayEntity newHearingDay = HearingDayEntity.builder().hearing(HearingEntity.builder().build()).courtCode("Court-2").build();
+        var newHearingDay = HearingDayEntity.builder().hearing(HearingEntity.builder().build()).courtCode("Court-2").build();
         var hearingUpdate = HearingEntity.builder()
             .hearingDefendants(Collections.emptyList())
             .hearingType("Sentenced")

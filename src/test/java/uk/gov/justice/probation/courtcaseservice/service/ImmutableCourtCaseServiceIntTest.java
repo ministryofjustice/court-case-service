@@ -112,7 +112,7 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
         assertThat(hearingAudits).hasSize(3);
     }
   @Test
-  public void givenNewCaseWithNoDefendantOffender_createOrUpdateHearingWithOffender_shouldSafeOffender() {
+  public void givenNewCaseWithNoDefendantOffender_createOrUpdateHearingWithOffender_shouldSaveOffender() {
         var caseId = "fd907836-324f-42a2-8a7a-e3d956b9d1e7";
         var hearingId = "f069bfcd-29d6-4ab0-82f4-5df1ffd47f33";
         final var newHearingEntity = EntityHelper.aHearingEntityWithHearingId(caseId, hearingId, DEFENDANT_ID_1);

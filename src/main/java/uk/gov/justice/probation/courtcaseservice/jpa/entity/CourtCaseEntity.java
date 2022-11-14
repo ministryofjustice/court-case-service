@@ -58,7 +58,7 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     private final String caseNo;
 
     @Column(name = "urn", nullable = false)
-    private final String urn;
+    private String urn;
 
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)
@@ -78,5 +78,9 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     public void addHearing(HearingEntity hearingEntity) {
         hearingEntity.setCourtCase(this);
         this.hearings.add(hearingEntity);
+    }
+
+    public void update(CourtCaseEntity courtCaseUpdate) {
+        this.urn = courtCaseUpdate.getUrn();
     }
 }

@@ -130,6 +130,8 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
         updateHearingDays(hearingUpdate);
         updateHearingDefendant(hearingUpdate);
 
+        this.courtCase.update(hearingUpdate.getCourtCase());
+
         return this;
     }
 

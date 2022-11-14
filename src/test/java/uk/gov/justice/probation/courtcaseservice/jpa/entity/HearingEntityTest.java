@@ -49,6 +49,7 @@ class HearingEntityTest {
     void givenHearingToUpdate_shouldUpdateHearingDays() {
         var dbHearingDayEntity = HearingDayEntity.builder().hearing(HearingEntity.builder().build()).courtCode("Court-1").build();
         var dbHearing = HearingEntity.builder()
+            .courtCase(CourtCaseEntity.builder().build())
             .hearingDefendants(Collections.emptyList())
             .hearingType("Trial")
             .hearingEventType(HearingEventType.UNKNOWN)
@@ -58,6 +59,7 @@ class HearingEntityTest {
 
         var newHearingDay = HearingDayEntity.builder().hearing(HearingEntity.builder().build()).courtCode("Court-2").build();
         var hearingUpdate = HearingEntity.builder()
+            .courtCase(CourtCaseEntity.builder().build())
             .hearingDefendants(Collections.emptyList())
             .hearingType("Sentenced")
             .hearingEventType(HearingEventType.CONFIRMED_OR_UPDATED)
@@ -72,10 +74,40 @@ class HearingEntityTest {
     }
 
     @Test
+    void givenHearingToUpdate_shouldUpdateCourtCase() {
+        var dbHearingDayEntity = HearingDayEntity.builder().hearing(HearingEntity.builder().build()).courtCode("Court-1").build();
+        var dbHearing = HearingEntity.builder()
+            .courtCase(CourtCaseEntity.builder().build())
+            .hearingDefendants(Collections.emptyList())
+            .hearingType("Trial")
+            .hearingEventType(HearingEventType.UNKNOWN)
+            .hearingDays(getMutableList(List.of(dbHearingDayEntity)))
+            .listNo("1")
+            .build();
+
+        var newHearingDay = HearingDayEntity.builder().hearing(HearingEntity.builder().build()).courtCode("Court-2").build();
+        var hearingUpdate = HearingEntity.builder()
+            .courtCase(CourtCaseEntity.builder().urn("urn-one").build())
+            .hearingDefendants(Collections.emptyList())
+            .hearingType("Sentenced")
+            .hearingEventType(HearingEventType.CONFIRMED_OR_UPDATED)
+            .hearingDays(getMutableList(List.of(newHearingDay)))
+            .listNo("2")
+            .build();
+
+        dbHearing.update(hearingUpdate);
+        assertThat(dbHearing).isEqualTo(hearingUpdate);
+        assertThat(dbHearingDayEntity.getHearing()).isNull();
+        assertThat(newHearingDay.getHearing()).isEqualTo(hearingUpdate);
+        assertThat(hearingUpdate.getCourtCase()).isEqualTo(hearingUpdate.getCourtCase());
+    }
+
+    @Test
     void givenHearingWithRemovedDefendant_shouldRemoveHearingDefendantFromExistingHearing() {
         var dbHearingDefendant1 = HearingDefendantEntity.builder().hearing(HearingEntity.builder().build()).offences(Collections.emptyList()).defendantId("existing-defendant-1").build();
         var dbHearingDefendant2 = HearingDefendantEntity.builder().hearing(HearingEntity.builder().build()).offences(Collections.emptyList()).defendantId("existing-defendant-2").build();
         var dbHearingEntity = HearingEntity.builder()
+            .courtCase(CourtCaseEntity.builder().build())
             .hearingDays(Collections.emptyList())
             .hearingType("Trial")
             .hearingEventType(HearingEventType.UNKNOWN)
@@ -84,6 +116,7 @@ class HearingEntityTest {
             .build();
 
         var hearingUpdate = HearingEntity.builder()
+            .courtCase(CourtCaseEntity.builder().build())
             .hearingDays(Collections.emptyList())
             .hearingType("Trial")
             .hearingEventType(HearingEventType.UNKNOWN)
@@ -99,6 +132,7 @@ class HearingEntityTest {
     @Test
     void givenHearingWithNewDefendant_addNewHearingDefendant_shouldAddNewHearingDefendant() {
         var dbHearingEntity = HearingEntity.builder()
+            .courtCase(CourtCaseEntity.builder().build())
             .hearingDays(Collections.emptyList())
             .hearingType("Trial")
             .hearingEventType(HearingEventType.UNKNOWN)
@@ -106,6 +140,7 @@ class HearingEntityTest {
             .build();
 
         var hearingUpdate = HearingEntity.builder()
+            .courtCase(CourtCaseEntity.builder().build())
             .hearingDays(Collections.emptyList())
             .hearingType("Trial")
             .hearingEventType(HearingEventType.UNKNOWN)

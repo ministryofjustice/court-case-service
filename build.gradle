@@ -186,6 +186,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-validation"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation('org.springframework.security:spring-security-oauth2-client')
+    implementation('org.springframework.data:spring-data-envers')
 
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'com.vladmihalcea:hibernate-types-52:2.20.0'

@@ -12,6 +12,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -34,6 +35,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @Getter
 @EqualsAndHashCode(callSuper = true, exclude = "hearingDefendant")
+@Audited
 public class OffenceEntity extends BaseImmutableEntity implements Serializable  {
 
     @Id

@@ -9,6 +9,13 @@ TRUNCATE courtcaseservicetest.court_case CASCADE;
 TRUNCATE courtcaseservicetest.court CASCADE;
 TRUNCATE courtcaseservicetest.case_comments CASCADE;
 
+TRUNCATE courtcaseservicetest.hearing_day_aud CASCADE;
+TRUNCATE courtcaseservicetest.offence_aud CASCADE;
+TRUNCATE courtcaseservicetest.hearing_defendant_aud CASCADE;
+TRUNCATE courtcaseservicetest.defendant_aud CASCADE;
+TRUNCATE courtcaseservicetest.hearing_aud CASCADE;
+TRUNCATE courtcaseservicetest.court_case_aud CASCADE;
+
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('North Shields', 'B10JQ');
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Sheffield', 'B14LO');
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Leicester', 'B33HU');

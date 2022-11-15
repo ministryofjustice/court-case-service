@@ -11,6 +11,7 @@ import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Type;
+import org.hibernate.envers.Audited;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 
 import javax.persistence.Column;
@@ -26,7 +27,6 @@ import javax.persistence.Transient;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.UUID;
 
 @Entity
 @Table(name = "DEFENDANT")
@@ -36,7 +36,8 @@ import java.util.UUID;
 @With
 @Getter
 @ToString
-@EqualsAndHashCode(exclude = "hearingDefendant")
+@EqualsAndHashCode(exclude = {"offender", "id"})
+@Audited
 public class DefendantEntity extends BaseImmutableEntity implements Serializable {
 
     @Id
@@ -50,58 +51,58 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @Setter
     private OffenderEntity offender;
 
-    @Column(name = "CRN", nullable = false, updatable = false)
-    private final String crn;
+    @Column(name = "CRN", nullable = false)
+    private String crn;
 
     @Column(name = "DEFENDANT_ID", nullable = false)
-    private final String defendantId;
+    private String defendantId;
 
     @Column(name = "DEFENDANT_NAME", nullable = false)
-    private final String defendantName;
+    private String defendantName;
 
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "NAME", nullable = false)
-    private final NamePropertiesEntity name;
+    private NamePropertiesEntity name;
 
     @Column(name = "TYPE", nullable = false)
     @Enumerated(EnumType.STRING)
-    private final DefendantType type;
+    private DefendantType type;
 
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "ADDRESS")
-    private final AddressPropertiesEntity address;
+    private AddressPropertiesEntity address;
 
     @Column(name = "PNC")
-    private final String pnc;
+    private String pnc;
 
     @Column(name = "CRO")
-    private final String cro;
+    private String cro;
 
     @Column(name = "DATE_OF_BIRTH")
-    private final LocalDate dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @Column(name = "SEX", nullable = false)
     @Enumerated(EnumType.STRING)
-    private final Sex sex;
+    private Sex sex;
 
     @Column(name = "NATIONALITY_1")
-    private final String nationality1;
+    private String nationality1;
 
     @Column(name = "NATIONALITY_2")
-    private final String nationality2;
+    private String nationality2;
 
-    @Column(name = "manual_update", nullable = false, updatable = false)
+    @Column(name = "manual_update", nullable = false)
     private boolean manualUpdate;
 
-    @Column(name = "OFFENDER_CONFIRMED", nullable = false, updatable = false)
+    @Column(name = "OFFENDER_CONFIRMED", nullable = false)
     private boolean offenderConfirmed;
 
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "PHONE_NUMBER")
-    private final PhoneNumberEntity phoneNumber;
+    private PhoneNumberEntity phoneNumber;
 
     @Column(name = "PERSON_ID", nullable = false)
-    private final String personId;
+    private String personId;
 
     @PrePersist
     public void prePersistManualUpdate(){
@@ -118,5 +119,23 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
                 .map(OffenderEntity::getProbationStatus)
                 .map(OffenderProbationStatus::asDefendantProbationStatus)
                 .orElse(offenderConfirmed ? DefendantProbationStatus.CONFIRMED_NO_RECORD : DefendantProbationStatus.UNCONFIRMED_NO_RECORD);
+    }
+
+    public void update(DefendantEntity defendantUpdate) {
+        this.crn = defendantUpdate.getCrn();
+        this.defendantId = defendantUpdate.getDefendantId();
+        this.defendantName = defendantUpdate.getDefendantName();
+        this.name = defendantUpdate.getName();
+        this.type = defendantUpdate.getType();
+        this.address = defendantUpdate.getAddress();
+        this.pnc = defendantUpdate.getPnc();
+        this.cro = defendantUpdate.getCro();
+        this.dateOfBirth = defendantUpdate.getDateOfBirth();
+        this.sex = defendantUpdate.getSex();
+        this.nationality1 = defendantUpdate.getNationality1();
+        this.nationality2 = defendantUpdate.getNationality2();
+        this.phoneNumber = defendantUpdate.getPhoneNumber();
+        this.personId = defendantUpdate.getPersonId();
+        this.offender = defendantUpdate.getOffender();
     }
 }

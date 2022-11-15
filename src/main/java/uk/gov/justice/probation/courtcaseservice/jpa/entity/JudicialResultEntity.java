@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Type;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,6 +25,7 @@ import java.io.Serializable;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @Getter
+@Audited
 public class JudicialResultEntity extends BaseImmutableEntity implements Serializable {
     @Id
     @Column(name = "ID", updatable = false, nullable = false)

@@ -10,22 +10,16 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Entity
@@ -46,13 +40,20 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @JsonIgnore
     private final Long id;
 
-    @ToString.Exclude
-    @Transient
     @Setter
+    @ToString.Exclude
+    @OneToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinColumn(name = "fk_offender_id", referencedColumnName = "id")
     private OffenderEntity offender;
 
-    @Column(name = "CRN", nullable = false)
+    @Column(name = "CRN")
     private String crn;
+
+    @ToString.Exclude
+    @LazyCollection(value = LazyCollectionOption.TRUE)
+    @JsonIgnore
+    @OneToMany(mappedBy = "defendant")
+    private List<HearingDefendantEntity> hearingDefendants;
 
     @Column(name = "DEFENDANT_ID", nullable = false)
     private String defendantId;

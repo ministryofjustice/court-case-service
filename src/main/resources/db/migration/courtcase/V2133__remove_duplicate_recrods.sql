@@ -4,6 +4,8 @@ DROP TABLE IF EXISTS court_case_new;
 
 create table court_case_new as select * from court_case cc where cc.id  in (select max(id) from court_case cc2 group by cc2.case_id);
 
+ALTER TABLE court_case_new ADD PRIMARY KEY (id);
+
 CREATE INDEX case_id_new_idx ON court_case_new USING btree (case_id);
 
 ALTER TABLE hearing  ADD COLUMN fk_court_case_id_2 int8;

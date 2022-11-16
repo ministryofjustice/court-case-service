@@ -12,6 +12,8 @@ ALTER TABLE court_case_new
 
 ALTER TABLE ONLY court_case_new ALTER COLUMN deleted SET DEFAULT false;
 
+ALTER TABLE court_case_new ADD COLUMN created TIMESTAMP DEFAULT NOW();
+
 CREATE INDEX case_id_new_idx ON court_case_new USING btree (case_id);
 
 ALTER TABLE hearing  ADD COLUMN fk_court_case_id_2 int8;

@@ -21,6 +21,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
@@ -44,23 +45,27 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private final TelemetryService telemetryService;
     private final GroupedOffenderMatchRepository matchRepository;
     private final DomainEventService domainEventService;
+    private final CourtCaseRepository courtCaseRepository;
 
     @Autowired
     public ImmutableCourtCaseService(CourtRepository courtRepository,
                                      HearingRepositoryFacade hearingRepository,
                                      TelemetryService telemetryService,
                                      GroupedOffenderMatchRepository matchRepository,
-                                     DomainEventService domainEventService) {
+                                     DomainEventService domainEventService,
+                                     CourtCaseRepository courtCaseRepository) {
         this.courtRepository = courtRepository;
         this.hearingRepository = hearingRepository;
         this.telemetryService = telemetryService;
         this.matchRepository = matchRepository;
         this.domainEventService = domainEventService;
+        this.courtCaseRepository = courtCaseRepository;
     }
 
     @Override
     @Retryable(value = CannotAcquireLockException.class)
     @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Deprecated(forRemoval = true)
     public Mono<HearingEntity> createHearing(String caseId, HearingEntity updatedHearing) throws EntityNotFoundException, InputMismatchException {
         validateEntity(caseId, updatedHearing);
 
@@ -114,26 +119,32 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         return hearingRepository.findLastModifiedByHearingDay(courtCode, searchDate);
     }
 
-    private Mono<HearingEntity> createOrUpdateHearing(String hearingId, HearingEntity updatedHearing) {
-        hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
-                .ifPresentOrElse(
-                        existingHearing -> {
-                            updatedHearing.getHearingDefendants()
-                                    .stream().map(HearingDefendantEntity::getDefendant)
-                                    .forEach(defendantEntity -> updateOffenderMatches(existingHearing, updatedHearing, defendantEntity.getDefendantId()));
-                            trackUpdateEvents(existingHearing, updatedHearing);
-                        },
-                        () -> trackCreateEvents(updatedHearing));
+    private Mono<HearingEntity> createOrUpdateHearing(String hearingId, final HearingEntity updatedHearing) {
+        var hearing = hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
+            .map(existingHearing -> {
+                trackUpdateEvents(existingHearing, updatedHearing);
+                return existingHearing.update(updatedHearing);
+            })
+            .orElseGet(() -> {
+                trackCreateEvents(updatedHearing);
+                courtCaseRepository.findFirstByCaseIdOrderByIdDesc(updatedHearing.getCaseId())
+                    .ifPresent(courtCaseEntity -> {
+                        courtCaseEntity.addHearing(updatedHearing);
+                    });
+                return updatedHearing;
+            });
 
-        if (hasSentencedEventType(updatedHearing)) {
-            domainEventService.emitSentencedEvent(updatedHearing);
-        }
-
-        return Mono.just(updatedHearing)
-                .map(hearingEntity -> {
-                    log.debug("Saving hearing with ID {}", hearingId);
-                    return hearingRepository.save(hearingEntity);
-                });
+        return Mono.just(hearing)
+            .map(hearingEntity -> {
+                log.debug("Saving hearing with ID {}", hearingId);
+                return hearingRepository.save(hearing);
+            }).map(saved -> {
+                if (hasSentencedEventType(saved)) {
+                    log.debug("Emitting sentenced event for hearing with ID {}", hearingId);
+                    domainEventService.emitSentencedEvent(saved);
+                }
+                return saved;
+            });
     }
 
     private boolean hasSentencedEventType(HearingEntity hearingEntity) {

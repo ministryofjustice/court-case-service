@@ -375,12 +375,12 @@ VALUES (false, false, 'X980123', 'CRO1', 'NAME_DOB', 'A/160000BA', 16000);
 
 --
 -- Section to populate an entirely new COURT CASE with separate HEARING, DEFENDANT, DEFENDANT_OFFENCE. Also a caseId which looks like a UUID which is what will be happening post CP integration
-INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
+/*INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
 VALUES (-1700030050, 'ac24a1be-939b-49a4-a524-21a3d2230000', '1700030000', '2010-01-01', 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-1700030050, -1700030050, 'ac24a1be-939b-49a4-a524-21a3d2230000', '2010-01-01');
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
-VALUES (-1700030050, -1700030050, 'B14LO', 1, '2019-12-14', '09:00:00', now() - interval '2 hours');
+VALUES (-1700030050, -1700030050, 'B14LO', 1, '2019-12-14', '09:00:00', now() - interval '2 hours');*/
 
 INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
 VALUES (-1700030001, 'ac24a1be-939b-49a4-a524-21a3d2230000', '1700030000', now(), 'COMMON_PLATFORM');
@@ -391,8 +391,8 @@ VALUES (-1700030001, -1700030001, 'B14LO', 1, '2019-12-14', '09:00', now());
 
 INSERT INTO courtcaseservicetest.DEFENDANT(id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, type, date_of_birth, crn, pnc, cro, sex, nationality_1, nationality_2)
 VALUES (-2000000, 'd49323c0-04da-11ec-b2d8-0242ac130002', '5dbbb502-4b9a-11ed-bdc3-0242ac120002', 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', null, 'A/1234560BA', '311462/13E', 'MALE', 'British', 'Polish');
-INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
-VALUES (-2000000, -1700030001, 'd49323c0-04da-11ec-b2d8-0242ac130002');
+INSERT INTO courtcaseservicetest.HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID, FK_DEFENDANT_ID)
+VALUES (-2000000, -1700030001, 'd49323c0-04da-11ec-b2d8-0242ac130002', -2000000);
 
 INSERT INTO courtcaseservicetest.OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-2000000, -2000000, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);

@@ -25,21 +25,21 @@ public class OffenderRepositoryFacade {
     public OffenderEntity updateOffenderIfItExists(OffenderEntity updatedOffender) {
         return offenderRepository.findByCrn(updatedOffender.getCrn())
             .map(existingOffender -> {
-                // Implementation note: We're breaking immutability here because otherwise Hibernate will
-                // encounter an exception 'Row was updated or deleted by another transaction (or unsaved-value
-                // mapping was incorrect)' due a conflict between the existing record and the update.
-
-                existingOffender.setCro(updatedOffender.getCro());
-                existingOffender.setPnc(updatedOffender.getPnc());
-                existingOffender.setBreach(updatedOffender.isBreach());
-                existingOffender.setAwaitingPsr(updatedOffender.getAwaitingPsr());
-                existingOffender.setProbationStatus(updatedOffender.getProbationStatus());
-                existingOffender.setPreviouslyKnownTerminationDate(updatedOffender.getPreviouslyKnownTerminationDate());
-                existingOffender.setSuspendedSentenceOrder(updatedOffender.isSuspendedSentenceOrder());
-                existingOffender.setPreSentenceActivity(updatedOffender.isPreSentenceActivity());
+                existingOffender.update(updatedOffender);
                 return existingOffender;
             })
             .orElse(updatedOffender);
     }
 
+    public OffenderEntity upsertOffender(OffenderEntity updatedOffender) {
+        return offenderRepository.findByCrn(updatedOffender.getCrn())
+            .map(existingOffender -> {
+                if(!existingOffender.withId(null).equals(updatedOffender)) {
+                    existingOffender.update(updatedOffender);
+                    return offenderRepository.save(existingOffender);
+                }
+                return existingOffender;
+            })
+            .orElseGet(() -> offenderRepository.save(updatedOffender));
+    }
 }

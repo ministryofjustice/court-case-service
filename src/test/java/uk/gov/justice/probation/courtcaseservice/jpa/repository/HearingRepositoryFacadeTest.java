@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.AssertionsForClassTypes;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -102,34 +103,9 @@ class HearingRepositoryFacadeTest {
     @Test
     void whenFindFirstByHearingIdOrderByIdDesc_thenReturnDefendants() {
         when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
         final var actual = facade.findFirstByHearingIdOrderByIdDesc(HEARING_ID);
 
-        AssertionsForClassTypes.assertThat(actual).get().isEqualTo(HEARING);
-        AssertionsForClassTypes.assertThat(actual.get().getHearingDefendant(DEFENDANT_ID).getDefendant()).isEqualTo(DEFENDANT);
-        AssertionsForClassTypes.assertThat(actual.get().getHearingDefendant(DEFENDANT_ID_2).getDefendant()).isEqualTo(DEFENDANT_2);
-
         verify(hearingRepository).findFirstByHearingIdOrderByIdDesc(HEARING_ID);
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
-        verifyNoMoreInteractions(hearingRepository, defendantRepository);
-    }
-
-    @Test
-    void whenFindByCourtCodeCaseNoAndListNo_thenReturnDefendants() {
-        when(hearingRepository.findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
-
-        final var actual = facade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, LIST_NO);
-        Assertions.assertThat(actual.get().getHearingId()).isEqualTo(HEARING_ID);
-
-        AssertionsForClassTypes.assertThat(actual).get().isEqualTo(HEARING_WITH_MULTIPLE_DEFENDANTS);
-        verify(hearingRepository).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO);
-        verify(hearingRepository, times(0)).findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO);
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
@@ -138,17 +114,12 @@ class HearingRepositoryFacadeTest {
         when(hearingRepository.findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(Optional.empty());
         when(hearingRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
 
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
-
         final var actual = facade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, LIST_NO);
         Assertions.assertThat(actual.get().getHearingId()).isNull();
 
         AssertionsForClassTypes.assertThat(actual).get().isEqualTo(HEARING_WITH_MULTIPLE_DEFENDANTS);
         verify(hearingRepository).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO);
         verify(hearingRepository).findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO);
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
@@ -170,23 +141,17 @@ class HearingRepositoryFacadeTest {
     @Test
     void whenFindByCourtCodeCaseNoAnd_NoListNoProvided_thenReturnDefendants() {
         when(hearingRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
-
         final var actual = facade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, null);
         Assertions.assertThat(actual.get().getHearingId()).isEqualTo(HEARING_ID);
 
         AssertionsForClassTypes.assertThat(actual).get().isEqualTo(HEARING_WITH_MULTIPLE_DEFENDANTS);
         verify(hearingRepository).findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO);
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
     @Test
     void whenFindByHearingIdAndDefendantId_thenReturnAHearingWithDefendantAndCaseComments() {
         when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(HEARING));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
         when(caseCommentsRepository.findAllByCaseIdAndDeletedFalse(COURT_CASE.getCaseId())).thenReturn(List.of(CASE_COMMENT_ONE));
 
         final var actual = facade.findByHearingIdAndDefendantId(HEARING_ID, DEFENDANT_ID);
@@ -203,8 +168,6 @@ class HearingRepositoryFacadeTest {
     @Test
     void givenMultipleDefendants_whenFindByHearingIdAndDefendantId_thenReturnAHearingWithAllDefendants() {
         when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
 
         final var actual = facade.findByHearingIdAndDefendantId(HEARING_ID, DEFENDANT_ID);
         AssertionsForClassTypes.assertThat(actual).get().isEqualTo(HEARING);
@@ -220,21 +183,9 @@ class HearingRepositoryFacadeTest {
     }
 
     @Test
-    void givenDefendantOnCase_andDefendantDoesNotExist_whenFindByHearingIdAndDefendantId_thenThrowException() {
-        HEARING.getHearingDefendant(DEFENDANT_ID).setHearing(HEARING);
-        when(hearingRepository.findFirstByHearingIdOrderByIdDesc(HEARING_ID)).thenReturn(Optional.of(HEARING));
-
-        AssertionsForClassTypes.assertThatExceptionOfType(RuntimeException.class)
-                .isThrownBy(() -> facade.findByHearingIdAndDefendantId(HEARING_ID, DEFENDANT_ID))
-                .withMessage("Unexpected state: Defendant 'defendantId' is specified on hearing 'hearingId' but it does not exist");
-    }
-
-    @Test
     void whenFindByCourtCodeAndHearingDay_andDateTimeIsMinMax_thenCallRepoMethodWithoutDateConstraints() {
         when(hearingRepository.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE))
                 .thenReturn(List.of(HEARING, HEARING_WITH_MULTIPLE_DEFENDANTS));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
 
         final var actual = facade.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, LocalDateTime.MIN, LocalDateTime.MAX);
         AssertionsForClassTypes.assertThat(actual.size()).isEqualTo(2);
@@ -243,8 +194,6 @@ class HearingRepositoryFacadeTest {
         AssertionsForClassTypes.assertThat(actual.get(1).getHearingDefendants().get(1).getDefendant()).isEqualTo(DEFENDANT);
 
         verify(hearingRepository).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE);
-        verify(defendantRepository, times(2)).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
@@ -252,8 +201,6 @@ class HearingRepositoryFacadeTest {
     void whenFindByCourtCodeAndHearingDay_andDateTimesAreNull_thenCallRepoMethodWithoutDateConstraints() {
         when(hearingRepository.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE))
                 .thenReturn(List.of(HEARING, HEARING_WITH_MULTIPLE_DEFENDANTS));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
 
         final var actual = facade.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, null, null);
         AssertionsForClassTypes.assertThat(actual.size()).isEqualTo(2);
@@ -262,8 +209,6 @@ class HearingRepositoryFacadeTest {
         AssertionsForClassTypes.assertThat(actual.get(1).getHearingDefendants().get(1).getDefendant()).isEqualTo(DEFENDANT);
 
         verify(hearingRepository).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE);
-        verify(defendantRepository, times(2)).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
@@ -271,18 +216,10 @@ class HearingRepositoryFacadeTest {
     void whenFindByCourtCodeAndHearingDay_thenReturnDefendants() {
         when(hearingRepository.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, A_DATETIME, A_DATETIME))
                 .thenReturn(List.of(HEARING, HEARING_WITH_MULTIPLE_DEFENDANTS));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT_2));
 
         final var actual = facade.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, A_DATETIME, A_DATETIME);
-        AssertionsForClassTypes.assertThat(actual.size()).isEqualTo(2);
-        AssertionsForClassTypes.assertThat(actual.get(0).getHearingDefendants().get(0).getDefendant()).isEqualTo(DEFENDANT);
-        AssertionsForClassTypes.assertThat(actual.get(1).getHearingDefendants().get(0).getDefendant()).isEqualTo(DEFENDANT_2);
-        AssertionsForClassTypes.assertThat(actual.get(1).getHearingDefendants().get(1).getDefendant()).isEqualTo(DEFENDANT);
 
         verify(hearingRepository).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, A_DATETIME, A_DATETIME);
-        verify(defendantRepository, times(2)).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
@@ -297,21 +234,18 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void whenSave_thenSaveHearing_Offender_AndDefendant() {
-        when(offenderRepositoryFacade.updateOffenderIfItExists(OFFENDER)).thenReturn(OFFENDER);
-        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)));
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
+        when(offenderRepositoryFacade.upsertOffender(OFFENDER)).thenReturn(OFFENDER);
         when(hearingRepository.save(any(HearingEntity.class))).thenReturn(HearingEntity.builder().build());
         facade.save(HEARING);
 
-        verify(offenderRepositoryFacade).updateOffenderIfItExists(any(OffenderEntity.class));
-        verify(offenderRepository).findByCrn(CRN);
-        verify(offenderRepository).saveAll(List.of(OFFENDER));
-        verify(defendantRepository).saveAll(List.of(DEFENDANT));
+        verify(offenderRepositoryFacade).upsertOffender(any(OffenderEntity.class));
+        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(HEARING.getHearingDefendants().get(0).getDefendantId());
         verify(hearingRepository).save(HEARING);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
     @Test
+    @Disabled("Is this a possible case?")
     void givenMultipleDefendantsWitSameOffender_whenSave_thenSaveHearing_Offender_AndDefendant() {
         when(offenderRepositoryFacade.updateOffenderIfItExists(OFFENDER)).thenReturn(OFFENDER);
         when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.empty());
@@ -341,40 +275,19 @@ class HearingRepositoryFacadeTest {
     }
 
     @Test
-    void whenSave_andOffenderAndDefendantUnchanged_thenSaveHearing_Only() {
-        when(offenderRepositoryFacade.updateOffenderIfItExists(OFFENDER)).thenReturn(OFFENDER);
-        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT));
-        when(hearingRepository.save(any(HearingEntity.class))).thenReturn(HearingEntity.builder().build());
-
-        facade.save(HEARING);
-
-        verify(offenderRepositoryFacade).updateOffenderIfItExists(OFFENDER);
-        verify(offenderRepository).saveAll(List.of());
-        verify(defendantRepository).saveAll(List.of());
-        verify(hearingRepository).save(HEARING);
-        verifyNoMoreInteractions(hearingRepository, defendantRepository);
-    }
-
-    @Test
     void whenSaveHearingWithMultipleDefendants_thenSaveHearing_Case_AllOffenders_AndAllDefendants() {
-        when(offenderRepositoryFacade.updateOffenderIfItExists(OFFENDER)).thenReturn(OFFENDER.withCrn(CRN));
-        when(offenderRepositoryFacade.updateOffenderIfItExists(OFFENDER_2)).thenReturn(OFFENDER_2.withCrn(CRN_2));
+        when(offenderRepositoryFacade.upsertOffender(OFFENDER)).thenReturn(OFFENDER.withCrn(CRN));
+        when(offenderRepositoryFacade.upsertOffender(OFFENDER_2)).thenReturn(OFFENDER_2.withCrn(CRN_2));
 
-        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.of(OFFENDER.withProbationStatus(NOT_SENTENCED)));
-        when(offenderRepository.findByCrn(CRN_2)).thenReturn(Optional.of(OFFENDER_2.withProbationStatus(NOT_SENTENCED)));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
         when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
         when(hearingRepository.save(any(HearingEntity.class))).thenReturn(HearingEntity.builder().build());
 
         facade.save(HEARING_WITH_MULTIPLE_DEFENDANTS);
 
-        verify(offenderRepositoryFacade, times(2)).updateOffenderIfItExists(any(OffenderEntity.class));
-        verify(offenderRepositoryFacade).updateOffenderIfItExists(OFFENDER);
-        verify(offenderRepositoryFacade).updateOffenderIfItExists(OFFENDER_2);
-        verify(offenderRepository).findByCrn(CRN);
-        verify(offenderRepository).findByCrn(CRN_2);
-        verify(offenderRepository).saveAll(List.of(OFFENDER_2, OFFENDER));
-        verify(defendantRepository).saveAll(List.of(DEFENDANT_2, DEFENDANT));
+        verify(offenderRepositoryFacade, times(2)).upsertOffender(any(OffenderEntity.class));
+        verify(offenderRepositoryFacade).upsertOffender(OFFENDER);
+        verify(offenderRepositoryFacade).upsertOffender(OFFENDER_2);
         verify(hearingRepository).save(HEARING_WITH_MULTIPLE_DEFENDANTS);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
@@ -391,7 +304,7 @@ class HearingRepositoryFacadeTest {
             .withSuspendedSentenceOrder(true)
             .withPreSentenceActivity(true);
 
-        when(offenderRepositoryFacade.updateOffenderIfItExists(updatedOffender)).thenReturn(updatedOffender.withId(1L));
+        when(offenderRepositoryFacade.upsertOffender(updatedOffender)).thenReturn(updatedOffender.withId(1L));
         when(hearingRepository.save(any(HearingEntity.class))).thenReturn(HearingEntity.builder().build());
 
         final var updatedHearing = HEARING.withHearingDefendants(List.of(HearingDefendantEntity.builder()
@@ -412,5 +325,23 @@ class HearingRepositoryFacadeTest {
         AssertionsForClassTypes.assertThat(offenderEntity.getPreviouslyKnownTerminationDate()).isEqualTo(date);
         AssertionsForClassTypes.assertThat(offenderEntity.isSuspendedSentenceOrder()).isEqualTo(true);
         AssertionsForClassTypes.assertThat(offenderEntity.isPreSentenceActivity()).isEqualTo(true);
+    }
+
+    @Test
+    void givenDefendantAlreadyExist_saveIncomingHearingWithSameDefendant_thenUpdateExistingDefendantAndMerge() {
+        when(offenderRepositoryFacade.upsertOffender(OFFENDER)).thenReturn(OFFENDER);
+        var existingDefendant = DEFENDANT.withId(10L).withDefendantName("Mr. Existing Name");
+        when(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID)).thenReturn(Optional.ofNullable(existingDefendant));
+        when(hearingRepository.save(any(HearingEntity.class))).thenReturn(HearingEntity.builder().build());
+        facade.save(HEARING);
+
+        verify(offenderRepositoryFacade).upsertOffender(any(OffenderEntity.class));
+        HearingDefendantEntity expectedHearingDefendant = HEARING.getHearingDefendants().get(0);
+        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(expectedHearingDefendant.getDefendantId());
+        var expectedDefendant = existingDefendant.withDefendantName(DEFENDANT.getDefendantName());
+        expectedHearingDefendant.setDefendant(expectedDefendant);
+        var expectedHearing = HEARING.withHearingDefendants(List.of(expectedHearingDefendant));
+        verify(hearingRepository).save(HEARING);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 }

@@ -10,10 +10,12 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 
 import javax.persistence.*;
@@ -30,7 +32,7 @@ import java.util.Optional;
 @With
 @Getter
 @ToString
-@EqualsAndHashCode(exclude = {"offender", "id"})
+@EqualsAndHashCode(exclude = {"offender", "hearingDefendants", "id"})
 @Audited
 public class DefendantEntity extends BaseImmutableEntity implements Serializable {
 
@@ -44,6 +46,7 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
     @ToString.Exclude
     @OneToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "fk_offender_id", referencedColumnName = "id")
+    @NotAudited
     private OffenderEntity offender;
 
     @Column(name = "CRN")
@@ -137,6 +140,23 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
         this.nationality2 = defendantUpdate.getNationality2();
         this.phoneNumber = defendantUpdate.getPhoneNumber();
         this.personId = defendantUpdate.getPersonId();
-        this.offender = defendantUpdate.getOffender();
+        Optional.ofNullable(this.offender).ifPresentOrElse(offenderEntity -> {
+            Optional.ofNullable(defendantUpdate.getOffender()).ifPresent(offenderUpdate -> {
+                if(StringUtils.equals(this.getOffender().getCrn(), defendantUpdate.getOffender().getCrn())) {
+                    this.offender.update(defendantUpdate.getOffender());
+                } else {
+                    this.offender = defendantUpdate.getOffender();
+                }
+            });
+        }, () -> {
+            this.offender = defendantUpdate.getOffender();
+        });
+
+    }
+
+    public void addHearingDefendant(HearingDefendantEntity hearingDefendantEntity) {
+
+        this.hearingDefendants.add(hearingDefendantEntity);
+        hearingDefendantEntity.setDefendant(this);
     }
 }

@@ -72,7 +72,9 @@ spring:
         hbm2ddl:
           auto: update
           schema_filter_provider: "uk.gov.justice.probation.courtcaseservice.jpa.CCSSchemaFilterProvider"
-    open-in-view: false
+      org:
+        hibernate:
+          flushMode: COMMIT
 
 # Uncomment the following lines to generate create.sql on build
 #      javax:

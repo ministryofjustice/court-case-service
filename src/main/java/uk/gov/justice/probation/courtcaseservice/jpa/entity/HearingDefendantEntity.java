@@ -77,6 +77,6 @@ public class HearingDefendantEntity extends BaseImmutableEntity implements Seria
         this.offences.addAll(hearingDefendant.getOffences());
         this.offences.forEach(offenceEntity -> offenceEntity.setHearingDefendant(this));
 
-        this.defendant = hearingDefendant.getDefendant();
+        this.defendant.update(hearingDefendant.getDefendant());
     }
 }

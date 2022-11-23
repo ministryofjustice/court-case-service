@@ -151,12 +151,24 @@ public class DefendantEntity extends BaseImmutableEntity implements Serializable
         }, () -> {
             this.offender = defendantUpdate.getOffender();
         });
-
     }
 
     public void addHearingDefendant(HearingDefendantEntity hearingDefendantEntity) {
-
         this.hearingDefendants.add(hearingDefendantEntity);
         hearingDefendantEntity.setDefendant(this);
+    }
+
+    public void confirmMatch(OffenderEntity updatedOffender) {
+        this.crn = updatedOffender.getCrn();
+        this.offender = updatedOffender;
+        this.manualUpdate = true;
+        this.offenderConfirmed = true;
+    }
+
+    public void confirmNoMatch() {
+        this.crn = null;
+        this.offender = null;
+        this.manualUpdate = true;
+        this.offenderConfirmed = true;
     }
 }

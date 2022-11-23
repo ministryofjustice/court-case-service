@@ -485,3 +485,13 @@ INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, dele
 VALUES (4000011, '1b6cf731-1892-4b9e-abc3-7fab87a39c21', 1111128919, '2020-10-01 16:59:59', false, 'COMMON_PLATFORM');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (4000011, 4000011, '1b6cf731-1892-4b9e-abc3-7fab87a39c21', NOW() - INTERVAL '1 day');
+
+
+UPDATE HEARING_DEFENDANT hdu SET FK_DEFENDANT_ID = d.id FROM DEFENDANT d, HEARING_DEFENDANT hd
+WHERE hd.DEFENDANT_ID = d.DEFENDANT_ID
+  AND hdu.id = hd.id;
+
+UPDATE DEFENDANT du SET FK_OFFENDER_ID = o.id FROM OFFENDER o, DEFENDANT d
+WHERE d.CRN IS NOT NULL
+  AND d.CRN = o.CRN
+  AND du.id = d.id;

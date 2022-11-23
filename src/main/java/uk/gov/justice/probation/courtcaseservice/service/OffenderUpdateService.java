@@ -36,7 +36,8 @@ public class OffenderUpdateService {
     @Transactional
     public void removeDefendantOffenderAssociation(final String defendantId) {
         final var defendant = findDefendantOrElseThrow(defendantId);
-        defendantRepository.save(defendant.withCrn(null).withManualUpdate(true).withOffenderConfirmed(true).withId(null));
+        defendant.confirmNoMatch();
+        defendantRepository.save(defendant);
     }
 
     public Mono<OffenderEntity> getDefendantOffenderByDefendantId(final String defendantId) {
@@ -54,16 +55,13 @@ public class OffenderUpdateService {
     @Transactional
     public Mono<OffenderEntity> updateDefendantOffender(final String defendantId, OffenderEntity offenderUpdate) {
 
-        final var defendant = findDefendantOrElseThrow(defendantId);
+        var defendant = findDefendantOrElseThrow(defendantId);
 
         final var updatedOffender = offenderRepositoryFacade.save(offenderUpdate);
 
         if (!StringUtils.equals(defendant.getCrn(), updatedOffender.getCrn())) {
-            final var updatedDefendant = defendant.withCrn(offenderUpdate.getCrn())
-                                                                .withManualUpdate(true)
-                                                                .withOffenderConfirmed(true)
-                                                                .withId(null);
-            defendantRepository.save(updatedDefendant);
+            defendant.confirmMatch(updatedOffender);
+            defendantRepository.save(defendant);
         }
 
         return Mono.just(updatedOffender);

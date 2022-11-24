@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
 
-    Optional<HearingEntity> findFirstByHearingIdOrderByIdDesc(String hearingId);
+    Optional<HearingEntity> findFirstByHearingId(String hearingId);
 
     Optional<HearingEntity> findFirstByHearingDefendantsDefendantId(String defendantId);
 

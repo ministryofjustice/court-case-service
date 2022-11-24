@@ -90,7 +90,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     @Override
     public HearingEntity getHearingByHearingId(String hearingId) throws EntityNotFoundException {
         log.info("Court case requested for hearing ID {}", hearingId);
-        return hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(hearingId)
+        return hearingRepositoryFacade.findFirstByHearingId(hearingId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Hearing %s not found", hearingId)));
     }
 
@@ -114,7 +114,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     private Mono<HearingEntity> createOrUpdateHearing(String hearingId, final HearingEntity updatedHearing) {
-        var hearing = hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(hearingId)
+        var hearing = hearingRepositoryFacade.findFirstByHearingId(hearingId)
             .map(existingHearing -> {
                 trackUpdateEvents(existingHearing, updatedHearing);
                 return existingHearing.update(updatedHearing);

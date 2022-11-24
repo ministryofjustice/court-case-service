@@ -40,8 +40,8 @@ public class HearingRepositoryFacade {
         this.caseCommentsRepository = caseCommentsRepository;
     }
 
-    public Optional<HearingEntity> findFirstByHearingIdOrderByIdDesc(String hearingId) {
-        return hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId);
+    public Optional<HearingEntity> findFirstByHearingId(String hearingId) {
+        return hearingRepository.findFirstByHearingId(hearingId);
     }
 
     public Optional<HearingEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo, String listNo) {
@@ -58,7 +58,7 @@ public class HearingRepositoryFacade {
     }
 
     public Optional<HearingEntity> findByHearingIdAndDefendantId(String hearingId, String defendantId) {
-        return hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
+        return hearingRepository.findFirstByHearingId(hearingId)
             .map(hearingEntity -> {
                 return Objects.nonNull(hearingEntity.getHearingDefendant(defendantId)) ? hearingEntity : null;
             })
@@ -101,7 +101,7 @@ public class HearingRepositoryFacade {
     // TODO delete
     private void populateDefendants(HearingDefendantEntity hearingDefendantEntity) {
         hearingDefendantEntity.setDefendant(
-            defendantRepository.findFirstByDefendantIdOrderByIdDesc(hearingDefendantEntity.getDefendantId())
+            defendantRepository.findFirstByDefendantId(hearingDefendantEntity.getDefendantId())
                 .map(defendantEntity -> {
                     Optional.ofNullable(defendantEntity.getCrn())
                         .flatMap(this.offenderRepository::findByCrn)
@@ -126,7 +126,7 @@ public class HearingRepositoryFacade {
         // Check if incoming defendant already exists in the database and update
         hearingEntity.getHearingDefendants().stream()
             .filter(hearingDefendant -> Objects.isNull(hearingDefendant.getDefendant().getId())) // ID not null means this defendant has already been fetched and updated
-            .forEach(defendantUpdate -> defendantRepository.findFirstByDefendantIdOrderByIdDesc(defendantUpdate.getDefendantId())
+            .forEach(defendantUpdate -> defendantRepository.findFirstByDefendantId(defendantUpdate.getDefendantId())
                 .ifPresent(dbDefendant -> {
                     dbDefendant.update(defendantUpdate.getDefendant());
                     defendantUpdate.setDefendant(dbDefendant);

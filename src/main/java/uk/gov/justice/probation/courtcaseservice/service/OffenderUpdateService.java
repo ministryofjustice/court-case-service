@@ -68,7 +68,7 @@ public class OffenderUpdateService {
     }
 
     private DefendantEntity findDefendantOrElseThrow(String defendantId) {
-        return defendantRepository.findFirstByDefendantIdOrderByIdDesc(defendantId)
+        return defendantRepository.findFirstByDefendantId(defendantId)
                 .orElseThrow(() -> new EntityNotFoundException("Defendant with id %s does not exist", defendantId));
     }
 }

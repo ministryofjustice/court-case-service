@@ -57,7 +57,7 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
 
     @Test
     public void whenFindFirstByHearingIdOrderByIdDesc_thenReturnCorrectRecordWithOffender() {
-        final var actual = hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc("5564cbfd-3d53-4f36-9508-437416b08738");
+        final var actual = hearingRepositoryFacade.findFirstByHearingId("5564cbfd-3d53-4f36-9508-437416b08738");
 
         assertIsFerrisBueller(actual);
     }
@@ -103,7 +103,7 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
     @Disabled("This validation has been removed but want to check with John")
     public void whenFindFirstByHearingIdOrderByIdDesc_andOffenderDoesNotExist_thenThrow() {
         assertThatExceptionOfType(RuntimeException.class)
-                .isThrownBy(() -> hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc("db63e9b5-6263-4235-9c4e-a99e200ae33e"))
+                .isThrownBy(() -> hearingRepositoryFacade.findFirstByHearingId("db63e9b5-6263-4235-9c4e-a99e200ae33e"))
                 .withMessageContaining("Unexpected state: Offender with CRN 'NOT_EXTANT' is specified on defendant 'd1a4f1b7-b153-4740-b68a-2b84feff6996' but it does not exist");
     }
 
@@ -127,7 +127,7 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
         final var hearingEntity = EntityHelper.aHearingEntity("b229b992-02d2-4393-affd-3878f2c7d61e");
         assertThat(hearingRepositoryFacade.save(hearingEntity)).isEqualTo(hearingEntity);
 
-        assertThat(hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(HEARING_ID).orElseThrow())
+        assertThat(hearingRepositoryFacade.findFirstByHearingId(HEARING_ID).orElseThrow())
                 .usingRecursiveComparison().ignoringFields("created")
                 .isEqualTo(hearingEntity);
     }
@@ -151,7 +151,7 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
 
         assertThat(hearingRepositoryFacade.save(hearingEntity)).isEqualTo(hearingEntity);
 
-        assertThat(hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(HEARING_ID).orElseThrow())
+        assertThat(hearingRepositoryFacade.findFirstByHearingId(HEARING_ID).orElseThrow())
                 .usingRecursiveComparison().ignoringFields("created")
                 .isEqualTo(hearingEntity);
     }
@@ -199,7 +199,7 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
 
         assertThat(hearingRepositoryFacade.save(hearingEntity)).isEqualTo(hearingEntity);
 
-        assertThat(hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(HEARING_ID).orElseThrow())
+        assertThat(hearingRepositoryFacade.findFirstByHearingId(HEARING_ID).orElseThrow())
                 .usingRecursiveComparison().ignoringFields("created")
                 .isEqualTo(hearingEntity);
     }
@@ -269,7 +269,7 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
 
         assertThat(hearingRepositoryFacade.save(hearingEntity)).isEqualTo(hearingEntity);
 
-        assertThat(hearingRepositoryFacade.findFirstByHearingIdOrderByIdDesc(HEARING_ID).orElseThrow())
+        assertThat(hearingRepositoryFacade.findFirstByHearingId(HEARING_ID).orElseThrow())
                 .usingRecursiveComparison().ignoringFields("created")
                 .isEqualTo(hearingEntity);
 

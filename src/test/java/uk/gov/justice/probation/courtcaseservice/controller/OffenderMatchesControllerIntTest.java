@@ -255,6 +255,7 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
 
         @Test
         void givenCourtCaseExistsWithNoPriorMatches_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {
+            var DEFENDANT_ID = "3bf70cd8-7e9d-4d29-b9b2-f8f7f898cb32";
             String location = given()
                     .auth()
                     .oauth2(getToken())

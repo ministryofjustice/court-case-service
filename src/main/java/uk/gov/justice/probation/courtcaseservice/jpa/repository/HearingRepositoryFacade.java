@@ -75,9 +75,10 @@ public class HearingRepositoryFacade {
      */
     public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
 
-        return canIgnoreCreatedDates(createdAfter, createdBefore)
+        List<HearingEntity> hearingEntities = canIgnoreCreatedDates(createdAfter, createdBefore)
             ? hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay)
             : hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay, createdAfter, createdBefore);
+        return hearingEntities;
     }
 
     public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay) {

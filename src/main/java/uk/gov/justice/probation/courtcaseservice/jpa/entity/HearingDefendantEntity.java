@@ -29,7 +29,7 @@ import java.util.Optional;
 @ToString
 @EqualsAndHashCode(callSuper = true, exclude = "hearing")
 @Audited
-public class HearingDefendantEntity extends BaseImmutableEntity implements Serializable {
+public class HearingDefendantEntity extends BaseAuditedEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)

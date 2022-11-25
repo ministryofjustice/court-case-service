@@ -75,6 +75,7 @@ spring:
       org:
         hibernate:
           flushMode: COMMIT
+    open-in-view: false
 
 # Uncomment the following lines to generate create.sql on build
 #      javax:

@@ -33,7 +33,7 @@ import java.util.List;
 @Table(name = "COURT_CASE")
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @Audited
-public class CourtCaseEntity extends BaseImmutableEntity implements Serializable {
+public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -68,18 +68,6 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     public void addHearing(HearingEntity newHearing) {
         newHearing.setCourtCase(this);
         this.hearings.add(newHearing);
-
-/*        // check and update any defendants that exist on a different hearing on this case
-        newHearing.getHearingDefendants().forEach(newHearingDefendantEntity -> {
-            this.getHearings().stream().filter(hearingEntity -> Objects.nonNull(hearingEntity.getHearingDefendant(newHearingDefendantEntity.getDefendantId())))
-                .findFirst()
-                .ifPresent(hearingEntity -> {
-                    var existingHearingDefendant = hearingEntity.getHearingDefendant(newHearingDefendantEntity.getDefendantId());
-                    var existingDefendant = existingHearingDefendant.getDefendant();
-                    existingDefendant.update(newHearingDefendantEntity.getDefendant());
-                    existingDefendant.addHearingDefendant(newHearingDefendantEntity);
-                });
-        });*/
     }
 
     public void update(CourtCaseEntity courtCaseUpdate) {

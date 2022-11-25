@@ -34,7 +34,7 @@ import java.util.Optional;
 @ToString
 @EqualsAndHashCode(exclude = {"offender", "hearingDefendants", "id"})
 @Audited
-public class DefendantEntity extends BaseImmutableEntity implements Serializable {
+public class DefendantEntity extends BaseAuditedEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)

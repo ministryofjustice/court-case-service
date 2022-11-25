@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @SuperBuilder
 @Audited
-public class HearingEntity extends BaseImmutableEntity implements Serializable {
+public class HearingEntity extends BaseAuditedEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -47,7 +47,6 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     private final Long id;
 
     @Column(name = "HEARING_ID", nullable = false)
-    @Setter // TODO: This was added to enable ImmutableCourtCaseService.enforceValidHearingId() as a precautionary measure and should be removed ASAP
     private String hearingId;
 
     @ManyToOne(optional = false, cascade = CascadeType.ALL)
@@ -70,9 +69,6 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     @JsonIgnore
     @OneToMany(mappedBy = "hearing", orphanRemoval=true, cascade = CascadeType.ALL)
     private final List<HearingDefendantEntity> hearingDefendants;
-
-    @Column(name = "deleted", nullable = false, updatable = false)
-    private boolean deleted;
 
     @Column(name = "first_created", insertable = false, updatable = false)
     private LocalDateTime firstCreated;

@@ -98,20 +98,6 @@ public class HearingRepositoryFacade {
         return save;
     }
 
-    // TODO delete
-    private void populateDefendants(HearingDefendantEntity hearingDefendantEntity) {
-        hearingDefendantEntity.setDefendant(
-            defendantRepository.findFirstByDefendantId(hearingDefendantEntity.getDefendantId())
-                .map(defendantEntity -> {
-                    Optional.ofNullable(defendantEntity.getCrn())
-                        .flatMap(this.offenderRepository::findByCrn)
-                        .ifPresent(offenderEntity -> defendantEntity.setOffender(offenderEntity));
-                    return defendantEntity;
-                })
-                .orElse(null)
-        );
-    }
-
     private void updateWithExistingOffenders(HearingEntity hearingEntity) {
         hearingEntity.getHearingDefendants().stream().filter(hearingDefendantEntity ->
                 Objects.nonNull(hearingDefendantEntity.getDefendant().getOffender()) &&

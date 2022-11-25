@@ -36,7 +36,7 @@ import java.time.LocalTime;
 @With
 @EqualsAndHashCode(callSuper = true, exclude = "court")
 @Audited
-public class HearingDayEntity extends BaseImmutableEntity implements Serializable {
+public class HearingDayEntity extends BaseAuditedEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)

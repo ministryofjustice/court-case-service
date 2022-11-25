@@ -227,7 +227,7 @@ dependencies {
     testImplementation("au.com.dius.pact.consumer:junit5:$pactVersion")
 
     testImplementation("org.apache.httpcomponents:fluent-hc:4.5.13")
-    testImplementation "org.testcontainers:localstack:1.17.4"
+    testImplementation "org.testcontainers:localstack:1.17.6"
     testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
 
     agentDeps 'com.microsoft.azure:applicationinsights-agent:3.4.2'

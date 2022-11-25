@@ -12,7 +12,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -37,14 +36,5 @@ class DefendantRepositoryFacadeTest {
         verify(defendantRepository).findFirstByDefendantId(EntityHelper.DEFENDANT_ID);
 
         Assertions.assertThat(actual.get()).isEqualTo(defendantEntity.withOffender(offenderEntity));
-    }
-
-    @Test
-    void shouldThroughEntityNotFoundExceptionWhenCourtCaseNotFound() {
-        DefendantEntity defendantEntity = EntityHelper.aDefendantEntity();
-        given(defendantRepository.findFirstByDefendantId(EntityHelper.DEFENDANT_ID))
-            .willReturn(Optional.of(defendantEntity));
-        assertThrows(RuntimeException.class, () ->
-            defendantRepositoryFacade.findFirstByDefendantId(EntityHelper.DEFENDANT_ID));
     }
 }

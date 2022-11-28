@@ -202,7 +202,6 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
         var updatedData = assertThatHearingIsNotImmutable(caseId, hearingId, DEFENDANT_ID_1);
         HearingEntity hearingAfterUpdate = updatedData.getV1();
         assertThat(hearingAfterUpdate.getHearingDefendants()).hasSize(2);
-        var updatedDefendant1 = updatedData.getV3();
 
         assertThat(hearingAfterUpdate.getHearingDefendants().stream()
             .map(hearingDefendantEntity1 -> findAllByDefendantId(hearingDefendantEntity1.getDefendantId()).get(0).withId(null))

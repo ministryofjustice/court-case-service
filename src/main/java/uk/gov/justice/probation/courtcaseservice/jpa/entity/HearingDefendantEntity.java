@@ -14,17 +14,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.envers.Audited;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +29,7 @@ import java.util.Optional;
 @ToString
 @EqualsAndHashCode(callSuper = true, exclude = "hearing")
 @Audited
-public class HearingDefendantEntity extends BaseImmutableEntity implements Serializable {
+public class HearingDefendantEntity extends BaseAuditedEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -56,9 +46,9 @@ public class HearingDefendantEntity extends BaseImmutableEntity implements Seria
     @Column(name = "DEFENDANT_ID", nullable = false)
     private final String defendantId;
 
-    @ToString.Exclude
-    @Transient
     @Setter
+    @ManyToOne(optional = false, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinColumn(name = "FK_DEFENDANT_ID", referencedColumnName = "id", nullable = false)
     private DefendantEntity defendant;
 
     @ToString.Exclude
@@ -87,6 +77,6 @@ public class HearingDefendantEntity extends BaseImmutableEntity implements Seria
         this.offences.addAll(hearingDefendant.getOffences());
         this.offences.forEach(offenceEntity -> offenceEntity.setHearingDefendant(this));
 
-        this.defendant = hearingDefendant.getDefendant();
+        this.defendant.update(hearingDefendant.getDefendant());
     }
 }

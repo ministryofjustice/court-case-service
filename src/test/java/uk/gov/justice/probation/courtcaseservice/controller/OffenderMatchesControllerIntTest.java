@@ -249,12 +249,11 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
     @Nested
     class CreateOrUpdateGroupedMatchesByDefendant {
 
-        private static final String DEFENDANT_ID = "3e94df33-8165-448b-ade9-14a28408e377";
-
         private static final String DEFENDANT_ID_NOT_EXIST = "40db17d6-04db-11ec-b2d8-0242ac130003";
 
         @Test
         void givenCourtCaseExistsWithNoPriorMatches_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {
+            var DEFENDANT_ID = "3bf70cd8-7e9d-4d29-b9b2-f8f7f898cb32";
             String location = given()
                     .auth()
                     .oauth2(getToken())

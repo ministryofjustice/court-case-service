@@ -38,8 +38,7 @@ class HearingRepositoryIntTest extends BaseRepositoryIntTest {
         final var hearings = hearingRepository.findByCourtCodeAndHearingDay("B10JQ", LocalDate.of(2022, 2, 17), LocalDateTime.of(2000, 1, 1, 1, 1), LocalDateTime.of(2500, 1, 1, 1, 1));
         assertThat(hearings).asList()
                 .extracting("id")
-                .containsExactlyInAnyOrder(-1700028904L, -1700028953L, -1700028952L,
-                        -1700028907L); // <- Known issue, this shouldn't be included, see PIC-2010
+                .containsExactlyInAnyOrder(-1700028904L, -1700028953L, -1700028952L);
     }
 
     @Test
@@ -47,7 +46,6 @@ class HearingRepositoryIntTest extends BaseRepositoryIntTest {
         final var hearings = hearingRepository.findByCourtCodeAndHearingDay("B10JQ", LocalDate.of(2022, 2, 17));
         assertThat(hearings).asList()
                 .extracting("id")
-                .containsExactlyInAnyOrder(-1700028904L, -1700028953L, -1700028952L,
-                        -1700028907L); // <- Known issue, this shouldn't be included, see PIC-2010
+                .containsExactlyInAnyOrder(-1700028904L, -1700028953L, -1700028952L);
     }
 }

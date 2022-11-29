@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springdoc.core.converters.models.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -231,6 +232,7 @@ public class CourtCaseController {
             description = "Response is sorted by court room, session start time and by defendant surname.")
     @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<CaseListResponse> searchCourtCases(
+            @PageableDefault(page = 0, size = 20)
             Pageable pageable,
             @PathVariable String courtCode,
             @RequestParam(value = "date")

@@ -9,18 +9,11 @@ import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
@@ -41,7 +34,7 @@ import java.util.stream.Collectors;
 public class ImmutableCourtCaseService implements CourtCaseService {
 
     private final CourtRepository courtRepository;
-    private final HearingRepositoryFacade hearingRepository;
+    private final HearingRepositoryFacade hearingRepositoryFacade;
     private final TelemetryService telemetryService;
     private final GroupedOffenderMatchRepository matchRepository;
     private final DomainEventService domainEventService;
@@ -49,13 +42,13 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     @Autowired
     public ImmutableCourtCaseService(CourtRepository courtRepository,
-                                     HearingRepositoryFacade hearingRepository,
+                                     HearingRepositoryFacade hearingRepositoryFacade,
                                      TelemetryService telemetryService,
                                      GroupedOffenderMatchRepository matchRepository,
                                      DomainEventService domainEventService,
                                      CourtCaseRepository courtCaseRepository) {
         this.courtRepository = courtRepository;
-        this.hearingRepository = hearingRepository;
+        this.hearingRepositoryFacade = hearingRepositoryFacade;
         this.telemetryService = telemetryService;
         this.matchRepository = matchRepository;
         this.domainEventService = domainEventService;
@@ -64,7 +57,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     @Override
     @Retryable(value = CannotAcquireLockException.class)
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Deprecated(forRemoval = true)
     public Mono<HearingEntity> createHearing(String caseId, HearingEntity updatedHearing) throws EntityNotFoundException, InputMismatchException {
         validateEntity(caseId, updatedHearing);
@@ -74,7 +67,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     @Override
     @Retryable(value = CannotAcquireLockException.class)
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED, propagation = Propagation.REQUIRES_NEW)
     public Mono<HearingEntity> createOrUpdateHearingByHearingId(String hearingId, HearingEntity updatedHearing) throws EntityNotFoundException, InputMismatchException {
         validateCourtCode(updatedHearing);
         if (!StringUtils.equals(hearingId, updatedHearing.getHearingId())) {
@@ -82,28 +75,29 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                     hearingId, updatedHearing.getHearingId()));
         }
 
-        return createOrUpdateHearing(hearingId, updatedHearing);
+        Mono<HearingEntity> orUpdateHearing = createOrUpdateHearing(hearingId, updatedHearing);
+        return orUpdateHearing;
     }
 
     @Override
     public HearingEntity getHearingByCaseNumber(String courtCode, String caseNo, String listNo) throws EntityNotFoundException {
         checkCourtExists(courtCode);
         log.info("Court case requested for court {} for case {}", courtCode, caseNo);
-        return hearingRepository.findByCourtCodeAndCaseNo(courtCode, caseNo, listNo)
+        return hearingRepositoryFacade.findByCourtCodeAndCaseNo(courtCode, caseNo, listNo)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Case %s not found for court %s", caseNo, courtCode)));
     }
 
     @Override
     public HearingEntity getHearingByHearingId(String hearingId) throws EntityNotFoundException {
         log.info("Court case requested for hearing ID {}", hearingId);
-        return hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
+        return hearingRepositoryFacade.findFirstByHearingId(hearingId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Hearing %s not found", hearingId)));
     }
 
     @Override
     public HearingEntity getHearingByHearingIdAndDefendantId(String hearingId, String defendantId) throws EntityNotFoundException {
         log.info("Court case requested for hearing ID {} and defendant ID {}", hearingId, defendantId);
-        return hearingRepository.findByHearingIdAndDefendantId(hearingId, defendantId)
+        return hearingRepositoryFacade.findByHearingIdAndDefendantId(hearingId, defendantId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Hearing %s not found for defendant %s", hearingId, defendantId)));
     }
 
@@ -112,15 +106,15 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         final var court = courtRepository.findByCourtCode(courtCode)
                 .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
 
-        return hearingRepository.findByCourtCodeAndHearingDay(court.getCourtCode(), hearingDay, createdAfter, createdBefore);
+        return hearingRepositoryFacade.findByCourtCodeAndHearingDay(court.getCourtCode(), hearingDay, createdAfter, createdBefore);
     }
 
     public Optional<LocalDateTime> filterHearingsLastModified(String courtCode, LocalDate searchDate) {
-        return hearingRepository.findLastModifiedByHearingDay(courtCode, searchDate);
+        return hearingRepositoryFacade.findLastModifiedByHearingDay(courtCode, searchDate);
     }
 
     private Mono<HearingEntity> createOrUpdateHearing(String hearingId, final HearingEntity updatedHearing) {
-        var hearing = hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
+        var hearing = hearingRepositoryFacade.findFirstByHearingId(hearingId)
             .map(existingHearing -> {
                 trackUpdateEvents(existingHearing, updatedHearing);
                 return existingHearing.update(updatedHearing);
@@ -129,22 +123,25 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                 trackCreateEvents(updatedHearing);
                 courtCaseRepository.findFirstByCaseIdOrderByIdDesc(updatedHearing.getCaseId())
                     .ifPresent(courtCaseEntity -> {
-                        courtCaseEntity.addHearing(updatedHearing);
+                        addHearingToCase(updatedHearing, courtCaseEntity);
                     });
                 return updatedHearing;
             });
+        log.debug("Saving hearing with ID {}", hearingId);
 
-        return Mono.just(hearing)
-            .map(hearingEntity -> {
-                log.debug("Saving hearing with ID {}", hearingId);
-                return hearingRepository.save(hearing);
-            }).map(saved -> {
+        var savedHearing = hearingRepositoryFacade.save(hearing);
+        return Mono.just(savedHearing)
+            .map(saved -> {
                 if (hasSentencedEventType(saved)) {
                     log.debug("Emitting sentenced event for hearing with ID {}", hearingId);
                     domainEventService.emitSentencedEvent(saved);
                 }
                 return saved;
             });
+    }
+
+    private static void addHearingToCase(HearingEntity updatedHearing, CourtCaseEntity courtCaseEntity) {
+        courtCaseEntity.addHearing(updatedHearing);
     }
 
     private boolean hasSentencedEventType(HearingEntity hearingEntity) {

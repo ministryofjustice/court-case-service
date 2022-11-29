@@ -10,7 +10,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
-import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 
 import javax.persistence.Column;
@@ -23,7 +22,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Optional;
 
 @Entity
 @Table(name = "OFFENDER")
@@ -81,4 +79,14 @@ public class OffenderEntity extends BaseEntity implements Serializable {
                 .build();
     }
 
+    public void update(OffenderEntity updatedOffender) {
+        this.cro = updatedOffender.getCro();
+        this.pnc = updatedOffender.getPnc();
+        this.breach = updatedOffender.isBreach();
+        this.awaitingPsr = updatedOffender.getAwaitingPsr();
+        this.probationStatus = updatedOffender.getProbationStatus();
+        this.previouslyKnownTerminationDate = updatedOffender.getPreviouslyKnownTerminationDate();
+        this.suspendedSentenceOrder = updatedOffender.isSuspendedSentenceOrder();
+        this.preSentenceActivity = updatedOffender.isPreSentenceActivity();
+    }
 }

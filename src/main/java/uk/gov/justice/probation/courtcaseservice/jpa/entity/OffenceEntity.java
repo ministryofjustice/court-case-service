@@ -36,7 +36,7 @@ import java.util.List;
 @Getter
 @EqualsAndHashCode(callSuper = true, exclude = "hearingDefendant")
 @Audited
-public class OffenceEntity extends BaseImmutableEntity implements Serializable  {
+public class OffenceEntity extends BaseAuditedEntity implements Serializable  {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)

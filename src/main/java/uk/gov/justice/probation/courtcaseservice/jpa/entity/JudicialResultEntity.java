@@ -26,7 +26,7 @@ import java.io.Serializable;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @Getter
 @Audited
-public class JudicialResultEntity extends BaseImmutableEntity implements Serializable {
+public class JudicialResultEntity extends BaseAuditedEntity implements Serializable {
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,6 +46,4 @@ public class JudicialResultEntity extends BaseImmutableEntity implements Seriali
     @JoinColumn(name = "OFFENCE_ID", referencedColumnName = "id")
     @Setter
     private OffenceEntity offence;
-
-
 }

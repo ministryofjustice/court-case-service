@@ -17,17 +17,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.envers.Audited;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
@@ -43,7 +33,7 @@ import java.util.List;
 @Table(name = "COURT_CASE")
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @Audited
-public class CourtCaseEntity extends BaseImmutableEntity implements Serializable {
+public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -61,7 +51,7 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     private String urn;
 
     @ToString.Exclude
-    @LazyCollection(value = LazyCollectionOption.FALSE)
+    @LazyCollection(LazyCollectionOption.FALSE)
     @JsonIgnore
     @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL)
     private final List<HearingEntity> hearings;
@@ -75,9 +65,9 @@ public class CourtCaseEntity extends BaseImmutableEntity implements Serializable
     @Enumerated(EnumType.STRING)
     private final SourceType sourceType;
 
-    public void addHearing(HearingEntity hearingEntity) {
-        hearingEntity.setCourtCase(this);
-        this.hearings.add(hearingEntity);
+    public void addHearing(HearingEntity newHearing) {
+        newHearing.setCourtCase(this);
+        this.hearings.add(newHearing);
     }
 
     public void update(CourtCaseEntity courtCaseUpdate) {

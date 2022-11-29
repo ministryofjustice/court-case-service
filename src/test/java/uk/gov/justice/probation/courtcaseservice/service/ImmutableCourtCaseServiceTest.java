@@ -79,6 +79,7 @@ class ImmutableCourtCaseServiceTest {
     private DomainEventService domainEventService;
     @Mock
     private CourtCaseRepository courtCaseRepository;
+
     @Mock
     private CaseSearchRepository caseSearchRepository;
 

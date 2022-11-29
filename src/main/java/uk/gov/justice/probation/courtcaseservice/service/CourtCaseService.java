@@ -1,6 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
+import org.springdoc.core.converters.models.Pageable;
+import org.springframework.data.domain.Page;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseSearchFilter;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
@@ -25,4 +28,6 @@ public interface CourtCaseService {
     List<HearingEntity> filterHearings(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore);
 
     Optional<LocalDateTime> filterHearingsLastModified(String courtCode, LocalDate date);
+
+    Page<HearingEntity> searchCourtCases(CaseSearchFilter caseSearchFilter, Pageable pageable);
 }

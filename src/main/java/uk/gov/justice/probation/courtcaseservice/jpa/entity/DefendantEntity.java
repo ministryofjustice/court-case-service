@@ -44,7 +44,7 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
 
     @Setter
     @ToString.Exclude
-    @OneToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "fk_offender_id", referencedColumnName = "id")
     @NotAudited
     private OffenderEntity offender;

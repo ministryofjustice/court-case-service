@@ -143,6 +143,7 @@ public class CourtCaseResponseMapper {
             .crn(hearingDefendantEntity.getCrn())
             .probationStatus(hearingDefendantEntity.getProbationStatusForDisplay())
             .confirmedOffender(defendant.isOffenderConfirmed())
+            .personId(defendant.getPersonId())
         ;
 
         // Offences

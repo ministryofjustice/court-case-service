@@ -66,7 +66,7 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
         LocalDateTime createdBefore
     );
 
-    @Query(value = "select h.* as first_created  " +
+   @Query(value = "select h.* as first_created  " +
         "from hearing h  " +
         "inner join hearing_day hday on hday.fk_hearing_id = h.id  " +
         "where hday.hearing_day = :hearingDay and hday.court_code = :courtCode " +

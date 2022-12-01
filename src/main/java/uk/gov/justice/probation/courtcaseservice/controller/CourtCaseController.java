@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
-import org.springdoc.core.converters.models.Pageable;
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.web.PageableDefault;
@@ -237,10 +237,9 @@ public class CourtCaseController {
             @PathVariable String courtCode,
             @RequestParam(value = "date")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(value = "probationStatus", required = false) String probationStatus,
-            @RequestParam(value = "courtroom", required = false) String courtRoom,
-            @RequestParam(value = "session", required = false) String session,
-            WebRequest webRequest
+            @RequestParam(value = "probationStatus", required = false) List<String> probationStatus,
+            @RequestParam(value = "courtroom", required = false) List<String> courtRoom,
+            @RequestParam(value = "session", required = false) String session
     ) {
         var response = ResponseEntity.ok();
 
@@ -262,7 +261,7 @@ public class CourtCaseController {
         return response
                 .body(CaseListResponse.builder()
                         .cases(caseLists)
-                        .size(searchResults.getSize())
+                        .size(caseLists.size())
                         .totalNoOfPages(searchResults.getTotalPages())
                         .build());
     }
@@ -273,7 +272,7 @@ public class CourtCaseController {
                     "createdBefore filters will not filter out updates originating from prepare-a-case, these manual updates" +
                     " are always assumed to be correct as they have been deliberately made by authorised users rather than " +
                     "automated systems.")
-    @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE)
+  //  @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE)
     @Deprecated
     public ResponseEntity<CaseListResponse> getCaseList(
             @PathVariable String courtCode,
@@ -346,7 +345,7 @@ public class CourtCaseController {
         return defendantEntities.stream()
                 .sorted(Comparator.comparing(HearingDefendantEntity::getDefendantSurname))
                 .map(hearingDefendantEntity -> {
-                    final String defendantId = Optional.ofNullable(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).map(DefendantEntity::getDefendantId).orElseThrow();
+                    final String defendantId = Optional.of(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).map(DefendantEntity::getDefendantId).orElseThrow();
                     var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantId).orElse(0);
                     return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate);
                 })

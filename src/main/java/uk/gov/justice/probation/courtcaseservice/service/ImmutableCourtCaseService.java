@@ -4,10 +4,11 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springdoc.core.converters.models.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
-import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -38,8 +39,11 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static uk.gov.justice.probation.courtcaseservice.service.specification.CaseSearchSpecification.getCaseSearchSpecification;
 
 @Service
 @Slf4j
@@ -132,34 +136,40 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     @Override
     public Page<HearingEntity> searchCourtCases(CaseSearchFilter caseSearchFilter, Pageable pageable) {
-        return caseSearchRepository.searchCases(caseSearchFilter,pageable);
+        Specification<HearingEntity> searchSpecification = getCaseSearchSpecification(caseSearchFilter, shouldApplySearchFilter(caseSearchFilter));
+        return caseSearchRepository.findAll(searchSpecification, pageable);
+
+    }
+
+    private boolean shouldApplySearchFilter(CaseSearchFilter caseSearchFilter) {
+        return Objects.nonNull(caseSearchFilter.getCourtRoom()) || Objects.nonNull(caseSearchFilter.getSession()) || Objects.nonNull(caseSearchFilter.getProbationStatus());
     }
 
     private Mono<HearingEntity> createOrUpdateHearing(String hearingId, final HearingEntity updatedHearing) {
         var hearing = hearingRepositoryFacade.findFirstByHearingId(hearingId)
-            .map(existingHearing -> {
-                trackUpdateEvents(existingHearing, updatedHearing);
-                return existingHearing.update(updatedHearing);
-            })
-            .orElseGet(() -> {
-                trackCreateEvents(updatedHearing);
-                courtCaseRepository.findFirstByCaseIdOrderByIdDesc(updatedHearing.getCaseId())
-                    .ifPresent(courtCaseEntity -> {
-                        addHearingToCase(updatedHearing, courtCaseEntity);
-                    });
-                return updatedHearing;
-            });
+                .map(existingHearing -> {
+                    trackUpdateEvents(existingHearing, updatedHearing);
+                    return existingHearing.update(updatedHearing);
+                })
+                .orElseGet(() -> {
+                    trackCreateEvents(updatedHearing);
+                    courtCaseRepository.findFirstByCaseIdOrderByIdDesc(updatedHearing.getCaseId())
+                            .ifPresent(courtCaseEntity -> {
+                                addHearingToCase(updatedHearing, courtCaseEntity);
+                            });
+                    return updatedHearing;
+                });
         log.debug("Saving hearing with ID {}", hearingId);
 
         var savedHearing = hearingRepositoryFacade.save(hearing);
         return Mono.just(savedHearing)
-            .map(saved -> {
-                if (hasSentencedEventType(saved)) {
-                    log.debug("Emitting sentenced event for hearing with ID {}", hearingId);
-                    domainEventService.emitSentencedEvent(saved);
-                }
-                return saved;
-            });
+                .map(saved -> {
+                    if (hasSentencedEventType(saved)) {
+                        log.debug("Emitting sentenced event for hearing with ID {}", hearingId);
+                        domainEventService.emitSentencedEvent(saved);
+                    }
+                    return saved;
+                });
     }
 
     private static void addHearingToCase(HearingEntity updatedHearing, CourtCaseEntity courtCaseEntity) {

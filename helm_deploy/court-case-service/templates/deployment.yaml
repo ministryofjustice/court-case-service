@@ -31,6 +31,13 @@ spec:
           ports:
             - containerPort: {{ .Values.image.port }}
               protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /ping
+              port: {{ .Values.image.port }}
+            initialDelaySeconds: 60
+            failureThreshold: 180
+            periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /ping

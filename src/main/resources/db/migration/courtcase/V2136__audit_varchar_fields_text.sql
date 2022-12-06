@@ -1,6 +1,6 @@
 BEGIN;
 
-    ALTER TABLE offence_aud ALTER COLUMN summary TEXT;
-    ALTER TABLE offence_aud ALTER COLUMN title TEXT;
+    ALTER TABLE IF EXISTS offence_aud ALTER COLUMN summary TYPE TEXT;
+    ALTER TABLE IF EXISTS offence_aud ALTER COLUMN title TYPE TEXT;
 
 COMMIT;

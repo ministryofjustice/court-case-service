@@ -54,7 +54,7 @@ public class OffenceEntity extends BaseAuditedEntity implements Serializable  {
     @Column(name = "TITLE", nullable = false)
     private final String title;
 
-    @Column(name = "SUMMARY", nullable = false)
+    @Column(name = "SUMMARY", nullable = false, columnDefinition = "TEXT")
     private final String summary;
 
     @Column(name = "ACT")

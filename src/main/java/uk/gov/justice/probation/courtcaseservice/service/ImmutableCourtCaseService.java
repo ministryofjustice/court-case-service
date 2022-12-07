@@ -166,12 +166,14 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
         var courtRooms = hearingRepositoryFacade.getDistinctCourtRoom(caseSearchFilter.getCourtCode());
 
+        var totalNoOfPages = searchResults.size() < pageable.getPageSize() ? 1 : (int) Math.ceil((double) searchResults.size() / pageable.getPageSize());
+
         var caseListFilter = CaseListFilters.builder()
                 .possibleNdeliusRecords(possibleNDeliusCount)
                 .recentlyAdded(recentlyAddedCount)
                 .size(pageable.getPageSize())
                 .courtRoom(courtRooms)
-                .totalNoOfPages(searchResults.size() < pageable.getPageSize() ? 1 : (int) Math.ceil((double) searchResults.size() / pageable.getPageSize()))
+                .totalNoOfPages(totalNoOfPages)
                 .build();
 
         var filteredResults = applyFilters(searchResults, caseSearchFilter);

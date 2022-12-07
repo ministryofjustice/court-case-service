@@ -33,8 +33,8 @@ public class CaseSearchFilterPredicate {
             return searchResults.stream()
                     .filter(recentlyAddedPredicate)
                     .filter(hearingEntity -> hearingEntity.getHearingDefendants().stream()
-                            .anyMatch(hearingDefendantEntity -> statusPredicate.test(hearingEntity, hearingDefendantEntity))
-                    ).filter(hearingEntity -> hearingEntity.getHearingDays().stream()
+                            .anyMatch(hearingDefendantEntity -> statusPredicate.test(hearingEntity, hearingDefendantEntity)))
+                    .filter(hearingEntity -> hearingEntity.getHearingDays().stream()
                             .anyMatch(hearingDayEntity -> courtRoomPredicate.test(hearingEntity, hearingDayEntity)))
                     .filter(hearingEntity -> hearingEntity.getHearingDays().stream()
                             .anyMatch(hearingDayEntity -> courtSessionPredicate.test(hearingEntity, hearingDayEntity)))
@@ -73,8 +73,8 @@ public class CaseSearchFilterPredicate {
         if (statusPredicate != null && courtRoomPredicate != null && courtSessionPredicate != null) {
             return searchResults.stream()
                     .filter(hearingEntity -> hearingEntity.getHearingDefendants().stream()
-                            .anyMatch(hearingDefendantEntity -> statusPredicate.test(hearingEntity, hearingDefendantEntity))
-                    ).filter(hearingEntity -> hearingEntity.getHearingDays().stream()
+                            .anyMatch(hearingDefendantEntity -> statusPredicate.test(hearingEntity, hearingDefendantEntity)))
+                    .filter(hearingEntity -> hearingEntity.getHearingDays().stream()
                             .anyMatch(hearingDayEntity -> courtRoomPredicate.test(hearingEntity, hearingDayEntity)))
                     .filter(hearingEntity -> hearingEntity.getHearingDays().stream()
                             .anyMatch(hearingDayEntity -> courtSessionPredicate.test(hearingEntity, hearingDayEntity)))
@@ -86,8 +86,8 @@ public class CaseSearchFilterPredicate {
         if (statusPredicate != null && courtRoomPredicate != null) {
             return searchResults.stream()
                     .filter(hearingEntity -> hearingEntity.getHearingDefendants().stream()
-                            .anyMatch(hearingDefendantEntity -> statusPredicate.test(hearingEntity, hearingDefendantEntity))
-                    ).filter(hearingEntity -> hearingEntity.getHearingDays().stream()
+                            .anyMatch(hearingDefendantEntity -> statusPredicate.test(hearingEntity, hearingDefendantEntity)))
+                    .filter(hearingEntity -> hearingEntity.getHearingDays().stream()
                             .anyMatch(hearingDayEntity -> courtRoomPredicate.test(hearingEntity, hearingDayEntity)))
                     .toList();
         }
@@ -96,8 +96,8 @@ public class CaseSearchFilterPredicate {
         if (statusPredicate != null && courtSessionPredicate != null) {
             return searchResults.stream()
                     .filter(hearingEntity -> hearingEntity.getHearingDefendants().stream()
-                            .anyMatch(hearingDefendantEntity -> statusPredicate.test(hearingEntity, hearingDefendantEntity))
-                    ).filter(hearingEntity -> hearingEntity.getHearingDays().stream()
+                            .anyMatch(hearingDefendantEntity -> statusPredicate.test(hearingEntity, hearingDefendantEntity)))
+                    .filter(hearingEntity -> hearingEntity.getHearingDays().stream()
                             .anyMatch(hearingDayEntity -> courtSessionPredicate.test(hearingEntity, hearingDayEntity)))
                     .toList();
         }

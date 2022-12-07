@@ -18,7 +18,7 @@ import java.util.List;
 public class CaseListFilters {
     private final List<String> probationStatus = Arrays.stream(DefendantProbationStatus.class.getEnumConstants()).map(Enum::name).toList();
     private final List<String> session = Arrays.stream(CourtSession.class.getEnumConstants()).map(Enum::name).toList();
-    private final List<String> courtRoom;// TODO
+    private final List<String> courtRoom;
     private final int possibleNdeliusRecords;
     private final int recentlyAdded;
     private final int size;

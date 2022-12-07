@@ -130,4 +130,8 @@ public class HearingRepositoryFacade {
                 .filter(hearingDefendantEntity -> defendantId.equals(hearingDefendantEntity.getDefendantId()))
                 .findFirst();
     }
+
+    public List<String> getDistinctCourtRoom(String courtCode){
+        return hearingRepository.getDistinctCourtRooms(courtCode);
+    }
 }

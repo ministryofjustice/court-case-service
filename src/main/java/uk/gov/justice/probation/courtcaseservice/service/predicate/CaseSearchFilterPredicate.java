@@ -27,10 +27,46 @@ public class CaseSearchFilterPredicate {
                                                     BiPredicate<HearingEntity, HearingDefendantEntity> statusPredicate,
                                                     BiPredicate<HearingEntity, HearingDayEntity> courtRoomPredicate,
                                                     BiPredicate<HearingEntity, HearingDayEntity> courtSessionPredicate) {
-        //filter by recently added
-        if(recentlyAddedPredicate != null){
+
+        //filter by recently added, status, room, session
+        if (recentlyAddedPredicate != null && statusPredicate != null && courtRoomPredicate != null && courtSessionPredicate != null) {
             return searchResults.stream()
-                    .filter(recentlyAddedPredicate).collect(Collectors.toList());
+                    .filter(recentlyAddedPredicate)
+                    .filter(hearingEntity -> hearingEntity.getHearingDefendants().stream()
+                            .anyMatch(hearingDefendantEntity -> statusPredicate.test(hearingEntity, hearingDefendantEntity))
+                    ).filter(hearingEntity -> hearingEntity.getHearingDays().stream()
+                            .anyMatch(hearingDayEntity -> courtRoomPredicate.test(hearingEntity, hearingDayEntity)))
+                    .filter(hearingEntity -> hearingEntity.getHearingDays().stream()
+                            .anyMatch(hearingDayEntity -> courtSessionPredicate.test(hearingEntity, hearingDayEntity)))
+                    .toList();
+        }
+
+
+        //filter by recently added, status
+        if (recentlyAddedPredicate != null && statusPredicate != null) {
+            return searchResults.stream()
+                    .filter(recentlyAddedPredicate)
+                    .filter(hearingEntity -> hearingEntity.getHearingDefendants().stream()
+                            .anyMatch(hearingDefendantEntity -> statusPredicate.test(hearingEntity, hearingDefendantEntity)))
+                    .toList();
+        }
+
+        //filter by recently added,room
+        if (recentlyAddedPredicate != null && courtRoomPredicate != null) {
+            return searchResults.stream()
+                    .filter(recentlyAddedPredicate)
+                    .filter(hearingEntity -> hearingEntity.getHearingDays().stream()
+                            .anyMatch(hearingDayEntity -> courtRoomPredicate.test(hearingEntity, hearingDayEntity)))
+                    .toList();
+        }
+
+        //filter by recently added,session
+        if (recentlyAddedPredicate != null && courtSessionPredicate != null) {
+            return searchResults.stream()
+                    .filter(recentlyAddedPredicate)
+                    .filter(hearingEntity -> hearingEntity.getHearingDays().stream()
+                            .anyMatch(hearingDayEntity -> courtSessionPredicate.test(hearingEntity, hearingDayEntity)))
+                    .toList();
         }
 
         //filter by status, room, session
@@ -74,6 +110,12 @@ public class CaseSearchFilterPredicate {
                     .filter(hearingEntity -> hearingEntity.getHearingDays().stream()
                             .anyMatch(hearingDayEntity -> courtSessionPredicate.test(hearingEntity, hearingDayEntity)))
                     .toList();
+        }
+
+        //filter by recently added
+        if (recentlyAddedPredicate != null) {
+            return searchResults.stream()
+                    .filter(recentlyAddedPredicate).collect(Collectors.toList());
         }
 
         //filter by status
@@ -136,9 +178,9 @@ public class CaseSearchFilterPredicate {
     }
 
     @NotNull
-    private static Predicate<HearingEntity> getRecentlyAddedPredicate(CaseSearchFilter searchFilter){
-        if(searchFilter.isRecentlyAdded()){
-            return(hearingEntity -> LocalDate.now().isEqual(Optional.ofNullable(hearingEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()));
+    private static Predicate<HearingEntity> getRecentlyAddedPredicate(CaseSearchFilter searchFilter) {
+        if (searchFilter.isRecentlyAdded()) {
+            return (hearingEntity -> LocalDate.now().isEqual(Optional.ofNullable(hearingEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()));
         }
         return null;
     }

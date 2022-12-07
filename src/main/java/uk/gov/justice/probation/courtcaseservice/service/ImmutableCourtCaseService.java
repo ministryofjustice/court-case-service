@@ -3,7 +3,6 @@ package uk.gov.justice.probation.courtcaseservice.service;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
@@ -47,7 +45,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.InputMismatchException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -162,15 +159,18 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     private CaseListResponse getCaseListResponse(CaseSearchFilter caseSearchFilter, Pageable pageable, List<HearingEntity> searchResults) {
-        int possibleNDeliusCount = (int) searchResults.stream()
+        var possibleNDeliusCount = (int) searchResults.stream()
                 .map(this::countPossibleNDeliusRecords).count();
 
-        int recentlyAddedCount = countRecentlyAdded(searchResults);
+        var recentlyAddedCount = countRecentlyAdded(searchResults);
+
+        var courtRooms = hearingRepositoryFacade.getDistinctCourtRoom(caseSearchFilter.getCourtCode());
 
         var caseListFilter = CaseListFilters.builder()
                 .possibleNdeliusRecords(possibleNDeliusCount)
                 .recentlyAdded(recentlyAddedCount)
                 .size(pageable.getPageSize())
+                .courtRoom(courtRooms)
                 .totalNoOfPages(searchResults.size() < pageable.getPageSize() ? 1 : (int) Math.ceil((double) searchResults.size() / pageable.getPageSize()))
                 .build();
 
@@ -183,7 +183,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                         .thenComparing(CourtCaseResponse::getSessionStartTime)
                         .thenComparing(CourtCaseResponse::getName)).toList();
 
-        var page = getPage(caseLists, pageable.getPageNumber(), pageable.getPageSize());
+        var page = getPageDetails(caseLists, pageable.getPageNumber(), pageable.getPageSize());
 
         return CaseListResponse.builder()
                 .cases(page.getPageItems())
@@ -191,7 +191,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                 .build();
     }
 
-    private Page<CourtCaseResponse> getPage(List<CourtCaseResponse> availableCourtCaseServiceList, int pageNumber, int pageSize) {
+    private Page<CourtCaseResponse> getPageDetails(List<CourtCaseResponse> availableCourtCaseServiceList, int pageNumber, int pageSize) {
         int skipCount = (pageNumber - 1) * pageSize;
 
         List<CourtCaseResponse> courtCaseServicePage = availableCourtCaseServiceList

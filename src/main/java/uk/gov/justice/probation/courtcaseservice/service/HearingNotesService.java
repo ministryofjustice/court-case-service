@@ -30,7 +30,7 @@ public class HearingNotesService {
 
         var hearingId = hearingNoteEntity.getHearingId();
 
-        return hearingRepository.findFirstByHearingId(hearingId)
+        return hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
             .map(hearingEntity -> hearingNotesRepository.save(hearingNoteEntity))
             .map(hearingNote -> {
                 telemetryService.trackCreateHearingNoteEvent(TelemetryEventType.HEARING_NOTE_ADDED, hearingNote);

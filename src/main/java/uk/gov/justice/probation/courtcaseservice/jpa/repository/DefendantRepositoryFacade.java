@@ -14,6 +14,6 @@ public class DefendantRepositoryFacade {
     }
 
     public Optional<DefendantEntity> findFirstByDefendantId(String defendantId) {
-        return defendantRepository.findFirstByDefendantId(defendantId);
+        return defendantRepository.findFirstByDefendantIdOrderByIdDesc(defendantId);
     }
 }

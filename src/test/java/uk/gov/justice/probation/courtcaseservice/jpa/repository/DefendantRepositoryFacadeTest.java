@@ -28,12 +28,12 @@ class DefendantRepositoryFacadeTest {
     void shouldFetchDefendantAndPopulateOffender() {
         OffenderEntity offenderEntity = OffenderEntity.builder().crn(EntityHelper.CRN).pnc("pnc").build();
         DefendantEntity defendantEntity = EntityHelper.aDefendantEntity();
-        given(defendantRepository.findFirstByDefendantId(EntityHelper.DEFENDANT_ID))
+        given(defendantRepository.findFirstByDefendantIdOrderByIdDesc(EntityHelper.DEFENDANT_ID))
             .willReturn(Optional.of(defendantEntity));
 
         var actual = defendantRepositoryFacade.findFirstByDefendantId(EntityHelper.DEFENDANT_ID);
 
-        verify(defendantRepository).findFirstByDefendantId(EntityHelper.DEFENDANT_ID);
+        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(EntityHelper.DEFENDANT_ID);
 
         Assertions.assertThat(actual.get()).isEqualTo(defendantEntity.withOffender(offenderEntity));
     }

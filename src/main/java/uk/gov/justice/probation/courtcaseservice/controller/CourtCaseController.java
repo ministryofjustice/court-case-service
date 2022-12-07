@@ -59,6 +59,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -232,14 +233,15 @@ public class CourtCaseController {
             description = "Response is sorted by court room, session start time and by defendant surname.")
     @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<CaseListResponse> searchCourtCases(
-            @PageableDefault(page = 0, size = 20)
+            @PageableDefault(page = 1, size = 20)
             Pageable pageable,
             @PathVariable String courtCode,
             @RequestParam(value = "date")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(value = "probationStatus", required = false) List<String> probationStatus,
             @RequestParam(value = "courtroom", required = false) List<String> courtRoom,
-            @RequestParam(value = "session", required = false) String session
+            @RequestParam(value = "session", required = false) List<String> session,
+            @RequestParam(value = "recentlyAdded", defaultValue = "false") boolean recentlyAdded
     ) {
         var response = ResponseEntity.ok();
 
@@ -248,22 +250,12 @@ public class CourtCaseController {
                 .date(date)
                 .probationStatus(probationStatus)
                 .courtRoom(courtRoom)
+                .recentlyAdded(recentlyAdded)
                 .session(session)
                 .build();
         var searchResults = courtCaseService.searchCourtCases(searchFilter, pageable);
 
-        var caseLists = searchResults.stream()
-                .flatMap(courtCaseEntity -> buildCourtCaseResponses(courtCaseEntity, date).stream())
-                .sorted(Comparator
-                        .comparing(CourtCaseResponse::getCourtRoom)
-                        .thenComparing(CourtCaseResponse::getSessionStartTime)
-                        .thenComparing(CourtCaseResponse::getName)).toList();
-        return response
-                .body(CaseListResponse.builder()
-                        .cases(caseLists)
-                        .size(caseLists.size())
-                        .totalNoOfPages(searchResults.getTotalPages())
-                        .build());
+        return response.body(searchResults);
     }
 
 

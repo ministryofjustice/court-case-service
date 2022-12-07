@@ -12,6 +12,7 @@ public class CaseSearchFilter {
     private final String courtCode;
     private final LocalDate date;
     private final List<String> probationStatus;
-    private final String session;
+    private final List<String> session;
     private final List<String> courtRoom;
+    private final boolean recentlyAdded;
 }

@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Arrays;
 
 public enum CourtSession {
     MORNING,

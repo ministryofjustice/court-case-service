@@ -239,11 +239,26 @@ public class CourtCaseController {
             @RequestParam(value = "date")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(value = "probationStatus", required = false) List<String> probationStatus,
-            @RequestParam(value = "courtroom", required = false) List<String> courtRoom,
+            @RequestParam(value = "courtRoom", required = false) List<String> courtRoom,
             @RequestParam(value = "session", required = false) List<String> session,
-            @RequestParam(value = "recentlyAdded", defaultValue = "false") boolean recentlyAdded
+            @RequestParam(value = "recentlyAdded", defaultValue = "false") boolean recentlyAdded,
+            WebRequest webRequest
     ) {
         var response = ResponseEntity.ok();
+        if (enableCacheableCaseList) {
+            var lastModified = courtCaseService.filterHearingsLastModified(courtCode, date)
+                    .orElse(NEVER_MODIFIED_DATE)
+                    .toInstant(ZoneOffset.UTC);
+            if (webRequest.checkNotModified(lastModified.toEpochMilli())) {
+                return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
+                        .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS))
+                        .build();
+            }
+
+            response = response
+                    .lastModified(lastModified)
+                    .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS));
+        }
 
         var searchFilter = CaseSearchFilter.builder()
                 .courtCode(courtCode)

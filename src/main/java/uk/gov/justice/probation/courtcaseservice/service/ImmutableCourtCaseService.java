@@ -185,7 +185,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                         .thenComparing(CourtCaseResponse::getSessionStartTime)
                         .thenComparing(CourtCaseResponse::getName)).toList();
 
-        var page = getPageDetails(caseLists, pageable.getPageNumber(), pageable.getPageSize());
+        var page = getPage(caseLists, pageable.getPageNumber(), pageable.getPageSize());
 
         return CaseListResponse.builder()
                 .cases(page.getPageItems())
@@ -193,7 +193,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                 .build();
     }
 
-    private Page<CourtCaseResponse> getPageDetails(List<CourtCaseResponse> availableCourtCaseServiceList, int pageNumber, int pageSize) {
+    private Page<CourtCaseResponse> getPage(List<CourtCaseResponse> availableCourtCaseServiceList, int pageNumber, int pageSize) {
         int skipCount = (pageNumber - 1) * pageSize;
 
         List<CourtCaseResponse> courtCaseServicePage = availableCourtCaseServiceList

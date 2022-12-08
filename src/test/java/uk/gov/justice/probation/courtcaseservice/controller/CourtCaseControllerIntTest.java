@@ -114,7 +114,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             ;
         }
 
-        //TODO This test might be still a valid one so check how to set up the data
+        //TODO This is a valid one so check how to set up the data
 /*        @Test
         void GET_cases_givenDefendantIsConfirmedAsNoMatch_should_return_probation_status_as_No_Record() {
 

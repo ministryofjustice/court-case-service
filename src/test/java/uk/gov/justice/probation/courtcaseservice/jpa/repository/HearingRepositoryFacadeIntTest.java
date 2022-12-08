@@ -276,6 +276,14 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
         assertJudicialResultsOrder(Optional.ofNullable(hearingEntity));
     }
 
+    @Test
+    public void whenGetDistinctCourtRoom_thenReturnCourtRooms() {
+        final var actual = hearingRepositoryFacade.getDistinctCourtRoom("B33HU");
+
+        assertThat(actual).isNotEmpty();
+        assertThat(actual).containsExactly("1");
+    }
+
     private void assertJudicialResultsOrder(Optional<HearingEntity> actual) {
         assertThat(actual).isPresent();
 

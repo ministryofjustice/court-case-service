@@ -229,7 +229,7 @@ public class CourtCaseController {
         return offenderUpdateService.getDefendantOffenderByDefendantId(defendantId).map(DefendantOffender::of);
     }
 
-    @Operation(summary = "Gets case data for a court on a date. ",
+    @Operation(summary = "Gets paginated case data for a court on a date ",
             description = "Response is sorted by court room, session start time and by defendant surname.")
     @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<CaseListResponse> searchCourtCases(
@@ -279,8 +279,10 @@ public class CourtCaseController {
                     "createdBefore filters will not filter out updates originating from prepare-a-case, these manual updates" +
                     " are always assumed to be correct as they have been deliberately made by authorised users rather than " +
                     "automated systems.")
-  //  @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE)
     @Deprecated
+    /**
+     * Deprecated in favour of the version with pagination and filters. please see {@link #searchCourtCases }
+     */
     public ResponseEntity<CaseListResponse> getCaseList(
             @PathVariable String courtCode,
             @RequestParam(value = "date")

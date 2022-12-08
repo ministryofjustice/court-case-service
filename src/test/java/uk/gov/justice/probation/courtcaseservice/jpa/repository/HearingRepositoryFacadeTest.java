@@ -18,13 +18,17 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 
+import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -343,5 +347,14 @@ class HearingRepositoryFacadeTest {
         var expectedHearing = HEARING.withHearingDefendants(List.of(expectedHearingDefendant));
         verify(hearingRepository).save(HEARING);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
+    }
+
+    @Test
+    void whenGetDistinctCourtRoom_thenReturnCourtRooms() {
+        when(hearingRepository.getDistinctCourtRooms(anyString())).thenReturn(Arrays.asList("1","2","3a"));
+        final var actual = facade.getDistinctCourtRoom(COURT_CODE);
+
+        verify(hearingRepository).getDistinctCourtRooms(COURT_CODE);
+        verifyNoMoreInteractions(hearingRepository);
     }
 }

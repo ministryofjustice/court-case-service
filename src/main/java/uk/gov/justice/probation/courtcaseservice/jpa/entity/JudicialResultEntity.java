@@ -33,13 +33,13 @@ public class JudicialResultEntity extends BaseAuditedEntity implements Serializa
     @JsonIgnore
     private final Long id;
 
-    @Column(name = "LABEL")
+    @Column(name = "LABEL", columnDefinition = "TEXT")
     private final String label;
 
     @Column(name="IS_CONVICTED_RESULT")
     private boolean isConvictedResult;
 
-    @Column(name = "JUDICIAL_RESULT_TYPE_ID")
+    @Column(name = "JUDICIAL_RESULT_TYPE_ID", columnDefinition = "TEXT")
     private final String judicialResultTypeId;
 
     @ManyToOne

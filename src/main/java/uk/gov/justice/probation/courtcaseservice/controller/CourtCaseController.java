@@ -59,7 +59,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -232,7 +231,7 @@ public class CourtCaseController {
     @Operation(summary = "Gets paginated case data for a court on a date ",
             description = "Response is sorted by court room, session start time and by defendant surname.")
     @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<CaseListResponse> searchCourtCases(
+    public ResponseEntity<CaseListResponse> findCourtCases(
             @PageableDefault(page = 1, size = 20)
             Pageable pageable,
             @PathVariable String courtCode,
@@ -281,7 +280,7 @@ public class CourtCaseController {
                     "automated systems.")
     @Deprecated
     /**
-     * Deprecated in favour of the version with pagination and filters. please see {@link #searchCourtCases }
+     * Deprecated in favour of the version with pagination and filters. please see {@link #findCourtCases }
      */
     public ResponseEntity<CaseListResponse> getCaseList(
             @PathVariable String courtCode,

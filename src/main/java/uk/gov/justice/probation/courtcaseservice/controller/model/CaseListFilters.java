@@ -16,8 +16,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CaseListFilters {
-    private final List<String> probationStatus = Arrays.stream(DefendantProbationStatus.class.getEnumConstants()).map(Enum::name).toList();
-    private final List<String> session = Arrays.stream(CourtSession.class.getEnumConstants()).map(Enum::name).toList();
+    private final List<String> probationStatus = Arrays.stream(DefendantProbationStatus.values()).map(DefendantProbationStatus::getName).distinct().toList();
+    private final List<String> session = Arrays.stream(CourtSession.values()).map(Enum::name).toList();
     private final List<String> courtRoom;
     private final int possibleNdeliusRecords;
     private final int recentlyAdded;

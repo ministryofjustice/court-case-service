@@ -29,5 +29,5 @@ public interface CourtCaseService {
 
     Optional<LocalDateTime> filterHearingsLastModified(String courtCode, LocalDate date);
 
-    CaseListResponse searchCourtCases(CaseSearchFilter caseSearchFilter, Pageable pageable);
+    CaseListResponse findCourtCases(CaseSearchFilter caseSearchFilter, Pageable pageable);
 }

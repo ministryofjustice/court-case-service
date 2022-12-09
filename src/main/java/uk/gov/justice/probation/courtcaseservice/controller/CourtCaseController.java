@@ -267,7 +267,7 @@ public class CourtCaseController {
                 .recentlyAdded(recentlyAdded)
                 .session(session)
                 .build();
-        var searchResults = courtCaseService.searchCourtCases(searchFilter, pageable);
+        var searchResults = courtCaseService.findCourtCases(searchFilter, pageable);
 
         return response.body(searchResults);
     }

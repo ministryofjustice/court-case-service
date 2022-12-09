@@ -142,7 +142,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     @Override
-    public CaseListResponse searchCourtCases(CaseSearchFilter caseSearchFilter, Pageable pageable) {
+    public CaseListResponse findCourtCases(CaseSearchFilter caseSearchFilter, Pageable pageable) {
         Specification<HearingEntity> searchSpecification = getCaseSearchSpecification(caseSearchFilter);
 
         var searchResults = caseSearchRepository.findAll(searchSpecification);

@@ -36,7 +36,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
-import uk.gov.justice.probation.courtcaseservice.service.specification.CaseSearchSpecification;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -733,7 +732,7 @@ class ImmutableCourtCaseServiceTest {
             when(caseSearchRepository.findAll(any(Specification.class)))
                     .thenReturn(Collections.singletonList(hearingEntity));
 
-            var caseListResponse = service.searchCourtCases(searchFilter, pageable);
+            var caseListResponse = service.findCourtCases(searchFilter, pageable);
 
             assertThat(caseListResponse.getCases()).hasSize(1);
             assertThat(caseListResponse.getFilters().getTotalNoOfPages()).isEqualTo(1);

@@ -36,7 +36,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
-import uk.gov.justice.probation.courtcaseservice.service.model.Page;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -185,28 +184,23 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                         .thenComparing(CourtCaseResponse::getSessionStartTime)
                         .thenComparing(CourtCaseResponse::getName)).toList();
 
-        var page = getPage(caseLists, pageable.getPageNumber(), pageable.getPageSize());
+
+        var pageItems = getPageItems(caseLists, pageable.getPageNumber(), pageable.getPageSize());
 
         return CaseListResponse.builder()
-                .cases(page.getPageItems())
+                .cases(pageItems)
                 .filters(caseListFilter)
                 .build();
     }
 
-    private Page<CourtCaseResponse> getPage(List<CourtCaseResponse> availableCourtCaseServiceList, int pageNumber, int pageSize) {
+    private List<CourtCaseResponse> getPageItems(List<CourtCaseResponse> availableCourtCaseServiceList, int pageNumber, int pageSize) {
         int skipCount = (pageNumber - 1) * pageSize;
 
-        List<CourtCaseResponse> courtCaseServicePage = availableCourtCaseServiceList
+        return availableCourtCaseServiceList
                 .stream()
                 .skip(skipCount)
                 .limit(pageSize).toList();
 
-
-        return Page.<CourtCaseResponse>builder()
-                .pageNumber(pageNumber)
-                .totalResults(availableCourtCaseServiceList.size())
-                .pageItems(courtCaseServicePage)
-                .build();
     }
 
     private int countPossibleNDeliusRecords(HearingEntity hearingEntity) {

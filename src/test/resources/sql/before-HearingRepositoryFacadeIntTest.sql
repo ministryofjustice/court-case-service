@@ -28,10 +28,8 @@ INSERT INTO hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-184, -184, 'fe657c3a-b674-4e17-8772-7281c99e4f9f', '2022-03-23 17:59:59.000');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
 VALUES (-184, -184, 'B33HU', 1, '2022-3-25', '09:00', '2022-03-23 17:59:59.000');
-INSERT INTO DEFENDANT (id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, type, date_of_birth, crn, FK_OFFENDER_ID, sex, created)
-VALUES (-184, '0048297a-fd9c-4c96-8c03-8122b802a54d', 'c88fd38c-4b9e-11ed-bdc3-0242ac120002', 'Mr Ferris BUELLER', '{"title": "Mr", "surname": "BUELLER", "forename1": "Ferris", "forename2": "Antimony"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', 'X25829', -100, 'MALE', '2022-03-23 17:59:59.000');
 INSERT INTO HEARING_DEFENDANT (id, fk_hearing_id, created, defendant_id, FK_DEFENDANT_ID)
-VALUES (-184, -184, '2022-03-23 16:59:59.000', '0048297a-fd9c-4c96-8c03-8122b802a54d', -184);
+VALUES (-184, -184, '2022-03-23 16:59:59.000', '0048297a-fd9c-4c96-8c03-8122b802a54d', -198);
 
 -- Initial creation of Royston Vasey - Error case - offender referenced by CRN does not exist
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)

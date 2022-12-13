@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
 
-    Optional<HearingEntity> findFirstByHearingIdOrderByIdDesc(String hearingId);
+    Optional<HearingEntity> findFirstByHearingId(String hearingId);
 
     Optional<HearingEntity> findFirstByHearingDefendantsDefendantId(String defendantId);
 
@@ -53,17 +53,11 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
 
     @Query(value = "select h.* as first_created " +
         "from hearing h " +
-        "inner join " +
-        "   (select max(group_hearing.id) as max_id, group_hearing.HEARING_ID from hearing group_hearing " +
-        "       inner join hearing_day on hearing_day.fk_hearing_id = group_hearing.id " +
-        "       where group_hearing.created >= :createdAfter and group_hearing.created < :createdBefore " +
-        "       and hearing_day.court_code = :courtCode " +
-        "       group by group_hearing.HEARING_ID " +
-        "       ) grouped_hearings " +
-        "on h.id = grouped_hearings.max_id " +
         "inner join hearing_day hday on hday.fk_hearing_id = h.id " +
-        "where hday.hearing_day = :hearingDay " +
-        "and h.deleted = false ",
+        "where h.created >= :createdAfter and h.created < :createdBefore " +
+        "and hday.court_code = :courtCode " +
+        "and hday.hearing_day = :hearingDay " +
+        "and h.deleted = false",
         nativeQuery = true)
     List<HearingEntity> findByCourtCodeAndHearingDay(
         String courtCode,
@@ -71,18 +65,12 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
         LocalDateTime createdAfter,
         LocalDateTime createdBefore
     );
-    @Query(value = "select h.* as first_created " +
-        "from hearing h " +
-        "   inner join " +
-        "       (select max(group_hearing.id) as max_id, group_hearing.HEARING_ID from hearing group_hearing " +
-        "           inner join hearing_day on hearing_day.fk_hearing_id = group_hearing.id " +
-        "           where hearing_day.court_code = :courtCode " +
-        "           group by group_hearing.HEARING_ID " +
-        "           ) grouped_hearings " +
-        "       on h.id = grouped_hearings.max_id " +
-        "   inner join hearing_day hday on hday.fk_hearing_id = h.id " +
-        "where hday.hearing_day = :hearingDay " +
-        "and h.deleted = false ",
+
+    @Query(value = "select h.* as first_created  " +
+        "from hearing h  " +
+        "inner join hearing_day hday on hday.fk_hearing_id = h.id  " +
+        "where hday.hearing_day = :hearingDay and hday.court_code = :courtCode " +
+        "and h.deleted = false",
         nativeQuery = true)
     List<HearingEntity> findByCourtCodeAndHearingDay(
         String courtCode,

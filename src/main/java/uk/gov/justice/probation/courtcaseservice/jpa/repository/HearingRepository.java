@@ -90,4 +90,13 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
         "and h.fk_court_case_id = cc.id group by h.hearing_id)",
         nativeQuery = true)
     Optional<List<HearingEntity>> findHearingsByCaseId(String caseId);
+
+    @Query(value = "select distinct hd.court_room " +
+            "from hearing h  join " +
+            "hearing_day hd " +
+            "on h.id = hd.fk_hearing_id " +
+            "where hd.court_code = :courtCode " +
+            "order by court_room",
+            nativeQuery = true)
+    List<String>  getDistinctCourtRooms(String courtCode);
 }

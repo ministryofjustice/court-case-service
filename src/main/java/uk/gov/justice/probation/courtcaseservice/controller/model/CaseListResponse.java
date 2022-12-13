@@ -16,4 +16,6 @@ import java.util.List;
 @Schema(description = "Response object for a list of cases")
 public class CaseListResponse {
     private final List<CourtCaseResponse> cases;
+
+    private final CaseListFilters filters;
 }

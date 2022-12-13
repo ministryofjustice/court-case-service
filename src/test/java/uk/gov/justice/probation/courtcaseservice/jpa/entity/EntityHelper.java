@@ -74,6 +74,13 @@ public class EntityHelper {
             .ifPresent(hearings -> hearings.forEach(hearingEntity1 -> hearingEntity1.setCourtCase(hearingEntity.getCourtCase())));
     }
 
+    public static void refreshMappings(CourtCaseEntity courtCaseEntity) {
+        courtCaseEntity.getHearings().forEach(hearingEntity -> {
+            hearingEntity.setCourtCase(courtCaseEntity);
+            refreshMappings(hearingEntity);
+        });
+    }
+
     public static HearingEntity aHearingEntityWithHearingId(String caseId, String hearingId, String defendantId) {
         final var hearingEntity = populateBasics(CRN, hearingId, defendantId)
                 .hearingId(hearingId)

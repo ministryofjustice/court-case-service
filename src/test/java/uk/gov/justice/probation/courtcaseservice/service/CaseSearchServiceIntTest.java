@@ -6,8 +6,8 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
-import uk.gov.justice.probation.courtcaseservice.service.model.DefendantSearchResultItem;
-import uk.gov.justice.probation.courtcaseservice.service.model.SearchResult;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResultItem;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResult;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,7 +19,7 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 
 @Sql(scripts = { "classpath:sql/before-common.sql", "classpath:sql/before-search-tests.sql" }, config = @SqlConfig(transactionMode = ISOLATED), executionPhase = BEFORE_TEST_METHOD)
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
-class DefendantSearchServiceIntTest extends BaseIntTest {
+class CaseSearchServiceIntTest extends BaseIntTest {
 
     @Autowired
     CaseSearchService defendantSearchService;
@@ -28,7 +28,7 @@ class DefendantSearchServiceIntTest extends BaseIntTest {
     void givenValidCrn_shouldReturnSearchResponse() {
         var actual = defendantSearchService.searchByCrn("X25829");
 
-        var result1 = DefendantSearchResultItem.builder()
+        var result1 = CaseSearchResultItem.builder()
             .defendantName("Mr Ferris BUELLER")
             .crn("X25829")
             .offenceTitles(List.of("Theft from a garage"))
@@ -36,7 +36,7 @@ class DefendantSearchServiceIntTest extends BaseIntTest {
             .lastHearingCourt("Leicester")
             .probationStatus(DefendantProbationStatus.CURRENT)
             .build();
-        var result2 = DefendantSearchResultItem.builder()
+        var result2 = CaseSearchResultItem.builder()
             .defendantName("Mr Ferris Biller")
             .crn("X25829")
             .offenceTitles(List.of("Theft from a hospital", "Theft from a shop"))
@@ -47,6 +47,6 @@ class DefendantSearchServiceIntTest extends BaseIntTest {
             .probationStatus(DefendantProbationStatus.CURRENT)
             .build();
 
-        assertThat(actual).isEqualTo(SearchResult.builder().items(List.of(result1, result2)).build());
+        assertThat(actual).isEqualTo(CaseSearchResult.builder().items(List.of(result1, result2)).build());
     }
 }

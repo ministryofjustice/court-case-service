@@ -36,7 +36,7 @@ import java.util.List;
 @With
 @Setter
 @Getter
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = false, exclude = {"defendants"})
 @ToString
 public class OffenderEntity extends BaseEntity implements Serializable {
 

@@ -1,12 +1,18 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.service.model.DefendantSearchResultItem;
+import uk.gov.justice.probation.courtcaseservice.service.model.SearchResult;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
@@ -16,11 +22,31 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
 class DefendantSearchServiceIntTest extends BaseIntTest {
 
     @Autowired
-    DefendantSearchService defendantSearchService;
+    CaseSearchService defendantSearchService;
 
     @Test
     void givenValidCrn_shouldReturnSearchResponse() {
         var actual = defendantSearchService.searchByCrn("X25829");
-        Assertions.assertThat(actual.getDefendants()).hasSize(2);
+
+        var result1 = DefendantSearchResultItem.builder()
+            .defendantName("Mr Ferris BUELLER")
+            .crn("X25829")
+            .offenceTitles(List.of("Theft from a garage"))
+            .lastHearingDate(LocalDate.now().minusDays(5))
+            .lastHearingCourt("Leicester")
+            .probationStatus(DefendantProbationStatus.CURRENT)
+            .build();
+        var result2 = DefendantSearchResultItem.builder()
+            .defendantName("Mr Ferris Biller")
+            .crn("X25829")
+            .offenceTitles(List.of("Theft from a hospital", "Theft from a shop"))
+            .lastHearingDate(LocalDate.now().minusDays(2))
+            .lastHearingCourt("Sheffield")
+            .nextHearingDate(LocalDate.now().plusDays(10))
+            .nextHearingCourt("Leicester")
+            .probationStatus(DefendantProbationStatus.CURRENT)
+            .build();
+
+        assertThat(actual).isEqualTo(SearchResult.builder().items(List.of(result1, result2)).build());
     }
 }

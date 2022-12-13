@@ -15,5 +15,5 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class SearchResult {
-    private List<DefendantSearchResultItem> defendants;
+    private List<DefendantSearchResultItem> items;
 }

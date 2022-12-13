@@ -41,12 +41,13 @@ public class DefendantSearchResultItem {
 
     private LocalDate nextHearingDate;
 
-    private String lastHeardCourt;
+    private String lastHearingCourt;
 
-    private String nextHeardCourt;
+    private String nextHearingCourt;
 
     public static DefendantSearchResultItem from(CourtCaseEntity courtCaseEntity, final String crn) {
 
+        // filter out hearing defendants that does not match teh CRN - as the case may have multiple defendants with different CRNs
         var hearingDefendants = courtCaseEntity.getHearings().stream()
             .flatMap(hearingEntity -> hearingEntity.getHearingDefendants().stream()
                 .filter(hearingDefendantEntity -> Optional.ofNullable(hearingDefendantEntity.getDefendant().getOffender())
@@ -71,9 +72,9 @@ public class DefendantSearchResultItem {
             .offenceTitles(offenceTitles.stream().toList())
             .probationStatus(defendant.getProbationStatusForDisplay())
             .lastHearingDate(lastHearing.map(HearingDayEntity::getDay).orElse(null))
-            .lastHeardCourt(lastHearing.map(HearingDayEntity::getCourt).map(CourtEntity::getName).orElse(null))
+            .lastHearingCourt(lastHearing.map(HearingDayEntity::getCourt).map(CourtEntity::getName).orElse(null))
             .nextHearingDate(nextHearing.map(HearingDayEntity::getDay).orElse(null))
-            .nextHeardCourt(nextHearing.map(HearingDayEntity::getCourt).map(CourtEntity::getName).orElse(null))
+            .nextHearingCourt(nextHearing.map(HearingDayEntity::getCourt).map(CourtEntity::getName).orElse(null))
             .build();
     }
 

@@ -33,6 +33,7 @@ class CaseSearchResultItemMapperTest {
     static HearingDefendantEntity hearingDefendant1 = EntityHelper.aHearingDefendantEntity(defendantId1, testCrn)
         .withOffences(List.of(OffenceEntity.builder().title("offence title 1").build()));
     static HearingEntity hearingEntity1 = HearingEntity.builder()
+        .hearingId("hearing-id-1")
         .hearingDays(List.of(
             HearingDayEntity.builder().day(LocalDate.of(2022, 10, 10)).time(LocalTime.of(9, 0, 0)).court(sheffieldCourt).build())
         )
@@ -44,6 +45,7 @@ class CaseSearchResultItemMapperTest {
     static HearingDefendantEntity hearingDefendant22 = EntityHelper.aHearingDefendantEntity("defendant-id-2", "Y12345")
         .withOffences(List.of(OffenceEntity.builder().title("offence title 4").build()));
     static HearingEntity hearingEntity2 = HearingEntity.builder()
+        .hearingId("hearing-id-2")
         .hearingDays(List.of(
             HearingDayEntity.builder().day(LocalDate.of(2022, 11, 10)).time(LocalTime.of(9, 0, 0)).court(sheffieldCourt).build(),
             HearingDayEntity.builder().day(LocalDate.of(2022, 12, 10)).time(LocalTime.of(9, 0, 0)).court(sheffieldCourt).build())
@@ -54,6 +56,7 @@ class CaseSearchResultItemMapperTest {
     static HearingDefendantEntity hearingDefendant3 = EntityHelper.aHearingDefendantEntity(defendantId1, testCrn)
         .withOffences(List.of(OffenceEntity.builder().title("offence title 1").build()));
     static HearingEntity hearingEntity3 = HearingEntity.builder()
+        .hearingId("hearing-id-3")
         .hearingDays(List.of(
             HearingDayEntity.builder().day(LocalDate.of(2023, 02, 18)).time(LocalTime.of(9, 0, 0)).court(sheffieldCourt).build(),
             HearingDayEntity.builder().day(LocalDate.of(2023, 01, 23)).time(LocalTime.of(9, 0, 0)).court(leicesterCourt).build())
@@ -72,6 +75,8 @@ class CaseSearchResultItemMapperTest {
         var actual = subject.from(courtCaseEntity, testCrn);
 
         var result1 = CaseSearchResultItem.builder()
+            .hearingId("hearing-id-1")
+            .defendantId(defendantId1)
             .defendantName("Mr Gordon BENNETT")
             .crn(testCrn)
             .offenceTitles(List.of("offence title 1", "offence title 2", "offence title 3"))
@@ -94,6 +99,8 @@ class CaseSearchResultItemMapperTest {
         var actual = subject.from(courtCaseEntity, testCrn);
 
         var result = CaseSearchResultItem.builder()
+            .hearingId("hearing-id-3")
+            .defendantId(defendantId1)
             .defendantName("Mr Gordon BENNETT")
             .crn(testCrn)
             .offenceTitles(List.of("offence title 1"))
@@ -114,6 +121,8 @@ class CaseSearchResultItemMapperTest {
         var actual = subject.from(courtCaseEntity, testCrn);
 
         var result = CaseSearchResultItem.builder()
+            .hearingId("hearing-id-1")
+            .defendantId(defendantId1)
             .defendantName("Mr Gordon BENNETT")
             .crn(testCrn)
             .offenceTitles(List.of("offence title 1", "offence title 2", "offence title 3"))

@@ -20,6 +20,10 @@ public class CaseSearchResultItem {
 
     private String defendantName;
 
+    private String hearingId;
+
+    private String defendantId;
+
     private String crn;
 
     private DefendantProbationStatus probationStatus;

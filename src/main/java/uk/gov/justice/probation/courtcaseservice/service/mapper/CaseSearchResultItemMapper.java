@@ -53,6 +53,8 @@ public class CaseSearchResultItemMapper {
         var nextHearing = lastAndNextHearings.getSecond();
 
         return CaseSearchResultItem.builder()
+            .hearingId(hearingDefendants.get(0).getHearing().getHearingId())
+            .defendantId(defendant.getDefendantId())
             .crn(crn)
             .defendantName(defendant.getDefendantName())
             .offenceTitles(offenceTitles.stream().toList())

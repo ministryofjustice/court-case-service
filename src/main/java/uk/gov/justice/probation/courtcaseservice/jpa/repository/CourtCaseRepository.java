@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Long>{
     Optional<CourtCaseEntity> findFirstByCaseIdOrderByIdDesc(String caseId);
-    @Query(value = "select c.* from court_case c, hearing h, hearing_defendant hd, defendant d, offender o " +
+    @Query(value = "select distinct c.* from court_case c, hearing h, hearing_defendant hd, defendant d, offender o " +
         "where o.crn = :crn " +
         "and d.fk_offender_id = o.id  " +
         "and hd.fk_defendant_id = d.id  " +

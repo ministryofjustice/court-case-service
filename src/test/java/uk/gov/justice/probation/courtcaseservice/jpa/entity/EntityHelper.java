@@ -192,7 +192,6 @@ public class EntityHelper {
                         .previouslyKnownTerminationDate(TERMINATION_DATE)
                         .probationStatus(OffenderProbationStatus.of(PROBATION_STATUS))
                         .suspendedSentenceOrder(SUSPENDED_SENTENCE)
-                        .id(OFFENDER_ID)
                         .build())
                 .orElse(null);
     }

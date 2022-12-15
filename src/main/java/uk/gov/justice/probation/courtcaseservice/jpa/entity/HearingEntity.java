@@ -17,19 +17,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.envers.Audited;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -50,7 +38,7 @@ import java.util.stream.Collectors;
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @SuperBuilder
 @Audited
-public class HearingEntity extends BaseImmutableEntity implements Serializable {
+public class HearingEntity extends BaseAuditedEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -59,7 +47,6 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     private final Long id;
 
     @Column(name = "HEARING_ID", nullable = false)
-    @Setter // TODO: This was added to enable ImmutableCourtCaseService.enforceValidHearingId() as a precautionary measure and should be removed ASAP
     private String hearingId;
 
     @ManyToOne(optional = false, cascade = CascadeType.ALL)
@@ -82,9 +69,6 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
     @JsonIgnore
     @OneToMany(mappedBy = "hearing", orphanRemoval=true, cascade = CascadeType.ALL)
     private final List<HearingDefendantEntity> hearingDefendants;
-
-    @Column(name = "deleted", nullable = false, updatable = false)
-    private boolean deleted;
 
     @Column(name = "first_created", insertable = false, updatable = false)
     private LocalDateTime firstCreated;
@@ -127,10 +111,10 @@ public class HearingEntity extends BaseImmutableEntity implements Serializable {
         this.hearingType = hearingUpdate.hearingType;
         this.hearingEventType = hearingUpdate.hearingEventType;
 
+        this.courtCase.update(hearingUpdate.getCourtCase());
+
         updateHearingDays(hearingUpdate);
         updateHearingDefendant(hearingUpdate);
-
-        this.courtCase.update(hearingUpdate.getCourtCase());
 
         return this;
     }

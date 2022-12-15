@@ -18,7 +18,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus.CURRENT;
 
@@ -40,7 +39,7 @@ class OffenderUpdateServiceTest {
 
     @Test
     void shouldReturnEmptyOffenderWhenDefendantCrnIsAbsent() {
-        given(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID))
+        given(defendantRepository.findFirstByDefendantId(DEFENDANT_ID))
                 .willReturn(Optional.of(DefendantEntity.builder().build()));
 
         assertThatExceptionOfType(EntityNotFoundException.class)
@@ -50,7 +49,7 @@ class OffenderUpdateServiceTest {
 
     @Test
     void shouldReturnEmptyOffenderWhenOffenderWithCrnDoesNoExist() {
-        given(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID))
+        given(defendantRepository.findFirstByDefendantId(DEFENDANT_ID))
                 .willReturn(Optional.of(DefendantEntity.builder().crn(CRN).build()));
 
         given(offenderRepository.findByCrn(CRN)).willReturn(Optional.empty());
@@ -62,7 +61,7 @@ class OffenderUpdateServiceTest {
 
     @Test
     void shouldReturnOffenderWhenFoundInDatabase() {
-        given(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID))
+        given(defendantRepository.findFirstByDefendantId(DEFENDANT_ID))
                 .willReturn(Optional.of(DefendantEntity.builder().crn(CRN).build()));
 
         given(offenderRepository.findByCrn(CRN)).willReturn(Optional.of(OffenderEntity.builder().crn(CRN)
@@ -71,13 +70,13 @@ class OffenderUpdateServiceTest {
         var offender = offenderUpdateService.getDefendantOffenderByDefendantId(DEFENDANT_ID).block();
         assertThat(offender).isEqualTo(OffenderEntity.builder().crn(CRN).breach(true).suspendedSentenceOrder(true)
                 .preSentenceActivity(true).build());
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
+        verify(defendantRepository).findFirstByDefendantId(DEFENDANT_ID);
         verify(offenderRepository).findByCrn(CRN);
     }
 
     @Test
     void shouldThrowEntityNotFoundWhenDefendantDoesNotExistInRepositoryForGetOffenderRequest() {
-        given(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID))
+        given(defendantRepository.findFirstByDefendantId(DEFENDANT_ID))
                 .willReturn(Optional.ofNullable(null));
 
         Exception exception = Assertions.assertThrows(EntityNotFoundException.class, () -> {
@@ -86,12 +85,12 @@ class OffenderUpdateServiceTest {
 
         String expectedMessage = String.format("Defendant with id %s does not exist", DEFENDANT_ID);
         assertThat(exception.getMessage()).isEqualTo(expectedMessage);
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
+        verify(defendantRepository).findFirstByDefendantId(DEFENDANT_ID);
     }
 
     @Test
     void shouldThrowEntityNotFoundWhenDefendantDoesNotExistInRepositoryForGetRemoveOffenderRequest() {
-        given(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID))
+        given(defendantRepository.findFirstByDefendantId(DEFENDANT_ID))
                 .willReturn(Optional.ofNullable(null));
 
         Exception exception = Assertions.assertThrows(EntityNotFoundException.class, () -> {
@@ -100,24 +99,24 @@ class OffenderUpdateServiceTest {
 
         String expectedMessage = String.format("Defendant with id %s does not exist", DEFENDANT_ID);
         assertThat(exception.getMessage()).isEqualTo(expectedMessage);
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
+        verify(defendantRepository).findFirstByDefendantId(DEFENDANT_ID);
     }
 
     @Test
     void shouldClearCrn_And_SetManualUpdateAndOffenderConfirmedFlagsToTrue() {
         DefendantEntity defendantEntity = DefendantEntity.builder().crn(CRN).build();
-        given(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID))
+        given(defendantRepository.findFirstByDefendantId(DEFENDANT_ID))
                 .willReturn(Optional.of(defendantEntity));
 
         offenderUpdateService.removeDefendantOffenderAssociation(DEFENDANT_ID);
 
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
+        verify(defendantRepository).findFirstByDefendantId(DEFENDANT_ID);
         verify(defendantRepository).save(defendantEntity.withCrn(null).withManualUpdate(true).withOffenderConfirmed(true));
     }
 
     @Test
     void shouldThrowEntityNotFoundWhenDefendantDoesNotExistInRepositoryForUpdateOffenderRequest() {
-        given(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID))
+        given(defendantRepository.findFirstByDefendantId(DEFENDANT_ID))
                 .willReturn(Optional.ofNullable(null));
 
         Exception exception = Assertions.assertThrows(EntityNotFoundException.class, () -> {
@@ -126,13 +125,13 @@ class OffenderUpdateServiceTest {
 
         String expectedMessage = String.format("Defendant with id %s does not exist", DEFENDANT_ID);
         assertThat(exception.getMessage()).isEqualTo(expectedMessage);
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
+        verify(defendantRepository).findFirstByDefendantId(DEFENDANT_ID);
     }
 
     @Test
     void shouldCreateOffenderWhenOffenderDoesNotExistAndAssociateWithDefendant() {
         DefendantEntity defendantEntity = DefendantEntity.builder().build();
-        given(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID))
+        given(defendantRepository.findFirstByDefendantId(DEFENDANT_ID))
                 .willReturn(Optional.of(defendantEntity));
         OffenderEntity offenderEntity = OffenderEntity.builder().crn(CRN).build();
 
@@ -141,7 +140,7 @@ class OffenderUpdateServiceTest {
         var offender = offenderUpdateService.updateDefendantOffender(DEFENDANT_ID, offenderEntity).block();
         assertThat(offender).isEqualTo(OffenderEntity.builder().crn(CRN).breach(false).suspendedSentenceOrder(false)
                 .preSentenceActivity(false).build());
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
+        verify(defendantRepository).findFirstByDefendantId(DEFENDANT_ID);
         verify(offenderRepositoryFacade).save(offenderEntity);
         verify(defendantRepository).save(defendantEntity.withCrn(CRN).withManualUpdate(true).withOffenderConfirmed(true));
     }
@@ -149,7 +148,7 @@ class OffenderUpdateServiceTest {
     @Test
     void shouldUpdateOffenderWhenOffenderExistAndAssociateWithDefendantGivenNotAlreadyAssociated() {
         DefendantEntity defendantEntity = DefendantEntity.builder().build();
-        given(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID))
+        given(defendantRepository.findFirstByDefendantId(DEFENDANT_ID))
                 .willReturn(Optional.of(defendantEntity));
 
         OffenderEntity offenderUpdate = OffenderEntity.builder().suspendedSentenceOrder(true)
@@ -163,7 +162,7 @@ class OffenderUpdateServiceTest {
         assertThat(offender).isEqualTo(OffenderEntity.builder().crn(CRN).suspendedSentenceOrder(true)
                 .preSentenceActivity(true).breach(false)
                 .probationStatus(CURRENT).build());
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
+        verify(defendantRepository).findFirstByDefendantId(DEFENDANT_ID);
         verify(offenderRepositoryFacade).save(offenderUpdate);
         verify(defendantRepository).save(defendantEntity.withCrn(CRN).withManualUpdate(true).withOffenderConfirmed(true));
     }
@@ -171,7 +170,7 @@ class OffenderUpdateServiceTest {
     @Test
     void shouldUpdateOffenderWhenOffenderExistAndAssociateWithDefendantGivenDefendantAssociatedWithDifferentOffender() {
         DefendantEntity defendantEntity = DefendantEntity.builder().crn(CRN).build();
-        given(defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID))
+        given(defendantRepository.findFirstByDefendantId(DEFENDANT_ID))
                 .willReturn(Optional.of(defendantEntity));
 
         String NEW_CRN = "NEW_CRN";
@@ -187,7 +186,7 @@ class OffenderUpdateServiceTest {
         assertThat(offender).isEqualTo(OffenderEntity.builder().crn(NEW_CRN).suspendedSentenceOrder(true)
                 .preSentenceActivity(true).breach(false)
                 .probationStatus(CURRENT).build());
-        verify(defendantRepository).findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID);
+        verify(defendantRepository).findFirstByDefendantId(DEFENDANT_ID);
         verify(offenderRepositoryFacade).save(offenderUpdate);
         verify(defendantRepository).save(defendantEntity.withCrn(NEW_CRN).withManualUpdate(true).withOffenderConfirmed(true));
     }

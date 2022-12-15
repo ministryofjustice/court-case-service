@@ -1,7 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
 import org.junit.jupiter.api.Test;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.BaseImmutableEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.BaseAuditedEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
@@ -135,7 +135,7 @@ class CourtCaseMapperTest {
         assertThat(newEntity.getHearingDefendants().get(0).getHearing()).isSameAs(newEntity);
     }
 
-    private void checkCollection(List<? extends BaseImmutableEntity> childEntities, HearingEntity hearing) {
+    private void checkCollection(List<? extends BaseAuditedEntity> childEntities, HearingEntity hearing) {
         assertThat(childEntities).hasSize(2);
         assertThat(childEntities).extracting("id").allMatch(Objects::isNull);
         assertThat(childEntities).extracting("hearing").containsExactlyInAnyOrder(hearing, hearing);

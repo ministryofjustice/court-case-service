@@ -1,11 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.application;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClient;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.application.healthchecks.Pinger;
@@ -16,7 +14,7 @@ import static org.springframework.boot.actuate.health.Status.UP;
 import static uk.gov.justice.probation.courtcaseservice.TestConfig.WIREMOCK_PORT;
 
 @ExtendWith(SpringExtension.class)
-class PingerTest extends BaseIntTest {
+class PingerIntTest extends BaseIntTest {
 
     @Test
     void when200_thenUp() {

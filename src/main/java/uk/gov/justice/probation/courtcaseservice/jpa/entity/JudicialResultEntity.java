@@ -26,26 +26,24 @@ import java.io.Serializable;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @Getter
 @Audited
-public class JudicialResultEntity extends BaseImmutableEntity implements Serializable {
+public class JudicialResultEntity extends BaseAuditedEntity implements Serializable {
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private final Long id;
 
-    @Column(name = "LABEL")
+    @Column(name = "LABEL", columnDefinition = "TEXT")
     private final String label;
 
     @Column(name="IS_CONVICTED_RESULT")
     private boolean isConvictedResult;
 
-    @Column(name = "JUDICIAL_RESULT_TYPE_ID")
+    @Column(name = "JUDICIAL_RESULT_TYPE_ID", columnDefinition = "TEXT")
     private final String judicialResultTypeId;
 
     @ManyToOne
     @JoinColumn(name = "OFFENCE_ID", referencedColumnName = "id")
     @Setter
     private OffenceEntity offence;
-
-
 }

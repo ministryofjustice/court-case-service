@@ -104,8 +104,8 @@ class HearingEntityTest {
 
     @Test
     void givenHearingWithRemovedDefendant_shouldRemoveHearingDefendantFromExistingHearing() {
-        var dbHearingDefendant1 = HearingDefendantEntity.builder().hearing(HearingEntity.builder().build()).offences(Collections.emptyList()).defendantId("existing-defendant-1").build();
-        var dbHearingDefendant2 = HearingDefendantEntity.builder().hearing(HearingEntity.builder().build()).offences(Collections.emptyList()).defendantId("existing-defendant-2").build();
+        var dbHearingDefendant1 = HearingDefendantEntity.builder().hearing(HearingEntity.builder().build()).offences(Collections.emptyList()).defendantId("existing-defendant-1").defendant(DefendantEntity.builder().build()).build();
+        var dbHearingDefendant2 = HearingDefendantEntity.builder().hearing(HearingEntity.builder().build()).offences(Collections.emptyList()).defendantId("existing-defendant-2").defendant(DefendantEntity.builder().build()).build();
         var dbHearingEntity = HearingEntity.builder()
             .courtCase(CourtCaseEntity.builder().build())
             .hearingDays(Collections.emptyList())
@@ -147,8 +147,8 @@ class HearingEntityTest {
             .listNo("1")
             .build();
 
-        var dbHearingDefendant1 = HearingDefendantEntity.builder().offences(Collections.emptyList()).hearing(dbHearingEntity).defendantId("existing-defendant-1").build();
-        var newHearingDefendant = HearingDefendantEntity.builder().offences(Collections.emptyList()).defendantId("existing-defendant-2").build();
+        var dbHearingDefendant1 = HearingDefendantEntity.builder().offences(Collections.emptyList()).hearing(dbHearingEntity).defendantId("existing-defendant-1").defendant(DefendantEntity.builder().build()).build();
+        var newHearingDefendant = HearingDefendantEntity.builder().offences(Collections.emptyList()).defendantId("existing-defendant-2").defendant(DefendantEntity.builder().build()).build();
 
         dbHearingEntity = dbHearingEntity.withHearingDefendants(getMutableList(List.of(dbHearingDefendant1)));
         hearingUpdate =  hearingUpdate.withHearingDefendants(getMutableList(List.of(dbHearingDefendant1, newHearingDefendant)));

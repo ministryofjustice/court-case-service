@@ -36,7 +36,7 @@ import java.util.List;
 @Getter
 @EqualsAndHashCode(callSuper = true, exclude = "hearingDefendant")
 @Audited
-public class OffenceEntity extends BaseImmutableEntity implements Serializable  {
+public class OffenceEntity extends BaseAuditedEntity implements Serializable  {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -54,7 +54,7 @@ public class OffenceEntity extends BaseImmutableEntity implements Serializable  
     @Column(name = "TITLE", nullable = false)
     private final String title;
 
-    @Column(name = "SUMMARY", nullable = false)
+    @Column(name = "SUMMARY", nullable = false, columnDefinition = "TEXT")
     private final String summary;
 
     @Column(name = "ACT")

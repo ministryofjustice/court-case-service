@@ -102,6 +102,8 @@ class CaseSearchResultItemMapperTest {
             .hearingId("hearing-id-3")
             .defendantId(defendantId1)
             .defendantName("Mr Gordon BENNETT")
+            .awaitingPsr(false)
+            .breach(true)
             .crn(testCrn)
             .offenceTitles(List.of("offence title 1"))
             .nextHearingDate(LocalDate.of(2023, 01, 23))

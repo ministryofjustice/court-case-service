@@ -42,6 +42,8 @@ class CaseSearchControllerIntTest extends BaseIntTest {
             .body("items[0].offenceTitles", equalTo(List.of("Theft from a garage")))
             .body("items[0].lastHearingDate", equalTo(LocalDate.now().minusDays(5).format(DateTimeFormatter.ISO_DATE)))
             .body("items[0].lastHearingCourt", equalTo("Leicester"))
+            .body("items[0].awaitingPsr", equalTo(true))
+            .body("items[0].breach", equalTo(true))
             .body("items[1].hearingId", equalTo("440dd779-8b0e-4012-90d5-2e2ee1189cd1"))
             .body("items[1].defendantId", equalTo("8acf5a7a-0e0b-49e5-941e-943ab354a15f"))
             .body("items[1].defendantName", equalTo("Mr Ferris Biller"))
@@ -52,6 +54,8 @@ class CaseSearchControllerIntTest extends BaseIntTest {
             .body("items[1].lastHearingCourt", equalTo("Sheffield"))
             .body("items[1].nextHearingDate", equalTo(LocalDate.now().plusDays(10).format(DateTimeFormatter.ISO_DATE)))
             .body("items[1].nextHearingCourt", equalTo("Leicester"))
+            .body("items[1].awaitingPsr", equalTo(true))
+            .body("items[1].breach", equalTo(true))
             ;
     }
 }

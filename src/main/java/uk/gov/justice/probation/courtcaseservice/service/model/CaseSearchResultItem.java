@@ -37,4 +37,8 @@ public class CaseSearchResultItem {
     private String lastHearingCourt;
 
     private String nextHearingCourt;
+
+    private final Boolean awaitingPsr;
+
+    private final Boolean breach;
 }

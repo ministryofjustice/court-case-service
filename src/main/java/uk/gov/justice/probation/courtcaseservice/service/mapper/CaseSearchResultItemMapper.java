@@ -59,6 +59,8 @@ public class CaseSearchResultItemMapper {
             .defendantName(defendant.getDefendantName())
             .offenceTitles(offenceTitles.stream().toList())
             .probationStatus(defendant.getProbationStatusForDisplay())
+            .breach(defendant.getOffender().isBreach())
+            .awaitingPsr(defendant.getOffender().getAwaitingPsr())
             .lastHearingDate(lastHearing.map(HearingDayEntity::getDay).orElse(null))
             .lastHearingCourt(lastHearing.map(HearingDayEntity::getCourt).map(CourtEntity::getName).orElse(null))
             .nextHearingDate(nextHearing.map(HearingDayEntity::getDay).orElse(null))

@@ -9,8 +9,10 @@ import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -32,6 +34,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResp
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseSearchFilter;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearingRequestResponse;
@@ -225,12 +228,60 @@ public class CourtCaseController {
         return offenderUpdateService.getDefendantOffenderByDefendantId(defendantId).map(DefendantOffender::of);
     }
 
+    @Operation(summary = "Gets paginated case data for a court on a date ",
+            description = "Response is sorted by court room, session start time and by defendant surname.")
+    @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<CaseListResponse> findCourtCases(
+            @PageableDefault(page = 1, size = 20)
+            Pageable pageable,
+            @PathVariable String courtCode,
+            @RequestParam(value = "date")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(value = "probationStatus", required = false) List<String> probationStatus,
+            @RequestParam(value = "courtRoom", required = false) List<String> courtRoom,
+            @RequestParam(value = "session", required = false) List<String> session,
+            @RequestParam(value = "recentlyAdded", defaultValue = "false") boolean recentlyAdded,
+            WebRequest webRequest
+    ) {
+        var response = ResponseEntity.ok();
+        if (enableCacheableCaseList) {
+            var lastModified = courtCaseService.filterHearingsLastModified(courtCode, date)
+                    .orElse(NEVER_MODIFIED_DATE)
+                    .toInstant(ZoneOffset.UTC);
+            if (webRequest.checkNotModified(lastModified.toEpochMilli())) {
+                return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
+                        .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS))
+                        .build();
+            }
+
+            response = response
+                    .lastModified(lastModified)
+                    .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS));
+        }
+
+        var searchFilter = CaseSearchFilter.builder()
+                .courtCode(courtCode)
+                .date(date)
+                .probationStatus(probationStatus)
+                .courtRoom(courtRoom)
+                .recentlyAdded(recentlyAdded)
+                .session(session)
+                .build();
+        var searchResults = courtCaseService.findCourtCases(searchFilter, pageable);
+
+        return response.body(searchResults);
+    }
+
+
     @Operation(summary = "Gets case data for a court on a date. ",
             description = "Response is sorted by court room, session start time and by defendant surname. The createdAfter and " +
                     "createdBefore filters will not filter out updates originating from prepare-a-case, these manual updates" +
                     " are always assumed to be correct as they have been deliberately made by authorised users rather than " +
                     "automated systems.")
-    @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE)
+    @Deprecated
+    /**
+     * Deprecated in favour of the version with pagination and filters. please see {@link #findCourtCases }
+     */
     public ResponseEntity<CaseListResponse> getCaseList(
             @PathVariable String courtCode,
             @RequestParam(value = "date")
@@ -302,7 +353,7 @@ public class CourtCaseController {
         return defendantEntities.stream()
                 .sorted(Comparator.comparing(HearingDefendantEntity::getDefendantSurname))
                 .map(hearingDefendantEntity -> {
-                    final String defendantId = Optional.ofNullable(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).map(DefendantEntity::getDefendantId).orElseThrow();
+                    final String defendantId = Optional.of(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).map(DefendantEntity::getDefendantId).orElseThrow();
                     var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantId).orElse(0);
                     return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate);
                 })

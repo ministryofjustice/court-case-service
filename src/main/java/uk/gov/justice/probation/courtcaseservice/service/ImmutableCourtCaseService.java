@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -13,7 +15,22 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
+import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListFilters;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseSearchFilter;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.CaseSearchRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
@@ -22,11 +39,17 @@ import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFou
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
+import static uk.gov.justice.probation.courtcaseservice.service.predicate.CaseSearchFilterPredicate.applyFilters;
+import static uk.gov.justice.probation.courtcaseservice.service.specification.CaseSearchSpecification.getCaseSearchSpecification;
 
 @Service
 @Slf4j
@@ -40,19 +63,23 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private final DomainEventService domainEventService;
     private final CourtCaseRepository courtCaseRepository;
 
+    private final CaseSearchRepository caseSearchRepository;
+
     @Autowired
     public ImmutableCourtCaseService(CourtRepository courtRepository,
                                      HearingRepositoryFacade hearingRepositoryFacade,
                                      TelemetryService telemetryService,
                                      GroupedOffenderMatchRepository matchRepository,
                                      DomainEventService domainEventService,
-                                     CourtCaseRepository courtCaseRepository) {
+                                     CourtCaseRepository courtCaseRepository,
+                                     CaseSearchRepository caseSearchRepository) {
         this.courtRepository = courtRepository;
         this.hearingRepositoryFacade = hearingRepositoryFacade;
         this.telemetryService = telemetryService;
         this.matchRepository = matchRepository;
         this.domainEventService = domainEventService;
         this.courtCaseRepository = courtCaseRepository;
+        this.caseSearchRepository = caseSearchRepository;
     }
 
     @Override
@@ -113,31 +140,126 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         return hearingRepositoryFacade.findLastModifiedByHearingDay(courtCode, searchDate);
     }
 
+    @Override
+    public CaseListResponse findCourtCases(CaseSearchFilter caseSearchFilter, Pageable pageable) {
+        Specification<HearingEntity> searchSpecification = getCaseSearchSpecification(caseSearchFilter);
+
+        var searchResults = caseSearchRepository.findAll(searchSpecification);
+
+        if(isNotEmpty(searchResults)) {
+
+            return getCaseListResponse(caseSearchFilter, pageable, searchResults);
+        }
+        // empty response with filters
+        return CaseListResponse.builder()
+                .cases(Collections.emptyList())
+                .filters(CaseListFilters.builder().build())
+                .build();
+    }
+
+    private CaseListResponse getCaseListResponse(CaseSearchFilter caseSearchFilter, Pageable pageable, List<HearingEntity> searchResults) {
+        var possibleNDeliusCount = (int) searchResults.stream()
+                .map(this::countPossibleNDeliusRecords).count();
+
+        var recentlyAddedCount = countRecentlyAdded(searchResults);
+
+        var courtRooms = hearingRepositoryFacade.getDistinctCourtRoom(caseSearchFilter.getCourtCode());
+
+        var totalNoOfPages = searchResults.size() < pageable.getPageSize() ? 1 : (int) Math.ceil((double) searchResults.size() / pageable.getPageSize());
+
+        var caseListFilter = CaseListFilters.builder()
+                .possibleNdeliusRecords(possibleNDeliusCount)
+                .recentlyAdded(recentlyAddedCount)
+                .size(pageable.getPageSize())
+                .courtRoom(courtRooms)
+                .totalNoOfPages(totalNoOfPages)
+                .build();
+
+        var filteredResults = applyFilters(searchResults, caseSearchFilter);
+
+        var caseLists = filteredResults.stream()
+                .flatMap(courtCaseEntity -> buildCourtCaseResponses(courtCaseEntity, caseSearchFilter.getDate()).stream())
+                .sorted(Comparator
+                        .comparing(CourtCaseResponse::getCourtRoom)
+                        .thenComparing(CourtCaseResponse::getSessionStartTime)
+                        .thenComparing(CourtCaseResponse::getName)).toList();
+
+
+        var pageItems = getPageItems(caseLists, pageable.getPageNumber(), pageable.getPageSize());
+
+        return CaseListResponse.builder()
+                .cases(pageItems)
+                .filters(caseListFilter)
+                .build();
+    }
+
+    private List<CourtCaseResponse> getPageItems(List<CourtCaseResponse> availableCourtCaseServiceList, int pageNumber, int pageSize) {
+        int skipCount = (pageNumber - 1) * pageSize;
+
+        return availableCourtCaseServiceList
+                .stream()
+                .skip(skipCount)
+                .limit(pageSize).toList();
+
+    }
+
+    private int countPossibleNDeliusRecords(HearingEntity hearingEntity) {
+
+        var defendantEntities = new ArrayList<>(Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(Collections.emptyList()));
+        final var caseId = hearingEntity.getCaseId();
+        return (int) defendantEntities.stream()
+                .map(hearingDefendantEntity -> {
+                    final String defendantId = Optional.of(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).map(DefendantEntity::getDefendantId).orElseThrow();
+                    return matchRepository.getMatchCountByCaseIdAndDefendant(caseId, defendantId).orElse(0);
+                }).count();
+    }
+
+    private int countRecentlyAdded(List<HearingEntity> hearingEntities) {
+        return (int) hearingEntities.stream()
+                .map(hearingEntity -> {
+                    return LocalDate.now().isEqual(Optional.ofNullable(hearingEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate());
+                }).count();
+    }
+
+
+    private List<CourtCaseResponse> buildCourtCaseResponses(HearingEntity hearingEntity, LocalDate hearingDate) {
+
+        var defendantEntities = new ArrayList<>(Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(Collections.emptyList()));
+
+        final var caseId = hearingEntity.getCaseId();
+        return defendantEntities.stream()
+                .sorted(Comparator.comparing(HearingDefendantEntity::getDefendantSurname))
+                .map(hearingDefendantEntity -> {
+                    return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, hearingDate);
+                })
+                .toList();
+    }
+
     private Mono<HearingEntity> createOrUpdateHearing(String hearingId, final HearingEntity updatedHearing) {
         var hearing = hearingRepositoryFacade.findFirstByHearingId(hearingId)
-            .map(existingHearing -> {
-                trackUpdateEvents(existingHearing, updatedHearing);
-                return existingHearing.update(updatedHearing);
-            })
-            .orElseGet(() -> {
-                trackCreateEvents(updatedHearing);
-                courtCaseRepository.findFirstByCaseIdOrderByIdDesc(updatedHearing.getCaseId())
-                    .ifPresent(courtCaseEntity -> {
-                        addHearingToCase(updatedHearing, courtCaseEntity);
-                    });
-                return updatedHearing;
-            });
+                .map(existingHearing -> {
+                    trackUpdateEvents(existingHearing, updatedHearing);
+                    return existingHearing.update(updatedHearing);
+                })
+                .orElseGet(() -> {
+                    trackCreateEvents(updatedHearing);
+                    courtCaseRepository.findFirstByCaseIdOrderByIdDesc(updatedHearing.getCaseId())
+                            .ifPresent(courtCaseEntity -> {
+                                addHearingToCase(updatedHearing, courtCaseEntity);
+                            });
+                    return updatedHearing;
+                });
         log.debug("Saving hearing with ID {}", hearingId);
 
         var savedHearing = hearingRepositoryFacade.save(hearing);
         return Mono.just(savedHearing)
-            .map(saved -> {
-                if (hasSentencedEventType(saved)) {
-                    log.debug("Emitting sentenced event for hearing with ID {}", hearingId);
-                    domainEventService.emitSentencedEvent(saved);
-                }
-                return saved;
-            });
+                .map(saved -> {
+                    if (hasSentencedEventType(saved)) {
+                        log.debug("Emitting sentenced event for hearing with ID {}", hearingId);
+                        domainEventService.emitSentencedEvent(saved);
+                    }
+                    return saved;
+                });
     }
 
     private static void addHearingToCase(HearingEntity updatedHearing, CourtCaseEntity courtCaseEntity) {

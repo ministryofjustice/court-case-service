@@ -2,12 +2,17 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -29,6 +34,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResp
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseSearchFilter;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearingRequestResponse;
@@ -115,10 +121,14 @@ public class CourtCaseController {
         return this.buildCourtCaseResponseForCaseIdAndDefendantId(hearingByHearingIdAndDefendantId, defendantId, caseHearingProgress);
     }
 
-    @Operation(description = "Gets the court case data by case number.")
+    @Operation(description = "Gets the court case and hearing data by Libra caseNo. As Libra cases have no hearingId, the listNo of the Libra case is used to differentiate between hearings.")
     @GetMapping(value = "/court/{courtCode}/case/{caseNo}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
-    CourtCaseResponse getCourtCase(@PathVariable String courtCode, @PathVariable String caseNo, @RequestParam(required = false) String listNo) {
+    CourtCaseResponse getCourtCase(
+            @PathVariable String courtCode,
+            @PathVariable String caseNo,
+            @Parameter(in = ParameterIn.PATH, name = "listNo", schema = @Schema(type = "string"), description = "If listNo is provided then the endpoint will return the latest hearing with matching listNo if it exists. If the case exists, but a hearing with the provided listNo does not, then the endpoint will return the most recent hearing but will <em>omit</em> the hearingId. This indicates to the caller that they should generate a new hearingId when PUTting to create a new hearing entity. This is required to allow Libra case progress to be tracked, see <a href='https://dsdmoj.atlassian.net/browse/PIC-2293'>PIC-2293</a> for more information.")
+            @RequestParam(required = false) String listNo) {
         return buildCourtCaseResponse(courtCaseService.getHearingByCaseNumber(courtCode, caseNo, listNo));
     }
 
@@ -137,12 +147,12 @@ public class CourtCaseController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     HearingNoteResponse createHearingNote(@PathVariable(value = "hearingId") String hearingId,
-                                                           @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
-                                                           Principal principal) {
+                                          @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
+                                          Principal principal) {
 
         if (!StringUtils.equals(hearingId, hearingNoteRequest.getHearingId())) {
             throw new ConflictingInputException(String.format("Hearing Id '%s' provided in the path does not match the one in the hearing note request body submitted '%s'",
-                hearingId, hearingNoteRequest.getHearingId()));
+                    hearingId, hearingNoteRequest.getHearingId()));
         }
 
         HearingNoteEntity hearingNote = hearingNotesService.createHearingNote(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
@@ -167,9 +177,9 @@ public class CourtCaseController {
                                           @RequestBody CaseCommentRequest caseCommentRequest,
                                           Principal principal) {
 
-        if(!StringUtils.equals(caseId, caseCommentRequest.getCaseId())) {
+        if (!StringUtils.equals(caseId, caseCommentRequest.getCaseId())) {
             throw new ConflictingInputException(String.format("Case Id '%s' provided in the path does not match the one in the case comment request body submitted '%s'",
-                caseId, caseCommentRequest.getCaseId()));
+                    caseId, caseCommentRequest.getCaseId()));
         }
         var caseCommentEntity = caseCommentsService.createCaseComment(caseCommentRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
         return CaseCommentResponse.of(caseCommentEntity);
@@ -218,12 +228,60 @@ public class CourtCaseController {
         return offenderUpdateService.getDefendantOffenderByDefendantId(defendantId).map(DefendantOffender::of);
     }
 
+    @Operation(summary = "Gets paginated case data for a court on a date ",
+            description = "Response is sorted by court room, session start time and by defendant surname.")
+    @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<CaseListResponse> findCourtCases(
+            @PageableDefault(page = 1, size = 20)
+            Pageable pageable,
+            @PathVariable String courtCode,
+            @RequestParam(value = "date")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(value = "probationStatus", required = false) List<String> probationStatus,
+            @RequestParam(value = "courtRoom", required = false) List<String> courtRoom,
+            @RequestParam(value = "session", required = false) List<String> session,
+            @RequestParam(value = "recentlyAdded", defaultValue = "false") boolean recentlyAdded,
+            WebRequest webRequest
+    ) {
+        var response = ResponseEntity.ok();
+        if (enableCacheableCaseList) {
+            var lastModified = courtCaseService.filterHearingsLastModified(courtCode, date)
+                    .orElse(NEVER_MODIFIED_DATE)
+                    .toInstant(ZoneOffset.UTC);
+            if (webRequest.checkNotModified(lastModified.toEpochMilli())) {
+                return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
+                        .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS))
+                        .build();
+            }
+
+            response = response
+                    .lastModified(lastModified)
+                    .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS));
+        }
+
+        var searchFilter = CaseSearchFilter.builder()
+                .courtCode(courtCode)
+                .date(date)
+                .probationStatus(probationStatus)
+                .courtRoom(courtRoom)
+                .recentlyAdded(recentlyAdded)
+                .session(session)
+                .build();
+        var searchResults = courtCaseService.findCourtCases(searchFilter, pageable);
+
+        return response.body(searchResults);
+    }
+
+
     @Operation(summary = "Gets case data for a court on a date. ",
             description = "Response is sorted by court room, session start time and by defendant surname. The createdAfter and " +
                     "createdBefore filters will not filter out updates originating from prepare-a-case, these manual updates" +
                     " are always assumed to be correct as they have been deliberately made by authorised users rather than " +
                     "automated systems.")
-    @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE)
+    @Deprecated
+    /**
+     * Deprecated in favour of the version with pagination and filters. please see {@link #findCourtCases }
+     */
     public ResponseEntity<CaseListResponse> getCaseList(
             @PathVariable String courtCode,
             @RequestParam(value = "date")
@@ -295,7 +353,7 @@ public class CourtCaseController {
         return defendantEntities.stream()
                 .sorted(Comparator.comparing(HearingDefendantEntity::getDefendantSurname))
                 .map(hearingDefendantEntity -> {
-                    final String defendantId = Optional.ofNullable(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).map(DefendantEntity::getDefendantId).orElseThrow();
+                    final String defendantId = Optional.of(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).map(DefendantEntity::getDefendantId).orElseThrow();
                     var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantId).orElse(0);
                     return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate);
                 })

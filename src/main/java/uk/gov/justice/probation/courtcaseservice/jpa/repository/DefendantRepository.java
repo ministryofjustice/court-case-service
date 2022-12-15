@@ -6,5 +6,5 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import java.util.Optional;
 
 public interface DefendantRepository extends CrudRepository<DefendantEntity, Long> {
-    Optional<DefendantEntity> findFirstByDefendantIdOrderByIdDesc(String defendantId);
+    Optional<DefendantEntity> findFirstByDefendantId(String defendantId);
 }

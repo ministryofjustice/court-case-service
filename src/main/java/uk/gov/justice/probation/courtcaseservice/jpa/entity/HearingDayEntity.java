@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -33,7 +35,8 @@ import java.time.LocalTime;
 @Getter
 @With
 @EqualsAndHashCode(callSuper = true, exclude = "court")
-public class HearingDayEntity extends BaseImmutableEntity implements Serializable {
+@Audited
+public class HearingDayEntity extends BaseAuditedEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -55,7 +58,8 @@ public class HearingDayEntity extends BaseImmutableEntity implements Serializabl
     @Column(name = "COURT_CODE", nullable = false)
     private final String courtCode;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @NotAudited
+    @OneToOne
     @JoinColumn(name = "COURT_CODE", referencedColumnName = "COURT_CODE", insertable = false, updatable = false)
     private final CourtEntity court;
 

@@ -69,6 +69,12 @@ spring:
         jdbc:
           lob:
             non_contextual_creation: true
+        hbm2ddl:
+          auto: update
+          schema_filter_provider: "uk.gov.justice.probation.courtcaseservice.jpa.CCSSchemaFilterProvider"
+      org:
+        hibernate:
+          flushMode: COMMIT
     open-in-view: false
 
 # Uncomment the following lines to generate create.sql on build

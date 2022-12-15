@@ -2,9 +2,12 @@ package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus.CONFIRMED_NO_RECORD;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus.UNCONFIRMED_NO_RECORD;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.getMutableList;
 
 
 class HearingDefendantEntityTest {
@@ -84,4 +87,25 @@ class HearingDefendantEntityTest {
         assertThat(defendant.getProbationStatusForDisplay()).isEqualTo(DefendantProbationStatus.CURRENT);
     }
 
+    @Test
+    void givenHearingDefendantUpdate_whenUpdate_shouldUpdateTheWithNewValues() {
+        String defendantId = "test-defendantId";
+        HearingDefendantEntity hearingDefendant = HearingDefendantEntity.builder()
+            .defendantId(defendantId)
+            .defendant(DefendantEntity.builder().defendantId(defendantId)
+                .defendantName("test-defendant").build())
+            .offences(getMutableList(List.of(OffenceEntity.builder().title("offence title").build())))
+            .build();
+
+        HearingDefendantEntity update = HearingDefendantEntity.builder()
+            .defendantId(defendantId)
+            .defendant(DefendantEntity.builder().defendantId(defendantId)
+                .defendantName("Mr. updated test defendant").build())
+            .offences(getMutableList(List.of(OffenceEntity.builder().title("updated offence title").build())))
+            .build();
+
+        hearingDefendant.update(update);
+
+        assertThat(hearingDefendant).isEqualTo(update);
+    }
 }

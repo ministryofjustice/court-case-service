@@ -4,17 +4,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 @Transactional
@@ -43,9 +40,8 @@ public class HearingRepositoryFacade {
         this.caseCommentsRepository = caseCommentsRepository;
     }
 
-    public Optional<HearingEntity> findFirstByHearingIdOrderByIdDesc(String hearingId) {
-        return hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
-                .map(this::updateWithDefendants);
+    public Optional<HearingEntity> findFirstByHearingId(String hearingId) {
+        return hearingRepository.findFirstByHearingId(hearingId);
     }
 
     public Optional<HearingEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo, String listNo) {
@@ -58,17 +54,18 @@ public class HearingRepositoryFacade {
                     () -> hearingRepository.findByCourtCodeAndCaseNo(courtCode, caseNo).map(hearingEntity -> hearingEntity.withHearingId(null))
                 );
         }
-        return hearing.map(this::updateWithDefendants);
+        return hearing;
     }
 
     public Optional<HearingEntity> findByHearingIdAndDefendantId(String hearingId, String defendantId) {
-
-        return hearingRepository.findFirstByHearingIdOrderByIdDesc(hearingId)
-                .map(hearingEntity -> findDefendant(hearingEntity, defendantId).isPresent() ? updateWithDefendants(hearingEntity) : null)
-                .map(hearingEntity -> {
-                    hearingEntity.getCourtCase().setCaseComments(caseCommentsRepository.findAllByCaseIdAndDeletedFalse(hearingEntity.getCaseId()));
-                    return hearingEntity;
-                });
+        return hearingRepository.findFirstByHearingId(hearingId)
+            .map(hearingEntity -> {
+                return Objects.nonNull(hearingEntity.getHearingDefendant(defendantId)) ? hearingEntity : null;
+            })
+            .map(hearingEntity -> {
+                hearingEntity.getCourtCase().setCaseComments(caseCommentsRepository.findAllByCaseIdAndDeletedFalse(hearingEntity.getCaseId()));
+                return hearingEntity;
+            });
     }
 
     @Deprecated
@@ -78,63 +75,48 @@ public class HearingRepositoryFacade {
      */
     public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
 
-        return (canIgnoreCreatedDates(createdAfter, createdBefore)
-                        ? hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay)
-                        : hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay, createdAfter, createdBefore))
-                .stream()
-                .map(this::updateWithDefendants)
-                .collect(Collectors.toList());
+        List<HearingEntity> hearingEntities = canIgnoreCreatedDates(createdAfter, createdBefore)
+            ? hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay)
+            : hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay, createdAfter, createdBefore);
+        return hearingEntities;
     }
 
     public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay) {
-        return hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay)
-                .stream()
-                .map(this::updateWithDefendants)
-                .collect(Collectors.toList());
+        return hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay);
     }
 
     public Optional<LocalDateTime> findLastModifiedByHearingDay(String courtCode, LocalDate hearingDay) {
         return hearingRepository.findLastModifiedByHearingDay(courtCode, hearingDay);
     }
-
     public HearingEntity save(HearingEntity hearingEntity) {
-        updateWithExistingEntities(hearingEntity);
 
-        final var changedDefendants = getChangedDefendants(hearingEntity);
+        updateWithExistingOffenders(hearingEntity);
 
-        offenderRepository.saveAll(getChangedOffenders(changedDefendants));
-        defendantRepository.saveAll(changedDefendants);
-        return hearingRepository.save(hearingEntity);
+        updatedWithExistingDefendantsFromDb(hearingEntity);
+
+        HearingEntity save = hearingRepository.save(hearingEntity);
+        return save;
     }
 
-    private void updateWithExistingEntities(HearingEntity hearingEntity) {
-        hearingEntity.getHearingDefendants().forEach((HearingDefendantEntity hearingDefendantEntity) -> {
-            hearingDefendantEntity.setDefendant(
-                    hearingDefendantEntity.getDefendant()
-                            .withOffender(Optional.ofNullable(hearingDefendantEntity.getDefendant().getOffender())
-                                    .map(offenderRepositoryFacade::updateOffenderIfItExists)
-                                    .orElse(null)));
+    private void updateWithExistingOffenders(HearingEntity hearingEntity) {
+        hearingEntity.getHearingDefendants().stream().filter(hearingDefendantEntity ->
+                Objects.nonNull(hearingDefendantEntity.getDefendant().getOffender()) &&
+                    Objects.isNull(hearingDefendantEntity.getDefendant().getOffender().getId()))
+            .forEach((HearingDefendantEntity hearingDefendantEntity) -> {
+                var defendant = hearingDefendantEntity.getDefendant();
+                defendant.setOffender(offenderRepositoryFacade.upsertOffender(defendant.getOffender()));
         });
     }
 
-    private List<OffenderEntity> getChangedOffenders(List<DefendantEntity> changedDefendantEntities) {
-        return changedDefendantEntities.stream()
-                .map(DefendantEntity::getOffender)
-                .filter(Objects::nonNull)
-                .filter(offenderEntity -> offenderRepository.findByCrn(offenderEntity.getCrn())
-                        .map(existing -> !existing.equals(offenderEntity))
-                        .orElse(true))
-                .collect(Collectors.toList());
-    }
-
-    private List<DefendantEntity> getChangedDefendants(HearingEntity hearingEntity) {
-        return hearingEntity.getHearingDefendants()
-                .stream()
-                .map(HearingDefendantEntity::getDefendant)
-                .filter(existingDefendant -> defendantRepository.findFirstByDefendantIdOrderByIdDesc(existingDefendant.getDefendantId())
-                        .map(existing -> !existing.equals(existingDefendant))
-                        .orElse(true))
-                .collect(Collectors.toList());
+    private void updatedWithExistingDefendantsFromDb(HearingEntity hearingEntity) {
+        // Check if incoming defendant already exists in the database and update
+        hearingEntity.getHearingDefendants().stream()
+            .filter(hearingDefendant -> Objects.isNull(hearingDefendant.getDefendant().getId())) // ID not null means this defendant has already been fetched and updated
+            .forEach(defendantUpdate -> defendantRepository.findFirstByDefendantId(defendantUpdate.getDefendantId())
+                .ifPresent(dbDefendant -> {
+                    dbDefendant.update(defendantUpdate.getDefendant());
+                    defendantUpdate.setDefendant(dbDefendant);
+                }));
     }
 
     private boolean canIgnoreCreatedDates(LocalDateTime createdAfter, LocalDateTime createdBefore) {
@@ -149,27 +131,7 @@ public class HearingRepositoryFacade {
                 .findFirst();
     }
 
-    private HearingEntity updateWithDefendants(HearingEntity hearingEntity) {
-        return hearingEntity.withHearingDefendants(hearingEntity.getHearingDefendants()
-                .stream()
-                .map(this::updateDefendantAndOffender)
-                .collect(Collectors.toList()));
-    }
-
-    private HearingDefendantEntity updateDefendantAndOffender(HearingDefendantEntity hearingDefendantEntity) {
-        return defendantRepository.findFirstByDefendantIdOrderByIdDesc(hearingDefendantEntity.getDefendantId())
-                .map(defendant -> {
-                    hearingDefendantEntity.setDefendant(defendant);
-                    Optional.ofNullable(defendant.getCrn())
-                            .map(crn -> offenderRepository.findByCrn(crn)
-                                    .orElseThrow(() -> new RuntimeException(String.format("Unexpected state: Offender with CRN '%s' is specified on defendant '%s' but it does not exist", crn, defendant.getDefendantId())))
-                            )
-                            .ifPresent(defendant::setOffender);
-                    return hearingDefendantEntity;
-                })
-                .orElseThrow(() -> {
-                            throw new RuntimeException(String.format("Unexpected state: Defendant '%s' is specified on hearing '%s' but it does not exist", hearingDefendantEntity.getDefendantId(), Optional.ofNullable(hearingDefendantEntity.getHearing()).map(HearingEntity::getHearingId).orElse("<Error: Unable to determine hearingId>")));
-                        }
-                );
+    public List<String> getDistinctCourtRoom(String courtCode){
+        return hearingRepository.getDistinctCourtRooms(courtCode);
     }
 }

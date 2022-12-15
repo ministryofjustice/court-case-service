@@ -27,7 +27,6 @@ import uk.gov.justice.probation.courtcaseservice.listener.EventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReference;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType;
-import uk.gov.justice.probation.courtcaseservice.testUtil.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +43,9 @@ import java.util.List;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static org.springframework.util.StreamUtils.copyToString;
@@ -137,7 +138,73 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .body("hearingDays[0].sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("hearingDays", hasSize(1));
 
-        var cc = courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID);
+        var cc = courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID);
+        cc.ifPresentOrElse(hearingEntity -> {
+            assertThat(hearingEntity.getCaseId()).isEqualTo(JSON_CASE_ID);
+            assertThat(hearingEntity.getHearingId()).isEqualTo(JSON_HEARING_ID);
+            assertThat(hearingEntity.getListNo()).isEqualTo("4");
+            assertThat(hearingEntity.getCourtCase().getUrn()).isEqualTo(URN);
+            assertThat(hearingEntity.getHearingEventType().getName()).isEqualTo("ConfirmedOrUpdated");
+            assertThat(hearingEntity.getHearingType()).isEqualTo("sentenced");
+            assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
+            assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPhoneNumber()).isEqualTo(
+                    PhoneNumberEntity.builder().home("07000000013").mobile("07000000014").work("07000000015").build());
+            assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPersonId()).isNotBlank();
+        }, () -> fail("Court case not created as expected"));
+
+        offenderRepository.findByCrn(CRN).ifPresentOrElse(off -> {
+            assertThat(off.getCrn()).isEqualTo(CRN);
+            assertThat(off.getProbationStatus()).isEqualTo(OffenderProbationStatus.PREVIOUSLY_KNOWN);
+            assertThat(off.getAwaitingPsr()).isTrue();
+            assertThat(off.isBreach()).isTrue();
+            assertThat(off.isPreSentenceActivity()).isTrue();
+            assertThat(off.isSuspendedSentenceOrder()).isTrue();
+            assertThat(off.getPnc()).isEqualTo(OFFENDER_PNC);
+            assertThat(off.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2018, Month.JUNE, 24));
+        }, () -> fail("Offender values not updated as expected"));
+
+    }
+
+    @Test
+    void whenCreateCaseByHearingId_thenCreateNewRecord_whenUpdateHearing_mutateSameHearing() {
+
+        given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(caseDetailsExtendedJson)
+                .when()
+                .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+                .then()
+                .statusCode(201)
+                .body("caseId", equalTo(JSON_CASE_ID))
+                .body("hearingId", equalTo(JSON_HEARING_ID))
+                .body("urn", equalTo(URN))
+                .body("source", equalTo("COMMON_PLATFORM"))
+                .body("hearingType", equalTo("sentenced"))
+                .body("hearingEventType", equalTo("ConfirmedOrUpdated"))
+                .body("defendants", hasSize(1))
+                .body("defendants[0].offences", hasSize(2))
+                .body("defendants[0].type", equalTo("PERSON"))
+                .body("defendants[0].defendantId", equalTo("d1eefed2-04df-11ec-b2d8-0242ac130002"))
+                .body("defendants[0].probationStatus", equalTo("PREVIOUSLY_KNOWN"))
+                .body("defendants[0].sex", equalTo("M"))
+                .body("defendants[0].name.forename1", equalTo("Dylan"))
+                .body("defendants[0].phoneNumber.home", equalTo("07000000013"))
+                .body("defendants[0].phoneNumber.mobile", equalTo("07000000014"))
+                .body("defendants[0].phoneNumber.work", equalTo("07000000015"))
+                .body("defendants[0].offences[0].judicialResults", hasSize(3))
+                .body("defendants[0].offences[0].judicialResults[0].convictedResult", equalTo(false))
+                .body("defendants[0].offences[0].judicialResults[0].label", equalTo("Label-1"))
+                .body("defendants[0].offences[0].judicialResults[0].judicialResultTypeId", equalTo(null))
+                .body("hearingDays", hasSize(1))
+                .body("hearingDays[0].courtCode", equalTo("B14LO"))
+                .body("hearingDays[0].courtRoom", equalTo("1"))
+                .body("hearingDays[0].sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
+                .body("hearingDays", hasSize(1));
+
+        var cc = courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID);
         cc.ifPresentOrElse(hearingEntity -> {
             assertThat(hearingEntity.getCaseId()).isEqualTo(JSON_CASE_ID);
             assertThat(hearingEntity.getHearingId()).isEqualTo(JSON_HEARING_ID);
@@ -321,7 +388,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         ;
 
         // The correct offender is now associated
-        courtCaseRepository.findFirstByHearingIdOrderByIdDesc(caseId)
+        courtCaseRepository.findFirstByHearingId(caseId)
                 .ifPresentOrElse(theCase -> {
                     var defendants = theCase.getHearingDefendants();
                     assertThat(defendants).hasSize(1);
@@ -338,17 +405,17 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         }, () -> fail("Offender values not updated as expected for crn " + newCrn));
     }
 
-
     @Test
     void givenExistingCaseWithNoOffenderAttached_whenAddExistingOffender_thenAdd() {
         final var caseId = "ac24a1be-939b-49a4-a524-21a3d2230000";
         final var defendantId = "d49323c0-04da-11ec-b2d8-0242ac130002";
         final var updatedJson = caseDetailsExtendedJson
                 .replace("\"caseId\": \"ac24a1be-939b-49a4-a524-21a3d228f8bc\"", "\"caseId\": \"" + caseId + "\"")
+                .replace("\"hearingId\": \"75e63d6c-5487-4244-a5bc-7cf8a38992db\"", "\"hearingId\": \"" + caseId + "\"")
                 .replace("\"defendantId\": \"d1eefed2-04df-11ec-b2d8-0242ac130002\"", "\"defendantId\": \"" + defendantId + "\"");
 
         // No offenders associated with the defendants
-        courtCaseRepository.findFirstByHearingIdOrderByIdDesc(caseId)
+        courtCaseRepository.findFirstByHearingId(caseId)
                 .ifPresentOrElse(theCase -> {
                     var defendants = theCase.getHearingDefendants();
                     assertThat(defendants).hasSize(1);
@@ -362,15 +429,31 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .accept(ContentType.JSON)
                 .body(updatedJson)
                 .when()
-                .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+                .put(PUT_BY_HEARING_ID_ENDPOINT, caseId)
                 .then()
                 .statusCode(201)
                 .body("caseId", equalTo(caseId))
-                .body("hearingId", equalTo(JSON_HEARING_ID))
+                .body("hearingId", equalTo(caseId))
+                .body("defendants[0].crn", equalTo(CRN))
+        ;
+
+        given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .when()
+                .get(PUT_BY_HEARING_ID_ENDPOINT, caseId)
+                .then()
+                .statusCode(200)
+                .body("caseId", equalTo(caseId))
+                .body("hearingId", equalTo(caseId))
+                .body("defendants", hasSize(1))
+                .body("defendants[0].crn", equalTo(CRN))
         ;
 
         // The correct offender is now associated
-        courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID)
+        courtCaseRepository.findFirstByHearingId(caseId)
                 .ifPresentOrElse(theCase -> {
                     var defendants = theCase.getHearingDefendants();
                     assertThat(defendants).hasSize(1);
@@ -399,14 +482,13 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         ;
 
         // No offenders associated with the defendants
-        courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID)
+        courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID)
                 .ifPresentOrElse(theCase -> assertThat(theCase.getHearingDefendants()
                         .stream()
                         .map(HearingDefendantEntity::getDefendant)
                         .filter(defendantEntity -> defendantEntity.getOffender() != null)
                         .toList()).isEmpty(), () -> fail("Case should exist"));
     }
-
     @Test
     void givenExistingCaseWithConfirmedOrUpdateType_whenUpdateWithResultedHearingEventType_thenUpdateSuccessfully() throws IOException {
 
@@ -430,7 +512,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .body("hearingEventType", equalTo("ConfirmedOrUpdated"));
         ;
 
-        courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID)
+        courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID)
                 .ifPresentOrElse(theCase -> assertThat(theCase.getHearingEventType()).isEqualTo(HearingEventType.CONFIRMED_OR_UPDATED), () -> fail("Hearing event type should be ConfirmedOrUpdated"));
 
         assertThat(getEmittedEventsQueueSqsClient().receiveMessage(url).getMessages()).isEmpty();
@@ -454,7 +536,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .body("hearingId", equalTo(JSON_HEARING_ID))
                 .body("hearingEventType", equalTo(resultedHearingEventType));
 
-        courtCaseRepository.findFirstByHearingIdOrderByIdDesc(JSON_HEARING_ID)
+        courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID)
                 .ifPresentOrElse(theCase -> assertThat(theCase.getHearingEventType()).isEqualTo(HearingEventType.RESULTED), () -> fail("Hearing event type should be Resulted"));
 
         await().atLeast(Duration.ofMillis(100));
@@ -486,8 +568,8 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
         var receivedDomainEventMessages = Arrays.asList(receivedSentencedDomainEventMessage1, receivedSentencedDomainEventMessage2);
 
-        var defendant1 =  defendantRepository.findFirstByDefendantIdOrderByIdDesc("1263de26-4a81-42d3-a798-bad802433318").get();
-        var defendant2 =  defendantRepository.findFirstByDefendantIdOrderByIdDesc("6f014c2e-8be3-4a12-a551-8377bd31a7b8").get();
+        var defendant1 =  defendantRepository.findFirstByDefendantId("1263de26-4a81-42d3-a798-bad802433318").get();
+        var defendant2 =  defendantRepository.findFirstByDefendantId("6f014c2e-8be3-4a12-a551-8377bd31a7b8").get();
 
         DomainEventMessage expectedDomainEventMessage1 = DomainEventMessage.builder()
                 .eventType("court.case.sentenced")
@@ -544,11 +626,11 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .statusCode(201);
 
         // known person id
-        defendantRepository.findFirstByDefendantIdOrderByIdDesc(defendantId1)
+        defendantRepository.findFirstByDefendantId(defendantId1)
                 .ifPresentOrElse(defendantEntity -> assertThat(defendantEntity.getPersonId()).isEqualTo(personIdForDefendant1), () -> fail("Person id not matching"));
 
         // person id unknown so check if exist
-        defendantRepository.findFirstByDefendantIdOrderByIdDesc(defendantId2)
+        defendantRepository.findFirstByDefendantId(defendantId2)
                 .ifPresentOrElse(defendantEntity -> assertThat(defendantEntity.getPersonId()).matches(UUID_REGEX), () -> fail("Person id should not be blank"));
     }
 }

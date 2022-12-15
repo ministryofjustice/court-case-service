@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Type;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,26 +25,25 @@ import java.io.Serializable;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @Getter
-public class JudicialResultEntity extends BaseImmutableEntity implements Serializable {
+@Audited
+public class JudicialResultEntity extends BaseAuditedEntity implements Serializable {
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private final Long id;
 
-    @Column(name = "LABEL")
+    @Column(name = "LABEL", columnDefinition = "TEXT")
     private final String label;
 
     @Column(name="IS_CONVICTED_RESULT")
     private boolean isConvictedResult;
 
-    @Column(name = "JUDICIAL_RESULT_TYPE_ID")
+    @Column(name = "JUDICIAL_RESULT_TYPE_ID", columnDefinition = "TEXT")
     private final String judicialResultTypeId;
 
     @ManyToOne
     @JoinColumn(name = "OFFENCE_ID", referencedColumnName = "id")
     @Setter
     private OffenceEntity offence;
-
-
 }

@@ -9,22 +9,11 @@ import java.util.Optional;
 public class DefendantRepositoryFacade {
 
     private final DefendantRepository defendantRepository;
-    private final OffenderRepository offenderRepository;
-
-    public DefendantRepositoryFacade(DefendantRepository defendantRepository, OffenderRepository offenderRepository) {
+    public DefendantRepositoryFacade(DefendantRepository defendantRepository) {
         this.defendantRepository = defendantRepository;
-        this.offenderRepository = offenderRepository;
     }
 
-    public Optional<DefendantEntity> findFirstByDefendantIdOrderByIdDesc(String defendantId) {
-        return defendantRepository.findFirstByDefendantIdOrderByIdDesc(defendantId)
-            .map(defendantEntity -> {
-                Optional.ofNullable(defendantEntity.getCrn())
-                    .map(crn -> offenderRepository.findByCrn(crn)
-                        .orElseThrow(() -> new RuntimeException(String.format("Unexpected state: Offender with CRN '%s' is specified on defendant '%s' but it does not exist", crn, defendantEntity.getDefendantId())))
-                    )
-                    .ifPresent(defendantEntity::setOffender);
-                return Optional.ofNullable(defendantEntity);
-            }).orElse(Optional.empty());
+    public Optional<DefendantEntity> findFirstByDefendantId(String defendantId) {
+        return defendantRepository.findFirstByDefendantId(defendantId);
     }
 }

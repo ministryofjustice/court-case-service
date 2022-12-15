@@ -3,7 +3,7 @@
 
 minReplicaCount: 2
 maxReplicaCount: 8
-maxSurge: 2
+maxSurge: 1
 takeDatabaseSnapshots: false
 
 image:

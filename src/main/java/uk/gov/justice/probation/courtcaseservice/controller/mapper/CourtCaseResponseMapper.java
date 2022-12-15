@@ -45,6 +45,20 @@ public class CourtCaseResponseMapper {
         return builder.build();
     }
 
+
+    public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, HearingDefendantEntity defendantEntity, LocalDate hearingDate) {
+        // Core case-based
+        final var builder = CourtCaseResponse.builder();
+
+        buildCaseFields(builder, hearingEntity);
+        buildHearings(builder, hearingEntity, hearingDate);
+
+        // Defendant-based fields
+        addDefendantFields(builder, defendantEntity);
+
+        return builder.build();
+    }
+
     public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, HearingDefendantEntity defendantEntity, int matchCount, LocalDate hearingDate) {
         // Core case-based
         final var builder = CourtCaseResponse.builder();
@@ -142,6 +156,8 @@ public class CourtCaseResponseMapper {
             .pnc(defendant.getPnc())
             .crn(hearingDefendantEntity.getCrn())
             .probationStatus(hearingDefendantEntity.getProbationStatusForDisplay())
+            .confirmedOffender(defendant.isOffenderConfirmed())
+            .personId(defendant.getPersonId())
         ;
 
         // Offences

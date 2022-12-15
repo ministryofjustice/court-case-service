@@ -28,4 +28,16 @@ public class HealthCheckIntTest extends BaseIntTest {
         assertThatJson(response).node("components.nomisAuth.status").isEqualTo("UP");
         assertThatJson(response).node("components.hmppsdomainevents-health.status").isEqualTo("UP");
     }
+
+    @Test
+    public void testDLQRetryEndpointIsUnsecured() {
+        // Access to this endpoint is restricted to within the namespace in helm_deploy/court-case-service/templates/ingress.yaml
+
+        given()
+                .when()
+                .put("/queue-admin/retry-all-dlqs")
+                .then()
+                .statusCode(200)
+                .extract().response().asString();
+    }
 }

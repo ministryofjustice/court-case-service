@@ -510,7 +510,6 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .body("caseId", equalTo("3db9d70b-10a2-49d1-b74d-379f2db74862"))
                 .body("hearingId", equalTo(JSON_HEARING_ID))
                 .body("hearingEventType", equalTo("ConfirmedOrUpdated"));
-        ;
 
         courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID)
                 .ifPresentOrElse(theCase -> assertThat(theCase.getHearingEventType()).isEqualTo(HearingEventType.CONFIRMED_OR_UPDATED), () -> fail("Hearing event type should be ConfirmedOrUpdated"));

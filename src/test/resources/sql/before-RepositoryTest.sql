@@ -17,7 +17,7 @@ VALUES (-1000001, -1000000, 'Theft from a different shop', 'On 01/01/2015 at own
 
 
 -- SECOND RECORD WITH SAME CREATED TIMESTAMP
-/*INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
+INSERT INTO courtcaseservicetest.court_case (id, case_id, case_no, created, source_type)
 VALUES (-1700028901, 'created_clash_id_1', '1600028913', '2020-09-01 16:59:59.000', 'LIBRA');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-1700028901, -1700028901, 'created_clash_id_1', '2020-09-01 16:59:59.000');
@@ -30,7 +30,7 @@ INSERT INTO courtcaseservicetest.OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SU
 VALUES (-1000002, -1000001, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);
 INSERT INTO courtcaseservicetest.OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-1000003, -1000001, 'Theft from a different shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 2);
-*/
+
 -- END DEFINITION OF CASE_ID created_clash_id_1
 
 -- START DEFINITION OF CASES FOR TESTING CASE LIST

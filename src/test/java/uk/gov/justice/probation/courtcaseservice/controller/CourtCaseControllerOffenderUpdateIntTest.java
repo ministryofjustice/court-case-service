@@ -104,7 +104,7 @@ public class CourtCaseControllerOffenderUpdateIntTest extends BaseIntTest {
             .then()
             .assertThat()
             .statusCode(200);
-        final var defendant = defendantRepository.findFirstByDefendantId(DEFENDANT_ID_FOR_DELETE).get();
+        final var defendant = defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_FOR_DELETE).get();
         assertThat(defendant.getCrn()).isNullOrEmpty();
     }
 
@@ -177,7 +177,7 @@ public class CourtCaseControllerOffenderUpdateIntTest extends BaseIntTest {
         assertThat(offender.getCro()).isEqualTo("CRO009");
         assertThat(offender.isBreach()).isFalse();
 
-        final var defendant = defendantRepository.findFirstByDefendantId(DEFENDANT_ID_FOR_UPDATE_NEW_OFFENDER).get();
+        final var defendant = defendantRepository.findFirstByDefendantIdOrderByIdDesc(DEFENDANT_ID_FOR_UPDATE_NEW_OFFENDER).get();
         assertThat(defendant.getCrn()).isEqualTo("Z320741");
     }
 

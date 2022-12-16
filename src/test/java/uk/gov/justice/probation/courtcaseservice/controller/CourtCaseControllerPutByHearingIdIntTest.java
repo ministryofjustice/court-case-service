@@ -567,8 +567,8 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
         var receivedDomainEventMessages = Arrays.asList(receivedSentencedDomainEventMessage1, receivedSentencedDomainEventMessage2);
 
-        var defendant1 =  defendantRepository.findFirstByDefendantId("1263de26-4a81-42d3-a798-bad802433318").get();
-        var defendant2 =  defendantRepository.findFirstByDefendantId("6f014c2e-8be3-4a12-a551-8377bd31a7b8").get();
+        var defendant1 =  defendantRepository.findFirstByDefendantIdOrderByIdDesc("1263de26-4a81-42d3-a798-bad802433318").get();
+        var defendant2 =  defendantRepository.findFirstByDefendantIdOrderByIdDesc("6f014c2e-8be3-4a12-a551-8377bd31a7b8").get();
 
         DomainEventMessage expectedDomainEventMessage1 = DomainEventMessage.builder()
                 .eventType("court.case.sentenced")
@@ -625,11 +625,11 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .statusCode(201);
 
         // known person id
-        defendantRepository.findFirstByDefendantId(defendantId1)
+        defendantRepository.findFirstByDefendantIdOrderByIdDesc(defendantId1)
                 .ifPresentOrElse(defendantEntity -> assertThat(defendantEntity.getPersonId()).isEqualTo(personIdForDefendant1), () -> fail("Person id not matching"));
 
         // person id unknown so check if exist
-        defendantRepository.findFirstByDefendantId(defendantId2)
+        defendantRepository.findFirstByDefendantIdOrderByIdDesc(defendantId2)
                 .ifPresentOrElse(defendantEntity -> assertThat(defendantEntity.getPersonId()).matches(UUID_REGEX), () -> fail("Person id should not be blank"));
     }
 }

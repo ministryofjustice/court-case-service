@@ -23,5 +23,4 @@ public class CaseListFilters {
     private final int recentlyAdded;
     private final int size;
     private final int totalNoOfPages;
-    private final int totalCount;
 }

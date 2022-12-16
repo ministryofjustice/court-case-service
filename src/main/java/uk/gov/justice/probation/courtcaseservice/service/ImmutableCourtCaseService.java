@@ -167,6 +167,14 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
         var totalNoOfPages = searchResults.size() < pageable.getPageSize() ? 1 : (int) Math.ceil((double) searchResults.size() / pageable.getPageSize());
 
+        var caseListFilter = CaseListFilters.builder()
+                .possibleNdeliusRecords(possibleNDeliusCount)
+                .recentlyAdded(recentlyAddedCount)
+                .size(pageable.getPageSize())
+                .courtRoom(courtRooms)
+                .totalNoOfPages(totalNoOfPages)
+                .build();
+
         var filteredResults = applyFilters(searchResults, caseSearchFilter);
 
         var caseLists = filteredResults.stream()
@@ -175,15 +183,6 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                         .comparing(CourtCaseResponse::getCourtRoom)
                         .thenComparing(CourtCaseResponse::getSessionStartTime)
                         .thenComparing(CourtCaseResponse::getName)).toList();
-
-        var caseListFilter = CaseListFilters.builder()
-                .possibleNdeliusRecords(possibleNDeliusCount)
-                .recentlyAdded(recentlyAddedCount)
-                .size(pageable.getPageSize())
-                .courtRoom(courtRooms)
-                .totalNoOfPages(totalNoOfPages)
-                .totalCount(caseLists.size())
-                .build();
 
 
         var pageItems = getPageItems(caseLists, pageable.getPageNumber(), pageable.getPageSize());

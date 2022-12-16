@@ -64,6 +64,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .assertThat()
                 .statusCode(200)
                 .body("cases", hasSize(7))
+                .body("filters.totalCount", equalTo(7))
                 .body("cases[0].courtCode", equalTo(COURT_CODE))
                 .body("cases[0].caseNo", equalTo(null))
                 .body("cases[0].source", equalTo("COMMON_PLATFORM"))

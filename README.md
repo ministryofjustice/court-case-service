@@ -14,16 +14,47 @@ This section contains the bare minimum you need to do to get the app running aga
 - Run `docker-compose up postgres` to start the postgres database Docker container
 - Run `./gradlew clean build` to build the application
 - To run against dev services (you will need to substitute in valid credentials, ask a maintainer for help obtaining these):
-    - `env SPRING_PROFILES_ACTIVE=dev \
-       COMMUNITY_API_CLIENT_ID=<?> \
-       COMMUNITY_API_CLIENT_SECRET=<?> \
-       OFFENDER_ASSESSMENTS_API_CLIENT_ID=<?> \
-       OFFENDER_ASSESSMENTS_API_CLIENT_SECRET=<?> \
-       ./gradlew bootRun`
+    - `SPRING_PROFILES_ACTIVE=dev`
+    - `COMMUNITY_API_CLIENT_ID=<?>`
+    - `COMMUNITY_API_CLIENT_SECRET=<?>`
+    - `OFFENDER_ASSESSMENTS_API_CLIENT_ID=<?>`
+    - `OFFENDER_ASSESSMENTS_API_CLIENT_SECRET=<?>`
+  
+  And then run`./gradlew bootRun`
 - Application will now be [running on port 8080](http://localhost:8080/health)
 - Optional: Run `./gradlew installGitHooks` to install Git hooks from `./hooks` directory. Note these require postgres to be running to pass.     
 ---
-       
+## Running Service Locally
+Ensure all docker containers are up and running:
+
+`$ docker compose up -d`
+
+Which should start the following containers: (verify with `$ docker ps` if necessary)
+- oauth
+- court-case-service-postgres-1
+- localstack-court-case-service
+- community-api
+- offender-assessment-api
+
+Start the service ensuring the local spring boot profile is set:
+
+`$ ./gradlew bootRun --args='--spring.profiles.active=local'`
+
+NB. All REST endpoints are secured with the role `PREPARE_A_CASE` which will need to be passed to the endpoint as an OAuth token.
+
+### Running on Apple Silicon 
+When running the service through IntelliJ you may see the following error in the server logs:
+
+`Suppressed: java.lang.UnsatisfiedLinkError: no netty_resolver_dns_native_macos_aarch_64 in java.library.path:`
+
+The service will still run in spite of this, and if need be this error can be mitigated with the followng addition in the `build.gradle` :
+```
+    implementation("io.netty:netty-resolver-dns-native-macos:4.1.75.Final") {
+        artifact {
+            classifier = "osx-aarch_64"
+        }
+    }
+```
 ## Prerequisites
 - Java 14
 - Docker

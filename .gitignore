@@ -8,6 +8,7 @@ HELP.md
 data_dictionary/libs/**
 data_dictionary/schema/**
 .java-version
+/volume
 
 ### STS ###
 .apt_generated

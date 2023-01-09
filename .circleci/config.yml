@@ -457,3 +457,4 @@ workflows:
     jobs:
       - pact_check_and_publish:
           pact_consumer_tags: << pipeline.parameters.pact_consumer_tags >>
+          context: [hmpps-common-vars]

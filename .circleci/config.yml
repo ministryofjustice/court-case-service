@@ -354,6 +354,7 @@ workflows:
               only: main
           main: true
       - build:
+          context: [hmpps-common-vars]
           filters:
             tags:
               ignore: /.*/

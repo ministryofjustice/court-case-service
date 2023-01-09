@@ -229,6 +229,7 @@ jobs:
         default: main
     environment:
       PACTBROKER_HOST: "pact-broker-prod.apps.live-1.cloud-platform.service.justice.gov.uk"
+      PACTBROKER_AUTH_USERNAME: "interventions"
     executor: builder-machine
     steps:
       - checkout

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.extension.RegisterExtension
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.SpyBean
-import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.retry.annotation.EnableRetry
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -36,7 +36,7 @@ abstract class BaseIntTest {
 
   @JvmField
   @LocalServerPort
-  protected var port = 0
+  protected final var port = 0
   @BeforeEach
   fun setup() {
     TestConfig.configureRestAssuredForIntTest(port)
@@ -111,6 +111,6 @@ abstract class BaseIntTest {
     @AfterAll
     fun afterAll() {
       MOCK_SERVER.stop()
-   }
+    }
   }
 }

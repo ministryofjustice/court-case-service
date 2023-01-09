@@ -162,7 +162,7 @@ jobs:
             - build/libs
             - build.gradle
       - jira/notify:
-          token_name: JIRA_CIRCLE_TOKEN
+          token_name: CIRCLE_TOKEN
           job_type: build
 
   pact-consumer-publish:
@@ -219,7 +219,7 @@ jobs:
                   docker push quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
                   docker push quay.io/hmpps/<<parameters.app_name>>:latest
       - jira/notify:
-          token_name: JIRA_CIRCLE_TOKEN
+          token_name: CIRCLE_TOKEN
           job_type: build
 
   pact_check_and_publish:
@@ -294,7 +294,7 @@ jobs:
       - jira/notify:
           environment: dev
           environment_type: development
-          token_name: JIRA_CIRCLE_TOKEN
+          token_name: CIRCLE_TOKEN
           job_type: deployment
   deploy_preprod:
     executor: deployer
@@ -304,7 +304,7 @@ jobs:
       - jira/notify:
           environment: preprod
           environment_type: testing
-          token_name: JIRA_CIRCLE_TOKEN
+          token_name: CIRCLE_TOKEN
           job_type: deployment
   deploy_prod:
     executor: deployer
@@ -314,7 +314,7 @@ jobs:
       - jira/notify:
           environment: prod
           environment_type: production
-          token_name: JIRA_CIRCLE_TOKEN
+          token_name: CIRCLE_TOKEN
           job_type: deployment
 
 workflows:

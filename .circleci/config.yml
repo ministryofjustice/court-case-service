@@ -286,7 +286,6 @@ jobs:
 
   deploy_dev:
     executor: deployer
-    context: [hmpps-common-vars]
     steps:
       - deploy_to_live_env:
           env: "dev"

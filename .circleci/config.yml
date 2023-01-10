@@ -420,6 +420,7 @@ workflows:
       - build_docker:
           app_name: pic-data-dictionary
           name: build_docker_data_dictionary_branch
+          context: [hmpps-common-vars]
           dockerfile_path: ./data_dictionary
           requires:
             - build

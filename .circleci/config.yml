@@ -218,6 +218,7 @@ jobs:
                   docker push quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
                   docker push quay.io/hmpps/<<parameters.app_name>>:latest
       - jira/notify:
+          token_name: CIRCLE_TOKEN
           job_type: build
 
   pact_check_and_publish:

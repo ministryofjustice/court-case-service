@@ -162,7 +162,6 @@ jobs:
             - build/libs
             - build.gradle
       - jira/notify:
-          token_name: JIRA_CIRCLE_TOKEN
           job_type: build
 
   pact-consumer-publish:
@@ -219,7 +218,6 @@ jobs:
                   docker push quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
                   docker push quay.io/hmpps/<<parameters.app_name>>:latest
       - jira/notify:
-          token_name: JIRA_CIRCLE_TOKEN
           job_type: build
 
   pact_check_and_publish:
@@ -229,6 +227,7 @@ jobs:
         default: main
     environment:
       PACTBROKER_HOST: "pact-broker-prod.apps.live-1.cloud-platform.service.justice.gov.uk"
+      PACTBROKER_AUTH_USERNAME: "interventions"
     executor: builder-machine
     steps:
       - checkout
@@ -287,13 +286,13 @@ jobs:
 
   deploy_dev:
     executor: deployer
+    context: [hmpps-common-vars]
     steps:
       - deploy_to_live_env:
           env: "dev"
       - jira/notify:
           environment: dev
           environment_type: development
-          token_name: JIRA_CIRCLE_TOKEN
           job_type: deployment
   deploy_preprod:
     executor: deployer
@@ -303,7 +302,6 @@ jobs:
       - jira/notify:
           environment: preprod
           environment_type: testing
-          token_name: JIRA_CIRCLE_TOKEN
           job_type: deployment
   deploy_prod:
     executor: deployer
@@ -313,7 +311,6 @@ jobs:
       - jira/notify:
           environment: prod
           environment_type: production
-          token_name: JIRA_CIRCLE_TOKEN
           job_type: deployment
 
 workflows:
@@ -354,6 +351,7 @@ workflows:
               only: main
           main: true
       - build:
+          context: [hmpps-common-vars]
           filters:
             tags:
               ignore: /.*/
@@ -370,6 +368,7 @@ workflows:
       - hmpps/helm_lint:
           name: helm_lint_dev
       - build_docker:
+          context: [hmpps-common-vars]
           app_name: court-case-service
           requires:
             - build
@@ -378,6 +377,7 @@ workflows:
               ignore: main
       - build_docker:
           name: build_docker_main
+          context: [hmpps-common-vars]
           app_name: court-case-service
           requires:
             - build
@@ -387,6 +387,7 @@ workflows:
           main: true
       - build_docker:
           name: build_docker_nginx
+          context: [hmpps-common-vars]
           app_name: court-case-service-nginx
           dockerfile_path: ./nginx
           requires:
@@ -396,6 +397,7 @@ workflows:
               ignore: main
       - build_docker:
           name: build_docker_nginx_main
+          context: [hmpps-common-vars]
           app_name: court-case-service-nginx
           dockerfile_path: ./nginx
           requires:
@@ -406,6 +408,7 @@ workflows:
               only: main
       - build_docker:
           name: build_docker_data_dictionary_main
+          context: [hmpps-common-vars]
           app_name: pic-data-dictionary
           dockerfile_path: ./data_dictionary
           requires:
@@ -418,6 +421,7 @@ workflows:
       - build_docker:
           app_name: pic-data-dictionary
           name: build_docker_data_dictionary_branch
+          context: [hmpps-common-vars]
           dockerfile_path: ./data_dictionary
           requires:
             - build
@@ -426,9 +430,7 @@ workflows:
             branches:
               ignore: main
       - deploy_dev:
-          context:
-            - court-probation-live-dev
-            - [hmpps-common-vars]
+          context: court-probation-live-dev
           requires:
             - helm_lint_dev
             - build_docker_main
@@ -442,9 +444,7 @@ workflows:
           requires:
             - deploy_dev
       - deploy_preprod:
-          context:
-            - court-probation-live-preprod
-            - [hmpps-common-vars]
+          context: court-probation-live-preprod
           requires:
             - request_preprod_approval
       - request_prod_approval:
@@ -452,9 +452,7 @@ workflows:
           requires:
             - deploy_preprod
       - deploy_prod:
-          context:
-            - court-probation-live-prod
-            - [hmpps-common-vars]
+          context: court-probation-live-prod
           requires:
             - request_prod_approval
 
@@ -462,3 +460,4 @@ workflows:
     jobs:
       - pact_check_and_publish:
           pact_consumer_tags: << pipeline.parameters.pact_consumer_tags >>
+          context: [hmpps-common-vars]

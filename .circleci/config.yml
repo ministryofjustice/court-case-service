@@ -426,7 +426,9 @@ workflows:
             branches:
               ignore: main
       - deploy_dev:
-          context: court-probation-live-dev
+          context:
+            - court-probation-live-dev
+            - [hmpps-common-vars]
           requires:
             - helm_lint_dev
             - build_docker_main
@@ -440,7 +442,9 @@ workflows:
           requires:
             - deploy_dev
       - deploy_preprod:
-          context: court-probation-live-preprod
+          context:
+            - court-probation-live-preprod
+            - [hmpps-common-vars]
           requires:
             - request_preprod_approval
       - request_prod_approval:
@@ -448,7 +452,9 @@ workflows:
           requires:
             - deploy_preprod
       - deploy_prod:
-          context: court-probation-live-prod
+          context:
+            - court-probation-live-prod
+            - [hmpps-common-vars]
           requires:
             - request_prod_approval
 

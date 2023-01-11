@@ -369,20 +369,10 @@ workflows:
               only: main
       - hmpps/helm_lint:
           name: helm_lint_dev
-      - build_docker:
-          context: [hmpps-common-vars]
-          app_name: court-case-service
-          requires:
-            - build
-          filters:
-            branches:
-              ignore:
-                - main
-                - /.*workflow_test_branch.*/
-      - build_docker:
-          name: build_docker_main
-          context: [hmpps-common-vars]
-          app_name: court-case-service
+      - hmpps/build_docker:
+          name: build_docker
+          context:
+            - hmpps-common-vars
           requires:
             - build
           filters:
@@ -390,12 +380,12 @@ workflows:
               only:
                 - main
                 - /.*workflow_test_branch.*/
-          main: true
-      - build_docker:
+      - hmpps/build_docker:
           name: build_docker_nginx
-          context: [hmpps-common-vars]
-          app_name: court-case-service-nginx
-          dockerfile_path: ./nginx
+          dockerfile_dir: ./nginx
+          context:
+            - hmpps-common-vars
+          image_name: court-case-service-nginx
           requires:
             - build
           filters:
@@ -403,52 +393,27 @@ workflows:
               ignore:
                 - main
                 - /.*workflow_test_branch.*/
-      - build_docker:
-          name: build_docker_nginx_main
-          context: [hmpps-common-vars]
-          app_name: court-case-service-nginx
-          dockerfile_path: ./nginx
-          requires:
-            - build
-          main: true
-          filters:
-            branches:
-              only:
-                - main
-                - /.*workflow_test_branch.*/
-      - build_docker:
-          name: build_docker_data_dictionary_main
-          context: [hmpps-common-vars]
-          app_name: pic-data-dictionary
-          dockerfile_path: ./data_dictionary
-          requires:
-            - build
-            - build_data_dictionary
-          main: true
-          filters:
-            branches:
-              only:
-                - main
-                - /.*workflow_test_branch.*/
-      - build_docker:
-          name: build_docker_data_dictionary_branch
-          app_name: pic-data-dictionary
-          context: [hmpps-common-vars]
-          dockerfile_path: ./data_dictionary
+      - hmpps/build_docker:
+          name: build_docker_data_dictionary
+          dockerfile_dir: ./data_dictionary
+          image_name: pic-data-dictionary
+          context:
+            - hmpps-common-vars
           requires:
             - build
             - build_data_dictionary
           filters:
             branches:
-              ignore:
+              only:
                 - main
                 - /.*workflow_test_branch.*/
       - deploy_dev:
+          context: [hmpps-common-vars]
           requires:
             - helm_lint_dev
-            - build_docker_main
-            - build_docker_nginx_main
-            - build_docker_data_dictionary_main
+            - build_docker
+            - build_docker_nginx
+            - build_docker_data_dictionary
           filters:
             branches:
               only:
@@ -459,6 +424,7 @@ workflows:
           requires:
             - deploy_dev
       - deploy_preprod:
+          context: [hmpps-common-vars]
           requires:
             - request_preprod_approval
       - request_prod_approval:
@@ -466,6 +432,7 @@ workflows:
           requires:
             - deploy_preprod
       - deploy_prod:
+          context: [hmpps-common-vars]
           requires:
             - request_prod_approval
 

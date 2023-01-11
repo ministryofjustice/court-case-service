@@ -432,7 +432,6 @@ workflows:
             branches:
               ignore: main
       - deploy_dev:
-          context: court-probation-live-dev
           requires:
             - helm_lint_dev
             - build_docker_main
@@ -446,7 +445,6 @@ workflows:
           requires:
             - deploy_dev
       - deploy_preprod:
-          context: court-probation-live-preprod
           requires:
             - request_preprod_approval
       - request_prod_approval:
@@ -454,7 +452,6 @@ workflows:
           requires:
             - deploy_preprod
       - deploy_prod:
-          context: court-probation-live-prod
           requires:
             - request_prod_approval
 

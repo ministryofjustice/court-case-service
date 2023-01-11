@@ -376,7 +376,9 @@ workflows:
             - build
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - /.*workflow_test_branch.*/
       - build_docker:
           name: build_docker_main
           context: [hmpps-common-vars]
@@ -385,7 +387,9 @@ workflows:
             - build
           filters:
             branches:
-              only: main
+              only:
+                - main
+                - /.*workflow_test_branch.*/
           main: true
       - build_docker:
           name: build_docker_nginx
@@ -396,7 +400,9 @@ workflows:
             - build
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - /.*workflow_test_branch.*/
       - build_docker:
           name: build_docker_nginx_main
           context: [hmpps-common-vars]
@@ -407,7 +413,9 @@ workflows:
           main: true
           filters:
             branches:
-              only: main
+              only:
+                - main
+                - /.*workflow_test_branch.*/
       - build_docker:
           name: build_docker_data_dictionary_main
           context: [hmpps-common-vars]
@@ -419,10 +427,12 @@ workflows:
           main: true
           filters:
             branches:
-              only: main
+              only:
+                - main
+                - /.*workflow_test_branch.*/
       - build_docker:
-          app_name: pic-data-dictionary
           name: build_docker_data_dictionary_branch
+          app_name: pic-data-dictionary
           context: [hmpps-common-vars]
           dockerfile_path: ./data_dictionary
           requires:
@@ -430,7 +440,9 @@ workflows:
             - build_data_dictionary
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - /.*workflow_test_branch.*/
       - deploy_dev:
           requires:
             - helm_lint_dev
@@ -439,7 +451,9 @@ workflows:
             - build_docker_data_dictionary_main
           filters:
             branches:
-              only: main
+              only:
+                - main
+                - /.*workflow_test_branch.*/
       - request_preprod_approval:
           type: approval
           requires:

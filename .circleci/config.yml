@@ -33,24 +33,6 @@ commands:
             kubectl config use-context circleci
             kubectl -n "${KUBE_ENV_NAMESPACE}" get pods
 
-  set_app_version:
-    description: "Set app version string"
-    steps:
-      - run:
-          name: create app version string
-          command: |
-            $JAVA_HOME/bin/jar xvf build/libs/court-case-service-*.jar META-INF/build-info.properties
-            VERSION=$(grep 'build.version=' META-INF/build-info.properties | awk -F= '{print $2}')
-            rm META-INF/build-info.properties
-            SHORT_HASH=$(git rev-parse --short HEAD)
-            FULL_VERSION=${VERSION}.${SHORT_HASH}
-            if [[ "${CIRCLE_BRANCH}" == "main" ]]; then
-              FULL_VERSION=${VERSION}
-            fi
-            echo "export APP_VERSION=$FULL_VERSION" >> $BASH_ENV
-      - mem/remember:
-          env_var: APP_VERSION
-          value: "${APP_VERSION}"
   deploy_to_live_env:
     parameters:
       env:
@@ -147,7 +129,19 @@ jobs:
             - gradle-{{ checksum "build.gradle" }}
             - gradle-
       - run: ./gradlew build jacocoTestReport
-      - set_app_version
+      - run:
+          name: Record the Application Version
+          command: |
+            jar xvf build/libs/court-case-service-*.jar META-INF/build-info.properties
+            APP_VERSION=$(grep 'build.version=' META-INF/build-info.properties | awk -F= '{print $2}')
+            rm META-INF/build-info.properties
+            # make up a good version name
+            SHORT_HASH=$(git rev-parse --short HEAD)
+            TAG=${APP_VERSION}.${SHORT_HASH}
+            if [[ "${CIRCLE_BRANCH}" == "main" ]]; then
+              TAG=${APP_VERSION}
+            fi
+            echo $TAG > ./app_version.txt
       - save_cache:
           paths:
             - ~/.gradle

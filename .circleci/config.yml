@@ -324,9 +324,12 @@ workflows:
                 - main
     jobs:
       - build:
+          name: build_scheduled
+          context: [hmpps-common-vars]
           filters:
-            tags:
-              ignore: /.*/
+            branches:
+              only:
+                - main
       - app_scan:
           main: true
       - image_scan:

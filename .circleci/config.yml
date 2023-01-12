@@ -371,7 +371,7 @@ workflows:
       - hmpps/helm_lint:
           name: helm_lint_dev
       - hmpps/build_docker:
-          name: build_docker
+          name: build_docker_XXX
           context:
             - hmpps-common-vars
           requires:

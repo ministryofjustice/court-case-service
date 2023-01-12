@@ -60,7 +60,7 @@ commands:
 executors:
   deployer:
     docker:
-      - image: circleci/python:3
+      - image: cimg/python:3
     working_directory: ~/app
   builder:
     docker:
@@ -117,7 +117,7 @@ jobs:
             - data_dictionary
 
   build:
-    executor: builder
+    executor: builder-machine
     steps:
       - checkout
       - run:

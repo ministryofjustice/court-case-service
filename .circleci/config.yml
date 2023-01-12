@@ -155,6 +155,7 @@ jobs:
           paths:
             - build/libs
             - build.gradle
+            - app_version.txt
       - jira/notify:
           job_type: build
 

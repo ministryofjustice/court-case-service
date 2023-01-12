@@ -20,10 +20,10 @@ RUN curl https://s3.amazonaws.com/rds-downloads/rds-ca-2015-root.pem \
 
 WORKDIR /app
 
-COPY build/libs/court-case-service-*.jar /app/court-case-service.jar
-COPY build/libs/applicationinsights-agent*.jar /app/agent.jar
-COPY applicationinsights.json /app
-COPY run.sh /app
+COPY /app/build/libs/court-case-service-*.jar /app/court-case-service.jar
+COPY /app/build/libs/applicationinsights-agent*.jar /app/agent.jar
+COPY /app/applicationinsights.json /app
+COPY /app/run.sh /app
 RUN chown -R appuser:appgroup /app
 
 USER 2000

@@ -370,17 +370,25 @@ workflows:
               only: main
       - hmpps/helm_lint:
           name: helm_lint_dev
-      - hmpps/build_docker:
-          name: build_docker
-          context:
-            - hmpps-common-vars
+      - build_docker:
+          context: [ hmpps-common-vars ]
+          app_name: court-case-service
           requires:
             - build
           filters:
             branches:
-              only:
-                - main
-                - /.*workflow_test_branch.*/
+              ignore: main
+#      - hmpps/build_docker:
+#          name: build_docker
+#          context:
+#            - hmpps-common-vars
+#          requires:
+#            - build
+#          filters:
+#            branches:
+#              only:
+#                - main
+#                - /.*workflow_test_branch.*/
       - hmpps/build_docker:
           name: build_docker_nginx
           dockerfile_dir: ./nginx

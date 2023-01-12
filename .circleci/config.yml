@@ -432,7 +432,7 @@ workflows:
 #                - main
 #                - /.*workflow_test_branch.*/
       - deploy_dev:
-          context: [hmpps-common-vars]
+          context: court-probation-live-dev
           requires:
             - helm_lint_dev
             - build_docker

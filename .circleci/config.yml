@@ -117,7 +117,7 @@ jobs:
             - data_dictionary
 
   build:
-    executor: builder-machine
+    executor: builder
     steps:
       - checkout
       - run:

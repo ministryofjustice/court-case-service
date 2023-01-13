@@ -290,10 +290,10 @@ jobs:
     steps:
       - deploy_to_live_env:
           env: "dev"
-      - jira/notify:
-          environment: dev
-          environment_type: development
-          job_type: deployment
+#      - jira/notify:
+#          environment: dev
+#          environment_type: development
+#          job_type: deployment
   deploy_preprod:
     executor: deployer
     steps:

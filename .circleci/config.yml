@@ -207,17 +207,25 @@ jobs:
                --label "build.number=$CIRCLE_BUILD_NUM" \
                --label "build.url=$CIRCLE_BUILD_URL" \
                --label "build.gitref=$CIRCLE_SHA1"
-      - when:
-          condition: << parameters.main >>
-          steps:
-            - run:
-                name: Publish to docker hub
-                command: |
-                  docker login -u="${QUAYIO_USERNAME}" -p="${QUAYIO_PASSWORD}" quay.io
-                  docker tag hmpps/<<parameters.app_name>>:$APP_VERSION quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
-                  docker tag hmpps/<<parameters.app_name>>:$APP_VERSION quay.io/hmpps/<<parameters.app_name>>:latest
-                  docker push quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
-                  docker push quay.io/hmpps/<<parameters.app_name>>:latest
+      - run:
+          name: Publish to docker hub
+          command: |
+            docker login -u="${QUAYIO_USERNAME}" -p="${QUAYIO_PASSWORD}" quay.io
+            docker tag hmpps/<<parameters.app_name>>:$APP_VERSION quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
+            docker tag hmpps/<<parameters.app_name>>:$APP_VERSION quay.io/hmpps/<<parameters.app_name>>:latest
+            docker push quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
+            docker push quay.io/hmpps/<<parameters.app_name>>:latest
+#      - when:
+#          condition: << parameters.main >>
+#          steps:
+#            - run:
+#                name: Publish to docker hub
+#                command: |
+#                  docker login -u="${QUAYIO_USERNAME}" -p="${QUAYIO_PASSWORD}" quay.io
+#                  docker tag hmpps/<<parameters.app_name>>:$APP_VERSION quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
+#                  docker tag hmpps/<<parameters.app_name>>:$APP_VERSION quay.io/hmpps/<<parameters.app_name>>:latest
+#                  docker push quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
+#                  docker push quay.io/hmpps/<<parameters.app_name>>:latest
       - jira/notify:
           job_type: build
 
@@ -290,10 +298,10 @@ jobs:
     steps:
       - deploy_to_live_env:
           env: "dev"
-      - jira/notify:
-          environment: dev
-          environment_type: development
-          job_type: deployment
+#      - jira/notify:
+#          environment: dev
+#          environment_type: development
+#          job_type: deployment
   deploy_preprod:
     executor: deployer
     steps:

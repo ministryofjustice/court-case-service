@@ -215,17 +215,6 @@ jobs:
             docker tag hmpps/<<parameters.app_name>>:$APP_VERSION quay.io/hmpps/<<parameters.app_name>>:latest
             docker push quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
             docker push quay.io/hmpps/<<parameters.app_name>>:latest
-#      - when:
-#          condition: << parameters.main >>
-#          steps:
-#            - run:
-#                name: Publish to docker hub
-#                command: |
-#                  docker login -u="${QUAYIO_USERNAME}" -p="${QUAYIO_PASSWORD}" quay.io
-#                  docker tag hmpps/<<parameters.app_name>>:$APP_VERSION quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
-#                  docker tag hmpps/<<parameters.app_name>>:$APP_VERSION quay.io/hmpps/<<parameters.app_name>>:latest
-#                  docker push quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
-#                  docker push quay.io/hmpps/<<parameters.app_name>>:latest
       - jira/notify:
           job_type: build
 
@@ -298,10 +287,10 @@ jobs:
     steps:
       - deploy_to_live_env:
           env: "dev"
-#      - jira/notify:
-#          environment: dev
-#          environment_type: development
-#          job_type: deployment
+      - jira/notify:
+          environment: dev
+          environment_type: development
+          job_type: deployment
   deploy_preprod:
     executor: deployer
     steps:
@@ -380,22 +369,11 @@ workflows:
             tags:
               ignore: /.*/
       - build_docker:
+          name: build_docker
           context: [ hmpps-common-vars ]
           app_name: court-case-service
           requires:
             - build
-          filters:
-            branches:
-              ignore: main
-      - build_docker:
-          name: build_docker_main
-          context: [hmpps-common-vars]
-          app_name: court-case-service
-          requires:
-            - build
-          filters:
-            branches:
-              only: main
           main: true
       - build_docker:
           name: build_docker_nginx
@@ -405,13 +383,8 @@ workflows:
             - hmpps-common-vars
           requires:
             - build
-          filters:
-            branches:
-              ignore:
-                - main
-                - /.*workflow_test_branch.*/
       - build_docker:
-          name: build_docker_data_dictionary_main
+          name: build_docker_data_dictionary
           context: [hmpps-common-vars]
           app_name: pic-data-dictionary
           dockerfile_path: ./data_dictionary
@@ -419,26 +392,6 @@ workflows:
             - build
             - build_data_dictionary
           main: true
-          filters:
-            branches:
-              only:
-                - main
-                - /.*workflow_test_branch.*/
-
-#      - hmpps/build_docker:
-#          name: build_docker_data_dictionary
-#          dockerfile_dir: ./data_dictionary
-#          image_name: pic-data-dictionary
-#          context:
-#            - hmpps-common-vars
-#          requires:
-#            - build
-#            - build_data_dictionary
-#          filters:
-#            branches:
-#              only:
-#                - main
-#                - /.*workflow_test_branch.*/
       - deploy_dev:
           context: court-probation-live-dev
           requires:
@@ -456,7 +409,7 @@ workflows:
           requires:
             - deploy_dev
       - deploy_preprod:
-          context: [hmpps-common-vars]
+          context: court-probation-live-preprod
           requires:
             - request_preprod_approval
       - request_prod_approval:
@@ -464,7 +417,7 @@ workflows:
           requires:
             - deploy_preprod
       - deploy_prod:
-          context: [hmpps-common-vars]
+          context: court-probation-live-prod
           requires:
             - request_prod_approval
 

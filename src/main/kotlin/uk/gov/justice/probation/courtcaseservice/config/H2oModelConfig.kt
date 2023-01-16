@@ -18,8 +18,7 @@ class H2oModelConfig(@Value("\${h2o.model-path}") private val h2oResource: Resou
 
     @Bean
     fun getModelWrapper(): EasyPredictModelWrapper {
-//        log.info("Creating H2O Model runtime from file: ${h2oResource.inputStream.}")
-//        return EasyPredictModelWrapper(MojoModel.load(h2oResource.file.absolutePath))
+        log.info("Creating H2O Model runtime from zip file")
         return EasyPredictModelWrapper(MojoModel.load(MojoReaderBackendFactory.createReaderBackend(h2oResource.inputStream, MojoReaderBackendFactory.CachingStrategy.MEMORY)))
     }
 }

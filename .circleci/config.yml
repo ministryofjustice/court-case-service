@@ -409,7 +409,17 @@ workflows:
             branches:
               ignore:
                 - main
-                - /.*workflow_test_branch.*/
+      - build_docker:
+          name: build_docker_nginx_main
+          context: [hmpps-common-vars]
+          app_name: court-case-service-nginx
+          dockerfile_path: ./nginx
+          requires:
+            - build
+          main: true
+          filters:
+            branches:
+              only: main
       - build_docker:
           name: build_docker_data_dictionary_main
           context: [hmpps-common-vars]

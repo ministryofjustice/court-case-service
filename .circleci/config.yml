@@ -393,7 +393,9 @@ workflows:
             - build_data_dictionary
           main: true
       - deploy_dev:
-          context: court-probation-live-dev
+          context:
+            - court-probation-live-dev
+            - hmpps-common-vars
           requires:
             - helm_lint_dev
             - build_docker

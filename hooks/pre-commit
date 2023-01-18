@@ -1,3 +1,18 @@
 #!/bin/bash
 
-./gradlew unitTest
+set -e
+
+SRC_PATTERN="src/"
+if git diff --cached --name-only | grep --quiet "$SRC_PATTERN"
+then
+  echo "👷‍♀️ src/ has changed - running unit tests..."
+  ./gradlew unitTest
+fi
+
+SRC_PATTERN=".circleci/"
+
+if git diff --cached --name-only | grep --quiet "$SRC_PATTERN"
+then
+  echo "👷‍♀️ CircleCI config has changed - validating..."
+  circleci config validate
+fi

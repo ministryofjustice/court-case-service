@@ -1,10 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service.mapper;
 
 import kotlin.Pair;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
@@ -21,9 +18,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
-@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CaseSearchResultItemMapper {
-    @Autowired
+
     private final Clock clock;
 
     public CaseSearchResultItemMapper(final Clock clock) {
@@ -33,7 +29,7 @@ public class CaseSearchResultItemMapper {
 
     public CaseSearchResultItem from(CourtCaseEntity courtCaseEntity, final String crn) {
 
-        // filter out hearing defendants that does not match teh CRN - as the case may have multiple defendants with different CRNs
+        // filter out hearing defendants that does not match the CRN as the case may have multiple defendants with different CRNs
         var hearingDefendants = courtCaseEntity.getHearings().stream()
             .flatMap(hearingEntity -> hearingEntity.getHearingDefendants().stream()
                 .filter(hearingDefendantEntity -> Optional.ofNullable(hearingDefendantEntity.getDefendant().getOffender())

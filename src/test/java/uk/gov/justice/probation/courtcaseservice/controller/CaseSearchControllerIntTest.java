@@ -55,7 +55,6 @@ class CaseSearchControllerIntTest extends BaseIntTest {
             .body("items[1].nextHearingDate", equalTo(LocalDate.now().plusDays(10).format(DateTimeFormatter.ISO_DATE)))
             .body("items[1].nextHearingCourt", equalTo("Leicester"))
             .body("items[1].awaitingPsr", equalTo(true))
-            .body("items[1].breach", equalTo(true))
-            ;
+            .body("items[1].breach", equalTo(true));
     }
 }

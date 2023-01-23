@@ -18,5 +18,6 @@ public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Lon
         "and h.id = hd.fk_hearing_id  " +
         "and c.id = h.fk_court_case_id",
     nativeQuery = true)
+
     List<CourtCaseEntity> findAllCasesByCrn(String crn);
 }

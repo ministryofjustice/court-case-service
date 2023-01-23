@@ -58,7 +58,7 @@ class CaseSearchServiceTest {
     }
 
     @Test
-    void shouldReturn() {
+    void shouldMapAndReturnTheResultsRetrievedByTheRepository() {
         given(courtCaseRepository.findAllCasesByCrn(TEST_CRN)).willReturn(List.of());
 
         var actual = caseSearchService.searchByCrn(TEST_CRN);

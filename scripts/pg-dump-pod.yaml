@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pg-dump-pod
+spec:
+  containers:
+    - name: postgresql
+      image: bitnami/postgresql
+      ports:
+        - containerPort: 80
+      volumeMounts:
+        - mountPath: /data
+          name: data-volume
+      env:
+        - name: "ALLOW_EMPTY_PASSWORD"
+          value: "yes"
+  volumes:
+    - name: data-volume
+      emptyDir: {}

@@ -19,11 +19,11 @@ metadata:
     {{- toYaml . | nindent 4 }}
     {{- end }}
     # Secure the retry all dlqs endpoint from outside of the Kubernetes ingress
-    nginx.ingress.kubernetes.io/configuration-snippet: |
+    nginx.ingress.kubernetes.io/server-snippet: |
       server_tokens off;
-      location /{{ template "app.fullname" . }}/queue-admin/retry-all-dlqs {
+      location ~* /queue-admin/retry-all-dlqs {
         deny all;
-        return 401;
+        return 403;
       }
 spec:
   ingressClassName: modsec

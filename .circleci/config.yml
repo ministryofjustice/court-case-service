@@ -357,6 +357,7 @@ workflows:
             tags:
               ignore: /.*/
       - pact-consumer-publish:
+          context: [hmpps-common-vars]
           requires:
             - build
           filters:

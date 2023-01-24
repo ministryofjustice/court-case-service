@@ -202,7 +202,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1'
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.13'
 
-    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:1.1.12")
+    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:1.2.0")
     implementation group: 'ai.h2o', name: 'h2o-genmodel', version: '3.38.0.3'
 
     testAnnotationProcessor 'org.projectlombok:lombok'

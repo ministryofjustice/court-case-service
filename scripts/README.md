@@ -1,5 +1,9 @@
 # Maintenance scripts
 
+## Helm deployments
+
+If you want to check that a helm chart deploys successfully to a lower environment _without_ waiting for the full CI pipeline to complete, use `./helm-deploy.bash` rather than running the helm command directly. This not only makes it more easily reproducible but also prevents inadvertent deployment to prod, prod should _never_ bypass CI.
+
 ## Database dumps
 
 It is sometimes useful to apply a copy of the production court-case-service data to preprod for testing purposes, in particular where complex migrations are involved. We've developed a number of scripts which will automate this process, allowing data to be copied from one environment to another. It's also possible to apply these to the same namespace for testing purposes or if you want to be able to reset data back after a deployment or similar.  The scripts make use of common tools such as `kubectl` and `jq` that you should already have installed on your machine. In order to retrieve secrets to connect to the database it will use your `kubectl` config and credentials.

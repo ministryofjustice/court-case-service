@@ -32,8 +32,8 @@ class ManageOffencesRestClient(
                     ExternalService.MANAGE_OFFENCES) }
             .onStatus(HttpStatus::is5xxServerError) {
                 log.error("${it.statusCode().value()} Error retrieving Home Office Offence code for CJS code: $cjsCode")
-                handle4xxError(
-                    it,
+                handle5xxError(
+                    "${it.statusCode().value()} Error retrieving Home Office Offence code for CJS code: $cjsCode",
                     HttpMethod.GET,
                     getHomeOfficeOffenceCodePath,
                     ExternalService.MANAGE_OFFENCES) }

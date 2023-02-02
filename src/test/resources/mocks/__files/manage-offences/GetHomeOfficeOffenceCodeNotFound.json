@@ -1,0 +1,7 @@
+{
+  "status": 404,
+  "errorCode": null,
+  "userMessage": "Not found: No offence exists for the passed in offence code",
+  "developerMessage": "No offence exists for the passed in offence code",
+  "moreInfo": null
+}

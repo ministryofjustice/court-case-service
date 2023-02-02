@@ -48,6 +48,13 @@ spring:
             client-authentication-method: basic
             authorization-grant-type: client_credentials
             provider: nomis-oauth-service
+          manage-offences-api-client:
+            client-name: manage-offences-api-client
+            client-id: ${manage-offences-api-client-id:manage-offences-api-client}
+            client-secret: ${manage-offences-api-client-secret:clientsecret}
+            client-authentication-method: basic
+            authorization-grant-type: client_credentials
+            provider: nomis-oauth-service
         provider:
           nomis-oauth-service:
             token-uri: ${nomis-oauth.base-url}/auth/oauth/token
@@ -122,6 +129,9 @@ prison-api:
 
 delius:
   contact-list-url-template: ${delius.base-url}/NDelius-war/delius/JSP/deeplink.jsp?component=ContactList&offenderId=%s&eventId=%s
+
+manage-offences-api:
+  get-home-office-offence-code: /offences/ho-code/%s
 
 health:
   default-ping-path: /ping

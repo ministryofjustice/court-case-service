@@ -30,6 +30,9 @@ public class WebClientConfig {
     @Value("${nomis-oauth.base-url}")
     private String oauthApiBaseUrl;
 
+    @Value("${manage-offences-api.base-url}")
+    private String manageOffencesApiBaseUrl;
+
     @Value("${web.client.document-byte-buffer-size}")
     private int documentBufferByteSize;
 
@@ -55,6 +58,11 @@ public class WebClientConfig {
     }
 
     @Bean
+    public RestClientHelper manageOffencesApiClient(WebClient manageOffencesApiWebClient) {
+        return new RestClientHelper(manageOffencesApiWebClient, "manage-offences-api-client", disableAuthentication);
+    }
+
+    @Bean
     public WebClient documentWebClient(WebClientFactory webClientFactory) {
         return webClientFactory.buildWebClient(communityApiBaseUrl, documentBufferByteSize);
     }
@@ -77,6 +85,11 @@ public class WebClientConfig {
     @Bean
     public WebClient oauthWebClient(WebClientFactory webClientFactory) {
         return webClientFactory.buildWebClient(oauthApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE);
+    }
+
+    @Bean
+    public WebClient manageOffencesApiWebClient(WebClientFactory webClientFactory) {
+        return webClientFactory.buildWebClient(manageOffencesApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE);
     }
 
 }

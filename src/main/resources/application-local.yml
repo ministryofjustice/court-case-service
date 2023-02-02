@@ -20,6 +20,9 @@ delius:
 prison-api:
   base-url: https://api-dev.prison.service.justice.gov.uk
 
+manage-offences-api:
+  base-url: https://manage-offences-api-dev.hmpps.service.justice.gov.uk/
+
 spring:
   flyway:
     defaultSchema: ${database.schema.name}

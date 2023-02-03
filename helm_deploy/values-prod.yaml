@@ -56,6 +56,9 @@ env:
     base_url: https://ndelius.probation.service.justice.gov.uk
   prison_api:
     base_url: https://api.prison.service.justice.gov.uk
+  manage_offences_api:
+    base_url: https://manage-offences-api.hmpps.service.justice.gov.uk
+
 
 spring:
   profile: instrumented,prod

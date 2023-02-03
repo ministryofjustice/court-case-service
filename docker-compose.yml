@@ -4,7 +4,6 @@ services:
 
   postgres:
     image: postgres:11.15-alpine
-
     ports:
       - 5432:5432
     networks:
@@ -14,8 +13,6 @@ services:
       POSTGRES_PASSWORD: dev
     tmpfs:
       - /var/lib/postgresql
-
-
 
   oauth:
     image: mojdigitalstudio/nomis-oauth2-server:latest

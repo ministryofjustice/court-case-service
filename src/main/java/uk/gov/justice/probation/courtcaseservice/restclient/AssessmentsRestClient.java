@@ -19,7 +19,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 @Slf4j
 public class AssessmentsRestClient {
 
-
     @Value("${offender-assessments-api.assessment-crn-url-template}")
     private String assessmentsUrlTemplate;
 
@@ -33,8 +32,7 @@ public class AssessmentsRestClient {
             .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
             .bodyToMono(AssessmentsApiAssessmentsResponse.class)
             .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender assessment data for CRN '%s'", crn), e))
-            .map(AssessmentMapper::assessmentsFrom)
-            ;
+            .map(AssessmentMapper::assessmentsFrom);
     }
 
 

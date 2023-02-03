@@ -84,10 +84,10 @@ abstract class BaseIntTest {
       localStackContainer?.also { setLocalStackProperties(it, registry) }
     }
 
-    private val MOCK_SERVER = WiremockMockServer(TestConfig.WIREMOCK_PORT)
+    private val WIRE_MOCK_SERVER = WiremockMockServer(TestConfig.WIREMOCK_PORT)
 
     @RegisterExtension
-    var wiremockExtension = WiremockExtension(MOCK_SERVER)
+    var wiremockExtension = WiremockExtension(WIRE_MOCK_SERVER)
     var localstackImage = DockerImageName.parse("localstack/localstack:1.17.3")
 
     @Container
@@ -105,12 +105,12 @@ abstract class BaseIntTest {
     @Throws(Exception::class)
     fun setupClass() {
       RetryService.tryWireMockStub()
-      MOCK_SERVER.start()
+      WIRE_MOCK_SERVER.start()
     }
 
     @AfterAll
     fun afterAll() {
-      MOCK_SERVER.stop()
+      WIRE_MOCK_SERVER.stop()
     }
   }
 }

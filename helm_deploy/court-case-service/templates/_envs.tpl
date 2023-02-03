@@ -55,6 +55,9 @@ env:
   - name: DELIUS_BASE_URL
     value: "{{ .Values.env.delius.base_url }}"
 
+  - name: MANAGE_OFFENCES_API_BASE_URL
+    value: "{{ .Values.env.manage_offences_api.base_url }}"
+
   - name: COMMUNITY_API_CLIENT_ID
     valueFrom:
       secretKeyRef:
@@ -86,6 +89,18 @@ env:
         key: nomis-oauth-client-id
 
   - name: PRISON_API_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: court-case-service-secrets
+        key: nomis-oauth-client-secret
+
+  - name: MANAGE_OFFENCES_API_CLIENT_ID
+    valueFrom:
+      secretKeyRef:
+        name: court-case-service-secrets
+        key: nomis-oauth-client-id
+
+  - name: MANAGE_OFFENCES_API_CLIENT_SECRET
     valueFrom:
       secretKeyRef:
         name: court-case-service-secrets

@@ -64,12 +64,14 @@ class CaseProgressServiceTest {
 
         List<CaseProgressHearing> expected = List.of(
             CaseProgressHearing.builder().hearingId("hearing-id-one").hearingDateTime(LocalDateTime.of(dateNow, timeNow)).court(courtName).session(MORNING.name())
+                .hearingTypeLabel("Hearing type unknown")
                 .notes(List.of(
                     HearingNoteResponse.builder().hearingId(hearingIdOne).note("Hearing id one note one").build(),
                     HearingNoteResponse.builder().hearingId(hearingIdOne).note("Hearing id one note two").build())
                 )
                 .build(),
-            CaseProgressHearing.builder().hearingId("hearing-id-two").hearingDateTime(LocalDateTime.of(dateNow, timeNow)).court(courtName).session(MORNING.name()).build());
+            CaseProgressHearing.builder().hearingId("hearing-id-two").hearingDateTime(LocalDateTime.of(dateNow, timeNow)).court(courtName).session(MORNING.name())
+                .hearingTypeLabel("Hearing type unknown").build());
 
         var progress = caseProgressService.getCaseHearingProgress(CASE_ID);
 

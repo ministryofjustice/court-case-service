@@ -357,12 +357,14 @@ class ExtendedHearingRequestResponseTest {
                 .offender(Offender.builder().pnc(OFFENDER_PNC).build())
                 .offences(List.of(OffenceRequestResponse.builder()
                                 .act("act2")
+                                .offenceCode("ABC002")
                                 .judicialResults(Collections.emptyList())
                                 .build(),
                         OffenceRequestResponse.builder()
                                 .act("act")
                                 .offenceSummary("summary")
                                 .offenceTitle("title")
+                                .offenceCode("ABC001")
                                 .listNo(11)
                                 .judicialResults(Collections.emptyList())
                                 .build()
@@ -506,10 +508,12 @@ class ExtendedHearingRequestResponseTest {
                                                 .title("title")
                                                 .sequence(2)
                                                 .listNo(11)
+                                                .offenceCode("ABC001")
                                                 .build(),
                                         OffenceEntity.builder()
                                                 .act("act2")
                                                 .sequence(1)
+                                                .offenceCode("ABC002")
                                                 .build()
                                 ))
                                 .build(),

@@ -54,6 +54,7 @@
           "offenceTitle": "Theft from a shop",
           "offenceSummary": "On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.",
           "act": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
+          "offenceCode": "ABC001",
           "listNo": 5,
           "judicialResults": [
             {
@@ -86,7 +87,8 @@
           "offenceTitle": "Theft from a different shop",
           "offenceSummary": "On 02/01/2015 at own, stole article, to the value of £123.00, belonging to person. A very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very huuuuuuuuuuuuuuuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee offence",
           "act": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
-          "listNo": 8
+          "listNo": 8,
+          "offenceCode": "ABC002"
         }
       ]
     }

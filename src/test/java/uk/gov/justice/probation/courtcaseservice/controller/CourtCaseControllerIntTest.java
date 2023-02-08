@@ -20,11 +20,7 @@ import java.time.format.DateTimeFormatter;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.equalToIgnoringCase;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
@@ -84,6 +80,8 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[0].offences", hasSize(2))
                 .body("cases[0].offences[0].offenceTitle", equalTo("Emma stole 1st thing from a shop"))
                 .body("cases[0].offences[0].listNo", equalTo(35))
+                .body("cases[0].offences[0].offenceCode", equalTo("ABC001"))
+                .body("cases[0].offences[1].offenceCode", equalTo("ABC002"))
                 .body("cases[1].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
                 .body("cases[1].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
                 .body("cases[1].offences", hasSize(1))

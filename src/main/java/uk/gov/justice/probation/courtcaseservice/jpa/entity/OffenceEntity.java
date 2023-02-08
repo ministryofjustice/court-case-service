@@ -75,4 +75,7 @@ public class OffenceEntity extends BaseAuditedEntity implements Serializable  {
     @OrderColumn(name = "JUDICIAL_RESULTS_ORDER", nullable = false)
     @ToString.Exclude
     private final List<JudicialResultEntity> judicialResults;
+
+    @Column(name = "OFFENCE_CODE")
+    private final String offenceCode;
 }

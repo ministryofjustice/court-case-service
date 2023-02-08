@@ -128,6 +128,8 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .body("defendants[0].phoneNumber.home", equalTo("07000000013"))
                 .body("defendants[0].phoneNumber.mobile", equalTo("07000000014"))
                 .body("defendants[0].phoneNumber.work", equalTo("07000000015"))
+                .body("defendants[0].offences[0].offenceCode", equalTo("ABC001"))
+                .body("defendants[0].offences[1].offenceCode", equalTo("ABC002"))
                 .body("defendants[0].offences[0].judicialResults", hasSize(3))
                 .body("defendants[0].offences[0].judicialResults[0].convictedResult", equalTo(false))
                 .body("defendants[0].offences[0].judicialResults[0].label", equalTo("Label-1"))

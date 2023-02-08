@@ -117,6 +117,7 @@ public class CourtCaseResponseMapper {
     private static OffenceResponse mapFrom(OffenceEntity offenceEntity) {
         return OffenceResponse.builder()
             .offenceTitle(offenceEntity.getTitle())
+            .offenceCode(offenceEntity.getOffenceCode())
             .offenceSummary(offenceEntity.getSummary())
             .act(offenceEntity.getAct())
             .sequenceNumber(offenceEntity.getSequence())

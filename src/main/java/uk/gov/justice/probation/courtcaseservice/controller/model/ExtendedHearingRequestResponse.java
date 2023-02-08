@@ -119,6 +119,7 @@ public class ExtendedHearingRequestResponse {
                                                     .act(offence.getAct())
                                                     .offenceTitle(offence.getTitle())
                                                     .offenceSummary(offence.getSummary())
+                                                    .offenceCode(offence.getOffenceCode())
                                                     .listNo(offence.getListNo())
                                                     .judicialResults(Optional.of(offence)
                                                             .map(OffenceEntity::getJudicialResults)
@@ -238,6 +239,7 @@ public class ExtendedHearingRequestResponse {
                             .act(offence.getAct())
                             .listNo(offence.getListNo())
                             .judicialResults(buildJudicialResults(offence.getJudicialResults()))
+                            .offenceCode(offence.getOffenceCode())
                             .build();
                 })
                 .collect(Collectors.toList());

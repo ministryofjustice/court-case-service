@@ -236,6 +236,7 @@ public class EntityHelper {
                 .summary(OFFENCE_SUMMARY)
                 .title(title)
                 .act(OFFENCE_ACT)
+                .offenceCode("EFG001")
                 .sequence(seq)
                 .judicialResults(getMutableList(List.of(JudicialResultEntity.builder()
                         .isConvictedResult(false)

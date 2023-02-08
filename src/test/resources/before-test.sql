@@ -86,10 +86,10 @@ INSERT INTO DEFENDANT(id, DEFENDANT_ID,PERSON_ID, defendant_name, name, address,
 VALUES (-1700029903, '7a320a46-037c-481c-ab1e-dbfab62af4d6', '0274f01c-4b97-11ed-bdc3-0242ac120002', 'Ms Emma Radical', '{"title": "Ms", "surname": "RADICAL", "forename1": "Emma"}', '{"line1": "Emma Place", "line2": "Radical Place", "postcode": "e12 8gt"}', 'PERSON', '1987-10-10', 'A/1234560CD', '311465/13F', 'FEMALE', 'Romanian', 'Chinese', '{"home": "07000000013", "mobile": "07000000006", "work": "07000000015"}');
 INSERT INTO HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID, FK_DEFENDANT_ID)
 VALUES (-1700029903, -1700029901, '7a320a46-037c-481c-ab1e-dbfab62af4d6', -1700029903);
-INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, LIST_NO)
-VALUES (-1700029903, -1700029903, 'Emma stole 1st thing from a shop', 'On 01/01/2015 at own, Emma stole 1st article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, 35);
-INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
-VALUES (-1700029904, -1700029903, 'Emma stole 2nd thing from a shop', 'On 01/01/2015 at own, Emma stole 2nd article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 2);
+INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, LIST_NO, OFFENCE_CODE)
+VALUES (-1700029903, -1700029903, 'Emma stole 1st thing from a shop', 'On 01/01/2015 at own, Emma stole 1st article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, 35, 'ABC001');
+INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, OFFENCE_CODE)
+VALUES (-1700029904, -1700029903, 'Emma stole 2nd thing from a shop', 'On 01/01/2015 at own, Emma stole 2nd article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 2, 'ABC002');
 
 INSERT INTO court_case (id, case_id, case_no, created, source_type)
 VALUES (-1700028902, '1f93aa0a-7e46-4885-a1cb-f25a4be33a57', 1600028915, now(), 'COMMON_PLATFORM');

@@ -18,5 +18,6 @@ public class OffenceResponse {
     private final String act;
     private final int sequenceNumber;
     private final Integer listNo;
+    private final String offenceCode;
 
 }

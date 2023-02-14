@@ -10,7 +10,7 @@ TRUNCATE court CASCADE;
 TRUNCATE case_comments CASCADE;
 
 INSERT INTO court (name, court_code) VALUES ('North Shields', 'B10JQ');
-INSERT INTO court (name, court_code) VALUES ('Sheffield', 'B14LO');
+INSERT INTO court (name, court_code) VALUES ('Sheffield Magistrates Court', 'B14LO');
 INSERT INTO court (name, court_code) VALUES ('Leicester', 'B33HU');
 INSERT INTO court (name, court_code) VALUES ('Aberystwyth', 'B63AD');
 INSERT INTO court (name, court_code) VALUES ('New New York', 'B30NY');
@@ -87,9 +87,9 @@ VALUES (-1700029903, '7a320a46-037c-481c-ab1e-dbfab62af4d6', '0274f01c-4b97-11ed
 INSERT INTO HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID, FK_DEFENDANT_ID)
 VALUES (-1700029903, -1700029901, '7a320a46-037c-481c-ab1e-dbfab62af4d6', -1700029903);
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, LIST_NO, OFFENCE_CODE)
-VALUES (-1700029903, -1700029903, 'Emma stole 1st thing from a shop', 'On 01/01/2015 at own, Emma stole 1st article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, 35, 'ABC001');
+VALUES (-1700029903, -1700029903, 'Emma stole 1st thing from a shop', 'On 01/01/2015 at own, Emma stole 1st article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, 35, 'RT88191');
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, OFFENCE_CODE)
-VALUES (-1700029904, -1700029903, 'Emma stole 2nd thing from a shop', 'On 01/01/2015 at own, Emma stole 2nd article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 2, 'ABC002');
+VALUES (-1700029904, -1700029903, 'Emma stole 2nd thing from a shop', 'On 01/01/2015 at own, Emma stole 2nd article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 2, 'RT88191');
 
 INSERT INTO court_case (id, case_id, case_no, created, source_type)
 VALUES (-1700028902, '1f93aa0a-7e46-4885-a1cb-f25a4be33a57', 1600028915, now(), 'COMMON_PLATFORM');

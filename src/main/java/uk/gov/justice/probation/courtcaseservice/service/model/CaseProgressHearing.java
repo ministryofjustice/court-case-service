@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.With;
+import org.apache.commons.lang3.StringUtils;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
@@ -58,6 +59,9 @@ public class CaseProgressHearing {
     }
 
     private static String getHearingTypeLabel(HearingEntity hearingEntity) {
-        return hearingEntity.getSourceType() == COMMON_PLATFORM ? hearingEntity.getHearingType() : String.format("%s hearing", hearingEntity.getListNo());
+        final var HEARING_EVENT_UNKNOWN_TEXT = "Hearing type unknown";
+        return hearingEntity.getSourceType() == COMMON_PLATFORM ?
+            StringUtils.isEmpty(hearingEntity.getHearingType()) ? HEARING_EVENT_UNKNOWN_TEXT : hearingEntity.getHearingType()
+            : StringUtils.isEmpty(hearingEntity.getListNo()) ? HEARING_EVENT_UNKNOWN_TEXT : String.format("%s hearing", hearingEntity.getListNo());
     }
 }

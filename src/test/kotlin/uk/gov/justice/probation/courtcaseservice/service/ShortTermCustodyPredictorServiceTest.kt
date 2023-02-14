@@ -19,10 +19,10 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
         val courtName = "Cardiff"
         val offenderAge = 25
         val offenceCode = "80702"
-        val predictorParameters = PredictorParameters(courtName, offenderAge, offenceCode)
+        val shortTermCustodyPredictorParameters = ShortTermCustodyPredictorParameters(courtName, offenderAge, offenceCode)
 
         // When
-        val custodyPredictorScore = predictorService.calculateShortTermCustodyPredictorScore(predictorParameters)
+        val custodyPredictorScore = predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
 
         // Then
         assertThat(custodyPredictorScore).isNotNull
@@ -35,11 +35,11 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
         val courtName = "Nonsense"
         val offenderAge = 25
         val offenceCode = "80702"
-        val predictorParameters = PredictorParameters(courtName, offenderAge, offenceCode)
+        val shortTermCustodyPredictorParameters = ShortTermCustodyPredictorParameters(courtName, offenderAge, offenceCode)
 
         // When
         val thrown: PredictUnknownCategoricalLevelException = assertThrows(PredictUnknownCategoricalLevelException::class.java) {
-            predictorService.calculateShortTermCustodyPredictorScore(predictorParameters)
+            predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
         }
 
         // Then
@@ -52,11 +52,11 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
         val courtName = "Cardiff"
         val offenderAge = 25
         val offenceCode = "9X9X9X9X"
-        val predictorParameters = PredictorParameters(courtName, offenderAge, offenceCode)
+        val shortTermCustodyPredictorParameters = ShortTermCustodyPredictorParameters(courtName, offenderAge, offenceCode)
 
         // When
         val thrown: PredictUnknownCategoricalLevelException = assertThrows(PredictUnknownCategoricalLevelException::class.java) {
-            predictorService.calculateShortTermCustodyPredictorScore(predictorParameters)
+            predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
         }
 
         // Then
@@ -69,11 +69,11 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
         val courtName = "Cardiff"
         val offenderAge = 999999
         val offenceCode = "80702"
-        val predictorParameters = PredictorParameters(courtName, offenderAge, offenceCode)
+        val shortTermCustodyPredictorParameters = ShortTermCustodyPredictorParameters(courtName, offenderAge, offenceCode)
 
         // When
         val thrown: PredictUnknownCategoricalLevelException = assertThrows(PredictUnknownCategoricalLevelException::class.java) {
-            predictorService.calculateShortTermCustodyPredictorScore(predictorParameters)
+            predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
         }
 
         // Then
@@ -86,11 +86,11 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
         val courtName = "Cardiff"
         val offenderAge = 17
         val offenceCode = "80702"
-        val predictorParameters = PredictorParameters(courtName, offenderAge, offenceCode)
+        val shortTermCustodyPredictorParameters = ShortTermCustodyPredictorParameters(courtName, offenderAge, offenceCode)
 
         // When
         val thrown: PredictUnknownCategoricalLevelException = assertThrows(PredictUnknownCategoricalLevelException::class.java) {
-            predictorService.calculateShortTermCustodyPredictorScore(predictorParameters)
+            predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
         }
 
         // Then
@@ -103,10 +103,10 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
         val courtName = "Cardiff"
         val offenderAge = null
         val offenceCode = "80702"
-        val predictorParameters = PredictorParameters(courtName, offenderAge, offenceCode)
+        val shortTermCustodyPredictorParameters = ShortTermCustodyPredictorParameters(courtName, offenderAge, offenceCode)
 
         // When
-        val custodyPredictorScore = predictorService.calculateShortTermCustodyPredictorScore(predictorParameters)
+        val custodyPredictorScore = predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
 
         // Then
         assertThat(custodyPredictorScore).isEqualTo(0.9081075078820396)

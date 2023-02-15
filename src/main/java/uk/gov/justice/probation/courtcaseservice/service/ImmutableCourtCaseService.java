@@ -40,19 +40,23 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private final DomainEventService domainEventService;
     private final CourtCaseRepository courtCaseRepository;
 
+    private final ShortTermCustodyPredictorService shortTermCustodyPredictorService;
+
     @Autowired
     public ImmutableCourtCaseService(CourtRepository courtRepository,
                                      HearingRepositoryFacade hearingRepositoryFacade,
                                      TelemetryService telemetryService,
                                      GroupedOffenderMatchRepository matchRepository,
                                      DomainEventService domainEventService,
-                                     CourtCaseRepository courtCaseRepository) {
+                                     CourtCaseRepository courtCaseRepository,
+                                     ShortTermCustodyPredictorService shortTermCustodyPredictorService) {
         this.courtRepository = courtRepository;
         this.hearingRepositoryFacade = hearingRepositoryFacade;
         this.telemetryService = telemetryService;
         this.matchRepository = matchRepository;
         this.domainEventService = domainEventService;
         this.courtCaseRepository = courtCaseRepository;
+        this.shortTermCustodyPredictorService = shortTermCustodyPredictorService;
     }
 
     @Override
@@ -74,9 +78,9 @@ public class ImmutableCourtCaseService implements CourtCaseService {
             throw new ConflictingInputException(String.format("Hearing Id %s does not match with value from body %s",
                     hearingId, updatedHearing.getHearingId()));
         }
+        shortTermCustodyPredictorService.addPredictorScoresToHearing(updatedHearing);
 
-        Mono<HearingEntity> orUpdateHearing = createOrUpdateHearing(hearingId, updatedHearing);
-        return orUpdateHearing;
+        return createOrUpdateHearing(hearingId, updatedHearing);
     }
 
     @Override

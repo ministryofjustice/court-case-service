@@ -91,7 +91,6 @@ class CourtControllerIntTest extends BaseIntTest {
             .body("courts[4].code", equalTo("C10JQ"))
             .body("courts[4].name", equalTo("Old New York"))
             .body("courts[5].code", equalTo("B14LO"))
-            .body("courts[5].name", equalTo("Sheffield"))
-        ;
+            .body("courts[5].name", equalTo("Sheffield Magistrates Court"));
     }
 }

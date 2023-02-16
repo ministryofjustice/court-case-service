@@ -2,7 +2,7 @@
   "priority": 1,
   "request": {
     "method": "GET",
-    "urlPath": "/offences/ho-code/RT88191",
+    "urlPath": "/offences/ho-code/XXXXXX",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"
@@ -10,11 +10,10 @@
     }
   },
   "response": {
-    "status": 200,
+    "status": 500,
     "headers": {
       "Content-Type": "application/json"
-    },
-    "body": "80702"
+    }
   }
 }
 

@@ -91,4 +91,37 @@ class CaseProgressHearingTest {
         );
     }
 
+    @Test
+    void givenLibraCase_shouldMapEmptyHearingTypeToDefaultText() {
+        var hearingDayEntity1 = EntityHelper.aHearingDayEntity(LocalDateTime.of(2022, 2, 26, 9, 0))
+                                                    .withCourtRoom("Room 1").withCourt(CourtEntity.builder().name("Leeds mags court").build());
+
+        var hearingEntity = HearingEntity.builder()
+            .hearingId("test-hearing-id")
+            .hearingType("Sentence")
+            .listNo(null)
+            .courtCase(CourtCaseEntity.builder().sourceType(LIBRA).build())
+            .hearingDays(List.of(hearingDayEntity1))
+            .build();
+
+        CaseProgressHearing caseProgressHearing = CaseProgressHearing.of(hearingEntity, Optional.empty());
+        Assertions.assertThat(caseProgressHearing.getHearingTypeLabel()).isEqualTo("Hearing type unknown");
+    }
+
+    @Test
+    void givenCommonPlatformCase_shouldMapEmptyHearingTypeToDefaultText() {
+        var hearingDayEntity1 = EntityHelper.aHearingDayEntity(LocalDateTime.of(2022, 2, 26, 9, 0))
+                                                    .withCourtRoom("Room 1").withCourt(CourtEntity.builder().name("Leeds mags court").build());
+
+        var hearingEntity = HearingEntity.builder()
+            .hearingId("test-hearing-id")
+            .hearingType(null)
+            .courtCase(CourtCaseEntity.builder().sourceType(COMMON_PLATFORM).build())
+            .hearingDays(List.of(hearingDayEntity1))
+            .build();
+
+        CaseProgressHearing caseProgressHearing = CaseProgressHearing.of(hearingEntity, Optional.empty());
+        Assertions.assertThat(caseProgressHearing.getHearingTypeLabel()).isEqualTo("Hearing type unknown");
+    }
+
 }

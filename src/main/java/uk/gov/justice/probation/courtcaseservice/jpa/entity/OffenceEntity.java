@@ -26,6 +26,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -78,4 +79,8 @@ public class OffenceEntity extends BaseAuditedEntity implements Serializable  {
 
     @Column(name = "OFFENCE_CODE")
     private final String offenceCode;
+
+    @Column(name = "SHORT_TERM_CUSTODY_PREDICTOR_SCORE")
+    @Setter
+    private BigDecimal shortTermCustodyPredictorScore;
 }

@@ -30,6 +30,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonRefer
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.time.Duration;
@@ -87,6 +88,9 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     @Value("classpath:integration/request/PUT_courtCaseExtended_invalidListNo.json")
     private Resource caseDetailsExtendedInvalidListNoResource;
 
+    @Value("classpath:integration/request/PUT_courtCaseExtended_no_offence_code.json")
+    private Resource caseDetailsExtendedNoOffenceCodeResource;
+
     private final File caseDetailsExtendedUpdate = new File(getClass().getClassLoader().getResource("integration/request/PUT_courtCaseExtended_update_success.json").getFile());
 
     private String caseDetailsExtendedJson;
@@ -128,8 +132,8 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .body("defendants[0].phoneNumber.home", equalTo("07000000013"))
                 .body("defendants[0].phoneNumber.mobile", equalTo("07000000014"))
                 .body("defendants[0].phoneNumber.work", equalTo("07000000015"))
-                .body("defendants[0].offences[0].offenceCode", equalTo("ABC001"))
-                .body("defendants[0].offences[1].offenceCode", equalTo("ABC002"))
+                .body("defendants[0].offences[0].offenceCode", equalTo("RT88191"))
+                .body("defendants[0].offences[1].offenceCode", equalTo("RT88191"))
                 .body("defendants[0].offences[0].judicialResults", hasSize(3))
                 .body("defendants[0].offences[0].judicialResults[0].convictedResult", equalTo(false))
                 .body("defendants[0].offences[0].judicialResults[0].label", equalTo("Label-1"))
@@ -215,6 +219,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             assertThat(hearingEntity.getHearingEventType().getName()).isEqualTo("ConfirmedOrUpdated");
             assertThat(hearingEntity.getHearingType()).isEqualTo("sentenced");
             assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
+            assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("shortTermCustodyPredictorScore").containsOnly(BigDecimal.valueOf(0.960894684624953));
             assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPhoneNumber()).isEqualTo(
                     PhoneNumberEntity.builder().home("07000000013").mobile("07000000014").work("07000000015").build());
             assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPersonId()).isNotBlank();
@@ -312,20 +317,81 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     }
 
     @Test
+    void should_NOT_persist_short_term_custody_predictor_score_for_unknown_offence_code() {
+        var updatedJson = caseDetailsExtendedJson
+                .replace("\"offenceCode\": \"RT88191\"", "\"offenceCode\": \"Nonsense\"");
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(updatedJson)
+            .when()
+            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+            .then()
+            .statusCode(201);
+
+        courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID).ifPresentOrElse( hearing ->
+                assertThat(hearing.getHearingDefendants().get(0).getOffences()).allMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore() == null),
+        () -> fail("Short Term Custody score should not be persisted"));
+    }
+
+    @Test
+    void should_NOT_persist_short_term_custody_predictor_score_when_offence_code_is_absent() throws IOException {
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(copyToString(caseDetailsExtendedNoOffenceCodeResource.getInputStream(), Charset.defaultCharset()))
+            .when()
+            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+            .then()
+            .statusCode(201);
+
+        courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID).ifPresentOrElse( hearing ->
+                        assertThat(hearing.getHearingDefendants().get(0).getOffences()).allMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore() == null),
+                () -> fail("Short Term Custody score should not be persisted"));
+    }
+
+    @Test
+    void should_NOT_persist_short_term_custody_predictor_score_when_unknown_error_occurs_with_offence_service() {
+        var updatedJson = caseDetailsExtendedJson
+                .replace("\"offenceCode\": \"RT88191\"", "\"offenceCode\": \"XXXXXX\"");
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(updatedJson)
+            .when()
+            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+            .then()
+            .statusCode(201);
+
+        courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID).ifPresentOrElse( hearing ->
+                        assertThat(hearing.getHearingDefendants().get(0).getOffences()).allMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore() == null),
+                () -> fail("Short Term Custody score should not be persisted"));
+    }
+
+    @Test
     void givenUnknownCourt_whenCreateCourtCaseByHearingId_ThenOk() {
         var updatedJson = caseDetailsExtendedJson
                 .replace("\"courtCode\": \"B14LO\"", "\"courtCode\": \"" + NOT_FOUND_COURT_CODE + "\"");
 
         given()
-                .auth()
-                .oauth2(getToken())
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(updatedJson)
-                .when()
-                .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
-                .then()
-                .statusCode(201);
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(updatedJson)
+            .when()
+            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+            .then()
+            .statusCode(201);
     }
 
     @Test
@@ -480,8 +546,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .then()
                 .statusCode(201)
                 .body("caseId", equalTo("3db9d70b-10a2-49d1-b74d-379f2db74862"))
-                .body("hearingId", equalTo(JSON_HEARING_ID))
-        ;
+                .body("hearingId", equalTo(JSON_HEARING_ID));
 
         // No offenders associated with the defendants
         courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID)

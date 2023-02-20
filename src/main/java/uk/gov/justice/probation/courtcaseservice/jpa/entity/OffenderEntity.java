@@ -10,8 +10,11 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -19,9 +22,11 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "OFFENDER")
@@ -31,7 +36,7 @@ import java.time.LocalDate;
 @With
 @Setter
 @Getter
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = false, exclude = {"defendants"})
 @ToString
 public class OffenderEntity extends BaseEntity implements Serializable {
 
@@ -49,6 +54,12 @@ public class OffenderEntity extends BaseEntity implements Serializable {
 
     @Column(name = "CRO")
     private String cro;
+
+    @ToString.Exclude
+    @LazyCollection(LazyCollectionOption.TRUE)
+    @JsonIgnore
+    @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL)
+    private List<DefendantEntity> defendants;
 
     @Column(name = "PROBATION_STATUS")
     @Enumerated(EnumType.STRING)

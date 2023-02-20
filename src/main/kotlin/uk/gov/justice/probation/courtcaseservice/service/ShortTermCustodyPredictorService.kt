@@ -2,6 +2,8 @@ package uk.gov.justice.probation.courtcaseservice.service
 
 import hex.genmodel.easy.EasyPredictModelWrapper
 import hex.genmodel.easy.RowData
+import hex.genmodel.easy.exception.PredictUnknownCategoricalLevelException
+import hex.genmodel.easy.prediction.BinomialModelPrediction
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -28,7 +30,7 @@ class ShortTermCustodyPredictorService(
         val log: Logger = LoggerFactory.getLogger(this::class.java)
     }
 
-    fun calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters: ShortTermCustodyPredictorParameters) : Double {
+    fun calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters: ShortTermCustodyPredictorParameters) : Double? {
 
         log.debug("Entered calculateShortTermCustodyPredictorScore(${shortTermCustodyPredictorParameters.courtName}, " +
                 "${shortTermCustodyPredictorParameters.offenderAge}, " +
@@ -42,13 +44,24 @@ class ShortTermCustodyPredictorService(
         shortTermCustodyPredictorParameters.offenderAge?.let {
             rowData["offender_age"] = shortTermCustodyPredictorParameters.offenderAge.toString()
         }
-        rowData["offence_code"] = shortTermCustodyPredictorParameters.offenceCode
+        rowData["offence_code"] = shortTermCustodyPredictorParameters.offenceCode.replace("/", StringUtils.EMPTY)
 
-        val prediction = model.predictBinomial(rowData)
-        val score = prediction.classProbabilities[0]
-        log.info("Calculated short term custody score of $score for court: ${shortTermCustodyPredictorParameters.courtName}, offender age: ${shortTermCustodyPredictorParameters.offenderAge}, offence code: ${shortTermCustodyPredictorParameters.offenceCode}")
+        var prediction : BinomialModelPrediction? =
+        try {
+            model.predictBinomial(rowData)
+        }
+        catch (ex: PredictUnknownCategoricalLevelException) {
+            log.warn("Invalid parameter passed into algorithm", ex)
+            null
+        }
 
-        return score
+        prediction?.let {
+            val score = prediction.classProbabilities[0]
+            log.info("Calculated short term custody score of $score for court: ${shortTermCustodyPredictorParameters.courtName}, offender age: ${shortTermCustodyPredictorParameters.offenderAge}, offence code: ${shortTermCustodyPredictorParameters.offenceCode}")
+            return score
+        }
+
+        return null
     }
 
     fun addPredictorScoresToHearing(hearingEntity: HearingEntity) {
@@ -88,7 +101,9 @@ class ShortTermCustodyPredictorService(
                         homeOfficeOffenceCode
                     )
                 )
-                offence.shortTermCustodyPredictorScore = BigDecimal.valueOf(score)
+                score?.let {
+                    offence.shortTermCustodyPredictorScore = BigDecimal.valueOf(score)
+                }
             }, {
                 log.warn("No court name could be found for court code: ${hearingEntity.hearingDays[0].courtCode}")
             })

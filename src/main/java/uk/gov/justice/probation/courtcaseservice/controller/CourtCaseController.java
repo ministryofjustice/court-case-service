@@ -147,13 +147,30 @@ public class CourtCaseController {
                                           @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
                                           Principal principal) {
 
-        if (!StringUtils.equals(hearingId, hearingNoteRequest.getHearingId())) {
-            throw new ConflictingInputException(String.format("Hearing Id '%s' provided in the path does not match the one in the hearing note request body submitted '%s'",
-                    hearingId, hearingNoteRequest.getHearingId()));
-        }
+        validateHearingNoteRequest(hearingId, hearingNoteRequest.getHearingId());
 
         HearingNoteEntity hearingNote = hearingNotesService.createHearingNote(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
         return HearingNoteResponse.of(hearingNote);
+    }
+
+    private static void validateHearingNoteRequest(String hearingId, String hearingNoteRequest) {
+        if (!StringUtils.equals(hearingId, hearingNoteRequest)) {
+            throw new ConflictingInputException(String.format("Hearing Id '%s' provided in the path does not match the one in the hearing note request body submitted '%s'",
+                hearingId, hearingNoteRequest));
+        }
+    }
+
+    @Operation(description = "Updates a hearing note for a given hearing and noteId")
+    @PutMapping(value = "/hearing/{hearingId}/notes/{noteId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public void updateHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                          @PathVariable(value = "noteId") Long noteId,
+                                          @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
+                                          Principal principal) {
+
+        validateHearingNoteRequest(hearingId, hearingNoteRequest.getHearingId());
+
+        hearingNotesService.updateHearingNote(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)), noteId);
     }
 
     @Operation(description = "Delete a hearing note for a given hearing and note id")

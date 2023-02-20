@@ -93,6 +93,11 @@ public class TelemetryService {
         trackHearingNoteEvent(eventType, hearingNoteEntity);
     }
 
+    void trackUpdateHearingNoteEvent(TelemetryEventType eventType, HearingNoteEntity hearingNoteEntity) {
+
+        trackHearingNoteEvent(eventType, hearingNoteEntity);
+    }
+
     private void trackHearingNoteEvent(TelemetryEventType eventType, HearingNoteEntity hearingNoteEntity) {
         Map<String, String> properties = new HashMap<>();
         properties.put("hearingId", hearingNoteEntity.getHearingId());

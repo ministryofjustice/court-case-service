@@ -39,20 +39,48 @@ public class HearingNotesService {
             .orElseThrow(() -> new EntityNotFoundException("Hearing %s not found", hearingId));
     }
 
-    public void deleteHearingNote(String hearingId, Long noteId, String userUuid){
-        hearingNotesRepository.findById(noteId).ifPresentOrElse( hearingNoteEntity -> {
-        if(!equalsIgnoreCase(hearingNoteEntity.getHearingId(), hearingId)) {
+    public void deleteHearingNote(String hearingId, Long noteId, String userUuid) {
+
+        log.info("Delete request for hearingId {} / noteId {} by user {}", hearingId, noteId, userUuid);
+
+        hearingNotesRepository.findById(noteId).ifPresentOrElse(hearingNoteEntity -> {
+
+            validateHearingNoteUpdate(hearingId, noteId, hearingNoteEntity);
+
+            if (!equalsIgnoreCase(hearingNoteEntity.getCreatedByUuid(), userUuid)) {
+                log.warn("User {} illegal attempt to delete note {} on hearing {}", userUuid, noteId, hearingId);
+                throw new ForbiddenException(String.format("User %s does not have permissions to delete note %s on hearing %s", userUuid, noteId, hearingId));
+            }
+            hearingNoteEntity.setDeleted(true);
+            hearingNotesRepository.save(hearingNoteEntity);
+            telemetryService.trackDeleteHearingNoteEvent(TelemetryEventType.HEARING_NOTE_DELETED, hearingNoteEntity);
+        }, () -> throwNoteNotFound(noteId, hearingId));
+    }
+
+    public void updateHearingNote(HearingNoteEntity hearingNoteUpdate, Long noteId) {
+        final var hearingId = hearingNoteUpdate.getHearingId();
+        final var userUuid = hearingNoteUpdate.getCreatedByUuid();
+        log.info("Update request for hearingId {} / noteId {} by user {}", hearingId, noteId, userUuid);
+
+        hearingNotesRepository.findById(noteId).ifPresentOrElse(hearingNoteEntity -> {
+            validateHearingNoteUpdate(hearingId, noteId, hearingNoteEntity);
+            if (!equalsIgnoreCase(hearingNoteEntity.getCreatedByUuid(), userUuid)) {
+                log.warn("User {} illegal attempt to update note {} on hearing {}", userUuid, noteId, hearingId);
+                throw new ForbiddenException(String.format("User %s does not have permissions to update note %s on hearing %s", userUuid, noteId, hearingId));
+            }
+            hearingNoteEntity.updateNote(hearingNoteUpdate);
+            hearingNotesRepository.save(hearingNoteEntity);
+            telemetryService.trackUpdateHearingNoteEvent(TelemetryEventType.HEARING_NOTE_DELETED, hearingNoteEntity);
+        }, () -> throwNoteNotFound(noteId, hearingId));
+    }
+
+    private static void validateHearingNoteUpdate(String hearingId, Long noteId, HearingNoteEntity hearingNoteEntity) {
+        if (!equalsIgnoreCase(hearingNoteEntity.getHearingId(), hearingId)) {
             throw new ConflictingInputException(String.format("Note %d not found for hearing %s", noteId, hearingId));
         }
-        if(!equalsIgnoreCase(hearingNoteEntity.getCreatedByUuid(), userUuid)) {
-            log.warn("User {} illegal attempt to delete note {} on hearing {}", userUuid, noteId, hearingId);
-            throw new ForbiddenException(String.format("User %s does not have permissions to delete note %s on hearing %s", userUuid, noteId, hearingId));
-        }
-        hearingNoteEntity.setDeleted(true);
-        hearingNotesRepository.save(hearingNoteEntity);
-        telemetryService.trackDeleteHearingNoteEvent(TelemetryEventType.HEARING_NOTE_DELETED, hearingNoteEntity);
-    }, () -> {
+    }
+
+    private static void throwNoteNotFound(Long noteId, String hearingId) {
         throw new EntityNotFoundException("Note %s not found for hearing %s", noteId, hearingId);
-    });
-}
+    }
 }

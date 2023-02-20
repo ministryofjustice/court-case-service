@@ -30,6 +30,22 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
     }
 
     @Test
+    fun `should calculate predictor score where court name contains punctuation characters`() {
+        // Given
+        val courtName = "Sheffield Magistrate's Court"
+        val offenderAge = 25
+        val offenceCode = "80702"
+        val shortTermCustodyPredictorParameters = ShortTermCustodyPredictorParameters(courtName, offenderAge, offenceCode)
+
+        // When
+        val custodyPredictorScore = predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
+
+        // Then
+        assertThat(custodyPredictorScore).isNotNull
+        assertThat(custodyPredictorScore).isEqualTo(0.9243792950886507)
+    }
+
+    @Test
     fun `should return a null score for an invalid court name`() {
         // Given
         val courtName = "Nonsense"

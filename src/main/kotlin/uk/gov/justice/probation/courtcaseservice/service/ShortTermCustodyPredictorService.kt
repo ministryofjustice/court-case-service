@@ -39,6 +39,8 @@ class ShortTermCustodyPredictorService(
         val rowData = RowData()
 
         rowData["court_name"] = shortTermCustodyPredictorParameters.courtName
+            .replace(".", StringUtils.EMPTY)
+            .replace("'", StringUtils.EMPTY)
         shortTermCustodyPredictorParameters.offenderAge?.let {
             rowData["offender_age"] = shortTermCustodyPredictorParameters.offenderAge.toString()
         }

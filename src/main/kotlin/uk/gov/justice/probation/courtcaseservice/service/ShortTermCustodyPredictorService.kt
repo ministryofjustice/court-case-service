@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.service
 
 import hex.genmodel.easy.EasyPredictModelWrapper
 import hex.genmodel.easy.RowData
+import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -36,6 +37,8 @@ class ShortTermCustodyPredictorService(
         val rowData = RowData()
 
         rowData["court_name"] = shortTermCustodyPredictorParameters.courtName
+            .replace(".", StringUtils.EMPTY)
+            .replace("'", StringUtils.EMPTY)
         shortTermCustodyPredictorParameters.offenderAge?.let {
             rowData["offender_age"] = shortTermCustodyPredictorParameters.offenderAge.toString()
         }

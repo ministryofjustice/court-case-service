@@ -30,7 +30,7 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
     }
 
     @Test
-    fun `should throw exception for invalid court name`() {
+    fun `should return a null score for an invalid court name`() {
         // Given
         val courtName = "Nonsense"
         val offenderAge = 25
@@ -38,16 +38,14 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
         val shortTermCustodyPredictorParameters = ShortTermCustodyPredictorParameters(courtName, offenderAge, offenceCode)
 
         // When
-        val thrown: PredictUnknownCategoricalLevelException = assertThrows(PredictUnknownCategoricalLevelException::class.java) {
-            predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
-        }
+        val custodyPredictorScore = predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
 
         // Then
-        assertThat(thrown.message).isEqualTo("Unknown categorical level (court_name,Nonsense)")
+        assertThat(custodyPredictorScore).isNull()
     }
 
     @Test
-    fun `should throw exception for invalid offence code`() {
+    fun `should return a null score for an invalid offence code`() {
         // Given
         val courtName = "Cardiff"
         val offenderAge = 25
@@ -55,12 +53,26 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
         val shortTermCustodyPredictorParameters = ShortTermCustodyPredictorParameters(courtName, offenderAge, offenceCode)
 
         // When
-        val thrown: PredictUnknownCategoricalLevelException = assertThrows(PredictUnknownCategoricalLevelException::class.java) {
-            predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
-        }
+        val custodyPredictorScore = predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
 
         // Then
-        assertThat(thrown.message).isEqualTo("Unknown categorical level (offence_code,9X9X9X9X)")
+        assertThat(custodyPredictorScore).isNull()
+    }
+
+    @Test
+    fun `should calculate score when home office offence code contains non-numeric characters`() {
+        // Given
+        val courtName = "Cardiff"
+        val offenderAge = 25
+        val offenceCode = "046/00"
+        val shortTermCustodyPredictorParameters = ShortTermCustodyPredictorParameters(courtName, offenderAge, offenceCode)
+
+        // When
+        val custodyPredictorScore = predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
+
+        // Then
+        assertThat(custodyPredictorScore).isNotNull
+        assertThat(custodyPredictorScore).isEqualTo(0.5668145445162719)
     }
 
     @Test
@@ -72,12 +84,10 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
         val shortTermCustodyPredictorParameters = ShortTermCustodyPredictorParameters(courtName, offenderAge, offenceCode)
 
         // When
-        val thrown: PredictUnknownCategoricalLevelException = assertThrows(PredictUnknownCategoricalLevelException::class.java) {
-            predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
-        }
+        val custodyPredictorScore = predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
 
         // Then
-        assertThat(thrown.message).isEqualTo("Unknown categorical level (offender_age,999999)")
+        assertThat(custodyPredictorScore).isNull()
     }
 
     @Test
@@ -89,12 +99,10 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
         val shortTermCustodyPredictorParameters = ShortTermCustodyPredictorParameters(courtName, offenderAge, offenceCode)
 
         // When
-        val thrown: PredictUnknownCategoricalLevelException = assertThrows(PredictUnknownCategoricalLevelException::class.java) {
-            predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
-        }
+        val custodyPredictorScore = predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
 
         // Then
-        assertThat(thrown.message).isEqualTo("Unknown categorical level (offender_age,17)")
+        assertThat(custodyPredictorScore).isNull()
     }
 
     @Test

@@ -53,7 +53,7 @@ public class HearingNotesService {
             }
             hearingNoteEntity.setDeleted(true);
             hearingNotesRepository.save(hearingNoteEntity);
-            telemetryService.trackDeleteHearingNoteEvent(TelemetryEventType.HEARING_NOTE_DELETED, hearingNoteEntity);
+            telemetryService.trackDeleteHearingNoteEvent(hearingNoteEntity);
         }, () -> throwNoteNotFound(noteId, hearingId));
     }
 
@@ -70,7 +70,7 @@ public class HearingNotesService {
             }
             hearingNoteEntity.updateNote(hearingNoteUpdate);
             hearingNotesRepository.save(hearingNoteEntity);
-            telemetryService.trackUpdateHearingNoteEvent(TelemetryEventType.HEARING_NOTE_DELETED, hearingNoteEntity);
+            telemetryService.trackUpdateHearingNoteEvent(hearingNoteEntity);
         }, () -> throwNoteNotFound(noteId, hearingId));
     }
 

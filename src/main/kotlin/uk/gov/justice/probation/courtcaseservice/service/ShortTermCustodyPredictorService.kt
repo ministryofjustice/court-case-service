@@ -22,25 +22,26 @@ import java.time.Period
 @Service
 class ShortTermCustodyPredictorService(
     private val model: EasyPredictModelWrapper,
-    private val offencesRestClient: ManageOffencesRestClient,
-    private val courtRepository: CourtRepository
+    private val offencesRestClient: ManageOffencesRestClient
 ) {
 
     companion object {
         val log: Logger = LoggerFactory.getLogger(this::class.java)
+
+        fun isMagistratesCourtCode(courtCode: String) : Boolean {
+            return courtCode.startsWith("B")
+        }
     }
 
     fun calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters: ShortTermCustodyPredictorParameters) : Double? {
 
-        log.debug("Entered calculateShortTermCustodyPredictorScore(${shortTermCustodyPredictorParameters.courtName}, " +
+        log.debug("Entered calculateShortTermCustodyPredictorScore(${shortTermCustodyPredictorParameters.courtCode}, " +
                 "${shortTermCustodyPredictorParameters.offenderAge}, " +
                 "${shortTermCustodyPredictorParameters.offenceCode})")
 
         val rowData = RowData()
 
-        rowData["court_name"] = shortTermCustodyPredictorParameters.courtName
-            .replace(".", StringUtils.EMPTY)
-            .replace("'", StringUtils.EMPTY)
+        rowData["court_code"] = shortTermCustodyPredictorParameters.courtCode
         shortTermCustodyPredictorParameters.offenderAge?.let {
             rowData["offender_age"] = shortTermCustodyPredictorParameters.offenderAge.toString()
         }
@@ -57,7 +58,7 @@ class ShortTermCustodyPredictorService(
 
         prediction?.let {
             val score = prediction.classProbabilities[0]
-            log.info("Calculated short term custody score of $score for court: ${shortTermCustodyPredictorParameters.courtName}, offender age: ${shortTermCustodyPredictorParameters.offenderAge}, offence code: ${shortTermCustodyPredictorParameters.offenceCode}")
+            log.info("Calculated short term custody score of $score for court code: ${shortTermCustodyPredictorParameters.courtCode}, offender age: ${shortTermCustodyPredictorParameters.offenderAge}, offence code: ${shortTermCustodyPredictorParameters.offenceCode}")
             return score
         }
 
@@ -79,7 +80,6 @@ class ShortTermCustodyPredictorService(
                     log.error("Unknown error occurred whilst looking up Home office offence code for CJS code: ${offence.offenceCode}", e)
                     null
                 }
-
                 addPredictorScoreToOffence(homeOfficeOffenceCode, hearingEntity, defendant, offence)
             }
         }
@@ -91,26 +91,29 @@ class ShortTermCustodyPredictorService(
         defendant: HearingDefendantEntity?,
         offence: OffenceEntity
     ) {
+        if (!isMagistratesCourtCode(hearingEntity.hearingDays[0].courtCode)) {
+            log.warn("Short term custody algorithm only support magistrate court hearings")
+            return
+        }
         if (homeOfficeOffenceCode != null) {
             log.debug("Found Home office offence code: $homeOfficeOffenceCode")
-            courtRepository.findByCourtCode(hearingEntity.hearingDays[0].courtCode).ifPresentOrElse({
-                val score = calculateShortTermCustodyPredictorScore(
-                    ShortTermCustodyPredictorParameters(
-                        it.name,
-                        calculateAge(defendant),
-                        homeOfficeOffenceCode
-                    )
+
+            val score = calculateShortTermCustodyPredictorScore(
+                ShortTermCustodyPredictorParameters(
+                    calculateAge(defendant),
+                    homeOfficeOffenceCode,
+                    hearingEntity.hearingDays[0].courtCode
                 )
-                score?.let {
-                    offence.shortTermCustodyPredictorScore = BigDecimal.valueOf(score)
-                }
-            }, {
-                log.warn("No court name could be found for court code: ${hearingEntity.hearingDays[0].courtCode}")
-            })
+            )
+            score?.let {
+                offence.shortTermCustodyPredictorScore = BigDecimal.valueOf(score)
+            }
         }
     }
 
     private fun calculateAge(defendantEntity: HearingDefendantEntity?): Int? {
         return Period.between(defendantEntity?.defendant?.dateOfBirth, LocalDate.now()).years
     }
+
+
 }

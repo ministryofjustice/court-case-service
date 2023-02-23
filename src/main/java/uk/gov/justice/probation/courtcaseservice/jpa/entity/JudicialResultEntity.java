@@ -46,4 +46,7 @@ public class JudicialResultEntity extends BaseAuditedEntity implements Serializa
     @JoinColumn(name = "OFFENCE_ID", referencedColumnName = "id")
     @Setter
     private OffenceEntity offence;
+
+    @Column(name = "RESULT_TEXT", columnDefinition = "TEXT")
+    private final String resultText;
 }

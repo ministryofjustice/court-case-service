@@ -403,6 +403,7 @@ class ExtendedHearingRequestResponseTest {
         assertThat(offences.get(0).getJudicialResults().get(0).isConvictedResult()).isEqualTo(false);
         assertThat(offences.get(0).getJudicialResults().get(0).getLabel()).isEqualTo("label");
         assertThat(offences.get(0).getJudicialResults().get(0).getJudicialResultTypeId()).isEqualTo("judicialResultTypeId");
+        assertThat(offences.get(0).getJudicialResults().get(0).getResultText()).isEqualTo("resultText");
         assertThat(offences.get(1).getJudicialResults()).isEmpty();
     }
 
@@ -573,6 +574,7 @@ class ExtendedHearingRequestResponseTest {
                 .isConvictedResult(false)
                 .label("label")
                 .judicialResultTypeId("judicialResultTypeId")
+                .resultText("resultText")
                 .build();
     }
 

@@ -137,6 +137,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .body("defendants[0].offences[0].judicialResults", hasSize(3))
                 .body("defendants[0].offences[0].judicialResults[0].convictedResult", equalTo(false))
                 .body("defendants[0].offences[0].judicialResults[0].label", equalTo("Label-1"))
+                .body("defendants[0].offences[0].judicialResults[0].resultText", equalTo("result-text"))
                 .body("defendants[0].offences[0].judicialResults[0].judicialResultTypeId", equalTo(null))
                 .body("hearingDays", hasSize(1))
                 .body("hearingDays[0].courtCode", equalTo("B14LO"))

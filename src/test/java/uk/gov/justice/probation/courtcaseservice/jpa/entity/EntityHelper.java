@@ -249,6 +249,7 @@ public class EntityHelper {
                         .isConvictedResult(false)
                         .label("label")
                         .judicialResultTypeId("judicialResultTypeId")
+                        .resultText("resultText")
                         .build())))
                 .build();
 
@@ -357,6 +358,7 @@ public class EntityHelper {
                 .isConvictedResult(false)
                 .label(label)
                 .judicialResultTypeId("judicialResultTypeId")
+                .resultText("resultText")
                 .build();
     }
 }

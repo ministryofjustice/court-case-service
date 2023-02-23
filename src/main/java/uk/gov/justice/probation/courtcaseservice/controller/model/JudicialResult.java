@@ -18,4 +18,5 @@ public class JudicialResult {
     private boolean isConvictedResult;
     private String label;
     private String judicialResultTypeId;
+    private String resultText;
 }

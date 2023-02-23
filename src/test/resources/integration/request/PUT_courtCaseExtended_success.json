@@ -63,7 +63,8 @@
               "judicialResultType": {
                 "description": "Description-1",
                 "id": "ID-ONE"
-              }
+              },
+              "resultText": "result-text"
             },
             {
               "isConvictedResult": false,

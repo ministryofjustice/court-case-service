@@ -147,16 +147,16 @@ public class CourtCaseController {
                                           @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
                                           Principal principal) {
 
-        validateHearingNoteRequest(hearingId, hearingNoteRequest.getHearingId());
+        validateHearingNoteRequest(hearingId, hearingNoteRequest);
 
         HearingNoteEntity hearingNote = hearingNotesService.createHearingNote(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
         return HearingNoteResponse.of(hearingNote);
     }
 
-    private static void validateHearingNoteRequest(String hearingId, String hearingNoteRequest) {
-        if (!StringUtils.equals(hearingId, hearingNoteRequest)) {
+    private static void validateHearingNoteRequest(String hearingId, HearingNoteRequest hearingNoteRequest) {
+        if (!StringUtils.equals(hearingId, hearingNoteRequest.getHearingId())) {
             throw new ConflictingInputException(String.format("Hearing Id '%s' provided in the path does not match the one in the hearing note request body submitted '%s'",
-                hearingId, hearingNoteRequest));
+                hearingId, hearingNoteRequest.getHearingId()));
         }
     }
 
@@ -168,7 +168,7 @@ public class CourtCaseController {
                                           @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
                                           Principal principal) {
 
-        validateHearingNoteRequest(hearingId, hearingNoteRequest.getHearingId());
+        validateHearingNoteRequest(hearingId, hearingNoteRequest);
 
         hearingNotesService.updateHearingNote(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)), noteId);
     }

@@ -375,7 +375,8 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             .statusCode(201);
 
         courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID).ifPresentOrElse( hearing ->
-            assertThat(hearing.getHearingDefendants().get(0).getOffences()).allMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore().equals(BigDecimal.valueOf(0.9244689444353092))),
+            assertThat(hearing.getHearingDefendants().get(0).getOffences())
+                    .allMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore().compareTo(BigDecimal.valueOf(0.9244689444353092)) == 0),
             () -> fail("Short Term Custody score should be persisted"));
     }
 

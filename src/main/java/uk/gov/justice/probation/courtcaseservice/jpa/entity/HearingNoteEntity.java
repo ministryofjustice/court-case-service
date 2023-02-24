@@ -42,8 +42,12 @@ public class HearingNoteEntity extends BaseEntity implements Serializable {
     private final String createdByUuid;
 
     @Column(name = "NOTE", nullable = false)
-    private final String note;
+    private String note;
 
     @Column(name = "AUTHOR", nullable = false)
     private final String author;
+
+    public void updateNote(HearingNoteEntity hearingNoteUpdate) {
+        this.note = hearingNoteUpdate.getNote();
+    }
 }

@@ -23,7 +23,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static uk.gov.justice.probation.courtcaseservice.service.TelemetryEventType.HEARING_NOTE_DELETED;
 
 @ExtendWith(MockitoExtension.class)
 class HearingNotesServiceTest {
@@ -83,7 +82,7 @@ class HearingNotesServiceTest {
         var expected = hearingNote.withId(noteId);
         expected.setDeleted(true);
         verify(hearingNotesRepository).save(expected);
-        verify(telemetryService).trackDeleteHearingNoteEvent(HEARING_NOTE_DELETED, expected);
+        verify(telemetryService).trackDeleteHearingNoteEvent(expected);
     }
 
     @Test
@@ -119,4 +118,60 @@ class HearingNotesServiceTest {
         verify(hearingNotesRepository, times(0)).save(any(HearingNoteEntity.class));
     }
 
+    /// ------------
+
+    @Test
+    void givenHearingIdAndNoteId_shouldUpdateTheNote() {
+        var noteId = 1234L;
+        HearingNoteEntity existingNote = HearingNoteEntity.builder().hearingId("hearingId").id(noteId).createdByUuid("uuid").note("existing note").build();
+        HearingNoteEntity noteUpdate = HearingNoteEntity.builder().hearingId("hearingId").createdByUuid("uuid").note("existing note updated").build();
+
+        given(hearingNotesRepository.findById(noteId)).willReturn(Optional.of(existingNote));
+
+        hearingNotesService.updateHearingNote(noteUpdate, noteId);
+
+        verify(hearingNotesRepository).findById(noteId);
+        var expected = existingNote.withId(noteId).withNote("existing note updated");
+        verify(hearingNotesRepository).save(expected);
+        verify(telemetryService).trackUpdateHearingNoteEvent(expected);
+    }
+
+    @Test
+    void givenHearingIdAndNoteId_andHearingIdDoesNotMatchNoteHearingId_whenUpdateNote_shouldThrowConflictingInput() {
+        var noteId = 1234L;
+        HearingNoteEntity existingNote = HearingNoteEntity.builder().hearingId("hearingId").id(noteId).createdByUuid("uuid").note("existing note").build();
+        HearingNoteEntity noteUpdate = HearingNoteEntity.builder().hearingId("un-matched-hearingId").createdByUuid("uuid").note("existing note updated").build();
+
+        given(hearingNotesRepository.findById(noteId)).willReturn(Optional.of(existingNote));
+
+        assertThrows(ConflictingInputException.class, () -> hearingNotesService.updateHearingNote(noteUpdate, noteId),
+            "Note 1234 not found for hearing invalid-hearing-id");
+        verify(hearingNotesRepository).findById(noteId);
+        verifyNoMoreInteractions(hearingNotesRepository);
+    }
+
+    @Test
+    void givenHearingIdNoteIdAndUserUuid_andUserUuidDoesNotMatchNoteUserUuid_whenUpdateNote_shouldThrowForbiddenException() {
+        var noteId = 1234L;
+        HearingNoteEntity existingNote = HearingNoteEntity.builder().hearingId("hearingId").id(noteId).createdByUuid("uuid").note("existing note").build();
+        HearingNoteEntity noteUpdate = HearingNoteEntity.builder().hearingId("hearingId").createdByUuid("forbidden-uuid").note("existing note updated").build();
+
+        given(hearingNotesRepository.findById(noteId)).willReturn(Optional.of(existingNote));
+        assertThrows(ForbiddenException.class, () -> hearingNotesService.updateHearingNote(noteUpdate, noteId),
+            "User forbidden-uuid does not have permissions to delete note 1234 on hearing test-hearing-id");
+        verify(hearingNotesRepository).findById(noteId);
+        verify(hearingNotesRepository, times(0)).save(any(HearingNoteEntity.class));
+    }
+
+    @Test
+    void givenNonExistingNoteId_whenUpdateNote_shouldThrowEntityNotFound() {
+        var noteId = 1234L;
+        HearingNoteEntity noteUpdate = HearingNoteEntity.builder().hearingId("hearingId").createdByUuid("forbidden-uuid").note("existing note updated").build();
+
+        given(hearingNotesRepository.findById(noteId)).willReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> hearingNotesService.updateHearingNote(noteUpdate, noteId),
+            "Note 1234 not found for hearing test-hearing-id");
+        verify(hearingNotesRepository).findById(noteId);
+        verify(hearingNotesRepository, times(0)).save(any(HearingNoteEntity.class));
+    }
 }

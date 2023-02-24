@@ -153,6 +153,28 @@ public class CaseProgressIntTest extends BaseIntTest {
     }
 
     @Test
+    void givenExistingNoteId_whenUpdateHearingNote_shouldUpdateNoteSuccessfully() {
+
+        final var noteId = -1700028802L;
+        Response hearingNoteResponse = given()
+            .auth()
+            .oauth2(getToken("389fd9cf-390e-469a-b4cf-6c12024c4cae"))
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(hearingNote.replace("Judge heard", "Judge heard update"))
+            .when()
+            .put("/hearing/{hearingId}/notes/{noteId}", HEARING_ID, noteId);
+        hearingNoteResponse
+            .then()
+            .statusCode(200)
+        ;
+
+        var hearingNoteEntity = hearingNotesRepository.findById(noteId).get();
+        assertThat(hearingNoteEntity.getNote()).isEqualTo("Judge heard update");
+        assertThat(hearingNoteEntity.isDeleted()).isFalse();
+    }
+
+    @Test
     void givenExistingHearingIdAndNoteId_whenDeleteHearingNote_shouldUpdateNoteAsDeleted() {
 
         var noteId = -1700028800L;

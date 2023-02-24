@@ -40,6 +40,7 @@ import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -363,6 +364,10 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     @Test
     void should_persist_short_term_custody_predictor_score_when_defendant_dob_is_absent() throws IOException {
 
+        // Given
+        String hearingId = "75e63d6c-5487-4244-a5dc-7cf82db";
+
+        // When
         given()
             .auth()
             .oauth2(getToken())
@@ -370,14 +375,16 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             .accept(ContentType.JSON)
             .body(copyToString(caseDetailsExtendedNoDateOfBirthResource.getInputStream(), Charset.defaultCharset()))
             .when()
-            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+            .put(PUT_BY_HEARING_ID_ENDPOINT, hearingId)
             .then()
             .statusCode(201);
 
-        courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID).ifPresentOrElse( hearing ->
+        // Then
+        courtCaseRepository.findFirstByHearingId(hearingId).ifPresentOrElse(hearing ->
             assertThat(hearing.getHearingDefendants().get(0).getOffences())
-                    .anyMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore().compareTo(BigDecimal.valueOf(0.9244689444353092)) == 0),
+                    .anyMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore().compareTo(BigDecimal.valueOf(0.9359506559509845)) == 0),
             () -> fail("Short Term Custody score should be persisted"));
+
     }
 
 

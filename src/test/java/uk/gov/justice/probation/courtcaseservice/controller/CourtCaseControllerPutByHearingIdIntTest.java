@@ -91,6 +91,9 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     @Value("classpath:integration/request/PUT_courtCaseExtended_no_offence_code.json")
     private Resource caseDetailsExtendedNoOffenceCodeResource;
 
+    @Value("classpath:integration/request/PUT_courtCaseExtended_no_date_of_birth.json")
+    private Resource caseDetailsExtendedNoDateOfBirthResource;
+
     private final File caseDetailsExtendedUpdate = new File(getClass().getClassLoader().getResource("integration/request/PUT_courtCaseExtended_update_success.json").getFile());
 
     private String caseDetailsExtendedJson;
@@ -355,6 +358,27 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                         assertThat(hearing.getHearingDefendants().get(0).getOffences()).allMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore() == null),
                 () -> fail("Short Term Custody score should not be persisted"));
     }
+
+    @Test
+    void should_persist_short_term_custody_predictor_score_when_defendant_dob_is_absent() throws IOException {
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(copyToString(caseDetailsExtendedNoDateOfBirthResource.getInputStream(), Charset.defaultCharset()))
+            .when()
+            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
+            .then()
+            .statusCode(201);
+
+        courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID).ifPresentOrElse( hearing ->
+            assertThat(hearing.getHearingDefendants().get(0).getOffences()).allMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore().equals(BigDecimal.valueOf(0.9244689444353092))),
+            () -> fail("Short Term Custody score should be persisted"));
+    }
+
+
 
     @Test
     void should_NOT_persist_short_term_custody_predictor_score_when_unknown_error_occurs_with_offence_service() {

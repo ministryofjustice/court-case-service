@@ -214,6 +214,7 @@ dependencies {
 
     testImplementation "org.testcontainers:postgresql:1.17.6"
     testImplementation "org.testcontainers:junit-jupiter:1.17.6"
+    testImplementation "org.testcontainers:localstack:1.17.6"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.35.0'
     testImplementation("io.rest-assured:json-path:$restAssuredVersion")
@@ -232,7 +233,6 @@ dependencies {
     testImplementation("au.com.dius.pact.consumer:junit5:$pactVersion")
 
     testImplementation("org.apache.httpcomponents:fluent-hc:4.5.13")
-    testImplementation "org.testcontainers:localstack:1.17.6"
     testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
 
     agentDeps 'com.microsoft.azure:applicationinsights-agent:3.4.2'

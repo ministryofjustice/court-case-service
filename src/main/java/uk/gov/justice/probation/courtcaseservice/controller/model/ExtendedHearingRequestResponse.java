@@ -128,6 +128,7 @@ public class ExtendedHearingRequestResponse {
                                                                     .isConvictedResult(judicialResultEntity.isConvictedResult())
                                                                     .label(judicialResultEntity.getLabel())
                                                                     .judicialResultTypeId(judicialResultEntity.getJudicialResultTypeId())
+                                                                    .resultText(judicialResultEntity.getResultText())
                                                                     .build())
                                                             .toList())
                                                     .build())
@@ -256,6 +257,7 @@ public class ExtendedHearingRequestResponse {
                             .isConvictedResult(judicialResult.isConvictedResult())
                             .label(judicialResult.getLabel())
                             .judicialResultTypeId(judicialResult.getJudicialResultTypeId())
+                            .resultText(judicialResult.getResultText())
                             .build();
                 })
                 .collect(Collectors.toList());

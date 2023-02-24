@@ -16,8 +16,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
@@ -33,7 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.anOffender;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.LIBRA;
 
@@ -265,9 +264,29 @@ class TelemetryServiceTest {
             .id(1234L)
             .build();
 
-        service.trackDeleteHearingNoteEvent(TelemetryEventType.HEARING_NOTE_DELETED, hearingNoteEntity);
+        service.trackDeleteHearingNoteEvent(hearingNoteEntity);
 
         verify(telemetryClient).trackEvent(eq("PicHearingNoteDeleted"), properties.capture(), metricsCaptor.capture());
+
+        assertHearingNoteEvent(createdByUuid, now, createdBy);
+    }
+
+    @Test
+    void giveHearingNote_whenTrackUpdateHearingNoteEvent_thenEmitTelemetryEvent() {
+        String createdByUuid = "created-uuid";
+        LocalDateTime now = LocalDateTime.now();
+        String createdBy = "created-user-name";
+        var hearingNoteEntity = HearingNoteEntity.builder()
+            .hearingId(HEARING_ID)
+            .createdByUuid(createdByUuid)
+            .created(now)
+            .createdBy(createdBy)
+            .id(1234L)
+            .build();
+
+        service.trackUpdateHearingNoteEvent(hearingNoteEntity);
+
+        verify(telemetryClient).trackEvent(eq("PicHearingNoteUpdated"), properties.capture(), metricsCaptor.capture());
 
         assertHearingNoteEvent(createdByUuid, now, createdBy);
     }

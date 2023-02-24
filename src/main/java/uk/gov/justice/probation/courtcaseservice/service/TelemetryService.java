@@ -88,9 +88,14 @@ public class TelemetryService {
         trackHearingNoteEvent(eventType, hearingNoteEntity);
     }
 
-    void trackDeleteHearingNoteEvent(TelemetryEventType eventType, HearingNoteEntity hearingNoteEntity) {
+    void trackDeleteHearingNoteEvent(HearingNoteEntity hearingNoteEntity) {
 
-        trackHearingNoteEvent(eventType, hearingNoteEntity);
+        trackHearingNoteEvent(TelemetryEventType.HEARING_NOTE_DELETED, hearingNoteEntity);
+    }
+
+    void trackUpdateHearingNoteEvent(HearingNoteEntity hearingNoteEntity) {
+
+        trackHearingNoteEvent(TelemetryEventType.HEARING_NOTE_UPDATED, hearingNoteEntity);
     }
 
     private void trackHearingNoteEvent(TelemetryEventType eventType, HearingNoteEntity hearingNoteEntity) {

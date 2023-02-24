@@ -140,6 +140,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .body("defendants[0].offences[0].judicialResults", hasSize(3))
                 .body("defendants[0].offences[0].judicialResults[0].convictedResult", equalTo(false))
                 .body("defendants[0].offences[0].judicialResults[0].label", equalTo("Label-1"))
+                .body("defendants[0].offences[0].judicialResults[0].resultText", equalTo("result-text"))
                 .body("defendants[0].offences[0].judicialResults[0].judicialResultTypeId", equalTo(null))
                 .body("hearingDays", hasSize(1))
                 .body("hearingDays[0].courtCode", equalTo("B14LO"))
@@ -222,7 +223,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             assertThat(hearingEntity.getHearingEventType().getName()).isEqualTo("ConfirmedOrUpdated");
             assertThat(hearingEntity.getHearingType()).isEqualTo("sentenced");
             assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
-            assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("shortTermCustodyPredictorScore").containsOnly(BigDecimal.valueOf(0.960894684624953));
+            assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("shortTermCustodyPredictorScore").containsOnly(BigDecimal.valueOf(0.9246145701612543));
             assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPhoneNumber()).isEqualTo(
                     PhoneNumberEntity.builder().home("07000000013").mobile("07000000014").work("07000000015").build());
             assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPersonId()).isNotBlank();

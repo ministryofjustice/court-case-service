@@ -458,6 +458,16 @@ class CourtCaseControllerTest {
         verify(hearingNotesService).deleteHearingNote(HEARING_ID, noteId, testUuid );
     }
 
+    @Test
+    void givenHearingIdAndNoteId_invokeUpdateNoteOnService() {
+        var noteId = 1234L;
+        HearingNoteRequest noteUpdate = HearingNoteRequest.builder().hearingId(HEARING_ID).note("existing note updated").build();
+
+        given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
+        courtCaseController.updateHearingNote(HEARING_ID, noteId, noteUpdate, principal);
+        verify(hearingNotesService).updateHearingNote(noteUpdate.asEntity(testUuid), noteId);
+    }
+
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, NamePropertiesEntity defendantName, LocalDateTime sessionTime) {
         assertThat(cases.get(position).getCourtRoom()).isEqualTo(courtRoom);
         assertThat(cases.get(position).getName()).isEqualTo(defendantName);

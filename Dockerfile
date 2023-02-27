@@ -1,7 +1,7 @@
-FROM openjdk:19-jdk-slim-buster
+FROM openjdk:16-oraclelinux7
 MAINTAINER HMPPS Digital Studio <info@digital.justice.gov.uk>
 
-RUN yum clean all && yum update -y
+RUN yum update -yq
 RUN yum install -y curl
 RUN yum -y update expat
 ENV TZ=Europe/London

@@ -1,4 +1,4 @@
-FROM openjdk:21-oraclelinux8
+FROM openjdk:19-jdk-slim-buster
 MAINTAINER HMPPS Digital Studio <info@digital.justice.gov.uk>
 
 RUN yum update -yq

@@ -112,7 +112,11 @@ class ShortTermCustodyPredictorService(
     }
 
     private fun calculateAge(defendantEntity: HearingDefendantEntity?): Int? {
-        return Period.between(defendantEntity?.defendant?.dateOfBirth, LocalDate.now()).years
+        defendantEntity?.defendant?.dateOfBirth?.let {
+            return Period.between(it, LocalDate.now()).years
+        }
+        log.warn("Could not calculate defendant age as no DOB provided")
+        return null
     }
 
 

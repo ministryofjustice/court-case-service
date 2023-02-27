@@ -40,6 +40,7 @@ import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,6 +91,9 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
     @Value("classpath:integration/request/PUT_courtCaseExtended_no_offence_code.json")
     private Resource caseDetailsExtendedNoOffenceCodeResource;
+
+    @Value("classpath:integration/request/PUT_courtCaseExtended_no_date_of_birth.json")
+    private Resource caseDetailsExtendedNoDateOfBirthResource;
 
     private final File caseDetailsExtendedUpdate = new File(getClass().getClassLoader().getResource("integration/request/PUT_courtCaseExtended_update_success.json").getFile());
 
@@ -356,6 +360,34 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                         assertThat(hearing.getHearingDefendants().get(0).getOffences()).allMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore() == null),
                 () -> fail("Short Term Custody score should not be persisted"));
     }
+
+    @Test
+    void should_persist_short_term_custody_predictor_score_when_defendant_dob_is_absent() throws IOException {
+
+        // Given
+        String hearingId = "75e63d6c-5487-4244-a5dc-7cf82db";
+
+        // When
+        given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(copyToString(caseDetailsExtendedNoDateOfBirthResource.getInputStream(), Charset.defaultCharset()))
+            .when()
+            .put(PUT_BY_HEARING_ID_ENDPOINT, hearingId)
+            .then()
+            .statusCode(201);
+
+        // Then
+        courtCaseRepository.findFirstByHearingId(hearingId).ifPresentOrElse(hearing ->
+            assertThat(hearing.getHearingDefendants().get(0).getOffences())
+                    .anyMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore().compareTo(BigDecimal.valueOf(0.9359506559509845)) == 0),
+            () -> fail("Short Term Custody score should be persisted"));
+
+    }
+
+
 
     @Test
     void should_NOT_persist_short_term_custody_predictor_score_when_unknown_error_occurs_with_offence_service() {

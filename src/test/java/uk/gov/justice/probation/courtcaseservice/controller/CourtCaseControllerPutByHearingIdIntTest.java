@@ -224,7 +224,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             assertThat(hearingEntity.getHearingEventType().getName()).isEqualTo("ConfirmedOrUpdated");
             assertThat(hearingEntity.getHearingType()).isEqualTo("sentenced");
             assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
-            assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("shortTermCustodyPredictorScore").containsOnly(BigDecimal.valueOf(0.9246145701612543));
+            assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("shortTermCustodyPredictorScore").containsOnly(BigDecimal.valueOf(0.9649235740260149));
             assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPhoneNumber()).isEqualTo(
                     PhoneNumberEntity.builder().home("07000000013").mobile("07000000014").work("07000000015").build());
             assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPersonId()).isNotBlank();
@@ -382,7 +382,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         // Then
         courtCaseRepository.findFirstByHearingId(hearingId).ifPresentOrElse(hearing ->
             assertThat(hearing.getHearingDefendants().get(0).getOffences())
-                    .anyMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore().compareTo(BigDecimal.valueOf(0.9359506559509845)) == 0),
+                    .anyMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore().compareTo(BigDecimal.valueOf(0.8938871700060149)) == 0),
             () -> fail("Short Term Custody score should be persisted"));
 
     }

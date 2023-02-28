@@ -20,11 +20,15 @@ public class PleaEntity extends BaseAuditedEntity implements Serializable {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private final Long id;
 
     @Column(name = "PLEA_VALUE")
     private String  pleaValue;
+
+    @OneToOne(mappedBy = "plea")
+    @MapsId
+    @JoinColumn(name = "ID")
+    private OffenceEntity offence;
 
 }

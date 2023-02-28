@@ -245,7 +245,7 @@ public class ExtendedHearingRequestResponse {
                             .judicialResults(buildJudicialResults(offence.getJudicialResults()))
                             .offenceCode(offence.getOffenceCode())
                             .plea(PleaEntity.builder().
-                                    pleaValue(offence.getPlea().getPleaValue())
+                                    pleaValue(Optional.ofNullable(offence.getPlea()).map(Plea::getPleaValue).orElse(null))
                                     .build())
                             .build();
                 })

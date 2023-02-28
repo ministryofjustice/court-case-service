@@ -24,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -85,6 +86,6 @@ public class OffenceEntity extends BaseAuditedEntity implements Serializable  {
     private BigDecimal shortTermCustodyPredictorScore;
 
     @OneToOne(cascade = {CascadeType.ALL})
-    @JoinColumn(name = "PLEA_ID", referencedColumnName = "id")
+    @PrimaryKeyJoinColumn
     private PleaEntity plea;
 }

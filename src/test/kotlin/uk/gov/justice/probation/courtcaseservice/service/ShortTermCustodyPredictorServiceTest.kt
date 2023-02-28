@@ -76,7 +76,7 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
 
         // Then
         assertThat(custodyPredictorScore).isNotNull
-        assertThat(custodyPredictorScore).isEqualTo(0.9305020603607593)
+        assertThat(custodyPredictorScore).isEqualTo(0.9311253572283462)
     }
 
     @Test
@@ -123,7 +123,7 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
         val custodyPredictorScore = predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
 
         // Then
-        assertThat(custodyPredictorScore).isEqualTo(0.978209354618098)
+        assertThat(custodyPredictorScore).isEqualTo(0.9870862213669677)
     }
 
     companion object {
@@ -148,7 +148,6 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
                 "B01OK",
                 "B03AX",
                 "B03DE",
-                "B03OT",
                 "B04BP",
                 "B04BQ",
                 "B04CO",
@@ -156,7 +155,6 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
                 "B04HQ",
                 "B04KO",
                 "B05BK",
-                "B05BW",
                 "B05PK",
                 "B06AN",
                 "B06BV",
@@ -169,7 +167,6 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
                 "B10BD",
                 "B10BF",
                 "B10FR",
-                "B10JL",
                 "B10JQ",
                 "B10LX",
                 "B10MR",
@@ -198,7 +195,6 @@ class ShortTermCustodyPredictorServiceTest : BaseIntTest() {
                 "B20NQ",
                 "B20OQ",
                 "B21DA",
-                "B21JI",
                 "B22GR",
                 "B22HM",
                 "B22KS",

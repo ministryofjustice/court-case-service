@@ -165,5 +165,5 @@ ingress:
   url: "localhost"
 
 h2o:
-  model-path: classpath:h2o/20230222_model.zip
+  model-path: classpath:h2o/20230227_model.zip
 

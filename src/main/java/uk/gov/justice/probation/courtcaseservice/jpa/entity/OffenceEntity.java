@@ -13,7 +13,6 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.envers.Audited;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,6 +22,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import java.io.Serializable;
@@ -83,4 +83,8 @@ public class OffenceEntity extends BaseAuditedEntity implements Serializable  {
     @Column(name = "SHORT_TERM_CUSTODY_PREDICTOR_SCORE")
     @Setter
     private BigDecimal shortTermCustodyPredictorScore;
+
+    @OneToOne(cascade = {CascadeType.ALL})
+    @JoinColumn(name = "PLEA_ID", referencedColumnName = "id")
+    private PleaEntity plea;
 }

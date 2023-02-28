@@ -18,9 +18,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.PleaEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -121,6 +121,9 @@ public class ExtendedHearingRequestResponse {
                                                     .offenceSummary(offence.getSummary())
                                                     .offenceCode(offence.getOffenceCode())
                                                     .listNo(offence.getListNo())
+                                                    .plea(Plea.builder()
+                                                            .pleaValue(Optional.ofNullable(offence.getPlea()).map(PleaEntity::getPleaValue).orElse(null))
+                                                            .build())
                                                     .judicialResults(Optional.of(offence)
                                                             .map(OffenceEntity::getJudicialResults)
                                                             .orElse(Collections.emptyList()).stream()
@@ -214,9 +217,9 @@ public class ExtendedHearingRequestResponse {
                 .hearingEventType(HearingEventType.fromString(hearingEventType))
                 .hearingType(hearingType)
                 .listNo(
-                    Optional.ofNullable(this.getListNo()).orElseGet(
-                        () -> hearingDays.size() > 0 ? hearingDays.get(0).getListNo() : null
-                    )
+                        Optional.ofNullable(this.getListNo()).orElseGet(
+                                () -> hearingDays.size() > 0 ? hearingDays.get(0).getListNo() : null
+                        )
                 )
                 .build();
 
@@ -241,6 +244,9 @@ public class ExtendedHearingRequestResponse {
                             .listNo(offence.getListNo())
                             .judicialResults(buildJudicialResults(offence.getJudicialResults()))
                             .offenceCode(offence.getOffenceCode())
+                            .plea(PleaEntity.builder().
+                                    pleaValue(offence.getPlea().getPleaValue())
+                                    .build())
                             .build();
                 })
                 .collect(Collectors.toList());

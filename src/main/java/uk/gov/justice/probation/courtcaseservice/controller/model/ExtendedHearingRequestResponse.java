@@ -7,19 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -121,6 +109,9 @@ public class ExtendedHearingRequestResponse {
                                                     .offenceSummary(offence.getSummary())
                                                     .offenceCode(offence.getOffenceCode())
                                                     .listNo(offence.getListNo())
+                                                    .plea(Plea.builder()
+                                                            .pleaValue(offence.getPlea().getPleaValue())
+                                                            .build())
                                                     .judicialResults(Optional.of(offence)
                                                             .map(OffenceEntity::getJudicialResults)
                                                             .orElse(Collections.emptyList()).stream()
@@ -214,9 +205,9 @@ public class ExtendedHearingRequestResponse {
                 .hearingEventType(HearingEventType.fromString(hearingEventType))
                 .hearingType(hearingType)
                 .listNo(
-                    Optional.ofNullable(this.getListNo()).orElseGet(
-                        () -> hearingDays.size() > 0 ? hearingDays.get(0).getListNo() : null
-                    )
+                        Optional.ofNullable(this.getListNo()).orElseGet(
+                                () -> hearingDays.size() > 0 ? hearingDays.get(0).getListNo() : null
+                        )
                 )
                 .build();
 
@@ -241,6 +232,9 @@ public class ExtendedHearingRequestResponse {
                             .listNo(offence.getListNo())
                             .judicialResults(buildJudicialResults(offence.getJudicialResults()))
                             .offenceCode(offence.getOffenceCode())
+                            .plea(PleaEntity.builder().
+                                    pleaValue(offence.getPlea().getPleaValue())
+                                    .build())
                             .build();
                 })
                 .collect(Collectors.toList());

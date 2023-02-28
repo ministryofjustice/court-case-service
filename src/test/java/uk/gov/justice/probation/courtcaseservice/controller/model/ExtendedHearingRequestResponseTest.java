@@ -1,8 +1,22 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
 import org.junit.jupiter.api.Test;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
-
+import org.junit.jupiter.api.Test;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.PleaEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -347,6 +361,7 @@ class ExtendedHearingRequestResponseTest {
                 .offences(List.of(OffenceRequestResponse.builder()
                                 .act("act2")
                                 .offenceCode("RT88191")
+                                .plea(Plea.builder().pleaValue("pleaValue1").build())
                                 .judicialResults(Collections.emptyList())
                                 .build(),
                         OffenceRequestResponse.builder()
@@ -355,6 +370,7 @@ class ExtendedHearingRequestResponseTest {
                                 .offenceTitle("title")
                                 .offenceCode("RT88191")
                                 .listNo(11)
+                                .plea(Plea.builder().pleaValue("pleaValue1").build())
                                 .judicialResults(Collections.emptyList())
                                 .build()
                 ))
@@ -508,7 +524,7 @@ class ExtendedHearingRequestResponseTest {
                                                 .sequence(1)
                                                 .offenceCode("RT88191")
                                                 .plea(PleaEntity.builder()
-                                                        .pleaValue("pleaValue2")
+                                                        .pleaValue("pleaValue1")
                                                         .build())
                                                 .build()
                                 ))

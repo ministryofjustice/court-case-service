@@ -86,6 +86,6 @@ public class OffenceEntity extends BaseAuditedEntity implements Serializable  {
     private BigDecimal shortTermCustodyPredictorScore;
 
     @OneToOne(cascade = {CascadeType.ALL})
-    @PrimaryKeyJoinColumn
+    @JoinColumn(name = "plea_id", referencedColumnName = "id")
     private PleaEntity plea;
 }

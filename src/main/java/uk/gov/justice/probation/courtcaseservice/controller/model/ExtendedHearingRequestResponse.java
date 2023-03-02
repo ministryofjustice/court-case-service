@@ -18,9 +18,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.PleaEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -115,13 +115,14 @@ public class ExtendedHearingRequestResponse {
                                             .map(HearingDefendantEntity::getOffences)
                                             .orElse(Collections.emptyList()).stream()
                                             .sorted(Comparator.comparingInt(OffenceEntity::getSequence))
-                                            .map(offence -> OffenceRequestResponse.builder()
-                                                    .act(offence.getAct())
-                                                    .offenceTitle(offence.getTitle())
-                                                    .offenceSummary(offence.getSummary())
-                                                    .offenceCode(offence.getOffenceCode())
-                                                    .listNo(offence.getListNo())
-                                                    .judicialResults(Optional.of(offence)
+                                            .map(offenceEntity -> OffenceRequestResponse.builder()
+                                                    .act(offenceEntity.getAct())
+                                                    .offenceTitle(offenceEntity.getTitle())
+                                                    .offenceSummary(offenceEntity.getSummary())
+                                                    .offenceCode(offenceEntity.getOffenceCode())
+                                                    .listNo(offenceEntity.getListNo())
+                                                    .plea(buildPleaFromEntity(offenceEntity))
+                                                    .judicialResults(Optional.of(offenceEntity)
                                                             .map(OffenceEntity::getJudicialResults)
                                                             .orElse(Collections.emptyList()).stream()
                                                             .map(judicialResultEntity -> JudicialResult.builder()
@@ -138,6 +139,13 @@ public class ExtendedHearingRequestResponse {
                         })
                         .toList())
                 .build();
+    }
+
+    private static Plea buildPleaFromEntity(OffenceEntity offenceEntity){
+        if(offenceEntity.getPlea() != null){
+            return Plea.builder().pleaValue(offenceEntity.getPlea().getPleaValue()).build();
+        }
+        return null;
     }
 
     private HearingDefendantEntity buildDefendant(Defendant defendant) {
@@ -214,9 +222,9 @@ public class ExtendedHearingRequestResponse {
                 .hearingEventType(HearingEventType.fromString(hearingEventType))
                 .hearingType(hearingType)
                 .listNo(
-                    Optional.ofNullable(this.getListNo()).orElseGet(
-                        () -> hearingDays.size() > 0 ? hearingDays.get(0).getListNo() : null
-                    )
+                        Optional.ofNullable(this.getListNo()).orElseGet(
+                                () -> hearingDays.size() > 0 ? hearingDays.get(0).getListNo() : null
+                        )
                 )
                 .build();
 
@@ -241,9 +249,18 @@ public class ExtendedHearingRequestResponse {
                             .listNo(offence.getListNo())
                             .judicialResults(buildJudicialResults(offence.getJudicialResults()))
                             .offenceCode(offence.getOffenceCode())
+                            .plea(buildPleaEntity(offence))
                             .build();
                 })
                 .collect(Collectors.toList());
+    }
+
+    private PleaEntity buildPleaEntity(OffenceRequestResponse offence){
+        if(offence.getPlea() != null){
+            return PleaEntity.builder().pleaValue(offence.getPlea().getPleaValue()).build();
+        }
+
+        return null;
     }
 
     private List<JudicialResultEntity> buildJudicialResults(List<JudicialResult> judicialResults) {

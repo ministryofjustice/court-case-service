@@ -48,6 +48,7 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static org.springframework.util.StreamUtils.copyToString;
@@ -137,7 +138,9 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .body("defendants[0].phoneNumber.mobile", equalTo("07000000014"))
                 .body("defendants[0].phoneNumber.work", equalTo("07000000015"))
                 .body("defendants[0].offences[0].offenceCode", equalTo("RT88191"))
+                .body("defendants[0].offences[0].plea.pleaValue", equalTo("plea value 1"))
                 .body("defendants[0].offences[1].offenceCode", equalTo("RT88191"))
+                .body("defendants[0].offences[1].plea", nullValue())
                 .body("defendants[0].offences[0].judicialResults", hasSize(3))
                 .body("defendants[0].offences[0].judicialResults[0].convictedResult", equalTo(false))
                 .body("defendants[0].offences[0].judicialResults[0].label", equalTo("Label-1"))

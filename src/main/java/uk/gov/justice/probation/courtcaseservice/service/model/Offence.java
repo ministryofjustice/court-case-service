@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.justice.probation.courtcaseservice.controller.model.Plea;
 
 import java.time.LocalDate;
 
@@ -18,4 +19,5 @@ public class Offence {
     private final String description;
     private final boolean main;
     private final LocalDate offenceDate;
+    private final Plea plea;
 }

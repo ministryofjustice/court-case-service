@@ -56,6 +56,9 @@
           "act": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
           "offenceCode": "RT88191",
           "listNo": 5,
+          "plea": {
+            "pleaValue": "plea value 1"
+          },
           "judicialResults": [
             {
               "isConvictedResult": false,

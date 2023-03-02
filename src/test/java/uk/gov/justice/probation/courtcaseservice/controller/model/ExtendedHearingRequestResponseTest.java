@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -13,9 +14,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.PleaEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -207,7 +208,9 @@ class ExtendedHearingRequestResponseTest {
         final var offences = hearingDefendantEntity.getOffences();
         assertThat(offences).hasSize(2);
         assertThat(offences.get(0).getHearingDefendant().getDefendant()).isSameAs(defendantEntity);
+        assertThat(offences.get(0).getPlea().getPleaValue()).isEqualTo("pleaValue1");
         assertThat(offences.get(1).getHearingDefendant().getDefendant()).isSameAs(defendantEntity);
+        assertThat(offences.get(1).getPlea().getPleaValue()).isEqualTo("pleaValue2");
         assertThat(offences).extracting("act").containsOnly("ACT1", "ACT2");
         assertThat(offences).extracting("sequence").containsOnly(1, 2);
         assertThat(offences).extracting("summary").containsOnly("SUMMARY1", "SUMMARY2");
@@ -358,6 +361,7 @@ class ExtendedHearingRequestResponseTest {
                 .offences(List.of(OffenceRequestResponse.builder()
                                 .act("act2")
                                 .offenceCode("RT88191")
+                                .plea(Plea.builder().pleaValue("pleaValue1").build())
                                 .judicialResults(Collections.emptyList())
                                 .build(),
                         OffenceRequestResponse.builder()
@@ -366,6 +370,7 @@ class ExtendedHearingRequestResponseTest {
                                 .offenceTitle("title")
                                 .offenceCode("RT88191")
                                 .listNo(11)
+                                .plea(Plea.builder().pleaValue("pleaValue1").build())
                                 .judicialResults(Collections.emptyList())
                                 .build()
                 ))
@@ -510,11 +515,17 @@ class ExtendedHearingRequestResponseTest {
                                                 .sequence(2)
                                                 .listNo(11)
                                                 .offenceCode("RT88191")
+                                                .plea(PleaEntity.builder()
+                                                        .pleaValue("pleaValue1")
+                                                        .build())
                                                 .build(),
                                         OffenceEntity.builder()
                                                 .act("act2")
                                                 .sequence(1)
                                                 .offenceCode("RT88191")
+                                                .plea(PleaEntity.builder()
+                                                        .pleaValue("pleaValue1")
+                                                        .build())
                                                 .build()
                                 ))
                                 .build(),
@@ -559,12 +570,18 @@ class ExtendedHearingRequestResponseTest {
                                 .act("ACT1")
                                 .listNo(10)
                                 .judicialResults(List.of(buildJudicialResult()))
+                                .plea(Plea.builder()
+                                        .pleaValue("pleaValue1")
+                                        .build())
                                 .build(),
                         OffenceRequestResponse.builder()
                                 .offenceTitle("TITLE2")
                                 .offenceSummary("SUMMARY2")
                                 .act("ACT2")
                                 .listNo(20)
+                                .plea(Plea.builder()
+                                        .pleaValue("pleaValue2")
+                                        .build())
                                 .build()))
                 .build();
     }

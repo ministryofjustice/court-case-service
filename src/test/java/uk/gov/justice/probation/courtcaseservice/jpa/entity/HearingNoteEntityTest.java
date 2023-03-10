@@ -13,10 +13,11 @@ class HearingNoteEntityTest {
             .id(1L)
             .author("auth one")
             .createdByUuid("uuid")
+            .draft(false)
             .build();
 
-        var updatedNote = HearingNoteEntity.builder().note("updated note").build();
+        var updatedNote = HearingNoteEntity.builder().note("updated note").draft(true).build();
         hearingNote.updateNote(updatedNote);
-        assertThat(hearingNote.getNote()).isEqualTo("updated note");
+        assertThat(hearingNote).isEqualTo(hearingNote.withNote("updated note").withDraft(true));
     }
 }

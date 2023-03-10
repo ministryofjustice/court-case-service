@@ -28,15 +28,31 @@ public class HearingNotesService {
 
     public HearingNoteEntity createHearingNote(HearingNoteEntity hearingNoteEntity) {
 
+        return createHearingNote(hearingNoteEntity, false);
+    }
+
+    private HearingNoteEntity createHearingNote(HearingNoteEntity hearingNoteEntity, boolean draft) {
         var hearingId = hearingNoteEntity.getHearingId();
 
         return hearingRepository.findFirstByHearingId(hearingId)
-            .map(hearingEntity -> hearingNotesRepository.save(hearingNoteEntity))
+            .map(hearingEntity -> hearingNotesRepository.findByHearingIdAndCreatedByUuidAndDraftIsTrue(hearingId, hearingNoteEntity.getCreatedByUuid()).map(
+                dbHearingNote -> {
+                    dbHearingNote.updateNote(hearingNoteEntity.withDraft(draft));
+                    return hearingNotesRepository.save(dbHearingNote);
+                }
+            ).orElseGet(() -> hearingNotesRepository.save(hearingNoteEntity.withDraft(draft))))
             .map(hearingNote -> {
-                telemetryService.trackCreateHearingNoteEvent(TelemetryEventType.HEARING_NOTE_ADDED, hearingNote);
+                if(!draft) {
+                    telemetryService.trackCreateHearingNoteEvent(TelemetryEventType.HEARING_NOTE_ADDED, hearingNote);
+                }
                 return hearingNote;
             })
             .orElseThrow(() -> new EntityNotFoundException("Hearing %s not found", hearingId));
+    }
+
+    public HearingNoteEntity createOrUpdateHearingNoteDraft(HearingNoteEntity hearingNoteDraft) {
+
+        return createHearingNote(hearingNoteDraft, true);
     }
 
     public void deleteHearingNote(String hearingId, Long noteId, String userUuid) {

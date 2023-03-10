@@ -1,0 +1,43 @@
+package uk.gov.justice.probation.courtcaseservice.jpa.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.envers.Audited;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "VERDICT")
+@AllArgsConstructor
+@SuperBuilder
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+@Getter
+@Audited
+public class VerdictEntity extends BaseAuditedEntity implements Serializable {
+
+
+    @Id
+    @Column(name = "ID", updatable = false, nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
+    private final Long id;
+
+    @Column(name = "VERDICT_TYPE_DESCRIPTION")
+    private String  verdictTypeDescription;
+
+    @Column(name = "VERDICT_DATE")
+    private LocalDate verdictDate;
+
+}

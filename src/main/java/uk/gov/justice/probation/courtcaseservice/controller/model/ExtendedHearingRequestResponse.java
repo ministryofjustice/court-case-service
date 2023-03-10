@@ -21,6 +21,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationSta
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PleaEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.VerdictEntity;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -122,6 +124,7 @@ public class ExtendedHearingRequestResponse {
                                                     .offenceCode(offenceEntity.getOffenceCode())
                                                     .listNo(offenceEntity.getListNo())
                                                     .plea(buildPleaFromEntity(offenceEntity))
+                                                    .verdict(buildVerdictFromEntity(offenceEntity))
                                                     .judicialResults(Optional.of(offenceEntity)
                                                             .map(OffenceEntity::getJudicialResults)
                                                             .orElse(Collections.emptyList()).stream()
@@ -141,9 +144,22 @@ public class ExtendedHearingRequestResponse {
                 .build();
     }
 
-    private static Plea buildPleaFromEntity(OffenceEntity offenceEntity){
-        if(offenceEntity.getPlea() != null){
-            return Plea.builder().pleaValue(offenceEntity.getPlea().getPleaValue()).build();
+    private static Plea buildPleaFromEntity(OffenceEntity offenceEntity) {
+        if (offenceEntity.getPlea() != null) {
+            return Plea.builder()
+                    .pleaValue(offenceEntity.getPlea().getPleaValue())
+                    .pleaDate(offenceEntity.getPlea().getPleaDate())
+                    .build();
+        }
+        return null;
+    }
+
+    private static Verdict buildVerdictFromEntity(OffenceEntity offenceEntity){
+        if(offenceEntity.getVerdict() != null){
+            return Verdict.builder()
+                    .verdictTypeDescription(offenceEntity.getVerdict().getVerdictTypeDescription())
+                    .verdictDate(offenceEntity.getVerdict().getVerdictDate())
+                    .build();
         }
         return null;
     }
@@ -250,16 +266,29 @@ public class ExtendedHearingRequestResponse {
                             .judicialResults(buildJudicialResults(offence.getJudicialResults()))
                             .offenceCode(offence.getOffenceCode())
                             .plea(buildPleaEntity(offence))
+                            .verdict(buildVerdictEntity(offence))
                             .build();
                 })
                 .collect(Collectors.toList());
     }
 
-    private PleaEntity buildPleaEntity(OffenceRequestResponse offence){
-        if(offence.getPlea() != null){
-            return PleaEntity.builder().pleaValue(offence.getPlea().getPleaValue()).build();
+    private PleaEntity buildPleaEntity(OffenceRequestResponse offence) {
+        if (offence.getPlea() != null) {
+            return PleaEntity.builder()
+                    .pleaValue(offence.getPlea().getPleaValue())
+                    .pleaDate(offence.getPlea().getPleaDate())
+                    .build();
         }
+        return null;
+    }
 
+    private VerdictEntity buildVerdictEntity(OffenceRequestResponse offence) {
+        if (offence.getVerdict() != null) {
+            return VerdictEntity.builder().
+                    verdictTypeDescription(offence.getVerdict().getVerdictTypeDescription())
+                    .verdictDate(offence.getVerdict().getVerdictDate())
+                    .build();
+        }
         return null;
     }
 

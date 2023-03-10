@@ -343,6 +343,8 @@ public class EntityHelper {
                 .title(title)
                 .act(OFFENCE_ACT)
                 .sequence(seq)
+                .plea(aPleaEntity("value 1",LocalDate.now()))
+                .verdict(aVerdictEntity("type 1", LocalDate.now()))
                 .judicialResults(getMutableList(List.of(aJudicialResultEntity("id1"), aJudicialResultEntity("id3"), aJudicialResultEntity("id2"), aJudicialResultEntity("id4"))))
                 .build();
 
@@ -359,6 +361,20 @@ public class EntityHelper {
                 .label(label)
                 .judicialResultTypeId("judicialResultTypeId")
                 .resultText("resultText")
+                .build();
+    }
+
+    public static PleaEntity aPleaEntity(String pleaValue, LocalDate pleaDate){
+        return PleaEntity.builder()
+                .pleaValue(pleaValue)
+                .pleaDate(pleaDate)
+                .build();
+    }
+
+    public static VerdictEntity aVerdictEntity(String typeDescription, LocalDate  verdictDate){
+        return VerdictEntity.builder()
+                .verdictTypeDescription(typeDescription)
+                .verdictDate(verdictDate)
                 .build();
     }
 }

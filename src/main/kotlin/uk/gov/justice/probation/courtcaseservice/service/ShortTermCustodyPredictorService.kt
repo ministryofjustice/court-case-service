@@ -14,7 +14,6 @@ import uk.gov.justice.probation.courtcaseservice.client.exception.ExternalApiUnk
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.Period
@@ -47,7 +46,7 @@ class ShortTermCustodyPredictorService(
         }
         rowData["offence_code"] = shortTermCustodyPredictorParameters.offenceCode.replace("/", StringUtils.EMPTY)
 
-        var prediction : BinomialModelPrediction? =
+        val prediction : BinomialModelPrediction? =
         try {
             model.predictBinomial(rowData)
         }
@@ -68,7 +67,9 @@ class ShortTermCustodyPredictorService(
     fun addPredictorScoresToHearing(hearingEntity: HearingEntity) {
         log.debug("Entered addPredictorScoresToHearing for hearing with case number: ${hearingEntity.caseNo}")
 
+        log.debug("Case has ${hearingEntity.hearingDefendants.size} defendants")
         hearingEntity.hearingDefendants.forEach { defendant ->
+            log.debug("Defendant has ${defendant.offences.size} offences")
             defendant.offences.forEach { offence ->
                 val homeOfficeOffenceCode : String? =
                 try {
@@ -80,6 +81,7 @@ class ShortTermCustodyPredictorService(
                     log.error("Unknown error occurred whilst looking up Home office offence code for CJS code: ${offence.offenceCode}", e)
                     null
                 }
+                log.debug("Home office code returned: $homeOfficeOffenceCode")
                 addPredictorScoreToOffence(homeOfficeOffenceCode, hearingEntity, defendant, offence)
             }
         }
@@ -106,6 +108,7 @@ class ShortTermCustodyPredictorService(
                 )
             )
             score?.let {
+                log.debug("Updating offence with short term custody predictor score of $score")
                 offence.shortTermCustodyPredictorScore = BigDecimal.valueOf(score)
             }
         }

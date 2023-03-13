@@ -7,8 +7,8 @@ DROP TABLE IF EXISTS VERDICT;
 CREATE TABLE IF NOT EXISTS VERDICT
 (
     ID                                     SERIAL       PRIMARY KEY,
-    VERDICT_TYPE_DESCRIPTION               TEXT         NULL,
-    VERDICT_DATE                           TIMESTAMP    NULL,
+    TYPE_DESCRIPTION                       TEXT         NULL,
+    DATE                                   TIMESTAMP    NULL,
     CREATED                                TIMESTAMP    NOT NULL DEFAULT now(),
     CREATED_BY                             TEXT         NULL,
     DELETED                                BOOLEAN      NOT NULL DEFAULT FALSE,

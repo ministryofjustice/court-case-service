@@ -147,8 +147,8 @@ public class ExtendedHearingRequestResponse {
     private static Plea buildPleaFromEntity(OffenceEntity offenceEntity) {
         if (offenceEntity.getPlea() != null) {
             return Plea.builder()
-                    .pleaValue(offenceEntity.getPlea().getPleaValue())
-                    .pleaDate(offenceEntity.getPlea().getPleaDate())
+                    .value(offenceEntity.getPlea().getValue())
+                    .date(offenceEntity.getPlea().getDate())
                     .build();
         }
         return null;
@@ -157,8 +157,8 @@ public class ExtendedHearingRequestResponse {
     private static Verdict buildVerdictFromEntity(OffenceEntity offenceEntity){
         if(offenceEntity.getVerdict() != null){
             return Verdict.builder()
-                    .verdictTypeDescription(offenceEntity.getVerdict().getVerdictTypeDescription())
-                    .verdictDate(offenceEntity.getVerdict().getVerdictDate())
+                    .typeDescription(offenceEntity.getVerdict().getTypeDescription())
+                    .date(offenceEntity.getVerdict().getDate())
                     .build();
         }
         return null;
@@ -275,8 +275,8 @@ public class ExtendedHearingRequestResponse {
     private PleaEntity buildPleaEntity(OffenceRequestResponse offence) {
         if (offence.getPlea() != null) {
             return PleaEntity.builder()
-                    .pleaValue(offence.getPlea().getPleaValue())
-                    .pleaDate(offence.getPlea().getPleaDate())
+                    .value(offence.getPlea().getValue())
+                    .date(offence.getPlea().getDate())
                     .build();
         }
         return null;
@@ -285,8 +285,8 @@ public class ExtendedHearingRequestResponse {
     private VerdictEntity buildVerdictEntity(OffenceRequestResponse offence) {
         if (offence.getVerdict() != null) {
             return VerdictEntity.builder().
-                    verdictTypeDescription(offence.getVerdict().getVerdictTypeDescription())
-                    .verdictDate(offence.getVerdict().getVerdictDate())
+                    typeDescription(offence.getVerdict().getTypeDescription())
+                    .date(offence.getVerdict().getDate())
                     .build();
         }
         return null;

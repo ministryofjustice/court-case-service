@@ -16,7 +16,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "VERDICT")
@@ -34,10 +33,10 @@ public class VerdictEntity extends BaseAuditedEntity implements Serializable {
     @JsonIgnore
     private final Long id;
 
-    @Column(name = "VERDICT_TYPE_DESCRIPTION")
-    private String  verdictTypeDescription;
+    @Column(name = "TYPE_DESCRIPTION")
+    private String typeDescription;
 
-    @Column(name = "VERDICT_DATE")
-    private LocalDate verdictDate;
+    @Column(name = "DATE")
+    private LocalDate date;
 
 }

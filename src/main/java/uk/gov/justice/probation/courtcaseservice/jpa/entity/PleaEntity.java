@@ -8,7 +8,6 @@ import org.hibernate.envers.Audited;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "PLEA")
@@ -26,10 +25,10 @@ public class PleaEntity extends BaseAuditedEntity implements Serializable {
     @JsonIgnore
     private final Long id;
 
-    @Column(name = "PLEA_VALUE")
-    private String  pleaValue;
+    @Column(name = "VALUE")
+    private String value;
 
-    @Column(name = "PLEA_DATE")
-    private LocalDate pleaDate;
+    @Column(name = "DATE")
+    private LocalDate date;
 
 }

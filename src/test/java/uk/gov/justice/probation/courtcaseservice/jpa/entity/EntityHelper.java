@@ -366,15 +366,15 @@ public class EntityHelper {
 
     public static PleaEntity aPleaEntity(String pleaValue, LocalDate pleaDate){
         return PleaEntity.builder()
-                .pleaValue(pleaValue)
-                .pleaDate(pleaDate)
+                .value(pleaValue)
+                .date(pleaDate)
                 .build();
     }
 
     public static VerdictEntity aVerdictEntity(String typeDescription, LocalDate  verdictDate){
         return VerdictEntity.builder()
-                .verdictTypeDescription(typeDescription)
-                .verdictDate(verdictDate)
+                .typeDescription(typeDescription)
+                .date(verdictDate)
                 .build();
     }
 }

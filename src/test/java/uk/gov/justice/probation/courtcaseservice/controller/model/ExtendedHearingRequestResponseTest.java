@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -17,6 +16,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationSta
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PleaEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.VerdictEntity;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -208,9 +209,9 @@ class ExtendedHearingRequestResponseTest {
         final var offences = hearingDefendantEntity.getOffences();
         assertThat(offences).hasSize(2);
         assertThat(offences.get(0).getHearingDefendant().getDefendant()).isSameAs(defendantEntity);
-        assertThat(offences.get(0).getPlea().getPleaValue()).isEqualTo("pleaValue1");
+        assertThat(offences.get(0).getPlea().getValue()).isEqualTo("pleaValue1");
         assertThat(offences.get(1).getHearingDefendant().getDefendant()).isSameAs(defendantEntity);
-        assertThat(offences.get(1).getPlea().getPleaValue()).isEqualTo("pleaValue2");
+        assertThat(offences.get(1).getPlea().getValue()).isEqualTo("pleaValue2");
         assertThat(offences).extracting("act").containsOnly("ACT1", "ACT2");
         assertThat(offences).extracting("sequence").containsOnly(1, 2);
         assertThat(offences).extracting("summary").containsOnly("SUMMARY1", "SUMMARY2");
@@ -361,7 +362,8 @@ class ExtendedHearingRequestResponseTest {
                 .offences(List.of(OffenceRequestResponse.builder()
                                 .act("act2")
                                 .offenceCode("RT88191")
-                                .plea(Plea.builder().pleaValue("pleaValue1").build())
+                                .plea(Plea.builder().value("pleaValue1").date(LocalDate.now()).build())
+                                .verdict(Verdict.builder().typeDescription("type 1").date(LocalDate.now()).build())
                                 .judicialResults(Collections.emptyList())
                                 .build(),
                         OffenceRequestResponse.builder()
@@ -370,7 +372,8 @@ class ExtendedHearingRequestResponseTest {
                                 .offenceTitle("title")
                                 .offenceCode("RT88191")
                                 .listNo(11)
-                                .plea(Plea.builder().pleaValue("pleaValue1").build())
+                                .plea(Plea.builder().value("pleaValue1").date(LocalDate.now()).build())
+                                .verdict(Verdict.builder().typeDescription("type 1").date(LocalDate.now()).build())
                                 .judicialResults(Collections.emptyList())
                                 .build()
                 ))
@@ -516,16 +519,20 @@ class ExtendedHearingRequestResponseTest {
                                                 .listNo(11)
                                                 .offenceCode("RT88191")
                                                 .plea(PleaEntity.builder()
-                                                        .pleaValue("pleaValue1")
+                                                        .value("pleaValue1")
+                                                        .date(LocalDate.now())
                                                         .build())
+                                                .verdict(VerdictEntity.builder().typeDescription("type 1").date(LocalDate.now()).build())
                                                 .build(),
                                         OffenceEntity.builder()
                                                 .act("act2")
                                                 .sequence(1)
                                                 .offenceCode("RT88191")
                                                 .plea(PleaEntity.builder()
-                                                        .pleaValue("pleaValue1")
+                                                        .value("pleaValue1")
+                                                        .date(LocalDate.now())
                                                         .build())
+                                                .verdict(VerdictEntity.builder().typeDescription("type 1").date(LocalDate.now()).build())
                                                 .build()
                                 ))
                                 .build(),
@@ -571,7 +578,12 @@ class ExtendedHearingRequestResponseTest {
                                 .listNo(10)
                                 .judicialResults(List.of(buildJudicialResult()))
                                 .plea(Plea.builder()
-                                        .pleaValue("pleaValue1")
+                                        .value("pleaValue1")
+                                        .date(LocalDate.now())
+                                        .build())
+                                .verdict(Verdict.builder()
+                                        .typeDescription("type 1")
+                                        .date(LocalDate.now())
                                         .build())
                                 .build(),
                         OffenceRequestResponse.builder()
@@ -580,7 +592,12 @@ class ExtendedHearingRequestResponseTest {
                                 .act("ACT2")
                                 .listNo(20)
                                 .plea(Plea.builder()
-                                        .pleaValue("pleaValue2")
+                                        .value("pleaValue2")
+                                        .date(LocalDate.now())
+                                        .build())
+                                .verdict(Verdict.builder()
+                                        .typeDescription("type 1")
+                                        .date(LocalDate.now())
                                         .build())
                                 .build()))
                 .build();

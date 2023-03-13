@@ -88,4 +88,8 @@ public class OffenceEntity extends BaseAuditedEntity implements Serializable  {
     @OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "plea_id", referencedColumnName = "id")
     private PleaEntity plea;
+
+    @OneToOne(cascade = {CascadeType.ALL})
+    @JoinColumn(name = "verdict_id", referencedColumnName = "id")
+    private VerdictEntity verdict;
 }

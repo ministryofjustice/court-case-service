@@ -1,22 +1,30 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.Audited;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "PLEA")
+@Table(name = "VERDICT")
 @AllArgsConstructor
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @Getter
 @Audited
-public class PleaEntity extends BaseAuditedEntity implements Serializable {
+public class VerdictEntity extends BaseAuditedEntity implements Serializable {
 
 
     @Id
@@ -25,8 +33,8 @@ public class PleaEntity extends BaseAuditedEntity implements Serializable {
     @JsonIgnore
     private final Long id;
 
-    @Column(name = "VALUE")
-    private String value;
+    @Column(name = "TYPE_DESCRIPTION")
+    private String typeDescription;
 
     @Column(name = "DATE")
     private LocalDate date;

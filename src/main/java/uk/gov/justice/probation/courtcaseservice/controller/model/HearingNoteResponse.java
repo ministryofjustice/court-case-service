@@ -22,6 +22,7 @@ public class HearingNoteResponse {
     private final LocalDateTime created;
     private final String author;
     private final String createdByUuid;
+    private final boolean draft;
 
     public static HearingNoteResponse of(HearingNoteEntity hearingNoteEntity) {
         return HearingNoteResponse.builder()
@@ -31,6 +32,7 @@ public class HearingNoteResponse {
             .created(hearingNoteEntity.getCreated())
             .author(hearingNoteEntity.getAuthor())
             .createdByUuid(hearingNoteEntity.getCreatedByUuid())
+            .draft(hearingNoteEntity.isDraft())
             .build();
     }
 }

@@ -153,6 +153,21 @@ public class CourtCaseController {
         return HearingNoteResponse.of(hearingNote);
     }
 
+    @Operation(description = "Creates/updates a draft hearing note for a given hearing")
+    @PutMapping(value = "/hearing/{hearingId}/notes/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    HearingNoteResponse createUpdateDraftHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                          @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
+                                          Principal principal) {
+
+        validateHearingNoteRequest(hearingId, hearingNoteRequest);
+
+        HearingNoteEntity hearingNote = hearingNotesService
+            .createOrUpdateHearingNoteDraft(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
+        return HearingNoteResponse.of(hearingNote);
+    }
+
     private static void validateHearingNoteRequest(String hearingId, HearingNoteRequest hearingNoteRequest) {
         if (!StringUtils.equals(hearingId, hearingNoteRequest.getHearingId())) {
             throw new ConflictingInputException(String.format("Hearing Id '%s' provided in the path does not match the one in the hearing note request body submitted '%s'",

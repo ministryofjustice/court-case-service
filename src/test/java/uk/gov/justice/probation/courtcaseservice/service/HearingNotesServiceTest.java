@@ -3,6 +3,8 @@ package uk.gov.justice.probation.courtcaseservice.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -16,6 +18,7 @@ import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFou
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -40,12 +43,13 @@ class HearingNotesServiceTest {
     private static final String testHearingId = "test-hearing-id";
     private static final String createdByUuid = "test-user-uuid";
     private static final HearingNoteEntity hearingNote = HearingNoteEntity.builder().hearingId(testHearingId).author("test author").createdByUuid(createdByUuid).build();
-
-
+    @Captor
+    private ArgumentCaptor<HearingNoteEntity> noteCaptor;
     @Test
-    void givenHearingIdExistsInDatabase_shouldCreateAHearingNote() {
-        HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder().hearingId("hearingId").build();
+    void givenHearingIdExistsInDatabase_andADraftNoteDoNotExists_shouldCreateNote() {
+        HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder().hearingId("hearingId").createdByUuid(createdByUuid).build();
 
+        given(hearingNotesRepository.findByHearingIdAndCreatedByUuidAndDraftIsTrue("hearingId", createdByUuid)).willReturn(Optional.empty());
         given(hearingRepository.findFirstByHearingId("hearingId")).willReturn(Optional.of(HearingEntity.builder().build()));
         given(hearingNotesRepository.save(hearingNoteEntity)).willReturn(hearingNoteEntity);
 
@@ -53,8 +57,25 @@ class HearingNotesServiceTest {
         hearingNotesService.createHearingNote(hearingNoteEntity);
 
         verify(hearingRepository).findFirstByHearingId("hearingId");
+        verify(hearingNotesRepository).findByHearingIdAndCreatedByUuidAndDraftIsTrue("hearingId", createdByUuid);
         verify(hearingNotesRepository).save(hearingNoteEntity);
         verify(telemetryService).trackCreateHearingNoteEvent(TelemetryEventType.HEARING_NOTE_ADDED, hearingNoteEntity);
+    }
+
+    @Test
+    void givenHearingIdExistsInDatabase_andADraftNoteExists_shouldUpdateNoteAndRemoveDraftFlag() {
+        HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder().hearingId(testHearingId).createdByUuid(createdByUuid).note("word1 word2 word3").build();
+        HearingNoteEntity dbHearingNoteEntity = HearingNoteEntity.builder().hearingId(testHearingId).createdByUuid(createdByUuid).note("word1 word2").draft(true).build();
+
+        given(hearingRepository.findFirstByHearingId(testHearingId)).willReturn(Optional.of(HearingEntity.builder().hearingId(testHearingId).build()));
+        given(hearingNotesRepository.findByHearingIdAndCreatedByUuidAndDraftIsTrue(testHearingId, createdByUuid)).willReturn(Optional.of(hearingNoteEntity));
+        given(hearingNotesRepository.save(noteCaptor.capture())).willReturn(dbHearingNoteEntity);
+
+        hearingNotesService.createHearingNote(hearingNoteEntity);
+        assertThat(noteCaptor.getValue()).isEqualTo(dbHearingNoteEntity.withNote("word1 word2 word3").withDraft(false));
+        verify(hearingRepository).findFirstByHearingId(testHearingId);
+        verify(hearingNotesRepository).findByHearingIdAndCreatedByUuidAndDraftIsTrue(testHearingId, createdByUuid);
+        verify(hearingNotesRepository).save(hearingNoteEntity);
     }
 
     @Test
@@ -65,6 +86,38 @@ class HearingNotesServiceTest {
 
         Assertions.assertThrows(EntityNotFoundException.class, () -> {
             hearingNotesService.createHearingNote(hearingNoteEntity);
+        }, "Hearing hearingId not found");
+
+        verify(hearingRepository).findFirstByHearingId("hearingId");
+        verifyNoInteractions(hearingNotesRepository);
+    }
+
+    // --- START createOrUpdateHearingNoteDraft
+
+    @Test
+    void givenHearingNoteDoNotExist_whenCreateOrUpdateHearingNoteDraft_createANewHearingNoteDraft() {
+        HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder().hearingId(testHearingId).createdByUuid(createdByUuid).note("word1 word2 word3").build();
+
+        given(hearingRepository.findFirstByHearingId(testHearingId)).willReturn(Optional.of(HearingEntity.builder().hearingId(testHearingId).build()));
+        given(hearingNotesRepository.findByHearingIdAndCreatedByUuidAndDraftIsTrue(testHearingId, createdByUuid)).willReturn(Optional.empty());
+        given(hearingNotesRepository.save(noteCaptor.capture())).willReturn(hearingNoteEntity);
+
+        hearingNotesService.createOrUpdateHearingNoteDraft(hearingNoteEntity);
+        HearingNoteEntity expected = hearingNoteEntity.withDraft(true);
+        assertThat(noteCaptor.getValue()).isEqualTo(expected);
+        verify(hearingRepository).findFirstByHearingId(testHearingId);
+        verify(hearingNotesRepository).findByHearingIdAndCreatedByUuidAndDraftIsTrue(testHearingId, createdByUuid);
+        verify(hearingNotesRepository).save(expected);
+    }
+
+    @Test
+    void givenHearingIdDoesNotExistsInDatabase__whenCreateOrUpdateHearingNoteDraft_shouldThrowEntityNotFound() {
+        HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder().hearingId("hearingId").build();
+
+        given(hearingRepository.findFirstByHearingId("hearingId")).willReturn(Optional.empty());
+
+        Assertions.assertThrows(EntityNotFoundException.class, () -> {
+            hearingNotesService.createOrUpdateHearingNoteDraft(hearingNoteEntity);
         }, "Hearing hearingId not found");
 
         verify(hearingRepository).findFirstByHearingId("hearingId");

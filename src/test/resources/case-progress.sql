@@ -14,6 +14,8 @@ VALUES (-1700028802, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'Judge sentenced', 
 
 INSERT INTO courtcaseservicetest.hearing_notes(id, hearing_id, note, "author", created, created_by, created_by_uuid)
 VALUES (-1700028803, '2aa6f5e0-f842-4939-bc6a-01346abc09e7', 'Judge requested PSR', 'Author Three', now(), 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
+INSERT INTO courtcaseservicetest.hearing_notes(id, hearing_id, note, "author", created, created_by, created_by_uuid, draft)
+VALUES (-1700028804, '2aa6f5e0-f842-4939-bc6a-01346abc09e7', 'Judge requested PSR', 'Author Three', now(), 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', true);
 
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
 VALUES (-1000000, -1700028600, 'B10JQ', 2, '2019-11-14', '09:00');

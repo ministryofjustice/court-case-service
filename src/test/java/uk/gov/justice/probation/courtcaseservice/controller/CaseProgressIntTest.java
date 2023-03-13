@@ -35,6 +35,12 @@ public class CaseProgressIntTest extends BaseIntTest {
         "        \"author\": \"Test Author\"\n" +
         "    }";
 
+    private final String noteUpdate = "{\n" +
+        "        \"hearingId\": \"2aa6f5e0-f842-4939-bc6a-01346abc09e7\",\n" +
+        "        \"note\": \"Judge heard new update update\",\n" +
+        "        \"author\": \"Author Three\"\n" +
+        "    }";
+
     @Autowired
     private HearingNotesRepository hearingNotesRepository;
 
@@ -103,6 +109,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("hearings[0].notes[1].created", Matchers.notNullValue())
             .body("hearings[0].notes[1].author", Matchers.equalTo("Author three"))
             .body("hearings[0].notes[1].createdByUuid", Matchers.equalTo("389fd9cf-390e-469a-b4cf-6c12024c4cae"))
+            .body("hearings[0].notes[1].draft", Matchers.equalTo(false))
 
             .body("hearings[1].hearingId", Matchers.equalTo("2aa6f5e0-f842-4939-bc6a-01346abc09e7"))
             .body("hearings[1].court", Matchers.equalTo("Leicester"))
@@ -111,13 +118,22 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("hearings[1].hearingTypeLabel", Matchers.equalTo("Hearing"))
             .body("hearings[1].hearingDateTime", Matchers.equalTo("2019-10-14T09:00:00"))
 
-            .body("hearings[1].notes", Matchers.hasSize(1))
+            .body("hearings[1].notes", Matchers.hasSize(2))
             .body("hearings[1].notes[0].noteId", Matchers.equalTo(-1700028803))
             .body("hearings[1].notes[0].hearingId", Matchers.equalTo("2aa6f5e0-f842-4939-bc6a-01346abc09e7"))
             .body("hearings[1].notes[0].note", Matchers.equalTo("Judge requested PSR"))
             .body("hearings[1].notes[0].created", Matchers.notNullValue())
             .body("hearings[1].notes[0].author", Matchers.equalTo("Author Three"))
             .body("hearings[1].notes[0].createdByUuid", Matchers.equalTo("fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81"))
+            .body("hearings[0].notes[0].draft", Matchers.equalTo(false))
+
+            .body("hearings[1].notes[1].noteId", Matchers.equalTo(-1700028804))
+            .body("hearings[1].notes[1].hearingId", Matchers.equalTo("2aa6f5e0-f842-4939-bc6a-01346abc09e7"))
+            .body("hearings[1].notes[1].note", Matchers.equalTo("Judge requested PSR"))
+            .body("hearings[1].notes[1].created", Matchers.notNullValue())
+            .body("hearings[1].notes[1].author", Matchers.equalTo("Author Three"))
+            .body("hearings[1].notes[1].createdByUuid", Matchers.equalTo("fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81"))
+            .body("hearings[1].notes[1].draft", Matchers.equalTo(true))
         ;
     }
 
@@ -194,4 +210,73 @@ public class CaseProgressIntTest extends BaseIntTest {
         var hearingNoteEntity = hearingNotesRepository.findById(noteId).get();
         assertThat(hearingNoteEntity.isDeleted()).isTrue();
     }
+
+
+    @Test
+    void givenExistingHearingId_draftDoNotExistAlready_whenPutDraftNote_shouldCreateNewDraftSuccessfully() {
+
+        Response hearingNoteResponse = given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(hearingNote)
+            .when()
+            .put("/hearing/{hearingId}/notes/draft", HEARING_ID);
+        hearingNoteResponse
+            .then()
+            .statusCode(200)
+            .body("hearingId", Matchers.equalTo(HEARING_ID))
+            .body("note", Matchers.equalTo("Judge heard"))
+            .body("author", Matchers.equalTo("Test Author"))
+            .body("createdByUuid", Matchers.equalTo(TokenHelper.TEST_UUID))
+            .body("created", Matchers.notNullValue())
+            .body("draft", Matchers.is(true))
+        ;
+        var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
+
+        var hearingNoteEntity = hearingNotesRepository.findById(hearingNote.getNoteId()).get();
+        assertThat(hearingNoteEntity.getNote()).isEqualTo(hearingNote.getNote());
+        assertThat(hearingNoteEntity.getCreatedByUuid()).isEqualTo(hearingNote.getCreatedByUuid());
+        assertThat(hearingNoteEntity.getAuthor()).isEqualTo(hearingNote.getAuthor());
+        assertThat(hearingNoteEntity.isDeleted()).isFalse();
+        assertThat(hearingNoteEntity.isDraft()).isTrue();
+
+        Assertions.assertNotNull(hearingNoteEntity);
+    }
+
+    @Test
+    void givenExistingHearingId_aDraftExistAlready_whenPutDraftNote_shouldUpdateDraftNote() {
+        var hearingId = "2aa6f5e0-f842-4939-bc6a-01346abc09e7";
+
+        Response hearingNoteResponse = given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(noteUpdate)
+            .when()
+            .put("/hearing/{hearingId}/notes/draft", hearingId);
+        hearingNoteResponse
+            .then()
+            .statusCode(200)
+            .body("hearingId", Matchers.equalTo(hearingId))
+            .body("note", Matchers.equalTo("Judge heard new update update"))
+            .body("author", Matchers.equalTo("Author Three"))
+            .body("createdByUuid", Matchers.equalTo(TokenHelper.TEST_UUID))
+            .body("created", Matchers.notNullValue())
+            .body("draft", Matchers.is(true))
+        ;
+        var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
+
+        var hearingNoteEntity = hearingNotesRepository.findById(hearingNote.getNoteId()).get();
+        assertThat(hearingNoteEntity.getNote()).isEqualTo("Judge heard new update update");
+        assertThat(hearingNoteEntity.getCreatedByUuid()).isEqualTo(hearingNote.getCreatedByUuid());
+        assertThat(hearingNoteEntity.getAuthor()).isEqualTo("Author Three");
+        assertThat(hearingNoteEntity.isDeleted()).isFalse();
+        assertThat(hearingNoteEntity.isDraft()).isTrue();
+
+        Assertions.assertNotNull(hearingNoteEntity);
+    }
+
 }

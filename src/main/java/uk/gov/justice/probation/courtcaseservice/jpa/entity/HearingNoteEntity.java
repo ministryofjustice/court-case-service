@@ -47,7 +47,11 @@ public class HearingNoteEntity extends BaseEntity implements Serializable {
     @Column(name = "AUTHOR", nullable = false)
     private final String author;
 
+    @Column(name = "DRAFT", nullable = false)
+    private boolean draft;
+
     public void updateNote(HearingNoteEntity hearingNoteUpdate) {
         this.note = hearingNoteUpdate.getNote();
+        this.draft = hearingNoteUpdate.isDraft();
     }
 }

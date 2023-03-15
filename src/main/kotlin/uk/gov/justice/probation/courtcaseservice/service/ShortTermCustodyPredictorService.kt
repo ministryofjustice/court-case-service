@@ -67,6 +67,11 @@ class ShortTermCustodyPredictorService(
     fun addPredictorScoresToHearing(hearingEntity: HearingEntity) {
         log.debug("Entered addPredictorScoresToHearing for hearing with case number: ${hearingEntity.caseNo}")
 
+        if (!isMagistratesCourtCode(hearingEntity.hearingDays[0].courtCode)) {
+            log.info("Short term custody algorithm only support magistrate court hearings - no score will be calculated")
+            return
+        }
+
         log.debug("Case has ${hearingEntity.hearingDefendants.size} defendants")
         hearingEntity.hearingDefendants.forEach { defendant ->
             log.debug("Defendant has ${defendant.offences.size} offences")
@@ -93,10 +98,6 @@ class ShortTermCustodyPredictorService(
         defendant: HearingDefendantEntity?,
         offence: OffenceEntity
     ) {
-        if (!isMagistratesCourtCode(hearingEntity.hearingDays[0].courtCode)) {
-            log.warn("Short term custody algorithm only support magistrate court hearings")
-            return
-        }
         if (homeOfficeOffenceCode != null) {
             log.debug("Found Home office offence code: $homeOfficeOffenceCode")
 

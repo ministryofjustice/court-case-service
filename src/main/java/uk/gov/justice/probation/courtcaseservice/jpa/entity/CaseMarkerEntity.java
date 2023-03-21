@@ -9,6 +9,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.Audited;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseMarker;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -44,6 +45,13 @@ public class CaseMarkerEntity extends BaseAuditedEntity implements Serializable 
     @JoinColumn(name = "FK_COURT_CASE_ID", referencedColumnName = "id", nullable = false)
     @Setter
     private CourtCaseEntity courtCase;
+
+    public static CaseMarker of(CaseMarkerEntity caseMarkerEntity){
+        return CaseMarker.builder()
+                .typeDescription(caseMarkerEntity.getTypeDescription())
+                .build();
+
+    }
 
 
 }

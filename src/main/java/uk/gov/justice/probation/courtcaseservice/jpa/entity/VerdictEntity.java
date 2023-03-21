@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.Audited;
+import uk.gov.justice.probation.courtcaseservice.controller.model.Verdict;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -38,5 +39,12 @@ public class VerdictEntity extends BaseAuditedEntity implements Serializable {
 
     @Column(name = "DATE")
     private LocalDate date;
+
+    public static Verdict of(VerdictEntity verdictEntity) {
+        return Verdict.builder()
+                .typeDescription(verdictEntity.getTypeDescription())
+                .date(verdictEntity.getDate())
+                .build();
+    }
 
 }

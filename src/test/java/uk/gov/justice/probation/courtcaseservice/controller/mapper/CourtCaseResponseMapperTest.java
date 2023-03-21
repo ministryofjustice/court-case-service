@@ -4,8 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.Plea;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseMarkerEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -22,8 +24,10 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.PleaEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.VerdictEntity;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
 import java.time.LocalDate;
@@ -89,7 +93,7 @@ class CourtCaseResponseMapperTest {
             .build();
 
     private final List<CaseProgressHearing> caseProgressHearings = List.of(CaseProgressHearing.builder().hearingId("test-hearing-one").build(),
-        CaseProgressHearing.builder().hearingId("test-hearing-two").build());
+            CaseProgressHearing.builder().hearingId("test-hearing-two").build());
 
     @BeforeEach
     void setUp() {
@@ -121,34 +125,37 @@ class CourtCaseResponseMapperTest {
                 .summary(OFFENCE_SUMMARY)
                 .title(OFFENCE_TITLE)
                 .listNo(OFFENCE_LIST_NO)
+                .offenceCode("R8881")
+                .plea(PleaEntity.builder().value("value").date(LocalDate.now()).build())
+                .verdict(VerdictEntity.builder().typeDescription("description").date(LocalDate.now()).build())
                 .build();
         var defendantUuid = UUID.randomUUID().toString();
         var defendantName = NamePropertiesEntity.builder().title("DJ").forename1("Giles").surname("PETERSON").build();
         var defendantEntity = HearingDefendantEntity.builder()
                 .defendant(DefendantEntity.builder()
-                    .crn("CRN123")
-                    .defendantName(defendantName.getFullName())
-                    .name(defendantName)
-                    .address(AddressPropertiesEntity.builder().postcode("WN8 0PZ").build())
-                    .sex(Sex.FEMALE)
-                    .nationality1("Romanian")
-                    .dateOfBirth(DEFENDANT_DOB.plusDays(2))
-                    .offender(OffenderEntity.builder()
-                            .crn("CRN123")
-                            .preSentenceActivity(true)
-                            .awaitingPsr(true)
-                            .suspendedSentenceOrder(true)
-                            .breach(true)
-                            .probationStatus(OffenderProbationStatus.CURRENT)
-                            .previouslyKnownTerminationDate(LocalDate.now())
-                            .build())
-                    .pnc("PNC123")
-                    .cro("CRO123")
-                    .defendantId(defendantUuid)
-                    .type(DefendantType.PERSON)
-                    .nationality1("Romanian")
-                    .offenderConfirmed(true)
-                .build())
+                        .crn("CRN123")
+                        .defendantName(defendantName.getFullName())
+                        .name(defendantName)
+                        .address(AddressPropertiesEntity.builder().postcode("WN8 0PZ").build())
+                        .sex(Sex.FEMALE)
+                        .nationality1("Romanian")
+                        .dateOfBirth(DEFENDANT_DOB.plusDays(2))
+                        .offender(OffenderEntity.builder()
+                                .crn("CRN123")
+                                .preSentenceActivity(true)
+                                .awaitingPsr(true)
+                                .suspendedSentenceOrder(true)
+                                .breach(true)
+                                .probationStatus(OffenderProbationStatus.CURRENT)
+                                .previouslyKnownTerminationDate(LocalDate.now())
+                                .build())
+                        .pnc("PNC123")
+                        .cro("CRO123")
+                        .defendantId(defendantUuid)
+                        .type(DefendantType.PERSON)
+                        .nationality1("Romanian")
+                        .offenderConfirmed(true)
+                        .build())
                 .offences(singletonList(defendantOffence))
                 .build();
 
@@ -187,16 +194,24 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getCaseComments().get(0).getCommentId()).isEqualTo(1234L);
         assertThat(courtCaseResponse.getCaseComments().get(1).getCommentId()).isEqualTo(5678L);
         assertThat(courtCaseResponse.getConfirmedOffender()).isTrue();
+        assertThat(courtCaseResponse.getOffences()).hasSize(1);
+        assertThat(courtCaseResponse.getOffences().get(0).getPlea().getValue()).isEqualTo("value");
+        assertThat(courtCaseResponse.getOffences().get(0).getVerdict().getTypeDescription()).isEqualTo("description");
+        assertThat(courtCaseResponse.getCaseMarkers()).hasSize(1);
+        assertThat(courtCaseResponse.getCaseMarkers().get(0).getTypeDescription()).isEqualTo("description");
+
+
     }
 
     @Test
     void givenMultipleDefendants_whenMapByDefendantId_thenReturnCorrectDefendant() {
 
         var newName = NamePropertiesEntity.builder().surname("PRESLEY").forename1("Elvis").build();
-        var defendant1 = buildDefendant(newName,OffenderEntity.builder().crn("D99999").build());
+        var defendant1 = buildDefendant(newName, OffenderEntity.builder().crn("D99999").build());
         var defendant2 = EntityHelper.aHearingDefendantEntity(DEFENDANT_ID);
 
         var courtCase = hearingEntity.withHearingDefendants(List.of(defendant1, defendant2));
+
 
         var response = CourtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5, caseProgressHearings);
 
@@ -351,8 +366,11 @@ class CourtCaseResponseMapperTest {
                         .created(CREATED)
                         .urn(URN)
                         .caseComments(List.of(
-                            CaseCommentEntity.builder().id(1234L).build(),
-                            CaseCommentEntity.builder().id(5678L).build()))
+                                CaseCommentEntity.builder().id(1234L).build(),
+                                CaseCommentEntity.builder().id(5678L).build()))
+                        .caseMarkers(List.of(CaseMarkerEntity.builder()
+                                .typeDescription("description")
+                                .build()))
                         .build())
                 .created(CREATED)
                 .firstCreated(firstCreated)

@@ -71,6 +71,7 @@ public class CourtCaseResponse {
     private final HearingEventType hearingEventType;
     private final Boolean confirmedOffender;
     private final String personId;
+    private final List<CaseMarker> caseMarkers;
 
     @JsonProperty
     public String getProbationStatus() {

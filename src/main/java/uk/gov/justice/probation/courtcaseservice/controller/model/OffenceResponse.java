@@ -19,5 +19,7 @@ public class OffenceResponse {
     private final int sequenceNumber;
     private final Integer listNo;
     private final String offenceCode;
+    private final Plea plea;
+    private final Verdict verdict;
 
 }

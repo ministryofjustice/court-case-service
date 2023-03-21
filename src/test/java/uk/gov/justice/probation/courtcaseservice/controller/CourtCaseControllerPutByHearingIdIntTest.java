@@ -182,7 +182,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         }, () -> fail("Offender values not updated as expected"));
 
         cc.ifPresentOrElse(hearingEntity -> {
-            assertThat(hearingEntity.getCaseMarkers().get(0)).extracting("typeDescription").isEqualTo("description 1");
+            assertThat(hearingEntity.getCourtCase().getCaseMarkers().get(0)).extracting("typeDescription").isEqualTo("description 1");
         }, () -> fail("Court case not created as expected"));
 
     }

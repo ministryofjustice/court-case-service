@@ -65,12 +65,37 @@ public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     private final SourceType sourceType;
 
+
+    @ToString.Exclude
+    @LazyCollection(value = LazyCollectionOption.FALSE)
+    @JsonIgnore
+    @OneToMany(mappedBy = "courtCase", orphanRemoval = true, cascade = CascadeType.ALL)
+    private final List<CaseMarkerEntity> caseMarkers;
+
+    public void update(CourtCaseEntity courtCaseUpdate) {
+        if(courtCaseUpdate.getCaseMarkers() != null) {
+            updateCaseMarkers(courtCaseUpdate);
+        }
+
+        this.urn = courtCaseUpdate.getUrn();
+    }
+
     public void addHearing(HearingEntity newHearing) {
         newHearing.setCourtCase(this);
         this.hearings.add(newHearing);
     }
 
-    public void update(CourtCaseEntity courtCaseUpdate) {
-        this.urn = courtCaseUpdate.getUrn();
+    public void addCaseMarkers(List<CaseMarkerEntity> caseMarkers){
+        caseMarkers.forEach(caseMarkerEntity -> caseMarkerEntity.setCourtCase(this));
+        this.caseMarkers.addAll(caseMarkers);
+    }
+
+    private void updateCaseMarkers(CourtCaseEntity courtCaseEntity) {
+            this.caseMarkers.forEach(caseMarkerEntity -> caseMarkerEntity.setCourtCase(null));
+            this.caseMarkers.clear();
+
+            this.caseMarkers.addAll(courtCaseEntity.getCaseMarkers());
+            this.caseMarkers.forEach(caseMarkerEntity -> caseMarkerEntity.setCourtCase(this));
+
     }
 }

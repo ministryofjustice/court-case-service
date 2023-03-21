@@ -41,9 +41,9 @@ public class CaseMarkerEntity extends BaseAuditedEntity implements Serializable 
     private String typeDescription;
 
     @ManyToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "FK_HEARING_ID", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "FK_COURT_CASE_ID", referencedColumnName = "id", nullable = false)
     @Setter
-    private HearingEntity hearing;
+    private CourtCaseEntity courtCase;
 
 
 }

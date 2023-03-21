@@ -146,6 +146,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     private static void addHearingToCase(HearingEntity updatedHearing, CourtCaseEntity courtCaseEntity) {
         courtCaseEntity.addHearing(updatedHearing);
+        //courtCaseEntity.addCaseMarkers(updatedHearing.getCourtCase().getCaseMarkers());
     }
 
     private boolean hasSentencedEventType(HearingEntity hearingEntity) {

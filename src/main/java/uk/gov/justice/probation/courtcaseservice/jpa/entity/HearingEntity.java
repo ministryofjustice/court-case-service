@@ -84,11 +84,6 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
     @Column(name = "LIST_NO")
     private String listNo;
 
-    @ToString.Exclude
-    @LazyCollection(value = LazyCollectionOption.FALSE)
-    @JsonIgnore
-    @OneToMany(mappedBy = "hearing", orphanRemoval = true, cascade = CascadeType.ALL)
-    private final List<CaseMarkerEntity> caseMarkers;
 
     public String getCaseId() {
         return courtCase.getCaseId();
@@ -120,9 +115,6 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
         this.courtCase.update(hearingUpdate.getCourtCase());
         updateHearingDays(hearingUpdate);
         updateHearingDefendant(hearingUpdate);
-        if(hearingUpdate.getCaseMarkers() != null) {
-            updateCaseMarkers(hearingUpdate);
-        }
         return this;
     }
 
@@ -163,13 +155,5 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
     private void removeHearingDefendant(HearingDefendantEntity toRemove) {
         this.hearingDefendants.remove(toRemove);
         toRemove.setHearing(null);
-    }
-
-    private void updateCaseMarkers(HearingEntity hearingUpdate) {
-        this.caseMarkers.forEach(caseMarkerEntity -> caseMarkerEntity.setHearing(null));
-        this.caseMarkers.clear();
-
-        this.caseMarkers.addAll(hearingUpdate.getCaseMarkers());
-        this.caseMarkers.forEach(caseMarkerEntity -> caseMarkerEntity.setHearing(this));
     }
 }

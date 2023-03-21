@@ -84,7 +84,7 @@ public class ExtendedHearingRequestResponse {
                                 .listNo(hearing.getListNo())
                                 .build())
                         .toList())
-                .caseMarkers(buildCaseMarkers(hearing))
+                .caseMarkers(buildCaseMarkers(hearing.getCourtCase()))
                 .defendants(hearing.getHearingDefendants().stream()
                         .map(hearingDefendantEntity -> {
                             final var defendant = hearingDefendantEntity.getDefendant();
@@ -148,15 +148,14 @@ public class ExtendedHearingRequestResponse {
                 .build();
     }
 
-    private static List<CaseMarker> buildCaseMarkers(HearingEntity hearing) {
-        if(hearing.getCaseMarkers() != null) {
-            return hearing.getCaseMarkers().stream()
-                    .map(caseMarkerEntity -> CaseMarker.builder()
-                            .typeDescription(caseMarkerEntity.getTypeDescription())
-                            .build())
-                    .toList();
-        }
-        return null;
+    private static List<CaseMarker> buildCaseMarkers(CourtCaseEntity courtCaseEntity) {
+        return Optional.ofNullable(courtCaseEntity.getCaseMarkers())
+                .map(caseMarkersList -> caseMarkersList.stream()
+                        .map(caseMarkerEntity -> CaseMarker.builder()
+                                .typeDescription(caseMarkerEntity.getTypeDescription())
+                                .build())
+                        .toList()).orElse(null);
+
     }
 
     private static Plea buildPleaFromEntity(OffenceEntity offenceEntity) {
@@ -248,12 +247,12 @@ public class ExtendedHearingRequestResponse {
         final var hearingEntity = HearingEntity.builder()
                 .hearingDays(hearingDayEntities)
                 .hearingDefendants(hearingDefendantEntities)
-                .caseMarkers(caseMarkerEntities)
                 .courtCase(CourtCaseEntity.builder()
                         .caseNo(caseNo)
                         .caseId(caseId)
                         .urn(urn)
                         .sourceType(SourceType.valueOf(Optional.ofNullable(source).orElse(DEFAULT_SOURCE.name())))
+                        .caseMarkers(caseMarkerEntities)
                         .build())
                 .hearingId(Optional.ofNullable(hearingId).orElse(caseId))
                 .hearingEventType(HearingEventType.fromString(hearingEventType))
@@ -267,7 +266,7 @@ public class ExtendedHearingRequestResponse {
 
         hearingDayEntities.forEach(hearingDayEntity -> hearingDayEntity.setHearing(hearingEntity));
         hearingDefendantEntities.forEach(hearingDefendantEntity -> hearingDefendantEntity.setHearing(hearingEntity));
-        caseMarkerEntities.forEach(caseMarkerEntity -> caseMarkerEntity.setHearing(hearingEntity));
+        caseMarkerEntities.forEach(caseMarkerEntity -> caseMarkerEntity.setCourtCase(hearingEntity.getCourtCase()));
         return hearingEntity;
     }
 

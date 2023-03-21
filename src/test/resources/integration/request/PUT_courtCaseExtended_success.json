@@ -14,6 +14,11 @@
       "listNo": 4
     }
   ],
+  "caseMarkers": [
+    {
+      "typeDescription": "description 1"
+    }
+  ],
   "defendants": [
     {
       "name": {

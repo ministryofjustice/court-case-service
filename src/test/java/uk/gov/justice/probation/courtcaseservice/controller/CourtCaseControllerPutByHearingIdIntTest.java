@@ -153,7 +153,8 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .body("hearingDays[0].courtCode", equalTo("B14LO"))
                 .body("hearingDays[0].courtRoom", equalTo("1"))
                 .body("hearingDays[0].sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
-                .body("hearingDays", hasSize(1));
+                .body("caseMarkers", hasSize(1))
+        ;
 
         var cc = courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID);
         cc.ifPresentOrElse(hearingEntity -> {
@@ -179,6 +180,10 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             assertThat(off.getPnc()).isEqualTo(OFFENDER_PNC);
             assertThat(off.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2018, Month.JUNE, 24));
         }, () -> fail("Offender values not updated as expected"));
+
+        cc.ifPresentOrElse(hearingEntity -> {
+            assertThat(hearingEntity.getCaseMarkers().get(0)).extracting("typeDescription").isEqualTo("description 1");
+        }, () -> fail("Court case not created as expected"));
 
     }
 

@@ -25,6 +25,9 @@ class HearingEntityTest {
                                             .defendantId(DEFENDANT_ID)
                                         .build())
                                     .build()))
+                .caseMarkers(List.of(CaseMarkerEntity.builder()
+                                .typeDescription("description")
+                        .build()))
                     .build();
 
     @Test

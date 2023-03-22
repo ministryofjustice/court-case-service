@@ -34,7 +34,7 @@ group = 'uk.gov.justice.probation'
 
 ext {
     restAssuredVersion = '5.3.0'
-    pactVersion = '4.3.15'
+    pactVersion = '4.5.4'
 }
 
 def today = Instant.now()

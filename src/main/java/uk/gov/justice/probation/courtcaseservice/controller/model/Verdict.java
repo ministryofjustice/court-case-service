@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.VerdictEntity;
 
 import java.time.LocalDate;
 

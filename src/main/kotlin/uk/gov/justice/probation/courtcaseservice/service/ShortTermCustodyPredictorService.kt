@@ -23,15 +23,15 @@ class ShortTermCustodyPredictorService(
     private val model: EasyPredictModelWrapper,
     private val offencesRestClient: ManageOffencesRestClient
 ) {
-
     companion object {
         val log: Logger = LoggerFactory.getLogger(this::class.java)
+
+        private const val P1_SCORE_INDEX = 1
 
         fun isMagistratesCourtCode(courtCode: String) : Boolean {
             return courtCode.startsWith("B")
         }
     }
-
     fun calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters: ShortTermCustodyPredictorParameters) : Double? {
 
         log.debug("Entered calculateShortTermCustodyPredictorScore(${shortTermCustodyPredictorParameters.courtCode}, " +
@@ -56,7 +56,7 @@ class ShortTermCustodyPredictorService(
         }
 
         prediction?.let {
-            val score = prediction.classProbabilities[0]
+            val score = prediction.classProbabilities[P1_SCORE_INDEX]
             log.info("Calculated short term custody score of $score for court code: ${shortTermCustodyPredictorParameters.courtCode}, offender age: ${shortTermCustodyPredictorParameters.offenderAge}, offence code: ${shortTermCustodyPredictorParameters.offenceCode}")
             return score
         }

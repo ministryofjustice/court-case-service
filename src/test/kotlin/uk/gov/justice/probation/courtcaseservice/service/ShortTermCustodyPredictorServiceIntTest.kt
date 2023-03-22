@@ -76,7 +76,7 @@ class ShortTermCustodyPredictorServiceIntTest : BaseIntTest() {
 
         // Then
         assertThat(custodyPredictorScore).isNotNull
-        assertThat(custodyPredictorScore).isEqualTo(0.9311253572283462)
+        assertThat(custodyPredictorScore).isEqualTo(0.0688746427716538)
     }
 
     @Test
@@ -123,7 +123,7 @@ class ShortTermCustodyPredictorServiceIntTest : BaseIntTest() {
         val custodyPredictorScore = predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
 
         // Then
-        assertThat(custodyPredictorScore).isEqualTo(0.9870862213669677)
+        assertThat(custodyPredictorScore).isEqualTo(0.012913778633032313)
     }
 
     companion object {

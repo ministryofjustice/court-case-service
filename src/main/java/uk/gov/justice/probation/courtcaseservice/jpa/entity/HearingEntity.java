@@ -60,14 +60,14 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
-    @OneToMany(mappedBy = "hearing", cascade = CascadeType.ALL, orphanRemoval=true)
+    @OneToMany(mappedBy = "hearing", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("day, time ASC")
     private final List<HearingDayEntity> hearingDays;
 
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
-    @OneToMany(mappedBy = "hearing", orphanRemoval=true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "hearing", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<HearingDefendantEntity> hearingDefendants;
 
     @Column(name = "first_created", insertable = false, updatable = false)
@@ -83,6 +83,7 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
 
     @Column(name = "LIST_NO")
     private String listNo;
+
 
     public String getCaseId() {
         return courtCase.getCaseId();
@@ -100,8 +101,8 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
         return Optional.ofNullable(hearingDefendants)
                 .map(Collection::stream)
                 .flatMap(defendantEntityStream -> defendantEntityStream
-                    .filter(d ->  defendantId.equals(d.getDefendantId()))
-                    .findFirst()
+                        .filter(d -> defendantId.equals(d.getDefendantId()))
+                        .findFirst()
                 )
                 .orElse(null);
     }
@@ -112,10 +113,8 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
         this.hearingEventType = hearingUpdate.hearingEventType;
 
         this.courtCase.update(hearingUpdate.getCourtCase());
-
         updateHearingDays(hearingUpdate);
         updateHearingDefendant(hearingUpdate);
-
         return this;
     }
 
@@ -130,22 +129,22 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
     private void updateHearingDefendant(HearingEntity hearingUpdate) {
         // remove hearing defendants that are not on the hearing update
         this.hearingDefendants.stream().filter(
-            hearingDefendantEntity -> Objects.isNull(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId())))
-            .collect(Collectors.toList())
-            .forEach(this::removeHearingDefendant);
+                        hearingDefendantEntity -> Objects.isNull(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId())))
+                .collect(Collectors.toList())
+                .forEach(this::removeHearingDefendant);
 
         // update existing
         this.hearingDefendants.stream().filter(
-            hearingDefendantEntity -> Objects.nonNull(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId())))
-            .forEach(hearingDefendantEntity -> {
-                hearingDefendantEntity.update(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId()));
-            });
+                        hearingDefendantEntity -> Objects.nonNull(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId())))
+                .forEach(hearingDefendantEntity -> {
+                    hearingDefendantEntity.update(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId()));
+                });
 
         // add new hearing defendants
         hearingUpdate.hearingDefendants.stream().filter(
-            hearingDefendantEntityUpdate -> Objects.isNull(this.getHearingDefendant(hearingDefendantEntityUpdate.getDefendantId())))
-            .collect(Collectors.toList())
-            .forEach(this::addHearingDefendant);
+                        hearingDefendantEntityUpdate -> Objects.isNull(this.getHearingDefendant(hearingDefendantEntityUpdate.getDefendantId())))
+                .collect(Collectors.toList())
+                .forEach(this::addHearingDefendant);
     }
 
     private void addHearingDefendant(HearingDefendantEntity hearingDefendantEntity) {

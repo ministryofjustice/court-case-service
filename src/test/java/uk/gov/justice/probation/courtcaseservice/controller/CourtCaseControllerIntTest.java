@@ -78,6 +78,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[0].createdToday", equalTo(true))
                 .body("cases[0].probationStatus", equalToIgnoringCase("Possible NDelius record"))
                 .body("cases[0].offences", hasSize(2))
+                .body("cases[0].caseMarkers", hasSize(1))
                 .body("cases[0].offences[0].offenceTitle", equalTo("Emma stole 1st thing from a shop"))
                 .body("cases[0].offences[0].listNo", equalTo(35))
                 .body("cases[0].offences[0].offenceCode", equalTo("RT88191"))

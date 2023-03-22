@@ -5,27 +5,31 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.Audited;
-import uk.gov.justice.probation.courtcaseservice.controller.model.Verdict;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseMarker;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.time.LocalDate;
 
 @Entity
-@Table(name = "VERDICT")
+@Table(name = "CASE_MARKER")
 @AllArgsConstructor
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @Getter
 @Audited
-public class VerdictEntity extends BaseAuditedEntity implements Serializable {
+public class CaseMarkerEntity extends BaseAuditedEntity implements Serializable {
 
 
     @Id
@@ -37,14 +41,17 @@ public class VerdictEntity extends BaseAuditedEntity implements Serializable {
     @Column(name = "TYPE_DESCRIPTION")
     private String typeDescription;
 
-    @Column(name = "DATE")
-    private LocalDate date;
+    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @JoinColumn(name = "FK_COURT_CASE_ID", referencedColumnName = "id", nullable = false)
+    @Setter
+    private CourtCaseEntity courtCase;
 
-    public static Verdict of(VerdictEntity verdictEntity) {
-        return Verdict.builder()
-                .typeDescription(verdictEntity.getTypeDescription())
-                .date(verdictEntity.getDate())
+    public static CaseMarker of(CaseMarkerEntity caseMarkerEntity){
+        return CaseMarker.builder()
+                .typeDescription(caseMarkerEntity.getTypeDescription())
                 .build();
+
     }
+
 
 }

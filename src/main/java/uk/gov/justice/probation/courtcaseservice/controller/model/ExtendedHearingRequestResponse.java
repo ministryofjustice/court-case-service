@@ -7,7 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseMarkerEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
@@ -60,6 +62,7 @@ public class ExtendedHearingRequestResponse {
 
     private final String hearingType;
     private final String listNo;
+    private final List<CaseMarker> caseMarkers;
 
     public static ExtendedHearingRequestResponse of(HearingEntity hearing) {
         return ExtendedHearingRequestResponse.builder()
@@ -81,6 +84,7 @@ public class ExtendedHearingRequestResponse {
                                 .listNo(hearing.getListNo())
                                 .build())
                         .toList())
+                .caseMarkers(buildCaseMarkers(hearing.getCourtCase()))
                 .defendants(hearing.getHearingDefendants().stream()
                         .map(hearingDefendantEntity -> {
                             final var defendant = hearingDefendantEntity.getDefendant();
@@ -144,6 +148,16 @@ public class ExtendedHearingRequestResponse {
                 .build();
     }
 
+    private static List<CaseMarker> buildCaseMarkers(CourtCaseEntity courtCaseEntity) {
+        return Optional.ofNullable(courtCaseEntity.getCaseMarkers())
+                .map(caseMarkersList -> caseMarkersList.stream()
+                        .map(caseMarkerEntity -> CaseMarker.builder()
+                                .typeDescription(caseMarkerEntity.getTypeDescription())
+                                .build())
+                        .toList()).orElse(null);
+
+    }
+
     private static Plea buildPleaFromEntity(OffenceEntity offenceEntity) {
         if (offenceEntity.getPlea() != null) {
             return Plea.builder()
@@ -154,8 +168,8 @@ public class ExtendedHearingRequestResponse {
         return null;
     }
 
-    private static Verdict buildVerdictFromEntity(OffenceEntity offenceEntity){
-        if(offenceEntity.getVerdict() != null){
+    private static Verdict buildVerdictFromEntity(OffenceEntity offenceEntity) {
+        if (offenceEntity.getVerdict() != null) {
             return Verdict.builder()
                     .typeDescription(offenceEntity.getVerdict().getTypeDescription())
                     .date(offenceEntity.getVerdict().getDate())
@@ -225,6 +239,11 @@ public class ExtendedHearingRequestResponse {
                 .map(this::buildDefendant)
                 .toList();
 
+        List<CaseMarker> caseMarkers = Optional.ofNullable(this.caseMarkers).orElse(Collections.emptyList());
+        final var caseMarkerEntities = caseMarkers.stream()
+                .map(this::buildCaseMarkerEntity)
+                .toList();
+
         final var hearingEntity = HearingEntity.builder()
                 .hearingDays(hearingDayEntities)
                 .hearingDefendants(hearingDefendantEntities)
@@ -233,6 +252,7 @@ public class ExtendedHearingRequestResponse {
                         .caseId(caseId)
                         .urn(urn)
                         .sourceType(SourceType.valueOf(Optional.ofNullable(source).orElse(DEFAULT_SOURCE.name())))
+                        .caseMarkers(caseMarkerEntities)
                         .build())
                 .hearingId(Optional.ofNullable(hearingId).orElse(caseId))
                 .hearingEventType(HearingEventType.fromString(hearingEventType))
@@ -246,7 +266,14 @@ public class ExtendedHearingRequestResponse {
 
         hearingDayEntities.forEach(hearingDayEntity -> hearingDayEntity.setHearing(hearingEntity));
         hearingDefendantEntities.forEach(hearingDefendantEntity -> hearingDefendantEntity.setHearing(hearingEntity));
+        caseMarkerEntities.forEach(caseMarkerEntity -> caseMarkerEntity.setCourtCase(hearingEntity.getCourtCase()));
         return hearingEntity;
+    }
+
+    private CaseMarkerEntity buildCaseMarkerEntity(CaseMarker caseMarker) {
+        return CaseMarkerEntity.builder()
+                .typeDescription(caseMarker.getTypeDescription())
+                .build();
     }
 
     private List<OffenceEntity> buildDefendantOffences(List<OffenceRequestResponse> offences) {
@@ -329,5 +356,18 @@ public class ExtendedHearingRequestResponse {
                         .postcode(address.getPostcode())
                         .build())
                 .orElse(null);
+    }
+
+    private List<CaseMarkerEntity> buildCaseMarkers(List<CaseMarker> caseMarkers) {
+        return IntStream.range(0, Optional.ofNullable(caseMarkers)
+                        .map(List::size)
+                        .orElse(0))
+                .mapToObj(i -> {
+                    var caseMarker = caseMarkers.get(i);
+                    return CaseMarkerEntity.builder()
+                            .typeDescription(caseMarker.getTypeDescription())
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }

@@ -90,6 +90,8 @@ INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE,
 VALUES (-1700029903, -1700029903, 'Emma stole 1st thing from a shop', 'On 01/01/2015 at own, Emma stole 1st article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, 35, 'RT88191');
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, OFFENCE_CODE)
 VALUES (-1700029904, -1700029903, 'Emma stole 2nd thing from a shop', 'On 01/01/2015 at own, Emma stole 2nd article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 2, 'RT88191');
+INSERT INTO case_marker (id, FK_COURT_CASE_ID, type_description, created)
+VALUES (-1700029901, -1700029901, 'description 1', now());
 
 INSERT INTO court_case (id, case_id, case_no, created, source_type)
 VALUES (-1700028902, '1f93aa0a-7e46-4885-a1cb-f25a4be33a57', 1600028915, now(), 'COMMON_PLATFORM');

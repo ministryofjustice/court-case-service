@@ -16,6 +16,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.envers.Audited;
+import org.springframework.util.CollectionUtils;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -73,7 +74,7 @@ public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
     private final List<CaseMarkerEntity> caseMarkers;
 
     public void update(CourtCaseEntity courtCaseUpdate) {
-        if(courtCaseUpdate.getCaseMarkers() != null) {
+        if(!CollectionUtils.isEmpty(courtCaseUpdate.getCaseMarkers())) {
             updateCaseMarkers(courtCaseUpdate);
         }
 

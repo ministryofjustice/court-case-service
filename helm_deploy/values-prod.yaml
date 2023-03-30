@@ -76,5 +76,5 @@ resources:
     limit: 5000m
     request: 500m
   memory:
-    limit: 1200Mi
+    limit: 1600Mi
     request: 700Mi

@@ -47,7 +47,7 @@ class CaseSearchServiceTest {
 
         given(caseSearchResultItemMapper.from(case1, TEST_CRN)).willReturn(result1).willReturn(result2);
 
-        var actual = caseSearchService.searchByCrn(TEST_CRN);
+        var actual = caseSearchService.searchCases(TEST_CRN);
 
         verify(courtCaseRepository).findAllCasesByCrn(TEST_CRN);
         verify(caseSearchResultItemMapper, times(2)).from(caseArgCapture.capture(), crnArgCapture.capture());
@@ -61,7 +61,7 @@ class CaseSearchServiceTest {
     void shouldMapAndReturnTheResultsRetrievedByTheRepository() {
         given(courtCaseRepository.findAllCasesByCrn(TEST_CRN)).willReturn(List.of());
 
-        var actual = caseSearchService.searchByCrn(TEST_CRN);
+        var actual = caseSearchService.searchCases(TEST_CRN);
 
         verify(courtCaseRepository).findAllCasesByCrn(TEST_CRN);
         verifyNoInteractions(caseSearchResultItemMapper);

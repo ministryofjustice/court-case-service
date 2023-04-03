@@ -28,9 +28,17 @@ public class CaseSearchService {
     }
 
     @Transactional(readOnly = true)
-    public CaseSearchResult searchByCrn(final String crn) {
-        return CaseSearchResult.builder().items(courtCaseRepository.findAllCasesByCrn(crn).stream()
-            .map(courtCaseEntity -> caseSearchResultItemMapper.from(courtCaseEntity, crn))
+    public CaseSearchResult searchCases(final String searchTerm) {
+
+        var searchTypeResolver = CaseSearchTypeResolver.get(searchTerm);
+
+        var result = switch (searchTypeResolver.getType()) {
+            case CRN -> courtCaseRepository.findAllCasesByCrn(searchTypeResolver.getSearchTerm());
+            case NAME -> courtCaseRepository.findAllCasesByFirstNameAndLastName(searchTypeResolver.getSearchTerm(), searchTerm.trim());
+        };
+
+        return CaseSearchResult.builder().items(result.stream()
+            .map(courtCaseEntity -> caseSearchResultItemMapper.from(courtCaseEntity, searchTerm))
             .collect(Collectors.toList())).build();
     }
 }

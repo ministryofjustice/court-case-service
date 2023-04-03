@@ -31,9 +31,18 @@ public class CaseSearchController {
     public CaseSearchController(final CaseSearchService caseSearchService) {
         this.caseSearchService = caseSearchService;
     }
+
+    @Deprecated(forRemoval = true) // should be removed once PaC starts using the fuzzy search endpoint
     @Operation(description = "Search cases by CRN")
-    @GetMapping(value = "/search", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/search", params = {"crn"}, produces = APPLICATION_JSON_VALUE)
     public @ResponseBody CaseSearchResult searchByCrn(@RequestParam("crn") String crn) {
-        return caseSearchService.searchByCrn(crn);
+        return caseSearchService.searchCases(crn);
+    }
+
+    @Deprecated(forRemoval = true) // should be removed once PaC starts using the fuzzy search endpoint
+    @Operation(description = "Search cases by CRN or name")
+    @GetMapping(value = "/search", params = {"term"}, produces = APPLICATION_JSON_VALUE)
+    public @ResponseBody CaseSearchResult searchCases(@RequestParam("term") String term) {
+        return caseSearchService.searchCases(term);
     }
 }

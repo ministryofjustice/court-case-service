@@ -23,9 +23,9 @@ class CaseSearchControllerTest {
     @Test
     void invokeSearchService() {
         String testCrn = "X12345";
-        given(caseSearchService.searchByCrn(testCrn)).willReturn(CaseSearchResult.builder().build());
+        given(caseSearchService.searchCases(testCrn)).willReturn(CaseSearchResult.builder().build());
         var actual = searchController.searchByCrn(testCrn);
-        verify(caseSearchService).searchByCrn(testCrn);
+        verify(caseSearchService).searchCases(testCrn);
         assertThat(actual).isNotNull();
     }
 }

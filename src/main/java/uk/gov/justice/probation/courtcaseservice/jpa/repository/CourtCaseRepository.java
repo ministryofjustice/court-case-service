@@ -20,4 +20,13 @@ public interface CourtCaseRepository extends CrudRepository<CourtCaseEntity, Lon
     nativeQuery = true)
 
     List<CourtCaseEntity> findAllCasesByCrn(String crn);
+
+    @Query(value = "select c.* from court_case c, hearing h, hearing_defendant hd, defendant d " +
+        "where to_tsvector(d.defendant_name) @@ to_tsquery(:tsQueryString) " +
+        "and hd.fk_defendant_id = d.id  " +
+        "and h.id = hd.fk_hearing_id  " +
+        "and c.id = h.fk_court_case_id " +
+        "order by similarity (d.defendant_name, :name) desc",
+    nativeQuery = true)
+    List<CourtCaseEntity> findAllCasesByFirstNameAndLastName(String tsQueryString, String name);
 }

@@ -101,9 +101,13 @@ public class EntityHelper {
     }
 
     public static HearingEntity aHearingEntityWithCrn(String crn) {
-        return populateBasics(crn)
+        return aHearingEntityWithCrnAndCaseIdAndHearingId(crn, CASE_ID, DEFENDANT_ID);
+    }
+
+    public static HearingEntity aHearingEntityWithCrnAndCaseIdAndHearingId(String crn, String caseId, String defendantId) {
+        return populateBasics(crn, HEARING_ID, defendantId)
                 .courtCase(CourtCaseEntity.builder()
-                        .caseId(CASE_ID)
+                        .caseId(caseId)
                         .caseNo(CASE_NO)
                         .sourceType(SOURCE)
                         .build())
@@ -151,13 +155,15 @@ public class EntityHelper {
     }
 
     private static HearingDefendantEntity aHearingDefendantEntity(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId, String crn) {
+        DefendantEntity defendant = aDefendantEntity(defendantAddress, name, defendantId, crn);
         final HearingDefendantEntity hearingDefendant = HearingDefendantEntity.builder()
                 .defendantId(defendantId)
-                .defendant(aDefendantEntity(defendantAddress, name, defendantId, crn))
+                .defendant(defendant)
                 .offences(getMutableList(List.of(aDefendantOffence())))
                 .build();
         hearingDefendant.getOffences()
                 .forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendant));
+        defendant.addHearingDefendant(hearingDefendant);
         return hearingDefendant;
     }
 
@@ -186,6 +192,7 @@ public class EntityHelper {
                 .defendantId(defendantId)
                 .phoneNumber(DEFENDANT_PHONE_NUMBER_ENTITY)
                 .personId(PERSON_ID)
+                .hearingDefendants(getMutableList(List.of()))
                 .build();
     }
 

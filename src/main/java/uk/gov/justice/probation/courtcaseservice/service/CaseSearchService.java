@@ -1,15 +1,18 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
+import kotlin.Pair;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.CaseSearchResultItemMapper;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResult;
 
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,13 +20,13 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CaseSearchService {
 
-    private final CourtCaseRepository courtCaseRepository;
+    private final DefendantRepository defendantRepository;
     private final CaseSearchResultItemMapper caseSearchResultItemMapper;
 
     @Autowired
-    public CaseSearchService(final CourtCaseRepository courtCaseRepository,
+    public CaseSearchService(final DefendantRepository defendantRepository,
                              final CaseSearchResultItemMapper caseSearchResultItemMapper) {
-        this.courtCaseRepository = courtCaseRepository;
+        this.defendantRepository = defendantRepository;
         this.caseSearchResultItemMapper = caseSearchResultItemMapper;
     }
 
@@ -32,13 +35,18 @@ public class CaseSearchService {
 
         var searchTypeResolver = CaseSearchTypeResolver.get(searchTerm);
 
-        var result = switch (searchTypeResolver.getType()) {
-            case CRN -> courtCaseRepository.findAllCasesByCrn(searchTypeResolver.getSearchTerm());
-            case NAME -> courtCaseRepository.findAllCasesByFirstNameAndLastName(searchTypeResolver.getSearchTerm(), searchTerm.trim());
+        var defendants = switch (searchTypeResolver.getType()) {
+            case CRN -> defendantRepository.findDefendantsByCrn(searchTypeResolver.getSearchTerm());
+            case NAME -> defendantRepository.findDefendantsByName(searchTypeResolver.getExtendedSearchTerm(), searchTerm.trim());
         };
 
-        return CaseSearchResult.builder().items(result.stream()
-            .map(courtCaseEntity -> caseSearchResultItemMapper.from(courtCaseEntity, searchTerm))
+        // extract cases that defendants are involved in
+        var courtCases = defendants.stream().map(DefendantEntity::getHearingDefendants)
+            .flatMap(Collection::stream).map(hearingDefendantEntity -> new Pair<>(hearingDefendantEntity.getDefendant().getDefendantId(), hearingDefendantEntity.getHearing().getCourtCase()))
+            .collect(Collectors.toList());
+
+        return CaseSearchResult.builder().items(courtCases.stream()
+            .map(courtCaseEntity -> caseSearchResultItemMapper.from(courtCaseEntity.getSecond(), courtCaseEntity.getFirst()))
             .collect(Collectors.toList())).build();
     }
 }

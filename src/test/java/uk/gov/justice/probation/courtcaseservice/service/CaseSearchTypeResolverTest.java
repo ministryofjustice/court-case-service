@@ -20,6 +20,7 @@ class CaseSearchTypeResolverTest {
     void givenTHeSearchTerm_shouldResolveToAppropriateSearchResolver(String input, String expectedSearchTerm, CaseSearchType searchType) {
         var resolver = CaseSearchTypeResolver.get(input);
         Assertions.assertThat(resolver.getType()).isEqualTo(searchType);
-        Assertions.assertThat(resolver.getSearchTerm()).isEqualTo(expectedSearchTerm);
+        Assertions.assertThat(resolver.getSearchTerm()).isEqualTo(input);
+        Assertions.assertThat(resolver.getExtendedSearchTerm()).isEqualTo(expectedSearchTerm);
     }
 }

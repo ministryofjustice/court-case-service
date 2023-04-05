@@ -230,10 +230,12 @@ class HearingNotesServiceTest {
 
     @Test
     void givenDraftNoteExistsForAUser_when_deleteDraft_shouldDeleteDraftNote() {
-        given(hearingNotesRepository.findByHearingIdAndCreatedByUuidAndDraftIsTrue(testHearingId, createdByUuid)).willReturn(Optional.of(hearingNote));
+        given(hearingNotesRepository.findByHearingIdAndCreatedByUuidAndDraftIsTrue(testHearingId, createdByUuid)).willReturn(Optional.of(hearingNote.withDraft(true)));
         hearingNotesService.deleteHearingNoteDraft(testHearingId, createdByUuid);
         verify(hearingNotesRepository).findByHearingIdAndCreatedByUuidAndDraftIsTrue(testHearingId, createdByUuid);
-        verify(hearingNotesRepository).delete(hearingNote);
+        HearingNoteEntity expected = hearingNote.withDraft(true);
+        expected.setDeleted(true);
+        verify(hearingNotesRepository).save(expected);
     }
 
     @Test

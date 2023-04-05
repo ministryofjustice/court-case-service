@@ -168,7 +168,7 @@ public class CourtCaseController {
         return HearingNoteResponse.of(hearingNote);
     }
 
-    @Operation(description = "Creates/updates a draft hearing note for a given hearing")
+    @Operation(description = "Deletes the draft hearing note for a given hearing")
     @DeleteMapping(value = "/hearing/{hearingId}/notes/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public void deleteDraftHearingNote(@PathVariable(value = "hearingId") String hearingId,

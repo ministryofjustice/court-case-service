@@ -53,5 +53,6 @@ public class HearingNoteEntity extends BaseEntity implements Serializable {
     public void updateNote(HearingNoteEntity hearingNoteUpdate) {
         this.note = hearingNoteUpdate.getNote();
         this.draft = hearingNoteUpdate.isDraft();
+        this.setDeleted(false); // to reuse note drafts that were soft deleted earlier. Remove deleted flag.
     }
 }

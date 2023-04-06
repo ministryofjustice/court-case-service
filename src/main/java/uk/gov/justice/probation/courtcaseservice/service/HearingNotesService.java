@@ -73,6 +73,18 @@ public class HearingNotesService {
         }, () -> throwNoteNotFound(noteId, hearingId));
     }
 
+    public void deleteHearingNoteDraft(String hearingId, String userUuid) {
+
+        log.info("Request to delete draft note on a hearingId {} by user {}", hearingId, userUuid);
+
+        hearingNotesRepository.findByHearingIdAndCreatedByUuidAndDraftIsTrue(hearingId, userUuid).ifPresentOrElse(hearingNoteEntity -> {
+            hearingNoteEntity.setDeleted(true);
+            hearingNotesRepository.save(hearingNoteEntity);
+        }, () -> {
+            throw new EntityNotFoundException("Draft note not found for user %s on hearing %s", userUuid, hearingId);
+        });
+    }
+
     public void updateHearingNote(HearingNoteEntity hearingNoteUpdate, Long noteId) {
         final var hearingId = hearingNoteUpdate.getHearingId();
         final var userUuid = hearingNoteUpdate.getCreatedByUuid();

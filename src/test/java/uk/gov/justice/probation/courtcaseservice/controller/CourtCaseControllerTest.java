@@ -459,6 +459,13 @@ class CourtCaseControllerTest {
     }
 
     @Test
+    void givenHearingId_invokeDeleteNoteDraftOnService() {
+        given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
+        courtCaseController.deleteDraftHearingNote(HEARING_ID, principal);
+        verify(hearingNotesService).deleteHearingNoteDraft(HEARING_ID, testUuid );
+    }
+
+    @Test
     void givenHearingIdAndNoteId_invokeUpdateNoteOnService() {
         var noteId = 1234L;
         HearingNoteRequest noteUpdate = HearingNoteRequest.builder().hearingId(HEARING_ID).note("existing note updated").build();

@@ -227,4 +227,23 @@ class HearingNotesServiceTest {
         verify(hearingNotesRepository).findById(noteId);
         verify(hearingNotesRepository, times(0)).save(any(HearingNoteEntity.class));
     }
+
+    @Test
+    void givenDraftNoteExistsForAUser_when_deleteDraft_shouldDeleteDraftNote() {
+        given(hearingNotesRepository.findByHearingIdAndCreatedByUuidAndDraftIsTrue(testHearingId, createdByUuid)).willReturn(Optional.of(hearingNote.withDraft(true)));
+        hearingNotesService.deleteHearingNoteDraft(testHearingId, createdByUuid);
+        verify(hearingNotesRepository).findByHearingIdAndCreatedByUuidAndDraftIsTrue(testHearingId, createdByUuid);
+        HearingNoteEntity expected = hearingNote.withDraft(true);
+        expected.setDeleted(true);
+        verify(hearingNotesRepository).save(expected);
+    }
+
+    @Test
+    void givenDraftDoesNotNoteExistsForAUser_when_deleteDraft_shouldThrowNotFoundError() {
+        given(hearingNotesRepository.findByHearingIdAndCreatedByUuidAndDraftIsTrue(testHearingId, createdByUuid)).willReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> hearingNotesService.deleteHearingNoteDraft(testHearingId, createdByUuid),
+            String.format("Draft note not found for user %s on hearing %s", createdByUuid, testHearingId));
+        verify(hearingNotesRepository).findByHearingIdAndCreatedByUuidAndDraftIsTrue(testHearingId, createdByUuid);
+        verifyNoMoreInteractions(hearingNotesRepository);
+    }
 }

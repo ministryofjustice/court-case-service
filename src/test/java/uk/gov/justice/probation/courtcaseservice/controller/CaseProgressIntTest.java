@@ -245,6 +245,27 @@ public class CaseProgressIntTest extends BaseIntTest {
         Assertions.assertNotNull(hearingNoteEntity);
     }
 
+  @Test
+    void givenExistingHearingId_draftDoNotExist_whenDeleteDraftNote_shouldDeleteDraftNoteSuccessfully() {
+
+      var testHearingId = "2aa6f5e0-f842-4939-bc6a-01346abc09e7";
+      Response hearingNoteResponse = given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(hearingNote)
+            .when()
+            .delete("/hearing/{hearingId}/notes/draft", testHearingId);
+        hearingNoteResponse
+            .then()
+            .statusCode(200);
+
+        var hearingNoteEntity = hearingNotesRepository.findByHearingIdAndCreatedByUuidAndDraftIsTrue(testHearingId, "fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81").get();
+        Assertions.assertNotNull(hearingNoteEntity);
+        Assertions.assertTrue(hearingNoteEntity.isDeleted());
+    }
+
     @Test
     void givenExistingHearingId_aDraftExistAlready_whenPutDraftNote_shouldUpdateDraftNote() {
         var hearingId = "2aa6f5e0-f842-4939-bc6a-01346abc09e7";

@@ -168,6 +168,16 @@ public class CourtCaseController {
         return HearingNoteResponse.of(hearingNote);
     }
 
+    @Operation(description = "Deletes the draft hearing note for a given hearing")
+    @DeleteMapping(value = "/hearing/{hearingId}/notes/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteDraftHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                               Principal principal) {
+
+        hearingNotesService
+            .deleteHearingNoteDraft(hearingId, authenticationHelper.getAuthUserUuid(principal));
+    }
+
     private static void validateHearingNoteRequest(String hearingId, HearingNoteRequest hearingNoteRequest) {
         if (!StringUtils.equals(hearingId, hearingNoteRequest.getHearingId())) {
             throw new ConflictingInputException(String.format("Hearing Id '%s' provided in the path does not match the one in the hearing note request body submitted '%s'",

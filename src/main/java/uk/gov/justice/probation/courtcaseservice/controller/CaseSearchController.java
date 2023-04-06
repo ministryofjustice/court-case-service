@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.probation.courtcaseservice.service.CaseSearchService;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResult;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchType;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -33,8 +34,8 @@ public class CaseSearchController {
     }
 
     @Operation(description = "Search cases by CRN or name")
-    @GetMapping(value = "/search", params = {"term"}, produces = APPLICATION_JSON_VALUE)
-    public @ResponseBody CaseSearchResult searchCases(@RequestParam("term") String term) {
-        return caseSearchService.searchCases(term);
+    @GetMapping(value = "/search", params = {"term", "type"}, produces = APPLICATION_JSON_VALUE)
+    public @ResponseBody CaseSearchResult searchCases(@RequestParam("term") String term, @RequestParam("type") CaseSearchType type) {
+        return caseSearchService.searchCases(term, type);
     }
 }

@@ -11,7 +11,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.CaseSearchResultItemMapper;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResult;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchType;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -31,13 +33,11 @@ public class CaseSearchService {
     }
 
     @Transactional(readOnly = true)
-    public CaseSearchResult searchCases(final String searchTerm) {
+    public CaseSearchResult searchCases(final String searchTerm, final CaseSearchType searchType) {
 
-        var searchTypeResolver = CaseSearchTypeResolver.get(searchTerm);
-
-        var defendants = switch (searchTypeResolver.getType()) {
-            case CRN -> defendantRepository.findDefendantsByCrn(searchTypeResolver.getSearchTerm());
-            case NAME -> defendantRepository.findDefendantsByName(searchTypeResolver.getExtendedSearchTerm(), searchTerm.trim());
+        var defendants = switch (searchType) {
+            case CRN -> defendantRepository.findDefendantsByCrn(searchTerm);
+            case NAME -> defendantRepository.findDefendantsByName(Arrays.stream(searchTerm.split(" ")).map(s -> s.trim()).collect(Collectors.joining(" & ")), searchTerm.trim());
         };
 
         // extract cases that defendants are involved in

@@ -12,6 +12,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantReposit
 import uk.gov.justice.probation.courtcaseservice.service.mapper.CaseSearchResultItemMapper;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResult;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResultItem;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchType;
 
 import java.util.List;
 
@@ -50,7 +51,7 @@ class CaseSearchServiceTest {
         given(caseSearchResultItemMapper.from(hearingEntity1.getCourtCase(), "defendant-id-1")).willReturn(result1);
         given(caseSearchResultItemMapper.from(hearingEntity2.getCourtCase(), "defendant-id-2")).willReturn(result2);
 
-        var actual = caseSearchService.searchCases(TEST_CRN);
+        var actual = caseSearchService.searchCases(TEST_CRN, CaseSearchType.CRN);
 
         verify(defendantRepository).findDefendantsByCrn(TEST_CRN);
         verify(caseSearchResultItemMapper).from(hearingEntity1.getCourtCase(), defendantEntity1.getDefendantId());
@@ -79,7 +80,7 @@ class CaseSearchServiceTest {
         given(caseSearchResultItemMapper.from(hearingEntity1.getCourtCase(), "defendant-id-1")).willReturn(result1);
         given(caseSearchResultItemMapper.from(hearingEntity2.getCourtCase(), "defendant-id-2")).willReturn(result2);
 
-        var actual = caseSearchService.searchCases(name);
+        var actual = caseSearchService.searchCases(name, CaseSearchType.NAME);
 
         verify(defendantRepository).findDefendantsByName(tsQueryString, name);
         verify(caseSearchResultItemMapper).from(hearingEntity1.getCourtCase(), "defendant-id-1");
@@ -92,7 +93,7 @@ class CaseSearchServiceTest {
     void shouldMapAndReturnTheResultsRetrievedByTheRepository() {
         given(defendantRepository.findDefendantsByCrn(TEST_CRN)).willReturn(List.of());
 
-        var actual = caseSearchService.searchCases(TEST_CRN);
+        var actual = caseSearchService.searchCases(TEST_CRN, CaseSearchType.CRN);
 
         verify(defendantRepository).findDefendantsByCrn(TEST_CRN);
         verifyNoInteractions(caseSearchResultItemMapper);

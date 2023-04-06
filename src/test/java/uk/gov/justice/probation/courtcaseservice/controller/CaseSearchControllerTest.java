@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.service.CaseSearchService;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResult;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -21,11 +22,11 @@ class CaseSearchControllerTest {
     CaseSearchController searchController;
 
     @Test
-    void invokeCommonSearchService() {
+    void givenSearchTypeAndTerm_invokeCaseSearchService() {
         String testCrn = "X12345";
-        given(caseSearchService.searchCases(testCrn)).willReturn(CaseSearchResult.builder().build());
-        var actual = searchController.searchCases(testCrn);
-        verify(caseSearchService).searchCases(testCrn);
+        given(caseSearchService.searchCases(testCrn, CaseSearchType.CRN)).willReturn(CaseSearchResult.builder().build());
+        var actual = searchController.searchCases(testCrn, CaseSearchType.CRN);
+        verify(caseSearchService).searchCases(testCrn, CaseSearchType.CRN);
         assertThat(actual).isNotNull();
     }
 }

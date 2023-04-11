@@ -1,10 +1,12 @@
 package uk.gov.justice.probation.courtcaseservice.service.model;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
@@ -33,6 +35,7 @@ class CaseSearchResultItemMapperTest {
     static HearingDefendantEntity hearingDefendant1 = EntityHelper.aHearingDefendantEntity(defendantId1, testCrn)
         .withOffences(List.of(OffenceEntity.builder().title("offence title 1").build()));
     static HearingEntity hearingEntity1 = HearingEntity.builder()
+        .courtCase(CourtCaseEntity.builder().build())
         .hearingId("hearing-id-1")
         .hearingDays(List.of(
             HearingDayEntity.builder().day(LocalDate.of(2022, 10, 10)).time(LocalTime.of(9, 0, 0)).court(sheffieldCourt).build())
@@ -66,13 +69,20 @@ class CaseSearchResultItemMapperTest {
     private final Clock fixedClock = Clock.fixed(Instant.parse("2022-12-13T09:00:00.000Z"), ZoneId.systemDefault());
     private final CaseSearchResultItemMapper subject = new CaseSearchResultItemMapper(fixedClock);
 
+    @BeforeAll
+    static void  beforeAll() {
+        hearingDefendant1.setHearing(hearingEntity1);
+        hearingDefendant21.setHearing(hearingEntity2);
+        hearingDefendant22.setHearing(hearingEntity2);
+    }
     @Test
     void shouldMapCourtCaseEntitiesToSearchResult() {
         List<HearingEntity> hearings = List.of(hearingEntity1, hearingEntity2, hearingEntity3);
 
         CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().hearings(hearings).build();
         EntityHelper.refreshMappings(courtCaseEntity);
-        var actual = subject.from(courtCaseEntity, testCrn);
+        DefendantEntity defendant = hearingDefendant1.getDefendant();
+        var actual = subject.from(courtCaseEntity, defendant.getDefendantId());
 
         var result1 = CaseSearchResultItem.builder()
             .hearingId("hearing-id-1")
@@ -98,7 +108,7 @@ class CaseSearchResultItemMapperTest {
 
         CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().hearings(hearings).build();
         EntityHelper.refreshMappings(courtCaseEntity);
-        var actual = subject.from(courtCaseEntity, testCrn);
+        var actual = subject.from(courtCaseEntity, defendantId1);
 
         var result = CaseSearchResultItem.builder()
             .hearingId("hearing-id-3")
@@ -122,7 +132,8 @@ class CaseSearchResultItemMapperTest {
 
         CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().hearings(hearings).build();
         EntityHelper.refreshMappings(courtCaseEntity);
-        var actual = subject.from(courtCaseEntity, testCrn);
+        DefendantEntity defendant = hearingDefendant1.getDefendant();
+        var actual = subject.from(courtCaseEntity, defendant.getDefendantId());
 
         var result = CaseSearchResultItem.builder()
             .hearingId("hearing-id-1")

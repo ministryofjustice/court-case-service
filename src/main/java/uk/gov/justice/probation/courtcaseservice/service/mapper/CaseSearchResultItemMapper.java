@@ -7,11 +7,14 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResultItem;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -26,14 +29,12 @@ public class CaseSearchResultItemMapper {
         this.clock = clock;
     }
 
-
-    public CaseSearchResultItem from(CourtCaseEntity courtCaseEntity, final String crn) {
+    public CaseSearchResultItem from(CourtCaseEntity courtCaseEntity, final String defendantId) {
 
         // filter out hearing defendants that does not match the CRN as the case may have multiple defendants with different CRNs
-        var hearingDefendants = courtCaseEntity.getHearings().stream()
-            .flatMap(hearingEntity -> hearingEntity.getHearingDefendants().stream()
-                .filter(hearingDefendantEntity -> Optional.ofNullable(hearingDefendantEntity.getDefendant().getOffender())
-                    .map(offenderEntity -> StringUtils.equalsIgnoreCase(offenderEntity.getCrn(), crn)).orElse(false)))
+        var hearingDefendants = courtCaseEntity.getHearings().stream().map(HearingEntity::getHearingDefendants)
+            .flatMap(Collection::stream)
+            .filter(hearingDefendantEntity -> StringUtils.equalsIgnoreCase(hearingDefendantEntity.getDefendantId(), defendantId))
             .collect(Collectors.toList());
 
         var defendant = hearingDefendants.get(0).getDefendant();
@@ -51,7 +52,7 @@ public class CaseSearchResultItemMapper {
         return CaseSearchResultItem.builder()
             .hearingId(hearingDefendants.get(0).getHearing().getHearingId())
             .defendantId(defendant.getDefendantId())
-            .crn(crn)
+            .crn(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::getCrn).orElse(null))
             .defendantName(defendant.getDefendantName())
             .offenceTitles(offenceTitles.stream().toList())
             .probationStatus(defendant.getProbationStatusForDisplay())
@@ -63,7 +64,6 @@ public class CaseSearchResultItemMapper {
             .nextHearingCourt(nextHearing.map(HearingDayEntity::getCourt).map(CourtEntity::getName).orElse(null))
             .build();
     }
-
     private Pair<Optional<HearingDayEntity>, Optional<HearingDayEntity>> getLastAndNextHearings(List<HearingDefendantEntity> hearingDefendants) {
         final var hearingDays = hearingDefendants.stream().flatMap(hearingDefendantEntity -> hearingDefendantEntity.getHearing().getHearingDays().stream()).collect(Collectors.toList());
         hearingDays.sort(Comparator.comparing(HearingDayEntity::getDay));

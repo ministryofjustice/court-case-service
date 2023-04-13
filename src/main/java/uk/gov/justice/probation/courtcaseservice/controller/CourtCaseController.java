@@ -49,6 +49,7 @@ import uk.gov.justice.probation.courtcaseservice.service.HearingNotesService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchFilter;
 
 import javax.validation.Valid;
 import java.security.Principal;
@@ -281,6 +282,7 @@ public class CourtCaseController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdAfter,
             @RequestParam(value = "createdBefore", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdBefore,
+            @RequestParam(value = "source", required = false) String source,
             WebRequest webRequest
     ) {
         var partialResponse = ResponseEntity.ok();
@@ -307,7 +309,15 @@ public class CourtCaseController {
         final var createdBeforeOrDefault = Optional.ofNullable(createdBefore)
                 .orElse(LocalDateTime.of(MAX_YEAR_SUPPORTED_BY_DB, 12, 31, 23, 59));
 
-        var courtCases = courtCaseService.filterHearings(courtCode, date, createdAfterOrDefault, createdBeforeOrDefault);
+        final var caseSearchFilter = CaseSearchFilter.builder()
+                .courtCode(courtCode)
+                .createdAfter(createdAfterOrDefault)
+                .createdBefore(createdBeforeOrDefault)
+                .source(source)
+                .build();
+
+        var courtCases = courtCaseService.filterHearings(caseSearchFilter);
+
         var courtCaseResponses = courtCases.stream()
                 .flatMap(courtCaseEntity -> buildCourtCaseResponses(courtCaseEntity, date).stream())
                 .sorted(Comparator

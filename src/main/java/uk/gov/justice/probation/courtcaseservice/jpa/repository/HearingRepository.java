@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchFilter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -90,4 +91,16 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
         "and h.fk_court_case_id = cc.id group by h.hearing_id)",
         nativeQuery = true)
     Optional<List<HearingEntity>> findHearingsByCaseId(String caseId);
+
+    @Query(value = "select h.* as first_created  " +
+            "from hearing h  " +
+            "inner join hearing_day hday on hday.fk_hearing_id = h.id  " +
+            "where hday.hearing_day = :hearingDay and hday.court_code = :courtCode " +
+            "and h.deleted = false",
+            nativeQuery = true)
+    List<HearingEntity> filterHearings(
+            String courtCode,
+            LocalDate hearingDay,
+            String source
+    );
 }

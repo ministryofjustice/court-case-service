@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchFilter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -79,6 +80,11 @@ public class HearingRepositoryFacade {
             ? hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay)
             : hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay, createdAfter, createdBefore);
         return hearingEntities;
+    }
+
+    public List<HearingEntity> filterHearings(CaseSearchFilter caseSearchFilter){
+        return null;
+
     }
 
     public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay) {

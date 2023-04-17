@@ -1,6 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
-enum class HearingOutcomeType(val value: String) {
+import com.fasterxml.jackson.annotation.JsonProperty
+
+enum class HearingOutcomeType(@JsonProperty("hearingOutcomeType") val value: String) {
 
     PROBATION_SENTENCE("Probation sentence"),
     NON_PROBATION_SENTENCE("Non-probation sentence"),

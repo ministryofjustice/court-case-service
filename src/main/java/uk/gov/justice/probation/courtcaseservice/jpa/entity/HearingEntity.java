@@ -99,7 +99,7 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
     private String listNo;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "HEARING_OUTCOME_ID", referencedColumnName = "id")
+    @JoinColumn(name = "FK_HEARING_OUTCOME", referencedColumnName = "id")
     private HearingOutcomeEntity hearingOutcome;
 
     public String getCaseId() {

@@ -16,10 +16,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository) {
                 hearingRepository.save(hearingEntity)
             },
             {
-                throw EntityNotFoundException(
-                    "Hearing not found with id %s",
-                    hearingId
-                )
+                throw EntityNotFoundException("Hearing not found with id $hearingId")
             })
     }
 }

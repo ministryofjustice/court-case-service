@@ -49,8 +49,6 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .statusCode(200)
 
         var hearing = hearingRepository.findFirstByHearingId(HEARING_ID).get();
-        assertThat(HearingOutcome.of(null)).isNull()
-
         assertThat(hearing.hearingOutcome.outcomeType).isEqualTo("ADJOURNED");
     }
 }

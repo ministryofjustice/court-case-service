@@ -20,7 +20,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderM
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
-import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchFilter;
+import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -120,8 +120,8 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     @Override
-    public List<HearingEntity> filterHearings(CaseSearchFilter caseSearchFilter) {
-        return hearingRepository.filterHearings(caseSearchFilter.getCourtCode(),caseSearchFilter.getHearingDay(), caseSearchFilter.getSource());
+    public List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter) {
+        return hearingRepository.filterHearings(hearingSearchFilter.getCourtCode(), hearingSearchFilter.getHearingDay(), hearingSearchFilter.getSource());
     }
 
     public Optional<LocalDateTime> filterHearingsLastModified(String courtCode, LocalDate searchDate) {

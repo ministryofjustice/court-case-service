@@ -49,7 +49,7 @@ import uk.gov.justice.probation.courtcaseservice.service.HearingNotesService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
-import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchFilter;
+import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
 import javax.validation.Valid;
 import java.security.Principal;
@@ -309,14 +309,14 @@ public class CourtCaseController {
         final var createdBeforeOrDefault = Optional.ofNullable(createdBefore)
                 .orElse(LocalDateTime.of(MAX_YEAR_SUPPORTED_BY_DB, 12, 31, 23, 59));
 
-        final var caseSearchFilter = CaseSearchFilter.builder()
+        final var hearingSearchFilter = HearingSearchFilter.builder()
                 .courtCode(courtCode)
                 .createdAfter(createdAfterOrDefault)
                 .createdBefore(createdBeforeOrDefault)
                 .source(source)
                 .build();
 
-        var courtCases = courtCaseService.filterHearings(caseSearchFilter);
+        var courtCases = courtCaseService.filterHearings(hearingSearchFilter);
 
         var courtCaseResponses = courtCases.stream()
                 .flatMap(courtCaseEntity -> buildCourtCaseResponses(courtCaseEntity, date).stream())

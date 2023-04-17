@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class CaseSearchFilter {
+public class HearingSearchFilter {
     @NotEmpty
     String courtCode;
     @NotNull
@@ -23,4 +23,4 @@ public class CaseSearchFilter {
     LocalDateTime createdAfter;
     LocalDateTime createdBefore;
     String source;
-};
+}

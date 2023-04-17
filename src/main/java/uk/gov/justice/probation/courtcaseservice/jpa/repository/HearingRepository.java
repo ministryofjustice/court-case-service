@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
+public interface HearingRepository extends CrudRepository<HearingEntity, Long>, HearingFilterRepositoryCustom{
 
     Optional<HearingEntity> findFirstByHearingId(String hearingId);
 
@@ -90,16 +90,4 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>{
         "and h.fk_court_case_id = cc.id group by h.hearing_id)",
         nativeQuery = true)
     Optional<List<HearingEntity>> findHearingsByCaseId(String caseId);
-
-    @Query(value = "select h.* as first_created  " +
-            "from hearing h  " +
-            "inner join hearing_day hday on hday.fk_hearing_id = h.id  " +
-            "where hday.hearing_day = :hearingDay and hday.court_code = :courtCode " +
-            "and h.deleted = false",
-            nativeQuery = true)
-    List<HearingEntity> filterHearings(
-            String courtCode,
-            LocalDate hearingDay,
-            String source
-    );
 }

@@ -121,7 +121,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     @Override
     public List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter) {
-        return hearingRepository.filterHearings(hearingSearchFilter.getCourtCode(), hearingSearchFilter.getHearingDay(), hearingSearchFilter.getSource());
+        return hearingRepository.filterHearings(hearingSearchFilter);
     }
 
     public Optional<LocalDateTime> filterHearingsLastModified(String courtCode, LocalDate searchDate) {

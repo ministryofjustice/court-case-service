@@ -16,8 +16,22 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.envers.Audited;
+import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -84,6 +98,9 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
     @Column(name = "LIST_NO")
     private String listNo;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "FK_HEARING_OUTCOME", referencedColumnName = "id")
+    private HearingOutcomeEntity hearingOutcome;
 
     public String getCaseId() {
         return courtCase.getCaseId();
@@ -116,6 +133,10 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
         updateHearingDays(hearingUpdate);
         updateHearingDefendant(hearingUpdate);
         return this;
+    }
+
+    public void addHearingOutcome(HearingOutcomeType hearingOutcomeType) {
+        this.hearingOutcome = HearingOutcomeEntity.builder().outcomeType(hearingOutcomeType.name()).hearing(this).build();
     }
 
     private void updateHearingDays(HearingEntity hearingUpdate) {

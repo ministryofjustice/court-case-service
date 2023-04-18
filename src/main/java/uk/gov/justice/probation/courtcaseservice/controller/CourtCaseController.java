@@ -311,6 +311,7 @@ public class CourtCaseController {
 
         final var hearingSearchFilter = HearingSearchFilter.builder()
                 .courtCode(courtCode)
+                .hearingDay(date)
                 .createdAfter(createdAfterOrDefault)
                 .createdBefore(createdBeforeOrDefault)
                 .source(source)

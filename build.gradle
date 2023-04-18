@@ -3,7 +3,7 @@ import java.time.LocalDate
 
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.7.9'
+    id 'org.springframework.boot' version '2.7.10'
     id 'io.spring.dependency-management' version '1.0.14.RELEASE'
     id 'com.github.ben-manes.versions' version '0.42.0'
     id "org.flywaydb.flyway" version "9.14.0"
@@ -165,9 +165,15 @@ dependencies {
         }
     }
 
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.4") {
-        because("2.13.1 has vulnerabilities")
+    implementation("net.minidev:json-smart:2.4.9") {
+        because("SNYK scan reported secuity vulnerability in the bundled net.minidev:json-smart:2.4.8")
     }
+
+    implementation("org.springdoc:springdoc-openapi-ui:1.7.0") {
+        because("SNYK scan reported secuity vulnerability in the bundled org.springdoc:springdoc-openapi-ui:1.6.13")
+    }
+
+    implementation('com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2')
 
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
@@ -201,7 +207,6 @@ dependencies {
     implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.4'
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.4'
     implementation 'net.logstash.logback:logstash-logback-encoder:7.2'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1'
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.13'
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:1.2.0")

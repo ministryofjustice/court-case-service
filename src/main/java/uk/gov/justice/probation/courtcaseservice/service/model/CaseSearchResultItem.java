@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcome;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 
 import java.time.LocalDate;
@@ -41,4 +42,6 @@ public class CaseSearchResultItem {
     private final Boolean awaitingPsr;
 
     private final Boolean breach;
+
+    private final HearingOutcome hearingOutcome;
 }

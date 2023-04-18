@@ -1,0 +1,21 @@
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS HEARING_OUTCOME
+(
+    ID                                     SERIAL       PRIMARY KEY,
+    OUTCOME_TYPE                           TEXT         NULL,
+    CREATED                                TIMESTAMP    NOT NULL DEFAULT now(),
+    CREATED_BY                             TEXT         NULL,
+    DELETED                                BOOLEAN      NOT NULL DEFAULT FALSE,
+    LAST_UPDATED                           TIMESTAMP    NULL,
+    LAST_UPDATED_BY                        TEXT         NULL,
+    VERSION                                int4         NOT NULL DEFAULT 0
+);
+
+ALTER TABLE HEARING ADD COLUMN FK_HEARING_OUTCOME INT NULL;
+
+ALTER TABLE HEARING ADD CONSTRAINT FK_HEARING_OUTCOME FOREIGN KEY (FK_HEARING_OUTCOME) REFERENCES HEARING_OUTCOME;
+
+ALTER TABLE OFFENCE ADD CONSTRAINT FK_PLEA FOREIGN KEY (PLEA_ID) REFERENCES PLEA;
+
+COMMIT;

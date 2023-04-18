@@ -278,10 +278,6 @@ public class CourtCaseController {
             @PathVariable String courtCode,
             @RequestParam(value = "date")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(value = "createdAfter", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdAfter,
-            @RequestParam(value = "createdBefore", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdBefore,
             @RequestParam(value = "source", required = false) String source,
             WebRequest webRequest
     ) {
@@ -301,19 +297,10 @@ public class CourtCaseController {
                     .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS));
         }
 
-        final var createdAfterOrDefault = Optional.ofNullable(createdAfter)
-                .orElse(
-                        LocalDateTime.of(MIN_YEAR_SUPPORTED_BY_DB, 1, 1, 0, 0)
-                );
-
-        final var createdBeforeOrDefault = Optional.ofNullable(createdBefore)
-                .orElse(LocalDateTime.of(MAX_YEAR_SUPPORTED_BY_DB, 12, 31, 23, 59));
 
         final var hearingSearchFilter = HearingSearchFilter.builder()
                 .courtCode(courtCode)
                 .hearingDay(date)
-                .createdAfter(createdAfterOrDefault)
-                .createdBefore(createdBeforeOrDefault)
                 .source(source)
                 .build();
 

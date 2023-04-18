@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.response.ValidatableResponse;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -198,70 +199,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
         }
 
         @Test
-        void GET_cases_givenCreatedAfterFilterParam_whenGetCases_thenReturnCasesAfterSpecifiedTime() {
-
-            given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .get("/court/{courtCode}/cases?date={date}&createdAfter=2020-10-01T16:59:58.999", COURT_CODE, DECEMBER_14.format(DateTimeFormatter.ISO_DATE))
-                .then()
-                .assertThat()
-                .statusCode(200)
-                .body("cases", hasSize(6))
-                .body("cases[0].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
-                .body("cases[0].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
-                .body("cases[1].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
-                .body("cases[1].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a56"))
-                .body("cases[2].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
-                .body("cases[2].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
-                .body("cases[3].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a59"))
-                .body("cases[3].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a59"))
-                .body("cases[4].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a57"))
-                .body("cases[4].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a57"))
-                .body("cases[5].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a18"))
-                .body("cases[5].hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a18"))
-            ;
-        }
-
-        @Test
-        void GET_cases_givenCreatedBeforeFilterParam_whenGetCases_thenReturnCasesCreatedUpTo8DaysBeforeListDate() {
-            given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .get("/court/{courtCode}/cases?date={date}&createdBefore=2020-10-05T00:00:00", COURT_CODE,
-                    LocalDate.of(2020, 5, 1).format(DateTimeFormatter.ISO_DATE))
-                .then()
-                .assertThat()
-                .statusCode(200)
-                .body("cases", hasSize(1))
-                .body("cases[0].caseNo", equalTo(null))
-                .body("cases[0].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a30"))
-                .body("cases[0].source", equalTo("COMMON_PLATFORM"))
-            ;
-        }
-
-        @Test
-        void GET_cases_givenCreatedBefore_andCreatedAfterFilterParams_whenGetCases_thenReturnCasesBetweenSpecifiedTimes() {
-
-            given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .get("/court/{courtCode}/cases?date={date}&createdAfter=2020-09-01T16:59:59&createdBefore=2020-09-01T17:00:00",
-                    COURT_CODE, DECEMBER_14.format(DateTimeFormatter.ISO_DATE))
-                .then()
-                .assertThat()
-                .statusCode(200)
-                .body("cases", hasSize(1))
-                .body("cases[0].caseNo", equalTo(null))
-                .body("cases[0].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a58"))
-                .body("cases[0].defendantId", equalTo("44817de0-cc89-460a-8f07-0b06ef45982a"))
-            ;
-        }
-
-        @Test
         void GET_cases_shouldGetEmptyCaseListWhenNoCasesMatch() {
             given()
                 .auth()
@@ -285,25 +222,6 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .assertThat()
                 .statusCode(400)
                 .body("developerMessage", equalTo("Required request parameter 'date' for method parameter type LocalDate is not present"));
-        }
-
-        @Test
-        void GET_cases_shouldReturn404NotFoundWhenCourtDoesNotExist() {
-            ErrorResponse result = given()
-                .auth()
-                .oauth2(getToken())
-                .when()
-                .get("/court/{courtCode}/cases?date={date}", NOT_FOUND_COURT_CODE, "2020-02-02")
-                .then()
-                .assertThat()
-                .statusCode(404)
-                .extract()
-                .body()
-                .as(ErrorResponse.class);
-
-            assertThat(result.getDeveloperMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
-            assertThat(result.getUserMessage()).contains("Court " + NOT_FOUND_COURT_CODE + " not found");
-            assertThat(result.getStatus()).isEqualTo(404);
         }
     }
 

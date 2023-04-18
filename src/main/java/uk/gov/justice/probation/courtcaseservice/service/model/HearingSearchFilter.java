@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -20,7 +19,5 @@ public class HearingSearchFilter {
     String courtCode;
     @NotNull
     LocalDate hearingDay;
-    LocalDateTime createdAfter;
-    LocalDateTime createdBefore;
     String source;
 }

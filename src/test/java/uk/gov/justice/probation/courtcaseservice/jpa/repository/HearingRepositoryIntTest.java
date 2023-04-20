@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtcaseservice.jpa.repository;
+ package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

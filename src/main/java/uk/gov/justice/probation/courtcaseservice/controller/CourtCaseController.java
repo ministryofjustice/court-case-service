@@ -170,7 +170,7 @@ public class CourtCaseController {
     }
 
     @Operation(description = "Deletes the draft hearing note for a given hearing")
-    @DeleteMapping(value = "/hearing/{hearingId}/notes/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/hearing/{hearingId}/notes/draft")
     @ResponseStatus(HttpStatus.OK)
     public void deleteDraftHearingNote(@PathVariable(value = "hearingId") String hearingId,
                                                Principal principal) {

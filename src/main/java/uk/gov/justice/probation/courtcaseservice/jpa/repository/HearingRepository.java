@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface HearingRepository extends CrudRepository<HearingEntity, Long>, HearingFilterRepositoryCustom{
+public interface HearingRepository extends CrudRepository<HearingEntity, Long>, HearingSearchRepositoryCustom {
 
     Optional<HearingEntity> findFirstByHearingId(String hearingId);
 

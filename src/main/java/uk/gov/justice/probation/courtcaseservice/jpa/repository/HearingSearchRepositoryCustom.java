@@ -6,6 +6,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilt
 import java.util.List;
 
 
-public interface HearingFilterRepositoryCustom {
+public interface HearingSearchRepositoryCustom {
     List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter);
 }

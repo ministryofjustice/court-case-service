@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 
+import org.springframework.stereotype.Repository;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
@@ -10,8 +11,8 @@ import javax.persistence.Query;
 import java.util.List;
 
 import static java.util.Objects.isNull;
-
-public class HearingFilterRepositoryCustomImpl implements HearingFilterRepositoryCustom {
+@Repository
+public class HearingSearchRepositoryCustomImpl implements HearingSearchRepositoryCustom {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -44,7 +45,7 @@ public class HearingFilterRepositoryCustomImpl implements HearingFilterRepositor
         filterQuery.setParameter("hearingDay", hearingSearchFilter.getHearingDay());
         filterQuery.setParameter("courtCode", hearingSearchFilter.getCourtCode());
         if(isFilterBySourceType(hearingSearchFilter)){
-            filterQuery.setParameter("sourceType", SourceType.from(hearingSearchFilter.getSource()));
+            filterQuery.setParameter("sourceType", SourceType.from(hearingSearchFilter.getSource().toUpperCase()).name());
         }
 
         return filterQuery.getResultList();

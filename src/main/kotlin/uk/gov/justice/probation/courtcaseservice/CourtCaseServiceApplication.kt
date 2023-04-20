@@ -10,7 +10,6 @@ import org.springframework.retry.annotation.EnableRetry
 @EnableJpaAuditing
 @EnableRetry
 @EnableCaching
-//@EnableJpaRepositories("uk.gov.justice.probation.courtcaseservice.jpa.repository")
 class CourtCaseServiceApplication
 
 fun main(args: Array<String>) {

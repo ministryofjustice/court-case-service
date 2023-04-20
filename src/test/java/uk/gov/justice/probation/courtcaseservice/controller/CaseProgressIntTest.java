@@ -253,8 +253,6 @@ public class CaseProgressIntTest extends BaseIntTest {
       Response hearingNoteResponse = given()
             .auth()
             .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
             .body(hearingNote)
             .when()
             .delete("/hearing/{hearingId}/notes/draft", testHearingId);

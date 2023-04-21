@@ -20,4 +20,5 @@ public class HearingSearchFilter {
     @NotNull
     LocalDate hearingDay;
     String source;
+    boolean breach;
 }

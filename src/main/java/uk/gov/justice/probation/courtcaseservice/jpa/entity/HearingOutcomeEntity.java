@@ -16,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "HEARING_OUTCOME")
@@ -34,6 +35,9 @@ public class HearingOutcomeEntity extends BaseAuditedEntity implements Serializa
 
     @Column(name = "OUTCOME_TYPE")
     private String outcomeType;
+
+    @Column(name = "OUTCOME_DATE")
+    private LocalDateTime outcomeDate;
 
     @OneToOne(mappedBy = "hearingOutcome")
     private HearingEntity hearing;

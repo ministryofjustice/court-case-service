@@ -118,7 +118,7 @@ class OffenderMatchServiceTest {
             final var crn = "X320741";
             mockOffenderDetailMatch(crn, matchDetail, List.of(activeConviction));
 
-            final var offenderMatchDetail = service.getOffenderMatchDetail(crn);
+            final var offenderMatchDetail = service.getOffenderMatchDetail(OffenderMatchEntity.builder().crn(crn).build());
 
             verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);
             verify(offenderRestClient).getConvictionsByCrn(crn);
@@ -133,7 +133,7 @@ class OffenderMatchServiceTest {
             final var crn = "X320741";
             mockOffenderDetailMatch(crn, matchDetail, Collections.emptyList());
 
-            final var offenderMatchDetail = service.getOffenderMatchDetail("X320741");
+            final var offenderMatchDetail = service.getOffenderMatchDetail(OffenderMatchEntity.builder().crn("X320741").build());
 
             assertThat(offenderMatchDetail.getForename()).isEqualTo("Chris");
             verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);
@@ -150,7 +150,7 @@ class OffenderMatchServiceTest {
             when(offenderRestClient.getConvictionsByCrn(crn)).thenReturn(Mono.error(new OffenderNotFoundException(crn)));
             when(offenderRestClient.getProbationStatusByCrn(crn)).thenReturn(Mono.just(ProbationStatusDetail.builder().status("CURRENT").build()));
 
-            final var offenderMatchDetail = service.getOffenderMatchDetail("X320741");
+            final var offenderMatchDetail = service.getOffenderMatchDetail(OffenderMatchEntity.builder().crn("X320741").build());
 
             assertThat(offenderMatchDetail.getForename()).isEqualTo("Chris");
             assertThat(offenderMatchDetail.getProbationStatus()).isEqualTo(DefendantProbationStatus.CURRENT);
@@ -162,7 +162,7 @@ class OffenderMatchServiceTest {
             String crn = "X320741";
             mockOffenderDetailMatch(crn, null, List.of(activeConviction));
 
-            final var offenderMatchDetail = service.getOffenderMatchDetail("X320741");
+            final var offenderMatchDetail = service.getOffenderMatchDetail(OffenderMatchEntity.builder().crn("X320741").build());
 
             assertThat(offenderMatchDetail).isNull();
             verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);

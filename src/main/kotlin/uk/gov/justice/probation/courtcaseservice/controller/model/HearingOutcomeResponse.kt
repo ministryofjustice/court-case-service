@@ -13,4 +13,6 @@ class HearingOutcomeResponse(val hearingOutcomeType: HearingOutcomeType, val out
                return HearingOutcomeResponse(HearingOutcomeType.valueOf(it.outcomeType), it.outcomeDate)
            }?: null
     }
+
+    fun getHearingOutcomeDescription(): String? = this.hearingOutcomeType?.value
 }

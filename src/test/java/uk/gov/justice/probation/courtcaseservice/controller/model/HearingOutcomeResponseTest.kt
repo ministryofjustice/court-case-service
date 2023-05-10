@@ -17,6 +17,7 @@ internal class HearingOutcomeResponseTest {
         Assertions.assertThat(result?.hearingOutcomeType)
             .isEqualTo(HearingOutcomeType.REPORT_REQUESTED)
         Assertions.assertThat(result?.outcomeDate).isEqualTo(outcomeDate)
+        Assertions.assertThat(result?.getHearingOutcomeDescription()).isEqualTo("Report requested")
     }
     @Test
     fun shouldMapToToNullWhenHearingOutcomeEntityIsNull() {

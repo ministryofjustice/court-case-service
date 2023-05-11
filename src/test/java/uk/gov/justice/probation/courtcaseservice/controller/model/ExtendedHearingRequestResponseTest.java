@@ -126,6 +126,7 @@ class ExtendedHearingRequestResponseTest {
         final var request = ExtendedHearingRequestResponse.builder()
                 .caseId("CASE_ID")
                 .urn(URN)
+                .caseMarkers(Collections.singletonList(CaseMarker.builder().markerTypeDescription("markerTypeDescription").build()))
                 .hearingDays(List.of(
                         HearingDay.builder()
                                 .listNo(LIST_NO)
@@ -155,6 +156,9 @@ class ExtendedHearingRequestResponseTest {
         final var localTime = SESSION_START_TIME.toLocalTime();
         assertThat(hearingEntity.getHearingDays()).extracting("time").containsOnly(localTime, localTime.plusMinutes(30));
         assertThat(hearingEntity.getHearingDays().get(0).getHearing()).isSameAs(hearingEntity);
+        assertThat(hearingEntity.getCourtCase().getCaseMarkers()).hasSize(1);
+        assertThat(hearingEntity.getCourtCase().getCaseMarkers()).extracting("typeDescription").containsOnly("markerTypeDescription");
+
     }
 
     @Test

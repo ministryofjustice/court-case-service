@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseMarkerEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
@@ -152,7 +151,7 @@ public class ExtendedHearingRequestResponse {
         return Optional.ofNullable(courtCaseEntity.getCaseMarkers())
                 .map(caseMarkersList -> caseMarkersList.stream()
                         .map(caseMarkerEntity -> CaseMarker.builder()
-                                .typeDescription(caseMarkerEntity.getTypeDescription())
+                                .markerTypeDescription(caseMarkerEntity.getTypeDescription())
                                 .build())
                         .toList()).orElse(null);
 
@@ -272,7 +271,7 @@ public class ExtendedHearingRequestResponse {
 
     private CaseMarkerEntity buildCaseMarkerEntity(CaseMarker caseMarker) {
         return CaseMarkerEntity.builder()
-                .typeDescription(caseMarker.getTypeDescription())
+                .typeDescription(caseMarker.getMarkerTypeDescription())
                 .build();
     }
 
@@ -365,7 +364,7 @@ public class ExtendedHearingRequestResponse {
                 .mapToObj(i -> {
                     var caseMarker = caseMarkers.get(i);
                     return CaseMarkerEntity.builder()
-                            .typeDescription(caseMarker.getTypeDescription())
+                            .typeDescription(caseMarker.getMarkerTypeDescription())
                             .build();
                 })
                 .collect(Collectors.toList());

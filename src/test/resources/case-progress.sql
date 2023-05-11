@@ -1,8 +1,8 @@
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, pnc, cro, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
 VALUES (-1000001, 'X320741', 'PNCINT007', 'CROINT007', 'CURRENT', '2010-01-01', true, true, true, true, 'court-case-history.sql');
 
-INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, created, created_by)
-VALUES (-1700020001, 'ADJOURNED', now(), 'case-progress.sql');
+INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, outcome_date, created, created_by)
+VALUES (-1700020001, 'ADJOURNED', '2023-4-24 09:09:09', now(), 'case-progress.sql');
 
 INSERT INTO courtcaseservicetest.court_case (id, case_id, created, source_type, urn) VALUES (-1700028600, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', now(), 'COMMON_PLATFORM', 'URN008');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, hearing_type, created) VALUES (-1700028600, -1700028600, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'Sentence', TO_TIMESTAMP('2019-12-14 9:00:00', 'YYYY-MM-DD HH:MI:SS'));

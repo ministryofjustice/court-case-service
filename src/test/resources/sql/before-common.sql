@@ -9,6 +9,7 @@ TRUNCATE courtcaseservicetest.court_case CASCADE;
 TRUNCATE courtcaseservicetest.court CASCADE;
 TRUNCATE courtcaseservicetest.case_comments CASCADE;
 TRUNCATE courtcaseservicetest.hearing_outcome CASCADE;
+TRUNCATE courtcaseservicetest.hearing_notes CASCADE;
 
 TRUNCATE courtcaseservicetest.hearing_day_aud CASCADE;
 TRUNCATE courtcaseservicetest.offence_aud CASCADE;

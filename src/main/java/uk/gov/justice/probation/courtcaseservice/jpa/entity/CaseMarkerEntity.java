@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.Audited;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseMarker;
@@ -48,7 +47,7 @@ public class CaseMarkerEntity extends BaseAuditedEntity implements Serializable 
 
     public static CaseMarker of(CaseMarkerEntity caseMarkerEntity){
         return CaseMarker.builder()
-                .typeDescription(caseMarkerEntity.getTypeDescription())
+                .markerTypeDescription(caseMarkerEntity.getTypeDescription())
                 .build();
 
     }

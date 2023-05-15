@@ -62,11 +62,13 @@
           "offenceCode": "RT88191",
           "listNo": 5,
           "plea": {
-            "value": "plea value 1",
-            "date": "2023-03-01"
+            "pleaValue": "plea value 1",
+            "pleaDate": "2023-03-01"
           },
           "verdict": {
-            "typeDescription": "type 1",
+            "verdictType": {
+              "description": "type 1"
+            },
             "date": "2023-03-01"
           },
           "judicialResults": [

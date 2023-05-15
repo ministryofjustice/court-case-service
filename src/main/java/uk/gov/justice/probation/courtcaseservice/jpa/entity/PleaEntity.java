@@ -34,8 +34,8 @@ public class PleaEntity extends BaseAuditedEntity implements Serializable {
 
     public static Plea of(PleaEntity pleaEntity) {
         return Plea.builder()
-                .value(pleaEntity.getValue())
-                .date(pleaEntity.getDate())
+                .pleaValue(pleaEntity.getValue())
+                .pleaDate(pleaEntity.getDate())
                 .build();
     }
 

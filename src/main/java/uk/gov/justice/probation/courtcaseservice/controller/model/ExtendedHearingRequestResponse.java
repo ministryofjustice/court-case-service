@@ -160,8 +160,8 @@ public class ExtendedHearingRequestResponse {
     private static Plea buildPleaFromEntity(OffenceEntity offenceEntity) {
         if (offenceEntity.getPlea() != null) {
             return Plea.builder()
-                    .value(offenceEntity.getPlea().getValue())
-                    .date(offenceEntity.getPlea().getDate())
+                    .pleaValue(offenceEntity.getPlea().getValue())
+                    .pleaDate(offenceEntity.getPlea().getDate())
                     .build();
         }
         return null;
@@ -170,7 +170,7 @@ public class ExtendedHearingRequestResponse {
     private static Verdict buildVerdictFromEntity(OffenceEntity offenceEntity) {
         if (offenceEntity.getVerdict() != null) {
             return Verdict.builder()
-                    .typeDescription(offenceEntity.getVerdict().getTypeDescription())
+                    .verdictType(VerdictType.builder().description(offenceEntity.getVerdict().getTypeDescription()).build())
                     .date(offenceEntity.getVerdict().getDate())
                     .build();
         }
@@ -301,8 +301,8 @@ public class ExtendedHearingRequestResponse {
     private PleaEntity buildPleaEntity(OffenceRequestResponse offence) {
         if (offence.getPlea() != null) {
             return PleaEntity.builder()
-                    .value(offence.getPlea().getValue())
-                    .date(offence.getPlea().getDate())
+                    .value(offence.getPlea().getPleaValue())
+                    .date(offence.getPlea().getPleaDate())
                     .build();
         }
         return null;
@@ -311,7 +311,7 @@ public class ExtendedHearingRequestResponse {
     private VerdictEntity buildVerdictEntity(OffenceRequestResponse offence) {
         if (offence.getVerdict() != null) {
             return VerdictEntity.builder().
-                    typeDescription(offence.getVerdict().getTypeDescription())
+                    typeDescription(offence.getVerdict().getVerdictType().getDescription())
                     .date(offence.getVerdict().getDate())
                     .build();
         }

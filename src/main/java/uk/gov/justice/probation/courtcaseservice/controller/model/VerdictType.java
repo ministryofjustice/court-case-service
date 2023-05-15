@@ -10,12 +10,11 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Schema(description = "Plea")
+@Schema(description = "VerdictType")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class Plea {
-    private String pleaValue;
-    private LocalDate pleaDate;
+public class VerdictType {
+    private String description;
 }

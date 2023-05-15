@@ -31,8 +31,10 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.PleaEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.VerdictEntity;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import uk.gov.justice.probation.courtcaseservice.service.model.MatchType;
@@ -48,7 +50,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.URN;
 
 @Provider("court-case-service")
-@PactBroker(consumerVersionSelectors = @VersionSelector(consumer = "court-case-matcher", tag="${PACT_CONSUMER_TAG}", fallbackTag = "main"))
+@PactBroker(consumerVersionSelectors = @VersionSelector(consumer = "court-case-matcher", tag = "${PACT_CONSUMER_TAG}", fallbackTag = "main"))
 @PactFolder("src/test/resources/pact")
 @ActiveProfiles("unsecured")
 class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
@@ -159,6 +161,8 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                         .act("Theft act")
                                         .summary("Did a theft")
                                         .title("Thievery")
+                                        .plea(PleaEntity.builder().value("value").date(LocalDate.now()).build())
+                                        .verdict(VerdictEntity.builder().typeDescription("description").date(LocalDate.now()).build())
                                         .judicialResults(List.of(JudicialResultEntity.builder()
                                                 .isConvictedResult(false)
                                                 .label("label")
@@ -204,6 +208,8 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
                                         .act("Theft act")
                                         .summary("Did a theft")
                                         .title("Thievery")
+                                        .plea(PleaEntity.builder().value("value").date(LocalDate.now()).build())
+                                        .verdict(VerdictEntity.builder().typeDescription("description").date(LocalDate.now()).build())
                                         .judicialResults(List.of(JudicialResultEntity.builder()
                                                 .isConvictedResult(false)
                                                 .label("label")
@@ -240,14 +246,14 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
         when(offenderMatchService.createOrUpdateGroupedMatchesByDefendant(any(), any())).thenReturn(Mono.just(GroupedOffenderMatchesEntity.builder()
                 .caseId("9b44418d-21a8-417d-a11a-dfe20164abaf")
                 .defendantId("1df61bcb-7482-49b2-8f99-569458fb3203")
-                        .offenderMatches(List.of(OffenderMatchEntity.builder()
-                                        .matchProbability(0.12345d)
-                                        .crn("X12340")
-                                        .cro("12345")
-                                        .pnc("2020/12345")
-                                        .matchType(MatchType.NAME_DOB)
-                                        .aliases(Collections.emptyList())
-                                .build()))
+                .offenderMatches(List.of(OffenderMatchEntity.builder()
+                        .matchProbability(0.12345d)
+                        .crn("X12340")
+                        .cro("12345")
+                        .pnc("2020/12345")
+                        .matchType(MatchType.NAME_DOB)
+                        .aliases(Collections.emptyList())
+                        .build()))
                 .build()));
     }
 }

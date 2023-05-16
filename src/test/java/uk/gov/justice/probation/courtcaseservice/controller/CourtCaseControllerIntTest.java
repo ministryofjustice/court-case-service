@@ -49,6 +49,9 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
     CourtCaseService courtCaseService;
 
     private static final LocalDate DECEMBER_14 = LocalDate.of(2019, Month.DECEMBER, 14);
+    //2019-12-14
+    private static final LocalDate MARCH_25 = LocalDate.of(2022, Month.MARCH, 25);
+
     private static final LocalDate JAN_1_2010 = LocalDate.of(2010, 1, 1);
     private static final LocalDateTime DECEMBER_14_9AM = LocalDateTime.of(2019, Month.DECEMBER, 14, 9, 0);
     private static final String CASE_NO = "1600028913";
@@ -156,6 +159,23 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                     .body("cases[4].source", equalTo("COMMON_PLATFORM"))
                     .body("cases[5].source", equalTo("COMMON_PLATFORM"))
             ;
+        }
+
+        @Test
+        void GET_cases_givenLibraSourceFilterParamWithBreachFilterParam_whenGetCases_thenReturnOnlyCasesWithBreachFlagTrue() {
+
+            given()
+                    .auth()
+                    .oauth2(getToken())
+                    .when()
+                    .get("/court/{courtCode}/cases?date={date}&source={source}&breach={breach}", COURT_CODE, DECEMBER_14.format(DateTimeFormatter.ISO_DATE),"LIBRA", true)
+                    .then()
+                    .assertThat()
+                    .statusCode(200)
+                    .body("cases", hasSize(1))
+                    .body("cases[0].courtCode", equalTo(COURT_CODE))
+                    .body("cases[0].source", equalTo("LIBRA"))
+                    .body("cases[0].breach", equalTo(true));
         }
 
         @Test

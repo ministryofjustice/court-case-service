@@ -190,7 +190,7 @@ class CourtCaseControllerTest {
         Mockito.when(courtCaseService.filterHearings(hearingSearchFilter))
                 .thenReturn(Collections.singletonList(courtCaseEntity));
         var source = SourceType.LIBRA.name();
-        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, source, webRequest);
+        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, source,false, webRequest);
 
         assertThat(responseEntity.getBody().getCases()).hasSize(1);
         assertCourtCase(responseEntity.getBody().getCases().get(0), null, 0);
@@ -224,7 +224,7 @@ class CourtCaseControllerTest {
         Mockito.when(courtCaseService.filterHearings(hearingSearchFilter)).thenReturn(Collections.singletonList(courtCaseEntity));
         var source = SourceType.LIBRA.name();
 
-        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, source, webRequest);
+        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, source,false, webRequest);
 
         assertThat(responseEntity.getBody().getCases()).hasSize(2);
         // Top level fields for both are the same
@@ -283,7 +283,7 @@ class CourtCaseControllerTest {
                 .build();        Mockito.when(courtCaseService.filterHearings(hearingSearchFilter)).thenReturn(List.of(entity5, entity4, entity3, entity2, entity1));
         var source = SourceType.LIBRA.name();
 
-        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, source, webRequest);
+        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, source, false, webRequest);
 
         final var cases = responseEntity.getBody().getCases();
         assertThat(cases).hasSize(5);
@@ -305,7 +305,7 @@ class CourtCaseControllerTest {
         var source = SourceType.LIBRA.name();
 
 
-        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, source, webRequest);
+        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, source, false, webRequest);
 
         assertThat(responseEntity.getStatusCode().value()).isEqualTo(304);
         assertThat(responseEntity.getHeaders().get("Cache-Control").get(0)).isEqualTo("max-age=1");
@@ -331,7 +331,7 @@ class CourtCaseControllerTest {
                 .thenReturn(Collections.singletonList(courtCaseEntity));
         var source = SourceType.LIBRA.name();
 
-        var responseEntity = nonCachingController.getCaseList(COURT_CODE, DATE, source, webRequest);
+        var responseEntity = nonCachingController.getCaseList(COURT_CODE, DATE, source, false, webRequest);
 
         assertThat(responseEntity.getBody().getCases()).hasSize(1);
         assertCourtCase(responseEntity.getBody().getCases().get(0), null, 0);
@@ -344,7 +344,7 @@ class CourtCaseControllerTest {
         Mockito.when(webRequest.checkNotModified(any(Long.class))).thenReturn(false);
         var source = SourceType.LIBRA.name();
 
-        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, source, webRequest);
+        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, source, false, webRequest);
 
         assertThat(responseEntity.getHeaders().get("Last-Modified").get(0)).isEqualTo("Wed, 01 Jan 2020 00:00:00 GMT");
         assertThat(responseEntity.getHeaders().get("Cache-Control").get(0)).isEqualTo("max-age=1");

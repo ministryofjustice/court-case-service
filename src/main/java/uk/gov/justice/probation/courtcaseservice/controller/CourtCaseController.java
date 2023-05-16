@@ -279,6 +279,7 @@ public class CourtCaseController {
             @RequestParam(value = "date")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(value = "source", required = false) String source,
+            @RequestParam(value = "breach", defaultValue = "false") boolean breach,
             WebRequest webRequest
     ) {
         var partialResponse = ResponseEntity.ok();
@@ -302,6 +303,7 @@ public class CourtCaseController {
                 .courtCode(courtCode)
                 .hearingDay(date)
                 .source(source)
+                .breach(breach)
                 .build();
 
         var courtCases = courtCaseService.filterHearings(hearingSearchFilter);

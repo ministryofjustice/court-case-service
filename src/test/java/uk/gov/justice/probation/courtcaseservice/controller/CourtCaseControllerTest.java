@@ -43,7 +43,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -409,6 +408,43 @@ class CourtCaseControllerTest {
 
         assertThrows(ConflictingInputException.class, () -> {
             courtCaseController.createCaseComment("case-id-one", CaseCommentRequest.builder().caseId("invalid-case-id").build(), principal);
+        });
+
+        Mockito.verifyNoMoreInteractions(caseCommentsService);
+    }
+
+    @Test
+    void whenCreateUpdateCommentDraft_shouldInvokeCaseCommentsService() {
+        var caseId = "case-id-one";
+        var caseCommentEntity = CaseCommentEntity.builder().comment("comment one").author("Author One").caseId(caseId).build();
+        Mockito.lenient().when(caseCommentsService.createUpdateCaseCommentDraft(any(CaseCommentEntity.class))).thenReturn(caseCommentEntity.withId(3456L));
+        given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
+
+        final var actual = courtCaseController.createUpdateCaseCommentDraft(caseId,
+            CaseCommentRequest.builder()
+                .caseId(caseId)
+                .comment("comment-one")
+                .author("Test Author")
+                .build(),
+                principal
+                );
+
+        Mockito.verify(caseCommentsService).createUpdateCaseCommentDraft(any(CaseCommentEntity.class));
+        assertThat(actual).isEqualTo(
+            CaseCommentResponse.builder()
+                .comment("comment one")
+                .caseId(caseId)
+                .author("Author One")
+                .commentId(3456L)
+                .build()
+        );
+    }
+
+    @Test
+    void givenCaseIdDoesNotMatchCaseCommentRequestCaseId_whenCreateUpdateCaseCommentDraft_shouldThrowConflictingInputException() {
+
+        assertThrows(ConflictingInputException.class, () -> {
+            courtCaseController.createUpdateCaseCommentDraft("case-id-one", CaseCommentRequest.builder().caseId("invalid-case-id").build(), principal);
         });
 
         Mockito.verifyNoMoreInteractions(caseCommentsService);

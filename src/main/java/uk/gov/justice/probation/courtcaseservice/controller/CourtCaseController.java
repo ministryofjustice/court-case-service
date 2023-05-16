@@ -209,6 +209,20 @@ public class CourtCaseController {
         hearingNotesService.deleteHearingNote(hearingId, noteId, authenticationHelper.getAuthUserUuid(principal));
     }
 
+
+    @Operation(description = "Creates/updates a draft case comment for a given case")
+    @PutMapping(value = "/cases/{caseId}/comments/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    CaseCommentResponse createUpdateCaseCommentDraft(@PathVariable(value = "caseId") String caseId,
+                                                     @Valid @RequestBody CaseCommentRequest caseCommentRequest,
+                                                     Principal principal) {
+
+        validateCaseCommentRequest(caseId, caseCommentRequest);
+        var caseCommentEntity = caseCommentsService.createUpdateCaseCommentDraft(caseCommentRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
+        return CaseCommentResponse.of(caseCommentEntity);
+    }
+
     @Operation(description = "Creates a comment on given court case.")
     @PostMapping(value = "/cases/{caseId}/comments", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -217,12 +231,16 @@ public class CourtCaseController {
                                           @RequestBody CaseCommentRequest caseCommentRequest,
                                           Principal principal) {
 
-        if (!StringUtils.equals(caseId, caseCommentRequest.getCaseId())) {
-            throw new ConflictingInputException(String.format("Case Id '%s' provided in the path does not match the one in the case comment request body submitted '%s'",
-                    caseId, caseCommentRequest.getCaseId()));
-        }
+        validateCaseCommentRequest(caseId, caseCommentRequest);
         var caseCommentEntity = caseCommentsService.createCaseComment(caseCommentRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
         return CaseCommentResponse.of(caseCommentEntity);
+    }
+
+    private static void validateCaseCommentRequest(String caseId, CaseCommentRequest caseCommentRequest) {
+        if (!StringUtils.equals(caseId, caseCommentRequest.getCaseId())) {
+            throw new ConflictingInputException(String.format("Case Id '%s' provided in the path does not match the one in the case comment request body submitted '%s'",
+                caseId, caseCommentRequest.getCaseId()));
+        }
     }
 
     @Operation(description = "Deletes a comment from a given court case.")

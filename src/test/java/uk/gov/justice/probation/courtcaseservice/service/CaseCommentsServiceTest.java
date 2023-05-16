@@ -55,6 +55,27 @@ class CaseCommentsServiceTest {
     }
 
     @Test
+    void givenExistingCommentDraft_shouldUpateExistingCommentAndMarkDraftIsFlase() {
+        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
+            .willReturn(Optional.of(courtCaseEntity));
+
+        var existingComment = caseComment.withId(1L).withDraft(true);
+        given(caseCommentsRepository.findByCaseIdAndCreatedByUuidAndDraftIsTrue(testCaseId, createdByUuid))
+            .willReturn(Optional.of(existingComment));
+
+        given(caseCommentsRepository.findByCaseIdAndCreatedByUuidAndDraftIsTrue(testCaseId, createdByUuid))
+            .willReturn(Optional.of(existingComment));
+        var newCommentToSave = caseComment.withComment("updated and finalised comment to save");
+        var expectedComment = existingComment.withComment("updated and finalised comment to save").withDraft(false);
+        given(caseCommentsRepository.save(expectedComment)).willReturn(caseComment);
+        caseCommentsService.createCaseComment(expectedComment);
+        verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
+        verify(caseCommentsRepository).findByCaseIdAndCreatedByUuidAndDraftIsTrue(testCaseId, createdByUuid);
+        verify(caseCommentsRepository).save(existingComment.withDraft(false).withComment("updated and finalised comment to save"));
+        verify(telemetryService).trackCourtCaseCommentEvent(CASE_COMMENT_ADDED, caseComment);
+    }
+
+    @Test
     void givenNonExistingCaseId_shouldThrowEntityNotFound() {
 
         given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
@@ -111,5 +132,35 @@ class CaseCommentsServiceTest {
             "Comment 1234 not found");
         verify(caseCommentsRepository).findById(commentId);
         verify(caseCommentsRepository, times(0)).save(any(CaseCommentEntity.class));
+    }
+
+    @Test
+    void givenValidCaseCommentDraft_and_draft_do_not_exist_shouldCreateComment() {
+        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
+            .willReturn(Optional.of(courtCaseEntity));
+        given(caseCommentsRepository.findByCaseIdAndCreatedByUuidAndDraftIsTrue(testCaseId, createdByUuid))
+            .willReturn(Optional.empty());
+        given(caseCommentsRepository.save(caseComment.withDraft(true))).willReturn(caseComment);
+        caseCommentsService.createUpdateCaseCommentDraft(caseComment);
+        verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
+        verify(caseCommentsRepository).findByCaseIdAndCreatedByUuidAndDraftIsTrue(testCaseId, createdByUuid);
+        verify(caseCommentsRepository).save(caseComment.withDraft(true));
+    }
+
+    @Test
+    void givenValidCaseCommentDraft_and_draft_already_exist_shouldCreateComment() {
+        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
+            .willReturn(Optional.of(courtCaseEntity));
+        var existingComment = CaseCommentEntity.builder().caseId(testCaseId).comment("comment one").id(1L).draft(true).build();
+        given(caseCommentsRepository.findByCaseIdAndCreatedByUuidAndDraftIsTrue(testCaseId, createdByUuid))
+            .willReturn(Optional.of(existingComment));
+        var expectedSavedComment = existingComment.withComment("updated comment");
+        given(caseCommentsRepository.save(expectedSavedComment)).willReturn(expectedSavedComment);
+
+        caseCommentsService.createUpdateCaseCommentDraft(caseComment.withComment("updated comment"));
+
+        verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
+        verify(caseCommentsRepository).findByCaseIdAndCreatedByUuidAndDraftIsTrue(testCaseId, createdByUuid);
+        verify(caseCommentsRepository).save(expectedSavedComment);
     }
 }

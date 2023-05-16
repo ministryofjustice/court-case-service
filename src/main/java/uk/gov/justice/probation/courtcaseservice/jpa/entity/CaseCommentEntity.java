@@ -40,8 +40,16 @@ public class CaseCommentEntity extends BaseEntity implements Serializable {
     private final String createdByUuid;
 
     @Column(name = "COMMENT", nullable = false)
-    private final String comment;
+    private String comment;
 
     @Column(name = "AUTHOR", nullable = false)
     private final String author;
+
+    @Column(name = "DRAFT", nullable = false)
+    private boolean draft;
+
+    public void update(CaseCommentEntity caseCommentEntity) {
+        this.comment = caseCommentEntity.getComment();
+        this.draft = caseCommentEntity.isDraft();
+    }
 }

@@ -58,6 +58,7 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
             .body("author", equalTo("Test Author"))
             .body("createdByUuid", equalTo(TokenHelper.TEST_UUID))
             .body("created", notNullValue())
+            .body("draft", equalTo(false))
         ;
         var caseComment = caseCommentResponse.getBody().as(CaseCommentResponse.class, ObjectMapperType.JACKSON_2);
 
@@ -65,6 +66,38 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
         assertThat(actualComment.getId()).isEqualTo(caseComment.getCommentId());
         assertThat(actualComment.getCreatedByUuid()).isEqualTo(caseComment.getCreatedByUuid());
         assertThat(actualComment.isDeleted()).isFalse();
+        assertThat(actualComment.isDraft()).isFalse();
+
+        Assertions.assertNotNull(actualComment);
+    }
+    @Test
+    void whenCreateUpdateCaseCommentByCaseId_shouldCreateSuccessfully() {
+
+        Response caseCommentResponse = given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(caseComment)
+            .when()
+            .put("/cases/{caseId}/comments/draft", CASE_ID);
+        caseCommentResponse
+            .then()
+            .statusCode(200)
+            .body("caseId", equalTo(CASE_ID))
+            .body("comment", equalTo("PSR is delayed"))
+            .body("author", equalTo("Test Author"))
+            .body("createdByUuid", equalTo(TokenHelper.TEST_UUID))
+            .body("draft", equalTo(true))
+            .body("created", notNullValue())
+        ;
+        var caseComment = caseCommentResponse.getBody().as(CaseCommentResponse.class, ObjectMapperType.JACKSON_2);
+
+        var actualComment = caseCommentsRepository.findById(caseComment.getCommentId()).get();
+        assertThat(actualComment.getId()).isEqualTo(caseComment.getCommentId());
+        assertThat(actualComment.getCreatedByUuid()).isEqualTo(caseComment.getCreatedByUuid());
+        assertThat(actualComment.isDeleted()).isFalse();
+        assertThat(actualComment.isDraft()).isTrue();
 
         Assertions.assertNotNull(actualComment);
     }

@@ -18,6 +18,7 @@ class CaseCommentResponseTest {
             .caseId("case-id-1")
             .created(now)
             .author("test-user")
+            .draft(true)
             .build();
 
         assertThat(CaseCommentResponse.of(caseCommentEntity)).isEqualTo(
@@ -27,6 +28,7 @@ class CaseCommentResponseTest {
                 .caseId("case-id-1")
                 .author("test-user")
                 .created(now)
+                .draft(true)
                 .build()
         );
     }

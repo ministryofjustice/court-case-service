@@ -33,6 +33,7 @@ public class OffenderMatchDetail {
     private final DefendantProbationStatus probationStatus;
     @JsonProperty("mostRecentEvent")
     private final Event event;
+    private final Double matchProbability;
 
     @JsonProperty
     public String getProbationStatusActual() {

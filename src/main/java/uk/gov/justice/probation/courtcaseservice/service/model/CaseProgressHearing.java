@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.With;
 import org.apache.commons.lang3.StringUtils;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcome;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
@@ -40,7 +40,7 @@ public class CaseProgressHearing {
     private final LocalDateTime hearingDateTime;
 
     private final List<HearingNoteResponse> notes;
-    private final HearingOutcome hearingOutcome;
+    private final HearingOutcomeResponse hearingOutcome;
 
     public static CaseProgressHearing of(HearingEntity hearingEntity, Optional<List<HearingNoteEntity>> notes) {
         var hearingDay = getHearingDay(hearingEntity);
@@ -52,7 +52,7 @@ public class CaseProgressHearing {
             .court(hearingDay.getCourt().getName())
             .courtRoom(hearingDay.getCourtRoom())
             .notes(notes.map(hearingNoteEntities -> hearingNoteEntities.stream().map(HearingNoteResponse::of).collect(Collectors.toList())).orElse(null))
-            .hearingOutcome(HearingOutcome.Companion.of(hearingEntity.getHearingOutcome()))
+            .hearingOutcome(HearingOutcomeResponse.Companion.of(hearingEntity.getHearingOutcome()))
             .build();
     }
 

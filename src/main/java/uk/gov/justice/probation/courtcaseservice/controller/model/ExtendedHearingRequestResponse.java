@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseMarkerEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
@@ -152,7 +151,7 @@ public class ExtendedHearingRequestResponse {
         return Optional.ofNullable(courtCaseEntity.getCaseMarkers())
                 .map(caseMarkersList -> caseMarkersList.stream()
                         .map(caseMarkerEntity -> CaseMarker.builder()
-                                .typeDescription(caseMarkerEntity.getTypeDescription())
+                                .markerTypeDescription(caseMarkerEntity.getTypeDescription())
                                 .build())
                         .toList()).orElse(null);
 
@@ -161,8 +160,8 @@ public class ExtendedHearingRequestResponse {
     private static Plea buildPleaFromEntity(OffenceEntity offenceEntity) {
         if (offenceEntity.getPlea() != null) {
             return Plea.builder()
-                    .value(offenceEntity.getPlea().getValue())
-                    .date(offenceEntity.getPlea().getDate())
+                    .pleaValue(offenceEntity.getPlea().getValue())
+                    .pleaDate(offenceEntity.getPlea().getDate())
                     .build();
         }
         return null;
@@ -171,7 +170,7 @@ public class ExtendedHearingRequestResponse {
     private static Verdict buildVerdictFromEntity(OffenceEntity offenceEntity) {
         if (offenceEntity.getVerdict() != null) {
             return Verdict.builder()
-                    .typeDescription(offenceEntity.getVerdict().getTypeDescription())
+                    .verdictType(VerdictType.builder().description(offenceEntity.getVerdict().getTypeDescription()).build())
                     .date(offenceEntity.getVerdict().getDate())
                     .build();
         }
@@ -272,7 +271,7 @@ public class ExtendedHearingRequestResponse {
 
     private CaseMarkerEntity buildCaseMarkerEntity(CaseMarker caseMarker) {
         return CaseMarkerEntity.builder()
-                .typeDescription(caseMarker.getTypeDescription())
+                .typeDescription(caseMarker.getMarkerTypeDescription())
                 .build();
     }
 
@@ -302,8 +301,8 @@ public class ExtendedHearingRequestResponse {
     private PleaEntity buildPleaEntity(OffenceRequestResponse offence) {
         if (offence.getPlea() != null) {
             return PleaEntity.builder()
-                    .value(offence.getPlea().getValue())
-                    .date(offence.getPlea().getDate())
+                    .value(offence.getPlea().getPleaValue())
+                    .date(offence.getPlea().getPleaDate())
                     .build();
         }
         return null;
@@ -312,7 +311,7 @@ public class ExtendedHearingRequestResponse {
     private VerdictEntity buildVerdictEntity(OffenceRequestResponse offence) {
         if (offence.getVerdict() != null) {
             return VerdictEntity.builder().
-                    typeDescription(offence.getVerdict().getTypeDescription())
+                    typeDescription(offence.getVerdict().getVerdictType().getDescription())
                     .date(offence.getVerdict().getDate())
                     .build();
         }
@@ -365,7 +364,7 @@ public class ExtendedHearingRequestResponse {
                 .mapToObj(i -> {
                     var caseMarker = caseMarkers.get(i);
                     return CaseMarkerEntity.builder()
-                            .typeDescription(caseMarker.getTypeDescription())
+                            .typeDescription(caseMarker.getMarkerTypeDescription())
                             .build();
                 })
                 .collect(Collectors.toList());

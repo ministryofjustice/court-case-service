@@ -59,7 +59,6 @@ public class OffenderMatchService {
                 .map(GroupedOffenderMatchesEntity::getOffenderMatches)
                 .map(offenderMatchEntities -> offenderMatchEntities
                         .stream()
-                        .map(OffenderMatchEntity::getCrn)
                         .map(this::getOffenderMatchDetail)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList())
@@ -70,19 +69,20 @@ public class OffenderMatchService {
         return groupedOffenderMatchRepository.getMatchCountByCaseIdAndDefendant(caseId, defendantId);
     }
 
-    OffenderMatchDetail getOffenderMatchDetail(String crn) {
+    OffenderMatchDetail getOffenderMatchDetail(OffenderMatchEntity offenderMatchEntity) {
+        String crn = offenderMatchEntity.getCrn();
         log.debug("Looking for offender detail for CRN :{}", crn);
         return Mono.zip(offenderRestClient.getOffenderMatchDetailByCrn(crn),
                         offenderRestClient.getConvictionsByCrn(crn)
                                 .onErrorResume(OffenderNotFoundException.class, e -> Mono.just(Collections.emptyList())),
                         offenderRestClient.getProbationStatusByCrn(crn))
-                .map(tuple -> addMostRecentEventToOffenderMatch(tuple.getT1(), tuple.getT2(), tuple.getT3()))
+                .map(tuple -> addMostRecentEventToOffenderMatch(tuple.getT1(), tuple.getT2(), tuple.getT3(), offenderMatchEntity))
                 .block();
     }
 
     private OffenderMatchDetail addMostRecentEventToOffenderMatch(OffenderMatchDetail offenderMatchDetail,
                                                                   List<Conviction> convictions,
-                                                                  ProbationStatusDetail probationStatus) {
+                                                                  ProbationStatusDetail probationStatus, OffenderMatchEntity offenderMatchEntity) {
 
         if (offenderMatchDetail == null) {
             return null;
@@ -94,7 +94,7 @@ public class OffenderMatchService {
                 .map(Conviction::getSentence)
                 .orElse(getSentenceForMostRecentConviction(convictions));
 
-        return OffenderMapper.offenderMatchDetailFrom(offenderMatchDetail, sentence, probationStatus);
+        return OffenderMapper.offenderMatchDetailFrom(offenderMatchDetail, sentence, probationStatus, offenderMatchEntity.getMatchProbability());
     }
 
     Sentence getSentenceForMostRecentConviction(List<Conviction> convictions) {

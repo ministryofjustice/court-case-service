@@ -83,7 +83,7 @@ public class OffenderMapper {
             .build();
     }
 
-    public static OffenderMatchDetail offenderMatchDetailFrom(OffenderMatchDetail offenderMatchDetail, Sentence sentence, ProbationStatusDetail probationStatus) {
+    public static OffenderMatchDetail offenderMatchDetailFrom(OffenderMatchDetail offenderMatchDetail, Sentence sentence, ProbationStatusDetail probationStatus, Double matchProbability) {
         OffenderMatchDetail.OffenderMatchDetailBuilder builder = OffenderMatchDetail.builder()
             .title(offenderMatchDetail.getTitle())
             .forename(offenderMatchDetail.getForename())
@@ -92,7 +92,8 @@ public class OffenderMapper {
             .address(offenderMatchDetail.getAddress())
             .probationStatus(DefendantProbationStatus.of(probationStatus.getStatus()))
             .matchIdentifiers(offenderMatchDetail.getMatchIdentifiers())
-            .dateOfBirth(offenderMatchDetail.getDateOfBirth());
+            .dateOfBirth(offenderMatchDetail.getDateOfBirth())
+            .matchProbability(matchProbability);
         if (sentence != null) {
             builder.event(Event.builder()
                 .text(sentence.getDescription())

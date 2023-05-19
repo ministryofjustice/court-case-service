@@ -45,7 +45,7 @@ public class CaseCommentEntity extends BaseEntity implements Serializable {
     @Column(name = "AUTHOR", nullable = false)
     private final String author;
 
-    @Column(name = "DRAFT", nullable = false)
+    @Column(name = "IS_DRAFT", nullable = false)
     private boolean draft;
 
     public void update(CaseCommentEntity caseCommentEntity) {

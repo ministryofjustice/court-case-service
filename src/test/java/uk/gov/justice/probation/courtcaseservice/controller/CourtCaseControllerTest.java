@@ -521,6 +521,14 @@ class CourtCaseControllerTest {
         verify(hearingNotesService).updateHearingNote(noteUpdate.asEntity(testUuid), noteId);
     }
 
+    @Test
+    void givenCaseId_whenDeleteDraftComment_thenInvokeServiceToDelete() {
+        given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
+        var caseId = "test-case-id";
+        courtCaseController.deleteCaseCommentDraft(caseId, principal);
+        verify(caseCommentsService).deleteCaseCommentDraft(caseId, testUuid);
+    }
+
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, NamePropertiesEntity defendantName, LocalDateTime sessionTime) {
         assertThat(cases.get(position).getCourtRoom()).isEqualTo(courtRoom);
         assertThat(cases.get(position).getName()).isEqualTo(defendantName);

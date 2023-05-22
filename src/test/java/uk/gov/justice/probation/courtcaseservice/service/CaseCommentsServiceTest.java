@@ -22,6 +22,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.justice.probation.courtcaseservice.service.TelemetryEventType.CASE_COMMENT_ADDED;
 import static uk.gov.justice.probation.courtcaseservice.service.TelemetryEventType.CASE_COMMENT_DELETED;
 
@@ -162,5 +163,40 @@ class CaseCommentsServiceTest {
         verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
         verify(caseCommentsRepository).findByCaseIdAndCreatedByUuidAndDraftIsTrue(testCaseId, createdByUuid);
         verify(caseCommentsRepository).save(expectedSavedComment);
+    }
+
+    @Test
+    void givenValidCaseIdWithDraftComment_whenDeleteDraftComment_shouldDelete() {
+        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
+            .willReturn(Optional.of(courtCaseEntity));
+        var existingComment = CaseCommentEntity.builder().caseId(testCaseId).comment("comment one").id(123L).draft(true).build();
+        given(caseCommentsRepository.findByCaseIdAndCreatedByUuidAndDraftIsTrue(testCaseId, createdByUuid))
+            .willReturn(Optional.of(existingComment));
+
+        caseCommentsService.deleteCaseCommentDraft(testCaseId, createdByUuid);
+
+        verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
+        verify(caseCommentsRepository).findByCaseIdAndCreatedByUuidAndDraftIsTrue(testCaseId, createdByUuid);
+        verify(caseCommentsRepository).delete(existingComment);
+    }
+
+    @Test
+    void givenCaseIdDoNotExist_whenDeleteDraftComment_shouldThrowCaseNotFound() {
+        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
+            .willReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> caseCommentsService.deleteCaseCommentDraft(testCaseId, createdByUuid),
+            String.format("Cannot find case with case id %s", testCaseId));
+        verifyNoInteractions(caseCommentsRepository);
+    }
+
+    @Test
+    void givenCaseIdExist_draftCommentDoNotExistForGivenUser_whenDeleteDraftComment_shouldThrowCaseCommentDraftNotFoundForUser() {
+        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
+            .willReturn(Optional.of(courtCaseEntity));
+        given(caseCommentsRepository.findByCaseIdAndCreatedByUuidAndDraftIsTrue(testCaseId, createdByUuid)).willReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> caseCommentsService.deleteCaseCommentDraft(testCaseId, createdByUuid),
+            String.format("Cannot find draft case comment for case id %s and user id %s", testCaseId, createdByUuid));
+        verify(caseCommentsRepository).findByCaseIdAndCreatedByUuidAndDraftIsTrue(testCaseId, createdByUuid);
+        verifyNoMoreInteractions(caseCommentsRepository);
     }
 }

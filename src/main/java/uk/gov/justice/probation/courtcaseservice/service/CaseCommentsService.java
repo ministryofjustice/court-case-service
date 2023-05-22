@@ -29,16 +29,42 @@ public class CaseCommentsService {
         this.telemetryService = telemetryService;
     }
 
-    public CaseCommentEntity createCaseComment(CaseCommentEntity caseCommentEntity) {
+    public CaseCommentEntity createCaseComment(CaseCommentEntity caseComment) {
 
-        var caseId = caseCommentEntity.getCaseId();
+        var caseId = caseComment.getCaseId();
         return courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId)
-            .map(courtCaseEntity -> caseCommentsRepository.save(caseCommentEntity))
+            .map(courtCaseEntity -> {
+                var commentToSave = caseCommentsRepository
+                    .findByCaseIdAndCreatedByUuidAndDraftIsTrue(caseId, caseComment.getCreatedByUuid())
+                    .map(caseCommentEntity -> {
+                        caseCommentEntity.update(caseComment.withDraft(false));
+                        return caseCommentEntity;
+                    })
+                    .orElse(caseComment.withDraft(false));
+                return caseCommentsRepository.save(commentToSave);
+            })
             .map(savedCaseComment -> {
                 telemetryService.trackCourtCaseCommentEvent(CASE_COMMENT_ADDED, savedCaseComment);
                 return savedCaseComment;
             })
             .orElseThrow(() -> new EntityNotFoundException("Court case %s not found", caseId));
+    }
+
+    public CaseCommentEntity createUpdateCaseCommentDraft(CaseCommentEntity caseComment) {
+
+        var caseId = caseComment.getCaseId();
+        return courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId)
+            .map(courtCaseEntity -> {
+                var commentToSave = caseCommentsRepository
+                    .findByCaseIdAndCreatedByUuidAndDraftIsTrue(caseId, caseComment.getCreatedByUuid())
+                    .map(caseCommentEntity -> {
+                        caseCommentEntity.update(caseComment.withDraft(true));
+                        return caseCommentEntity;
+                    })
+                    .orElse(caseComment.withDraft(true));
+                return caseCommentsRepository.save(commentToSave);
+            })
+            .orElseThrow(() -> new EntityNotFoundException("Cannot find case with case id %s", caseId));
     }
 
     public void deleteCaseComment(String caseId, Long commentId, String userUuid) {

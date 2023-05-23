@@ -223,6 +223,20 @@ public class CourtCaseController {
         return CaseCommentResponse.of(caseCommentEntity);
     }
 
+    @Operation(description = "Updates a case comment for a given case id and comment id")
+    @PutMapping(value = "/cases/{caseId}/comments/{commentId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    CaseCommentResponse updateCaseComment(@PathVariable(value = "caseId") String caseId,
+                                          @PathVariable(value = "commentId") Long commentId,
+                                          @Valid @RequestBody CaseCommentRequest caseCommentRequest,
+                                          Principal principal) {
+
+        validateCaseCommentRequest(caseId, caseCommentRequest);
+        var caseCommentEntity = caseCommentsService.updateCaseComment(caseCommentRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)), commentId);
+        return CaseCommentResponse.of(caseCommentEntity);
+    }
+
     @Operation(description = "Deletes a draft case comment for a given case")
     @DeleteMapping(value = "/cases/{caseId}/comments/draft")
     @ResponseStatus(HttpStatus.OK)

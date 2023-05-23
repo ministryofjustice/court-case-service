@@ -10,4 +10,5 @@ public interface CaseCommentsRepository extends CrudRepository<CaseCommentEntity
     List<CaseCommentEntity> findAllByCaseIdAndDeletedFalse(String caseId);
 
     Optional<CaseCommentEntity> findByCaseIdAndCreatedByUuidAndDraftIsTrue(String caseId, String userUuid);
+    Optional<CaseCommentEntity> findByIdAndCaseIdAndCreatedByUuid(Long commentId, String caseId, String userUuid);
 }

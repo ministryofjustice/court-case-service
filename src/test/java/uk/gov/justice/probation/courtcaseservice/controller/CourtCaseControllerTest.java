@@ -529,6 +529,18 @@ class CourtCaseControllerTest {
         verify(caseCommentsService).deleteCaseCommentDraft(caseId, testUuid);
     }
 
+    @Test
+    void givenCaseComment_whenUpdateComment_thenInvokeServiceToUpdateComment() {
+        given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
+        var caseId = "test-case-id";
+        var commentUpdate = CaseCommentRequest.builder().caseId(caseId).comment("updated comment").build();
+        var commentEntity = CaseCommentEntity.builder().caseId(caseId).comment("updated comment").build();
+        var commentId = 123L;
+        given(caseCommentsService.updateCaseComment(commentUpdate.asEntity(testUuid), commentId)).willReturn(commentEntity);
+        courtCaseController.updateCaseComment( caseId, commentId, commentUpdate, principal);
+        verify(caseCommentsService).updateCaseComment(commentUpdate.asEntity(testUuid), commentId);
+    }
+
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, NamePropertiesEntity defendantName, LocalDateTime sessionTime) {
         assertThat(cases.get(position).getCourtRoom()).isEqualTo(courtRoom);
         assertThat(cases.get(position).getName()).isEqualTo(defendantName);

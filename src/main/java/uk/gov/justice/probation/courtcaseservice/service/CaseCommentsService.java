@@ -83,6 +83,16 @@ public class CaseCommentsService {
             });
     }
 
+    public CaseCommentEntity updateCaseComment(CaseCommentEntity caseCommentUpdate, Long commentId) {
+
+       return caseCommentsRepository.findByIdAndCaseIdAndCreatedByUuid(commentId, caseCommentUpdate.getCaseId(), caseCommentUpdate.getCreatedByUuid())
+           .map(caseCommentEntity -> {
+               caseCommentEntity.update(caseCommentUpdate);
+               return caseCommentsRepository.save(caseCommentEntity);
+           })
+           .orElseThrow(() -> new EntityNotFoundException("Comment %s not found for the given user on case %s", commentId.toString(), caseCommentUpdate.getCaseId()));
+    }
+
     public void deleteCaseComment(String caseId, Long commentId, String userUuid) {
         caseCommentsRepository.findById(commentId).ifPresentOrElse( caseCommentEntity -> {
             if(!equalsIgnoreCase(caseCommentEntity.getCaseId(), caseId)) {

@@ -223,6 +223,14 @@ public class CourtCaseController {
         return CaseCommentResponse.of(caseCommentEntity);
     }
 
+    @Operation(description = "Deletes a draft case comment for a given case")
+    @DeleteMapping(value = "/cases/{caseId}/comments/draft")
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    void deleteCaseCommentDraft(@PathVariable(value = "caseId") String caseId, Principal principal) {
+        caseCommentsService.deleteCaseCommentDraft(caseId, authenticationHelper.getAuthUserUuid(principal));
+    }
+
     @Operation(description = "Creates a comment on given court case.")
     @PostMapping(value = "/cases/{caseId}/comments", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)

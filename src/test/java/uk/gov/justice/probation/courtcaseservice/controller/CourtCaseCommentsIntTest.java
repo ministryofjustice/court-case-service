@@ -177,4 +177,21 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
             .body("userMessage", equalTo("User 4f7772a9-e42a-493a-a8f0-82caf83c6419 does not have permissions to delete comment -1700028902"))
         ;
     }
+
+    @Test
+    void givenCaseIdAndCommentId_whenDeleteCommentDraft_shouldDeleteCaseCommentDraft() {
+
+        given()
+            .auth()
+            .oauth2(getToken("389fd9cf-390e-469a-b4cf-6c12024c4cae"))
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .when()
+            .delete("/cases/{caseId}/comments/draft", CASE_ID)
+            .then()
+            .statusCode(200)
+        ;
+
+        assertThat(caseCommentsRepository.findById(-1700028903L).isPresent()).isFalse();
+    }
 }

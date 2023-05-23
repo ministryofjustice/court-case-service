@@ -194,4 +194,34 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
 
         assertThat(caseCommentsRepository.findById(-1700028903L).isPresent()).isFalse();
     }
+
+    @Test
+    void givenExistingCaseAndComment_whenUpdateCaseComment_shouldUpdateSuccessfully() {
+
+        var commentId = -1700028901L;
+        var commentUpdate = "PSR completed with updated comment";
+        Response caseCommentResponse = given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(caseComment.replace("PSR is delayed", commentUpdate))
+            .when()
+            .put("/cases/{caseId}/comments/{commentId}", CASE_ID, commentId);
+        caseCommentResponse
+            .then()
+            .statusCode(200)
+            .body("caseId", equalTo(CASE_ID))
+            .body("comment", equalTo(commentUpdate))
+            .body("author", equalTo("Author One"))
+            .body("createdByUuid", equalTo(TokenHelper.TEST_UUID))
+            .body("draft", equalTo(false))
+            .body("created", notNullValue())
+        ;
+        var caseComment = caseCommentResponse.getBody().as(CaseCommentResponse.class, ObjectMapperType.JACKSON_2);
+
+        var actualComment = caseCommentsRepository.findById(commentId).get();
+        assertThat(actualComment.getId()).isEqualTo(caseComment.getCommentId());
+        assertThat(actualComment.getComment()).isEqualTo(commentUpdate);
+    }
 }

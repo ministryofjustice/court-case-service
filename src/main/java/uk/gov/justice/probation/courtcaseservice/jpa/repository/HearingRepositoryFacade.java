@@ -51,7 +51,7 @@ public class HearingRepositoryFacade {
         } else {
             hearing = hearingRepository.findByCourtCodeCaseNoAndListNo(courtCode, caseNo, listNo)
                 .or(
-                    () -> hearingRepository.findByCourtCodeAndCaseNo(courtCode, caseNo).map(hearingEntity -> hearingEntity.withHearingId(null))
+                    () -> hearingRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
                 );
         }
         return hearing;

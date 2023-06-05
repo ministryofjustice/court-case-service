@@ -115,7 +115,6 @@ class HearingRepositoryFacadeTest {
         when(hearingRepository.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
 
         final var actual = facade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, LIST_NO);
-        Assertions.assertThat(actual.get().getHearingId()).isNull();
 
         AssertionsForClassTypes.assertThat(actual).get().isEqualTo(HEARING_WITH_MULTIPLE_DEFENDANTS);
         verify(hearingRepository).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO);

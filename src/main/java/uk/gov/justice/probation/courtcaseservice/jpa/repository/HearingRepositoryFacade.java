@@ -47,14 +47,13 @@ public class HearingRepositoryFacade {
     public Optional<HearingEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo, String listNo) {
         Optional<HearingEntity> hearing;
         if(StringUtils.isEmpty(listNo)) {
-            hearing = hearingRepository.findByCourtCodeAndCaseNo(courtCode, caseNo);
+            hearing = hearingRepository.findByCourtCodeCaseNoAndListNo(courtCode, caseNo, null);
         } else {
             hearing = hearingRepository.findByCourtCodeCaseNoAndListNo(courtCode, caseNo, listNo)
-                .or(
-                    () -> hearingRepository.findByCourtCodeAndCaseNo(courtCode, caseNo)
-                );
+                .or(() -> hearingRepository.findByCourtCodeCaseNoAndListNo(courtCode, caseNo, null));
         }
-        return hearing;
+        return hearing
+            .or(() -> hearingRepository.findMostRecentByCourtCodeAndCaseNo(courtCode, caseNo).map(hearingEntity -> hearingEntity.withHearingId(null)));
     }
 
     public Optional<HearingEntity> findByHearingIdAndDefendantId(String hearingId, String defendantId) {

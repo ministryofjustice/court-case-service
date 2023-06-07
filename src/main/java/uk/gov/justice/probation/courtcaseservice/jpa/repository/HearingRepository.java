@@ -17,39 +17,32 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
 
     Optional<HearingEntity> findFirstByHearingDefendantsDefendantId(String defendantId);
 
-
     @Query(value = "select h.* from court_case cc " +
-            "join hearing h on cc.id = h.fk_court_case_id " +
-            "join hearing_day hd on h.id = hd.fk_hearing_id " +
-            "inner join (select max(court_case.id) as max_id, court_case.case_no, hearing_day.court_code from court_case " +
-            "   join hearing on court_case.id = hearing.fk_court_case_id " +
-            "   join hearing_day on hearing.id = hearing_day.fk_hearing_id " +
-            "   where court_case.case_no = :caseNo " +
-            "   and hearing.list_no = :listNo " +
-            "   and hearing_day.court_code = :courtCode " +
-            "   group by court_case.case_no, hearing_day.court_code) grouped_cases " +
-            "on cc.id = grouped_cases.max_id " +
-            "and cc.case_no = grouped_cases.case_no " +
-            "where cc.deleted = false " +
-            "order by cc.id desc limit 1",
+        "join hearing h on cc.id = h.fk_court_case_id " +
+        "join hearing_day hd on h.id = hd.fk_hearing_id " +
+        "inner join (select max(hearing.id) as max_id from hearing " +
+        "   join court_case on court_case.id = hearing.fk_court_case_id " +
+        "   join hearing_day on hearing.id = hearing_day.fk_hearing_id " +
+        "   where court_case.case_no = :caseNo and court_case.deleted = false " +
+        "   and coalesce(hearing.list_no, '') = coalesce(:listNo, '') " +
+        "   and hearing_day.court_code = :courtCode " +
+        "   group by court_case.case_no, hearing_day.court_code) grouped_cases " +
+        "on h.id = grouped_cases.max_id ",
             nativeQuery = true)
     Optional<HearingEntity> findByCourtCodeCaseNoAndListNo(String courtCode, String caseNo, String listNo);
 
     @Query(value = "select h.* from court_case cc " +
-            "join hearing h on cc.id = h.fk_court_case_id " +
-            "join hearing_day hd on h.id = hd.fk_hearing_id " +
-            "inner join (select max(court_case.id) as max_id, court_case.case_no, hearing_day.court_code from court_case " +
-            "   join hearing on court_case.id = hearing.fk_court_case_id " +
-            "   join hearing_day on hearing.id = hearing_day.fk_hearing_id " +
-            "   where court_case.case_no = :caseNo " +
-            "   and hearing_day.court_code = :courtCode " +
-            "   group by court_case.case_no, hearing_day.court_code) grouped_cases " +
-            "on cc.id = grouped_cases.max_id " +
-            "and cc.case_no = grouped_cases.case_no " +
-            "where cc.deleted = false " +
-            "order by cc.id desc limit 1",
-            nativeQuery = true)
-    Optional<HearingEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo);
+        "join hearing h on cc.id = h.fk_court_case_id " +
+        "join hearing_day hd on h.id = hd.fk_hearing_id " +
+        "inner join (select max(hearing.id) as max_id from hearing " +
+        "   join court_case on court_case.id = hearing.fk_court_case_id " +
+        "   join hearing_day on hearing.id = hearing_day.fk_hearing_id " +
+        "   where court_case.case_no = :caseNo and court_case.deleted = false " +
+        "   and hearing_day.court_code = :courtCode " +
+        "   group by court_case.case_no, hearing_day.court_code) grouped_cases " +
+        "on h.id = grouped_cases.max_id ",
+        nativeQuery = true)
+    Optional<HearingEntity> findMostRecentByCourtCodeAndCaseNo(String courtCode, String caseNo);
 
     @Query(value = "select h.* as first_created " +
         "from hearing h " +

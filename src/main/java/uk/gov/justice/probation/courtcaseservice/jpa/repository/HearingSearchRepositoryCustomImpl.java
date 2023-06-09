@@ -79,7 +79,6 @@ public class HearingSearchRepositoryCustomImpl implements HearingSearchRepositor
         if (isFilterBySourceType(hearingSearchFilter)) {
             filterNativeQuery.setParameter(SOURCE_TYPE_NAMED_PARAM, SourceType.from(hearingSearchFilter.getSource().toUpperCase()).name());
         }
-
         return filterNativeQuery.getResultList();
     }
 

@@ -288,7 +288,6 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
 
         assertThat(judicialResults).extracting("label")
                 .containsExactly("id1", "id3", "id2", "id4");
-
     }
 
 }

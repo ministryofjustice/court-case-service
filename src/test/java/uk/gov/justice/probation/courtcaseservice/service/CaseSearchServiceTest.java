@@ -5,11 +5,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.CaseSearchResultItemMapper;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResult;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResultItem;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchType;
@@ -42,22 +45,24 @@ class CaseSearchServiceTest {
         DefendantEntity defendantEntity2 = hearingEntity2.getHearingDefendants().get(0).getDefendant();
         EntityHelper.refreshMappings(hearingEntity1);
         EntityHelper.refreshMappings(hearingEntity2);
+        final Pageable pageable = Pageable.ofSize(10).withPage(0);
 
-        given(defendantRepository.findDefendantsByCrn(TEST_CRN)).willReturn(List.of(defendantEntity1, defendantEntity2));
+        var result = new PageImpl<>(List.of(defendantEntity1, defendantEntity2), pageable, 2);
 
+        given(defendantRepository.findDefendantsByCrn(TEST_CRN, pageable)).willReturn(result);
         CaseSearchResultItem result1 = CaseSearchResultItem.builder().defendantName("X").defendantId("defendant-id-1").build();
         CaseSearchResultItem result2 = CaseSearchResultItem.builder().defendantName("Y").defendantId("defendant-id-2").build();
 
         given(caseSearchResultItemMapper.from(hearingEntity1.getCourtCase(), "defendant-id-1")).willReturn(result1);
         given(caseSearchResultItemMapper.from(hearingEntity2.getCourtCase(), "defendant-id-2")).willReturn(result2);
 
-        var actual = caseSearchService.searchCases(TEST_CRN, CaseSearchType.CRN);
+        var actual = caseSearchService.searchCases(CaseSearchRequest.builder().term(TEST_CRN).type(CaseSearchType.CRN).build());
 
-        verify(defendantRepository).findDefendantsByCrn(TEST_CRN);
+        verify(defendantRepository).findDefendantsByCrn(TEST_CRN, pageable);
         verify(caseSearchResultItemMapper).from(hearingEntity1.getCourtCase(), defendantEntity1.getDefendantId());
         verify(caseSearchResultItemMapper).from(hearingEntity2.getCourtCase(), defendantEntity2.getDefendantId());
 
-        assertThat(actual).isEqualTo(CaseSearchResult.builder().items(List.of(result1, result2)).build());
+        assertThat(actual).isEqualTo(CaseSearchResult.builder().totalElements(2).totalPages(1).items(List.of(result1, result2)).build());
     }
 
     @Test
@@ -69,10 +74,13 @@ class CaseSearchServiceTest {
         DefendantEntity defendantEntity2 = hearingEntity2.getHearingDefendants().get(0).getDefendant();
         EntityHelper.refreshMappings(hearingEntity1);
         EntityHelper.refreshMappings(hearingEntity2);
+        final Pageable pageable = Pageable.ofSize(10).withPage(0);
 
-        String tsQueryString = "Jeff & Bloggs";
-        String name = "Jeff Bloggs";
-        given(defendantRepository.findDefendantsByName(tsQueryString, name)).willReturn(List.of(defendantEntity1, defendantEntity2));
+        String tsQueryString = "Jeff";
+        String name = "Jeff";
+        var result = new PageImpl<>(List.of(defendantEntity1, defendantEntity2), pageable, 2);
+
+        given(defendantRepository.findDefendantsByName(tsQueryString, name, pageable)).willReturn(result);
 
         CaseSearchResultItem result1 = CaseSearchResultItem.builder().defendantName("X").defendantId("defendant-id-1").build();
         CaseSearchResultItem result2 = CaseSearchResultItem.builder().defendantName("Y").defendantId("defendant-id-2").build();
@@ -80,24 +88,40 @@ class CaseSearchServiceTest {
         given(caseSearchResultItemMapper.from(hearingEntity1.getCourtCase(), "defendant-id-1")).willReturn(result1);
         given(caseSearchResultItemMapper.from(hearingEntity2.getCourtCase(), "defendant-id-2")).willReturn(result2);
 
-        var actual = caseSearchService.searchCases(name, CaseSearchType.NAME);
+        var actual = caseSearchService.searchCases(CaseSearchRequest.builder().term(name).type(CaseSearchType.NAME).build());
 
-        verify(defendantRepository).findDefendantsByName(tsQueryString, name);
+        verify(defendantRepository).findDefendantsByName(tsQueryString, name, pageable);
         verify(caseSearchResultItemMapper).from(hearingEntity1.getCourtCase(), "defendant-id-1");
         verify(caseSearchResultItemMapper).from(hearingEntity2.getCourtCase(), "defendant-id-2");
 
-        assertThat(actual).isEqualTo(CaseSearchResult.builder().items(List.of(result1, result2)).build());
+        assertThat(actual).isEqualTo(CaseSearchResult.builder().totalPages(1).totalElements(2).items(List.of(result1, result2)).build());
     }
 
     @Test
     void shouldMapAndReturnTheResultsRetrievedByTheRepository() {
-        given(defendantRepository.findDefendantsByCrn(TEST_CRN)).willReturn(List.of());
+        final Pageable pageable = Pageable.ofSize(10).withPage(0);
 
-        var actual = caseSearchService.searchCases(TEST_CRN, CaseSearchType.CRN);
+        given(defendantRepository.findDefendantsByCrn(TEST_CRN, pageable)).willReturn(new PageImpl<>(List.of(), pageable, 0));
 
-        verify(defendantRepository).findDefendantsByCrn(TEST_CRN);
+        var actual = caseSearchService.searchCases(CaseSearchRequest.builder().term(TEST_CRN).type(CaseSearchType.CRN).build());
+
+        verify(defendantRepository).findDefendantsByCrn(TEST_CRN, pageable);
         verifyNoInteractions(caseSearchResultItemMapper);
 
-        assertThat(actual).isEqualTo(CaseSearchResult.builder().items(List.of()).build());
+        assertThat(actual).isEqualTo(CaseSearchResult.builder().totalPages(0).totalElements(0).items(List.of()).build());
+    }
+
+    @Test
+    void shouldReturnEmptyDataWhenRequestedPageNotAvailable() {
+        final Pageable pageable = Pageable.ofSize(10).withPage(2);
+
+        given(defendantRepository.findDefendantsByCrn(TEST_CRN, pageable)).willReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        var actual = caseSearchService.searchCases(CaseSearchRequest.builder().page(3).term(TEST_CRN).type(CaseSearchType.CRN).build());
+
+        verify(defendantRepository).findDefendantsByCrn(TEST_CRN, pageable);
+        verifyNoInteractions(caseSearchResultItemMapper);
+
+        assertThat(actual).isEqualTo(CaseSearchResult.builder().totalPages(0).totalElements(0).items(List.of()).build());
     }
 }

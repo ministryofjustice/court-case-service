@@ -3,7 +3,9 @@ package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -83,4 +85,14 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
         "and h.fk_court_case_id = cc.id group by h.hearing_id)",
         nativeQuery = true)
     Optional<List<HearingEntity>> findHearingsByCaseId(String caseId);
+
+    @Query(value = "select h.* from hearing h " +
+        "inner join hearing_day hday on hday.fk_hearing_id = h.id " +
+        "inner join hearing_outcome ho on h.fk_hearing_outcome = ho.id " +
+        "where hday.court_code = :courtCode and ho.state = :hearingOutcomeItemState",
+        nativeQuery = true)
+    List<HearingEntity> findByCourtCodeAndHearingOutcome(
+        String courtCode,
+        String hearingOutcomeItemState
+    );
 }

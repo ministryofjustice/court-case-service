@@ -30,6 +30,6 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
                     courtCode
                 )
             }
-        return hearingRepository.findByCourtCodeAndHearingOutcome(courtCode, state).flatMap { HearingOutcomeResponse.of(it) };
+        return hearingRepository.findByCourtCodeAndHearingOutcome(courtCode, state.name).flatMap { HearingOutcomeResponse.of(it) };
     }
 }

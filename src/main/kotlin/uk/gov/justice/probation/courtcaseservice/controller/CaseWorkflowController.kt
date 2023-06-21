@@ -25,7 +25,7 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService) {
         caseWorkflowService.addHearingOutcome(hearingId, hearingOutcome.hearingOutcomeType)
 
     @Operation(description = "Fetch hearing outcomes")
-    @GetMapping(value = ["/court/{courtCode}/hearing-outcomes"], params = ["state"], produces = [APPLICATION_JSON_VALUE])
+    @GetMapping(value = ["/courts/{courtCode}/hearing-outcomes"], params = ["state"], produces = [APPLICATION_JSON_VALUE])
     fun fetchHearingOutcomes(@PathVariable("courtCode") courtCode: String, @RequestParam(value = "state", defaultValue = "NEW") state: HearingOutcomeItemState): HearingOutcomeCaseList {
         return HearingOutcomeCaseList(caseWorkflowService.fetchHearingOutcomes(courtCode, state))
     }

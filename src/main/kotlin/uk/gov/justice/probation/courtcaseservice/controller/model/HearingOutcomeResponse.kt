@@ -10,11 +10,12 @@ import java.time.LocalDateTime
 
 @Schema(description = "Hearing outcome response model")
 data class HearingOutcomeResponse(
-    val hearingOutcomeType: HearingOutcomeType, val outcomeDate: LocalDateTime,
+    val hearingOutcomeType: HearingOutcomeType,
+    val outcomeDate: LocalDateTime,
     val hearingDate: LocalDate? = null,
     val hearingId: String? = null,
     val defendantId: String? = null,
-    @JsonIgnore val probationStatus: String? = null,
+    val probationStatus: String? = null,
     val offences: List<String>? = null,
     val defendantName: String? = null
 ) {

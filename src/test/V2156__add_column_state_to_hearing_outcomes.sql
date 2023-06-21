@@ -1,7 +1,0 @@
-BEGIN;
-
-ALTER TABLE HEARING_OUTCOME ADD COLUMN STATE TEXT NOT NULL default 'NEW';
-
-create index hearing_outcome_state_idx on HEARING_OUTCOME (OUTCOME_TYPE);
-
-COMMIT;

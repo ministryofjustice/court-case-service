@@ -87,12 +87,12 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
     Optional<List<HearingEntity>> findHearingsByCaseId(String caseId);
 
     @Query(value = "select h.* from hearing h " +
-        "inner join hearing_day hday on hday.fk_hearing_id = h.id where hday.court_code = :courtCode " +
-        "inner join hearing_outcomes ho on h.fk_hearing_outcome = ho.id where ho.outcome = :hearingOutcomeItemState " +
-        "and h.deleted = false",
+        "inner join hearing_day hday on hday.fk_hearing_id = h.id " +
+        "inner join hearing_outcome ho on h.fk_hearing_outcome = ho.id " +
+        "where hday.court_code = :courtCode and ho.state = :hearingOutcomeItemState",
         nativeQuery = true)
     List<HearingEntity> findByCourtCodeAndHearingOutcome(
         String courtCode,
-        HearingOutcomeItemState hearingOutcomeItemState
+        String hearingOutcomeItemState
     );
 }

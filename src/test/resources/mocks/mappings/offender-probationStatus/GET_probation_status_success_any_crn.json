@@ -2,7 +2,7 @@
   "priority": 5,
   "request": {
     "method": "GET",
-    "urlPattern": "/secure/offenders/crn/[A-Z0-9]*/probationStatus",
+    "urlPattern": "/secure/probation-case/[A-Z0-9]*/status",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"

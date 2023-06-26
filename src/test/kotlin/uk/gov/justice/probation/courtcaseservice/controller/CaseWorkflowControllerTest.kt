@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcome
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCaseList
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE
 import uk.gov.justice.probation.courtcaseservice.service.CaseWorkflowService
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType.ADJOURNED
@@ -32,9 +33,10 @@ internal class CaseWorkflowControllerTest {
     }
     @Test
     fun `should invoke service with court code and hearing state`() {
-        given(caseWorkflowService.fetchHearingOutcomes(COURT_CODE, HearingOutcomeItemState.NEW)).willReturn(listOf())
-        val resp = caseWorkflowController.fetchHearingOutcomes(COURT_CODE, HearingOutcomeItemState.NEW)
-        verify(caseWorkflowService).fetchHearingOutcomes(COURT_CODE, HearingOutcomeItemState.NEW)
+        val hearingOutcomeSearchRequest = HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW)
+        given(caseWorkflowService.fetchHearingOutcomes(COURT_CODE, hearingOutcomeSearchRequest)).willReturn(listOf())
+        val resp = caseWorkflowController.fetchHearingOutcomes(COURT_CODE, hearingOutcomeSearchRequest)
+        verify(caseWorkflowService).fetchHearingOutcomes(COURT_CODE, hearingOutcomeSearchRequest)
         assertThat(resp).isEqualTo(HearingOutcomeCaseList(listOf()))
     }
 }

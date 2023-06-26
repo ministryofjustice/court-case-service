@@ -39,6 +39,9 @@ public class HearingOutcomeEntity extends BaseAuditedEntity implements Serializa
     @Column(name = "OUTCOME_DATE")
     private LocalDateTime outcomeDate;
 
+    @Column(name = "STATE")
+    private String state;
+
     @OneToOne(mappedBy = "hearingOutcome")
     private HearingEntity hearing;
 }

@@ -4,15 +4,19 @@ import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase
 import org.springframework.test.context.jdbc.SqlConfig
 import org.springframework.test.context.jdbc.SqlConfig.TransactionMode
+import org.springframework.web.util.UriComponentsBuilder
+import org.testcontainers.shaded.org.hamcrest.collection.IsCollectionWithSize
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper
+import java.net.URI
 
 @Sql(
     scripts = ["classpath:sql/before-common.sql", "classpath:case-progress.sql"],
@@ -54,7 +58,14 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
     }
 
     @Test
-    fun `given court code and outcome state NEW should return all outcomes for that court`() {
+    fun `given court code and outcome state NEW and filters should return all outcomes for that court`() {
+
+        var courtCode = "B33HU"
+
+        val endpoint = UriComponentsBuilder.fromUri(URI("/courts/${courtCode}/hearing-outcomes"))
+            .queryParam("state", "NEW")
+            .queryParam("outcomeType",  "PROBATION_SENTENCE", "ADJOURNED")
+            .build().toUriString()
 
         given()
             .auth()
@@ -63,9 +74,10 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .accept(ContentType.JSON)
             .body(hearingOutcomeRequest)
             .`when`()
-            .get("/courts/{courtCode}/hearing-outcomes?state={state}", "B33HU", "NEW")
+            .get(endpoint)
             .then()
             .statusCode(200)
+            .body("cases", hasSize<Any>(1))
             .body("cases[0].hearingOutcomeType", equalTo("ADJOURNED"))
             .body("cases[0].outcomeDate", equalTo("2023-04-24T09:09:09"))
             .body("cases[0].hearingId", equalTo("2aa6f5e0-f842-4939-bc6a-01346abc09e7"))
@@ -74,5 +86,28 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .body("cases[0].defendantName", equalTo("Mr Johnny BALL"))
             .body("cases[0].offences", equalTo(listOf("Theft from a different shop", "Theft from a shop")))
             .body("cases[0].probationStatus", equalTo("Current"))
+    }
+
+    @Test
+    fun `given court code and outcome state NEW and filters do not match should return empty response`() {
+
+        var courtCode = "B33HU"
+
+        val endpoint = UriComponentsBuilder.fromUri(URI("/courts/${courtCode}/hearing-outcomes"))
+            .queryParam("state", "NEW")
+            .queryParam("outcomeType",  "PROBATION_SENTENCE", "REPORT_REQUESTED")
+            .build().toUriString()
+
+        given()
+            .auth()
+            .oauth2(TokenHelper.getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(hearingOutcomeRequest)
+            .`when`()
+            .get(endpoint)
+            .then()
+            .statusCode(200)
+            .body("cases", hasSize<Any>(0))
     }
 }

@@ -17,8 +17,10 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,6 +42,8 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private final DomainEventService domainEventService;
     private final CourtCaseRepository courtCaseRepository;
 
+    private HearingRepository hearingRepository;
+
     private final ShortTermCustodyPredictorService shortTermCustodyPredictorService;
 
     @Autowired
@@ -49,7 +53,8 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                                      GroupedOffenderMatchRepository matchRepository,
                                      DomainEventService domainEventService,
                                      CourtCaseRepository courtCaseRepository,
-                                     ShortTermCustodyPredictorService shortTermCustodyPredictorService) {
+                                     ShortTermCustodyPredictorService shortTermCustodyPredictorService,
+                                     HearingRepository hearingRepository) {
         this.courtRepository = courtRepository;
         this.hearingRepositoryFacade = hearingRepositoryFacade;
         this.telemetryService = telemetryService;
@@ -57,6 +62,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         this.domainEventService = domainEventService;
         this.courtCaseRepository = courtCaseRepository;
         this.shortTermCustodyPredictorService = shortTermCustodyPredictorService;
+        this.hearingRepository = hearingRepository;
     }
 
     @Override
@@ -111,6 +117,11 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                 .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
 
         return hearingRepositoryFacade.findByCourtCodeAndHearingDay(court.getCourtCode(), hearingDay, createdAfter, createdBefore);
+    }
+
+    @Override
+    public List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter) {
+        return hearingRepository.filterHearings(hearingSearchFilter);
     }
 
     public Optional<LocalDateTime> filterHearingsLastModified(String courtCode, LocalDate searchDate) {

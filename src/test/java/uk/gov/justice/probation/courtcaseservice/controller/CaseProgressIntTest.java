@@ -127,6 +127,8 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("hearings[1].notes[0].createdByUuid", Matchers.equalTo("fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81"))
             .body("hearings[1].notes[0].draft", Matchers.equalTo(false))
             .body("hearings[1].hearingOutcome.hearingOutcomeType", Matchers.equalTo("ADJOURNED"))
+            .body("hearings[1].hearingOutcome.hearingOutcomeDescription", Matchers.equalTo("Adjourned"))
+            .body("hearings[1].hearingOutcome.outcomeDate", Matchers.equalTo("2023-04-24T09:09:09"))
 
             .body("hearings[1].notes[1].noteId", Matchers.equalTo(-1700028804))
             .body("hearings[1].notes[1].hearingId", Matchers.equalTo("2aa6f5e0-f842-4939-bc6a-01346abc09e7"))
@@ -253,8 +255,6 @@ public class CaseProgressIntTest extends BaseIntTest {
       Response hearingNoteResponse = given()
             .auth()
             .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
             .body(hearingNote)
             .when()
             .delete("/hearing/{hearingId}/notes/draft", testHearingId);

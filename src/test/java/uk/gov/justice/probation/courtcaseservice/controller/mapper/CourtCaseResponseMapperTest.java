@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.Plea;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseMarkerEntity;
@@ -195,10 +194,10 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getCaseComments().get(1).getCommentId()).isEqualTo(5678L);
         assertThat(courtCaseResponse.getConfirmedOffender()).isTrue();
         assertThat(courtCaseResponse.getOffences()).hasSize(1);
-        assertThat(courtCaseResponse.getOffences().get(0).getPlea().getValue()).isEqualTo("value");
-        assertThat(courtCaseResponse.getOffences().get(0).getVerdict().getTypeDescription()).isEqualTo("description");
+        assertThat(courtCaseResponse.getOffences().get(0).getPlea().getPleaValue()).isEqualTo("value");
+        assertThat(courtCaseResponse.getOffences().get(0).getVerdict().getVerdictType().getDescription()).isEqualTo("description");
         assertThat(courtCaseResponse.getCaseMarkers()).hasSize(1);
-        assertThat(courtCaseResponse.getCaseMarkers().get(0).getTypeDescription()).isEqualTo("description");
+        assertThat(courtCaseResponse.getCaseMarkers().get(0).getMarkerTypeDescription()).isEqualTo("description");
 
 
     }

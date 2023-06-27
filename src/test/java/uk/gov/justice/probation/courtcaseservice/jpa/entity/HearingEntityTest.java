@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import org.junit.jupiter.api.Test;
+import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
 import java.util.Collections;
 import java.util.List;
@@ -189,5 +190,13 @@ class HearingEntityTest {
 
         assertThat(dbHearingEntity.getHearingDefendants()).isEqualTo(getMutableList(List.of(dbHearingDefendant1, newHearingDefendant)));
         assertThat(newHearingDefendant.getHearing()).isEqualTo(dbHearingEntity);
+    }
+
+    @Test
+    void givenHearingOutcomeType_shouldAddToHearing() {
+        var hearingEntity = HearingEntity.builder().build();
+        hearingEntity.addHearingOutcome(HearingOutcomeType.REPORT_REQUESTED);
+        assertThat(hearingEntity.getHearingOutcome().getOutcomeType()).isEqualTo(HearingOutcomeType.REPORT_REQUESTED.name());
+        assertThat(hearingEntity.getHearingOutcome().getOutcomeDate()).isNotNull();
     }
 }

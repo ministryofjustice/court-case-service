@@ -25,6 +25,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.security.AuthAwareAuthenticationToken;
 import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper;
 import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
@@ -34,6 +35,7 @@ import uk.gov.justice.probation.courtcaseservice.service.HearingNotesService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
+import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
 import java.security.Principal;
 import java.time.LocalDate;
@@ -41,7 +43,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -180,9 +181,15 @@ class CourtCaseControllerTest {
                         .withTime(LocalTime.of(9, 0))
                         .withCourtCode(COURT_CODE)
                 ));
-        Mockito.when(courtCaseService.filterHearings(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE))
+        var hearingSearchFilter = HearingSearchFilter.builder()
+                .courtCode(COURT_CODE)
+                .hearingDay(DATE)
+                .source("LIBRA")
+                .build();
+        Mockito.when(courtCaseService.filterHearings(hearingSearchFilter))
                 .thenReturn(Collections.singletonList(courtCaseEntity));
-        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE, webRequest);
+        var source = SourceType.LIBRA.name();
+        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, source,false, webRequest);
 
         assertThat(responseEntity.getBody().getCases()).hasSize(1);
         assertCourtCase(responseEntity.getBody().getCases().get(0), null, 0);
@@ -207,10 +214,16 @@ class CourtCaseControllerTest {
                 .build();
 
         var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
+        var hearingSearchFilter = HearingSearchFilter.builder()
+                .courtCode(COURT_CODE)
+                .hearingDay(DATE)
+                .source("LIBRA")
+                .build();
         Mockito.when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
-        Mockito.when(courtCaseService.filterHearings(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE)).thenReturn(Collections.singletonList(courtCaseEntity));
+        Mockito.when(courtCaseService.filterHearings(hearingSearchFilter)).thenReturn(Collections.singletonList(courtCaseEntity));
+        var source = SourceType.LIBRA.name();
 
-        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE, webRequest);
+        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, source,false, webRequest);
 
         assertThat(responseEntity.getBody().getCases()).hasSize(2);
         // Top level fields for both are the same
@@ -262,9 +275,14 @@ class CourtCaseControllerTest {
         final var entity5 = buildCourtCaseEntity(julesBinoche, aftSession, "3");
 
         // Add in reverse order
-        final var createdAfter = LocalDateTime.now().minus(1, ChronoUnit.DAYS);
-        Mockito.when(courtCaseService.filterHearings(COURT_CODE, DATE, createdAfter, CREATED_BEFORE)).thenReturn(List.of(entity5, entity4, entity3, entity2, entity1));
-        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, createdAfter, CREATED_BEFORE, webRequest);
+        var hearingSearchFilter = HearingSearchFilter.builder()
+                .courtCode(COURT_CODE)
+                .hearingDay(DATE)
+                .source("LIBRA")
+                .build();        Mockito.when(courtCaseService.filterHearings(hearingSearchFilter)).thenReturn(List.of(entity5, entity4, entity3, entity2, entity1));
+        var source = SourceType.LIBRA.name();
+
+        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, source, false, webRequest);
 
         final var cases = responseEntity.getBody().getCases();
         assertThat(cases).hasSize(5);
@@ -278,32 +296,15 @@ class CourtCaseControllerTest {
     }
 
     @Test
-    void whenCreatedAfterIsNull_thenDefaultToALongTimeAgo() {
-        final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
-        Mockito.when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
-        final LocalDateTime createdAfter = LocalDateTime.of(-4712, 1, 1, 0, 0);
-        courtCaseController.getCaseList(COURT_CODE, DATE, null, CREATED_BEFORE, webRequest);
-
-        Mockito.verify(courtCaseService).filterHearings(COURT_CODE, DATE, createdAfter, CREATED_BEFORE);
-    }
-
-    @Test
-    void whenCreatedBeforeIsNull_thenDefaultToMaxDate() {
-        final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
-        Mockito.when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
-        final LocalDateTime createdBefore = LocalDateTime.of(294276, 12, 31, 23, 59);
-        courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
-
-        Mockito.verify(courtCaseService).filterHearings(COURT_CODE, DATE, CREATED_AFTER, createdBefore);
-    }
-
-    @Test
     void whenListIsNotModified_thenReturn() {
         final var lastModified = Optional.of(LocalDateTime.of(LocalDate.of(2015, Month.OCTOBER, 21), LocalTime.of(7, 28)));
         Mockito.when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(lastModified);
         Mockito.when(webRequest.checkNotModified(lastModified.get().toInstant(ZoneOffset.UTC).toEpochMilli())).thenReturn(true);
 
-        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
+        var source = SourceType.LIBRA.name();
+
+
+        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, source, false, webRequest);
 
         assertThat(responseEntity.getStatusCode().value()).isEqualTo(304);
         assertThat(responseEntity.getHeaders().get("Cache-Control").get(0)).isEqualTo("max-age=1");
@@ -320,9 +321,16 @@ class CourtCaseControllerTest {
                         .withTime(LocalTime.of(9, 0))
                         .withCourtCode(COURT_CODE)
                 ));
-        Mockito.when(courtCaseService.filterHearings(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE))
+        var hearingSearchFilter = HearingSearchFilter.builder()
+                .courtCode(COURT_CODE)
+                .hearingDay(DATE)
+                .source("LIBRA")
+                .build();
+        Mockito.when(courtCaseService.filterHearings(hearingSearchFilter))
                 .thenReturn(Collections.singletonList(courtCaseEntity));
-        var responseEntity = nonCachingController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, CREATED_BEFORE, webRequest);
+        var source = SourceType.LIBRA.name();
+
+        var responseEntity = nonCachingController.getCaseList(COURT_CODE, DATE, source, false, webRequest);
 
         assertThat(responseEntity.getBody().getCases()).hasSize(1);
         assertCourtCase(responseEntity.getBody().getCases().get(0), null, 0);
@@ -333,8 +341,9 @@ class CourtCaseControllerTest {
     void whenListHasNeverBeenModified_thenReturnNeverModifiedDate() {
         Mockito.when(courtCaseService.filterHearingsLastModified(COURT_CODE, DATE)).thenReturn(Optional.empty());
         Mockito.when(webRequest.checkNotModified(any(Long.class))).thenReturn(false);
+        var source = SourceType.LIBRA.name();
 
-        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, CREATED_AFTER, null, webRequest);
+        var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, source, false, webRequest);
 
         assertThat(responseEntity.getHeaders().get("Last-Modified").get(0)).isEqualTo("Wed, 01 Jan 2020 00:00:00 GMT");
         assertThat(responseEntity.getHeaders().get("Cache-Control").get(0)).isEqualTo("max-age=1");
@@ -399,6 +408,43 @@ class CourtCaseControllerTest {
 
         assertThrows(ConflictingInputException.class, () -> {
             courtCaseController.createCaseComment("case-id-one", CaseCommentRequest.builder().caseId("invalid-case-id").build(), principal);
+        });
+
+        Mockito.verifyNoMoreInteractions(caseCommentsService);
+    }
+
+    @Test
+    void whenCreateUpdateCommentDraft_shouldInvokeCaseCommentsService() {
+        var caseId = "case-id-one";
+        var caseCommentEntity = CaseCommentEntity.builder().comment("comment one").author("Author One").caseId(caseId).build();
+        Mockito.lenient().when(caseCommentsService.createUpdateCaseCommentDraft(any(CaseCommentEntity.class))).thenReturn(caseCommentEntity.withId(3456L));
+        given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
+
+        final var actual = courtCaseController.createUpdateCaseCommentDraft(caseId,
+            CaseCommentRequest.builder()
+                .caseId(caseId)
+                .comment("comment-one")
+                .author("Test Author")
+                .build(),
+                principal
+                );
+
+        Mockito.verify(caseCommentsService).createUpdateCaseCommentDraft(any(CaseCommentEntity.class));
+        assertThat(actual).isEqualTo(
+            CaseCommentResponse.builder()
+                .comment("comment one")
+                .caseId(caseId)
+                .author("Author One")
+                .commentId(3456L)
+                .build()
+        );
+    }
+
+    @Test
+    void givenCaseIdDoesNotMatchCaseCommentRequestCaseId_whenCreateUpdateCaseCommentDraft_shouldThrowConflictingInputException() {
+
+        assertThrows(ConflictingInputException.class, () -> {
+            courtCaseController.createUpdateCaseCommentDraft("case-id-one", CaseCommentRequest.builder().caseId("invalid-case-id").build(), principal);
         });
 
         Mockito.verifyNoMoreInteractions(caseCommentsService);
@@ -473,6 +519,26 @@ class CourtCaseControllerTest {
         given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
         courtCaseController.updateHearingNote(HEARING_ID, noteId, noteUpdate, principal);
         verify(hearingNotesService).updateHearingNote(noteUpdate.asEntity(testUuid), noteId);
+    }
+
+    @Test
+    void givenCaseId_whenDeleteDraftComment_thenInvokeServiceToDelete() {
+        given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
+        var caseId = "test-case-id";
+        courtCaseController.deleteCaseCommentDraft(caseId, principal);
+        verify(caseCommentsService).deleteCaseCommentDraft(caseId, testUuid);
+    }
+
+    @Test
+    void givenCaseComment_whenUpdateComment_thenInvokeServiceToUpdateComment() {
+        given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
+        var caseId = "test-case-id";
+        var commentUpdate = CaseCommentRequest.builder().caseId(caseId).comment("updated comment").build();
+        var commentEntity = CaseCommentEntity.builder().caseId(caseId).comment("updated comment").build();
+        var commentId = 123L;
+        given(caseCommentsService.updateCaseComment(commentUpdate.asEntity(testUuid), commentId)).willReturn(commentEntity);
+        courtCaseController.updateCaseComment( caseId, commentId, commentUpdate, principal);
+        verify(caseCommentsService).updateCaseComment(commentUpdate.asEntity(testUuid), commentId);
     }
 
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, NamePropertiesEntity defendantName, LocalDateTime sessionTime) {

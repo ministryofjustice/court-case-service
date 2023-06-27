@@ -1,0 +1,10 @@
+BEGIN;
+
+ALTER TABLE OFFENCE ADD CONSTRAINT FK_VERDICT FOREIGN KEY (VERDICT_ID) REFERENCES VERDICT;
+
+CREATE INDEX IF NOT EXISTS offence_plea_fk_idx on offence (plea_id);
+
+CREATE INDEX IF NOT EXISTS offence_verdict_fk_idx on offence (verdict_id);
+
+
+COMMIT;

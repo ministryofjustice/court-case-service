@@ -51,6 +51,7 @@ INSERT INTO hearing (id, fk_court_case_id, hearing_id, hearing_type, created, he
 INSERT INTO case_comments(id, case_id, comment, "author", created, created_by, created_by_uuid) VALUES (-1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR in progress', 'Author One', now(), 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
 INSERT INTO case_comments(id, case_id, comment, "author", created, deleted, created_by, created_by_uuid) VALUES (-1700028901, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR completed', 'Author One', now(), true, 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
 INSERT INTO case_comments(id, case_id, comment, "author", created, created_by, created_by_uuid) VALUES (-1700028902, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR completed', 'Author Two', now(), 'before-test.sql', '389fd9cf-390e-469a-b4cf-6c12024c4cae');
+INSERT INTO case_comments(id, case_id, comment, "author", created, created_by, created_by_uuid, is_draft) VALUES (-1700028903, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR completed', 'Author Two', now(), 'before-test.sql', '389fd9cf-390e-469a-b4cf-6c12024c4cae', true);
 
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
 VALUES (-1000000, -1700028900, 'B10JQ', 1, '2019-12-14', '09:00');

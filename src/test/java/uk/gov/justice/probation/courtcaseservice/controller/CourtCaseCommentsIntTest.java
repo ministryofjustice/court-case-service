@@ -58,6 +58,7 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
             .body("author", equalTo("Test Author"))
             .body("createdByUuid", equalTo(TokenHelper.TEST_UUID))
             .body("created", notNullValue())
+            .body("draft", equalTo(false))
         ;
         var caseComment = caseCommentResponse.getBody().as(CaseCommentResponse.class, ObjectMapperType.JACKSON_2);
 
@@ -65,6 +66,38 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
         assertThat(actualComment.getId()).isEqualTo(caseComment.getCommentId());
         assertThat(actualComment.getCreatedByUuid()).isEqualTo(caseComment.getCreatedByUuid());
         assertThat(actualComment.isDeleted()).isFalse();
+        assertThat(actualComment.isDraft()).isFalse();
+
+        Assertions.assertNotNull(actualComment);
+    }
+    @Test
+    void whenCreateUpdateCaseCommentByCaseId_shouldCreateSuccessfully() {
+
+        Response caseCommentResponse = given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(caseComment)
+            .when()
+            .put("/cases/{caseId}/comments/draft", CASE_ID);
+        caseCommentResponse
+            .then()
+            .statusCode(200)
+            .body("caseId", equalTo(CASE_ID))
+            .body("comment", equalTo("PSR is delayed"))
+            .body("author", equalTo("Test Author"))
+            .body("createdByUuid", equalTo(TokenHelper.TEST_UUID))
+            .body("draft", equalTo(true))
+            .body("created", notNullValue())
+        ;
+        var caseComment = caseCommentResponse.getBody().as(CaseCommentResponse.class, ObjectMapperType.JACKSON_2);
+
+        var actualComment = caseCommentsRepository.findById(caseComment.getCommentId()).get();
+        assertThat(actualComment.getId()).isEqualTo(caseComment.getCommentId());
+        assertThat(actualComment.getCreatedByUuid()).isEqualTo(caseComment.getCreatedByUuid());
+        assertThat(actualComment.isDeleted()).isFalse();
+        assertThat(actualComment.isDraft()).isTrue();
 
         Assertions.assertNotNull(actualComment);
     }
@@ -143,5 +176,52 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
             .statusCode(403)
             .body("userMessage", equalTo("User 4f7772a9-e42a-493a-a8f0-82caf83c6419 does not have permissions to delete comment -1700028902"))
         ;
+    }
+
+    @Test
+    void givenCaseIdAndCommentId_whenDeleteCommentDraft_shouldDeleteCaseCommentDraft() {
+
+        given()
+            .auth()
+            .oauth2(getToken("389fd9cf-390e-469a-b4cf-6c12024c4cae"))
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .when()
+            .delete("/cases/{caseId}/comments/draft", CASE_ID)
+            .then()
+            .statusCode(200)
+        ;
+
+        assertThat(caseCommentsRepository.findById(-1700028903L).isPresent()).isFalse();
+    }
+
+    @Test
+    void givenExistingCaseAndComment_whenUpdateCaseComment_shouldUpdateSuccessfully() {
+
+        var commentId = -1700028901L;
+        var commentUpdate = "PSR completed with updated comment";
+        Response caseCommentResponse = given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(caseComment.replace("PSR is delayed", commentUpdate))
+            .when()
+            .put("/cases/{caseId}/comments/{commentId}", CASE_ID, commentId);
+        caseCommentResponse
+            .then()
+            .statusCode(200)
+            .body("caseId", equalTo(CASE_ID))
+            .body("comment", equalTo(commentUpdate))
+            .body("author", equalTo("Author One"))
+            .body("createdByUuid", equalTo(TokenHelper.TEST_UUID))
+            .body("draft", equalTo(false))
+            .body("created", notNullValue())
+        ;
+        var caseComment = caseCommentResponse.getBody().as(CaseCommentResponse.class, ObjectMapperType.JACKSON_2);
+
+        var actualComment = caseCommentsRepository.findById(commentId).get();
+        assertThat(actualComment.getId()).isEqualTo(caseComment.getCommentId());
+        assertThat(actualComment.getComment()).isEqualTo(commentUpdate);
     }
 }

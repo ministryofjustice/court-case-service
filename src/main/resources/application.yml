@@ -111,7 +111,7 @@ community-api:
   sentence-status-url-template: /secure/offenders/crn/%s/convictions/%s/sentenceStatus
   nsi-by-id-url-template: /secure/offenders/crn/%s/convictions/%s/nsis/%s
   court-appearances-by-crn-and-nsi-url-template: /secure/offenders/crn/%s/convictions/%s/courtAppearances
-  probation-status-by-crn: /secure/offenders/crn/%s/probationStatus
+  probation-status-by-crn: /secure/probation-case/%s/status
 
   probation-record-filter.document.types: "COURT_REPORT_DOCUMENT"
   probation-record-filter.document.subtype.codes: "CJF,CJO,CJS,PSA,PSB,PSN,PSR,SSR,XPR,CR02,CR05"

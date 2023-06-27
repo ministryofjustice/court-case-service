@@ -370,7 +370,7 @@ class OffenderMapperTest {
             final var probationStatus = ProbationStatusDetail.builder()
                     .status("CURRENT")
                     .build();
-            OffenderMatchDetail offenderMatchDetail = OffenderMapper.offenderMatchDetailFrom(offenderMatch, sentence, probationStatus);
+            OffenderMatchDetail offenderMatchDetail = OffenderMapper.offenderMatchDetailFrom(offenderMatch, sentence, probationStatus, 0.9);
 
             assertOffenderMatchFields(offenderMatchDetail);
 
@@ -379,6 +379,7 @@ class OffenderMapperTest {
             assertThat(offenderMatchDetail.getEvent().getLengthUnits()).isEqualTo("Months");
             assertThat(offenderMatchDetail.getEvent().getText()).isEqualTo("Sentence description");
             assertThat(offenderMatchDetail.getEvent().getStartDate()).isEqualTo(eventDate);
+            assertThat(offenderMatchDetail.getMatchProbability()).isEqualTo(0.9);
         }
 
         private void assertOffenderMatchFields(OffenderMatchDetail offenderMatchDetail) {

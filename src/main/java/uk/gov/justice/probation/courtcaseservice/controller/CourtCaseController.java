@@ -49,6 +49,7 @@ import uk.gov.justice.probation.courtcaseservice.service.HearingNotesService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
+import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
 import javax.validation.Valid;
 import java.security.Principal;
@@ -124,7 +125,7 @@ public class CourtCaseController {
     CourtCaseResponse getCourtCase(
             @PathVariable String courtCode,
             @PathVariable String caseNo,
-            @Parameter(in = ParameterIn.PATH, name = "listNo", schema = @Schema(type = "string"), description = "If listNo is provided then the endpoint will return the latest hearing with matching listNo if it exists. If the case exists, but a hearing with the provided listNo does not, then the endpoint will return the most recent hearing but will <em>omit</em> the hearingId. This indicates to the caller that they should generate a new hearingId when PUTting to create a new hearing entity. This is required to allow Libra case progress to be tracked, see <a href='https://dsdmoj.atlassian.net/browse/PIC-2293'>PIC-2293</a> for more information.")
+            @Parameter(in = ParameterIn.PATH, name = "listNo", schema = @Schema(type = "string"), description = "If listNo is provided then the endpoint will return the latest hearing with matching listNo if it exists. If the case exists, but a hearing with the provided listNo does not, then the endpoint will search and return the hearing with no listNo if present or return a HTTP 404. This indicates to the caller that they should generate a new hearingId when PUTting to create a new hearing entity. This is required to allow Libra case progress to be tracked, see <a href='https://dsdmoj.atlassian.net/browse/PIC-2293'>PIC-2293</a> for more information.")
             @RequestParam(required = false) String listNo) {
         return buildCourtCaseResponse(courtCaseService.getHearingByCaseNumber(courtCode, caseNo, listNo));
     }
@@ -169,7 +170,7 @@ public class CourtCaseController {
     }
 
     @Operation(description = "Deletes the draft hearing note for a given hearing")
-    @DeleteMapping(value = "/hearing/{hearingId}/notes/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/hearing/{hearingId}/notes/draft")
     @ResponseStatus(HttpStatus.OK)
     public void deleteDraftHearingNote(@PathVariable(value = "hearingId") String hearingId,
                                                Principal principal) {
@@ -208,6 +209,42 @@ public class CourtCaseController {
         hearingNotesService.deleteHearingNote(hearingId, noteId, authenticationHelper.getAuthUserUuid(principal));
     }
 
+
+    @Operation(description = "Creates/updates a draft case comment for a given case")
+    @PutMapping(value = "/cases/{caseId}/comments/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    CaseCommentResponse createUpdateCaseCommentDraft(@PathVariable(value = "caseId") String caseId,
+                                                     @Valid @RequestBody CaseCommentRequest caseCommentRequest,
+                                                     Principal principal) {
+
+        validateCaseCommentRequest(caseId, caseCommentRequest);
+        var caseCommentEntity = caseCommentsService.createUpdateCaseCommentDraft(caseCommentRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
+        return CaseCommentResponse.of(caseCommentEntity);
+    }
+
+    @Operation(description = "Updates a case comment for a given case id and comment id")
+    @PutMapping(value = "/cases/{caseId}/comments/{commentId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    CaseCommentResponse updateCaseComment(@PathVariable(value = "caseId") String caseId,
+                                          @PathVariable(value = "commentId") Long commentId,
+                                          @Valid @RequestBody CaseCommentRequest caseCommentRequest,
+                                          Principal principal) {
+
+        validateCaseCommentRequest(caseId, caseCommentRequest);
+        var caseCommentEntity = caseCommentsService.updateCaseComment(caseCommentRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)), commentId);
+        return CaseCommentResponse.of(caseCommentEntity);
+    }
+
+    @Operation(description = "Deletes a draft case comment for a given case")
+    @DeleteMapping(value = "/cases/{caseId}/comments/draft")
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    void deleteCaseCommentDraft(@PathVariable(value = "caseId") String caseId, Principal principal) {
+        caseCommentsService.deleteCaseCommentDraft(caseId, authenticationHelper.getAuthUserUuid(principal));
+    }
+
     @Operation(description = "Creates a comment on given court case.")
     @PostMapping(value = "/cases/{caseId}/comments", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -216,12 +253,16 @@ public class CourtCaseController {
                                           @RequestBody CaseCommentRequest caseCommentRequest,
                                           Principal principal) {
 
-        if (!StringUtils.equals(caseId, caseCommentRequest.getCaseId())) {
-            throw new ConflictingInputException(String.format("Case Id '%s' provided in the path does not match the one in the case comment request body submitted '%s'",
-                    caseId, caseCommentRequest.getCaseId()));
-        }
+        validateCaseCommentRequest(caseId, caseCommentRequest);
         var caseCommentEntity = caseCommentsService.createCaseComment(caseCommentRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
         return CaseCommentResponse.of(caseCommentEntity);
+    }
+
+    private static void validateCaseCommentRequest(String caseId, CaseCommentRequest caseCommentRequest) {
+        if (!StringUtils.equals(caseId, caseCommentRequest.getCaseId())) {
+            throw new ConflictingInputException(String.format("Case Id '%s' provided in the path does not match the one in the case comment request body submitted '%s'",
+                caseId, caseCommentRequest.getCaseId()));
+        }
     }
 
     @Operation(description = "Deletes a comment from a given court case.")
@@ -277,10 +318,8 @@ public class CourtCaseController {
             @PathVariable String courtCode,
             @RequestParam(value = "date")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(value = "createdAfter", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdAfter,
-            @RequestParam(value = "createdBefore", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdBefore,
+            @RequestParam(value = "source", required = false) String source,
+            @RequestParam(value = "breach", defaultValue = "false") boolean breach,
             WebRequest webRequest
     ) {
         var partialResponse = ResponseEntity.ok();
@@ -299,15 +338,16 @@ public class CourtCaseController {
                     .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS));
         }
 
-        final var createdAfterOrDefault = Optional.ofNullable(createdAfter)
-                .orElse(
-                        LocalDateTime.of(MIN_YEAR_SUPPORTED_BY_DB, 1, 1, 0, 0)
-                );
 
-        final var createdBeforeOrDefault = Optional.ofNullable(createdBefore)
-                .orElse(LocalDateTime.of(MAX_YEAR_SUPPORTED_BY_DB, 12, 31, 23, 59));
+        final var hearingSearchFilter = HearingSearchFilter.builder()
+                .courtCode(courtCode)
+                .hearingDay(date)
+                .source(source)
+                .breach(breach)
+                .build();
 
-        var courtCases = courtCaseService.filterHearings(courtCode, date, createdAfterOrDefault, createdBeforeOrDefault);
+        var courtCases = courtCaseService.filterHearings(hearingSearchFilter);
+
         var courtCaseResponses = courtCases.stream()
                 .flatMap(courtCaseEntity -> buildCourtCaseResponses(courtCaseEntity, date).stream())
                 .sorted(Comparator

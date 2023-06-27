@@ -16,6 +16,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class Plea {
-    private String value;
-    private LocalDate date;
+    private String pleaValue;
+    private LocalDate pleaDate;
 }

@@ -10,7 +10,7 @@ import org.springframework.retry.annotation.EnableRetry
 @EnableJpaAuditing
 @EnableRetry
 @EnableCaching
-open class CourtCaseServiceApplication
+class CourtCaseServiceApplication
 
 fun main(args: Array<String>) {
     runApplication<CourtCaseServiceApplication>(*args)

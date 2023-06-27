@@ -136,7 +136,7 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
     }
 
     public void addHearingOutcome(HearingOutcomeType hearingOutcomeType) {
-        this.hearingOutcome = HearingOutcomeEntity.builder().outcomeType(hearingOutcomeType.name()).hearing(this).build();
+        this.hearingOutcome = HearingOutcomeEntity.builder().outcomeType(hearingOutcomeType.name()).outcomeDate(LocalDateTime.now()).hearing(this).build();
     }
 
     private void updateHearingDays(HearingEntity hearingUpdate) {

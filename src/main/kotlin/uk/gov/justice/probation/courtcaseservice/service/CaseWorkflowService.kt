@@ -3,13 +3,15 @@ package uk.gov.justice.probation.courtcaseservice.service
 import org.springframework.stereotype.Service
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepositoryCustom
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
 
 @Service
-class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRepository: CourtRepository) {
+class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRepository: CourtRepository, val hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom) {
 
     fun addHearingOutcome(hearingId: String, hearingOutcomeType: HearingOutcomeType) {
         hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
@@ -22,7 +24,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
             })
     }
 
-    fun fetchHearingOutcomes(courtCode: String, state: HearingOutcomeItemState): List<HearingOutcomeResponse> {
+    fun fetchHearingOutcomes(courtCode: String, hearingOutcomeSearchRequest: HearingOutcomeSearchRequest): List<HearingOutcomeResponse> {
         courtRepository.findByCourtCode(courtCode)
             .orElseThrow {
                 EntityNotFoundException(
@@ -30,6 +32,6 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
                     courtCode
                 )
             }
-        return hearingRepository.findByCourtCodeAndHearingOutcome(courtCode, state.name).flatMap { HearingOutcomeResponse.of(it) };
+        return hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(courtCode, hearingOutcomeSearchRequest).flatMap { HearingOutcomeResponse.of(it) }
     }
 }

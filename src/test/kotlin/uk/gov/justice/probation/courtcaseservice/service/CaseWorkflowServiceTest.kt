@@ -12,12 +12,14 @@ import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingOutcomeEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepositoryCustom
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
 import java.time.LocalDateTime
@@ -28,6 +30,9 @@ internal class CaseWorkflowServiceTest {
 
     @Mock
     lateinit var hearingRepository: HearingRepository
+
+    @Mock
+    lateinit var hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom
 
     @Mock
     lateinit var courtRepository: CourtRepository
@@ -47,7 +52,7 @@ internal class CaseWorkflowServiceTest {
     }
 
     @Test
-    fun `given hearing outcome and hearing id does not exist should add hearing outcome`() {
+    fun `given hearing outcome and hearing id does not exist should throw entity not found exception`() {
         val hearingId = "hearing-id-one"
         given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.empty())
         assertThrows(
@@ -73,11 +78,11 @@ internal class CaseWorkflowServiceTest {
         val hearing2 = EntityHelper.aHearingEntityWithHearingId("case-id-2", "hearing-id-2", "defendant-id-2").withHearingOutcome(hearingOutcomeEntity2)
 
         given(courtRepository.findByCourtCode(COURT_CODE)).willReturn(Optional.of(CourtEntity.builder().build()))
-        given(hearingRepository.findByCourtCodeAndHearingOutcome(COURT_CODE, HearingOutcomeItemState.NEW.name)).willReturn(
+        given(hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(COURT_CODE, HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW))).willReturn(
             listOf(hearing1, hearing2)
         )
 
-        val hearingOutcomes = caseWorkflowService.fetchHearingOutcomes(COURT_CODE, HearingOutcomeItemState.NEW)
+        val hearingOutcomes = caseWorkflowService.fetchHearingOutcomes(COURT_CODE, HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW))
 
         assertThat(hearingOutcomes).isEqualTo(listOf(
             HearingOutcomeResponse(
@@ -113,7 +118,7 @@ internal class CaseWorkflowServiceTest {
         ) {
             caseWorkflowService.fetchHearingOutcomes(
                 COURT_CODE,
-                HearingOutcomeItemState.NEW
+                HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW)
             )
         }
         verifyNoInteractions(hearingRepository)

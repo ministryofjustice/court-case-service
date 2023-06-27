@@ -16,6 +16,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.envers.Audited;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState;
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
 import javax.persistence.CascadeType;
@@ -136,7 +137,11 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
     }
 
     public void addHearingOutcome(HearingOutcomeType hearingOutcomeType) {
-        this.hearingOutcome = HearingOutcomeEntity.builder().outcomeType(hearingOutcomeType.name()).outcomeDate(LocalDateTime.now()).hearing(this).build();
+        this.hearingOutcome = HearingOutcomeEntity.builder().outcomeType(hearingOutcomeType.name())
+            .state(HearingOutcomeItemState.NEW.name())
+            .outcomeDate(LocalDateTime.now())
+            .hearing(this)
+            .build();
     }
 
     private void updateHearingDays(HearingEntity hearingUpdate) {

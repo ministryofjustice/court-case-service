@@ -24,9 +24,10 @@ import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.get
 class CaseSearchControllerIntTest extends BaseIntTest {
 
     private static final String CASE_SEARCH_ENDPOINT = "/search?term={search}&type={type}";
+    private static final String CASE_SEARCH_ENDPOINT_WITH_PAGING = "/search?term={search}&type={type}&page={page}&size={size}";
 
     @Test
-    void givenNameForCrnParameter_shouldReturnCasesHavingDefendantsWithGivenName() {
+    void givenNameForSearchParameter_shouldReturnCasesHavingDefendantsWithGivenName() {
         var testName = "Ferris Bueller";
         RestAssured.given()
             .auth()
@@ -37,6 +38,8 @@ class CaseSearchControllerIntTest extends BaseIntTest {
 
             .then()
             .statusCode(200)
+            .body("totalPages", equalTo(1))
+            .body("totalElements", equalTo(1))
             .body("items", hasSize(1))
             .body("items[0].hearingId", equalTo("fe657c3a-b674-4e17-8772-7281c99e4f9f"))
             .body("items[0].defendantId", equalTo("0048297a-fd9c-4c96-8c03-8122b802a54d"))
@@ -48,6 +51,42 @@ class CaseSearchControllerIntTest extends BaseIntTest {
             .body("items[0].lastHearingCourt", equalTo("Leicester"))
             .body("items[0].awaitingPsr", equalTo(true))
             .body("items[0].breach", equalTo(true));
+    }
+
+    @Test
+    void givenNameAndPagingInfo_shouldReturnCasesHavingDefendantsWithGivenName_forPageOne() {
+        var testName = "Middle";
+        RestAssured.given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .when()
+            .get(CASE_SEARCH_ENDPOINT_WITH_PAGING, testName, "NAME", 1, 2)
+
+            .then()
+            .statusCode(200)
+            .body("totalPages", equalTo(2))
+            .body("totalElements", equalTo(3))
+            .body("items", hasSize(2))
+        ;
+    }
+
+    @Test
+    void givenNameAndPagingInfo_shouldReturnCasesHavingDefendantsWithGivenName_forPageTwo() {
+        var testName = "Middle";
+        RestAssured.given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .when()
+            .get(CASE_SEARCH_ENDPOINT_WITH_PAGING, testName, "NAME", 2, 2)
+
+            .then()
+            .statusCode(200)
+            .body("totalPages", equalTo(2))
+            .body("totalElements", equalTo(3))
+            .body("items", hasSize(1))
+        ;
     }
 
     @Test

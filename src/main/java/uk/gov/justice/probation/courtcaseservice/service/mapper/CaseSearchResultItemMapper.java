@@ -9,7 +9,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResultItem;
 
 import java.time.Clock;
@@ -49,21 +48,25 @@ public class CaseSearchResultItemMapper {
         var lastHearing = lastAndNextHearings.getFirst();
         var nextHearing = lastAndNextHearings.getSecond();
 
-        return CaseSearchResultItem.builder()
+        CaseSearchResultItem.CaseSearchResultItemBuilder caseSearchResultItemBuilder = CaseSearchResultItem.builder()
             .hearingId(hearingDefendants.get(0).getHearing().getHearingId())
             .defendantId(defendant.getDefendantId())
-            .crn(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::getCrn).orElse(null))
             .defendantName(defendant.getDefendantName())
             .offenceTitles(offenceTitles.stream().toList())
             .probationStatus(defendant.getProbationStatusForDisplay())
-            .breach(defendant.getOffender().isBreach())
-            .awaitingPsr(defendant.getOffender().getAwaitingPsr())
             .lastHearingDate(lastHearing.map(HearingDayEntity::getDay).orElse(null))
             .lastHearingCourt(lastHearing.map(HearingDayEntity::getCourt).map(CourtEntity::getName).orElse(null))
             .nextHearingDate(nextHearing.map(HearingDayEntity::getDay).orElse(null))
-            .nextHearingCourt(nextHearing.map(HearingDayEntity::getCourt).map(CourtEntity::getName).orElse(null))
+            .nextHearingCourt(nextHearing.map(HearingDayEntity::getCourt).map(CourtEntity::getName).orElse(null));
+
+        Optional.ofNullable(defendant.getOffender()).ifPresent(offenderEntity -> caseSearchResultItemBuilder.crn(offenderEntity.getCrn())
+            .breach(offenderEntity.isBreach())
+            .awaitingPsr(offenderEntity.getAwaitingPsr()));
+
+        return caseSearchResultItemBuilder
             .build();
     }
+
     private Pair<Optional<HearingDayEntity>, Optional<HearingDayEntity>> getLastAndNextHearings(List<HearingDefendantEntity> hearingDefendants) {
         final var hearingDays = hearingDefendants.stream().flatMap(hearingDefendantEntity -> hearingDefendantEntity.getHearing().getHearingDays().stream()).collect(Collectors.toList());
         hearingDays.sort(Comparator.comparing(HearingDayEntity::getDay));

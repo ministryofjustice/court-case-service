@@ -15,5 +15,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public class CaseSearchResult {
+
+    private int totalPages;
+
+    private long totalElements;
+
     private List<CaseSearchResultItem> items;
 }

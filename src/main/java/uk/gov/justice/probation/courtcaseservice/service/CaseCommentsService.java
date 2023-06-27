@@ -67,6 +67,32 @@ public class CaseCommentsService {
             .orElseThrow(() -> new EntityNotFoundException("Cannot find case with case id %s", caseId));
     }
 
+    public void deleteCaseCommentDraft(String caseId, String userUuid) {
+        courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId)
+            .ifPresentOrElse(courtCaseEntity -> {
+                caseCommentsRepository
+                    .findByCaseIdAndCreatedByUuidAndDraftIsTrue(caseId, userUuid)
+                    .ifPresentOrElse(caseCommentEntity -> {
+                        caseCommentEntity.setDeleted(true);
+                        caseCommentsRepository.delete(caseCommentEntity);
+                    }, () -> {
+                        throw new EntityNotFoundException("Cannot find draft case comment for case id %s and user id %s", caseId, userUuid);
+                    });
+            }, () -> {
+                throw new EntityNotFoundException("Cannot find case with case id %s", caseId);
+            });
+    }
+
+    public CaseCommentEntity updateCaseComment(CaseCommentEntity caseCommentUpdate, Long commentId) {
+
+       return caseCommentsRepository.findByIdAndCaseIdAndCreatedByUuid(commentId, caseCommentUpdate.getCaseId(), caseCommentUpdate.getCreatedByUuid())
+           .map(caseCommentEntity -> {
+               caseCommentEntity.update(caseCommentUpdate);
+               return caseCommentsRepository.save(caseCommentEntity);
+           })
+           .orElseThrow(() -> new EntityNotFoundException("Comment %s not found for the given user on case %s", commentId.toString(), caseCommentUpdate.getCaseId()));
+    }
+
     public void deleteCaseComment(String caseId, Long commentId, String userUuid) {
         caseCommentsRepository.findById(commentId).ifPresentOrElse( caseCommentEntity -> {
             if(!equalsIgnoreCase(caseCommentEntity.getCaseId(), caseId)) {

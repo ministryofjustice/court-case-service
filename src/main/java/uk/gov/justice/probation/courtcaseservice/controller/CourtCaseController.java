@@ -125,7 +125,7 @@ public class CourtCaseController {
     CourtCaseResponse getCourtCase(
             @PathVariable String courtCode,
             @PathVariable String caseNo,
-            @Parameter(in = ParameterIn.PATH, name = "listNo", schema = @Schema(type = "string"), description = "If listNo is provided then the endpoint will return the latest hearing with matching listNo if it exists. If the case exists, but a hearing with the provided listNo does not, then the endpoint will return the most recent hearing but will <em>omit</em> the hearingId. This indicates to the caller that they should generate a new hearingId when PUTting to create a new hearing entity. This is required to allow Libra case progress to be tracked, see <a href='https://dsdmoj.atlassian.net/browse/PIC-2293'>PIC-2293</a> for more information.")
+            @Parameter(in = ParameterIn.PATH, name = "listNo", schema = @Schema(type = "string"), description = "If listNo is provided then the endpoint will return the latest hearing with matching listNo if it exists. If the case exists, but a hearing with the provided listNo does not, then the endpoint will search and return the hearing with no listNo if present or return a HTTP 404. This indicates to the caller that they should generate a new hearingId when PUTting to create a new hearing entity. This is required to allow Libra case progress to be tracked, see <a href='https://dsdmoj.atlassian.net/browse/PIC-2293'>PIC-2293</a> for more information.")
             @RequestParam(required = false) String listNo) {
         return buildCourtCaseResponse(courtCaseService.getHearingByCaseNumber(courtCode, caseNo, listNo));
     }
@@ -221,6 +221,28 @@ public class CourtCaseController {
         validateCaseCommentRequest(caseId, caseCommentRequest);
         var caseCommentEntity = caseCommentsService.createUpdateCaseCommentDraft(caseCommentRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
         return CaseCommentResponse.of(caseCommentEntity);
+    }
+
+    @Operation(description = "Updates a case comment for a given case id and comment id")
+    @PutMapping(value = "/cases/{caseId}/comments/{commentId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    CaseCommentResponse updateCaseComment(@PathVariable(value = "caseId") String caseId,
+                                          @PathVariable(value = "commentId") Long commentId,
+                                          @Valid @RequestBody CaseCommentRequest caseCommentRequest,
+                                          Principal principal) {
+
+        validateCaseCommentRequest(caseId, caseCommentRequest);
+        var caseCommentEntity = caseCommentsService.updateCaseComment(caseCommentRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)), commentId);
+        return CaseCommentResponse.of(caseCommentEntity);
+    }
+
+    @Operation(description = "Deletes a draft case comment for a given case")
+    @DeleteMapping(value = "/cases/{caseId}/comments/draft")
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    void deleteCaseCommentDraft(@PathVariable(value = "caseId") String caseId, Principal principal) {
+        caseCommentsService.deleteCaseCommentDraft(caseId, authenticationHelper.getAuthUserUuid(principal));
     }
 
     @Operation(description = "Creates a comment on given court case.")

@@ -5,16 +5,18 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.CaseSearchResultItemMapper;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResult;
-import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchType;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,19 +35,34 @@ public class CaseSearchService {
     }
 
     @Transactional(readOnly = true)
-    public CaseSearchResult searchCases(final String searchTerm, final CaseSearchType searchType) {
+    public CaseSearchResult searchCases(CaseSearchRequest caseSearchRequest) {
+        Pageable pageable = Pageable.ofSize(caseSearchRequest.getSize()).withPage(caseSearchRequest.getPage() - 1);
 
-        var defendants = switch (searchType) {
-            case CRN -> defendantRepository.findDefendantsByCrn(searchTerm);
-            case NAME -> defendantRepository.findDefendantsByName(Arrays.stream(searchTerm.split(" ")).map(s -> s.trim()).collect(Collectors.joining(" & ")), searchTerm.trim());
+        final String searchTerm = caseSearchRequest.getTerm();
+        var defendantsPage = switch (caseSearchRequest.getType()) {
+            case CRN -> defendantRepository.findDefendantsByCrn(searchTerm, pageable);
+            case NAME ->
+                defendantRepository.findDefendantsByName(Arrays.stream(searchTerm.split(" "))
+                    .map(s -> s.trim()).collect(Collectors.joining(" & ")), searchTerm.trim(), pageable);
         };
 
+        if(caseSearchRequest.getPage() > defendantsPage.getTotalPages()) {
+            return CaseSearchResult.builder()
+                .totalElements(defendantsPage.getTotalElements())
+                .totalPages(defendantsPage.getTotalPages())
+                .items(List.of())
+                .build();
+        }
+
         // extract cases that defendants are involved in
-        var courtCases = defendants.stream().map(DefendantEntity::getHearingDefendants)
+        var courtCases = defendantsPage.getContent().stream().map(DefendantEntity::getHearingDefendants)
             .flatMap(Collection::stream).map(hearingDefendantEntity -> new Pair<>(hearingDefendantEntity.getDefendant().getDefendantId(), hearingDefendantEntity.getHearing().getCourtCase()))
             .collect(Collectors.toList());
 
-        return CaseSearchResult.builder().items(courtCases.stream()
+        return CaseSearchResult.builder()
+            .totalElements(defendantsPage.getTotalElements())
+            .totalPages(defendantsPage.getTotalPages())
+            .items(courtCases.stream()
             .map(courtCaseEntity -> caseSearchResultItemMapper.from(courtCaseEntity.getSecond(), courtCaseEntity.getFirst()))
             .collect(Collectors.toList())).build();
     }

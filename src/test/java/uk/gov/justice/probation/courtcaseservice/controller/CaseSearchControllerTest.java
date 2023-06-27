@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.service.CaseSearchService;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResult;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchType;
 
@@ -22,11 +23,12 @@ class CaseSearchControllerTest {
     CaseSearchController searchController;
 
     @Test
-    void givenSearchTypeAndTerm_invokeCaseSearchService() {
+    void givenSearchRequest_invokeCaseSearchService() {
         String testCrn = "X12345";
-        given(caseSearchService.searchCases(testCrn, CaseSearchType.CRN)).willReturn(CaseSearchResult.builder().build());
-        var actual = searchController.searchCases(testCrn, CaseSearchType.CRN);
-        verify(caseSearchService).searchCases(testCrn, CaseSearchType.CRN);
+        CaseSearchRequest caseSearchRequest = CaseSearchRequest.builder().term(testCrn).type(CaseSearchType.CRN).build();
+        given(caseSearchService.searchCases(caseSearchRequest)).willReturn(CaseSearchResult.builder().build());
+        var actual = searchController.searchCases(caseSearchRequest);
+        verify(caseSearchService).searchCases(caseSearchRequest);
         assertThat(actual).isNotNull();
     }
 }

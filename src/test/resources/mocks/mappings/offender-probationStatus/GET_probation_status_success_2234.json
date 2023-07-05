@@ -2,7 +2,7 @@
   "priority": 1,
   "request": {
     "method": "GET",
-    "urlPath": "/secure/probation-case/2234/status",
+    "urlPath": "/probation-case/2234/status",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"
@@ -14,6 +14,6 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "body": "{\"status\": \"CURRENT\", \"previouslyKnownTerminationDate\": \"2010-04-05\", \"inBreach\": true, \"preSentenceActivity\": true, \"awaitingPsr\": true}"
+    "body": "{\"status\": \"CURRENT\", \"terminationDate\": \"2010-04-05\", \"inBreach\": true, \"preSentenceActivity\": true, \"awaitingPsr\": true}"
   }
 }

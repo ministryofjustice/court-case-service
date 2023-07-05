@@ -9,28 +9,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple3;
+import uk.gov.justice.probation.courtcaseservice.client.ProbationStatusDetailRestClient;
 import uk.gov.justice.probation.courtcaseservice.controller.model.RequirementsResponse;
-import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
-import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
-import uk.gov.justice.probation.courtcaseservice.restclient.DocumentRestClient;
-import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
-import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
+import uk.gov.justice.probation.courtcaseservice.restclient.*;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.mapper.OffenderMapper;
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.OffenderNotFoundException;
-import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
-import uk.gov.justice.probation.courtcaseservice.service.model.Breach;
-import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
-import uk.gov.justice.probation.courtcaseservice.service.model.ConvictionBySentenceComparator;
-import uk.gov.justice.probation.courtcaseservice.service.model.CourtReport;
-import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
-import uk.gov.justice.probation.courtcaseservice.service.model.LicenceCondition;
-import uk.gov.justice.probation.courtcaseservice.service.model.OffenderDetail;
-import uk.gov.justice.probation.courtcaseservice.service.model.OffenderManager;
-import uk.gov.justice.probation.courtcaseservice.service.model.ProbationRecord;
-import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
-import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
-import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
-import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
+import uk.gov.justice.probation.courtcaseservice.service.model.*;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.ConvictionDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.GroupedDocuments;
 import uk.gov.justice.probation.courtcaseservice.service.model.document.OffenderDocumentDetail;
@@ -54,6 +38,7 @@ public class OffenderService {
     private final AssessmentsRestClient assessmentsClient;
     private final DocumentRestClient documentRestClient;
     private final ConvictionRestClient convictionRestClient;
+    private final ProbationStatusDetailRestClient probationStatusDetailRestClient;
     private final TelemetryService telemetryService;
 
     private final Predicate<OffenderDocumentDetail> documentTypeFilter;
@@ -80,6 +65,7 @@ public class OffenderService {
         this.convictionRestClient = convictionRestClient;
         this.assessmentsClient = assessmentsClient;
         this.documentRestClient = documentRestClient;
+        this.probationStatusDetailRestClient = offenderRestClientFactory.buildUserAwareProbationStatusDetailsRestClient();
         this.documentTypeFilter = documentTypeFilter;
         this.telemetryService = telemetryService;
     }
@@ -208,7 +194,7 @@ public class OffenderService {
     }
 
     public Mono<OffenderDetail> getOffenderDetail(String crn) {
-        return Mono.zip(offenderRestClient.getOffender(crn), offenderRestClient.getProbationStatusByCrn(crn))
+        return Mono.zip(offenderRestClient.getOffender(crn), probationStatusDetailRestClient.getProbationStatusByCrn(crn))
                 .map((tuple2) -> OffenderMapper.offenderDetailFrom(tuple2.getT1(), tuple2.getT2()));
     }
 
@@ -223,7 +209,7 @@ public class OffenderService {
     }
 
     public Mono<ProbationStatusDetail> getProbationStatus(String crn) {
-        return offenderRestClient.getProbationStatusByCrn(crn);
+        return probationStatusDetailRestClient.getProbationStatusByCrn(crn);
     }
 
     private Mono<Conviction> applyRequirementsToConviction(String crn, Conviction conviction) {

@@ -44,6 +44,9 @@ public class WebClientFactory {
     @Value("${community-api.base-url}")
     private String communityApiBaseUrl;
 
+    @Value("${court-case-and-delius-api.base-url}")
+    private String probationStatusDetailBaseUrl;
+
     @Value("${feature.flags.disable-auth:false}")
     private boolean disableAuthentication;
     @Autowired
@@ -54,6 +57,11 @@ public class WebClientFactory {
     public RestClientHelper buildCommunityRestClientHelper(@Nullable String username) {
         final var webClient = buildWebClient(communityApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE, username);
         return new RestClientHelper(webClient, "community-api-client", disableAuthentication);
+    }
+
+    public RestClientHelper buildProbationStatusDetailRestClientHelper(@Nullable String username) {
+        final var webClient = buildWebClient(probationStatusDetailBaseUrl, DEFAULT_BYTE_BUFFER_SIZE, username);
+        return new RestClientHelper(webClient, "court-case-and-delius-api-client", disableAuthentication);
     }
 
     public WebClient buildWebClient(String baseUrl, int bufferByteCount) {

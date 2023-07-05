@@ -60,8 +60,7 @@ public class OffenderRestClient {
     private String nsisTemplate;
     @Value("${community-api.court-appearances-by-crn-and-nsi-url-template}")
     private String courtAppearancesTemplate;
-    @Value("${community-api.probation-status-by-crn}")
-    private String probationStatusTemplate;
+
 
     @Value("${community-api.nsis-filter.codes.queryParameter}")
     private String nsiCodesParam;
@@ -70,15 +69,6 @@ public class OffenderRestClient {
     @Value("${community-api.offender-address-code}")
     private String addressCode;
     private RestClientHelper clientHelper;
-
-    public Mono<ProbationStatusDetail> getProbationStatusByCrn(String crn) {
-        return clientHelper.get(String.format(probationStatusTemplate, crn))
-            .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse)-> clientHelper.handleOffenderError(crn, clientResponse))
-            .bodyToMono(CommunityApiProbationStatusDetail.class)
-            .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender probation status data for CRN '%s'", crn), e))
-            .map(OffenderMapper::probationStatusDetailFrom);
-    }
 
     public Mono<CommunityApiOffenderResponse> getOffender(String crn) {
         return clientHelper.get(String.format(offenderUrlTemplate, crn))

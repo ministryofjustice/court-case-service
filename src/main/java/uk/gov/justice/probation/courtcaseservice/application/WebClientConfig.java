@@ -33,6 +33,9 @@ public class WebClientConfig {
     @Value("${manage-offences-api.base-url}")
     private String manageOffencesApiBaseUrl;
 
+    @Value("${court-case-and-delius-api.base-url}")
+    private String courtCaseDeliusApiBaseUrl;
+
     @Value("${web.client.document-byte-buffer-size}")
     private int documentBufferByteSize;
 
@@ -63,6 +66,11 @@ public class WebClientConfig {
     }
 
     @Bean
+    public RestClientHelper courtCaseDeliusApiClient(WebClient courtCaseDeliusApiWebClient) {
+        return new RestClientHelper(courtCaseDeliusApiWebClient, "court-case-and-delius-api-client", disableAuthentication);
+    }
+
+    @Bean
     public WebClient documentWebClient(WebClientFactory webClientFactory) {
         return webClientFactory.buildWebClient(communityApiBaseUrl, documentBufferByteSize);
     }
@@ -90,6 +98,11 @@ public class WebClientConfig {
     @Bean
     public WebClient manageOffencesApiWebClient(WebClientFactory webClientFactory) {
         return webClientFactory.buildWebClient(manageOffencesApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE);
+    }
+
+    @Bean
+    public WebClient courtCaseDeliusApiWebClient(WebClientFactory webClientFactory) {
+        return webClientFactory.buildWebClient(courtCaseDeliusApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE);
     }
 
 }

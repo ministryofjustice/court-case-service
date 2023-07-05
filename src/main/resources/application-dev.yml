@@ -16,6 +16,9 @@ prison-api:
 manage-offences-api:
   base-url: https://manage-offences-api-dev.hmpps.service.justice.gov.uk
 
+court-case-and-delius-api:
+  base-url: https://court-case-service-dev.apps.live-1.cloud-platform.service.justice.gov.uk
+
 
 feature:
   flags:

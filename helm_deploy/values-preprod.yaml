@@ -51,6 +51,8 @@ env:
     base_url: https://api-preprod.prison.service.justice.gov.uk
   manage_offences_api:
     base_url: https://manage-offences-api-preprod.hmpps.service.justice.gov.uk
+  court_case_and_delius:
+    base_url: https://court-case-and-delius-preprod.hmpps.service.justice.gov.uk
 
 
 spring:

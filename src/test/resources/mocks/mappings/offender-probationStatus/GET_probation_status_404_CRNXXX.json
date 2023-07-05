@@ -2,7 +2,7 @@
   "priority": 1,
   "request": {
     "method": "GET",
-    "urlPath": "/secure/probation-case/CRNXXX/status",
+    "urlPath": "/probation-case/CRNXXX/status",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"
@@ -10,10 +10,11 @@
     }
   },
   "response": {
-    "status": 404,
+    "status": 200,
     "headers": {
       "Content-Type": "application/json"
     },
-    "body": "{\"status\": 404, \"developerMessage\": \"Offender with CRN 'CRNXXX' not found\"}"
+    "body": "{\"status\": \"NO_RECORD\", \"terminationDate\": null, \"inBreach\": false, \"preSentenceActivity\": false, \"awaitingPsr\": false}"
   }
 }
+

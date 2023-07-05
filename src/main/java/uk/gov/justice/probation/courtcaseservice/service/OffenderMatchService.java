@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.annotation.RequestScope;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.client.ProbationStatusDetailRestClient;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
@@ -42,6 +43,7 @@ public class OffenderMatchService {
 
     private final GroupedOffenderMatchRepository groupedOffenderMatchRepository;
     private final OffenderRestClient offenderRestClient;
+    private final ProbationStatusDetailRestClient probationStatusDetailRestClient;
     private final CourtCaseRepository courtCaseRepository;
     private final HearingRepository hearingRepository;
 
@@ -49,6 +51,7 @@ public class OffenderMatchService {
     public OffenderMatchService(GroupedOffenderMatchRepository groupedOffenderMatchRepository, OffenderRestClientFactory offenderRestClientFactory, CourtCaseRepository courtCaseRepository, HearingRepository hearingRepository) {
         this.groupedOffenderMatchRepository = groupedOffenderMatchRepository;
         this.offenderRestClient = offenderRestClientFactory.buildUserAwareOffenderRestClient();
+        this.probationStatusDetailRestClient = offenderRestClientFactory.buildUserAwareProbationStatusDetailsRestClient();
         this.courtCaseRepository = courtCaseRepository;
         this.hearingRepository = hearingRepository;
     }
@@ -75,7 +78,7 @@ public class OffenderMatchService {
         return Mono.zip(offenderRestClient.getOffenderMatchDetailByCrn(crn),
                         offenderRestClient.getConvictionsByCrn(crn)
                                 .onErrorResume(OffenderNotFoundException.class, e -> Mono.just(Collections.emptyList())),
-                        offenderRestClient.getProbationStatusByCrn(crn))
+                        probationStatusDetailRestClient.getProbationStatusByCrn(crn))
                 .map(tuple -> addMostRecentEventToOffenderMatch(tuple.getT1(), tuple.getT2(), tuple.getT3(), offenderMatchEntity))
                 .block();
     }

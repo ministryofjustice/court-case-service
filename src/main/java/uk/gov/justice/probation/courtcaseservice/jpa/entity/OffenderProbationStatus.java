@@ -7,8 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 public enum OffenderProbationStatus {
     CURRENT(DefendantProbationStatus.CURRENT.name()),
     PREVIOUSLY_KNOWN(DefendantProbationStatus.PREVIOUSLY_KNOWN.name()),
-    NOT_SENTENCED(DefendantProbationStatus.NOT_SENTENCED.name())
-    ;
+    NOT_SENTENCED(DefendantProbationStatus.NOT_SENTENCED.name());
 
     private final String name;
 

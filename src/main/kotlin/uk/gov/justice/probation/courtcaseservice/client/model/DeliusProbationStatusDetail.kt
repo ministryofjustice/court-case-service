@@ -14,17 +14,15 @@ data class DeliusProbationStatusDetail(
 
         val NO_RECORD = DeliusProbationStatusDetail(ProbationStatus.NO_RECORD)
 
-        fun from(probationStatusDetail: DeliusProbationStatusDetail) : ProbationStatusDetail {
+        fun from(probationStatusDetail: DeliusProbationStatusDetail): ProbationStatusDetail {
 
-
-            val detail = ProbationStatusDetail.builder()
+            return ProbationStatusDetail.builder()
                 .status(probationStatusDetail.status.name)
                 .awaitingPsr(probationStatusDetail.awaitingPsr)
                 .inBreach(probationStatusDetail.inBreach)
                 .preSentenceActivity(probationStatusDetail.preSentenceActivity)
                 .previouslyKnownTerminationDate(probationStatusDetail.terminationDate)
-                .build()
-            return detail;
+                .build();
         }
     }
 }

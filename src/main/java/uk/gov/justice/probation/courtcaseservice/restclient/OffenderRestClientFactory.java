@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.application.WebClientFactory;
+import uk.gov.justice.probation.courtcaseservice.client.ProbationStatusDetailRestClient;
 import uk.gov.justice.probation.courtcaseservice.security.UnableToGetTokenOnBehalfOfUserException;
 
 import java.util.List;
@@ -35,8 +36,8 @@ public class OffenderRestClientFactory {
     private String nsisTemplate;
     @Value("${community-api.court-appearances-by-crn-and-nsi-url-template}")
     private String courtAppearancesTemplate;
-    @Value("${community-api.probation-status-by-crn}")
-    private String probationStatusTemplate;
+    @Value("${court-case-and-delius-api.probation-status-by-crn}")
+    private String probationStatusDetailsTemplate;
 
     @Value("${community-api.nsis-filter.codes.queryParameter}")
     private String nsiCodesParam;
@@ -77,7 +78,17 @@ public class OffenderRestClientFactory {
             throw new UnableToGetTokenOnBehalfOfUserException(message);
         }
         final var restClientHelper = webClientFactory.buildCommunityRestClientHelper(clientDetails.getUsername());
-        return new OffenderRestClient(offenderUrlTemplate, offenderAllUrlTemplate, offenderManagersUrlTemplate, convictionsUrlTemplate, requirementsUrlTemplate, pssRequirementsUrlTemplate, licenceConditionsUrlTemplate, registrationsUrlTemplate, nsisTemplate, courtAppearancesTemplate, probationStatusTemplate, nsiCodesParam, nsiBreachCodes, addressCode, restClientHelper);
+        return new OffenderRestClient(offenderUrlTemplate, offenderAllUrlTemplate, offenderManagersUrlTemplate, convictionsUrlTemplate, requirementsUrlTemplate, pssRequirementsUrlTemplate, licenceConditionsUrlTemplate, registrationsUrlTemplate, nsisTemplate, courtAppearancesTemplate, nsiCodesParam, nsiBreachCodes, addressCode, restClientHelper);
+    }
+
+    public ProbationStatusDetailRestClient buildUserAwareProbationStatusDetailsRestClient() {
+        if(mandatedUsernameClientIds.contains(clientDetails.getClientId()) && StringUtil.isNullOrEmpty(clientDetails.getUsername())) {
+            final var message = String.format("Unable to request client-credentials grant for service call as username was not provided " +
+                    "in the incoming token and username is mandatory for clientId '%s'", clientDetails.getClientId());
+            throw new UnableToGetTokenOnBehalfOfUserException(message);
+        }
+        final var restClientHelper = webClientFactory.buildProbationStatusDetailRestClientHelper(clientDetails.getUsername());
+        return new ProbationStatusDetailRestClient(restClientHelper, probationStatusDetailsTemplate);
     }
 
     /**
@@ -89,6 +100,6 @@ public class OffenderRestClientFactory {
      */
 
     public OffenderRestClient buildUserAgnosticOffenderRestClient() {
-        return new OffenderRestClient(offenderUrlTemplate, offenderAllUrlTemplate, offenderManagersUrlTemplate, convictionsUrlTemplate, requirementsUrlTemplate, pssRequirementsUrlTemplate, licenceConditionsUrlTemplate, registrationsUrlTemplate, nsisTemplate, courtAppearancesTemplate, probationStatusTemplate, nsiCodesParam, nsiBreachCodes, addressCode, userAgnosticClientHelper);
+        return new OffenderRestClient(offenderUrlTemplate, offenderAllUrlTemplate, offenderManagersUrlTemplate, convictionsUrlTemplate, requirementsUrlTemplate, pssRequirementsUrlTemplate, licenceConditionsUrlTemplate, registrationsUrlTemplate, nsisTemplate, courtAppearancesTemplate, nsiCodesParam, nsiBreachCodes, addressCode, userAgnosticClientHelper);
     }
 }

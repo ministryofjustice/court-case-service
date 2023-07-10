@@ -22,6 +22,9 @@ nomis-oauth:
 manage-offences-api:
   base-url: http://localhost:8090
 
+court-case-and-delius-api:
+  base-url: http://localhost:8090
+
 spring:
   flyway:
     clean-on-validation-error: true

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.client.ProbationStatusDetailRestClient;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
@@ -55,6 +56,8 @@ class OffenderMatchServiceTest {
     private CourtCaseRepository courtCaseRepository;
     @Mock
     private CourtCaseEntity courtCaseEntity;
+    @Mock
+    private ProbationStatusDetailRestClient probationStatusDetailRestClient;
 
     private OffenderMatchService service;
     @Mock
@@ -63,6 +66,7 @@ class OffenderMatchServiceTest {
     @BeforeEach
     void setUp() {
         when(offenderRestClientFactory.buildUserAwareOffenderRestClient()).thenReturn(offenderRestClient);
+        when(offenderRestClientFactory.buildUserAwareProbationStatusDetailsRestClient()).thenReturn(probationStatusDetailRestClient);
         service = new OffenderMatchService(offenderMatchRepository, offenderRestClientFactory, courtCaseRepository, hearingRepository);
     }
 
@@ -148,7 +152,7 @@ class OffenderMatchServiceTest {
             final var crn = "X320741";
             when(offenderRestClient.getOffenderMatchDetailByCrn(crn)).thenReturn(Mono.justOrEmpty(matchDetail));
             when(offenderRestClient.getConvictionsByCrn(crn)).thenReturn(Mono.error(new OffenderNotFoundException(crn)));
-            when(offenderRestClient.getProbationStatusByCrn(crn)).thenReturn(Mono.just(ProbationStatusDetail.builder().status("CURRENT").build()));
+            when(probationStatusDetailRestClient.getProbationStatusByCrn(crn)).thenReturn(Mono.just(ProbationStatusDetail.builder().status("CURRENT").build()));
 
             final var offenderMatchDetail = service.getOffenderMatchDetail(OffenderMatchEntity.builder().crn("X320741").build());
 
@@ -167,7 +171,7 @@ class OffenderMatchServiceTest {
             assertThat(offenderMatchDetail).isNull();
             verify(offenderRestClient).getOffenderMatchDetailByCrn(crn);
             verify(offenderRestClient).getConvictionsByCrn(crn);
-            verify(offenderRestClient).getProbationStatusByCrn(crn);
+            verify(probationStatusDetailRestClient).getProbationStatusByCrn(crn);
         }
 
         @Test
@@ -203,7 +207,7 @@ class OffenderMatchServiceTest {
         private void mockOffenderDetailMatch(String crn, OffenderMatchDetail matchDetail, List<Conviction> convictions) {
             when(offenderRestClient.getOffenderMatchDetailByCrn(crn)).thenReturn(Mono.justOrEmpty(matchDetail));
             when(offenderRestClient.getConvictionsByCrn(crn)).thenReturn(Mono.just(convictions));
-            when(offenderRestClient.getProbationStatusByCrn(crn)).thenReturn(Mono.just(ProbationStatusDetail.builder().status("CURRENT").build()));
+            when(probationStatusDetailRestClient.getProbationStatusByCrn(crn)).thenReturn(Mono.just(ProbationStatusDetail.builder().status("CURRENT").build()));
         }
 
         private Conviction buildConviction(boolean active, String sentenceDesc) {

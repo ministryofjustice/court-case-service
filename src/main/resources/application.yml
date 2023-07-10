@@ -55,6 +55,13 @@ spring:
             client-authentication-method: basic
             authorization-grant-type: client_credentials
             provider: nomis-oauth-service
+          court-case-and-delius-api-client:
+            client-name: court-case-and-delius-api-client
+            client-id: ${court-case-and-delius-api-client-id:court-case-and-delius-api-client}
+            client-secret: ${court-case-and-delius-api-client-secret:clientsecret}
+            client-authentication-method: basic
+            authorization-grant-type: client_credentials
+            provider: nomis-oauth-service
         provider:
           nomis-oauth-service:
             token-uri: ${nomis-oauth.base-url}/auth/oauth/token
@@ -111,7 +118,6 @@ community-api:
   sentence-status-url-template: /secure/offenders/crn/%s/convictions/%s/sentenceStatus
   nsi-by-id-url-template: /secure/offenders/crn/%s/convictions/%s/nsis/%s
   court-appearances-by-crn-and-nsi-url-template: /secure/offenders/crn/%s/convictions/%s/courtAppearances
-  probation-status-by-crn: /secure/probation-case/%s/status
 
   probation-record-filter.document.types: "COURT_REPORT_DOCUMENT"
   probation-record-filter.document.subtype.codes: "CJF,CJO,CJS,PSA,PSB,PSN,PSR,SSR,XPR,CR02,CR05"
@@ -132,6 +138,9 @@ delius:
 
 manage-offences-api:
   get-home-office-offence-code: /offences/ho-code/%s
+
+court-case-and-delius-api:
+  probation-status-by-crn: /probation-case/%s/status
 
 health:
   default-ping-path: /ping

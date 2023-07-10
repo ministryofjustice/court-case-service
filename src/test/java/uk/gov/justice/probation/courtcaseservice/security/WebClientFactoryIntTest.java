@@ -27,6 +27,9 @@ class WebClientFactoryIntTest extends BaseIntTest {
     @Value("${community-api.base-url}")
     private String communityApiBaseUrl;
 
+    @Value("${court-case-and-delius-api.base-url}")
+    private String probationStatusDetailBaseUrl;
+
     @Value("${feature.flags.disable-auth:false}")
     private boolean disableAuthentication;
     @Autowired
@@ -40,7 +43,7 @@ class WebClientFactoryIntTest extends BaseIntTest {
 
     @BeforeEach
     void beforeEach(){
-        webClientFactory = new WebClientFactory(connectTimeoutMs, readTimeoutMs, writeTimeoutMs, communityApiBaseUrl, disableAuthentication, clientDetails, clientRegistrationRepository);
+        webClientFactory = new WebClientFactory(connectTimeoutMs, readTimeoutMs, writeTimeoutMs, communityApiBaseUrl,probationStatusDetailBaseUrl, disableAuthentication, clientDetails, clientRegistrationRepository);
     }
 
     @Test

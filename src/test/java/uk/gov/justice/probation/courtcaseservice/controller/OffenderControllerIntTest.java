@@ -9,15 +9,8 @@ import uk.gov.justice.probation.courtcaseservice.service.model.CustodialStatus;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.emptyOrNullString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.springframework.http.HttpHeaders.ACCEPT_RANGES;
-import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
-import static org.springframework.http.HttpHeaders.LAST_MODIFIED;
+import static org.hamcrest.Matchers.*;
+import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.DateHelper.standardDateOf;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
@@ -163,8 +156,7 @@ class OffenderControllerIntTest extends BaseIntTest {
 
                 .body("assessment.type",  equalTo("LAYER_1"))
                 .body("assessment.completed",  equalTo("2018-06-20T23:11:09"))
-                .body("assessment.status",  equalTo("COMPLETE"))
-        ;
+                .body("assessment.status",  equalTo("COMPLETE"));
     }
     @Test
     void whenCallMadeToGetProbationRecord_andNoAssessmentsFound_thenDegradeGracefully() {
@@ -177,8 +169,7 @@ class OffenderControllerIntTest extends BaseIntTest {
         .then()
                 .statusCode(200)
                 .body("crn",  equalTo("X980123"))
-                .body("assessment", emptyOrNullString())
-        ;
+                .body("assessment", emptyOrNullString());
     }
 
     @Test
@@ -201,8 +192,7 @@ class OffenderControllerIntTest extends BaseIntTest {
                 .body("convictions[1].documents", hasSize(0))
 
                 .body("convictions[2].convictionId", equalTo("2500295343"))
-                .body("convictions[2].documents", hasSize(7))
-        ;
+                .body("convictions[2].documents", hasSize(7));
     }
 
     @Test
@@ -219,8 +209,7 @@ class OffenderControllerIntTest extends BaseIntTest {
             .body("inBreach",  equalTo(true))
             .body("preSentenceActivity", equalTo(true))
             .body("previouslyKnownTerminationDate", equalTo(standardDateOf(2010, 4, 5)))
-            .body("awaitingPsr", equalTo(false))
-        ;
+            .body("awaitingPsr", equalTo(false));
     }
 
     @Test
@@ -233,21 +222,23 @@ class OffenderControllerIntTest extends BaseIntTest {
             .get("/offender/CRN403/probation-status-detail")
             .then()
             .statusCode(403)
-            .body("developerMessage" , equalTo("You are excluded from viewing this offender record. Please contact a system administrator"))
-        ;
+            .body("developerMessage" , equalTo("You are excluded from viewing this offender record. Please contact a system administrator"));
     }
 
     @Test
-    void givenOffenderDoesNotExist_whenCallMadeToGetProbationStatusDetail_thenReturn() {
+    void givenOffenderDoesNotExist_whenCallMadeToGetProbationStatusDetail_thenReturn_empty_record() {
         given()
             .auth()
             .oauth2(getToken())
-            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .accept(APPLICATION_JSON_VALUE)
             .when()
             .get("/offender/CRNXXX/probation-status-detail")
             .then()
-            .statusCode(404)
-        ;
+            .statusCode(200)
+            .body("status",  equalTo("NO_RECORD"))
+            .body("inBreach", equalTo(false))
+            .body("preSentenceActivity", equalTo(false))
+            .body("awaitingPsr", equalTo(false));
     }
 
     @Test
@@ -314,8 +305,7 @@ class OffenderControllerIntTest extends BaseIntTest {
             .body("otherIds.crn", equalTo("X320741"))
             .body("otherIds.offenderId", equalTo(2500343964L))
             .body("otherIds.pncNumber", equalTo("2004/0712343H"))
-            .body("otherIds.croNumber", equalTo("123456/04A"))
-        ;
+            .body("otherIds.croNumber", equalTo("123456/04A"));
     }
 
     @Test
@@ -328,8 +318,7 @@ class OffenderControllerIntTest extends BaseIntTest {
             .get("/offender/CRN007/detail")
             .then()
             .statusCode(403)
-            .body("developerMessage" , equalTo("You are excluded from viewing this offender record. Please contact a system administrator"))
-        ;
+            .body("developerMessage" , equalTo("You are excluded from viewing this offender record. Please contact a system administrator"));
     }
 
     @Test

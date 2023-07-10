@@ -2,7 +2,7 @@
   "priority": 1,
   "request": {
     "method": "GET",
-    "urlPath": "/secure/probation-case/SE12345/status",
+    "urlPath": "/probation-case/SE12345/status",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"

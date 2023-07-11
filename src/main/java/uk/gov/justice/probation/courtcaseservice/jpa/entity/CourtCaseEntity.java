@@ -34,6 +34,13 @@ import java.util.List;
 @Table(name = "COURT_CASE")
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @Audited
+@SqlResultSetMapping(
+    name = "search_defendants_result_mapping",
+    entities = {
+        @EntityResult(entityClass = CourtCaseEntity.class),
+        @EntityResult(entityClass = DefendantEntity.class)
+    }
+)
 public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
 
     @Id

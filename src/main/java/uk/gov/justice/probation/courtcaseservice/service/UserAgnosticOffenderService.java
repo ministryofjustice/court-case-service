@@ -4,10 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.client.ProbationStatusDetailRestClient;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
-import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 
@@ -18,7 +18,7 @@ import java.util.Optional;
 @Slf4j
 public class UserAgnosticOffenderService {
 
-    private final OffenderRestClient userAgnosticOffenderRestClient;
+    private final ProbationStatusDetailRestClient probationStatusDetailRestClient;
 
     private final OffenderRepository offenderRepository;
 
@@ -26,15 +26,16 @@ public class UserAgnosticOffenderService {
 
     @Autowired
     public UserAgnosticOffenderService(final OffenderRestClientFactory offenderRestClientFactory,
-                                       final OffenderRepository offenderRepository, TelemetryService telemetryService) {
-        this.userAgnosticOffenderRestClient = offenderRestClientFactory.buildUserAgnosticOffenderRestClient();
+                                       final OffenderRepository offenderRepository, TelemetryService telemetryService,
+                                       final ProbationStatusDetailRestClient probationStatusDetailRestClient) {
         this.offenderRepository = offenderRepository;
         this.telemetryService = telemetryService;
+        this.probationStatusDetailRestClient = probationStatusDetailRestClient;
     }
 
 
     public Mono<ProbationStatusDetail> getProbationStatusWithoutRestrictions(String crn) {
-        return userAgnosticOffenderRestClient.getProbationStatusByCrn(crn);
+        return probationStatusDetailRestClient.getProbationStatusByCrn(crn);
     }
 
     public Optional<OffenderEntity> updateOffenderProbationStatus(String crn) {

@@ -9,6 +9,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.client.ProbationStatusDetailRestClient;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
@@ -36,7 +37,8 @@ public class UserAgnosticOffenderServiceTest {
     private OffenderRepository offenderRepository;
 
     @Mock
-    private OffenderRestClient userAgnosticOffenderRestClient;
+    private ProbationStatusDetailRestClient probationStatusDetailRestClient;
+
     @Mock
     private TelemetryService telemetryService;
 
@@ -47,8 +49,7 @@ public class UserAgnosticOffenderServiceTest {
 
     @BeforeEach
     void beforeEach() {
-        when(offenderRestClientFactory.buildUserAgnosticOffenderRestClient()).thenReturn(userAgnosticOffenderRestClient);
-        service = new UserAgnosticOffenderService(offenderRestClientFactory, offenderRepository, telemetryService);
+        service = new UserAgnosticOffenderService(offenderRestClientFactory, offenderRepository,  telemetryService, probationStatusDetailRestClient);
     }
 
     @Test
@@ -57,7 +58,7 @@ public class UserAgnosticOffenderServiceTest {
                 .status(OffenderProbationStatus.CURRENT.getName())
                 .build();
 
-        when(userAgnosticOffenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
+        when(probationStatusDetailRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
 
         var detail = service.getProbationStatusWithoutRestrictions(CRN).block();
 
@@ -81,14 +82,14 @@ public class UserAgnosticOffenderServiceTest {
                 .probationStatus(OffenderProbationStatus.NOT_SENTENCED)
                 .build();
 
-        when(userAgnosticOffenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
+        when(probationStatusDetailRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
         when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.ofNullable(offenderEntity));
         when(offenderRepository.save(any(OffenderEntity.class))).thenReturn(offenderEntity);
 
 
         service.updateOffenderProbationStatus(CRN);
 
-        verify(userAgnosticOffenderRestClient).getProbationStatusByCrn(CRN);
+        verify(probationStatusDetailRestClient).getProbationStatusByCrn(CRN);
         verify(offenderRepository).findByCrn(CRN);
         verify(offenderRepository).save(offenderEntityArgumentCaptor.capture());
         var entityToUpdate = offenderEntityArgumentCaptor.getValue();
@@ -127,7 +128,7 @@ public class UserAgnosticOffenderServiceTest {
                 .probationStatus(OffenderProbationStatus.CURRENT)
                 .build();
 
-        when(userAgnosticOffenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
+        when(probationStatusDetailRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
         when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.ofNullable(offenderEntity));
         when(offenderRepository.save(any(OffenderEntity.class))).thenReturn(updatedOffender);
 
@@ -150,7 +151,7 @@ public class UserAgnosticOffenderServiceTest {
         service.updateOffenderProbationStatus(CRN);
 
         verify(offenderRepository).findByCrn(CRN);
-        verify(userAgnosticOffenderRestClient,times(0)).getProbationStatusByCrn(CRN);
+        verify(probationStatusDetailRestClient,times(0)).getProbationStatusByCrn(CRN);
         verify(offenderRepository,times(0)).save(offenderEntityArgumentCaptor.capture());
     }
 
@@ -173,13 +174,13 @@ public class UserAgnosticOffenderServiceTest {
                 .awaitingPsr(false)
                 .build();
 
-        when(userAgnosticOffenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
+        when(probationStatusDetailRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
         when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.ofNullable(offenderEntity));
         when(offenderRepository.save(any(OffenderEntity.class))).thenReturn(offenderEntity);
 
         service.updateOffenderProbationStatus(CRN);
 
-        verify(userAgnosticOffenderRestClient).getProbationStatusByCrn(CRN);
+        verify(probationStatusDetailRestClient).getProbationStatusByCrn(CRN);
         verify(offenderRepository).findByCrn(CRN);
         verify(offenderRepository).save(offenderEntityArgumentCaptor.capture());
         var entityToUpdate = offenderEntityArgumentCaptor.getValue();
@@ -216,7 +217,7 @@ public class UserAgnosticOffenderServiceTest {
                 .preSentenceActivity(true)
                 .build();
 
-        when(userAgnosticOffenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
+        when(probationStatusDetailRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
         when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.ofNullable(offenderEntity));
 
         service.updateOffenderProbationStatus(CRN);
@@ -247,7 +248,7 @@ public class UserAgnosticOffenderServiceTest {
                 .preSentenceActivity(true)
                 .build();
 
-        when(userAgnosticOffenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.empty());
+        when(probationStatusDetailRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.empty());
         when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.ofNullable(offenderEntity));
 
         service.updateOffenderProbationStatus(CRN);

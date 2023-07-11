@@ -9,8 +9,8 @@ public enum DefendantProbationStatus {
     PREVIOUSLY_KNOWN("Previously known"),
     NOT_SENTENCED("Pre-sentence record"),
     UNCONFIRMED_NO_RECORD("No record"),
-    CONFIRMED_NO_RECORD("No record")
-    ;
+    CONFIRMED_NO_RECORD("No record");
+
 
     private static final DefendantProbationStatus DEFAULT = UNCONFIRMED_NO_RECORD;
 

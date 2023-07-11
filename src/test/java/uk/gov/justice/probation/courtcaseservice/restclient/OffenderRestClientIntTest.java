@@ -304,36 +304,4 @@ class OffenderRestClientIntTest extends BaseIntTest {
         );
     }
 
-    @Test
-    void whenGetProbationStatus_thenReturn() {
-        var optionalProbationStatusDetail = offenderRestClient.getProbationStatusByCrn(CRN).blockOptional();
-        assertThat(optionalProbationStatusDetail).isNotEmpty();
-
-        var probationStatusDetail = optionalProbationStatusDetail.get();
-        assertThat(probationStatusDetail.getInBreach()).isTrue();
-        assertThat(probationStatusDetail.isPreSentenceActivity()).isTrue();
-        assertThat(probationStatusDetail.getStatus()).isEqualTo(DefendantProbationStatus.PREVIOUSLY_KNOWN.name());
-        assertThat(probationStatusDetail.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2010, Month.APRIL, 5));
-    }
-
-    @Test
-    void givenUnknownCrn_whenGetProbationStatus_thenExpectException() {
-        assertThrows(OffenderNotFoundException.class, () ->
-            offenderRestClient.getProbationStatusByCrn(UNKNOWN_CRN).blockOptional()
-        );
-    }
-
-    @Test
-    void givenForbiddenError_whenGetProbationStatus_thenReturn() {
-        assertThrows(ForbiddenException.class, () ->
-            offenderRestClient.getProbationStatusByCrn("CRN403").blockOptional()
-        );
-    }
-
-    @Test
-    void givenServerError_whenGetProbationStatus_thenReturn() {
-        assertThrows(WebClientResponseException.class, () ->
-            offenderRestClient.getProbationStatusByCrn("SE12345").blockOptional()
-        );
-    }
 }

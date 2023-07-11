@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.client.ProbationStatusDetailRestClient;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.restclient.AssessmentsRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRestClient;
@@ -79,6 +80,8 @@ class  OffenderServiceTest {
     private OffenderRestClientFactory offenderRestClientFactory;
     @Mock
     private OffenderRestClient offenderRestClient;
+    @Mock
+    private ProbationStatusDetailRestClient probationStatusDetailRestClient;
     @Mock
     private DocumentRestClient documentRestClient;
 
@@ -647,6 +650,7 @@ class  OffenderServiceTest {
         @BeforeEach
         void beforeEach() {
             when(offenderRestClientFactory.buildUserAwareOffenderRestClient()).thenReturn(offenderRestClient);
+            when(offenderRestClientFactory.buildUserAwareProbationStatusDetailsRestClient()).thenReturn(probationStatusDetailRestClient);
             service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
         }
 
@@ -664,7 +668,7 @@ class  OffenderServiceTest {
                     .build();
 
             when(offenderRestClient.getOffender(CRN)).thenReturn(Mono.just(communityApiOffenderResponse));
-            when(offenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
+            when(probationStatusDetailRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
 
             var detail = service.getOffenderDetail(CRN).block();
 
@@ -702,13 +706,14 @@ class  OffenderServiceTest {
         @BeforeEach
         void beforeEach() {
             when(offenderRestClientFactory.buildUserAwareOffenderRestClient()).thenReturn(offenderRestClient);
+            when(offenderRestClientFactory.buildUserAwareProbationStatusDetailsRestClient()).thenReturn(probationStatusDetailRestClient);
             service = new OffenderService(offenderRestClientFactory, assessmentsRestClient, convictionRestClient, documentRestClient, documentTypeFilter, telemetryService);
         }
 
         @Test
         void whenGetProbationStatus_thenReturn() {
             var probationStatus = ProbationStatusDetail.builder().status(DefendantProbationStatus.CURRENT.name()).build();
-            when(offenderRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatus));
+            when(probationStatusDetailRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatus));
 
             var probationStatusDetail = service.getProbationStatus(CRN).blockOptional();
 

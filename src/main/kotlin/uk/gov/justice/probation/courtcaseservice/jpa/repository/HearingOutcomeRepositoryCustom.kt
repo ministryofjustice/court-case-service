@@ -52,7 +52,7 @@ class HearingOutcomeRepositoryCustom(private val entityManager: EntityManager) {
         criteriaBuilder: CriteriaBuilder
     ) {
         hearingOutcomeSearchRequest.sortBy?.let {
-            if (it == HearingOutcomeSortFields.hearingDate) {
+            if (it == HearingOutcomeSortFields.HEARING_DATE) {
                 val sortField = hearingDay.get<Predicate>("day")
                 criteriaQuery.orderBy(
                     if (hearingOutcomeSearchRequest.order == null || hearingOutcomeSearchRequest.order == SortOrder.ASC) criteriaBuilder.asc(

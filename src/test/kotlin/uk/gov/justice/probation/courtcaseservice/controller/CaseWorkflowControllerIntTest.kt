@@ -65,7 +65,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
         val endpoint = UriComponentsBuilder.fromUri(URI("/courts/${courtCode}/hearing-outcomes"))
             .queryParam("state", "NEW")
             .queryParam("outcomeType",  "PROBATION_SENTENCE", "ADJOURNED")
-            .queryParam("orderBy",  "hearingDate")
+            .queryParam("sortBy",  "hearingDate")
             .queryParam("order",  "DESC")
             .build().toUriString()
 

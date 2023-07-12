@@ -55,7 +55,7 @@ env:
   - name: DELIUS_BASE_URL
     value: "{{ .Values.env.delius.base_url }}"
 
-  - name: COURT_CASE_AND_DELIUS_BASE_URL
+  - name: COURT_CASE_AND_DELIUS_API_BASE_URL
     value: "{{ .Values.env.court_case_and_delius_api.base_url }}"
 
   - name: MANAGE_OFFENCES_API_BASE_URL

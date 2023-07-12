@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
@@ -28,15 +29,14 @@ public class CaseSearchResultItemMapper {
         this.clock = clock;
     }
 
-    public CaseSearchResultItem from(CourtCaseEntity courtCaseEntity, final String defendantId) {
+    public CaseSearchResultItem from(CourtCaseEntity courtCaseEntity, final DefendantEntity defendant) {
 
         // filter out hearing defendants that does not match the CRN as the case may have multiple defendants with different CRNs
         var hearingDefendants = courtCaseEntity.getHearings().stream().map(HearingEntity::getHearingDefendants)
             .flatMap(Collection::stream)
-            .filter(hearingDefendantEntity -> StringUtils.equalsIgnoreCase(hearingDefendantEntity.getDefendantId(), defendantId))
+            .filter(hearingDefendantEntity -> StringUtils.equalsIgnoreCase(hearingDefendantEntity.getDefendantId(), defendant.getDefendantId()))
             .collect(Collectors.toList());
 
-        var defendant = hearingDefendants.get(0).getDefendant();
         var offenceTitles = hearingDefendants.stream()
             .flatMap(hearingDefendantEntity -> hearingDefendantEntity.getOffences().stream())
             .map(OffenceEntity::getTitle).collect(Collectors.toSet());

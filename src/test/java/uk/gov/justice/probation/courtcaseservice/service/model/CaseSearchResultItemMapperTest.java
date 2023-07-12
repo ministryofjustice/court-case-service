@@ -82,7 +82,7 @@ class CaseSearchResultItemMapperTest {
         CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().hearings(hearings).build();
         EntityHelper.refreshMappings(courtCaseEntity);
         DefendantEntity defendant = hearingDefendant1.getDefendant();
-        var actual = subject.from(courtCaseEntity, defendant.getDefendantId());
+        var actual = subject.from(courtCaseEntity, defendant);
 
         var result1 = CaseSearchResultItem.builder()
             .hearingId("hearing-id-1")
@@ -108,7 +108,7 @@ class CaseSearchResultItemMapperTest {
 
         CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().hearings(hearings).build();
         EntityHelper.refreshMappings(courtCaseEntity);
-        var actual = subject.from(courtCaseEntity, defendantId1);
+        var actual = subject.from(courtCaseEntity, hearingDefendant3.getDefendant());
 
         var result = CaseSearchResultItem.builder()
             .hearingId("hearing-id-3")
@@ -133,7 +133,7 @@ class CaseSearchResultItemMapperTest {
         CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().hearings(hearings).build();
         EntityHelper.refreshMappings(courtCaseEntity);
         DefendantEntity defendant = hearingDefendant1.getDefendant();
-        var actual = subject.from(courtCaseEntity, defendant.getDefendantId());
+        var actual = subject.from(courtCaseEntity, defendant);
 
         var result = CaseSearchResultItem.builder()
             .hearingId("hearing-id-1")

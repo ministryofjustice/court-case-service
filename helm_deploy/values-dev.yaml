@@ -52,6 +52,7 @@ data_dictionary:
       pullPolicy: Always
     port: 8080
 
+
 env:
   JAVA_OPTS: "-Xmx512m"
   FEATURE_FLAGS_ENABLE_CACHEABLE_CASE_LIST: false

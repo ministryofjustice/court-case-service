@@ -50,7 +50,7 @@ data_dictionary:
       repository: quay.io/hmpps/pic-data-dictionary
       tag: latest
       pullPolicy: Always
-    port: 8090
+    port: 8080
 
 env:
   JAVA_OPTS: "-Xmx512m"

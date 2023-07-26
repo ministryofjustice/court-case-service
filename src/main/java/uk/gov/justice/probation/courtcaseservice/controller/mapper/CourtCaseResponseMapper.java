@@ -8,7 +8,6 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseRespo
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse.CourtCaseResponseBuilder;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
-import uk.gov.justice.probation.courtcaseservice.controller.model.Plea;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseMarkerEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;

@@ -13,12 +13,16 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
+import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.PagedCaseListRepositoryCustom;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
@@ -46,6 +50,8 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     private final ShortTermCustodyPredictorService shortTermCustodyPredictorService;
 
+    private final PagedCaseListRepositoryCustom pagedCaseListRepositoryCustom;
+
     @Autowired
     public ImmutableCourtCaseService(CourtRepository courtRepository,
                                      HearingRepositoryFacade hearingRepositoryFacade,
@@ -54,7 +60,8 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                                      DomainEventService domainEventService,
                                      CourtCaseRepository courtCaseRepository,
                                      ShortTermCustodyPredictorService shortTermCustodyPredictorService,
-                                     HearingRepository hearingRepository) {
+                                     HearingRepository hearingRepository,
+                                     PagedCaseListRepositoryCustom pagedCaseListRepositoryCustom) {
         this.courtRepository = courtRepository;
         this.hearingRepositoryFacade = hearingRepositoryFacade;
         this.telemetryService = telemetryService;
@@ -63,6 +70,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         this.courtCaseRepository = courtCaseRepository;
         this.shortTermCustodyPredictorService = shortTermCustodyPredictorService;
         this.hearingRepository = hearingRepository;
+        this.pagedCaseListRepositoryCustom = pagedCaseListRepositoryCustom;
     }
 
     @Override
@@ -122,6 +130,30 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     @Override
     public List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter) {
         return hearingRepository.filterHearings(hearingSearchFilter);
+    }
+
+    @Override
+    public CaseListResponse filterHearings(String courtCode, HearingSearchRequest hearingSearchRequest) {
+
+        final var hearingsPage = pagedCaseListRepositoryCustom.filterHearings(courtCode, hearingSearchRequest);
+        var hearings = hearingsPage.getContent().stream()
+            .map(pair -> CourtCaseResponseMapper.mapFrom(pair.getFirst().getHearing(), pair.getFirst(), Optional.ofNullable(pair.getSecond()).orElse(0), hearingSearchRequest.getDate()))
+            .collect(Collectors.toList());
+
+        return CaseListResponse.builder()
+            .possibleMatchesCount(matchRepository.getPossibleMatchesCountByDate(courtCode, hearingSearchRequest.getDate()).orElse(0))
+            .recentlyAddedCount(findRecentlyAddedCasesCount(courtCode, hearingSearchRequest.getDate()))
+            .courtRoomFilters(hearingRepository.getCourtroomsForCourtAndHearingDay(courtCode, hearingSearchRequest.getDate()))
+            .cases(hearings)
+            .page(hearingSearchRequest.getPage())
+            .totalPages(hearingsPage.getTotalPages())
+            .totalElements((int)hearingsPage.getTotalElements())
+            .build();
+    }
+
+    @Override
+    public int findRecentlyAddedCasesCount(String courtCode, LocalDate hearingDay) {
+        return hearingRepository.getRecentlyAddedCasesCount(courtCode, hearingDay).orElse(0);
     }
 
     public Optional<LocalDateTime> filterHearingsLastModified(String courtCode, LocalDate searchDate) {

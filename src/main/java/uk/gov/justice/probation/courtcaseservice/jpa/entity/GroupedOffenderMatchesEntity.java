@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -32,7 +34,7 @@ import java.util.List;
 @Table(name = "OFFENDER_MATCH_GROUP")
 public class GroupedOffenderMatchesEntity extends BaseEntity implements Serializable {
     @Id
-    @Column(name = "ID", updatable = false, nullable = false)
+    @Column(name = "id", updatable = false, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private Long id;
@@ -40,6 +42,7 @@ public class GroupedOffenderMatchesEntity extends BaseEntity implements Serializ
     @Setter
     @OneToMany(mappedBy = "group", fetch = FetchType.EAGER, cascade = { CascadeType.ALL }, orphanRemoval=true)
     @OrderBy("crn ASC")
+    @LazyCollection(value = LazyCollectionOption.FALSE)
     private List<OffenderMatchEntity> offenderMatches;
 
     @Setter

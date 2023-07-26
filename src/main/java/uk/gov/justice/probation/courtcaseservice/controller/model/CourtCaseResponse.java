@@ -30,7 +30,7 @@ import java.util.Optional;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CourtCaseResponse {
 
-    private static final String POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS = "Possible NDelius record";
+    public static final String POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS = "Possible NDelius record";
 
     private final String caseId;
     private final String hearingId;

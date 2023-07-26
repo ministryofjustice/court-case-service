@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
+import kotlin.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -12,8 +13,11 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -31,6 +35,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.PagedCaseListRepositoryCustom;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
 import java.time.LocalDate;
@@ -83,6 +88,8 @@ class ImmutableCourtCaseServiceTest {
     private ShortTermCustodyPredictorService shortTermCustodyPredictorService;
     @Mock
     private HearingRepository hearingRepository;
+    @Mock
+    private PagedCaseListRepositoryCustom pagedCaseListRepositoryCustom;
 
     @ExtendWith(MockitoExtension.class)
     @Nested
@@ -95,7 +102,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository);
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository, pagedCaseListRepositoryCustom);
             lenient().when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             incomingHearing = EntityHelper.aHearingEntity(CRN, CASE_NO);
             offender = OffenderEntity.builder().crn("X99999").probationStatus(OffenderProbationStatus.of(PROBATION_STATUS)).build();
@@ -124,7 +131,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService,hearingRepository );
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService,hearingRepository, pagedCaseListRepositoryCustom );
             lenient().when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             hearing = EntityHelper.aHearingEntity(CRN, CASE_NO);
         }
@@ -284,7 +291,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository);
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository, pagedCaseListRepositoryCustom);
             lenient().when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             hearing = EntityHelper.aHearingEntity(CRN, CASE_NO);
         }
@@ -462,7 +469,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository);
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository, pagedCaseListRepositoryCustom);
         }
 
         @Test
@@ -481,7 +488,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenUseExtendedCases_filterByHearingDayShouldRetrieveCourtCasesFromRepository() {
-            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository);
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository, pagedCaseListRepositoryCustom);
             when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             when(courtEntity.getCourtCode()).thenReturn(COURT_CODE);
             when(hearingRepositoryFacade.findByCourtCodeAndHearingDay(COURT_CODE, SEARCH_DATE, CREATED_AFTER, CREATED_BEFORE))
@@ -542,12 +549,72 @@ class ImmutableCourtCaseServiceTest {
 
     @ExtendWith(MockitoExtension.class)
     @Nested
+    @DisplayName("Tests for paged and filtered case-list endpoint")
+    class PagedHearingFilterTest {
+        private final LocalDateTime CREATED_AFTER = LocalDateTime.of(2020, 10, 9, 12, 50);
+        private final LocalDate SEARCH_DATE = LocalDate.of(2020, 1, 16);
+
+        @Mock
+        private List<HearingEntity> caseList;
+
+        @BeforeEach
+        void setup() {
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository, pagedCaseListRepositoryCustom);
+        }
+
+        @Test
+        void shouldInvokePagedCaseListRepositoryAndTransformResult() {
+
+            LocalDate hearingDay = EntityHelper.SESSION_START_TIME.toLocalDate();
+
+
+            var req = new HearingSearchRequest(
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                false,
+                false,
+                hearingDay,
+                1,
+                5
+            );
+
+            when(groupedOffenderMatchRepository.getPossibleMatchesCountByDate(COURT_CODE, hearingDay)).thenReturn(Optional.of(2));
+            when(hearingRepository.getRecentlyAddedCasesCount(COURT_CODE, hearingDay)).thenReturn(Optional.of(2));
+            when(hearingRepository.getCourtroomsForCourtAndHearingDay(COURT_CODE, hearingDay)).thenReturn(List.of("01", "03", "04", "05", "1", "Crown Court 5-1"));
+
+            HearingDefendantEntity hearingDefendant = EntityHelper.aHearingEntity(CASE_ID).getHearingDefendants().get(0);
+
+            Pair pair = new Pair(hearingDefendant, 5);
+            when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, req))
+                    .thenReturn(new PageImpl(List.of(pair, pair, pair, pair, pair), Pageable.ofSize(5).withPage(1), 11));
+
+            var result = service.filterHearings(COURT_CODE, req);
+
+            assertThat(result.getCases().size()).isEqualTo(5);
+            assertThat(result.getTotalElements()).isEqualTo(11);
+            assertThat(result.getTotalPages()).isEqualTo(3);
+            assertThat(result.getPossibleMatchesCount()).isEqualTo(2);
+            assertThat(result.getRecentlyAddedCount()).isEqualTo(2);
+            assertThat(result.getCourtRoomFilters()).containsAll(List.of("01", "03", "04", "05", "1", "Crown Court 5-1"));
+
+            verify(pagedCaseListRepositoryCustom).filterHearings(COURT_CODE, req);
+            verify(hearingRepository).getCourtroomsForCourtAndHearingDay(COURT_CODE, hearingDay);
+            verify(hearingRepository).getRecentlyAddedCasesCount(COURT_CODE, hearingDay);
+            verify(groupedOffenderMatchRepository).getPossibleMatchesCountByDate(COURT_CODE, hearingDay);
+            verifyNoMoreInteractions(hearingRepository);
+        }
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Nested
     @DisplayName("Tests for getting case by case no or case id")
     class GetCaseByCaseNoOrCaseIdTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository);
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository, pagedCaseListRepositoryCustom);
         }
 
         @Test
@@ -593,7 +660,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository);
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository, pagedCaseListRepositoryCustom);
         }
 
         @Test
@@ -662,7 +729,7 @@ class ImmutableCourtCaseServiceTest {
 
         @BeforeEach
         void setup() {
-            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository);
+            service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository, domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository, pagedCaseListRepositoryCustom);
         }
 
         @Test

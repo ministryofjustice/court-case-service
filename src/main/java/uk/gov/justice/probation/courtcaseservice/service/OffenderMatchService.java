@@ -29,6 +29,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Conviction;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 import uk.gov.justice.probation.courtcaseservice.service.model.Sentence;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -70,6 +71,10 @@ public class OffenderMatchService {
 
     public Optional<Integer> getMatchCountByCaseIdAndDefendant(String caseId, String defendantId) {
         return groupedOffenderMatchRepository.getMatchCountByCaseIdAndDefendant(caseId, defendantId);
+    }
+
+    public int countPossibleNDeliusMatchesByHearingDay(String courtCode, LocalDate hearingDay) {
+        return groupedOffenderMatchRepository.getPossibleMatchesCountByDate(courtCode, hearingDay).orElse(0);
     }
 
     OffenderMatchDetail getOffenderMatchDetail(OffenderMatchEntity offenderMatchEntity) {

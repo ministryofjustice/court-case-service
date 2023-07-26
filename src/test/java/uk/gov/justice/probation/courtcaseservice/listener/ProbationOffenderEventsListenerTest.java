@@ -37,7 +37,6 @@ public class ProbationOffenderEventsListenerTest {
                 "   \"crn\":\"crn\",\n" +
                 "   \"nomsNumber\":\"noms\"\n" +
                 "}".stripIndent();
-
     }
 
     @Test

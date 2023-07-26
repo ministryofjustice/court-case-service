@@ -32,7 +32,7 @@ import java.util.Optional;
 public class HearingDefendantEntity extends BaseAuditedEntity implements Serializable {
 
     @Id
-    @Column(name = "ID", updatable = false, nullable = false)
+    @Column(name = "id", updatable = false, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private final Long id;

@@ -41,6 +41,13 @@ import java.util.List;
         @EntityResult(entityClass = DefendantEntity.class)
     }
 )
+@SqlResultSetMapping(
+    name = "search_hearings_custom",
+    columns = { @ColumnResult(name = "match_count", type = Integer.class) },
+    entities = {
+        @EntityResult(entityClass = HearingDefendantEntity.class)
+    }
+)
 public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
 
     @Id

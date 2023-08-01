@@ -12,20 +12,12 @@ import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteRequest;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 import uk.gov.justice.probation.courtcaseservice.security.AuthAwareAuthenticationToken;
 import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper;
 import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
@@ -539,6 +531,24 @@ class CourtCaseControllerTest {
         given(caseCommentsService.updateCaseComment(commentUpdate.asEntity(testUuid), commentId)).willReturn(commentEntity);
         courtCaseController.updateCaseComment( caseId, commentId, commentUpdate, principal);
         verify(caseCommentsService).updateCaseComment(commentUpdate.asEntity(testUuid), commentId);
+    }
+    @Test
+    void givenCaseListRequestWithFiltersShouldInvokeServiceAndReturnResponse() {
+        var req = new HearingSearchRequest(
+            List.of(),
+            List.of(),
+            List.of(),
+            List.of(),
+            false,
+            false,
+            LocalDate.of(2023, 7, 3),
+            1,
+            5
+        );
+        given(courtCaseService.filterHearings(COURT_CODE, req)).willReturn(CaseListResponse.builder().build());
+        var result = courtCaseController.getCaseList(COURT_CODE, req);
+        verify(courtCaseService).filterHearings(COURT_CODE, req);
+        assertThat(result).isEqualTo(CaseListResponse.builder().build());
     }
 
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, NamePropertiesEntity defendantName, LocalDateTime sessionTime) {

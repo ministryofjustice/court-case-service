@@ -1,10 +1,10 @@
 TRUNCATE courtcaseservicetest.offender_match_group CASCADE;
 TRUNCATE courtcaseservicetest.offender_match CASCADE;
-TRUNCATE courtcaseservicetest.offender CASCADE;
 TRUNCATE courtcaseservicetest.hearing_day CASCADE;
 TRUNCATE courtcaseservicetest.hearing CASCADE;
 TRUNCATE courtcaseservicetest.hearing_defendant CASCADE;
 TRUNCATE courtcaseservicetest.defendant CASCADE;
+TRUNCATE courtcaseservicetest.offender CASCADE;
 TRUNCATE courtcaseservicetest.court_case CASCADE;
 TRUNCATE courtcaseservicetest.court CASCADE;
 TRUNCATE courtcaseservicetest.case_comments CASCADE;

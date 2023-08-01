@@ -16,4 +16,10 @@ import java.util.List;
 @Schema(description = "Response object for a list of cases")
 public class CaseListResponse {
     private final List<CourtCaseResponse> cases;
+    private int totalPages;
+    private int page;
+    private int totalElements;
+    private int possibleMatchesCount;
+    private int recentlyAddedCount;
+    private List<String> courtRoomFilters;
 }

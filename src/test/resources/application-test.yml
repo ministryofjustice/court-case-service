@@ -57,6 +57,7 @@ pactbroker:
 #            sql: trace
 
 
+
 hmpps.sqs:
   provider: localstack
   queues:

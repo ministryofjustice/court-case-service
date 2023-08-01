@@ -15,6 +15,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
@@ -26,6 +27,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 
 import javax.persistence.EntityManager;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +42,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 
-@Sql(scripts = { "classpath:sql/before-common.sql" }, config = @SqlConfig(transactionMode = ISOLATED), executionPhase = BEFORE_TEST_METHOD)
+@Sql(scripts = { "classpath:sql/before-common.sql", "classpath:sql/before-new-hearing-search.sql" }, config = @SqlConfig(transactionMode = ISOLATED), executionPhase = BEFORE_TEST_METHOD)
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
     private static final String CRN = "CRN";
@@ -50,8 +52,6 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
     private ImmutableCourtCaseService courtCaseService;
     @MockBean
     private CourtRepository courtRepository;
-    @MockBean
-    private DomainEventService domainEventService;
     @Autowired
     OffenderRepository offenderRepository;
 
@@ -276,6 +276,30 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
         assertThat(hearing1.getCourtCase()).isEqualTo(hearing2.getCourtCase());
         var courtCaseUpdate = hearing2DbResult.getV2();
         assertThat(courtCaseUpdate.getHearings().stream().collect(Collectors.toList())).isEqualTo(List.of(hearing1, hearing2));
+    }
+
+    @Test
+    public void shouldTransformCaseListResultToResponse() {
+        var req = new HearingSearchRequest(
+            List.of(),
+            List.of(),
+            List.of(),
+            List.of(),
+            false,
+            false,
+            LocalDate.of(2023, 7, 3),
+            1,
+            5
+        );
+        var result = courtCaseService.filterHearings("B14LO", req);
+        assertThat(result.getCases().size()).isEqualTo(5);
+        assertThat(result.getTotalElements()).isEqualTo(11);
+        assertThat(result.getTotalPages()).isEqualTo(3);
+        assertThat(result.getPossibleMatchesCount()).isEqualTo(2);
+        assertThat(result.getRecentlyAddedCount()).isEqualTo(2);
+        assertThat(result.getCourtRoomFilters()).containsAll(List.of("01", "03", "04", "05", "1", "Crown Court 5-1"));
+
+        assertThat(result.getCases().stream().map(it -> it.getDefendantName()).collect(Collectors.toList()).containsAll(List.of("Mr Jeff Blogs", "Miss Esther Egge")));
     }
 
     private Tuple3<HearingEntity, CourtCaseEntity, DefendantEntity> assertThatHearingIsNotImmutable(String caseId, String hearingId, String defendantId) {

@@ -37,6 +37,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffen
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearingRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
@@ -360,6 +361,16 @@ public class CourtCaseController {
                 .body(CaseListResponse.builder().cases(courtCaseResponses).build());
     }
 
+    @Operation(summary = "Gets case data for a court on a date with pagination support",
+        description = "Response is sorted by court room, session start time and by defendant surname. Supports filtering by Supports pagination of results.")
+    @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE, params = { "VERSION2" })
+    public CaseListResponse getCaseList(
+        @PathVariable String courtCode,
+        @Valid HearingSearchRequest hearingSearchRequest
+    ) {
+        return courtCaseService.filterHearings(courtCode, hearingSearchRequest);
+    }
+
     private CourtCaseResponse buildCourtCaseResponseForCaseIdAndDefendantId(HearingEntity hearingEntity, String defendantId, List<CaseProgressHearing> caseHearings) {
         final var offenderMatchesCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingEntity.getCaseId(), defendantId)
                 .orElse(0);
@@ -380,14 +391,15 @@ public class CourtCaseController {
 
         var defendantEntities = new ArrayList<>(Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(Collections.emptyList()));
 
-        final var caseId = hearingEntity.getCaseId();
         return defendantEntities.stream()
                 .sorted(Comparator.comparing(HearingDefendantEntity::getDefendantSurname))
-                .map(hearingDefendantEntity -> {
-                    final String defendantId = Optional.ofNullable(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).map(DefendantEntity::getDefendantId).orElseThrow();
-                    var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(caseId, defendantId).orElse(0);
-                    return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate);
-                })
+                .map(hearingDefendantEntity -> buildCourtCaseResponse(hearingEntity, hearingDate, hearingDefendantEntity))
                 .toList();
+    }
+
+    private CourtCaseResponse buildCourtCaseResponse(HearingEntity hearingEntity, LocalDate hearingDate, HearingDefendantEntity hearingDefendantEntity) {
+        final var defendant = Optional.ofNullable(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).orElseThrow();
+        var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingEntity.getCaseId(), defendant.getDefendantId()).orElse(0);
+        return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate);
     }
 }

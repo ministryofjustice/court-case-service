@@ -3,9 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -95,4 +93,19 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
         String courtCode,
         String hearingOutcomeItemState
     );
+
+    @Query(value = "select count(h.id) from " +
+        "hearing_day hday " +
+        "join hearing h on h.id = hday.fk_hearing_id " +
+        "and hday.hearing_day = :date " +
+        "and hday.court_code = :courtCode " +
+        "and date(h.first_created) = date(now())",
+        nativeQuery = true)
+    Optional<Integer> getRecentlyAddedCasesCount(String courtCode, LocalDate date);
+
+    @Query(value = "select distinct court_room from hearing_day " +
+        "where hearing_day = :date and court_code = :courtCode " +
+        "order by court_room",
+        nativeQuery = true)
+    List<String> getCourtroomsForCourtAndHearingDay(String courtCode, LocalDate date);
 }

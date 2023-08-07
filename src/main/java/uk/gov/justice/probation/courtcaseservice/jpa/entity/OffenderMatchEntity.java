@@ -80,4 +80,12 @@ public class OffenderMatchEntity extends BaseEntity {
 
     @Column(name = "MATCH_PROBABILITY")
     private Double matchProbability;
+
+    public void update(OffenderMatchEntity updates) {
+        pnc = updates.getPnc();
+        cro = updates.getCro();
+        matchType = updates.getMatchType();
+        aliases = updates.getAliases();
+        matchProbability = updates.getMatchProbability();
+    }
 }

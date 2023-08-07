@@ -8,7 +8,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatch
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderAliasEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -70,24 +69,25 @@ public class OffenderMatchMapper {
     }
 
     private static void updateGroupMatches(List<OffenderMatchRequest> matches, GroupedOffenderMatchesEntity group) {
-        group.clearOffenderMatches();
 
-        Optional.ofNullable(matches).orElse(Collections.emptyList())
-            .stream()
-            .map(
-                offenderMatchRequest ->
-                    OffenderMatchEntity.builder()
-                        .group(group)
-                        .confirmed(offenderMatchRequest.getConfirmed())
-                        .rejected(offenderMatchRequest.getRejected())
-                        .matchType(offenderMatchRequest.getMatchType())
-                        .crn(offenderMatchRequest.getMatchIdentifiers().getCrn())
-                        .pnc(offenderMatchRequest.getMatchIdentifiers().getPnc())
-                        .cro(offenderMatchRequest.getMatchIdentifiers().getCro())
-                        .aliases(mapAliases(offenderMatchRequest.getMatchIdentifiers().getAliases()))
-                        .matchProbability(offenderMatchRequest.getMatchProbability())
-                        .build()
-            )
-            .forEach(newMatch -> group.getOffenderMatches().add(newMatch));
+        Optional.ofNullable(matches).ifPresent(offenderMatchRequests -> {
+            var matchEntities = offenderMatchRequests.stream()
+                .map(
+                    offenderMatchRequest ->
+                        OffenderMatchEntity.builder()
+                            .group(group)
+                            .confirmed(offenderMatchRequest.getConfirmed())
+                            .rejected(offenderMatchRequest.getRejected())
+                            .matchType(offenderMatchRequest.getMatchType())
+                            .crn(offenderMatchRequest.getMatchIdentifiers().getCrn())
+                            .pnc(offenderMatchRequest.getMatchIdentifiers().getPnc())
+                            .cro(offenderMatchRequest.getMatchIdentifiers().getCro())
+                            .aliases(mapAliases(offenderMatchRequest.getMatchIdentifiers().getAliases()))
+                            .matchProbability(offenderMatchRequest.getMatchProbability())
+                            .build()
+                ).collect(Collectors.toList());
+            group.updateMatches((List<OffenderMatchEntity>) matchEntities);
+        });
+
     }
 }

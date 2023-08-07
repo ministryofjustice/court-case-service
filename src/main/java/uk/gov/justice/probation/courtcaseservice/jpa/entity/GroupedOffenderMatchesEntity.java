@@ -23,6 +23,8 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Schema(description = "Grouped Offender Matches")
 @Entity
@@ -62,4 +64,24 @@ public class GroupedOffenderMatchesEntity extends BaseEntity implements Serializ
         }
     }
 
+    private Optional<OffenderMatchEntity> findMatchByCrn(String crn) {
+        return getOffenderMatches().stream().filter(offenderMatchEntity -> crn.equalsIgnoreCase(offenderMatchEntity.getCrn())).findAny();
+    }
+    public void updateMatches(List<OffenderMatchEntity> newMatches) {
+
+        var removalList = getOffenderMatches().stream()
+            .filter(offenderMatchEntity -> newMatches.stream().filter(newMatch -> newMatch.getCrn().equalsIgnoreCase(offenderMatchEntity.getCrn()))
+                .findAny().isEmpty()).collect(Collectors.toList());
+        
+        getOffenderMatches().removeAll(removalList);
+
+        newMatches.forEach(matchRequest -> {
+            findMatchByCrn(matchRequest.getCrn()).ifPresentOrElse(existing -> {
+                existing.update(matchRequest);
+            }, () -> {
+                getOffenderMatches().add(matchRequest);
+                matchRequest.setGroup(this);
+            } );
+        });
+    }
 }

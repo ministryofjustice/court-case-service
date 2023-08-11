@@ -13,7 +13,6 @@ import uk.gov.justice.probation.courtcaseservice.client.ProbationStatusDetailRes
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
-import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.OffenderRestClientFactory;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 
@@ -21,7 +20,10 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @DisplayName("OffenderService tests")
 @ExtendWith(MockitoExtension.class)
@@ -194,6 +196,43 @@ public class UserAgnosticOffenderServiceTest {
         assertThat(entityToUpdate.getPreviouslyKnownTerminationDate()).isEqualTo(date);
         assertThat(entityToUpdate.getCrn()).isEqualTo(CRN);
         assertThat(entityToUpdate.isPreSentenceActivity()).isEqualTo(true);
+    }
+
+    @Test
+    void shouldNotUpdateOffenderProbationStatus_onNoRecordFromOffenderApi() {
+
+        var date = LocalDate.now();
+
+        final var probationStatusDetail = ProbationStatusDetail.builder()
+                .status("NO_RECORD")
+                .inBreach(true)
+                .awaitingPsr(true)
+                .previouslyKnownTerminationDate(date)
+                .preSentenceActivity(true)
+                .build();
+        final var offenderEntity = OffenderEntity.builder()
+                .crn(CRN)
+                .probationStatus(OffenderProbationStatus.CURRENT)
+                .breach(true)
+                .awaitingPsr(true)
+                .previouslyKnownTerminationDate(date)
+                .preSentenceActivity(true)
+                .build();
+
+        when(probationStatusDetailRestClient.getProbationStatusByCrn(CRN)).thenReturn(Mono.just(probationStatusDetail));
+        when(offenderRepository.findByCrn(CRN)).thenReturn(Optional.ofNullable(offenderEntity));
+
+        service.updateOffenderProbationStatus(CRN);
+        verify(telemetryService).trackOffenderProbationStatusNotUpdateEvent(offenderEntityArgumentCaptor.capture());
+        verify(offenderRepository,times(0)).save(offenderEntityArgumentCaptor.capture());
+        var entityToUpdate = offenderEntityArgumentCaptor.getValue();
+
+        assertThat(entityToUpdate.getProbationStatus()).isEqualTo(OffenderProbationStatus.CURRENT);
+        assertThat(entityToUpdate.getAwaitingPsr()).isEqualTo(true);
+        assertThat(entityToUpdate.getPreviouslyKnownTerminationDate()).isEqualTo(date);
+        assertThat(entityToUpdate.getCrn()).isEqualTo(CRN);
+        assertThat(entityToUpdate.isPreSentenceActivity()).isEqualTo(true);
+        assertThat(entityToUpdate.isBreach()).isEqualTo(true);
     }
 
     @Test

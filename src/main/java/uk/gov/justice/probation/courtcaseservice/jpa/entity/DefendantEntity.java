@@ -18,7 +18,19 @@ import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
@@ -107,6 +119,10 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
 
     @Column(name = "PERSON_ID", nullable = false)
     private String personId;
+
+    public String getCrn() {
+        return Optional.ofNullable(offender).map(OffenderEntity::getCrn).orElse(null);
+    }
 
     @PrePersist
     public void prePersistManualUpdate(){

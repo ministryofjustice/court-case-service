@@ -106,6 +106,7 @@ public class CourtCaseControllerOffenderUpdateIntTest extends BaseIntTest {
             .statusCode(200);
         final var defendant = defendantRepository.findFirstByDefendantId(DEFENDANT_ID_FOR_DELETE).get();
         assertThat(defendant.getCrn()).isNullOrEmpty();
+        assertThat(defendant.getOffender()).isNull();
     }
 
     @Test

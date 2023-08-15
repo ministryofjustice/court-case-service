@@ -52,8 +52,6 @@ class OffenderUpdateServiceTest {
         given(defendantRepository.findFirstByDefendantId(DEFENDANT_ID))
                 .willReturn(Optional.of(DefendantEntity.builder().crn(CRN).build()));
 
-        given(offenderRepository.findByCrn(CRN)).willReturn(Optional.empty());
-
         assertThatExceptionOfType(EntityNotFoundException.class)
             .isThrownBy(() -> offenderUpdateService.getDefendantOffenderByDefendantId(DEFENDANT_ID).block())
             .withMessage("Offender details not found for defendant defendant-id-one");
@@ -62,7 +60,7 @@ class OffenderUpdateServiceTest {
     @Test
     void shouldReturnOffenderWhenFoundInDatabase() {
         given(defendantRepository.findFirstByDefendantId(DEFENDANT_ID))
-                .willReturn(Optional.of(DefendantEntity.builder().crn(CRN).build()));
+                .willReturn(Optional.of(DefendantEntity.builder().offender(OffenderEntity.builder().crn(CRN).build()).build()));
 
         given(offenderRepository.findByCrn(CRN)).willReturn(Optional.of(OffenderEntity.builder().crn(CRN)
                 .preSentenceActivity(true).breach(true).suspendedSentenceOrder(true).build()));

@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
@@ -22,6 +21,19 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
             {
                 throw EntityNotFoundException("Hearing not found with id $hearingId")
             })
+    }
+
+    fun updateHearingOutcome(hearingId: String, hearingOutcomeState: String, assignedTo: String, assignedToUuid: String) {
+        hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
+                { hearingEntity: HearingEntity ->
+                    hearingEntity.hearingOutcome.updateState(hearingOutcomeState)
+                    hearingEntity.hearingOutcome.updateAssignedTo(assignedTo)
+                    hearingEntity.hearingOutcome.updateAssignedToUuid(assignedToUuid)
+                    hearingRepository.save(hearingEntity)
+                },
+                {
+                    throw EntityNotFoundException("Hearing not found with id $hearingId")
+                })
     }
 
     fun fetchHearingOutcomes(courtCode: String, hearingOutcomeSearchRequest: HearingOutcomeSearchRequest): List<HearingOutcomeResponse> {

@@ -17,6 +17,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "HEARING_OUTCOME")
@@ -42,6 +43,24 @@ public class HearingOutcomeEntity extends BaseAuditedEntity implements Serializa
     @Column(name = "STATE")
     private String state;
 
+    @Column(name = "ASSIGNED_TO")
+    private String assignedTo;
+
+    @Column(name = "ASSIGNED_TO_UUID")
+    private String assignedToUuid;
+
     @OneToOne(mappedBy = "hearingOutcome")
     private HearingEntity hearing;
+
+    public void updateState(String hearingOutcomeState) {
+        this.state = hearingOutcomeState;
+    }
+
+    public void updateAssignedTo(String hearingOutcomeAssignedTo) {
+        this.assignedTo = hearingOutcomeAssignedTo;
+    }
+
+    public void updateAssignedToUuid(String hearingOutcomeAssignedToUUID) {
+        this.assignedToUuid = hearingOutcomeAssignedToUUID;
+    }
 }

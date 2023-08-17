@@ -4,8 +4,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.BDDMockito.given
-import org.mockito.BDDMockito.verifyNoInteractions
+import org.mockito.ArgumentCaptor
+import org.mockito.BDDMockito.*
+import org.mockito.Captor
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.verify
@@ -23,7 +24,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRe
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
 import java.time.LocalDateTime
-import java.util.Optional
+import java.util.*
+
 
 @ExtendWith(MockitoExtension::class)
 internal class CaseWorkflowServiceTest {
@@ -39,6 +41,9 @@ internal class CaseWorkflowServiceTest {
 
     @InjectMocks
     lateinit var caseWorkflowService: CaseWorkflowService
+
+    @Captor
+    lateinit var hearingEntityCaptor: ArgumentCaptor<HearingEntity>
 
     @Test
     fun `given hearing outcome and hearing id exist should add hearing outcome`() {
@@ -65,6 +70,61 @@ internal class CaseWorkflowServiceTest {
             )
         }
         verify(hearingRepository).findFirstByHearingId(hearingId)
+    }
+
+    @Test
+    fun `should update hearing outcome with assigned to user details`() {
+        // Given
+        val hearingId = "hearing-id-one"
+        val hearingOutcomeState = "IN_PROGRESS"
+        val assignedTo = "John Smith"
+        val assignedToUuid = "test-uuid"
+        val hearingEntity = HearingEntity.builder()
+                .hearingOutcome(HearingOutcomeEntity.builder().build())
+                .build()
+
+        given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(hearingEntity))
+
+        // When
+        caseWorkflowService.updateHearingOutcome(hearingId, hearingOutcomeState, assignedTo, assignedToUuid)
+
+        // Then
+        verify(hearingRepository).findFirstByHearingId(hearingId)
+        verify(hearingRepository).save(hearingEntityCaptor.capture())
+
+        val entity = hearingEntityCaptor.value
+        assertThat(entity.hearingOutcome.state).isEqualTo(hearingOutcomeState)
+        assertThat(entity.hearingOutcome.assignedTo).isEqualTo(assignedTo)
+        assertThat(entity.hearingOutcome.assignedToUuid).isEqualTo(assignedToUuid)
+    }
+
+    @Test
+    fun `should throw entity not found exception when hearing does not exsist`() {
+        // Given
+        val hearingId = "hearing-id-one"
+        val hearingOutcomeState = "IN_PROGRESS"
+        val assignedTo = "John Smith"
+        val assignedToUuid = "test-uuid"
+
+        given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.empty())
+
+        // When
+        assertThrows(
+                "Hearing not found with id hearing-id-one",
+                EntityNotFoundException::class.java
+        ) {
+
+            caseWorkflowService.updateHearingOutcome(
+                    hearingId,
+                    hearingOutcomeState,
+                    assignedTo,
+                    assignedToUuid
+            )
+        }
+
+        // Then
+        verify(hearingRepository).findFirstByHearingId(hearingId)
+        verify(hearingRepository, never()).save(any())
     }
 
     @Test

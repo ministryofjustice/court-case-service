@@ -108,4 +108,16 @@ class HearingDefendantEntityTest {
 
         assertThat(hearingDefendant).isEqualTo(update);
     }
+
+    @Test
+    void shouldReturnCrnFromOffenderIfPresent() {
+        var defendantEntity = DefendantEntity.builder().offender(OffenderEntity.builder().crn("CRNONE").build()).build();
+        assertThat(defendantEntity.getCrn()).isEqualTo("CRNONE");
+    }
+
+    @Test
+    void shouldReturnNullIfOffenderIsNull() {
+        var defendantEntity = DefendantEntity.builder().offender(null).build();
+        assertThat(defendantEntity.getCrn()).isNull();
+    }
 }

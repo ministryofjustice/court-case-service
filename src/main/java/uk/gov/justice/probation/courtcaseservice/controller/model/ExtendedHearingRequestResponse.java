@@ -106,7 +106,7 @@ public class ExtendedHearingRequestResponse {
                                     .sex(Optional.ofNullable(defendant.getSex()).map(Enum::name).orElse(null))
                                     .pnc(defendant.getPnc())
                                     .cro(defendant.getCro())
-                                    .crn(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::getCrn).orElse(null))
+                                    .crn(defendant.getCrn())
                                     .probationStatus(Optional.ofNullable(defendant.getOffender()).map(offender -> offender.getProbationStatus().name()).orElse(null))
                                     .awaitingPsr(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::getAwaitingPsr).orElse(null))
                                     .breach(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::isBreach).orElse(null))

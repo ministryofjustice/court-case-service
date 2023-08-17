@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -40,20 +41,27 @@ public class UserAgnosticOffenderService {
 
     public Optional<OffenderEntity> updateOffenderProbationStatus(String crn) {
         return offenderRepository.findByCrn(crn)
-                .map(offenderEntity -> {
-                    ProbationStatusDetail probationStatusDetailFromCommunityApi = getProbationStatusWithoutRestrictions(crn).block();
-                    if (probationStatusDetailFromCommunityApi != null && !Objects.equals(probationStatusDetailFromCommunityApi, offenderEntity.getProbationStatusDetail())) {
-                        updateProbationStatusDetails(probationStatusDetailFromCommunityApi, offenderEntity);
-                        Optional.of(offenderRepository.save(offenderEntity))
-                                .map(updatedOffender -> {
-                                    telemetryService.trackOffenderProbationStatusUpdateEvent(updatedOffender);
-                                    return updatedOffender;
-                                });
-                    } else {
-                        telemetryService.trackOffenderProbationStatusNotUpdateEvent(offenderEntity);
-                    }
-                    return offenderEntity;
-                });
+            .map(offenderEntity -> {
+                log.info("Fetching probation status for crn: ", crn);
+                ProbationStatusDetail probationStatusDetailFromCommunityApi = getProbationStatusWithoutRestrictions(crn).block();
+                if (isUpdateProbationStatus(offenderEntity, probationStatusDetailFromCommunityApi)) {
+                    updateProbationStatusDetails(probationStatusDetailFromCommunityApi, offenderEntity);
+                    Optional.of(offenderRepository.save(offenderEntity))
+                        .map(updatedOffender -> {
+                            telemetryService.trackOffenderProbationStatusUpdateEvent(updatedOffender);
+                            return updatedOffender;
+                        });
+                } else {
+                    telemetryService.trackOffenderProbationStatusNotUpdateEvent(offenderEntity);
+                }
+                return offenderEntity;
+            });
+    }
+
+    private static boolean isUpdateProbationStatus(OffenderEntity offenderEntity, ProbationStatusDetail probationStatusDetailFromCommunityApi) {
+        return probationStatusDetailFromCommunityApi != null &&
+            !Objects.equals(probationStatusDetailFromCommunityApi, offenderEntity.getProbationStatusDetail()) &&
+            !StringUtils.equalsIgnoreCase("NO_RECORD", probationStatusDetailFromCommunityApi.getStatus());
     }
 
     private OffenderEntity updateProbationStatusDetails(ProbationStatusDetail probationStatusDetail, OffenderEntity offender) {

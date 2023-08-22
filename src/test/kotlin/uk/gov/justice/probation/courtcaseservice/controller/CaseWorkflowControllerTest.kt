@@ -51,7 +51,7 @@ internal class CaseWorkflowControllerTest {
     fun `should invoke service with user details`() {
         // Given
         val hearingId = "test-hearing-id"
-        val hearingOutcome = HearingOutcomeAssignRequest("John Smith")
+        val hearingOutcome = HearingOutcomeAssignToRequest("John Smith")
         given(authenticationHelper.getAuthUserUuid(any(Principal::class.java))).willReturn("test-uuid")
 
         // When

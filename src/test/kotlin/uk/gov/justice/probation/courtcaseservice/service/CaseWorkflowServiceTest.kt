@@ -92,7 +92,7 @@ internal class CaseWorkflowServiceTest {
         verify(hearingRepository).save(hearingEntityCaptor.capture())
 
         val entity = hearingEntityCaptor.value
-        assertThat(entity.hearingOutcome.state).isEqualTo("IN_PROGRESS")
+        assertThat(entity.hearingOutcome.state).isEqualTo(HearingOutcomeItemState.IN_PROGRESS.name)
         assertThat(entity.hearingOutcome.assignedTo).isEqualTo(assignedTo)
         assertThat(entity.hearingOutcome.assignedToUuid).isEqualTo(assignedToUuid)
     }

@@ -76,7 +76,6 @@ internal class CaseWorkflowServiceTest {
     fun `should update hearing outcome with assigned to user details`() {
         // Given
         val hearingId = "hearing-id-one"
-        val hearingOutcomeState = "IN_PROGRESS"
         val assignedTo = "John Smith"
         val assignedToUuid = "test-uuid"
         val hearingEntity = HearingEntity.builder()
@@ -86,14 +85,14 @@ internal class CaseWorkflowServiceTest {
         given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(hearingEntity))
 
         // When
-        caseWorkflowService.updateHearingOutcome(hearingId, hearingOutcomeState, assignedTo, assignedToUuid)
+        caseWorkflowService.updateHearingOutcome(hearingId, assignedTo, assignedToUuid)
 
         // Then
         verify(hearingRepository).findFirstByHearingId(hearingId)
         verify(hearingRepository).save(hearingEntityCaptor.capture())
 
         val entity = hearingEntityCaptor.value
-        assertThat(entity.hearingOutcome.state).isEqualTo(hearingOutcomeState)
+        assertThat(entity.hearingOutcome.state).isEqualTo("IN_PROGRESS")
         assertThat(entity.hearingOutcome.assignedTo).isEqualTo(assignedTo)
         assertThat(entity.hearingOutcome.assignedToUuid).isEqualTo(assignedToUuid)
     }
@@ -102,7 +101,6 @@ internal class CaseWorkflowServiceTest {
     fun `should throw entity not found exception when hearing does not exsist`() {
         // Given
         val hearingId = "hearing-id-one"
-        val hearingOutcomeState = "IN_PROGRESS"
         val assignedTo = "John Smith"
         val assignedToUuid = "test-uuid"
 
@@ -116,7 +114,6 @@ internal class CaseWorkflowServiceTest {
 
             caseWorkflowService.updateHearingOutcome(
                     hearingId,
-                    hearingOutcomeState,
                     assignedTo,
                     assignedToUuid
             )
@@ -170,7 +167,6 @@ internal class CaseWorkflowServiceTest {
 
     @Test
     fun `given non existing court code when get hearing outcomes then throw entity not found `() {
-        val hearingId = "hearing-id-one"
         given(courtRepository.findByCourtCode(COURT_CODE)).willReturn(Optional.empty())
         assertThrows(
             "Court B10JQ not found",

@@ -52,15 +52,12 @@ public class HearingOutcomeEntity extends BaseAuditedEntity implements Serializa
     @OneToOne(mappedBy = "hearingOutcome")
     private HearingEntity hearing;
 
+    public void assignTo(String hearingOutcomeAssignedTo, String hearingOutcomeAssignedToUUID) {
+        this.assignedTo = hearingOutcomeAssignedTo;
+        this.assignedToUuid = hearingOutcomeAssignedToUUID;
+    }
+
     public void updateState(String hearingOutcomeState) {
         this.state = hearingOutcomeState;
-    }
-
-    public void updateAssignedTo(String hearingOutcomeAssignedTo) {
-        this.assignedTo = hearingOutcomeAssignedTo;
-    }
-
-    public void updateAssignedToUuid(String hearingOutcomeAssignedToUUID) {
-        this.assignedToUuid = hearingOutcomeAssignedToUUID;
     }
 }

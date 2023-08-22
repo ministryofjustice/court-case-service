@@ -52,7 +52,7 @@ public class DefendantRepositoryCustom {
 
     public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByName(String tsQueryString, String name, Pageable pageable) {
 
-        String NAME_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where defendant.tsv_name @@ to_tsquery(:tsQueryString) " + DEFENDANT_SEARCH_GROUPING;
+        String NAME_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where defendant.tsv_name @@ to_tsquery('simple', :tsQueryString) " + DEFENDANT_SEARCH_GROUPING;
 
         String NAME_SEARCH_QUERY = DEFENDANT_SEARCH_SELECT + NAME_SEARCH_FROM + " order by similarity (d.defendant_name, :name) desc ";
 

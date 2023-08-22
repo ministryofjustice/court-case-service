@@ -3,15 +3,19 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
+import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 
+import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
@@ -25,6 +29,9 @@ class CaseSearchControllerIntTest extends BaseIntTest {
 
     private static final String CASE_SEARCH_ENDPOINT = "/search?term={search}&type={type}";
     private static final String CASE_SEARCH_ENDPOINT_WITH_PAGING = "/search?term={search}&type={type}&page={page}&size={size}";
+
+    @Autowired
+    private EntityManager em;
 
     @Test
     void givenNameForSearchParameter_shouldReturnCasesHavingDefendantsWithGivenName() {
@@ -141,5 +148,14 @@ class CaseSearchControllerIntTest extends BaseIntTest {
             .get(CASE_SEARCH_ENDPOINT, testCrn, "INVALIDTYPE")
             .then()
             .statusCode(400);
+    }
+
+    @Test
+    void shouldPopulateTsVectorForDefendantNameCorrectly() {
+        var q = em.createNativeQuery("select defendant_name, text(tsv_name) from defendant d where d.defendant_id = :did");
+        String defendantId = "0048297a-fd9c-4c96-8c03-8122b802a54d";
+        q.setParameter("did", defendantId);
+        var res = q.getResultList();
+        assertThat(Arrays.asList(res.get(0))).isEqualTo(List.of("Mr Ferris Middle BUELLER", "'bueller':4 'ferris':2 'middle':3 'mr':1"));
     }
 }

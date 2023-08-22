@@ -55,9 +55,9 @@ internal class CaseWorkflowControllerTest {
         given(authenticationHelper.getAuthUserUuid(any(Principal::class.java))).willReturn("test-uuid")
 
         // When
-        caseWorkflowController.updateHearingOutcome(hearingId, hearingOutcome, principal)
+        caseWorkflowController.assignUserToHearingOutcome(hearingId, hearingOutcome, principal)
 
         // Then
-        verify(caseWorkflowService).updateHearingOutcome(hearingId, "John Smith", "test-uuid")
+        verify(caseWorkflowService).assignHearingOutcomeTo(hearingId, "John Smith", "test-uuid")
     }
 }

@@ -22,8 +22,8 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
 
     @Operation(description = "Assigns a hearing outcome to the current user")
     @PutMapping(value = ["/hearing/{hearingId}/outcome/assign"], produces = [APPLICATION_JSON_VALUE], consumes = [APPLICATION_JSON_VALUE])
-    fun updateHearingOutcome(@PathVariable("hearingId") hearingId: String, @RequestBody hearingOutcome: HearingOutcomeAssignRequest, principal: Principal) =
-            caseWorkflowService.updateHearingOutcome(hearingId, hearingOutcome.assignedTo, authenticationHelper.getAuthUserUuid(principal))
+    fun assignUserToHearingOutcome(@PathVariable("hearingId") hearingId: String, @RequestBody hearingOutcome: HearingOutcomeAssignRequest, principal: Principal) =
+            caseWorkflowService.assignHearingOutcomeTo(hearingId, hearingOutcome.assignedTo, authenticationHelper.getAuthUserUuid(principal))
 
     @Operation(description = "Fetch hearing outcomes")
     @GetMapping(value = ["/courts/{courtCode}/hearing-outcomes"], params = ["state"], produces = [APPLICATION_JSON_VALUE])

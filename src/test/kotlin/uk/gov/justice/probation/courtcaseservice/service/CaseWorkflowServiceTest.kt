@@ -85,7 +85,7 @@ internal class CaseWorkflowServiceTest {
         given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(hearingEntity))
 
         // When
-        caseWorkflowService.updateHearingOutcome(hearingId, assignedTo, assignedToUuid)
+        caseWorkflowService.assignHearingOutcomeTo(hearingId, assignedTo, assignedToUuid)
 
         // Then
         verify(hearingRepository).findFirstByHearingId(hearingId)
@@ -112,7 +112,7 @@ internal class CaseWorkflowServiceTest {
                 EntityNotFoundException::class.java
         ) {
 
-            caseWorkflowService.updateHearingOutcome(
+            caseWorkflowService.assignHearingOutcomeTo(
                     hearingId,
                     assignedTo,
                     assignedToUuid

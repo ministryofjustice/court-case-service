@@ -23,7 +23,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
             })
     }
 
-    fun updateHearingOutcome(hearingId: String, assignedTo: String, assignedToUuid: String) {
+    fun assignHearingOutcomeTo(hearingId: String, assignedTo: String, assignedToUuid: String) {
         hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
                 { hearingEntity: HearingEntity ->
                     hearingEntity.hearingOutcome.assignTo(assignedTo, assignedToUuid)

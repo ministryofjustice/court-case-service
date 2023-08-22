@@ -5,5 +5,5 @@ import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType
 
 @Schema(description = "Hearing outcome assigned to input model")
 data class HearingOutcomeAssignRequest(
-        val assignedTo: String
+    val assignedTo: String
 )

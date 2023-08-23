@@ -24,11 +24,10 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
             })
     }
 
-    fun assignHearingOutcomeTo(hearingId: String, assignedTo: String, assignedToUuid: String) {
+    fun assignAndUpdateOutcomeToInProgress(hearingId: String, assignedTo: String, assignedToUuid: String) {
         hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
                 { hearingEntity: HearingEntity ->
                     hearingEntity.hearingOutcome.assignTo(assignedTo, assignedToUuid)
-                    hearingEntity.hearingOutcome.updateState(HearingOutcomeItemState.IN_PROGRESS.name)
                     hearingRepository.save(hearingEntity)
                 },
                 {

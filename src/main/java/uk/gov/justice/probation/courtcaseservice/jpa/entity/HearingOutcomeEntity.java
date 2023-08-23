@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.Audited;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -55,6 +56,7 @@ public class HearingOutcomeEntity extends BaseAuditedEntity implements Serializa
     public void assignTo(String hearingOutcomeAssignedTo, String hearingOutcomeAssignedToUUID) {
         this.assignedTo = hearingOutcomeAssignedTo;
         this.assignedToUuid = hearingOutcomeAssignedToUUID;
+        this.state = HearingOutcomeItemState.IN_PROGRESS.toString();
     }
 
     public void updateState(String hearingOutcomeState) {

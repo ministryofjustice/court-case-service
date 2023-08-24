@@ -3,26 +3,27 @@ package uk.gov.justice.probation.courtcaseservice.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcome
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCaseList
+import org.springframework.web.bind.annotation.*
+import uk.gov.justice.probation.courtcaseservice.controller.model.*
+import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper
 import uk.gov.justice.probation.courtcaseservice.service.CaseWorkflowService
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
+import java.security.Principal
 import javax.validation.Valid
 
 
 @Tag(name = "Case workflow API")
 @RestController
-class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService) {
+class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val authenticationHelper: AuthenticationHelper) {
 
     @Operation(description = "Adds hearing outcome for a hearing.")
     @PutMapping(value = ["/hearing/{hearingId}/outcome"], produces = [APPLICATION_JSON_VALUE], consumes = [APPLICATION_JSON_VALUE])
     fun addHearingOutcome(@PathVariable("hearingId") hearingId: String, @RequestBody hearingOutcome: HearingOutcome) =
         caseWorkflowService.addHearingOutcome(hearingId, hearingOutcome.hearingOutcomeType)
+
+    @Operation(description = "Assigns a hearing outcome to the current user")
+    @PutMapping(value = ["/hearing/{hearingId}/outcome/assign"], produces = [APPLICATION_JSON_VALUE], consumes = [APPLICATION_JSON_VALUE])
+    fun assignUserToHearingOutcome(@PathVariable("hearingId") hearingId: String, @RequestBody hearingOutcomeAssignToRequest: HearingOutcomeAssignToRequest, principal: Principal) =
+            caseWorkflowService.assignAndUpdateStateToInProgress(hearingId, hearingOutcomeAssignToRequest.assignedTo, authenticationHelper.getAuthUserUuid(principal))
 
     @Operation(description = "Fetch hearing outcomes")
     @GetMapping(value = ["/courts/{courtCode}/hearing-outcomes"], params = ["state"], produces = [APPLICATION_JSON_VALUE])

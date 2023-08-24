@@ -17,7 +17,9 @@ data class HearingOutcomeResponse(
     val defendantId: String? = null,
     val probationStatus: String? = null,
     val offences: List<String>? = null,
-    val defendantName: String? = null
+    val defendantName: String? = null,
+    val assignedTo: String? = null,
+    val assignedToUuid: String? = null
 ) {
     companion object {
         fun of(hearingOutcomeEntity: HearingOutcomeEntity?): HearingOutcomeResponse? =
@@ -37,7 +39,9 @@ data class HearingOutcomeResponse(
                 defendantId = hd.defendantId,
                 probationStatus = hd.defendant.probationStatusForDisplay.getName(),
                 offences = hd.offences.map { offenceEntity -> offenceEntity.title },
-                defendantName = hd.defendant.defendantName
+                defendantName = hd.defendant.defendantName,
+                assignedTo = hearing.hearingOutcome.assignedTo,
+                assignedToUuid = hearing.hearingOutcome.assignedToUuid
             )
         }
     }

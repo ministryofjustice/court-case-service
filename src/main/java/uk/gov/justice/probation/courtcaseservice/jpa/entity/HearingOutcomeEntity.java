@@ -58,8 +58,4 @@ public class HearingOutcomeEntity extends BaseAuditedEntity implements Serializa
         this.assignedToUuid = hearingOutcomeAssignedToUUID;
         this.state = HearingOutcomeItemState.IN_PROGRESS.toString();
     }
-
-    public void updateState(String hearingOutcomeState) {
-        this.state = hearingOutcomeState;
-    }
 }

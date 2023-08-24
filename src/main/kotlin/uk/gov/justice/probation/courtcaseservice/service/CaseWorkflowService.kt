@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
@@ -24,7 +23,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
             })
     }
 
-    fun assignAndUpdateOutcomeToInProgress(hearingId: String, assignedTo: String, assignedToUuid: String) {
+    fun assignAndUpdateStateToInProgress(hearingId: String, assignedTo: String, assignedToUuid: String) {
         hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
                 { hearingEntity: HearingEntity ->
                     hearingEntity.hearingOutcome.assignTo(assignedTo, assignedToUuid)

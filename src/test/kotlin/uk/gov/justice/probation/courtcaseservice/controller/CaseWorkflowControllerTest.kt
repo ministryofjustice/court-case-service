@@ -58,6 +58,6 @@ internal class CaseWorkflowControllerTest {
         caseWorkflowController.assignUserToHearingOutcome(hearingId, hearingOutcome, principal)
 
         // Then
-        verify(caseWorkflowService).assignAndUpdateOutcomeToInProgress(hearingId, "John Smith", "test-uuid")
+        verify(caseWorkflowService).assignAndUpdateStateToInProgress(hearingId, "John Smith", "test-uuid")
     }
 }

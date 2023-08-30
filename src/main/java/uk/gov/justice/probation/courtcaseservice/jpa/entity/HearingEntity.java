@@ -19,21 +19,9 @@ import org.hibernate.envers.Audited;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState;
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -53,6 +41,13 @@ import java.util.stream.Collectors;
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @SuperBuilder
 @Audited
+@SqlResultSetMapping(
+    name = "search_hearing_outcomes_custom",
+    columns = { @ColumnResult(name = "hearing_day", type = LocalDate.class) },
+    entities = {
+        @EntityResult(entityClass = HearingEntity.class)
+    }
+)
 public class HearingEntity extends BaseAuditedEntity implements Serializable {
 
     @Id

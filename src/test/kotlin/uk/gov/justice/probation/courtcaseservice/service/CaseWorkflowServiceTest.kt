@@ -23,6 +23,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepositoryCustom
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -135,8 +136,11 @@ internal class CaseWorkflowServiceTest {
         val hearing2 = EntityHelper.aHearingEntityWithHearingId("case-id-2", "hearing-id-2", "defendant-id-2").withHearingOutcome(hearingOutcomeEntity2)
 
         given(courtRepository.findByCourtCode(COURT_CODE)).willReturn(Optional.of(CourtEntity.builder().build()))
-        given(hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(COURT_CODE, HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW))).willReturn(
-            listOf(hearing1, hearing2)
+        given(hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome2(COURT_CODE, HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW))).willReturn(
+            listOf(
+                Pair<HearingEntity, LocalDate>(hearing1, EntityHelper.SESSION_START_TIME.toLocalDate()),
+                Pair<HearingEntity, LocalDate>(hearing2, EntityHelper.SESSION_START_TIME.toLocalDate())
+            )
         )
 
         val hearingOutcomes = caseWorkflowService.fetchHearingOutcomes(COURT_CODE, HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW))

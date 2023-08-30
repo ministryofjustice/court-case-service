@@ -12,7 +12,6 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase
 import org.springframework.test.context.jdbc.SqlConfig
 import org.springframework.test.context.jdbc.SqlConfig.TransactionMode
 import org.springframework.web.util.UriComponentsBuilder
-import org.testcontainers.shaded.org.hamcrest.collection.IsCollectionWithSize
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper
@@ -104,9 +103,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
         given()
                 .auth()
                 .oauth2(TokenHelper.getToken())
-                .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(hearingOutcomeRequest)
                 .`when`()
                 .get(endpoint)
                 .then()
@@ -121,6 +118,45 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
                 .body("cases[0].probationStatus", equalTo("Current"))
                 .body("cases[0].assignedTo", equalTo("John Smith"))
                 .body("cases[0].assignedToUuid", equalTo("8f69def4-3c52-11ee-be56-0242ac120002"))
+
+                .body("cases[1].hearingOutcomeType", equalTo("ADJOURNED"))
+                .body("cases[1].outcomeDate", equalTo("2023-04-24T09:09:09"))
+                .body("cases[1].hearingId", equalTo("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636"))
+                .body("cases[1].hearingDate", equalTo("2019-12-14"))
+                .body("cases[1].defendantId", equalTo("40db17d6-04db-11ec-b2d8-0242ac130002"))
+                .body("cases[1].defendantName", equalTo("Mr Johnny BALL"))
+                .body("cases[1].probationStatus", equalTo("Current"))
+                .body("cases[1].assignedTo", equalTo("Joe Blogs"))
+                .body("cases[1].assignedToUuid", equalTo("4b03d065-4c96-4b24-8d6d-75a45d2e3f12"))
+    }
+
+    @Test
+    fun `given court code and assigned to uuid then return all outcomes assigned to that user id`() {
+
+        var courtCode = "B10JQ"
+
+        val endpoint = UriComponentsBuilder.fromUri(URI("/courts/${courtCode}/hearing-outcomes"))
+            .queryParam("assignedToUuid", "4b03d065-4c96-4b24-8d6d-75a45d2e3f12")
+            .build().toUriString()
+
+        given()
+            .auth()
+            .oauth2(TokenHelper.getToken())
+            .accept(ContentType.JSON)
+            .`when`()
+            .get(endpoint)
+            .then()
+            .statusCode(200)
+            .body("cases", hasSize<Any>(1))
+            .body("cases[0].hearingOutcomeType", equalTo("ADJOURNED"))
+            .body("cases[0].outcomeDate", equalTo("2023-04-24T09:09:09"))
+            .body("cases[0].hearingId", equalTo("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636"))
+            .body("cases[0].hearingDate", equalTo("2019-12-14"))
+            .body("cases[0].defendantId", equalTo("40db17d6-04db-11ec-b2d8-0242ac130002"))
+            .body("cases[0].defendantName", equalTo("Mr Johnny BALL"))
+            .body("cases[0].probationStatus", equalTo("Current"))
+            .body("cases[0].assignedTo", equalTo("Joe Blogs"))
+            .body("cases[0].assignedToUuid", equalTo("4b03d065-4c96-4b24-8d6d-75a45d2e3f12"))
     }
 
     @Test

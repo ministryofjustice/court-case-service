@@ -35,7 +35,7 @@ internal class HearingOutcomeResponseTest {
         val hearing = EntityHelper.aHearingEntity("CRN123", "case-no-1", listOf(EntityHelper.aHearingDefendantEntity("defendant-id-1"),
         EntityHelper.aHearingDefendantEntity("defendant-id-2"))).withHearingOutcome(hearingOutcomeEntity1);
 
-        val response = HearingOutcomeResponse.of(hearing);
+        val response = HearingOutcomeResponse.of(hearing, EntityHelper.SESSION_START_TIME.toLocalDate());
 
         Assertions.assertThat(response).isEqualTo(listOf(
             HearingOutcomeResponse(

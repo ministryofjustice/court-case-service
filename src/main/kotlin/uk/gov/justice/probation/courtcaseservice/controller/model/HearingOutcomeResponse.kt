@@ -30,11 +30,11 @@ data class HearingOutcomeResponse(
                 )
             } ?: null
 
-        fun of(hearing: HearingEntity): List<HearingOutcomeResponse> = hearing.hearingDefendants.map { hd ->
+        fun of(hearing: HearingEntity, hearingDate: LocalDate): List<HearingOutcomeResponse> = hearing.hearingDefendants.map { hd ->
             HearingOutcomeResponse(
                 hearingOutcomeType = HearingOutcomeType.valueOf(hearing.hearingOutcome.outcomeType),
                 outcomeDate = hearing.hearingOutcome.outcomeDate,
-                hearingDate = hearing.getHearingDays().sortedWith( compareBy( { it.sessionStartTime } )).first().day,
+                hearingDate = hearingDate,
                 hearingId = hearing.hearingId,
                 defendantId = hd.defendantId,
                 probationStatus = hd.defendant.probationStatusForDisplay.getName(),

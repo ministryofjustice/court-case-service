@@ -60,4 +60,18 @@ internal class CaseWorkflowControllerTest {
         // Then
         verify(caseWorkflowService).assignAndUpdateStateToInProgress(hearingId, "John Smith", "test-uuid")
     }
+
+    @Test
+    fun `should invoke service to result the case outcome`() {
+        // Given
+        val hearingId = "test-hearing-id"
+        val hearingOutcome = HearingOutcomeAssignToRequest("John Smith")
+        given(authenticationHelper.getAuthUserUuid(any(Principal::class.java))).willReturn("test-uuid")
+
+        // When
+        caseWorkflowController.resultHearingOutcome(hearingId, principal)
+
+        // Then
+        verify(caseWorkflowService).resultHearingOutcome(hearingId, "test-uuid")
+    }
 }

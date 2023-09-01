@@ -136,7 +136,7 @@ internal class CaseWorkflowServiceTest {
         val hearing2 = EntityHelper.aHearingEntityWithHearingId("case-id-2", "hearing-id-2", "defendant-id-2").withHearingOutcome(hearingOutcomeEntity2)
 
         given(courtRepository.findByCourtCode(COURT_CODE)).willReturn(Optional.of(CourtEntity.builder().build()))
-        given(hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome2(COURT_CODE, HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW))).willReturn(
+        given(hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(COURT_CODE, HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW))).willReturn(
             listOf(
                 Pair<HearingEntity, LocalDate>(hearing1, EntityHelper.SESSION_START_TIME.toLocalDate()),
                 Pair<HearingEntity, LocalDate>(hearing2, EntityHelper.SESSION_START_TIME.toLocalDate())

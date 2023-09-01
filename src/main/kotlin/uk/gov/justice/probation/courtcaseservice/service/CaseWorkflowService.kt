@@ -42,6 +42,6 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
                     courtCode
                 )
             }
-        return hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome2(courtCode, hearingOutcomeSearchRequest).flatMap { HearingOutcomeResponse.of(it.first, it.second) }
+        return hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(courtCode, hearingOutcomeSearchRequest).flatMap { HearingOutcomeResponse.of(it.first, it.second) }
     }
 }

@@ -88,7 +88,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("name.forename3", Matchers.equalTo("Jon"))
             .body("name.surname", Matchers.equalTo("BALL"))
 
-            .body("hearings", Matchers.hasSize(2))
+            .body("hearings", Matchers.hasSize(3))
             .body("hearings[0].hearingId", Matchers.equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
             .body("hearings[0].court", Matchers.equalTo("North Shields"))
             .body("hearings[0].courtRoom", Matchers.equalTo("2"))

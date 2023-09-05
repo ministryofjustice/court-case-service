@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.Audited;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState;
@@ -18,7 +19,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "HEARING_OUTCOME")
@@ -41,6 +41,7 @@ public class HearingOutcomeEntity extends BaseAuditedEntity implements Serializa
     @Column(name = "OUTCOME_DATE")
     private LocalDateTime outcomeDate;
 
+    @Setter
     @Column(name = "STATE")
     private String state;
 

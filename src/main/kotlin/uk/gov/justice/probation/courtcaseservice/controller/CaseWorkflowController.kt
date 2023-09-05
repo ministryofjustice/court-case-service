@@ -25,6 +25,11 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
     fun assignUserToHearingOutcome(@PathVariable("hearingId") hearingId: String, @RequestBody hearingOutcomeAssignToRequest: HearingOutcomeAssignToRequest, principal: Principal) =
             caseWorkflowService.assignAndUpdateStateToInProgress(hearingId, hearingOutcomeAssignToRequest.assignedTo, authenticationHelper.getAuthUserUuid(principal))
 
+    @Operation(description = "Processes a hearing outcome for resulted for the given hearing Id.")
+    @PostMapping(value = ["/hearing/{hearingId}/outcome/result"], produces = [APPLICATION_JSON_VALUE])
+    fun resultHearingOutcome(@PathVariable("hearingId") hearingId: String, principal: Principal) =
+            caseWorkflowService.resultHearingOutcome(hearingId, authenticationHelper.getAuthUserUuid(principal))
+
     @Operation(description = "Fetch hearing outcomes")
     @GetMapping(value = ["/courts/{courtCode}/hearing-outcomes"], produces = [APPLICATION_JSON_VALUE])
     fun fetchHearingOutcomes(@PathVariable("courtCode") courtCode: String, @Valid hearingOutcomeSearchRequest: HearingOutcomeSearchRequest): HearingOutcomeCaseList {

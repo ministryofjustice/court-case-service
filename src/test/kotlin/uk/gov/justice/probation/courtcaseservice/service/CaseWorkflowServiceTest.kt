@@ -11,6 +11,7 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
+import org.springframework.web.server.ResponseStatusException
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
@@ -22,6 +23,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingOutcomeEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepositoryCustom
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
+import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -182,5 +184,70 @@ internal class CaseWorkflowServiceTest {
             )
         }
         verifyNoInteractions(hearingRepository)
+    }
+
+    @Test
+    fun `given existing hearing with outcome in IN_PROGRESS and allocated to current user, should mark outcome as RESULTED`() {
+        // Given
+        val hearingId = "hearing-id-one"
+        val assignedToUuid = "test-uuid"
+        val hearingEntity = HearingEntity.builder()
+            .hearingOutcome(HearingOutcomeEntity.builder().state(HearingOutcomeItemState.IN_PROGRESS.name).assignedToUuid(assignedToUuid).build())
+            .build()
+
+        given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(hearingEntity))
+
+        // When
+        caseWorkflowService.resultHearingOutcome(hearingId, assignedToUuid)
+
+        // Then
+        verify(hearingRepository).findFirstByHearingId(hearingId)
+        verify(hearingRepository).save(hearingEntityCaptor.capture())
+
+        assertThat(hearingEntityCaptor.value.hearingOutcome.state).isEqualTo(HearingOutcomeItemState.RESULTED.name)
+    }
+
+    @Test
+    fun `given existing hearing with outcome in IN_PROGRESS and NOT allocated to current user, should throw forbidden error`() {
+        // Given
+        val hearingId = "hearing-id-one"
+        val assignedToUuid = "test-uuid"
+        val hearingEntity = HearingEntity.builder()
+            .hearingOutcome(HearingOutcomeEntity.builder().state(HearingOutcomeItemState.IN_PROGRESS.name).assignedToUuid(assignedToUuid).build())
+            .build()
+
+        given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(hearingEntity))
+
+        // When
+        assertThrows(
+            "Outcome not allocated to current user.",
+            ForbiddenException::class.java
+        ) {
+            caseWorkflowService.resultHearingOutcome(hearingId, "un-allocated-to-user")
+        }
+        verify(hearingRepository).findFirstByHearingId(hearingId)
+        verifyNoMoreInteractions(hearingRepository)
+    }
+
+    @Test
+    fun `given existing hearing with outcome NOT in IN_PROGRESS state, should throw bad request error`() {
+        // Given
+        val hearingId = "hearing-id-one"
+        val assignedToUuid = "test-uuid"
+        val hearingEntity = HearingEntity.builder()
+            .hearingOutcome(HearingOutcomeEntity.builder().state(HearingOutcomeItemState.NEW.name).assignedToUuid(assignedToUuid).build())
+            .build()
+
+        given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(hearingEntity))
+
+        // When
+        assertThrows(
+            "Invalid state for outcome to be resulted.",
+            ResponseStatusException::class.java
+        ) {
+            caseWorkflowService.resultHearingOutcome(hearingId, assignedToUuid)
+        }
+        verify(hearingRepository).findFirstByHearingId(hearingId)
+        verifyNoMoreInteractions(hearingRepository)
     }
 }

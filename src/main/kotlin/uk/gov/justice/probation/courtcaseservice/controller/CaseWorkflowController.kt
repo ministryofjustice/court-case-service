@@ -15,10 +15,10 @@ import javax.validation.Valid
 @RestController
 class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val authenticationHelper: AuthenticationHelper) {
 
-    @Operation(description = "Adds hearing outcome for a hearing.")
+    @Operation(description = "Adds or updates hearing outcome for a hearing.")
     @PutMapping(value = ["/hearing/{hearingId}/outcome"], produces = [APPLICATION_JSON_VALUE], consumes = [APPLICATION_JSON_VALUE])
     fun addHearingOutcome(@PathVariable("hearingId") hearingId: String, @RequestBody hearingOutcome: HearingOutcome) =
-        caseWorkflowService.addHearingOutcome(hearingId, hearingOutcome.hearingOutcomeType)
+        caseWorkflowService.addOrUpdateHearingOutcome(hearingId, hearingOutcome.hearingOutcomeType)
 
     @Operation(description = "Assigns a hearing outcome to the current user")
     @PutMapping(value = ["/hearing/{hearingId}/outcome/assign"], produces = [APPLICATION_JSON_VALUE], consumes = [APPLICATION_JSON_VALUE])

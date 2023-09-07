@@ -44,7 +44,7 @@ analytics_data_extractor:
       request: 2Gi
 
 env:
-  JAVA_OPTS: "-Xmx512m"
+  JAVA_OPTS: "-Xmx2048m"
   FEATURE_FLAGS_ENABLE_CACHEABLE_CASE_LIST: false
   community_api:
     base_url: https://community-api-secure.probation.service.justice.gov.uk
@@ -70,5 +70,5 @@ resources:
     limit: 5000m
     request: 500m
   memory:
-    limit: 2Gi
-    request: 1Gi
+    limit: 4Gi
+    request: 2Gi

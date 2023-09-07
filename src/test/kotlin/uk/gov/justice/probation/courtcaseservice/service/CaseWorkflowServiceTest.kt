@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -160,7 +159,7 @@ internal class CaseWorkflowServiceTest {
             )
         )
 
-        val hearingOutcomes = caseWorkflowService.getOutcomeCountsByState(COURT_CODE, HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW))
+        val hearingOutcomes = caseWorkflowService.fetchHearingOutcomes(COURT_CODE, HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW))
 
         assertThat(hearingOutcomes).isEqualTo(listOf(
             HearingOutcomeResponse(
@@ -193,7 +192,7 @@ internal class CaseWorkflowServiceTest {
             "Court B10JQ not found",
             EntityNotFoundException::class.java
         ) {
-            caseWorkflowService.getOutcomeCountsByState(
+            caseWorkflowService.fetchHearingOutcomes(
                 COURT_CODE,
                 HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW)
             )

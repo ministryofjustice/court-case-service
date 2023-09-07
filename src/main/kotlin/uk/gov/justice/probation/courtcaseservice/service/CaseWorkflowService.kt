@@ -60,7 +60,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
                 })
     }
 
-    fun getOutcomeCountsByState(courtCode: String, hearingOutcomeSearchRequest: HearingOutcomeSearchRequest): List<HearingOutcomeResponse> {
+    fun fetchHearingOutcomes(courtCode: String, hearingOutcomeSearchRequest: HearingOutcomeSearchRequest): List<HearingOutcomeResponse> {
         courtRepository.findByCourtCode(courtCode)
             .orElseThrow {
                 EntityNotFoundException(

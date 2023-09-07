@@ -110,6 +110,9 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .body("cases[0].defendantName", equalTo("Mr Johnny BALL"))
             .body("cases[0].offences", equalTo(listOf("Theft from a different shop", "Theft from a shop")))
             .body("cases[0].probationStatus", equalTo("Current"))
+            .body("countsByState.toResultCount", equalTo(1))
+            .body("countsByState.inProgressCount", equalTo(0))
+            .body("countsByState.resultedCount", equalTo(0))
     }
 
     @Test
@@ -149,6 +152,9 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
                 .body("cases[1].probationStatus", equalTo("Current"))
                 .body("cases[1].assignedTo", equalTo("Joe Blogs"))
                 .body("cases[1].assignedToUuid", equalTo("4b03d065-4c96-4b24-8d6d-75a45d2e3f12"))
+                .body("countsByState.toResultCount", equalTo(0))
+                .body("countsByState.inProgressCount", equalTo(2))
+                .body("countsByState.resultedCount", equalTo(0))
     }
 
     @Test

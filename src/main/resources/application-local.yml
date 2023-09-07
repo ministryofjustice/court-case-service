@@ -18,7 +18,7 @@ delius:
   base-url: https://ndelius.test.probation.service.justice.gov.uk
 
 prison-api:
-  base-url: https://api-dev.prison.service.justice.gov.uk
+  base-url: https://prison-api-dev.prison.service.justice.gov.uk
 
 manage-offences-api:
   base-url: https://manage-offences-api-dev.hmpps.service.justice.gov.uk/

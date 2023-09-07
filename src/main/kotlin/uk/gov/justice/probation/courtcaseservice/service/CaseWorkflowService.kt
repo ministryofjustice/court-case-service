@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.service
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCountByState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
@@ -59,7 +60,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
                 })
     }
 
-    fun fetchHearingOutcomes(courtCode: String, hearingOutcomeSearchRequest: HearingOutcomeSearchRequest): List<HearingOutcomeResponse> {
+    fun getOutcomeCountsByState(courtCode: String, hearingOutcomeSearchRequest: HearingOutcomeSearchRequest): List<HearingOutcomeResponse> {
         courtRepository.findByCourtCode(courtCode)
             .orElseThrow {
                 EntityNotFoundException(
@@ -68,5 +69,13 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
                 )
             }
         return hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(courtCode, hearingOutcomeSearchRequest).flatMap { HearingOutcomeResponse.of(it.first, it.second) }
+    }
+
+    fun getOutcomeCountsByState(courtCode: String): HearingOutcomeCountByState {
+        val dynamicOutcomeCountsByState = hearingOutcomeRepositoryCustom.getDynamicOutcomeCountsByState(courtCode)
+        return return HearingOutcomeCountByState(
+            dynamicOutcomeCountsByState[HearingOutcomeItemState.NEW.name] ?: 0,
+            dynamicOutcomeCountsByState[HearingOutcomeItemState.IN_PROGRESS.name] ?: 0,
+            dynamicOutcomeCountsByState[HearingOutcomeItemState.RESULTED.name] ?: 0)
     }
 }

@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -12,6 +13,7 @@ import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.web.server.ResponseStatusException
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCountByState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
@@ -158,7 +160,7 @@ internal class CaseWorkflowServiceTest {
             )
         )
 
-        val hearingOutcomes = caseWorkflowService.fetchHearingOutcomes(COURT_CODE, HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW))
+        val hearingOutcomes = caseWorkflowService.getOutcomeCountsByState(COURT_CODE, HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW))
 
         assertThat(hearingOutcomes).isEqualTo(listOf(
             HearingOutcomeResponse(
@@ -191,7 +193,7 @@ internal class CaseWorkflowServiceTest {
             "Court B10JQ not found",
             EntityNotFoundException::class.java
         ) {
-            caseWorkflowService.fetchHearingOutcomes(
+            caseWorkflowService.getOutcomeCountsByState(
                 COURT_CODE,
                 HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW)
             )
@@ -262,5 +264,14 @@ internal class CaseWorkflowServiceTest {
         }
         verify(hearingRepository).findFirstByHearingId(hearingId)
         verifyNoMoreInteractions(hearingRepository)
+    }
+
+    @Test
+    fun `given court code, when get count by state, should invoke repository and return count`() {
+        val courtCode = "B10JQ"
+        given(hearingOutcomeRepositoryCustom.getDynamicOutcomeCountsByState(courtCode)).willReturn(mapOf("NEW" to 2, "RESULTED" to 5 ))
+        var result = caseWorkflowService.getOutcomeCountsByState(courtCode)
+        verify(hearingOutcomeRepositoryCustom).getDynamicOutcomeCountsByState(courtCode)
+        assertThat(result).isEqualTo(HearingOutcomeCountByState(2, 0, 5))
     }
 }

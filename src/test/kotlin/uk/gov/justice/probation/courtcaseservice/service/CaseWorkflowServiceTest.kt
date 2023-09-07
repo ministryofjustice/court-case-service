@@ -53,7 +53,20 @@ internal class CaseWorkflowServiceTest {
         val hearingId = "hearing-id-one"
         val dbHearingEntity = HearingEntity.builder().build()
         given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(dbHearingEntity))
-        caseWorkflowService.addHearingOutcome(hearingId, HearingOutcomeType.REPORT_REQUESTED)
+        caseWorkflowService.addOrUpdateHearingOutcome(hearingId, HearingOutcomeType.REPORT_REQUESTED)
+        verify(hearingRepository).findFirstByHearingId(hearingId)
+        assertThat(dbHearingEntity.hearingOutcome)
+            .isEqualTo(HearingOutcomeEntity.builder().outcomeType("REPORT_REQUESTED").build())
+    }
+
+    @Test
+    fun `given hearing outcome and hearing outcome exists, should update hearing outcome`() {
+        val hearingId = "hearing-id-one"
+        val dbHearingEntity = HearingEntity.builder()
+            .hearingOutcome(HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.ADJOURNED.name).build())
+            .build()
+        given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(dbHearingEntity))
+        caseWorkflowService.addOrUpdateHearingOutcome(hearingId, HearingOutcomeType.REPORT_REQUESTED)
         verify(hearingRepository).findFirstByHearingId(hearingId)
         assertThat(dbHearingEntity.hearingOutcome)
             .isEqualTo(HearingOutcomeEntity.builder().outcomeType("REPORT_REQUESTED").build())
@@ -67,7 +80,7 @@ internal class CaseWorkflowServiceTest {
             "Hearing not found with id hearing-id-one",
             EntityNotFoundException::class.java
         ) {
-            caseWorkflowService.addHearingOutcome(
+            caseWorkflowService.addOrUpdateHearingOutcome(
                 hearingId,
                 HearingOutcomeType.REPORT_REQUESTED
             )

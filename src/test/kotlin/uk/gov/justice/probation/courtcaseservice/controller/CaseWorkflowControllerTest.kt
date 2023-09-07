@@ -35,8 +35,8 @@ internal class CaseWorkflowControllerTest {
     @Test
     fun `should invoke service with hearing id and outcome type`() {
         val hearingId = "test-hearing-id"
-        caseWorkflowController.addHearingOutcome(hearingId, HearingOutcome(ADJOURNED))
-        verify(caseWorkflowService).addHearingOutcome(hearingId, ADJOURNED)
+        caseWorkflowController.addOrUpdateHearingOutcome(hearingId, HearingOutcome(ADJOURNED))
+        verify(caseWorkflowService).addOrUpdateHearingOutcome(hearingId, ADJOURNED)
     }
     @Test
     fun `should invoke service with court code and hearing state`() {

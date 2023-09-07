@@ -32,6 +32,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
         val HEARING_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00"
         val UNKNOWN_HEARING_ID = "111111-1111-1111-1111-111111111111"
         val hearingOutcomeRequest: String = "{ \"hearingOutcomeType\": \"ADJOURNED\" }"
+        val hearingOutcomeUpdateRequest: String = "{ \"hearingOutcomeType\": \"REPORT_REQUESTED\" }"
         val hearingOutcomeAssignRequest: String = "{ \"assignedTo\": \"John Smith\" }"
     }
 
@@ -55,6 +56,26 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
 
         var hearing = hearingRepository.findFirstByHearingId(HEARING_ID).get();
         assertThat(hearing.hearingOutcome.outcomeType).isEqualTo("ADJOURNED")
+        assertThat(hearing.hearingOutcome.outcomeDate).isNotNull()
+    }
+
+    @Test
+    fun `given hearing id and outcome recorded, should update with new hearing outcome`() {
+
+        val hearingId = "ddfe6b75-c3fc-4ed0-9bf6-21d66b125636"
+        given()
+            .auth()
+            .oauth2(TokenHelper.getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(hearingOutcomeUpdateRequest)
+            .`when`()
+            .put("/hearing/{hearingId}/outcome", hearingId)
+            .then()
+            .statusCode(200)
+
+        var hearing = hearingRepository.findFirstByHearingId(hearingId).get();
+        assertThat(hearing.hearingOutcome.outcomeType).isEqualTo("REPORT_REQUESTED")
         assertThat(hearing.hearingOutcome.outcomeDate).isNotNull()
     }
 

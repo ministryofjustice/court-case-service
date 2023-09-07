@@ -16,10 +16,14 @@ import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFou
 @Service
 class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRepository: CourtRepository, val hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom) {
 
-    fun addHearingOutcome(hearingId: String, hearingOutcomeType: HearingOutcomeType) {
+    fun addOrUpdateHearingOutcome(hearingId: String, hearingOutcomeType: HearingOutcomeType) {
         hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
             { hearingEntity: HearingEntity ->
-                hearingEntity.addHearingOutcome(hearingOutcomeType)
+                if (hearingEntity.hearingOutcome == null) {
+                    hearingEntity.addHearingOutcome(hearingOutcomeType)
+                } else {
+                    hearingEntity.hearingOutcome.update(hearingOutcomeType)
+                }
                 hearingRepository.save(hearingEntity)
             },
             {

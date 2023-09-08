@@ -76,4 +76,21 @@ class HearingOutcomeRepositoryCustom(private val entityManager: EntityManager) {
 
         return jpaQuery.resultList.map { it as Array<Any> }.map { Pair(it[0] as HearingEntity, it[1] as LocalDate) };
     }
+
+    fun getDynamicOutcomeCountsByState(courtCode: String): Map<String, Int> {
+        var query = """
+          select
+            ho.state, count(ho.id) as count
+            from hearing h 
+            inner join hearing_outcome ho on h.fk_hearing_outcome = ho.id 
+            inner join
+                (select fk_hearing_id as hday_hearing_id, min(hearing_day) as hearing_day from hearing_day where hearing_day.court_code = :courtCode group by fk_hearing_id) hday2
+                on hday2.hday_hearing_id = h.id	    
+            group by ho.state
+        """.trimIndent()
+
+        var jpaQuery = entityManager.createNativeQuery(query, "hearing_outcomes_by_state_count_custom")
+        jpaQuery.setParameter("courtCode", courtCode)
+        return jpaQuery.resultList.map { it as Pair<String, Int> }.associateBy({ it.first }, { it.second })
+    }
 }

@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @Getter
 @Audited
 @SqlResultSetMapping(
-    name = "hearing_outcomes_by_sate_count_custom",
+    name = "hearing_outcomes_by_state_count_custom",
     classes = {
         @ConstructorResult(
             targetClass = Pair.class,

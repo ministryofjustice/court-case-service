@@ -89,7 +89,7 @@ class HearingOutcomeRepositoryCustom(private val entityManager: EntityManager) {
             group by ho.state
         """.trimIndent()
 
-        var jpaQuery = entityManager.createNativeQuery(query, "hearing_outcomes_by_sate_count_custom")
+        var jpaQuery = entityManager.createNativeQuery(query, "hearing_outcomes_by_state_count_custom")
         jpaQuery.setParameter("courtCode", courtCode)
         return jpaQuery.resultList.map { it as Pair<String, Int> }.associateBy({ it.first }, { it.second })
     }

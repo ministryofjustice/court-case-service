@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.service
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCountByState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
@@ -16,10 +17,14 @@ import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFou
 @Service
 class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRepository: CourtRepository, val hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom) {
 
-    fun addHearingOutcome(hearingId: String, hearingOutcomeType: HearingOutcomeType) {
+    fun addOrUpdateHearingOutcome(hearingId: String, hearingOutcomeType: HearingOutcomeType) {
         hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
             { hearingEntity: HearingEntity ->
-                hearingEntity.addHearingOutcome(hearingOutcomeType)
+                if (hearingEntity.hearingOutcome == null) {
+                    hearingEntity.addHearingOutcome(hearingOutcomeType)
+                } else {
+                    hearingEntity.hearingOutcome.update(hearingOutcomeType)
+                }
                 hearingRepository.save(hearingEntity)
             },
             {
@@ -64,5 +69,13 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
                 )
             }
         return hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(courtCode, hearingOutcomeSearchRequest).flatMap { HearingOutcomeResponse.of(it.first, it.second) }
+    }
+
+    fun getOutcomeCountsByState(courtCode: String): HearingOutcomeCountByState {
+        val dynamicOutcomeCountsByState = hearingOutcomeRepositoryCustom.getDynamicOutcomeCountsByState(courtCode)
+        return return HearingOutcomeCountByState(
+            dynamicOutcomeCountsByState[HearingOutcomeItemState.NEW.name] ?: 0,
+            dynamicOutcomeCountsByState[HearingOutcomeItemState.IN_PROGRESS.name] ?: 0,
+            dynamicOutcomeCountsByState[HearingOutcomeItemState.RESULTED.name] ?: 0)
     }
 }

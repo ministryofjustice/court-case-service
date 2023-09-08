@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import kotlin.Pair;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,14 +10,9 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.Audited;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState;
+import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -27,6 +23,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @Getter
 @Audited
+@SqlResultSetMapping(
+    name = "hearing_outcomes_by_state_count_custom",
+    classes = {
+        @ConstructorResult(
+            targetClass = Pair.class,
+            columns = {
+                @ColumnResult(name = "state", type = String.class),
+                @ColumnResult(name = "count", type = Integer.class)
+            }
+        )
+    }
+)
 public class HearingOutcomeEntity extends BaseAuditedEntity implements Serializable {
 
     @Id
@@ -35,9 +43,11 @@ public class HearingOutcomeEntity extends BaseAuditedEntity implements Serializa
     @JsonIgnore
     private final Long id;
 
+    @Setter
     @Column(name = "OUTCOME_TYPE")
     private String outcomeType;
 
+    @Setter
     @Column(name = "OUTCOME_DATE")
     private LocalDateTime outcomeDate;
 
@@ -53,6 +63,11 @@ public class HearingOutcomeEntity extends BaseAuditedEntity implements Serializa
 
     @OneToOne(mappedBy = "hearingOutcome")
     private HearingEntity hearing;
+
+    public void update(HearingOutcomeType hearingOutcomeType) {
+        this.setOutcomeDate(LocalDateTime.now());
+        this.setOutcomeType(hearingOutcomeType.name());
+    }
 
     public void assignTo(String hearingOutcomeAssignedTo, String hearingOutcomeAssignedToUUID) {
         this.assignedTo = hearingOutcomeAssignedTo;

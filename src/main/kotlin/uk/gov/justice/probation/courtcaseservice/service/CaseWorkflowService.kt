@@ -13,6 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRe
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
+import java.time.LocalDateTime
 
 @Service
 class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRepository: CourtRepository, val hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom) {
@@ -53,6 +54,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
                         throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid state for outcome to be resulted.")
                     }
                     it.hearingOutcome.state = HearingOutcomeItemState.RESULTED.name
+                    it.hearingOutcome.resultedDate = LocalDateTime.now()
                     hearingRepository.save(it)
                 },
                 {

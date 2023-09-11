@@ -219,6 +219,7 @@ internal class CaseWorkflowServiceTest {
         verify(hearingRepository).save(hearingEntityCaptor.capture())
 
         assertThat(hearingEntityCaptor.value.hearingOutcome.state).isEqualTo(HearingOutcomeItemState.RESULTED.name)
+        assertThat(hearingEntityCaptor.value.hearingOutcome.resultedDate).isNotNull()
     }
 
     @Test

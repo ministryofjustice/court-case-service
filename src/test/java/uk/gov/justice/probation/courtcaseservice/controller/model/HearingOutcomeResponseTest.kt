@@ -29,8 +29,12 @@ internal class HearingOutcomeResponseTest {
     @Test
     fun `given hearing entity should map to hearing outcome responses`() {
 
-        val hearingOutcomeEntity1 = HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.REPORT_REQUESTED.name).outcomeDate(
-            LocalDateTime.of(2023, 6,6, 19, 9, 1)).build()
+        val hearingOutcomeEntity1 =
+            HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.REPORT_REQUESTED.name).outcomeDate(
+                LocalDateTime.of(2023, 6, 6, 19, 9, 1)
+            ).resultedDate(
+                LocalDateTime.of(2023, 6, 26, 10, 10, 10)
+            ).build()
 
         val hearing = EntityHelper.aHearingEntity("CRN123", "case-no-1", listOf(EntityHelper.aHearingDefendantEntity("defendant-id-1"),
         EntityHelper.aHearingDefendantEntity("defendant-id-2"))).withHearingOutcome(hearingOutcomeEntity1);
@@ -41,6 +45,7 @@ internal class HearingOutcomeResponseTest {
             HearingOutcomeResponse(
                 hearingOutcomeType = HearingOutcomeType.REPORT_REQUESTED,
                 outcomeDate = LocalDateTime.of(2023, 6,6, 19, 9, 1),
+                resultedDate =  LocalDateTime.of(2023, 6, 26, 10, 10, 10),
                 hearingDate = EntityHelper.SESSION_START_TIME.toLocalDate(),
                 hearingId = EntityHelper.HEARING_ID,
                 defendantId = "defendant-id-1",
@@ -51,6 +56,7 @@ internal class HearingOutcomeResponseTest {
             HearingOutcomeResponse(
                 hearingOutcomeType = HearingOutcomeType.REPORT_REQUESTED,
                 outcomeDate = LocalDateTime.of(2023, 6,6, 19, 9, 1),
+                resultedDate =  LocalDateTime.of(2023, 6, 26, 10, 10, 10),
                 hearingDate = EntityHelper.SESSION_START_TIME.toLocalDate(),
                 hearingId = EntityHelper.HEARING_ID,
                 defendantId = "defendant-id-2",

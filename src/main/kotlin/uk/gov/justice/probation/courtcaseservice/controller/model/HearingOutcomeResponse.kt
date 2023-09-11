@@ -12,6 +12,7 @@ import java.time.LocalDateTime
 data class HearingOutcomeResponse(
     val hearingOutcomeType: HearingOutcomeType,
     val outcomeDate: LocalDateTime,
+    val resultedDate: LocalDateTime? = null,
     val hearingDate: LocalDate? = null,
     val hearingId: String? = null,
     val defendantId: String? = null,
@@ -34,6 +35,7 @@ data class HearingOutcomeResponse(
             HearingOutcomeResponse(
                 hearingOutcomeType = HearingOutcomeType.valueOf(hearing.hearingOutcome.outcomeType),
                 outcomeDate = hearing.hearingOutcome.outcomeDate,
+                resultedDate = hearing.hearingOutcome.resultedDate,
                 hearingDate = hearingDate,
                 hearingId = hearing.hearingId,
                 defendantId = hd.defendantId,

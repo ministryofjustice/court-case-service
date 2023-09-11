@@ -258,5 +258,6 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
 
         var hearing = hearingRepository.findFirstByHearingId(hearingId).get();
         assertThat(hearing.hearingOutcome.state).isEqualTo("RESULTED")
+        assertThat(hearing.hearingOutcome.resultedDate).isNotNull()
     }
 }

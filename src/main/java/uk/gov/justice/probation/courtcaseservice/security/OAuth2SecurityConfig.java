@@ -31,7 +31,7 @@ public class OAuth2SecurityConfig extends WebSecurityConfigurerAdapter {
                                 "/v3/api-docs/**",
                                 "/queue-admin/retry-all-dlqs"
                         ).permitAll()
-                        .anyRequest().hasRole("PREPARE_A_CASE")
+                        .anyRequest().hasAnyRole("PREPARE_A_CASE", "GLOBAL_SEARCH")
                 ).oauth2ResourceServer().jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());
     }
 }

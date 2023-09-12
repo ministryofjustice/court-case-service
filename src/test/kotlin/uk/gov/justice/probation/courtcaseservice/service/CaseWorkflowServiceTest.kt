@@ -170,7 +170,8 @@ internal class CaseWorkflowServiceTest {
                 defendantId = "defendant-id-1",
                 probationStatus = EntityHelper.PROBATION_STATUS,
                 offences = listOf(EntityHelper.OFFENCE_TITLE),
-                defendantName = EntityHelper.DEFENDANT_NAME
+                defendantName = EntityHelper.DEFENDANT_NAME,
+                crn = "X340906"
             ),
             HearingOutcomeResponse(
                 hearingOutcomeType = HearingOutcomeType.ADJOURNED,
@@ -180,7 +181,8 @@ internal class CaseWorkflowServiceTest {
                 defendantId = "defendant-id-2",
                 probationStatus = EntityHelper.PROBATION_STATUS,
                 offences = listOf(EntityHelper.OFFENCE_TITLE),
-                defendantName = EntityHelper.DEFENDANT_NAME
+                defendantName = EntityHelper.DEFENDANT_NAME,
+                crn = "X340906"
             )
         ))
     }

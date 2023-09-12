@@ -2,7 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.controller.model
 
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingOutcomeEntity
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType
@@ -37,7 +36,7 @@ internal class HearingOutcomeResponseTest {
             ).build()
 
         val hearing = EntityHelper.aHearingEntity("CRN123", "case-no-1", listOf(EntityHelper.aHearingDefendantEntity("defendant-id-1"),
-        EntityHelper.aHearingDefendantEntity("defendant-id-2"))).withHearingOutcome(hearingOutcomeEntity1);
+        EntityHelper.aHearingDefendantEntity("defendant-id-2", null))).withHearingOutcome(hearingOutcomeEntity1);
 
         val response = HearingOutcomeResponse.of(hearing, EntityHelper.SESSION_START_TIME.toLocalDate());
 
@@ -51,7 +50,8 @@ internal class HearingOutcomeResponseTest {
                 defendantId = "defendant-id-1",
                 probationStatus = EntityHelper.PROBATION_STATUS,
                 offences = listOf(EntityHelper.OFFENCE_TITLE),
-                defendantName = EntityHelper.DEFENDANT_NAME
+                defendantName = EntityHelper.DEFENDANT_NAME,
+                crn = EntityHelper.CRN
             ),
             HearingOutcomeResponse(
                 hearingOutcomeType = HearingOutcomeType.REPORT_REQUESTED,
@@ -60,9 +60,10 @@ internal class HearingOutcomeResponseTest {
                 hearingDate = EntityHelper.SESSION_START_TIME.toLocalDate(),
                 hearingId = EntityHelper.HEARING_ID,
                 defendantId = "defendant-id-2",
-                probationStatus = EntityHelper.PROBATION_STATUS,
+                probationStatus = "No record",
                 offences = listOf(EntityHelper.OFFENCE_TITLE),
-                defendantName = EntityHelper.DEFENDANT_NAME
+                defendantName = EntityHelper.DEFENDANT_NAME,
+                crn = null
             )
         ))
     }

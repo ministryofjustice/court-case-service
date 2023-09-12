@@ -181,6 +181,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .body("cases[0].hearingDate", equalTo("2019-12-14"))
             .body("cases[0].defendantId", equalTo("40db17d6-04db-11ec-b2d8-0242ac130002"))
             .body("cases[0].defendantName", equalTo("Mr Johnny BALL"))
+            .body("cases[0].crn", equalTo("X320741"))
             .body("cases[0].probationStatus", equalTo("Current"))
             .body("cases[0].assignedTo", equalTo("Joe Blogs"))
             .body("cases[0].assignedToUuid", equalTo("4b03d065-4c96-4b24-8d6d-75a45d2e3f12"))

@@ -19,6 +19,7 @@ data class HearingOutcomeResponse(
     val probationStatus: String? = null,
     val offences: List<String>? = null,
     val defendantName: String? = null,
+    val crn: String? = null,
     val assignedTo: String? = null,
     val assignedToUuid: String? = null
 ) {
@@ -42,6 +43,7 @@ data class HearingOutcomeResponse(
                 probationStatus = hd.defendant.probationStatusForDisplay.getName(),
                 offences = hd.offences.map { offenceEntity -> offenceEntity.title },
                 defendantName = hd.defendant.defendantName,
+                crn = hd.defendant?.offender?.crn,
                 assignedTo = hearing.hearingOutcome.assignedTo,
                 assignedToUuid = hearing.hearingOutcome.assignedToUuid
             )

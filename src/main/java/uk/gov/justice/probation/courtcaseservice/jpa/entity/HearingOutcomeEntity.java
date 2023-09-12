@@ -52,6 +52,10 @@ public class HearingOutcomeEntity extends BaseAuditedEntity implements Serializa
     private LocalDateTime outcomeDate;
 
     @Setter
+    @Column(name = "RESULTED_DATE")
+    private LocalDateTime resultedDate;
+
+    @Setter
     @Column(name = "STATE")
     private String state;
 

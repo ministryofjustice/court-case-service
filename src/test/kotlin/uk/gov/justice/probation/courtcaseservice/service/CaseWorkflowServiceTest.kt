@@ -170,7 +170,8 @@ internal class CaseWorkflowServiceTest {
                 defendantId = "defendant-id-1",
                 probationStatus = EntityHelper.PROBATION_STATUS,
                 offences = listOf(EntityHelper.OFFENCE_TITLE),
-                defendantName = EntityHelper.DEFENDANT_NAME
+                defendantName = EntityHelper.DEFENDANT_NAME,
+                crn = "X340906"
             ),
             HearingOutcomeResponse(
                 hearingOutcomeType = HearingOutcomeType.ADJOURNED,
@@ -180,7 +181,8 @@ internal class CaseWorkflowServiceTest {
                 defendantId = "defendant-id-2",
                 probationStatus = EntityHelper.PROBATION_STATUS,
                 offences = listOf(EntityHelper.OFFENCE_TITLE),
-                defendantName = EntityHelper.DEFENDANT_NAME
+                defendantName = EntityHelper.DEFENDANT_NAME,
+                crn = "X340906"
             )
         ))
     }
@@ -219,6 +221,7 @@ internal class CaseWorkflowServiceTest {
         verify(hearingRepository).save(hearingEntityCaptor.capture())
 
         assertThat(hearingEntityCaptor.value.hearingOutcome.state).isEqualTo(HearingOutcomeItemState.RESULTED.name)
+        assertThat(hearingEntityCaptor.value.hearingOutcome.resultedDate).isNotNull()
     }
 
     @Test

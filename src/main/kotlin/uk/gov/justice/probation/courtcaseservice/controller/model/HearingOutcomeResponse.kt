@@ -12,12 +12,14 @@ import java.time.LocalDateTime
 data class HearingOutcomeResponse(
     val hearingOutcomeType: HearingOutcomeType,
     val outcomeDate: LocalDateTime,
+    val resultedDate: LocalDateTime? = null,
     val hearingDate: LocalDate? = null,
     val hearingId: String? = null,
     val defendantId: String? = null,
     val probationStatus: String? = null,
     val offences: List<String>? = null,
     val defendantName: String? = null,
+    val crn: String? = null,
     val assignedTo: String? = null,
     val assignedToUuid: String? = null
 ) {
@@ -34,12 +36,14 @@ data class HearingOutcomeResponse(
             HearingOutcomeResponse(
                 hearingOutcomeType = HearingOutcomeType.valueOf(hearing.hearingOutcome.outcomeType),
                 outcomeDate = hearing.hearingOutcome.outcomeDate,
+                resultedDate = hearing.hearingOutcome.resultedDate,
                 hearingDate = hearingDate,
                 hearingId = hearing.hearingId,
                 defendantId = hd.defendantId,
                 probationStatus = hd.defendant.probationStatusForDisplay.getName(),
                 offences = hd.offences.map { offenceEntity -> offenceEntity.title },
                 defendantName = hd.defendant.defendantName,
+                crn = hd.defendant?.offender?.crn,
                 assignedTo = hearing.hearingOutcome.assignedTo,
                 assignedToUuid = hearing.hearingOutcome.assignedToUuid
             )

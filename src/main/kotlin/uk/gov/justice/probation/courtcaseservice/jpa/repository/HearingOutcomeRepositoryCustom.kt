@@ -22,7 +22,9 @@ class HearingOutcomeRepositoryCustom(private val entityManager: EntityManager) {
         }
 
         hearingOutcomeSearchRequest.assignedToUuid?.let {
-            filterBuilder.append(" and assigned_to_uuid = :assignedToUuid ")
+            if (it.isNotEmpty()) {
+                filterBuilder.append(" and assigned_to_uuid in (:assignedToUuid) ")
+            }
         }
 
         hearingOutcomeSearchRequest.outcomeType?.let { outcomeTypes ->
@@ -65,7 +67,9 @@ class HearingOutcomeRepositoryCustom(private val entityManager: EntityManager) {
         }
 
         hearingOutcomeSearchRequest.assignedToUuid?.let {
-            jpaQuery.setParameter("assignedToUuid", hearingOutcomeSearchRequest.assignedToUuid)
+            if (it.isNotEmpty()) {
+                jpaQuery.setParameter("assignedToUuid", hearingOutcomeSearchRequest.assignedToUuid)
+            }
         }
 
         hearingOutcomeSearchRequest.outcomeType?.let { outcomeTypes ->

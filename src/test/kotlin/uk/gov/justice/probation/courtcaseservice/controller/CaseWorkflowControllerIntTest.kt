@@ -158,6 +158,39 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
     }
 
     @Test
+    fun `given court code and outcome state IN_PROGRESS and assinged to user, should return outcomes corectly`() {
+
+        var courtCode = "B10JQ"
+
+        val endpoint = UriComponentsBuilder.fromUri(URI("/courts/${courtCode}/hearing-outcomes"))
+                .queryParam("state", "IN_PROGRESS")
+                .queryParam("assignedToUuid", listOf("4b03d065-4c96-4b24-8d6d-75a45d2e3f12"))
+                .build().toUriString()
+
+        given()
+                .auth()
+                .oauth2(TokenHelper.getToken())
+                .accept(ContentType.JSON)
+                .`when`()
+                .get(endpoint)
+                .then()
+                .statusCode(200)
+                .body("cases", hasSize<Any>(1))
+                .body("cases[0].hearingOutcomeType", equalTo("ADJOURNED"))
+                .body("cases[0].outcomeDate", equalTo("2023-04-24T09:09:09"))
+                .body("cases[0].hearingId", equalTo("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636"))
+                .body("cases[0].hearingDate", equalTo("2019-12-14"))
+                .body("cases[0].defendantId", equalTo("40db17d6-04db-11ec-b2d8-0242ac130002"))
+                .body("cases[0].defendantName", equalTo("Mr Johnny BALL"))
+                .body("cases[0].probationStatus", equalTo("Current"))
+                .body("cases[0].assignedTo", equalTo("Joe Blogs"))
+                .body("cases[0].assignedToUuid", equalTo("4b03d065-4c96-4b24-8d6d-75a45d2e3f12"))
+                .body("countsByState.toResultCount", equalTo(0))
+                .body("countsByState.inProgressCount", equalTo(2))
+                .body("countsByState.resultedCount", equalTo(0))
+    }
+
+    @Test
     fun `given court code and assigned to uuid then return all outcomes assigned to that user id`() {
 
         var courtCode = "B10JQ"

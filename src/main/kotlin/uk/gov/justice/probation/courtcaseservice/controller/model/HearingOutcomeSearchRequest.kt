@@ -9,5 +9,5 @@ data class HearingOutcomeSearchRequest(
     val outcomeType: List<HearingOutcomeType>? = listOf(),
     val sortBy: HearingOutcomeSortFields? = null,
     val order: SortOrder? = ASC,
-    val assignedToUuid: String? = null
+    val assignedToUuid: List<String>? = listOf()
 )

@@ -144,9 +144,9 @@ internal class CaseWorkflowServiceTest {
     @Test
     fun `given court code and outcome type filter invoke repository and return hearing outcomes`() {
         val hearingOutcomeEntity1 = HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.REPORT_REQUESTED.name).outcomeDate(
-            LocalDateTime.of(2023, 6,6, 19, 9, 1)).build()
+            LocalDateTime.of(2023, 6,6, 19, 9, 1)).state("NEW").build()
         val hearingOutcomeEntity2 = HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.ADJOURNED.name).outcomeDate(
-            LocalDateTime.of(2023, 5,5, 19, 9, 5)).build()
+            LocalDateTime.of(2023, 5,5, 19, 9, 5)).state("NEW").build()
 
         val hearing1 = EntityHelper.aHearingEntityWithHearingId("case-id-1", "hearing-id-1", "defendant-id-1").withHearingOutcome(hearingOutcomeEntity1)
         val hearing2 = EntityHelper.aHearingEntityWithHearingId("case-id-2", "hearing-id-2", "defendant-id-2").withHearingOutcome(hearingOutcomeEntity2)
@@ -171,7 +171,8 @@ internal class CaseWorkflowServiceTest {
                 probationStatus = EntityHelper.PROBATION_STATUS,
                 offences = listOf(EntityHelper.OFFENCE_TITLE),
                 defendantName = EntityHelper.DEFENDANT_NAME,
-                crn = "X340906"
+                crn = "X340906",
+                state = HearingOutcomeItemState.NEW
             ),
             HearingOutcomeResponse(
                 hearingOutcomeType = HearingOutcomeType.ADJOURNED,
@@ -182,7 +183,8 @@ internal class CaseWorkflowServiceTest {
                 probationStatus = EntityHelper.PROBATION_STATUS,
                 offences = listOf(EntityHelper.OFFENCE_TITLE),
                 defendantName = EntityHelper.DEFENDANT_NAME,
-                crn = "X340906"
+                crn = "X340906",
+                state = HearingOutcomeItemState.NEW
             )
         ))
     }

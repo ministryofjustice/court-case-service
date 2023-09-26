@@ -33,7 +33,7 @@ internal class HearingOutcomeResponseTest {
                 LocalDateTime.of(2023, 6, 6, 19, 9, 1)
             ).resultedDate(
                 LocalDateTime.of(2023, 6, 26, 10, 10, 10)
-            ).build()
+            ).state("IN_PROGRESS").build()
 
         val hearing = EntityHelper.aHearingEntity("CRN123", "case-no-1", listOf(EntityHelper.aHearingDefendantEntity("defendant-id-1"),
         EntityHelper.aHearingDefendantEntity("defendant-id-2", null))).withHearingOutcome(hearingOutcomeEntity1);
@@ -51,7 +51,8 @@ internal class HearingOutcomeResponseTest {
                 probationStatus = EntityHelper.PROBATION_STATUS,
                 offences = listOf(EntityHelper.OFFENCE_TITLE),
                 defendantName = EntityHelper.DEFENDANT_NAME,
-                crn = EntityHelper.CRN
+                crn = EntityHelper.CRN,
+                state = HearingOutcomeItemState.IN_PROGRESS
             ),
             HearingOutcomeResponse(
                 hearingOutcomeType = HearingOutcomeType.REPORT_REQUESTED,
@@ -63,7 +64,8 @@ internal class HearingOutcomeResponseTest {
                 probationStatus = "No record",
                 offences = listOf(EntityHelper.OFFENCE_TITLE),
                 defendantName = EntityHelper.DEFENDANT_NAME,
-                crn = null
+                crn = null,
+                state = HearingOutcomeItemState.IN_PROGRESS
             )
         ))
     }

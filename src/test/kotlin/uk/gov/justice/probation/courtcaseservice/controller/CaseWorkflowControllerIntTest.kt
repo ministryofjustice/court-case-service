@@ -29,11 +29,11 @@ import java.net.URI
 internal class CaseWorkflowControllerIntTest: BaseIntTest() {
 
     companion object {
-        val HEARING_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00"
-        val UNKNOWN_HEARING_ID = "111111-1111-1111-1111-111111111111"
-        val hearingOutcomeRequest: String = "{ \"hearingOutcomeType\": \"ADJOURNED\" }"
-        val hearingOutcomeUpdateRequest: String = "{ \"hearingOutcomeType\": \"REPORT_REQUESTED\" }"
-        val hearingOutcomeAssignRequest: String = "{ \"assignedTo\": \"John Smith\" }"
+        const val HEARING_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00"
+        const val UNKNOWN_HEARING_ID = "111111-1111-1111-1111-111111111111"
+        const val hearingOutcomeRequest: String = "{ \"hearingOutcomeType\": \"ADJOURNED\" }"
+        const val hearingOutcomeUpdateRequest: String = "{ \"hearingOutcomeType\": \"REPORT_REQUESTED\" }"
+        const val hearingOutcomeAssignRequest: String = "{ \"assignedTo\": \"John Smith\" }"
     }
 
     @Autowired
@@ -185,6 +185,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
                 .body("cases[0].probationStatus", equalTo("Current"))
                 .body("cases[0].assignedTo", equalTo("Joe Blogs"))
                 .body("cases[0].assignedToUuid", equalTo("4b03d065-4c96-4b24-8d6d-75a45d2e3f12"))
+                .body("cases[0].state", equalTo("IN_PROGRESS"))
                 .body("countsByState.toResultCount", equalTo(0))
                 .body("countsByState.inProgressCount", equalTo(2))
                 .body("countsByState.resultedCount", equalTo(0))

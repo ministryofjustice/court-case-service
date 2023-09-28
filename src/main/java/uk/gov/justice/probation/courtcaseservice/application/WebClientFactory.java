@@ -55,7 +55,7 @@ public class WebClientFactory {
     private ClientRegistrationRepository clientRegistrationRepository;
 
     public RestClientHelper buildCommunityRestClientHelper(@Nullable String username) {
-        final var webClient = buildWebClient(communityApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE, username);
+        final var webClient = buildWebClient(communityApiBaseUrl, 2 * DEFAULT_BYTE_BUFFER_SIZE, username);
         return new RestClientHelper(webClient, "community-api-client", disableAuthentication);
     }
 

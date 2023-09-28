@@ -77,7 +77,7 @@ public class WebClientConfig {
 
     @Bean
     public WebClient communityWebClient(WebClientFactory webClientFactory) {
-        return webClientFactory.buildWebClient(communityApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE);
+        return webClientFactory.buildWebClient(communityApiBaseUrl, 2 * DEFAULT_BYTE_BUFFER_SIZE);
     }
 
     @Bean

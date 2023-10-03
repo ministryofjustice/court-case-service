@@ -1,6 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Repository
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSortFields.HEARING_DATE
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
@@ -8,7 +10,10 @@ import java.time.LocalDate
 import javax.persistence.EntityManager
 
 @Repository
-class HearingOutcomeRepositoryCustom(private val entityManager: EntityManager) {
+class HearingOutcomeRepositoryCustom(
+    private val entityManager: EntityManager,
+    @Value("\${hearing-outcomes.resultedCasesDaysOffset:14}") private val resultedCasesDaysOffset: Long = 14
+) {
 
     fun findByCourtCodeAndHearingOutcome(
         courtCode: String,
@@ -17,19 +22,31 @@ class HearingOutcomeRepositoryCustom(private val entityManager: EntityManager) {
 
         var filterBuilder = StringBuilder();
 
+        val queryParams = LinkedHashMap<String, Any>()
+        queryParams["courtCode"] = courtCode
+
         hearingOutcomeSearchRequest.state?.let {
             filterBuilder.append(" and ho.state = :state ")
+            queryParams["state"] = it.name
+
+            // a special case for resulted cases state to return only cases resulted within the last resultedCasesDaysOffset (default 14) days
+            if(it == HearingOutcomeItemState.RESULTED) {
+                filterBuilder.append(" and ho.resulted_date > :resultedDate ")
+                queryParams["resultedDate"] = LocalDate.now().minusDays(resultedCasesDaysOffset).atTime(0,0,0)
+            }
         }
 
         hearingOutcomeSearchRequest.assignedToUuid?.let {
             if (it.isNotEmpty()) {
                 filterBuilder.append(" and assigned_to_uuid in (:assignedToUuid) ")
+                queryParams["assignedToUuid"] = hearingOutcomeSearchRequest.assignedToUuid
             }
         }
 
         hearingOutcomeSearchRequest.outcomeType?.let { outcomeTypes ->
             if (outcomeTypes.isNotEmpty()) {
                 filterBuilder.append("and outcome_type in (:outcomeTypes)")
+                queryParams["outcomeTypes"] = hearingOutcomeSearchRequest.outcomeType.map { it.name }
             }
         }
 
@@ -60,22 +77,8 @@ class HearingOutcomeRepositoryCustom(private val entityManager: EntityManager) {
 
         var jpaQuery = entityManager.createNativeQuery(searchQuery, "search_hearing_outcomes_custom")
 
-        jpaQuery.setParameter("courtCode", courtCode)
-
-        hearingOutcomeSearchRequest.state?.let {
-            jpaQuery.setParameter("state", hearingOutcomeSearchRequest.state.name)
-        }
-
-        hearingOutcomeSearchRequest.assignedToUuid?.let {
-            if (it.isNotEmpty()) {
-                jpaQuery.setParameter("assignedToUuid", hearingOutcomeSearchRequest.assignedToUuid)
-            }
-        }
-
-        hearingOutcomeSearchRequest.outcomeType?.let { outcomeTypes ->
-            if (outcomeTypes.isNotEmpty()) {
-                jpaQuery.setParameter("outcomeTypes", hearingOutcomeSearchRequest.outcomeType.map { it.name })
-            }
+        queryParams.entries.forEach {
+            jpaQuery.setParameter(it.key, it.value)
         }
 
         return jpaQuery.resultList.map { it as Array<Any> }.map { Pair(it[0] as HearingEntity, it[1] as LocalDate) };

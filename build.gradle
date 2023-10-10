@@ -310,14 +310,5 @@ pact {
 
 assemble.dependsOn copyAgent
 assemble.dependsOn copyAgentConfig
-//compileKotlin {
-//    kotlinOptions {
-//        jvmTarget = "22"
-//    }
-//}
-//compileTestKotlin {
-//    kotlinOptions {
-//        jvmTarget = "22"
-//    }
-//}
+
 

@@ -57,7 +57,7 @@ services:
       - OAUTH_ENDPOINT_URL=http://oauth:8095/auth
 
   localstack-court-case-service:
-    image: localstack/localstack:2.0.2
+    image: localstack/localstack:latest
     networks:
       - hmpps
     container_name: localstack-court-case-service

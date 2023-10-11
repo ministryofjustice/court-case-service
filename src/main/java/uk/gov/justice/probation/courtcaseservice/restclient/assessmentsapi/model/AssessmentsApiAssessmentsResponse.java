@@ -14,5 +14,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @JsonDeserialize(converter = AssessmentsApiConverter.class)
 public class AssessmentsApiAssessmentsResponse {
-    private final List<AssessmentsApiAssessmentResponse> assessments;
+    private final List<AssessmentsApiAssessmentResponse> timeline;
 }

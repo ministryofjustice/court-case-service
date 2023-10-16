@@ -33,8 +33,6 @@ spring:
     properties:
       hibernate:
         format_sql: false
-    hibernate:
-      ddl-auto: none
   datasource:
     url: jdbc:tc:postgresql:11.1:///courtcaseservicetest?currentSchema=courtcaseservicetest&stringtype=unspecified
     username: ituser

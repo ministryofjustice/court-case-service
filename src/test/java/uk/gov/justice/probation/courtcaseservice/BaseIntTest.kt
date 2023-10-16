@@ -1,6 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice
 
 //import com.amazonaws.services.sqs.AmazonSQS
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.matches
+import org.awaitility.kotlin.untilCallTo
 import org.junit.ClassRule
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -18,6 +21,9 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.localstack.LocalStackContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.utility.DockerImageName
+import software.amazon.awssdk.services.sqs.SqsAsyncClient
+import software.amazon.awssdk.services.sqs.model.GetQueueAttributesRequest
+import software.amazon.awssdk.services.sqs.model.QueueAttributeName
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
 import uk.gov.justice.probation.courtcaseservice.controller.CCSPostgresqlContainer
@@ -57,21 +63,27 @@ abstract class BaseIntTest {
   protected val offenderEventReceiverQueueSqsClient by lazy { offenderEventReceiverQueue.sqsClient }
   protected val offenderEventReceiverQueueUrl by lazy { offenderEventReceiverQueue.queueUrl }
 
-//  private fun AmazonSQS.countMessagesOnQueue(queueUrl: String, queueAttribute: String): Int {
-//
-//    val attributeKeys = listOf(queueAttribute)
-//    val queueAttributesResult = this.getQueueAttributes(queueUrl, attributeKeys)
-//    return queueAttributesResult.let {
-//      it.attributes[queueAttribute]?.toInt() ?: 0
-//    }
-//  }
-//
-//  fun assertOffenderEventReceiverQueueHasProcessedMessages() {
-//    // ApproximateNumberOfMessagesNotVisible represents messages in flight. So for this case if this is 1 means the message has been consumed but still not deleted until then the value will be 1 and ApproximateNumberOfMessages is zero as the message is inflight.
-//    // We need to ensure the inflight message is processed before checking for ApproximateNumberOfMessages.
-//    await untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl, "ApproximateNumberOfMessagesNotVisible") } matches { it == 0 }
-//    await untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl, "ApproximateNumberOfMessages") } matches { it == 0 }
-//  }
+  private fun SqsAsyncClient.countMessagesOnQueue(queueUrl: String, queueAttribute: QueueAttributeName): Int {
+
+    val queueAttributesResult = this.getQueueAttributes(GetQueueAttributesRequest.builder()
+      .queueUrl(queueUrl)
+      .attributeNames(queueAttribute)
+      .build())
+
+    return queueAttributesResult.let {
+      it.get().attributes()[queueAttribute]?.toInt() ?: 0
+    }
+  }
+
+  fun assertOffenderEventReceiverQueueHasProcessedMessages() {
+    // ApproximateNumberOfMessagesNotVisible represents messages in flight. So for this case if this is 1 means the message has been consumed but still not deleted until then the value will be 1 and ApproximateNumberOfMessages is zero as the message is inflight.
+    // We need to ensure the inflight message is processed before checking for ApproximateNumberOfMessages.
+
+    QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE
+    QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES
+    await untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE) } matches { it == 0 }
+    await untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES) } matches { it == 0 }
+  }
 
   companion object {
     private val localStackContainer = LocalStackHelper.instance

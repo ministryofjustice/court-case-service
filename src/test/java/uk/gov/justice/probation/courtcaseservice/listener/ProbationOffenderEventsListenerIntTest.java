@@ -1,11 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.listener;
 
-//import com.amazonaws.services.sns.model.MessageAttributeValue;
-//import com.amazonaws.services.sns.model.PublishRequest;
-//import com.amazonaws.services.sns.model.PublishResult;
-//import com.amazonaws.services.sqs.model.PurgeQueueRequest;
-
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,13 +66,12 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
             .eventDateTime(LocalDateTime.now())
             .build();
 
-        var result = publishOffenderProbationStatusChangeEvent(sentencedEvent).get();
+        var publishResponse = publishOffenderProbationStatusChangeEvent(sentencedEvent).get();
 
-//        assertThat(result.getSdkHttpMetadata().getHttpStatusCode()).isEqualTo(200);
-        assertThat(result.sdkHttpResponse().isSuccessful()).isTrue();
-        assertThat(result.messageId()).isNotNull();
+        assertThat(publishResponse.sdkHttpResponse().isSuccessful()).isTrue();
+        assertThat(publishResponse.messageId()).isNotNull();
 
-//        assertOffenderEventReceiverQueueHasProcessedMessages();
+        assertOffenderEventReceiverQueueHasProcessedMessages();
 
         var updatedOffenderEntity = offenderRepository.findByCrn(crnForTest).get();
 
@@ -92,14 +85,11 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
 
     private CompletableFuture<PublishResponse> publishOffenderProbationStatusChangeEvent(OffenderEvent offenderEvent) throws JsonProcessingException {
 
-//        var messageAttribute = new MessageAttributeValue().withDataType("String").withStringValue("SENTENCE_CHANGED");
         var messageAttribute = MessageAttributeValue.builder()
                 .dataType("String")
                 .stringValue("SENTENCE_CHANGED")
                 .build();
         var eventJson = objectMapper.writeValueAsString(offenderEvent);
-//        var offenderEventRequest = new PublishRequest(getOffenderEventTopic().getArn(), eventJson)
-//            .withMessageAttributes(Collections.singletonMap("eventType", messageAttribute));
         var offenderEventRequest = PublishRequest.builder()
                 .topicArn(getOffenderEventTopic().getArn())
                 .message(eventJson)
@@ -107,6 +97,5 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
                 .build();
 
         return getOffenderEventTopic().getSnsClient().publish(offenderEventRequest);
-
     }
 }

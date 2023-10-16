@@ -77,9 +77,12 @@ spring:
     locations: classpath:db/migration/courtcase
     enabled: true
 
+
   jpa:
     properties:
       hibernate:
+        type:
+          json_format_mapper: "uk.gov.justice.probation.courtcaseservice.jpa.CustomJacksonJsonFormatMapper"
         jdbc:
           lob:
             non_contextual_creation: true
@@ -90,8 +93,6 @@ spring:
         hibernate:
           flushMode: COMMIT
     open-in-view: false
-    hibernate:
-      ddl-auto: none
 
 # Uncomment the following lines to generate create.sql on build
 #      javax:

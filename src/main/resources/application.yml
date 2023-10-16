@@ -31,35 +31,35 @@ spring:
             client-name: community-api-client
             client-id: ${community-api-client-id:community-api-client}
             client-secret: ${community-api-client-secret:clientsecret}
-            client-authentication-method: basic
+            client-authentication-method: client_secret_basic
             authorization-grant-type: client_credentials
             provider: nomis-oauth-service
           offender-assessments-api-client:
             client-name: offender-assessments-api-client
             client-id: ${offender-assessments-api.client-id}
             client-secret: ${offender-assessments-api.client-secret}
-            client-authentication-method: basic
+            client-authentication-method: client_secret_basic
             authorization-grant-type: client_credentials
             provider: nomis-oauth-service
           prison-api-client:
             client-name: prison-api-client
             client-id: ${prison-api-client-id:prison-api-client}
             client-secret: ${prison-api-client-secret:clientsecret}
-            client-authentication-method: basic
+            client-authentication-method: client_secret_basic
             authorization-grant-type: client_credentials
             provider: nomis-oauth-service
           manage-offences-api-client:
             client-name: manage-offences-api-client
             client-id: ${manage-offences-api-client-id:manage-offences-api-client}
             client-secret: ${manage-offences-api-client-secret:clientsecret}
-            client-authentication-method: basic
+            client-authentication-method: client_secret_basic
             authorization-grant-type: client_credentials
             provider: nomis-oauth-service
           court-case-and-delius-api-client:
             client-name: court-case-and-delius-api-client
             client-id: ${court-case-and-delius-api-client-id:court-case-and-delius-api-client}
             client-secret: ${court-case-and-delius-api-client-secret:clientsecret}
-            client-authentication-method: basic
+            client-authentication-method: client_secret_basic
             authorization-grant-type: client_credentials
             provider: nomis-oauth-service
         provider:
@@ -90,6 +90,8 @@ spring:
         hibernate:
           flushMode: COMMIT
     open-in-view: false
+    hibernate:
+      ddl-auto: none
 
 # Uncomment the following lines to generate create.sql on build
 #      javax:

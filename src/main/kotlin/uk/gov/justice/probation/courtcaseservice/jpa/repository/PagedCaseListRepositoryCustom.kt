@@ -1,13 +1,12 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository
 
+import jakarta.persistence.EntityManager
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession.MORNING
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
-import java.math.BigInteger
-import javax.persistence.EntityManager
 
 @Repository
 class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
@@ -31,7 +30,7 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
             join defendant d1 on hd1.fk_defendant_id = d1.id
             join offender_match_group omg1 on omg1.defendant_id = text(hd1.defendant_id)
             join offender_match om1 on om1.group_id = omg1.id
-           group by omg1.defendant_id, omg1.case_id) matches_group on hd.defendant_id = matches_group.did and cc.case_id = matches_group.cid   
+           group by omg1.defendant_id, omg1.case_id) matches_group on text(hd.defendant_id) = text(matches_group.did) and cc.case_id = matches_group.cid   
         """
 
         private const val HEARING_JOIN = "join hearing h on hd.fk_hearing_id = h.id "
@@ -49,6 +48,7 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
             """
 
         private const val ORDER_BY = """order by hday.court_room, hday.hearing_time, text(json(d."name")->'surname') """
+//        private const val ORDER_BY = """order by hday.court_room, hday.hearing_time """
     }
 
     fun filterHearings(
@@ -82,6 +82,13 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
             ${ if(hearingSearchRequest.breach) " and o.breach is true " else ""}
             $session
             """.trimIndent()
+
+//        var filters = """
+//            ${ if(hasCourtRoom) " and hday.court_room in (:$P_COURT_ROOM)" else "" }
+//            ${ if(hasSourceFilter) " and cc.source_type = :$P_SOURCE" else "" }
+//            ${ if(hearingSearchRequest.breach) " and o.breach is true " else ""}
+//            $session
+//            """.trimIndent()
 
         val coreSql = """
             from hearing_day hday
@@ -133,7 +140,7 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
         mainJpaQuery.maxResults = pageable.pageSize
 
         val result = mainJpaQuery.resultList
-        val count = (countJpaQuery.singleResult as BigInteger).toLong()
+        val count = (countJpaQuery.singleResult as Long)
 
         val content = result.map {(it as Array<Any>)}.map { Pair(it[0] as HearingDefendantEntity, it[1] as Int?) }
         return PageImpl(content, pageable, count)

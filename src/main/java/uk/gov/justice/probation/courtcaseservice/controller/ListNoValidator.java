@@ -6,8 +6,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearin
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingDay;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceRequestResponse;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;

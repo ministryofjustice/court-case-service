@@ -5,7 +5,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcome
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSortFields.HEARING_DATE
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import java.time.LocalDate
-import javax.persistence.EntityManager
+import jakarta.persistence.EntityManager
 
 @Repository
 class HearingOutcomeRepositoryCustom(private val entityManager: EntityManager) {

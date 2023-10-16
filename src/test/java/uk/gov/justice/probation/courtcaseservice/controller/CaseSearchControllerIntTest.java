@@ -10,7 +10,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -74,8 +74,7 @@ class CaseSearchControllerIntTest extends BaseIntTest {
             .statusCode(200)
             .body("totalPages", equalTo(2))
             .body("totalElements", equalTo(3))
-            .body("items", hasSize(2))
-        ;
+            .body("items", hasSize(2));
     }
 
     @Test

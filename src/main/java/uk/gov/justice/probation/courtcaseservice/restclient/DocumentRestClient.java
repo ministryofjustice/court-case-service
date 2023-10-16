@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -41,7 +42,7 @@ public class DocumentRestClient {
     public Mono<GroupedDocuments> getDocumentsByCrn(String crn) {
         return clientHelper.get(String.format(groupedDocumentsUrlTemplate, crn))
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
+            .onStatus(HttpStatusCode::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
             .bodyToMono(CommunityApiGroupedDocumentsResponse.class)
             .onErrorMap(e1 -> {
                 log.error(String.format("Unexpected exception when retrieving grouped document data for CRN '%s'", crn), e1);
@@ -66,14 +67,15 @@ public class DocumentRestClient {
     }
 
     private void handleError(ResponseEntity<Resource> responseEntity, String crn, String documentId) {
-        final HttpStatus httpStatus = responseEntity.getStatusCode();
-        if (!httpStatus.is2xxSuccessful()) {
-            log.error("Received HttpStatus {} for document request. Document ID: [{}],CRN: [{}]", httpStatus.value(), documentId, crn);
-            if (httpStatus.is4xxClientError()) {
+        final HttpStatusCode httpStatusCode = responseEntity.getStatusCode();
+
+        if (!httpStatusCode.is2xxSuccessful()) {
+            log.error("Received HttpStatus {} for document request. Document ID: [{}],CRN: [{}]", httpStatusCode.value(), documentId, crn);
+            if (httpStatusCode.is4xxClientError()) {
                 throw new DocumentNotFoundException(documentId, crn);
             }
-            throw WebClientResponseException.create(httpStatus.value(),
-                httpStatus.name(),
+            throw WebClientResponseException.create(httpStatusCode.value(),
+                httpStatusCode.toString(),
                 responseEntity.getHeaders(),
                 getBodyAsBytes(responseEntity.getBody()),
                 StandardCharsets.UTF_8);

@@ -1,6 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.application;
 
-import com.amazonaws.services.sns.AmazonSNS;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.sqs.HmppsQueueService;
 import uk.gov.justice.hmpps.sqs.HmppsTopic;
+import software.amazon.awssdk.services.sns.SnsAsyncClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -19,7 +20,7 @@ class QueueConfigTest {
     @Mock
     private HmppsQueueService hmppsQueueService;
     @Mock
-    private AmazonSNS client;
+    private SnsAsyncClient client;
     private HmppsTopic hmppsTopic;
     private final QueueConfig queueConfig = new QueueConfig();
 

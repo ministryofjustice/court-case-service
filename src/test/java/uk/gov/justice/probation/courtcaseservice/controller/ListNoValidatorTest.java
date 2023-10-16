@@ -13,7 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingDay;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidatorContext;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.Audited;
 
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.MappedSuperclass;
 
 @AllArgsConstructor
 @Data

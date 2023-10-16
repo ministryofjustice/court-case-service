@@ -16,6 +16,9 @@ import uk.gov.justice.probation.courtcaseservice.restclient.exception.RestResour
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.DuplicateEntityException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
+import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -56,9 +59,9 @@ public class ApplicationExceptionHandler {
 
     @ExceptionHandler(WebClientResponseException.class)
     public ResponseEntity<ErrorResponse> handle(WebClientResponseException e) {
-        log.error("Unexpected error from WebClient - Status {}, Body {}", e.getRawStatusCode(), e.getResponseBodyAsString(), e);
+        log.error("Unexpected error from WebClient - Status {}, Body {}", e.getStatusCode(), e.getResponseBodyAsString(), e);
 
-        return responseEntityFrom(e, e.getStatusCode());
+        return responseEntityFrom(e, requireNonNull(HttpStatus.resolve(e.getStatusCode().value())));
     }
 
     @ExceptionHandler(ForbiddenException.class)

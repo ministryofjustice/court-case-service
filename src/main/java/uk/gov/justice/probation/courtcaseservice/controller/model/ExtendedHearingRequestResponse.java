@@ -24,9 +24,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.VerdictEntity;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;

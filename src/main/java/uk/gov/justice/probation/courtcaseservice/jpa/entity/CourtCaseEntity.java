@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -14,11 +13,10 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.TypeDef;
 import org.hibernate.envers.Audited;
 import org.springframework.util.CollectionUtils;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
@@ -32,13 +30,12 @@ import java.util.List;
 @Getter
 @With
 @Table(name = "COURT_CASE")
-@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @Audited
 @SqlResultSetMapping(
     name = "search_defendants_result_mapping",
     entities = {
-        @EntityResult(entityClass = CourtCaseEntity.class),
-        @EntityResult(entityClass = DefendantEntity.class)
+        @EntityResult(entityClass = CourtCaseEntity.class, discriminatorColumn = "case_id"),
+        @EntityResult(entityClass = DefendantEntity.class, discriminatorColumn = "defendant_id")
     }
 )
 @SqlResultSetMapping(

@@ -54,6 +54,6 @@ class PingerIntTest extends BaseIntTest {
                 .block();
 
         assertThat(health.getStatus()).isEqualTo(DOWN);
-        assertThat(health.getDetails().get("error")).asString().contains("UnknownHostException");
+        assertThat(health.getDetails().get("error")).asString().contains("notarealhost");
     }
 }

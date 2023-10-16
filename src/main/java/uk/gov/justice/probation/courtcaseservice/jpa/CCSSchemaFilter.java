@@ -19,9 +19,9 @@ public class CCSSchemaFilter implements SchemaFilter {
     @Override
     public boolean includeTable(Table table) {
         String tableName = table.getName().toUpperCase();
-        boolean creatingTable = tableName.endsWith("_AUD") || tableName.equalsIgnoreCase("REVINFO"); // only allow envers audit tables to be auto created/updated by Hibernate
-        log.info("Auto creating/updating table {}? Ans. {}", tableName, creatingTable);
-        return creatingTable;
+        boolean isEnversAuditTable = tableName.endsWith("_AUD") || tableName.equalsIgnoreCase("REVINFO"); // only allow envers audit tables to be auto created/updated by Hibernate
+        log.info("Auto creating/updating table {}? Ans. {}", tableName, isEnversAuditTable);
+        return isEnversAuditTable;
     }
 
     @Override

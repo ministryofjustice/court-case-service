@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import uk.gov.justice.probation.courtcaseservice.client.exception.ExternalService
@@ -26,11 +26,11 @@ class ProbationStatusDetailRestClient(
         log.debug("Retrieving Probation Status for crn $crn")
         return clientHelper.get(String.format(probationStatusByCrnPath, crn))
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError) {
+            .onStatus(HttpStatusCode::is4xxClientError) {
                 log.error("${it.statusCode().value()} Error retrieving Probation Status for crn: $crn")
                 clientHelper.handleOffenderError(crn, it)
             }
-            .onStatus(HttpStatus::is5xxServerError) {
+            .onStatus(HttpStatusCode::is5xxServerError) {
                 log.error("${it.statusCode().value()} Error retrieving Probation Status for crn: $crn")
                 handle5xxError(
                     "${it.statusCode().value()} Error retrieving Probation Status for crn: $crn",

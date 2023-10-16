@@ -5,9 +5,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import java.util.List;
 
 import static java.util.Objects.isNull;

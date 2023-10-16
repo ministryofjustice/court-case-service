@@ -1,10 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import groovy.lang.Tuple3;
+import jakarta.persistence.EntityManager;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,19 +11,15 @@ import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.testcontainers.containers.localstack.LocalStackContainer;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.services.sns.SnsClient;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,9 +28,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
@@ -68,16 +59,24 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
     }
 
     @Bean
-    public static AmazonSNS createAmazonSnsClient() {
-        return AmazonSNSClientBuilder
-                .standard()
-                .withEndpointConfiguration(localstack.getEndpointConfiguration(LocalStackContainer.Service.SNS))
-                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(
-                        localstack.getAccessKey(), localstack.getSecretKey()
-                )))
-                .withRegion("eu-west-2")
+    public static SnsClient createSnsClient() {
+        return SnsClient.builder()
+                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(
+                        localstack.getAccessKey(),localstack.getSecretKey())))
+                .endpointOverride(localstack.getEndpointOverride(LocalStackContainer.Service.SNS))
                 .build();
     }
+//    @Bean
+//    public static AmazonSNS createAmazonSnsClient() {
+//        return AmazonSNSClientBuilder
+//                .standard()
+//                .withEndpointConfiguration(localstack.getEndpointOverride(LocalStackContainer.Service.SNS))
+//                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(
+//                        localstack.getAccessKey(), localstack.getSecretKey()
+//                )))
+//                .withRegion("eu-west-2")
+//                .build();
+//    }
 
     String DEFENDANT_ID_1 = "8e0263a1-bc3e-4dad-93c4-d333d32389ea";
 

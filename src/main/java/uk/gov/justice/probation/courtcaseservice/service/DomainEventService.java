@@ -1,7 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import com.amazonaws.services.sns.model.MessageAttributeValue;
-import com.amazonaws.services.sns.model.PublishRequest;
+import software.amazon.awssdk.services.sns.model.MessageAttributeValue;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NoArgsConstructor;
@@ -59,11 +59,17 @@ public class DomainEventService {
                                     .build())
                             .build();
 
-                    var sentencedEventMessageAttribute = new MessageAttributeValue().withDataType("String").withStringValue(sentencedEventType.getEventTypeName());
+                    var sentencedEventMessageAttribute = MessageAttributeValue.builder().dataType("String").stringValue(sentencedEventType.getEventTypeName()).build();
+//                    var sentencedEventMessageAttribute = new MessageAttributeValue().withDataType("String").withStringValue(sentencedEventType.getEventTypeName());
 
                     try {
-                        PublishRequest publishRequest = new PublishRequest(topic.getArn(), objectMapper.writeValueAsString(sentencedEventMessage))
-                                .withMessageAttributes(Collections.singletonMap(EVENT_TYPE_KEY, sentencedEventMessageAttribute));
+                        PublishRequest publishRequest = PublishRequest.builder()
+                                .topicArn(topic.getArn())
+                                .message(objectMapper.writeValueAsString(sentencedEventMessage))
+                                .messageAttributes(Collections.singletonMap(EVENT_TYPE_KEY, sentencedEventMessageAttribute))
+                                .build();
+//                        PublishRequest publishRequest = new PublishRequest(topic.getArn(), objectMapper.writeValueAsString(sentencedEventMessage))
+//                                .withMessageAttributes(Collections.singletonMap(EVENT_TYPE_KEY, sentencedEventMessageAttribute));
 
                         topic.getSnsClient().publish(publishRequest);
                     } catch (JsonProcessingException e) {

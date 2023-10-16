@@ -11,16 +11,16 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -54,15 +54,6 @@ public class GroupedOffenderMatchesEntity extends BaseEntity implements Serializ
     @Setter
     @Column(name = "DEFENDANT_ID", nullable = false)
     private String defendantId;
-
-    public void clearOffenderMatches() {
-        if (this.offenderMatches != null) {
-            for (OffenderMatchEntity offenderMatchEntity : this.offenderMatches) {
-                offenderMatchEntity.setGroup(null);
-            }
-            this.offenderMatches.clear();
-        }
-    }
 
     private Optional<OffenderMatchEntity> findMatchByCrn(String crn) {
         return getOffenderMatches().stream().filter(offenderMatchEntity -> crn.equalsIgnoreCase(offenderMatchEntity.getCrn())).findAny();

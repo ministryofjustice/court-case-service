@@ -11,7 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.Assessment;
 public class AssessmentMapper {
 
     public static List<Assessment> assessmentsFrom(AssessmentsApiAssessmentsResponse assessmentsResponse) {
-        return Optional.ofNullable(assessmentsResponse.getAssessments())
+        return Optional.ofNullable(assessmentsResponse.getTimeline())
             .orElse(Collections.emptyList())
             .stream()
             .map(AssessmentMapper::assessmentFrom)

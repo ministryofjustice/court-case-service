@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/offenders/crn/X320741/assessments/summary",
+    "urlPath": "/assessments/timeline/crn/X320741",
     "headers" : {
       "Content-Type": {
         "equalTo": "application/json"

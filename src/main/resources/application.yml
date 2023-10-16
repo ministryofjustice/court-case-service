@@ -179,3 +179,5 @@ h2o:
 hmpps.sqs:
   useWebToken: true
 
+hearing-outcomes:
+  resultedCasesDaysOffset: 14

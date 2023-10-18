@@ -29,7 +29,8 @@ data class HearingOutcomeResponse(
             hearingOutcomeEntity?.let {
                 return HearingOutcomeResponse(
                     hearingOutcomeType = HearingOutcomeType.valueOf(it.outcomeType),
-                    outcomeDate = it.outcomeDate
+                    outcomeDate = it.outcomeDate,
+                    state = HearingOutcomeItemState.valueOf(it.state)
                 )
             } ?: null
 

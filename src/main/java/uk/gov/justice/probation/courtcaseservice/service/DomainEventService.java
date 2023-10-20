@@ -60,7 +60,6 @@ public class DomainEventService {
                             .build();
 
                     var sentencedEventMessageAttribute = MessageAttributeValue.builder().dataType("String").stringValue(sentencedEventType.getEventTypeName()).build();
-//                    var sentencedEventMessageAttribute = new MessageAttributeValue().withDataType("String").withStringValue(sentencedEventType.getEventTypeName());
 
                     try {
                         PublishRequest publishRequest = PublishRequest.builder()
@@ -68,8 +67,6 @@ public class DomainEventService {
                                 .message(objectMapper.writeValueAsString(sentencedEventMessage))
                                 .messageAttributes(Collections.singletonMap(EVENT_TYPE_KEY, sentencedEventMessageAttribute))
                                 .build();
-//                        PublishRequest publishRequest = new PublishRequest(topic.getArn(), objectMapper.writeValueAsString(sentencedEventMessage))
-//                                .withMessageAttributes(Collections.singletonMap(EVENT_TYPE_KEY, sentencedEventMessageAttribute));
 
                         topic.getSnsClient().publish(publishRequest);
                     } catch (JsonProcessingException e) {

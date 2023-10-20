@@ -48,7 +48,6 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
             """
 
         private const val ORDER_BY = """order by hday.court_room, hday.hearing_time, text(json(d."name")->'surname') """
-//        private const val ORDER_BY = """order by hday.court_room, hday.hearing_time """
     }
 
     fun filterHearings(
@@ -82,13 +81,6 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
             ${ if(hearingSearchRequest.breach) " and o.breach is true " else ""}
             $session
             """.trimIndent()
-
-//        var filters = """
-//            ${ if(hasCourtRoom) " and hday.court_room in (:$P_COURT_ROOM)" else "" }
-//            ${ if(hasSourceFilter) " and cc.source_type = :$P_SOURCE" else "" }
-//            ${ if(hearingSearchRequest.breach) " and o.breach is true " else ""}
-//            $session
-//            """.trimIndent()
 
         val coreSql = """
             from hearing_day hday

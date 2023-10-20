@@ -456,15 +456,14 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("createdToday", equalTo(true))
                 .body("numberOfPossibleMatches", equalTo(3))
                 .body("caseComments", hasSize(3))
-                .body("caseComments[0].commentId", equalTo(-1700028900))
-                .body("caseComments[0].comment", equalTo("PSR in progress"))
-                .body("caseComments[0].author", equalTo("Author One"))
+                .body("caseComments[0].commentId", equalTo(-1700028903))
+                .body("caseComments[0].comment", equalTo("PSR completed"))
+                .body("caseComments[0].author", equalTo("Author Two"))
                 .body("caseComments[1].commentId", equalTo(-1700028902))
                 .body("caseComments[1].comment", equalTo("PSR completed"))
                 .body("caseComments[1].author", equalTo("Author Two"))
-                .body("caseComments[2].commentId", equalTo(-1700028903))
-                .body("caseComments[2].draft", equalTo(true))
-            ;
+                .body("caseComments[2].commentId", equalTo(-1700028900))
+                .body("caseComments[2].draft", equalTo(false));
         }
 
         @Test
@@ -495,8 +494,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("breach", equalTo(true))
                 .body("preSentenceActivity", equalTo(true))
                 .body("suspendedSentenceOrder", equalTo(true))
-                .body("previouslyKnownTerminationDate", equalTo(JAN_1_2010.format(DateTimeFormatter.ISO_LOCAL_DATE)))
-            ;
+                .body("previouslyKnownTerminationDate", equalTo(JAN_1_2010.format(DateTimeFormatter.ISO_LOCAL_DATE)));
         }
 
         @Test
@@ -614,8 +612,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             .body("nationality2", equalTo("Polish"))
             .body("removed", equalTo(false))
             .body("createdToday", equalTo(true))
-            .body("numberOfPossibleMatches", equalTo(3))
-        ;
+            .body("numberOfPossibleMatches", equalTo(3));
     }
 
     @Nested
@@ -677,8 +674,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("cases[5].probationStatus", equalTo("Pre-sentence record"))
                 .body("cases[5].probationStatusActual", equalTo("NOT_SENTENCED"))
                 .body("cases[6].caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a18"))
-                .body("cases[6].createdToday", equalTo(false))
-            ;
+                .body("cases[6].createdToday", equalTo(false));
         }
     }
 

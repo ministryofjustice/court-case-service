@@ -27,7 +27,10 @@ public class DefendantRepositoryCustom {
         "         join hearing_defendant hd1  on h1.id = hd1.fk_hearing_id " +
         "         join defendant d1 on d1.id = hd1.fk_defendant_id join offender off on off.id = d1.fk_offender_id ";
 
-    private static final String DEFENDANT_SEARCH_SELECT = "select cc.*, d.* ";
+    private static final String DEFENDANT_SEARCH_SELECT =
+            "select cc.id, cc.case_id, cc.case_no, cc.created AS ccCreated, cc.created_by AS ccCreatedBy, cc.deleted AS ccDeleted, cc.source_type, cc.urn, cc.last_updated AS ccLastUpdated, cc.last_updated_by AS ccLastUpdatedBy, cc.\"version\" AS ccVersion, " +
+                  "d.id as defId, d.defendant_name, d.\"type\", d.\"name\", d.address, d.crn, d.pnc, d.cro, d.date_of_birth, d.sex, d.nationality_1, d.nationality_2, d.created, " +
+                  "d.created_by, d.manual_update, d.defendant_id, d.offender_confirmed, d.phone_number, d.person_id, d.fk_offender_id, d.last_updated, d.last_updated_by, d.\"version\", d.deleted, d.tsv_name ";
 
     private static String DEFENDANT_SEARCH_GROUPING = " group by d1.id, cc1.id) grouped_cases on h.id = grouped_cases.max_id and d.id = grouped_cases.did ";
 
@@ -78,7 +81,7 @@ public class DefendantRepositoryCustom {
         var courtCases = result.stream()
             .map(objects -> new Pair<>((CourtCaseEntity)objects[0], (DefendantEntity)objects[1])).collect(Collectors.toList());
 
-        int count = ((BigInteger) countQuery.getSingleResult()).intValue();
+        int count = ((Long) countQuery.getSingleResult()).intValue();
 
         return new PageImpl<>(courtCases, pageable, count);
     }

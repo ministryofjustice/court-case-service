@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice
 
-//import com.amazonaws.services.sqs.AmazonSQS
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.matches
 import org.awaitility.kotlin.untilCallTo

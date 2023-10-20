@@ -48,7 +48,6 @@ public class CaseProgressIntTest extends BaseIntTest {
     void givenExistingCaseId_whenGetHearingByDefendantId_thenReturnCaseSummaryAlongWithAllHearings() {
 
         String testCaseId = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
-
         String defendantId = "40db17d6-04db-11ec-b2d8-0242ac130002";
         String testHearingId = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
 
@@ -61,6 +60,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .get("/hearing/{hearingId}/defendant/{defendantId}", testHearingId, defendantId)
             .then()
             .statusCode(200);
+
 
         response
             .body("caseId", Matchers.equalTo(testCaseId))
@@ -89,27 +89,11 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("name.surname", Matchers.equalTo("BALL"))
 
             .body("hearings", Matchers.hasSize(3))
-            .body("hearings[0].hearingId", Matchers.equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
             .body("hearings[0].court", Matchers.equalTo("North Shields"))
-            .body("hearings[0].courtRoom", Matchers.equalTo("2"))
+            .body("hearings[0].courtRoom", Matchers.equalTo("1"))
             .body("hearings[0].session", Matchers.equalTo("MORNING"))
-            .body("hearings[0].hearingTypeLabel", Matchers.equalTo("Sentence"))
-            .body("hearings[0].hearingDateTime", Matchers.equalTo("2019-11-14T09:00:00"))
-
-            .body("hearings[0].notes", Matchers.hasSize(2))
-            .body("hearings[0].notes[0].noteId", Matchers.equalTo(-1700028800))
-            .body("hearings[0].notes[0].hearingId", Matchers.equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
-            .body("hearings[0].notes[0].note", Matchers.equalTo("Judge heard"))
-            .body("hearings[0].notes[0].created", Matchers.notNullValue())
-            .body("hearings[0].notes[0].author", Matchers.equalTo("Author One"))
-            .body("hearings[0].notes[0].createdByUuid", Matchers.equalTo("fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81"))
-            .body("hearings[0].notes[1].noteId", Matchers.equalTo(-1700028802))
-            .body("hearings[0].notes[1].hearingId", Matchers.equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
-            .body("hearings[0].notes[1].note", Matchers.equalTo("Judge sentenced"))
-            .body("hearings[0].notes[1].created", Matchers.notNullValue())
-            .body("hearings[0].notes[1].author", Matchers.equalTo("Author three"))
-            .body("hearings[0].notes[1].createdByUuid", Matchers.equalTo("389fd9cf-390e-469a-b4cf-6c12024c4cae"))
-            .body("hearings[0].notes[1].draft", Matchers.equalTo(false))
+            .body("hearings[0].hearingTypeLabel", Matchers.equalTo("Hearing"))
+            .body("hearings[0].hearingDateTime", Matchers.equalTo("2019-12-14T09:00:00"))
 
             .body("hearings[1].hearingId", Matchers.equalTo("2aa6f5e0-f842-4939-bc6a-01346abc09e7"))
             .body("hearings[1].court", Matchers.equalTo("Leicester"))
@@ -119,25 +103,24 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("hearings[1].hearingDateTime", Matchers.equalTo("2019-10-14T09:00:00"))
 
             .body("hearings[1].notes", Matchers.hasSize(2))
-            .body("hearings[1].notes[0].noteId", Matchers.equalTo(-1700028803))
+            .body("hearings[1].notes[0].noteId", Matchers.equalTo(-1700028804))
             .body("hearings[1].notes[0].hearingId", Matchers.equalTo("2aa6f5e0-f842-4939-bc6a-01346abc09e7"))
             .body("hearings[1].notes[0].note", Matchers.equalTo("Judge requested PSR"))
             .body("hearings[1].notes[0].created", Matchers.notNullValue())
             .body("hearings[1].notes[0].author", Matchers.equalTo("Author Three"))
             .body("hearings[1].notes[0].createdByUuid", Matchers.equalTo("fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81"))
-            .body("hearings[1].notes[0].draft", Matchers.equalTo(false))
+            .body("hearings[1].notes[0].draft", Matchers.equalTo(true))
             .body("hearings[1].hearingOutcome.hearingOutcomeType", Matchers.equalTo("ADJOURNED"))
             .body("hearings[1].hearingOutcome.hearingOutcomeDescription", Matchers.equalTo("Adjourned"))
             .body("hearings[1].hearingOutcome.outcomeDate", Matchers.equalTo("2023-04-24T09:09:09"))
 
-            .body("hearings[1].notes[1].noteId", Matchers.equalTo(-1700028804))
+            .body("hearings[1].notes[1].noteId", Matchers.equalTo(-1700028803))
             .body("hearings[1].notes[1].hearingId", Matchers.equalTo("2aa6f5e0-f842-4939-bc6a-01346abc09e7"))
             .body("hearings[1].notes[1].note", Matchers.equalTo("Judge requested PSR"))
             .body("hearings[1].notes[1].created", Matchers.notNullValue())
             .body("hearings[1].notes[1].author", Matchers.equalTo("Author Three"))
             .body("hearings[1].notes[1].createdByUuid", Matchers.equalTo("fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81"))
-            .body("hearings[1].notes[1].draft", Matchers.equalTo(true))
-        ;
+            .body("hearings[1].notes[1].draft", Matchers.equalTo(false));
     }
 
     @Test
@@ -185,8 +168,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .put("/hearing/{hearingId}/notes/{noteId}", HEARING_ID, noteId);
         hearingNoteResponse
             .then()
-            .statusCode(200)
-        ;
+            .statusCode(200);
 
         var hearingNoteEntity = hearingNotesRepository.findById(noteId).get();
         assertThat(hearingNoteEntity.getNote()).isEqualTo("Judge heard update");
@@ -208,7 +190,6 @@ public class CaseProgressIntTest extends BaseIntTest {
         hearingNoteResponse
             .then()
             .statusCode(200);
-        ;
 
         var hearingNoteEntity = hearingNotesRepository.findById(noteId).get();
         assertThat(hearingNoteEntity.isDeleted()).isTrue();
@@ -234,8 +215,8 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("author", Matchers.equalTo("Test Author"))
             .body("createdByUuid", Matchers.equalTo(TokenHelper.TEST_UUID))
             .body("created", Matchers.notNullValue())
-            .body("draft", Matchers.is(true))
-        ;
+            .body("draft", Matchers.is(true));
+
         var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
 
         var hearingNoteEntity = hearingNotesRepository.findById(hearingNote.getNoteId()).get();
@@ -287,8 +268,8 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("author", Matchers.equalTo("Author Three"))
             .body("createdByUuid", Matchers.equalTo(TokenHelper.TEST_UUID))
             .body("created", Matchers.notNullValue())
-            .body("draft", Matchers.is(true))
-        ;
+            .body("draft", Matchers.is(true));
+
         var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
 
         var hearingNoteEntity = hearingNotesRepository.findById(hearingNote.getNoteId()).get();

@@ -26,9 +26,6 @@ repositories {
     }
 }
 
-project.sourceCompatibility = JavaVersion.VERSION_19
-project.targetCompatibility = JavaVersion.VERSION_19
-
 group = 'uk.gov.justice.probation'
 
 ext {

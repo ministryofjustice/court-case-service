@@ -11,13 +11,14 @@ internal class HearingOutcomeResponseTest {
     @Test
     fun shouldMapToHearingOutcomeResponseModel() {
         val outcomeDate = LocalDateTime.of(2022, 12, 12, 12, 12, 12)
-        val hearingOutcomeEntity = HearingOutcomeEntity.builder().outcomeType("REPORT_REQUESTED").outcomeDate(
+        val hearingOutcomeEntity = HearingOutcomeEntity.builder().state("RESULTED").outcomeType("REPORT_REQUESTED").outcomeDate(
             outcomeDate
         ).build()
         val result = HearingOutcomeResponse.of(hearingOutcomeEntity)
         Assertions.assertThat(result?.hearingOutcomeType)
             .isEqualTo(HearingOutcomeType.REPORT_REQUESTED)
         Assertions.assertThat(result?.outcomeDate).isEqualTo(outcomeDate)
+        Assertions.assertThat(result?.state).isEqualTo(HearingOutcomeItemState.RESULTED)
         Assertions.assertThat(result?.getHearingOutcomeDescription()).isEqualTo("Report requested")
     }
     @Test

@@ -131,7 +131,7 @@ community-api:
   sentence-appearance-code: S
 
 offender-assessments-api:
-  assessment-crn-url-template: /offenders/crn/%s/assessments/summary
+  assessment-crn-url-template: /assessments/timeline/crn/%s
 
 prison-api:
   sentences-template: /api/offenders/%s/sentences

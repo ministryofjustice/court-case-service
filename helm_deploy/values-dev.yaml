@@ -61,7 +61,7 @@ env:
   nomis_oauth:
     base_url: https://sign-in-dev.hmpps.service.justice.gov.uk
   offender_assessments_api:
-    base_url: https://offender-dev.aks-dev-1.studio-hosting.service.justice.gov.uk/
+    base_url: https://assess-risks-and-needs-dev.hmpps.service.justice.gov.uk
   delius:
     base_url: https://ndelius.test.probation.service.justice.gov.uk
   prison_api:

@@ -82,7 +82,7 @@ executors:
     working_directory: ~/app
   builder:
     docker:
-      - image: cimg/openjdk:21.0.0-browsers
+      - image: cimg/openjdk:19.0-browsers
         environment:
           SPRING_PROFILES_ACTIVE: test
           DATABASE_USERNAME: root

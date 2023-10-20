@@ -651,14 +651,11 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .ifPresentOrElse(theCase -> assertThat(theCase.getHearingEventType()).isEqualTo(HearingEventType.RESULTED), () -> fail("Hearing event type should be Resulted"));
 
         await().atLeast(Duration.ofMillis(100));
-
         assertEmittedEventMessages();
-
     }
 
     private void assertEmittedEventMessages() throws IOException, ExecutionException, InterruptedException {
         // Must use this class when receiving more than one messages from a queue if not we always receive just 1
-//        var receiveMessageRequest = new ReceiveMessageRequest().withMaxNumberOfMessages(2).withQueueUrl(getEmittedEventsQueueUrl());
         var receiveMessageRequest = ReceiveMessageRequest.builder()
                 .queueUrl(getEmittedEventsQueueUrl())
                 .maxNumberOfMessages(2)

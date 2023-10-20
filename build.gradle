@@ -143,6 +143,12 @@ task wipTest(type: Test) {
     }
 }
 
+tasks.withType(JavaCompile).configureEach {
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(19)
+    }
+}
+
 dependencies {
     modules {
         module("org.codehaus.groovy:groovy") {

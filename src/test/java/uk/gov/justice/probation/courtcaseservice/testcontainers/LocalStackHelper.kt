@@ -14,17 +14,12 @@ object LocalStackHelper {
   val instance by lazy { startLocalstackIfNotRunning() }
 
   fun setLocalStackProperties(localStackContainer: LocalStackContainer, registry: DynamicPropertyRegistry) =
-//    localStackContainer.getEndpointConfiguration(LocalStackContainer.Service.SNS)
+
     localStackContainer.getEndpointOverride(LocalStackContainer.Service.SNS)
       .let {
         registry.add("hmpps.sqs.localstackUrl") { it.toURL() }
         registry.add("hmpps.sqs.region") { "eu-west-2" }
       }
-//      .let { it.serviceEndpoint to it.signingRegion }
-//      .also {
-//        registry.add("hmpps.sqs.localstackUrl") { it.first }
-//        registry.add("hmpps.sqs.region") { it.second }
-//      }
 
   private fun startLocalstackIfNotRunning(): LocalStackContainer? {
     if (localstackIsRunning()) return null

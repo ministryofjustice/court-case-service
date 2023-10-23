@@ -24,7 +24,6 @@ import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Schema(description = "Grouped Offender Matches")
 @Entity
@@ -62,17 +61,13 @@ public class GroupedOffenderMatchesEntity extends BaseEntity implements Serializ
 
         var removalList = getOffenderMatches().stream()
             .filter(offenderMatchEntity -> newMatches.stream().filter(newMatch -> newMatch.getCrn().equalsIgnoreCase(offenderMatchEntity.getCrn()))
-                .findAny().isEmpty()).collect(Collectors.toList());
+                .findAny().isEmpty()).toList();
         
         getOffenderMatches().removeAll(removalList);
 
-        newMatches.forEach(matchRequest -> {
-            findMatchByCrn(matchRequest.getCrn()).ifPresentOrElse(existing -> {
-                existing.update(matchRequest);
-            }, () -> {
-                getOffenderMatches().add(matchRequest);
-                matchRequest.setGroup(this);
-            } );
-        });
+        newMatches.forEach(matchRequest -> findMatchByCrn(matchRequest.getCrn()).ifPresentOrElse(existing -> existing.update(matchRequest), () -> {
+            getOffenderMatches().add(matchRequest);
+            matchRequest.setGroup(this);
+        } ));
     }
 }

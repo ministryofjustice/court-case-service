@@ -44,11 +44,9 @@ public class CourtEntity extends BaseEntity implements Serializable {
         if (this == other) {
             return true;
         }
-        if (!(other instanceof CourtEntity)) {
+        if (!(other instanceof CourtEntity that)) {
             return false;
         }
-
-        CourtEntity that = (CourtEntity) other;
 
         return Objects.equals(this.courtCode, that.getCourtCode());
     }

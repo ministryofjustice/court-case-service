@@ -6,15 +6,11 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.testcontainers.containers.localstack.LocalStackContainer;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.services.sns.SnsClient;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
@@ -58,26 +54,6 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
 
         verify(courtRepository, times(3)).findByCourtCode(COURT_CODE);
     }
-
-//    @Bean
-//    public static SnsClient createSnsClient() {
-//        return SnsClient.builder()
-//                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(
-//                        localstack.getAccessKey(),localstack.getSecretKey())))
-//                .endpointOverride(localstack.getEndpointOverride(LocalStackContainer.Service.SNS))
-//                .build();
-//    }
-//    @Bean
-//    public static AmazonSNS createAmazonSnsClient() {
-//        return AmazonSNSClientBuilder
-//                .standard()
-//                .withEndpointConfiguration(localstack.getEndpointOverride(LocalStackContainer.Service.SNS))
-//                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(
-//                        localstack.getAccessKey(), localstack.getSecretKey()
-//                )))
-//                .withRegion("eu-west-2")
-//                .build();
-//    }
 
     String DEFENDANT_ID_1 = "8e0263a1-bc3e-4dad-93c4-d333d32389ea";
 
@@ -212,7 +188,7 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
         var hearingId = "f069bfcd-29d6-4ab0-82f4-5df1ffd47f33";
         final var newHearingEntity = EntityHelper.aHearingEntityWithHearingId(caseId, hearingId, DEFENDANT_ID_1);
         var hearingDefendantEntity = newHearingEntity.getHearingDefendants().get(0);
-        hearingDefendantEntity.getDefendant();
+
         var DEFENDANT_ID_2 = "9b165f40-ecc1-4cf1-bb69-41504de8c0d5";
         HearingDefendantEntity hearingDefendant2 = EntityHelper.aHearingDefendantEntity(DEFENDANT_ID_2, null);
         hearingDefendant2.setHearing(newHearingEntity);
@@ -273,7 +249,7 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
 
         assertThat(hearing1.getCourtCase()).isEqualTo(hearing2.getCourtCase());
         var courtCaseUpdate = hearing2DbResult.getV2();
-        assertThat(courtCaseUpdate.getHearings().stream().collect(Collectors.toList())).isEqualTo(List.of(hearing1, hearing2));
+        assertThat(new ArrayList<>(courtCaseUpdate.getHearings())).isEqualTo(List.of(hearing1, hearing2));
     }
 
     @Test
@@ -297,7 +273,7 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
         assertThat(result.getRecentlyAddedCount()).isEqualTo(2);
         assertThat(result.getCourtRoomFilters()).containsAll(List.of("01", "03", "04", "05", "1", "Crown Court 5-1"));
 
-        assertThat(result.getCases().stream().map(it -> it.getDefendantName()).collect(Collectors.toList()).containsAll(List.of("Mr Jeff Blogs", "Miss Esther Egge")));
+        assertThat(result.getCases().stream().map(CourtCaseResponse::getDefendantName).toList().containsAll(List.of("Mr Jeff Blogs", "Miss Esther Egge")));
     }
 
     private Tuple3<HearingEntity, CourtCaseEntity, DefendantEntity> assertThatHearingIsNotImmutable(String caseId, String hearingId, String defendantId) {

@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model
 
-import lombok.Builder
 import org.springframework.format.annotation.DateTimeFormat
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType

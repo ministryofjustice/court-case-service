@@ -72,10 +72,9 @@ public class HearingRepositoryFacade {
      */
     public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
 
-        List<HearingEntity> hearingEntities = canIgnoreCreatedDates(createdAfter, createdBefore)
+        return canIgnoreCreatedDates(createdAfter, createdBefore)
             ? hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay)
             : hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay, createdAfter, createdBefore);
-        return hearingEntities;
     }
 
     public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay) {
@@ -91,8 +90,7 @@ public class HearingRepositoryFacade {
 
         updatedWithExistingDefendantsFromDb(hearingEntity);
 
-        HearingEntity save = hearingRepository.save(hearingEntity);
-        return save;
+        return hearingRepository.save(hearingEntity);
     }
 
     private void updateWithExistingOffenders(HearingEntity hearingEntity) {

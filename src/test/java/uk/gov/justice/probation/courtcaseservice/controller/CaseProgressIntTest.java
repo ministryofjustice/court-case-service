@@ -29,17 +29,19 @@ import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.get
 public class CaseProgressIntTest extends BaseIntTest {
 
     private static final String HEARING_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
-    private final String hearingNote = "{\n" +
-        "        \"hearingId\": \"1f93aa0a-7e46-4885-a1cb-f25a4be33a00\",\n" +
-        "        \"note\": \"Judge heard\",\n" +
-        "        \"author\": \"Test Author\"\n" +
-        "    }";
+    private final String hearingNote = """
+            {
+                    "hearingId": "1f93aa0a-7e46-4885-a1cb-f25a4be33a00",
+                    "note": "Judge heard",
+                    "author": "Test Author"
+                }""";
 
-    private final String noteUpdate = "{\n" +
-        "        \"hearingId\": \"2aa6f5e0-f842-4939-bc6a-01346abc09e7\",\n" +
-        "        \"note\": \"Judge heard new update update\",\n" +
-        "        \"author\": \"Author Three\"\n" +
-        "    }";
+    private final String noteUpdate = """
+            {
+                    "hearingId": "2aa6f5e0-f842-4939-bc6a-01346abc09e7",
+                    "note": "Judge heard new update update",
+                    "author": "Author Three"
+                }""";
 
     @Autowired
     private HearingNotesRepository hearingNotesRepository;

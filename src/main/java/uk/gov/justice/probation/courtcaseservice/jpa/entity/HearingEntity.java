@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Schema(description = "Hearing")
 @Entity
@@ -148,20 +147,18 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
         // remove hearing defendants that are not on the hearing update
         this.hearingDefendants.stream().filter(
                         hearingDefendantEntity -> Objects.isNull(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId())))
-                .collect(Collectors.toList())
+                .toList()
                 .forEach(this::removeHearingDefendant);
 
         // update existing
         this.hearingDefendants.stream().filter(
                         hearingDefendantEntity -> Objects.nonNull(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId())))
-                .forEach(hearingDefendantEntity -> {
-                    hearingDefendantEntity.update(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId()));
-                });
+                .forEach(hearingDefendantEntity -> hearingDefendantEntity.update(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId())));
 
         // add new hearing defendants
         hearingUpdate.hearingDefendants.stream().filter(
                         hearingDefendantEntityUpdate -> Objects.isNull(this.getHearingDefendant(hearingDefendantEntityUpdate.getDefendantId())))
-                .collect(Collectors.toList())
+                .toList()
                 .forEach(this::addHearingDefendant);
     }
 

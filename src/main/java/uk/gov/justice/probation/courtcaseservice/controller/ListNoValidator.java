@@ -70,7 +70,7 @@ public class ListNoValidator implements ConstraintValidator<ValidateListNo, Exte
         } else {
             List<OffenceRequestResponse> allOffences = getAllOffences(courtCase);
             var offencesWithListNo = allOffences.stream()
-                    .filter(offenceRequestResponse -> Objects.nonNull(offenceRequestResponse.getListNo())).collect(Collectors.toList());
+                    .filter(offenceRequestResponse -> Objects.nonNull(offenceRequestResponse.getListNo())).toList();
 
             if (offencesWithListNo.isEmpty()) {
                 return Optional.of("listNo should be provided in either hearingDays[] or defendants[].offences[]");

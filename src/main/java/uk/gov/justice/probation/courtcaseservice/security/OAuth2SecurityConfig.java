@@ -13,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Profile("!unsecured")
 public class OAuth2SecurityConfig {
 
+    @SuppressWarnings("removal")
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http

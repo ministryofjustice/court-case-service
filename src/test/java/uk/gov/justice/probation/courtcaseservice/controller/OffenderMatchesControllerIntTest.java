@@ -27,69 +27,67 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
 
     private static final String GET_GROUPED_OFFENDER_MATCHES_BY_DEFENDANT_ID_AND_GROUP_ID_PATH = "/defendant/%s/grouped-offender-matches/%s";
 
-    public static final String SINGLE_EXACT_MATCH_BODY = "{\n" +
-            "    \"matches\": [\n" +
-            "        {\n" +
-            "                \"matchIdentifiers\": {\n" +
-            "                \"crn\": \"X346204\",\n" +
-            "                \"pnc\": \"pnc123\",\n" +
-            "                \"cro\": \"cro456\"\n" +
-            "            },\n" +
-            "            \"matchType\": \"NAME_DOB\",\n" +
-            "            \"confirmed\": \"true\",\n" +
-            "            \"rejected\": \"false\",\n" +
-            "            \"matchProbability\": 0.9876" +
-            "        }\n" +
-            "    ]\n" +
-            "}";
+    public static final String SINGLE_EXACT_MATCH_BODY = """
+            {
+                "matches": [
+                    {
+                            "matchIdentifiers": {
+                            "crn": "X346204",
+                            "pnc": "pnc123",
+                            "cro": "cro456"
+                        },
+                        "matchType": "NAME_DOB",
+                        "confirmed": "true",
+                        "rejected": "false",
+                        "matchProbability": 0.9876        }
+                ]
+            }""";
 
-    public static final String MULTIPLE_NON_EXACT_MATCH_BODY = "{\n" +
-            "  \"matches\": [\n" +
-            "    {\n" +
-            "      \"matchIdentifiers\": {\n" +
-            "        \"crn\": \"X12345\"\n" +
-            "      },\n" +
-            "      \"matchType\": \"PARTIAL_NAME\",\n" +
-            "      \"confirmed\": \"false\",\n" +
-            "      \"rejected\": \"false\",\n" +
-            "      \"matchProbability\": 0.1234" +
-            "    },\n" +
-            "    {\n" +
-            "      \"matchIdentifiers\": {\n" +
-            "        \"crn\": \"X12346\"\n" +
-            "      },\n" +
-            "      \"matchType\": \"NAME_DOB_ALIAS\",\n" +
-            "      \"confirmed\": \"false\",\n" +
-            "      \"rejected\": \"false\",\n" +
-            "      \"matchProbability\": 0.5678" +
-            "    },\n" +
-            "    {\n" +
-            "      \"matchIdentifiers\": {\n" +
-            "        \"crn\": \"X346204\",\n" +
-            "        \"pnc\": \"pnc123\",\n" +
-            "        \"cro\": \"cro456\",\n" +
-            "        \"aliases\": [\n" +
-            "          {\n" +
-            "            \"dateOfBirth\": \"1969-08-26\",\n" +
-            "            \"firstName\": \"Adi\",\n" +
-            "            \"surname\": \"Akinbye\",\n" +
-            "            \"gender\": \"Male\"\n" +
-            "          },\n" +
-            "          {\n" +
-            "            \"dateOfBirth\": \"1968-08-06\",\n" +
-            "            \"firstName\": \"Chris\",\n" +
-            "            \"surname\": \"FAULKNER\",\n" +
-            "            \"gender\": \"Male\"\n" +
-            "          }\n" +
-            "        ]\n" +
-            "      },\n" +
-            "      \"matchType\": \"NAME_DOB_ALIAS\",\n" +
-            "      \"confirmed\": true,\n" +
-            "      \"rejected\": false,\n" +
-            "      \"matchProbability\": 0.9876" +
-            "    }\n" +
-            "  ]\n" +
-            "}";
+    public static final String MULTIPLE_NON_EXACT_MATCH_BODY = """
+            {
+              "matches": [
+                {
+                  "matchIdentifiers": {
+                    "crn": "X12345"
+                  },
+                  "matchType": "PARTIAL_NAME",
+                  "confirmed": "false",
+                  "rejected": "false",
+                  "matchProbability": 0.1234    },
+                {
+                  "matchIdentifiers": {
+                    "crn": "X12346"
+                  },
+                  "matchType": "NAME_DOB_ALIAS",
+                  "confirmed": "false",
+                  "rejected": "false",
+                  "matchProbability": 0.5678    },
+                {
+                  "matchIdentifiers": {
+                    "crn": "X346204",
+                    "pnc": "pnc123",
+                    "cro": "cro456",
+                    "aliases": [
+                      {
+                        "dateOfBirth": "1969-08-26",
+                        "firstName": "Adi",
+                        "surname": "Akinbye",
+                        "gender": "Male"
+                      },
+                      {
+                        "dateOfBirth": "1968-08-06",
+                        "firstName": "Chris",
+                        "surname": "FAULKNER",
+                        "gender": "Male"
+                      }
+                    ]
+                  },
+                  "matchType": "NAME_DOB_ALIAS",
+                  "confirmed": true,
+                  "rejected": false,
+                  "matchProbability": 0.9876    }
+              ]
+            }""";
     private static final RestAssuredConfig JSON_DOUBLE_FOR_NUMBERS = RestAssuredConfig.config()
             .jsonConfig(JsonConfig.jsonConfig()
                     .with()

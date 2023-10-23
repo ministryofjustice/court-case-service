@@ -11,6 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Profile("unsecured")
 public class UnsecuredResourceServerConfiguration {
 
+    @SuppressWarnings("removal")
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http

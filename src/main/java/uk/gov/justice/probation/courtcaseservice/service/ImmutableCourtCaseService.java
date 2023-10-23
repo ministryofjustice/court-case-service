@@ -169,9 +169,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
             .orElseGet(() -> {
                 trackCreateEvents(updatedHearing);
                 courtCaseRepository.findFirstByCaseIdOrderByIdDesc(updatedHearing.getCaseId())
-                    .ifPresent(courtCaseEntity -> {
-                        addHearingToCase(updatedHearing, courtCaseEntity);
-                    });
+                    .ifPresent(courtCaseEntity -> addHearingToCase(updatedHearing, courtCaseEntity));
                 return updatedHearing;
             });
         log.debug("Saving hearing with ID {}", hearingId);
@@ -207,9 +205,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     private void trackUpdateEvents(HearingEntity existingCase, HearingEntity updatedCase) {
         telemetryService.trackCourtCaseEvent(TelemetryEventType.COURT_CASE_UPDATED, updatedCase);
-        Optional.ofNullable(updatedCase.getHearingDefendants()).orElse(Collections.emptyList()).forEach(defendantEntity -> {
-            trackUpdateDefendantEvents(existingCase, defendantEntity, updatedCase.getCaseId());
-        });
+        Optional.ofNullable(updatedCase.getHearingDefendants()).orElse(Collections.emptyList()).forEach(defendantEntity -> trackUpdateDefendantEvents(existingCase, defendantEntity, updatedCase.getCaseId()));
     }
 
     private void trackUpdateDefendantEvents(HearingEntity existingCase, HearingDefendantEntity defendant, String caseId) {

@@ -2,7 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +12,7 @@ class CommunityApiOffenderManagersConverterTest {
     @Test
     public void shouldIgnoreUnknownValues() {
         final var communityApiOffenderManagersConverter = new CommunityApiOffenderManagersConverter();
-        final List<Map<String, Object>> maps = Arrays.asList(
+        final List<Map<String, Object>> maps = List.of(
                 Map.of(
                         "staffCode", "staff code",
                         "unknownValue", "unknown value"

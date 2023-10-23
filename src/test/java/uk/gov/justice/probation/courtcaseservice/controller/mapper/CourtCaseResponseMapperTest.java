@@ -112,7 +112,7 @@ class CourtCaseResponseMapperTest {
                         .build()
         );
 
-        hearingEntity = buildCourtCaseEntity(emptyList(), hearings, FIRST_CREATED);
+        hearingEntity = buildCourtCaseEntity(emptyList(), hearings);
     }
 
     @Test
@@ -214,7 +214,7 @@ class CourtCaseResponseMapperTest {
 
         var response = CourtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5, caseProgressHearings);
 
-        assertCaseFields(response, null);
+        assertCaseFields(response);
         assertThat(response.getNumberOfPossibleMatches()).isEqualTo(5);
         assertThat(response.getCrn()).isEqualTo("D99999");
         assertThat(response.getName()).isEqualTo(newName);
@@ -251,7 +251,7 @@ class CourtCaseResponseMapperTest {
     }
 
     private HearingDefendantEntity buildDefendant(NamePropertiesEntity name, OffenderEntity offender) {
-        var defendant = HearingDefendantEntity.builder()
+        return HearingDefendantEntity.builder()
                 .defendant(DefendantEntity.builder()
                         .name(name)
                         .defendantName(name.getFullName())
@@ -270,7 +270,6 @@ class CourtCaseResponseMapperTest {
                         .build())
                 .offences(List.of(aDefendantOffence()))
                 .build();
-        return defendant;
     }
 
     private GroupedOffenderMatchesEntity buildMatchGroups() {
@@ -346,11 +345,11 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getUrn()).isEqualTo(URN);
     }
 
-    private void assertCaseFields(CourtCaseResponse courtCaseResponse, String caseNo) {
-        assertCaseFields(courtCaseResponse, caseNo, SourceType.COMMON_PLATFORM);
+    private void assertCaseFields(CourtCaseResponse courtCaseResponse) {
+        assertCaseFields(courtCaseResponse, null, SourceType.COMMON_PLATFORM);
     }
 
-    private HearingEntity buildCourtCaseEntity(List<HearingDefendantEntity> defendants, List<HearingDayEntity> hearings, LocalDateTime firstCreated) {
+    private HearingEntity buildCourtCaseEntity(List<HearingDefendantEntity> defendants, List<HearingDayEntity> hearings) {
 
         return HearingEntity.builder()
                 .id(ID)
@@ -372,7 +371,7 @@ class CourtCaseResponseMapperTest {
                                 .build()))
                         .build())
                 .created(CREATED)
-                .firstCreated(firstCreated)
+                .firstCreated(CourtCaseResponseMapperTest.FIRST_CREATED)
                 .hearingDefendants(defendants)
                 .hearingDays(hearings)
                 .build();

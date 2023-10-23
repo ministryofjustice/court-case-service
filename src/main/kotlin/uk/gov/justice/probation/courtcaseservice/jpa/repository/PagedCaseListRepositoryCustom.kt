@@ -74,7 +74,7 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
                 ${if (hasProbationStatusFilter || hearingSearchRequest.breach) JOIN_OFFENDER else ""}
             """.trimIndent()
 
-        var filters = """
+        val filters = """
             ${ if(hasProbationStatusFilter) PROBATION_STATUS_FILTER else ""}
             ${ if(hasCourtRoom) " and hday.court_room in (:$P_COURT_ROOM)" else "" }
             ${ if(hasSourceFilter) " and cc.source_type = :$P_SOURCE" else "" }
@@ -90,20 +90,20 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
             $filters
             
         """.trimIndent()
-        var mainQuery = """
+        val mainQuery = """
             select hd.*, matches_group.match_count as match_count  
             $coreSql
             $ORDER_BY
             """.trimIndent()
 
-        var countQuery = """
+        val countQuery = """
             select count(hd.id)
             $coreSql
             $filters
             """.trimIndent()
 
-        var mainJpaQuery = entityManager.createNativeQuery(mainQuery, "search_hearings_custom")
-        var countJpaQuery = entityManager.createNativeQuery(countQuery)
+        val mainJpaQuery = entityManager.createNativeQuery(mainQuery, "search_hearings_custom")
+        val countJpaQuery = entityManager.createNativeQuery(countQuery)
 
         mainJpaQuery.setParameter(P_COURT_CODE, courtCode)
         mainJpaQuery.setParameter(P_DATE, hearingSearchRequest.date)

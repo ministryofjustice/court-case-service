@@ -1,7 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-//import com.amazonaws.services.sqs.model.PurgeQueueRequest;
-//import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.microsoft.applicationinsights.boot.dependencies.apachecommons.io.FileUtils;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +36,6 @@ import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import static io.restassured.RestAssured.given;
@@ -181,9 +178,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             assertThat(off.getPreviouslyKnownTerminationDate()).isEqualTo(LocalDate.of(2018, Month.JUNE, 24));
         }, () -> fail("Offender values not updated as expected"));
 
-        cc.ifPresentOrElse(hearingEntity -> {
-            assertThat(hearingEntity.getCourtCase().getCaseMarkers().get(0)).extracting("typeDescription").isEqualTo("description 1");
-        }, () -> fail("Court case not created as expected"));
+        cc.ifPresentOrElse(hearingEntity -> assertThat(hearingEntity.getCourtCase().getCaseMarkers().get(0)).extracting("typeDescription").isEqualTo("description 1"), () -> fail("Court case not created as expected"));
 
     }
 

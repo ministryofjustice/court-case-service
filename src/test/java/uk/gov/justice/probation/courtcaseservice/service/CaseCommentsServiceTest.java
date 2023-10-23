@@ -226,7 +226,7 @@ class CaseCommentsServiceTest {
         given(caseCommentsRepository.findByIdAndCaseIdAndCreatedByUuid(commentId, testCaseId, invalidUserUuid))
             .willReturn(Optional.empty());
         Exception e = assertThrows(EntityNotFoundException.class, () -> caseCommentsService.updateCaseComment(comment, commentId));
-        assertThat(e.getMessage()).isEqualTo(String.format("Comment 1 not found for the given user on case test-case-id"));
+        assertThat(e.getMessage()).isEqualTo("Comment 1 not found for the given user on case test-case-id");
         verifyNoMoreInteractions(caseCommentsRepository);
     }
 

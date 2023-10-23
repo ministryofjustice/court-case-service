@@ -69,16 +69,14 @@ public class CaseCommentsService {
 
     public void deleteCaseCommentDraft(String caseId, String userUuid) {
         courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId)
-            .ifPresentOrElse(courtCaseEntity -> {
-                caseCommentsRepository
-                    .findByCaseIdAndCreatedByUuidAndDraftIsTrue(caseId, userUuid)
-                    .ifPresentOrElse(caseCommentEntity -> {
-                        caseCommentEntity.setDeleted(true);
-                        caseCommentsRepository.delete(caseCommentEntity);
-                    }, () -> {
-                        throw new EntityNotFoundException("Cannot find draft case comment for case id %s and user id %s", caseId, userUuid);
-                    });
-            }, () -> {
+            .ifPresentOrElse(courtCaseEntity -> caseCommentsRepository
+                .findByCaseIdAndCreatedByUuidAndDraftIsTrue(caseId, userUuid)
+                .ifPresentOrElse(caseCommentEntity -> {
+                    caseCommentEntity.setDeleted(true);
+                    caseCommentsRepository.delete(caseCommentEntity);
+                }, () -> {
+                    throw new EntityNotFoundException("Cannot find draft case comment for case id %s and user id %s", caseId, userUuid);
+                }), () -> {
                 throw new EntityNotFoundException("Cannot find case with case id %s", caseId);
             });
     }

@@ -12,7 +12,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import java.math.BigInteger;
+
 import java.util.List;
 import java.util.stream.Collectors;
 

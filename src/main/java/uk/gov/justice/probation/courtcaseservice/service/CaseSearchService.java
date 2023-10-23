@@ -41,7 +41,7 @@ public class CaseSearchService {
             case CRN -> defendantRepositoryCustom.findDefendantsByCrn(searchTerm, pageable);
             case NAME ->
                 defendantRepositoryCustom.findDefendantsByName(Arrays.stream(searchTerm.split(" "))
-                    .map(s -> s.trim()).collect(Collectors.joining(" & ")), searchTerm.trim(), pageable);
+                    .map(String::trim).collect(Collectors.joining(" & ")), searchTerm.trim(), pageable);
         };
 
         if(caseSearchRequest.getPage() > resultsPage.getTotalPages()) {

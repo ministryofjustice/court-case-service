@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
-import java.util.Optional;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -14,8 +14,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCommunityOrPrisonOffenderManager;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiCommunityOrPrisonOffenderManagerResponse;
 import uk.gov.justice.probation.courtcaseservice.restclient.communityapi.model.CommunityApiTeam;
-import uk.gov.justice.probation.courtcaseservice.service.model.KeyValue;
-import uk.gov.justice.probation.courtcaseservice.service.model.Team;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -10,7 +10,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
-class OffenderController_CustodyIntTest extends BaseIntTest {
+class OffenderControllerCustodyIntTest extends BaseIntTest {
 
     private static final String CRN = "X320741";
     private static final String CRN_NO_NOMS = "X980123";

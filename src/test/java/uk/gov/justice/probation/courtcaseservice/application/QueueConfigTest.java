@@ -32,9 +32,9 @@ class QueueConfigTest {
     @Test
     public void shouldReturnTopicIfAvailable() {
         when(hmppsQueueService.findByTopicId("hmppsdomainevents")).thenReturn(hmppsTopic);
-        final var hmppsTopic = queueConfig.hmppsDomainEventsTopic(hmppsQueueService);
+        final var domainEventsTopic = queueConfig.hmppsDomainEventsTopic(hmppsQueueService);
 
-        assertThat(hmppsTopic).isEqualTo(hmppsTopic);
+        assertThat(domainEventsTopic).isEqualTo(hmppsTopic);
     }
 
     @Test
@@ -44,7 +44,6 @@ class QueueConfigTest {
                 .isThrownBy(() -> queueConfig.hmppsDomainEventsTopic(hmppsQueueService))
                         .withMessage("Fatal error: The hmppsdomainevents topic does not exist. The environment configuration may be faulty.");
 
-        assertThat(hmppsTopic).isEqualTo(hmppsTopic);
     }
 
 }

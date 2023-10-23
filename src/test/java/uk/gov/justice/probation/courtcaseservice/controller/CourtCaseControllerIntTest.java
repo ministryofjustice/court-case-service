@@ -321,7 +321,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .then()
                 .statusCode(200);
 
-            validateResponse(response, startTime, "1f93aa0a-7e46-4885-a1cb-f25a4be33a00");
+            validateResponse(response, startTime);
         }
 
         @Test
@@ -568,11 +568,11 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
 
     }
 
-    private void validateResponse(ValidatableResponse validatableResponse, String startTime, String caseId) {
+    private void validateResponse(ValidatableResponse validatableResponse, String startTime) {
         validatableResponse
             .body("caseNo", equalTo(CASE_NO))
             .body("hearingEventType", equalTo("Resulted"))
-            .body("caseId", equalTo(caseId))
+            .body("caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
             .body("offences", hasSize(2))
             .body("offences[0].offenceTitle", equalTo("Theft from a shop"))
             .body("offences[0].offenceSummary", equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))

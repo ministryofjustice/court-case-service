@@ -5,7 +5,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,10 +28,6 @@ class DocumentServiceTest {
 
     @InjectMocks
     private DocumentService documentService;
-
-    @BeforeEach
-    void setUp() {
-    }
 
     @DisplayName("Normal successful execution to fetch document")
     @Test

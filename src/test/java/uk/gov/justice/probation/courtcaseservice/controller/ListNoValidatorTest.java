@@ -90,7 +90,7 @@ class ListNoValidatorTest {
     @Test
     void whenListNoIsNotProvidedInAllOfTheHearingDays_thenFailValidation() {
 
-        var hearingDays = new ArrayList<HearingDay>(List.of(HearingDay.builder().build()));
+        var hearingDays = new ArrayList<>(List.of(HearingDay.builder().build()));
         hearingDays.addAll(HEARING_DAYS_WITH_LIST_NO);
 
         var courtCase = ExtendedHearingRequestResponse.builder()

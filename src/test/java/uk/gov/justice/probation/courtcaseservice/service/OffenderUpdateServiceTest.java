@@ -77,9 +77,7 @@ class OffenderUpdateServiceTest {
         given(defendantRepository.findFirstByDefendantId(DEFENDANT_ID))
                 .willReturn(Optional.ofNullable(null));
 
-        Exception exception = Assertions.assertThrows(EntityNotFoundException.class, () -> {
-            offenderUpdateService.getDefendantOffenderByDefendantId(DEFENDANT_ID);
-        });
+        Exception exception = Assertions.assertThrows(EntityNotFoundException.class, () -> offenderUpdateService.getDefendantOffenderByDefendantId(DEFENDANT_ID));
 
         String expectedMessage = String.format("Defendant with id %s does not exist", DEFENDANT_ID);
         assertThat(exception.getMessage()).isEqualTo(expectedMessage);
@@ -91,9 +89,7 @@ class OffenderUpdateServiceTest {
         given(defendantRepository.findFirstByDefendantId(DEFENDANT_ID))
                 .willReturn(Optional.ofNullable(null));
 
-        Exception exception = Assertions.assertThrows(EntityNotFoundException.class, () -> {
-            offenderUpdateService.removeDefendantOffenderAssociation(DEFENDANT_ID);
-        });
+        Exception exception = Assertions.assertThrows(EntityNotFoundException.class, () -> offenderUpdateService.removeDefendantOffenderAssociation(DEFENDANT_ID));
 
         String expectedMessage = String.format("Defendant with id %s does not exist", DEFENDANT_ID);
         assertThat(exception.getMessage()).isEqualTo(expectedMessage);
@@ -117,9 +113,7 @@ class OffenderUpdateServiceTest {
         given(defendantRepository.findFirstByDefendantId(DEFENDANT_ID))
                 .willReturn(Optional.ofNullable(null));
 
-        Exception exception = Assertions.assertThrows(EntityNotFoundException.class, () -> {
-            offenderUpdateService.updateDefendantOffender(DEFENDANT_ID, OffenderEntity.builder().build());
-        });
+        Exception exception = Assertions.assertThrows(EntityNotFoundException.class, () -> offenderUpdateService.updateDefendantOffender(DEFENDANT_ID, OffenderEntity.builder().build()));
 
         String expectedMessage = String.format("Defendant with id %s does not exist", DEFENDANT_ID);
         assertThat(exception.getMessage()).isEqualTo(expectedMessage);

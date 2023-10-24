@@ -14,6 +14,7 @@ class OffenderMapperService (val defendantRepository: DefendantRepository){
     }
 
     fun mapOffenderToMatchingDefendants(deliusOffenderDetail: DeliusOffenderDetail?) {
+        log.debug("Mapping new offender with details {}", deliusOffenderDetail)
         defendantRepository.findMatchingDefendants(
             deliusOffenderDetail?.name?.foreName,
             deliusOffenderDetail?.name?.surName,

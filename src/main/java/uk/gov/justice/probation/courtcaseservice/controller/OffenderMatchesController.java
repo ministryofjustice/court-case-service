@@ -3,7 +3,6 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,9 +18,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchD
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.function.Function;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 

@@ -2,7 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 

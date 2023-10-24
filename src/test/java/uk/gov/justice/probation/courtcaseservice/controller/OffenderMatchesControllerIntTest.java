@@ -27,69 +27,67 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
 
     private static final String GET_GROUPED_OFFENDER_MATCHES_BY_DEFENDANT_ID_AND_GROUP_ID_PATH = "/defendant/%s/grouped-offender-matches/%s";
 
-    public static final String SINGLE_EXACT_MATCH_BODY = "{\n" +
-            "    \"matches\": [\n" +
-            "        {\n" +
-            "                \"matchIdentifiers\": {\n" +
-            "                \"crn\": \"X346204\",\n" +
-            "                \"pnc\": \"pnc123\",\n" +
-            "                \"cro\": \"cro456\"\n" +
-            "            },\n" +
-            "            \"matchType\": \"NAME_DOB\",\n" +
-            "            \"confirmed\": \"true\",\n" +
-            "            \"rejected\": \"false\",\n" +
-            "            \"matchProbability\": 0.9876" +
-            "        }\n" +
-            "    ]\n" +
-            "}";
+    public static final String SINGLE_EXACT_MATCH_BODY = """
+            {
+                "matches": [
+                    {
+                            "matchIdentifiers": {
+                            "crn": "X346204",
+                            "pnc": "pnc123",
+                            "cro": "cro456"
+                        },
+                        "matchType": "NAME_DOB",
+                        "confirmed": "true",
+                        "rejected": "false",
+                        "matchProbability": 0.9876        }
+                ]
+            }""";
 
-    public static final String MULTIPLE_NON_EXACT_MATCH_BODY = "{\n" +
-            "  \"matches\": [\n" +
-            "    {\n" +
-            "      \"matchIdentifiers\": {\n" +
-            "        \"crn\": \"X12345\"\n" +
-            "      },\n" +
-            "      \"matchType\": \"PARTIAL_NAME\",\n" +
-            "      \"confirmed\": \"false\",\n" +
-            "      \"rejected\": \"false\",\n" +
-            "      \"matchProbability\": 0.1234" +
-            "    },\n" +
-            "    {\n" +
-            "      \"matchIdentifiers\": {\n" +
-            "        \"crn\": \"X12346\"\n" +
-            "      },\n" +
-            "      \"matchType\": \"NAME_DOB_ALIAS\",\n" +
-            "      \"confirmed\": \"false\",\n" +
-            "      \"rejected\": \"false\",\n" +
-            "      \"matchProbability\": 0.5678" +
-            "    },\n" +
-            "    {\n" +
-            "      \"matchIdentifiers\": {\n" +
-            "        \"crn\": \"X346204\",\n" +
-            "        \"pnc\": \"pnc123\",\n" +
-            "        \"cro\": \"cro456\",\n" +
-            "        \"aliases\": [\n" +
-            "          {\n" +
-            "            \"dateOfBirth\": \"1969-08-26\",\n" +
-            "            \"firstName\": \"Adi\",\n" +
-            "            \"surname\": \"Akinbye\",\n" +
-            "            \"gender\": \"Male\"\n" +
-            "          },\n" +
-            "          {\n" +
-            "            \"dateOfBirth\": \"1968-08-06\",\n" +
-            "            \"firstName\": \"Chris\",\n" +
-            "            \"surname\": \"FAULKNER\",\n" +
-            "            \"gender\": \"Male\"\n" +
-            "          }\n" +
-            "        ]\n" +
-            "      },\n" +
-            "      \"matchType\": \"NAME_DOB_ALIAS\",\n" +
-            "      \"confirmed\": true,\n" +
-            "      \"rejected\": false,\n" +
-            "      \"matchProbability\": 0.9876" +
-            "    }\n" +
-            "  ]\n" +
-            "}";
+    public static final String MULTIPLE_NON_EXACT_MATCH_BODY = """
+            {
+              "matches": [
+                {
+                  "matchIdentifiers": {
+                    "crn": "X12345"
+                  },
+                  "matchType": "PARTIAL_NAME",
+                  "confirmed": "false",
+                  "rejected": "false",
+                  "matchProbability": 0.1234    },
+                {
+                  "matchIdentifiers": {
+                    "crn": "X12346"
+                  },
+                  "matchType": "NAME_DOB_ALIAS",
+                  "confirmed": "false",
+                  "rejected": "false",
+                  "matchProbability": 0.5678    },
+                {
+                  "matchIdentifiers": {
+                    "crn": "X346204",
+                    "pnc": "pnc123",
+                    "cro": "cro456",
+                    "aliases": [
+                      {
+                        "dateOfBirth": "1969-08-26",
+                        "firstName": "Adi",
+                        "surname": "Akinbye",
+                        "gender": "Male"
+                      },
+                      {
+                        "dateOfBirth": "1968-08-06",
+                        "firstName": "Chris",
+                        "surname": "FAULKNER",
+                        "gender": "Male"
+                      }
+                    ]
+                  },
+                  "matchType": "NAME_DOB_ALIAS",
+                  "confirmed": true,
+                  "rejected": false,
+                  "matchProbability": 0.9876    }
+              ]
+            }""";
     private static final RestAssuredConfig JSON_DOUBLE_FOR_NUMBERS = RestAssuredConfig.config()
             .jsonConfig(JsonConfig.jsonConfig()
                     .with()
@@ -189,14 +187,10 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
 
     @Nested
     class GetGroupedOffenderMatchesEntity {
-
         private static final String GROUP_ID = "9999991";
         private static final String DEFENDANT_ID = "40db17d6-04db-11ec-b2d8-0242ac130002";
-
         private static final String GROUP_ID_NOT_EXIST = "-1";
-
         private static final String DEFENDANT_ID_NOT_EXIST = "40db17d6-04db";
-
 
         @Test
         void givenDefendantIdMatch_whenGetGroupedMatchesByDefendantId_thenReturn200() {
@@ -248,9 +242,7 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
 
     @Nested
     class CreateOrUpdateGroupedMatchesByDefendant {
-
         private static final String DEFENDANT_ID_NOT_EXIST = "40db17d6-04db-11ec-b2d8-0242ac130003";
-
         @Test
         void givenCourtCaseExistsWithNoPriorMatches_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {
             var DEFENDANT_ID = "3bf70cd8-7e9d-4d29-b9b2-f8f7f898cb32";
@@ -289,50 +281,47 @@ class OffenderMatchesControllerIntTest extends BaseIntTest {
 
         @Test
         void givenCourtCaseExistsWithPriorMatches_whenPostMadeToOffenderMatches_thenReturn201CreatedWithValidLocation() {
-
-
             String defendantId = "40db17d6-04db-11ec-b2d8-0242ac130002";
 
             String location = given()
-                    .auth()
-                    .oauth2(getToken())
-                    .accept(APPLICATION_JSON_VALUE)
-                    .contentType(APPLICATION_JSON_VALUE)
-                    .body(MULTIPLE_NON_EXACT_MATCH_BODY)
-                    .when()
-                    .post("/defendant/" + defendantId + "/grouped-offender-matches")
-                    .then()
-                    .statusCode(201)
-                    .header("Location", matchesPattern("/defendant/" + defendantId + "/grouped-offender-matches/[0-9]+"))
-                    .extract()
-                    .header("Location");
+                .auth()
+                .oauth2(getToken())
+                .accept(APPLICATION_JSON_VALUE)
+                .contentType(APPLICATION_JSON_VALUE)
+                .body(MULTIPLE_NON_EXACT_MATCH_BODY)
+                .when()
+                .post("/defendant/" + defendantId + "/grouped-offender-matches")
+                .then()
+                .statusCode(201)
+                .header("Location", matchesPattern("/defendant/" + defendantId + "/grouped-offender-matches/[0-9]+"))
+                .extract()
+                .header("Location");
 
             given()
-                    .config(JSON_DOUBLE_FOR_NUMBERS)
-                    .auth()
-                    .oauth2(getToken())
-                    .accept(APPLICATION_JSON_VALUE)
-                    .contentType(APPLICATION_JSON_VALUE)
-                    .when()
-                    .get(location)
-                    .then()
-                    .statusCode(200)
-                    .body("offenderMatches", hasSize(3))
-                    .body("offenderMatches[0].crn", equalTo("X12345"))
-                    .body("offenderMatches[0].pnc", equalTo(null))
-                    .body("offenderMatches[0].cro", equalTo(null))
-                    .body("offenderMatches[0].matchType", equalTo("PARTIAL_NAME"))
-                    .body("offenderMatches[0].confirmed", equalTo(false))
-                    .body("offenderMatches[0].rejected", equalTo(false))
-                    .body("offenderMatches[0].matchProbability", equalTo(0.1234d))
-                    .body("offenderMatches[1].matchType", equalTo("NAME_DOB_ALIAS"))
-                    .body("offenderMatches[1].matchProbability", equalTo(0.5678d))
-                    .body("offenderMatches[2].matchType", equalTo("NAME_DOB_ALIAS"))
-                    .body("offenderMatches[2].aliases", hasSize(2))
-                    .body("offenderMatches[2].aliases[0].gender", equalTo("Male"))
-                    .body("offenderMatches[2].aliases[1].dateOfBirth", equalTo("1968-08-06"))
-                    .body("offenderMatches[2].matchProbability", equalTo(0.9876d))
-            ;
+                .config(JSON_DOUBLE_FOR_NUMBERS)
+                .auth()
+                .oauth2(getToken())
+                .accept(APPLICATION_JSON_VALUE)
+                .contentType(APPLICATION_JSON_VALUE)
+                .when()
+                .get(location)
+                .then()
+                .statusCode(200)
+                .body("offenderMatches", hasSize(3))
+                .body("offenderMatches[0].crn", equalTo("X12345"))
+                .body("offenderMatches[0].pnc", equalTo(null))
+                .body("offenderMatches[0].cro", equalTo(null))
+                .body("offenderMatches[0].matchType", equalTo("PARTIAL_NAME"))
+                .body("offenderMatches[0].confirmed", equalTo(false))
+                .body("offenderMatches[0].rejected", equalTo(false))
+                .body("offenderMatches[0].matchProbability", equalTo(0.1234d))
+                .body("offenderMatches[1].matchType", equalTo("NAME_DOB_ALIAS"))
+                .body("offenderMatches[1].matchProbability", equalTo(0.5678d))
+                .body("offenderMatches[2].matchType", equalTo("NAME_DOB_ALIAS"))
+                .body("offenderMatches[2].aliases", hasSize(2))
+                .body("offenderMatches[2].aliases[0].gender", equalTo("Male"))
+                .body("offenderMatches[2].aliases[1].dateOfBirth", equalTo("1968-08-06"))
+                .body("offenderMatches[2].matchProbability", equalTo(0.9876d));
         }
 
         @Test

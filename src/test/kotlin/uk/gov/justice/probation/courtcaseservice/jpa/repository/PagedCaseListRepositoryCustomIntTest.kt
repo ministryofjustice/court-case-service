@@ -16,7 +16,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchR
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType
 import java.time.LocalDate
-import javax.persistence.EntityManager
+import jakarta.persistence.EntityManager
 
 
 @DataJpaTest

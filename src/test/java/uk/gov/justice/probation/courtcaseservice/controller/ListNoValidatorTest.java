@@ -13,7 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingDay;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidatorContext;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +90,7 @@ class ListNoValidatorTest {
     @Test
     void whenListNoIsNotProvidedInAllOfTheHearingDays_thenFailValidation() {
 
-        var hearingDays = new ArrayList<HearingDay>(List.of(HearingDay.builder().build()));
+        var hearingDays = new ArrayList<>(List.of(HearingDay.builder().build()));
         hearingDays.addAll(HEARING_DAYS_WITH_LIST_NO);
 
         var courtCase = ExtendedHearingRequestResponse.builder()

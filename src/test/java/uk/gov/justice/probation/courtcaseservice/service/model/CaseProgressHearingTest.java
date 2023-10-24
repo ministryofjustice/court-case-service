@@ -23,7 +23,7 @@ class CaseProgressHearingTest {
     @Test
     void givenCPCase_shouldMapToCaseProgressHearing() {
         var hearingDayEntity1 = EntityHelper.aHearingDayEntity(LocalDateTime.of(2022, 2, 26, 9, 0)).withCourtRoom("Room 1").withCourt(CourtEntity.builder().name("Leeds mags court").build());
-        var hearingDayEntity2 = EntityHelper.aHearingDayEntity(LocalDateTime.of(2022, 5, 5, 9, 0)).withCourtRoom("Room 2").withCourt(CourtEntity.builder().name("Sheffield mags court").build());;
+        var hearingDayEntity2 = EntityHelper.aHearingDayEntity(LocalDateTime.of(2022, 5, 5, 9, 0)).withCourtRoom("Room 2").withCourt(CourtEntity.builder().name("Sheffield mags court").build());
 
         var hearingEntity = HearingEntity.builder()
             .hearingId("test-hearing-id")
@@ -59,7 +59,7 @@ class CaseProgressHearingTest {
         var hearingDayEntity1 = EntityHelper.aHearingDayEntity(LocalDateTime.of(2022, 2, 26, 9, 0))
                                                     .withCourtRoom("Room 1").withCourt(CourtEntity.builder().name("Leeds mags court").build());
         var hearingDayEntity2 = EntityHelper.aHearingDayEntity(LocalDateTime.of(2022, 5, 5, 9, 0))
-                                                    .withCourtRoom("Room 2").withCourt(CourtEntity.builder().name("Sheffield mags court").build());;
+                                                    .withCourtRoom("Room 2").withCourt(CourtEntity.builder().name("Sheffield mags court").build());
 
         var hearingEntity = HearingEntity.builder()
             .hearingId("test-hearing-id")

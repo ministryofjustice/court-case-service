@@ -97,7 +97,7 @@ public class ConvictionRestClientIntTest extends BaseIntTest {
         final Optional<SentenceStatus> response = webTestClient.getSentenceStatus(CRN, SOME_CONVICTION_ID).blockOptional();
 
         assertThat(response).isPresent();
-        assertThat(response.get().getMainOffenceDescription()).isEqualTo("Common assault and battery - 10501");
+        assertThat(response.get().mainOffenceDescription()).isEqualTo("Common assault and battery - 10501");
     }
 
     @Test

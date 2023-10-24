@@ -59,7 +59,7 @@ class HearingNotesServiceTest {
         verify(hearingRepository).findFirstByHearingId("hearingId");
         verify(hearingNotesRepository).findByHearingIdAndCreatedByUuidAndDraftIsTrue("hearingId", createdByUuid);
         verify(hearingNotesRepository).save(hearingNoteEntity);
-        verify(telemetryService).trackCreateHearingNoteEvent(TelemetryEventType.HEARING_NOTE_ADDED, hearingNoteEntity);
+        verify(telemetryService).trackCreateHearingNoteEvent(hearingNoteEntity);
     }
 
     @Test
@@ -84,9 +84,7 @@ class HearingNotesServiceTest {
 
         given(hearingRepository.findFirstByHearingId("hearingId")).willReturn(Optional.empty());
 
-        Assertions.assertThrows(EntityNotFoundException.class, () -> {
-            hearingNotesService.createHearingNote(hearingNoteEntity);
-        }, "Hearing hearingId not found");
+        Assertions.assertThrows(EntityNotFoundException.class, () -> hearingNotesService.createHearingNote(hearingNoteEntity), "Hearing hearingId not found");
 
         verify(hearingRepository).findFirstByHearingId("hearingId");
         verifyNoInteractions(hearingNotesRepository);
@@ -116,9 +114,7 @@ class HearingNotesServiceTest {
 
         given(hearingRepository.findFirstByHearingId("hearingId")).willReturn(Optional.empty());
 
-        Assertions.assertThrows(EntityNotFoundException.class, () -> {
-            hearingNotesService.createOrUpdateHearingNoteDraft(hearingNoteEntity);
-        }, "Hearing hearingId not found");
+        Assertions.assertThrows(EntityNotFoundException.class, () -> hearingNotesService.createOrUpdateHearingNoteDraft(hearingNoteEntity), "Hearing hearingId not found");
 
         verify(hearingRepository).findFirstByHearingId("hearingId");
         verifyNoInteractions(hearingNotesRepository);

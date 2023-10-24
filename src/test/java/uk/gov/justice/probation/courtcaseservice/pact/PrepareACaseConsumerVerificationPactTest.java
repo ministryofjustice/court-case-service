@@ -143,20 +143,20 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
             "a case exists with the given case id"
     })
     void existingCaseAndDefendant() {
-        mockCase(CASE_ID, HEARING_ID, DEFENDANT_ID);
-        mockCase(CASE_ID_2, HEARING_ID, DEFENDANT_ID_2);
+        mockCase(CASE_ID, DEFENDANT_ID);
+        mockCase(CASE_ID_2, DEFENDANT_ID_2);
     }
 
-    private void mockCase(String caseId, String hearingId, String defendantId) {
-        HearingEntity hearingEntity = buildCourtCaseEntity(caseId, hearingId, defendantId);
+    private void mockCase(String caseId, String defendantId) {
+        HearingEntity hearingEntity = buildCourtCaseEntity(caseId, PrepareACaseConsumerVerificationPactTest.HEARING_ID, defendantId);
 
         when(offenderUpdateService.updateDefendantOffender(eq(defendantId), any()))
                 .thenReturn(Mono.just(hearingEntity.getHearingDefendant(defendantId).getDefendant().getOffender()));
 
-        when(courtCaseService.getHearingByHearingIdAndDefendantId(eq(hearingId), eq(defendantId)))
+        when(courtCaseService.getHearingByHearingIdAndDefendantId(eq(PrepareACaseConsumerVerificationPactTest.HEARING_ID), eq(defendantId)))
                 .thenReturn(hearingEntity);
 
-        when(offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingId, defendantId))
+        when(offenderMatchService.getMatchCountByCaseIdAndDefendant(PrepareACaseConsumerVerificationPactTest.HEARING_ID, defendantId))
                 .thenReturn(Optional.of(3));
 
         when(offenderMatchService.getOffenderMatchDetailsByDefendantId(defendantId))
@@ -204,7 +204,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
     }
 
     private HearingEntity buildCourtCaseEntity(String caseId, String hearingId, String defendantId) {
-        var courtCaseEntity = HearingEntity.builder()
+        return HearingEntity.builder()
                 .hearingId(hearingId)
                 .listNo("3rd")
                 .courtCase(CourtCaseEntity.builder()
@@ -258,7 +258,6 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
                                 .build())
                         .build()))
                 .build();
-        return courtCaseEntity;
     }
 
     @State({"an offender record exists"})

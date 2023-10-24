@@ -11,7 +11,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
-class OffenderController_BreachIntTest extends BaseIntTest {
+class OffenderControllerBreachIntTest extends BaseIntTest {
 
     private static final String CRN = "X320741";
     private static final String CONVICTION_ID = "2500295343";

@@ -14,7 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderReposito
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.util.Optional;
 
 @Service

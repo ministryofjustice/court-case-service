@@ -11,26 +11,27 @@ import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.hibernate.type.SqlTypes;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
@@ -76,7 +77,7 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
     @Column(name = "DEFENDANT_NAME", nullable = false)
     private String defendantName;
 
-    @Type(type = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", name = "NAME", nullable = false)
     private NamePropertiesEntity name;
 
@@ -84,7 +85,7 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     private DefendantType type;
 
-    @Type(type = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", name = "ADDRESS")
     private AddressPropertiesEntity address;
 
@@ -113,7 +114,7 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
     @Column(name = "OFFENDER_CONFIRMED", nullable = false)
     private boolean offenderConfirmed;
 
-    @Type(type = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", name = "PHONE_NUMBER")
     private PhoneNumberEntity phoneNumber;
 
@@ -156,17 +157,13 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
         this.nationality2 = defendantUpdate.getNationality2();
         this.phoneNumber = defendantUpdate.getPhoneNumber();
         this.personId = defendantUpdate.getPersonId();
-        Optional.ofNullable(this.offender).ifPresentOrElse(offenderEntity -> {
-            Optional.ofNullable(defendantUpdate.getOffender()).ifPresent(offenderUpdate -> {
-                if(StringUtils.equals(this.getOffender().getCrn(), defendantUpdate.getOffender().getCrn())) {
-                    this.offender.update(defendantUpdate.getOffender());
-                } else {
-                    this.offender = defendantUpdate.getOffender();
-                }
-            });
-        }, () -> {
-            this.offender = defendantUpdate.getOffender();
-        });
+        Optional.ofNullable(this.offender).ifPresentOrElse(offenderEntity -> Optional.ofNullable(defendantUpdate.getOffender()).ifPresent(offenderUpdate -> {
+            if(StringUtils.equals(this.getOffender().getCrn(), defendantUpdate.getOffender().getCrn())) {
+                this.offender.update(defendantUpdate.getOffender());
+            } else {
+                this.offender = defendantUpdate.getOffender();
+            }
+        }), () -> this.offender = defendantUpdate.getOffender());
     }
 
     public void addHearingDefendant(HearingDefendantEntity hearingDefendantEntity) {

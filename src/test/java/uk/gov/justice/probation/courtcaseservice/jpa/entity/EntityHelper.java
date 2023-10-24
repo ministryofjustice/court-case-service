@@ -56,7 +56,7 @@ public class EntityHelper {
     public static final String PERSON_ID = "d1eefed2-04df-11ec-b2d8-0242ac130002";
 
     public static <E> ArrayList<E> getMutableList(List<E> mutableList) {
-        return new ArrayList<E>(mutableList);
+        return new ArrayList<>(mutableList);
     }
 
     public static HearingEntity aHearingEntity(String caseId) {
@@ -262,9 +262,7 @@ public class EntityHelper {
                         .build())))
                 .build();
 
-        offenceEntity.getJudicialResults().forEach(judicialResultEntity -> {
-            judicialResultEntity.setOffence(offenceEntity);
-        });
+        offenceEntity.getJudicialResults().forEach(judicialResultEntity -> judicialResultEntity.setOffence(offenceEntity));
         return offenceEntity;
     }
 
@@ -357,9 +355,7 @@ public class EntityHelper {
                 .judicialResults(getMutableList(List.of(aJudicialResultEntity("id1"), aJudicialResultEntity("id3"), aJudicialResultEntity("id2"), aJudicialResultEntity("id4"))))
                 .build();
 
-        offenceEntity.getJudicialResults().forEach(judicialResultEntity -> {
-            judicialResultEntity.setOffence(offenceEntity);
-        });
+        offenceEntity.getJudicialResults().forEach(judicialResultEntity -> judicialResultEntity.setOffence(offenceEntity));
 
         return offenceEntity;
     }

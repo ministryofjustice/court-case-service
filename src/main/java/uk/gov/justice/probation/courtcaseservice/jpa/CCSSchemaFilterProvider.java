@@ -18,6 +18,9 @@ public class CCSSchemaFilterProvider implements SchemaFilterProvider {
     }
 
     @Override
+    public SchemaFilter getTruncatorFilter() { return CCSSchemaFilter.INSTANCE; }
+
+    @Override
     public SchemaFilter getMigrateFilter() {
         return CCSSchemaFilter.INSTANCE;
     }

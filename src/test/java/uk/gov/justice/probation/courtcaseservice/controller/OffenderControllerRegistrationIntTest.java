@@ -13,7 +13,7 @@ import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRes
 import static uk.gov.justice.probation.courtcaseservice.testUtil.DateHelper.standardDateOf;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
-class OffenderController_RegistrationIntTest extends BaseIntTest {
+class OffenderControllerRegistrationIntTest extends BaseIntTest {
 
     private static final String PATH = "/offender/%s/registrations";
 

@@ -184,7 +184,7 @@ class CourtCaseControllerTest {
         var responseEntity = courtCaseController.getCaseList(COURT_CODE, DATE, source,false, webRequest);
 
         assertThat(responseEntity.getBody().getCases()).hasSize(1);
-        assertCourtCase(responseEntity.getBody().getCases().get(0), null, 0);
+        assertCourtCase(responseEntity.getBody().getCases().get(0));
         assertThat(responseEntity.getHeaders().getFirst(HttpHeaders.LAST_MODIFIED)).isEqualTo("Wed, 21 Oct 2015 07:28:00 GMT");
     }
 
@@ -219,8 +219,8 @@ class CourtCaseControllerTest {
 
         assertThat(responseEntity.getBody().getCases()).hasSize(2);
         // Top level fields for both are the same
-        assertCourtCase(responseEntity.getBody().getCases().get(0), null, 0);
-        assertCourtCase(responseEntity.getBody().getCases().get(1), null, 0);
+        assertCourtCase(responseEntity.getBody().getCases().get(0));
+        assertCourtCase(responseEntity.getBody().getCases().get(1));
         assertThat(responseEntity.getBody().getCases().get(0).getCrn()).isEqualTo(CRN);
         assertThat(responseEntity.getBody().getCases().get(0).getDefendantName()).isEqualTo("Mr Gordon BENNETT");
         assertThat(responseEntity.getBody().getCases().get(1).getDefendantName()).isEqualTo("HRH Catherine The GREAT");
@@ -325,7 +325,7 @@ class CourtCaseControllerTest {
         var responseEntity = nonCachingController.getCaseList(COURT_CODE, DATE, source, false, webRequest);
 
         assertThat(responseEntity.getBody().getCases()).hasSize(1);
-        assertCourtCase(responseEntity.getBody().getCases().get(0), null, 0);
+        assertCourtCase(responseEntity.getBody().getCases().get(0));
         assertThat(responseEntity.getHeaders().getFirst(HttpHeaders.LAST_MODIFIED)).isEqualTo(null);
     }
 
@@ -398,9 +398,7 @@ class CourtCaseControllerTest {
     @Test
     void givenCaseIdDoesNotMatchCaseCommentRequestCaseId_whenCreateComment_shouldThrowConflictingInputException() {
 
-        assertThrows(ConflictingInputException.class, () -> {
-            courtCaseController.createCaseComment("case-id-one", CaseCommentRequest.builder().caseId("invalid-case-id").build(), principal);
-        });
+        assertThrows(ConflictingInputException.class, () -> courtCaseController.createCaseComment("case-id-one", CaseCommentRequest.builder().caseId("invalid-case-id").build(), principal));
 
         Mockito.verifyNoMoreInteractions(caseCommentsService);
     }
@@ -435,9 +433,7 @@ class CourtCaseControllerTest {
     @Test
     void givenCaseIdDoesNotMatchCaseCommentRequestCaseId_whenCreateUpdateCaseCommentDraft_shouldThrowConflictingInputException() {
 
-        assertThrows(ConflictingInputException.class, () -> {
-            courtCaseController.createUpdateCaseCommentDraft("case-id-one", CaseCommentRequest.builder().caseId("invalid-case-id").build(), principal);
-        });
+        assertThrows(ConflictingInputException.class, () -> courtCaseController.createUpdateCaseCommentDraft("case-id-one", CaseCommentRequest.builder().caseId("invalid-case-id").build(), principal));
 
         Mockito.verifyNoMoreInteractions(caseCommentsService);
     }
@@ -557,13 +553,13 @@ class CourtCaseControllerTest {
         assertThat(cases.get(position).getSessionStartTime()).isEqualTo(sessionTime);
     }
 
-    private void assertCourtCase(CourtCaseResponse courtCase, String caseNo, int possibleMatchCount) {
+    private void assertCourtCase(CourtCaseResponse courtCase) {
         assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
-        assertThat(courtCase.getCaseNo()).isEqualTo(caseNo);
+        assertThat(courtCase.getCaseNo()).isEqualTo(null);
         assertThat(courtCase.getSessionStartTime()).isNotNull();
         assertThat(courtCase.getSession()).isSameAs(session);
         assertThat(courtCase.getSource()).isEqualTo(COMMON_PLATFORM.name());
-        assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(possibleMatchCount);
+        assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(0);
     }
 
     private HearingEntity buildCourtCaseEntity(NamePropertiesEntity name, LocalDateTime sessionStartTime, String courtRoom) {

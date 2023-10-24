@@ -27,7 +27,7 @@ import static uk.gov.justice.probation.courtcaseservice.restclient.ConvictionRes
 import static uk.gov.justice.probation.courtcaseservice.testUtil.DateHelper.standardDateOf;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
-class OffenderController_ConvictionIntTest extends BaseIntTest {
+class OffenderControllerConvictionIntTest extends BaseIntTest {
 
     private static final String SENTENCE_PATH = "/offender/%s/convictions/%s/sentence";
     private static final String CONVICTION_PATH = "/offender/%s/convictions/%s";

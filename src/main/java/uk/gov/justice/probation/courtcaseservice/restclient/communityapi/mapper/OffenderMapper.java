@@ -25,7 +25,6 @@ import uk.gov.justice.probation.courtcaseservice.service.model.SentenceStatus;
 import uk.gov.justice.probation.courtcaseservice.service.model.UnpaidWork;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -203,6 +202,6 @@ public class OffenderMapper {
             return null;
         }
 
-        return sentence.getStartDate().plus(sentence.getLengthInDays(), ChronoUnit.DAYS);
+        return sentence.getStartDate().plusDays(sentence.getLengthInDays());
     }
 }

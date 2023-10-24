@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import io.swagger.v3.oas.annotations.media.Schema
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingOutcomeEntity
@@ -53,5 +52,5 @@ data class HearingOutcomeResponse(
         }
     }
 
-    fun getHearingOutcomeDescription(): String? = this.hearingOutcomeType?.value
+    fun getHearingOutcomeDescription(): String = this.hearingOutcomeType.value
 }

@@ -22,7 +22,7 @@ data class DeliusProbationStatusDetail(
                 .inBreach(probationStatusDetail.inBreach)
                 .preSentenceActivity(probationStatusDetail.preSentenceActivity)
                 .previouslyKnownTerminationDate(probationStatusDetail.terminationDate)
-                .build();
+                .build()
         }
     }
 }

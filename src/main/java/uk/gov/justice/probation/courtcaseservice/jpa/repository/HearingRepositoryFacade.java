@@ -58,9 +58,7 @@ public class HearingRepositoryFacade {
 
     public Optional<HearingEntity> findByHearingIdAndDefendantId(String hearingId, String defendantId) {
         return hearingRepository.findFirstByHearingId(hearingId)
-            .map(hearingEntity -> {
-                return Objects.nonNull(hearingEntity.getHearingDefendant(defendantId)) ? hearingEntity : null;
-            })
+            .map(hearingEntity -> Objects.nonNull(hearingEntity.getHearingDefendant(defendantId)) ? hearingEntity : null)
             .map(hearingEntity -> {
                 hearingEntity.getCourtCase().setCaseComments(caseCommentsRepository.findAllByCaseIdAndDeletedFalse(hearingEntity.getCaseId()));
                 return hearingEntity;
@@ -74,10 +72,9 @@ public class HearingRepositoryFacade {
      */
     public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
 
-        List<HearingEntity> hearingEntities = canIgnoreCreatedDates(createdAfter, createdBefore)
+        return canIgnoreCreatedDates(createdAfter, createdBefore)
             ? hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay)
             : hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay, createdAfter, createdBefore);
-        return hearingEntities;
     }
 
     public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay) {
@@ -93,8 +90,7 @@ public class HearingRepositoryFacade {
 
         updatedWithExistingDefendantsFromDb(hearingEntity);
 
-        HearingEntity save = hearingRepository.save(hearingEntity);
-        return save;
+        return hearingRepository.save(hearingEntity);
     }
 
     private void updateWithExistingOffenders(HearingEntity hearingEntity) {

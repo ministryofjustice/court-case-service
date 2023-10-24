@@ -45,7 +45,6 @@ public class OffenderMatchService {
     private final GroupedOffenderMatchRepository groupedOffenderMatchRepository;
     private final OffenderRestClient offenderRestClient;
     private final ProbationStatusDetailRestClient probationStatusDetailRestClient;
-    private final CourtCaseRepository courtCaseRepository;
     private final HearingRepository hearingRepository;
 
     @Autowired
@@ -53,7 +52,6 @@ public class OffenderMatchService {
         this.groupedOffenderMatchRepository = groupedOffenderMatchRepository;
         this.offenderRestClient = offenderRestClientFactory.buildUserAwareOffenderRestClient();
         this.probationStatusDetailRestClient = offenderRestClientFactory.buildUserAwareProbationStatusDetailsRestClient();
-        this.courtCaseRepository = courtCaseRepository;
         this.hearingRepository = hearingRepository;
     }
 

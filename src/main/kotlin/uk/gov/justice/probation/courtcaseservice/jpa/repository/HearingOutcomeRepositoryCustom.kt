@@ -7,7 +7,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcome
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSortFields.HEARING_DATE
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import java.time.LocalDate
-import javax.persistence.EntityManager
+import jakarta.persistence.EntityManager
 
 @Repository
 class HearingOutcomeRepositoryCustom(
@@ -20,7 +20,7 @@ class HearingOutcomeRepositoryCustom(
         hearingOutcomeSearchRequest: HearingOutcomeSearchRequest
     ): List<Pair<HearingEntity, LocalDate>> {
 
-        var filterBuilder = StringBuilder();
+        val filterBuilder = StringBuilder()
 
         val queryParams = LinkedHashMap<String, Any>()
         queryParams["courtCode"] = courtCode
@@ -75,17 +75,17 @@ class HearingOutcomeRepositoryCustom(
             $orderByBuilder
         """
 
-        var jpaQuery = entityManager.createNativeQuery(searchQuery, "search_hearing_outcomes_custom")
+        val jpaQuery = entityManager.createNativeQuery(searchQuery, "search_hearing_outcomes_custom")
 
         queryParams.entries.forEach {
             jpaQuery.setParameter(it.key, it.value)
         }
 
-        return jpaQuery.resultList.map { it as Array<Any> }.map { Pair(it[0] as HearingEntity, it[1] as LocalDate) };
+        return jpaQuery.resultList.map { it as Array<Any> }.map { Pair(it[0] as HearingEntity, it[1] as LocalDate) }
     }
 
     fun getDynamicOutcomeCountsByState(courtCode: String): Map<String, Int> {
-        var query = """
+        val query = """
           select
             ho.state, count(ho.id) as count
             from hearing h 
@@ -96,7 +96,7 @@ class HearingOutcomeRepositoryCustom(
             group by ho.state
         """.trimIndent()
 
-        var jpaQuery = entityManager.createNativeQuery(query, "hearing_outcomes_by_state_count_custom")
+        val jpaQuery = entityManager.createNativeQuery(query, "hearing_outcomes_by_state_count_custom")
         jpaQuery.setParameter("courtCode", courtCode)
         return jpaQuery.resultList.map { it as Pair<String, Int> }.associateBy({ it.first }, { it.second })
     }

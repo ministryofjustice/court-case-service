@@ -1,9 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.listener;
 
-import com.amazonaws.services.sns.model.MessageAttributeValue;
-import com.amazonaws.services.sns.model.PublishRequest;
-import com.amazonaws.services.sns.model.PublishResult;
-import com.amazonaws.services.sqs.model.PurgeQueueRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +7,10 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+import software.amazon.awssdk.services.sns.model.MessageAttributeValue;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
+import software.amazon.awssdk.services.sns.model.PublishResponse;
+import software.amazon.awssdk.services.sqs.model.PurgeQueueRequest;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
@@ -19,6 +19,8 @@ import uk.gov.justice.probation.courtcaseservice.testUtil.OffenderEvent;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
@@ -36,11 +38,15 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
     @BeforeEach
     public void setUp() {
         objectMapper = new ObjectMapper();
-        getOffenderEventReceiverQueueSqsClient().purgeQueue(new PurgeQueueRequest(getOffenderEventReceiverQueueUrl()));
+        getOffenderEventReceiverQueueSqsClient().purgeQueue(
+                PurgeQueueRequest.builder()
+                        .queueUrl(getOffenderEventReceiverQueueUrl())
+                        .build());
+
     }
 
     @Test
-    public void shouldProcess_OffenderEventChangedMessage_AndUpdateOffenderProbationStatus() throws JsonProcessingException {
+    public void shouldProcess_OffenderEventChangedMessage_AndUpdateOffenderProbationStatus() throws JsonProcessingException, ExecutionException, InterruptedException {
         String crnForTest = "X781345";
 
         var offenderEntityBeforeUpdate = offenderRepository.findByCrn(crnForTest).get();
@@ -60,10 +66,10 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
             .eventDateTime(LocalDateTime.now())
             .build();
 
-        var result = publishOffenderProbationStatusChangeEvent(sentencedEvent);
+        var publishResponse = publishOffenderProbationStatusChangeEvent(sentencedEvent).get();
 
-        assertThat(result.getSdkHttpMetadata().getHttpStatusCode()).isEqualTo(200);
-        assertThat(result.getMessageId()).isNotNull();
+        assertThat(publishResponse.sdkHttpResponse().isSuccessful()).isTrue();
+        assertThat(publishResponse.messageId()).isNotNull();
 
         assertOffenderEventReceiverQueueHasProcessedMessages();
 
@@ -77,14 +83,19 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
         assertThat(updatedOffenderEntity.getAwaitingPsr()).isEqualTo(false);
     }
 
-    private PublishResult publishOffenderProbationStatusChangeEvent(OffenderEvent offenderEvent) throws JsonProcessingException {
+    private CompletableFuture<PublishResponse> publishOffenderProbationStatusChangeEvent(OffenderEvent offenderEvent) throws JsonProcessingException {
 
-        var messageAttribute = new MessageAttributeValue().withDataType("String").withStringValue("SENTENCE_CHANGED");
+        var messageAttribute = MessageAttributeValue.builder()
+                .dataType("String")
+                .stringValue("SENTENCE_CHANGED")
+                .build();
         var eventJson = objectMapper.writeValueAsString(offenderEvent);
-        var offenderEventRequest = new PublishRequest(getOffenderEventTopic().getArn(), eventJson)
-            .withMessageAttributes(Collections.singletonMap("eventType", messageAttribute));
+        var offenderEventRequest = PublishRequest.builder()
+                .topicArn(getOffenderEventTopic().getArn())
+                .message(eventJson)
+                .messageAttributes(Collections.singletonMap("eventType", messageAttribute))
+                .build();
 
         return getOffenderEventTopic().getSnsClient().publish(offenderEventRequest);
-
     }
 }

@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.restclient;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -93,10 +94,10 @@ public class RestClientHelper {
     }
 
     private Mono<? extends Throwable> handleError(ClientResponse clientResponse) {
-        final HttpStatus httpStatus = clientResponse.statusCode();
+        final HttpStatusCode httpStatusCode = clientResponse.statusCode();
 
-        return Mono.error(WebClientResponseException.create(httpStatus.value(),
-                httpStatus.name(),
+        return Mono.error(WebClientResponseException.create(httpStatusCode.value(),
+                httpStatusCode.toString(),
                 clientResponse.headers().asHttpHeaders(),
                 clientResponse.toString().getBytes(),
                 StandardCharsets.UTF_8));

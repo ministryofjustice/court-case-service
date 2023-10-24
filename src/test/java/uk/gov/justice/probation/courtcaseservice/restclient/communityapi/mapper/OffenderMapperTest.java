@@ -305,17 +305,17 @@ class OffenderMapperTest {
             var sentenceStatusResponse = OffenderMapper.buildSentenceStatus(response);
 
             assertThat(sentenceStatusResponse).isNotNull();
-            assertThat(sentenceStatusResponse.getSentenceId()).isEqualTo(1234);
-            assertThat(sentenceStatusResponse.getCustodialType().getCode()).isEqualTo("CODE");
-            assertThat(sentenceStatusResponse.getCustodialType().getDescription()).isEqualTo("DESCRIPTION");
-            assertThat(sentenceStatusResponse.getActualReleaseDate()).isEqualTo(actualReleaseDate);
-            assertThat(sentenceStatusResponse.getLength()).isEqualTo(2);
-            assertThat(sentenceStatusResponse.getLengthUnits()).isEqualTo("Months");
-            assertThat(sentenceStatusResponse.getLicenceExpiryDate()).isEqualTo(licenceExpiryDate);
-            assertThat(sentenceStatusResponse.getMainOffenceDescription()).isEqualTo("Main Offence");
-            assertThat(sentenceStatusResponse.getPssEndDate()).isEqualTo(pssEndDate);
-            assertThat(sentenceStatusResponse.getSentenceDate()).isEqualTo(sentenceDate);
-            assertThat(sentenceStatusResponse.getSentenceDescription()).isEqualTo("Sentence Description");
+            assertThat(sentenceStatusResponse.sentenceId()).isEqualTo(1234);
+            assertThat(sentenceStatusResponse.custodialType().getCode()).isEqualTo("CODE");
+            assertThat(sentenceStatusResponse.custodialType().getDescription()).isEqualTo("DESCRIPTION");
+            assertThat(sentenceStatusResponse.actualReleaseDate()).isEqualTo(actualReleaseDate);
+            assertThat(sentenceStatusResponse.length()).isEqualTo(2);
+            assertThat(sentenceStatusResponse.lengthUnits()).isEqualTo("Months");
+            assertThat(sentenceStatusResponse.licenceExpiryDate()).isEqualTo(licenceExpiryDate);
+            assertThat(sentenceStatusResponse.mainOffenceDescription()).isEqualTo("Main Offence");
+            assertThat(sentenceStatusResponse.pssEndDate()).isEqualTo(pssEndDate);
+            assertThat(sentenceStatusResponse.sentenceDate()).isEqualTo(sentenceDate);
+            assertThat(sentenceStatusResponse.sentenceDescription()).isEqualTo("Sentence Description");
         }
 
         @DisplayName("Test custodial status mapping of nulls")

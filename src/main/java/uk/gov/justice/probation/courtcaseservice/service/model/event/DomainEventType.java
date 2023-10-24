@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service.model.event;
 
-import lombok.Data;
 import lombok.Getter;
 
 @Getter

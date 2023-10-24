@@ -10,10 +10,10 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Column;
-import javax.persistence.EntityListeners;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Version;
+import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Version;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
@@ -32,7 +32,7 @@ public class BaseEntity {
     @LastModifiedDate
     private LocalDateTime lastUpdated;
 
-    @Column(name = "created_by", nullable = true, updatable = false)
+    @Column(name = "created_by", updatable = false)
     @CreatedBy
     private String createdBy;
 

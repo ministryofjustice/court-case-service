@@ -1,8 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,28 +14,10 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.TypeDef;
 import org.hibernate.envers.Audited;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState;
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.ColumnResult;
-import javax.persistence.Entity;
-import javax.persistence.EntityResult;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.OrderBy;
-import javax.persistence.SqlResultSetMapping;
-import javax.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,7 +25,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Schema(description = "Hearing")
 @Entity
@@ -54,7 +35,6 @@ import java.util.stream.Collectors;
 @Getter
 @With
 @Table(name = "HEARING")
-@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @SuperBuilder
 @Audited
 @SqlResultSetMapping(
@@ -167,20 +147,18 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
         // remove hearing defendants that are not on the hearing update
         this.hearingDefendants.stream().filter(
                         hearingDefendantEntity -> Objects.isNull(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId())))
-                .collect(Collectors.toList())
+                .toList()
                 .forEach(this::removeHearingDefendant);
 
         // update existing
         this.hearingDefendants.stream().filter(
                         hearingDefendantEntity -> Objects.nonNull(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId())))
-                .forEach(hearingDefendantEntity -> {
-                    hearingDefendantEntity.update(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId()));
-                });
+                .forEach(hearingDefendantEntity -> hearingDefendantEntity.update(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId())));
 
         // add new hearing defendants
         hearingUpdate.hearingDefendants.stream().filter(
                         hearingDefendantEntityUpdate -> Objects.isNull(this.getHearingDefendant(hearingDefendantEntityUpdate.getDefendantId())))
-                .collect(Collectors.toList())
+                .toList()
                 .forEach(this::addHearingDefendant);
     }
 

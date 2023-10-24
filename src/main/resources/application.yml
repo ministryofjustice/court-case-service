@@ -62,6 +62,13 @@ spring:
             client-authentication-method: basic
             authorization-grant-type: client_credentials
             provider: nomis-oauth-service
+          domain-event-and-delius-api-client:
+            client-name: domain-event-and-delius-api-client
+            client-id: ${domain-event-and-delius-api-client-id:domain-event-and-delius-api-client}
+            client-secret: ${domain-event-and-delius-api-client-secret:clientsecret}
+            client-authentication-method: basic
+            authorization-grant-type: client_credentials
+            provider: nomis-oauth-service
         provider:
           nomis-oauth-service:
             token-uri: ${nomis-oauth.base-url}/auth/oauth/token
@@ -141,6 +148,9 @@ manage-offences-api:
 
 court-case-and-delius-api:
   probation-status-by-crn: /probation-case/%s/status
+
+domain-event-and-delius-api:
+  new-offender-detail: /probation-case.engagement.created/%s
 
 health:
   default-ping-path: /ping

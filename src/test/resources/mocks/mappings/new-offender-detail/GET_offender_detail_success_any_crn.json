@@ -1,0 +1,19 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPattern": "/probation-case.engagement.created/[A-Z0-9]*",
+    "headers" : {
+      "Content-Type": {
+        "equalTo": "application/json"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\n  \"identifiers\": {\n    \"crn\": \"CRN5555\",\n    \"pnc\": \"PNC55555\"\n  },\n  \"name\": {\n    \"forename\": \"john\",\n    \"surname\": \"lewis\",\n    \"otherNames\": []\n  },\n  \"dateOfBirth\": \"2023-10-13\"\n}"
+  }
+}

@@ -28,6 +28,9 @@ manage-offences-api:
 court-case-and-delius-api:
   base-url: https://court-case-service-dev.apps.live-1.cloud-platform.service.justice.gov.uk
 
+domain-event-and-delius-api:
+  base-url: https://domain-events-and-delius-dev.hmpps.service.justice.gov.uk
+
 spring:
   flyway:
     defaultSchema: ${database.schema.name}
@@ -47,6 +50,11 @@ hmpps.sqs:
       queueName: emitted_events_queue
       subscribeTopicId: hmppsdomainevents
       subscribeFilter: '{"eventType":[ "court.case.sentenced"] }'
+    picnewoffendereventsqueue:
+      queueName: pic_new_offender_events_queue
+      dlqName: pic_new_offender_events_dead_letter_queue
+      subscribeTopicId: hmppsdomainevents
+      subscribeFilter: '{"eventType":[ "probation-case.engagement.created"] }'
   topics:
     hmppsdomainevents:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}

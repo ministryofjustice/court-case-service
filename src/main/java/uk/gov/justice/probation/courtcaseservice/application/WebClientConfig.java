@@ -36,6 +36,9 @@ public class WebClientConfig {
     @Value("${court-case-and-delius-api.base-url}")
     private String courtCaseDeliusApiBaseUrl;
 
+    @Value("${domain-event-and-delius-api.base-url}")
+    private String domainEventAndDeliusApiBaseUrl;
+
     @Value("${web.client.document-byte-buffer-size}")
     private int documentBufferByteSize;
 
@@ -71,6 +74,11 @@ public class WebClientConfig {
     }
 
     @Bean
+    public RestClientHelper domainEventAndDeliusApiClient(WebClient domainEventAndDeliusApiWebClient) {
+        return new RestClientHelper(domainEventAndDeliusApiWebClient, "domain-event-and-delius-api-client", disableAuthentication);
+    }
+
+    @Bean
     public WebClient documentWebClient(WebClientFactory webClientFactory) {
         return webClientFactory.buildWebClient(communityApiBaseUrl, documentBufferByteSize);
     }
@@ -103,6 +111,11 @@ public class WebClientConfig {
     @Bean
     public WebClient courtCaseDeliusApiWebClient(WebClientFactory webClientFactory) {
         return webClientFactory.buildWebClient(courtCaseDeliusApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE);
+    }
+
+    @Bean
+    public WebClient domainEventAndDeliusApiWebClient(WebClientFactory webClientFactory) {
+        return webClientFactory.buildWebClient(domainEventAndDeliusApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE);
     }
 
 }

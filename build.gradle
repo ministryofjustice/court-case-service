@@ -209,6 +209,10 @@ dependencies {
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.4'
     implementation 'net.logstash.logback:logstash-logback-encoder:7.2'
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.13'
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk9")
+   // implementation group: 'io.awspring.cloud', name: 'spring-cloud-aws-core', version: '3.0.2'
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:1.3.1")
     implementation group: 'ai.h2o', name: 'h2o-genmodel', version: '3.38.0.3'

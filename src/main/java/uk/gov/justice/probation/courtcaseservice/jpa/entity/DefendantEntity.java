@@ -61,6 +61,7 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
     @NotAudited
     private OffenderEntity offender;
 
+    @Setter
     @Column(name = "CRN")
     private String crn;
 

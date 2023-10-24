@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.AttendanceResponse;
@@ -54,7 +54,7 @@ public class ConvictionRestClient {
         final String path = String.format(convictionAttendanceUrlTemplate, crn, convictionId);
         return clientHelper.get(path)
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
+            .onStatus(HttpStatusCode::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
             .bodyToMono(CommunityApiAttendances.class)
             // TODO: doOnError will swallow the exception and fail later - use onErrorMap
             .doOnError(e -> log.error(String.format(ERROR_MSG_FORMAT, "sentence attendance", crn, convictionId), e))
@@ -66,7 +66,7 @@ public class ConvictionRestClient {
         final String path = String.format(convictionUrlTemplate, crn, convictionId);
         return clientHelper.get(path)
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
+            .onStatus(HttpStatusCode::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
             .bodyToMono(CommunityApiConvictionResponse.class)
             .onErrorMap(e1 -> {
                 log.error(String.format(ERROR_MSG_FORMAT, "conviction ", crn, convictionId), e1);
@@ -79,7 +79,7 @@ public class ConvictionRestClient {
         final String path = String.format(sentenceStatusUrlTemplate, crn, convictionId);
         return clientHelper.get(path)
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
+                .onStatus(HttpStatusCode::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
                 .bodyToMono(CommunityApiSentenceStatusResponse.class)
                 .onErrorMap(e1 -> {
                     log.error(String.format(ERROR_MSG_FORMAT, "sentence current order header detail ", crn, convictionId), e1);
@@ -92,7 +92,7 @@ public class ConvictionRestClient {
         final String path = String.format(sentenceStatusUrlTemplate, crn, convictionId);
         return clientHelper.get(path)
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
+            .onStatus(HttpStatusCode::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
             .bodyToMono(CommunityApiSentenceStatusResponse.class)
             .onErrorMap(e1 -> {
                 log.error(String.format(ERROR_MSG_FORMAT, "sentence status ", crn, convictionId), e1);
@@ -111,7 +111,7 @@ public class ConvictionRestClient {
         final String path = String.format(courtReportsUrlTemplate, crn, convictionId);
         return clientHelper.get(path)
             .retrieve()
-            .onStatus(HttpStatus::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
+            .onStatus(HttpStatusCode::is4xxClientError, (clientResponse) -> clientHelper.handleConvictionError(crn, convictionId, clientResponse))
             .bodyToMono(CommunityApiCourtReportsResponse.class)
             .onErrorMap(e1 -> {
                 log.error(String.format(ERROR_MSG_FORMAT, "court reports ", crn, convictionId), e1);

@@ -6,8 +6,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearin
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingDay;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceRequestResponse;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -70,7 +70,7 @@ public class ListNoValidator implements ConstraintValidator<ValidateListNo, Exte
         } else {
             List<OffenceRequestResponse> allOffences = getAllOffences(courtCase);
             var offencesWithListNo = allOffences.stream()
-                    .filter(offenceRequestResponse -> Objects.nonNull(offenceRequestResponse.getListNo())).collect(Collectors.toList());
+                    .filter(offenceRequestResponse -> Objects.nonNull(offenceRequestResponse.getListNo())).toList();
 
             if (offencesWithListNo.isEmpty()) {
                 return Optional.of("listNo should be provided in either hearingDays[] or defendants[].offences[]");

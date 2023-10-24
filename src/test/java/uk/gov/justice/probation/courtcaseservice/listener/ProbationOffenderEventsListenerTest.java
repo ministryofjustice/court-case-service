@@ -12,7 +12,6 @@ import uk.gov.justice.probation.courtcaseservice.service.UserAgnosticOffenderSer
 import uk.gov.justice.probation.courtcaseservice.service.model.event.ProbationOffenderEvent;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

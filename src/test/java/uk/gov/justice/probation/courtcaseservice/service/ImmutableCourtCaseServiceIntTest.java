@@ -1,32 +1,21 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import groovy.lang.Tuple3;
+import jakarta.persistence.EntityManager;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.testcontainers.containers.localstack.LocalStackContainer;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,9 +24,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
@@ -48,6 +35,7 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
     private static final String CRN = "CRN";
     private static final HearingEntity COURT_CASE_ENTITY = EntityHelper.aHearingEntityWithCrn(CRN);
     private static final String COURT_CODE = "B10JQ";
+    public static final String DEFENDANT_ID_2 = "9b165f40-ecc1-4cf1-bb69-41504de8c0d5";
     @Autowired
     private ImmutableCourtCaseService courtCaseService;
     @MockBean
@@ -65,18 +53,6 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
                 .isThrownBy(() -> courtCaseService.createHearing("1234", COURT_CASE_ENTITY));
 
         verify(courtRepository, times(3)).findByCourtCode(COURT_CODE);
-    }
-
-    @Bean
-    public static AmazonSNS createAmazonSnsClient() {
-        return AmazonSNSClientBuilder
-                .standard()
-                .withEndpointConfiguration(localstack.getEndpointConfiguration(LocalStackContainer.Service.SNS))
-                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(
-                        localstack.getAccessKey(), localstack.getSecretKey()
-                )))
-                .withRegion("eu-west-2")
-                .build();
     }
 
     String DEFENDANT_ID_1 = "8e0263a1-bc3e-4dad-93c4-d333d32389ea";
@@ -179,33 +155,31 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
     }
 
     @Test
-    public void givenHearingUpdateWitNewDefendant_addNewDefendantToExistingHearing() {
+    public void shouldUpdateHearingWithNewDefendantWhenProvidedWithNewDefendantInHearingUpdate() {
+        // Given
         var caseId = "fd907836-324f-42a2-8a7a-e3d956b9d1e7";
         var hearingId = "f069bfcd-29d6-4ab0-82f4-5df1ffd47f33";
         final var newHearingEntity = EntityHelper.aHearingEntityWithHearingId(caseId, hearingId, DEFENDANT_ID_1);
-        var hearingDefendantEntity = newHearingEntity.getHearingDefendants();
-        var defendant = hearingDefendantEntity.get(0).getDefendant();
-        var defendantId2 = "9b165f40-ecc1-4cf1-bb69-41504de8c0d5";
 
+        // create the initial hearing
         HearingEntity savedHearing = courtCaseService.createOrUpdateHearingByHearingId(newHearingEntity.getHearingId(), newHearingEntity).block();
         assertThat(savedHearing.withId(null)).isEqualTo(newHearingEntity.withId(null));
         assertThatHearingIsNotImmutable(caseId, hearingId, DEFENDANT_ID_1);
 
-        // update
-        var hearingUpdateWithNewDefendant = EntityHelper.aHearingEntityWithHearingId(caseId, hearingId, DEFENDANT_ID_1);
-        HearingDefendantEntity newHearingDefendant = EntityHelper.aHearingDefendantEntity(defendantId2, null);
-        hearingUpdateWithNewDefendant.getHearingDefendants().add(newHearingDefendant);
+        // add an additional defendant to the existing hearing
+        var hearingEntityWithNewDefendant = EntityHelper.aHearingEntityWithHearingId(caseId, hearingId, DEFENDANT_ID_1);
+        HearingDefendantEntity newHearingDefendant = EntityHelper.aHearingDefendantEntity(DEFENDANT_ID_2, null);
+        hearingEntityWithNewDefendant.getHearingDefendants().add(newHearingDefendant);
 
-        HearingEntity savedUpdate = courtCaseService.createOrUpdateHearingByHearingId(hearingUpdateWithNewDefendant.getHearingId(), hearingUpdateWithNewDefendant).block();
-        assertThat(savedUpdate.withId(null)).isEqualTo(hearingUpdateWithNewDefendant);
+        // When (persist the changes)
+        HearingEntity savedUpdate = courtCaseService.createOrUpdateHearingByHearingId(hearingEntityWithNewDefendant.getHearingId(), hearingEntityWithNewDefendant).block();
 
+        // Then
+        assertThat(savedUpdate.withId(null)).isEqualTo(hearingEntityWithNewDefendant);
         var updatedData = assertThatHearingIsNotImmutable(caseId, hearingId, DEFENDANT_ID_1);
         HearingEntity hearingAfterUpdate = updatedData.getV1();
         assertThat(hearingAfterUpdate.getHearingDefendants()).hasSize(2);
-
-        assertThat(hearingAfterUpdate.getHearingDefendants().stream()
-            .map(hearingDefendantEntity1 -> findAllByDefendantId(hearingDefendantEntity1.getDefendantId()).get(0).withId(null))
-            .collect(Collectors.toList())).isEqualTo(List.of(defendant, newHearingDefendant.getDefendant()));
+        assertThat(hearingAfterUpdate.getHearingDefendants()).filteredOn(d -> d.getDefendantId().equals(DEFENDANT_ID_2));
     }
 
     @Test
@@ -214,7 +188,7 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
         var hearingId = "f069bfcd-29d6-4ab0-82f4-5df1ffd47f33";
         final var newHearingEntity = EntityHelper.aHearingEntityWithHearingId(caseId, hearingId, DEFENDANT_ID_1);
         var hearingDefendantEntity = newHearingEntity.getHearingDefendants().get(0);
-        hearingDefendantEntity.getDefendant();
+
         var DEFENDANT_ID_2 = "9b165f40-ecc1-4cf1-bb69-41504de8c0d5";
         HearingDefendantEntity hearingDefendant2 = EntityHelper.aHearingDefendantEntity(DEFENDANT_ID_2, null);
         hearingDefendant2.setHearing(newHearingEntity);
@@ -275,7 +249,7 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
 
         assertThat(hearing1.getCourtCase()).isEqualTo(hearing2.getCourtCase());
         var courtCaseUpdate = hearing2DbResult.getV2();
-        assertThat(courtCaseUpdate.getHearings().stream().collect(Collectors.toList())).isEqualTo(List.of(hearing1, hearing2));
+        assertThat(new ArrayList<>(courtCaseUpdate.getHearings())).isEqualTo(List.of(hearing1, hearing2));
     }
 
     @Test
@@ -299,7 +273,7 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
         assertThat(result.getRecentlyAddedCount()).isEqualTo(2);
         assertThat(result.getCourtRoomFilters()).containsAll(List.of("01", "03", "04", "05", "1", "Crown Court 5-1"));
 
-        assertThat(result.getCases().stream().map(it -> it.getDefendantName()).collect(Collectors.toList()).containsAll(List.of("Mr Jeff Blogs", "Miss Esther Egge")));
+        assertThat(result.getCases().stream().map(CourtCaseResponse::getDefendantName).toList().containsAll(List.of("Mr Jeff Blogs", "Miss Esther Egge")));
     }
 
     private Tuple3<HearingEntity, CourtCaseEntity, DefendantEntity> assertThatHearingIsNotImmutable(String caseId, String hearingId, String defendantId) {

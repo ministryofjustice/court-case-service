@@ -83,9 +83,9 @@ public class TelemetryService {
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }
 
-    void trackCreateHearingNoteEvent(TelemetryEventType eventType, HearingNoteEntity hearingNoteEntity) {
+    void trackCreateHearingNoteEvent(HearingNoteEntity hearingNoteEntity) {
 
-        trackHearingNoteEvent(eventType, hearingNoteEntity);
+        trackHearingNoteEvent(TelemetryEventType.HEARING_NOTE_ADDED, hearingNoteEntity);
     }
 
     void trackDeleteHearingNoteEvent(HearingNoteEntity hearingNoteEntity) {
@@ -135,14 +135,10 @@ public class TelemetryService {
         Optional<HearingEntity> hearingEntityNullable = ofNullable(hearingEntity);
         hearingEntityNullable
                 .map(HearingEntity::getCaseId)
-                .ifPresent((caseId) -> {
-                    properties.put("caseId", caseId);
-                });
+                .ifPresent((caseId) -> properties.put("caseId", caseId));
         hearingEntityNullable
                 .map(HearingEntity::getSourceType)
-                .ifPresent((sourceType) -> {
-                    properties.put("source", sourceType.name());
-                });
+                .ifPresent((sourceType) -> properties.put("source", sourceType.name()));
         hearingEntityNullable
                 .map(HearingEntity::getHearingId)
                 .ifPresent((hearingId) -> properties.put("hearingId", hearingId));

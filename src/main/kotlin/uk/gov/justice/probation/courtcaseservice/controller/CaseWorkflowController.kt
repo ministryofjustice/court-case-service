@@ -2,13 +2,22 @@ package uk.gov.justice.probation.courtcaseservice.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
-import org.springframework.web.bind.annotation.*
-import uk.gov.justice.probation.courtcaseservice.controller.model.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcome
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeAssignToRequest
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCaseList
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
 import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper
 import uk.gov.justice.probation.courtcaseservice.service.CaseWorkflowService
 import java.security.Principal
-import javax.validation.Valid
+
 
 
 @Tag(name = "Case workflow API")

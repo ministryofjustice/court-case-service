@@ -1,12 +1,13 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
 import hex.genmodel.easy.EasyPredictModelWrapper
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.anyString
+import org.mockito.Mockito.never
+import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import uk.gov.justice.probation.courtcaseservice.client.ManageOffencesRestClient
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity

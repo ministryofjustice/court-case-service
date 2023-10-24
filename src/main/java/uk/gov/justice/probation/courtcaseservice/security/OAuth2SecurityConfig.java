@@ -13,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Profile("!unsecured")
 public class OAuth2SecurityConfig {
 
+    @SuppressWarnings("removal")
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -20,18 +21,20 @@ public class OAuth2SecurityConfig {
                 .csrf().disable()
                 .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().oauth2Client()
-                .and().authorizeHttpRequests(auth -> auth
-                    .mvcMatchers(
-                        "/health",
-                        "/ping",
-                        "/swagger-ui.html",
-                        "/swagger-ui/**",
-                        "/v3/api-docs/**",
-                        "/queue-admin/retry-all-dlqs"
-                    ).permitAll()
-                    .anyRequest().hasRole("PREPARE_A_CASE")
-            ).oauth2ResourceServer().jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());
+                .and()
+                    .oauth2Client()
+                .and()
+                    .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                            "/health",
+                            "/ping",
+                            "/swagger-ui.html",
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**",
+                            "/queue-admin/retry-all-dlqs"
+                        ).permitAll()
+                        .anyRequest().hasRole("PREPARE_A_CASE")
+                    ).oauth2ResourceServer().jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());
         return http.build();
     }
 }

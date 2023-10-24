@@ -33,11 +33,12 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
     CaseCommentsRepository caseCommentsRepository;
 
     private static final String CASE_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
-    private final String caseComment = "{\n" +
-        "        \"caseId\": \"1f93aa0a-7e46-4885-a1cb-f25a4be33a00\",\n" +
-        "        \"comment\": \"PSR is delayed\",\n" +
-        "        \"author\": \"Test Author\"\n" +
-        "    }";
+    private final String caseComment = """
+            {
+                    "caseId": "1f93aa0a-7e46-4885-a1cb-f25a4be33a00",
+                    "comment": "PSR is delayed",
+                    "author": "Test Author"
+                }""";
 
     @Test
     void whenCreateCaseCommentByCaseId_shouldCreateSuccessfully() {

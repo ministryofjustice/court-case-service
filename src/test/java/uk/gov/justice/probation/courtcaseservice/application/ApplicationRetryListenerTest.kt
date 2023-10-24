@@ -15,7 +15,7 @@ class ApplicationRetryListenerTest {
     fun givenTemplateRetryService_whenCallWithException_thenRetry() {
 
         TestAppender.events.clear()
-        val retryTemplate = RetryTemplate();
+        val retryTemplate = RetryTemplate()
         retryTemplate.registerListener(ApplicationRetryListener())
 
         assertThatExceptionOfType(RuntimeException::class.java)

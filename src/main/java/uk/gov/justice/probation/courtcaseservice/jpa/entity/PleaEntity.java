@@ -6,7 +6,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.Audited;
 import uk.gov.justice.probation.courtcaseservice.controller.model.Plea;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 

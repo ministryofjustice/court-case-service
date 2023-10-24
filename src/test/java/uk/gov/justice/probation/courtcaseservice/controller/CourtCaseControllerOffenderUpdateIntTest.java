@@ -112,17 +112,18 @@ public class CourtCaseControllerOffenderUpdateIntTest extends BaseIntTest {
     @Test
     void PUT_offender_givenDefendantIdAndUpdatedOffender_whenPutOffender_thenUpdateOffender() {
 
-        final String offenderUpdate = "{\n" +
-            "                \"crn\": \"Y320741\",\n" +
-            "                \"cro\": \"CRO008\",\n" +
-            "                \"pnc\": \"PNC008\",\n" +
-            "                \"probationStatus\": \"NOT_SENTENCED\",\n" +
-            "                \"previouslyKnownTerminationDate\": \"2010-01-01\",\n" +
-            "                \"awaitingPsr\": true,\n" +
-            "                \"breach\": false,\n" +
-            "                \"preSentenceActivity\": true,\n" +
-            "                \"suspendedSentenceOrder\": true\n" +
-            "            }";
+        final String offenderUpdate = """
+                {
+                                "crn": "Y320741",
+                                "cro": "CRO008",
+                                "pnc": "PNC008",
+                                "probationStatus": "NOT_SENTENCED",
+                                "previouslyKnownTerminationDate": "2010-01-01",
+                                "awaitingPsr": true,
+                                "breach": false,
+                                "preSentenceActivity": true,
+                                "suspendedSentenceOrder": true
+                            }""";
 
         String DEFENDANT_ID_FOR_UPDATE = "d59762b6-2da7-4af0-a09f-7296d40f15ce";
         given()
@@ -147,17 +148,18 @@ public class CourtCaseControllerOffenderUpdateIntTest extends BaseIntTest {
     @Test
     void PUT_offender_givenDefendantIdWithNoOffenderAndGivenNewOffender_whenPutOffender_theCreateAndAssocaiteOffender() {
 
-        final String offenderUpdate = "{\n" +
-            "                \"crn\": \"Z320741\",\n" +
-            "                \"pnc\": \"PNC009\",\n" +
-            "                \"cro\": \"CRO009\",\n" +
-            "                \"probationStatus\": \"NOT_SENTENCED\",\n" +
-            "                \"previouslyKnownTerminationDate\": \"2010-01-01\",\n" +
-            "                \"awaitingPsr\": true,\n" +
-            "                \"breach\": false,\n" +
-            "                \"preSentenceActivity\": true,\n" +
-            "                \"suspendedSentenceOrder\": true\n" +
-            "            }";
+        final String offenderUpdate = """
+                {
+                                "crn": "Z320741",
+                                "pnc": "PNC009",
+                                "cro": "CRO009",
+                                "probationStatus": "NOT_SENTENCED",
+                                "previouslyKnownTerminationDate": "2010-01-01",
+                                "awaitingPsr": true,
+                                "breach": false,
+                                "preSentenceActivity": true,
+                                "suspendedSentenceOrder": true
+                            }""";
 
         String DEFENDANT_ID_FOR_UPDATE_NEW_OFFENDER = "c34bfca0-1ff1-4dab-9db7-acd27392b31a";
         given()

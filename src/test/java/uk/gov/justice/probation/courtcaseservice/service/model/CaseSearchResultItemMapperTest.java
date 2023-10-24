@@ -61,8 +61,8 @@ class CaseSearchResultItemMapperTest {
     static HearingEntity hearingEntity3 = HearingEntity.builder()
         .hearingId("hearing-id-3")
         .hearingDays(List.of(
-            HearingDayEntity.builder().day(LocalDate.of(2023, 02, 18)).time(LocalTime.of(9, 0, 0)).court(sheffieldCourt).build(),
-            HearingDayEntity.builder().day(LocalDate.of(2023, 01, 23)).time(LocalTime.of(9, 0, 0)).court(leicesterCourt).build())
+            HearingDayEntity.builder().day(LocalDate.of(2023, 2, 18)).time(LocalTime.of(9, 0, 0)).court(sheffieldCourt).build(),
+            HearingDayEntity.builder().day(LocalDate.of(2023, 1, 23)).time(LocalTime.of(9, 0, 0)).court(leicesterCourt).build())
         )
         .hearingDefendants(List.of(hearingDefendant3))
         .build();
@@ -94,7 +94,7 @@ class CaseSearchResultItemMapperTest {
             .offenceTitles(List.of("offence title 1", "offence title 2", "offence title 3"))
             .lastHearingDate(LocalDate.of(2022, 12, 10))
             .lastHearingCourt("Sheffield Mags")
-            .nextHearingDate(LocalDate.of(2023, 01, 23))
+            .nextHearingDate(LocalDate.of(2023, 1, 23))
             .nextHearingCourt("Leicester Mags")
             .probationStatus(DefendantProbationStatus.PREVIOUSLY_KNOWN)
             .build();
@@ -118,7 +118,7 @@ class CaseSearchResultItemMapperTest {
             .breach(true)
             .crn(testCrn)
             .offenceTitles(List.of("offence title 1"))
-            .nextHearingDate(LocalDate.of(2023, 01, 23))
+            .nextHearingDate(LocalDate.of(2023, 1, 23))
             .nextHearingCourt("Leicester Mags")
             .probationStatus(DefendantProbationStatus.PREVIOUSLY_KNOWN)
             .build();

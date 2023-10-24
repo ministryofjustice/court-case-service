@@ -47,7 +47,7 @@ public class Conviction implements Comparable<Conviction>{
 
     @Override
     public int compareTo(Conviction other) {
-        return ((Long)Long.parseLong(convictionId)).compareTo(Long.parseLong(other.getConvictionId()));
+        return Long.compare(Long.parseLong(convictionId), Long.parseLong(other.getConvictionId()));
     }
 
     @JsonIgnore

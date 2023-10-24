@@ -15,7 +15,7 @@ public class HealthCheckIntTest extends BaseIntTest {
 
         String response = given()
                 .when()
-                .get("/health/")
+                .get("/health")
                 .then()
                 .statusCode(200)
                 .extract().response().asString();

@@ -12,7 +12,7 @@ import org.hibernate.envers.Audited;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState;
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 

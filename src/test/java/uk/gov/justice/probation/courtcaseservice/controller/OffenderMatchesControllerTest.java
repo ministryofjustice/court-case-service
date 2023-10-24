@@ -1,6 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,14 +11,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.BodyContentSpec;
 import reactor.core.publisher.Mono;
-import uk.gov.justice.probation.courtcaseservice.controller.model.Address;
-import uk.gov.justice.probation.courtcaseservice.controller.model.Event;
-import uk.gov.justice.probation.courtcaseservice.controller.model.MatchIdentifiers;
-import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchDetail;
+import uk.gov.justice.probation.courtcaseservice.controller.model.*;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
+import uk.gov.justice.probation.courtcaseservice.service.model.MatchType;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -24,12 +24,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,7 +35,7 @@ class OffenderMatchesControllerTest {
     private static final String CASE_ID = "cb2199b0-5a3e-4fea-858d-af23c998ac3d";
     private static final String DEFENDANT_ID = "1081ca4e-8aa4-42ec-8212-530dec781e56";
     private static final Long GROUP_ID = 1L;
-    private static final String CASE_ID_GROUP_OFFENDER_MATCH_PATH = "/defendant/" + DEFENDANT_ID + "/grouped-offender-matches/";
+    private static final String CASE_ID_GROUP_OFFENDER_MATCH_PATH = "/defendant/" + DEFENDANT_ID + "/grouped-offender-matches";
     protected static final String OFFENDER_MATCHES_BY_DEFENDANT_ID_DETAIL_PATH = "/defendant/%s/matchesDetail";
     private WebTestClient webTestClient;
 
@@ -50,36 +46,42 @@ class OffenderMatchesControllerTest {
 
     private OffenderMatchesController controller;
 
+    private ObjectMapper objectMapper;
+
     @BeforeEach
     void setUp() {
         controller = new OffenderMatchesController(offenderMatchService);
         this.webTestClient = WebTestClient.bindToController(controller).build();
+        objectMapper = new ObjectMapper();
     }
 
     @Test
-    void whenCreateByCaseId_thenReturnLocationHeader() {
+    void shouldReturnLocationHeaderWhenCreatingGroupedOffenderMatchesByDefendant() throws JsonProcessingException {
+        // Given
         when(offenderMatchService.createOrUpdateGroupedMatchesByDefendant(eq(DEFENDANT_ID), any())).thenReturn(Mono.just(entity));
         Long expectedGroupId = 1111L;
         when(entity.getId()).thenReturn(expectedGroupId);
+
+        OffenderMatchRequest matchRequest = OffenderMatchRequest.builder()
+                .matchType(MatchType.NAME_DOB)
+                .confirmed(true)
+                .rejected(false)
+                .matchIdentifiers(new MatchIdentifiers("X346204", null, null, null))
+                .build();
+
+        var groupedOffenderMatchesRequest = GroupedOffenderMatchesRequest.builder()
+                .matches(List.of(matchRequest))
+                .build();
+
+        // When & then
         webTestClient.post()
                 .uri(CASE_ID_GROUP_OFFENDER_MATCH_PATH)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .bodyValue("{\n" +
-                        "    \"matches\": [\n" +
-                        "        {\n" +
-                        "                \"matchIdentifiers\": {\n" +
-                        "                \"crn\": \"X346204\"\n" +
-                        "            },\n" +
-                        "            \"matchType\": \"NAME_DOB\",\n" +
-                        "            \"confirmed\": \"true\",\n" +
-                        "            \"rejected\": \"false\"\n" +
-                        "        }\n" +
-                        "    ]\n" +
-                        "}")
+                .bodyValue(objectMapper.writeValueAsString(groupedOffenderMatchesRequest))
                 .exchange()
                 .expectStatus().isCreated()
-                .expectHeader().value("Location", equalTo(CASE_ID_GROUP_OFFENDER_MATCH_PATH + expectedGroupId));
+                .expectHeader().value("Location", equalTo(CASE_ID_GROUP_OFFENDER_MATCH_PATH + '/' + expectedGroupId));
     }
 
     @Test

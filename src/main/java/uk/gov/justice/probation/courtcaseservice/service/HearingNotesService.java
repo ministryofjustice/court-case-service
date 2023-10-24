@@ -43,7 +43,7 @@ public class HearingNotesService {
             ).orElseGet(() -> hearingNotesRepository.save(hearingNoteEntity.withDraft(draft))))
             .map(hearingNote -> {
                 if(!draft) {
-                    telemetryService.trackCreateHearingNoteEvent(TelemetryEventType.HEARING_NOTE_ADDED, hearingNote);
+                    telemetryService.trackCreateHearingNoteEvent(hearingNote);
                 }
                 return hearingNote;
             })

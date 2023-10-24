@@ -4,8 +4,6 @@ import org.springframework.core.convert.converter.Converter
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpClientErrorException.BadRequest
-import org.springframework.web.client.HttpStatusCodeException
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType
 
 @Component

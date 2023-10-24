@@ -2,9 +2,9 @@ package uk.gov.justice.probation.courtcaseservice.listener;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.awspring.cloud.sqs.annotation.SqsListener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.probation.courtcaseservice.service.UserAgnosticOffenderService;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.ProbationOffenderEvent;
@@ -22,7 +22,8 @@ public class ProbationOffenderEventsListener {
         this.objectMapper = objectMapper;
     }
 
-    @JmsListener(destination = "picprobationoffendereventsqueue", containerFactory = "hmppsQueueContainerFactoryProxy")
+
+    @SqsListener(value = "picprobationoffendereventsqueue", factory = "hmppsQueueContainerFactoryProxy")
     public void processMessage(String rawMessage) throws JsonProcessingException {
         ProbationOffenderEvent probationOffenderEvent = getProbationOffenderEvent(rawMessage);
         if (probationOffenderEvent != null && !probationOffenderEvent.getCrn().isBlank()) {

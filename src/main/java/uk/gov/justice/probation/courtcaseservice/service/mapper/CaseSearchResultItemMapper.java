@@ -41,9 +41,6 @@ public class CaseSearchResultItemMapper {
             .flatMap(hearingDefendantEntity -> hearingDefendantEntity.getOffences().stream())
             .map(OffenceEntity::getTitle).collect(Collectors.toSet());
 
-        final var hearingDays = hearingDefendants.stream().flatMap(hearingDefendantEntity -> hearingDefendantEntity.getHearing().getHearingDays().stream()).collect(Collectors.toList());
-        hearingDays.sort(Comparator.comparing(HearingDayEntity::getDay));
-
         var lastAndNextHearings = getLastAndNextHearings(hearingDefendants);
         var lastHearing = lastAndNextHearings.getFirst();
         var nextHearing = lastAndNextHearings.getSecond();
@@ -74,7 +71,7 @@ public class CaseSearchResultItemMapper {
         Optional<HearingDayEntity> lastHearing = Optional.empty();
         Optional<HearingDayEntity> nextHearing = Optional.empty();
         var now = LocalDateTime.now(clock);
-
+        // TODO : investigate below as nextHearing is always empty!
         for(int i = 0; i < hearingDays.size() && nextHearing.isEmpty(); i++) {
 
             HearingDayEntity hearingDayEntity = hearingDays.get(i);
@@ -84,7 +81,7 @@ public class CaseSearchResultItemMapper {
             }
             lastHearing = Optional.of(hearingDayEntity);
         }
-        return new Pair(lastHearing, nextHearing);
+        return new Pair<>(lastHearing, nextHearing);
     }
 
 }

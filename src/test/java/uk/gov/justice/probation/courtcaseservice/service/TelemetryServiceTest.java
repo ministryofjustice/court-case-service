@@ -244,7 +244,7 @@ class TelemetryServiceTest {
             .id(1234L)
             .build();
 
-        service.trackCreateHearingNoteEvent(TelemetryEventType.HEARING_NOTE_ADDED, hearingNoteEntity);
+        service.trackCreateHearingNoteEvent(hearingNoteEntity);
 
         verify(telemetryClient).trackEvent(eq("PicHearingNoteCreated"), properties.capture(), metricsCaptor.capture());
 

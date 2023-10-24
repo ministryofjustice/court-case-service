@@ -17,8 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse.POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS;
@@ -78,7 +77,7 @@ public class CourtCaseControllerPagedCaseListIntTest extends BaseIntTest {
             .body("cases[0].caseNo", equalTo("3306014916856309133"))
             .body("cases[0].source", equalTo("LIBRA"))
             .body("cases[0].caseId", equalTo("665597e6-b4d0-466d-98ad-3a9e9eb99b87"))
-            .body("cases[0].hearingId", equalTo("4a7220b8-88bc-4417-8ee0-cfc318047b3c"))
+            .body("cases[0].hearingId", equalTo("1eb3a6da-8189-4de2-8377-da5910e486b9"))
             .body("cases[0].session", equalTo("MORNING"))
             .body("cases[0].defendantType", equalTo("PERSON"))
             .body("cases[0].defendantName", equalTo("Mr Jeff Blogs"))
@@ -86,7 +85,7 @@ public class CourtCaseControllerPagedCaseListIntTest extends BaseIntTest {
             .body("cases[0].probationStatus", equalTo(POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS))
             .body("cases[0].crn", equalTo(null))
             .body("cases[0].offences[0].offenceSummary", equalTo("On 01/01/2016 at Town, stole Article, to the value of £100.00, belonging to Person."))
-            .body("cases[0].offences[0].offenceTitle", equalTo("Offence 101"))
+            .body("cases[0].offences[0].offenceTitle", equalTo("Offence 102"))
             .body("cases[0].offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
             .body("cases[0].offences[0].listNo", equalTo(null))
 
@@ -94,8 +93,8 @@ public class CourtCaseControllerPagedCaseListIntTest extends BaseIntTest {
             .body("cases[1].caseNo", equalTo("3306014916856309133"))
             .body("cases[1].source", equalTo("LIBRA"))
             .body("cases[1].caseId", equalTo("665597e6-b4d0-466d-98ad-3a9e9eb99b87"))
-            .body("cases[1].hearingId", equalTo("1eb3a6da-8189-4de2-8377-da5910e486b9"))
-            .body("cases[1].listNo", equalTo("4th"))
+            .body("cases[1].hearingId", equalTo("4a7220b8-88bc-4417-8ee0-cfc318047b3c"))
+            .body("cases[1].listNo", is(emptyString()))
             .body("cases[1].session", equalTo("MORNING"))
             .body("cases[1].defendantType", equalTo("PERSON"))
             .body("cases[1].defendantName", equalTo("Mr Jeff Blogs"))
@@ -103,7 +102,7 @@ public class CourtCaseControllerPagedCaseListIntTest extends BaseIntTest {
             .body("cases[1].probationStatus", equalTo(POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS))
             .body("cases[1].crn", equalTo(null))
             .body("cases[1].offences[0].offenceSummary", equalTo("On 01/01/2016 at Town, stole Article, to the value of £100.00, belonging to Person."))
-            .body("cases[1].offences[0].offenceTitle", equalTo("Offence 102"))
+            .body("cases[1].offences[0].offenceTitle", equalTo("Offence 101"))
             .body("cases[1].offences[0].act", equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
             .body("cases[1].offences[0].listNo", equalTo(null))
 
@@ -157,7 +156,6 @@ public class CourtCaseControllerPagedCaseListIntTest extends BaseIntTest {
             .body("cases[4].offences[1].offenceSummary", equalTo("on 01/08/2009 at the County public house, unlawfully and maliciously wounded, Jane Smith"))
             .body("cases[4].offences[1].offenceTitle", equalTo("Wound / inflict grievous bodily harm without intent (sole defendant)"))
             .body("cases[4].offences[1].act", equalTo("Contrary to section 20 of the Offences Against the Person Act 1861."))
-            .body("cases[4].offences[1].listNo", equalTo(7))
-        ;
+            .body("cases[4].offences[1].listNo", equalTo(7));
     }
 }

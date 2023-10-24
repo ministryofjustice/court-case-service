@@ -13,10 +13,11 @@ public enum SourceType {
             .map(String::toUpperCase)
             .orElse("");
 
-        return switch (source) {
-            case "LIBRA"  -> LIBRA;
-            default -> COMMON_PLATFORM;
-        };
+        if (source.equals("LIBRA")) {
+            return LIBRA;
+        } else {
+            return COMMON_PLATFORM;
+        }
     }
 
 }

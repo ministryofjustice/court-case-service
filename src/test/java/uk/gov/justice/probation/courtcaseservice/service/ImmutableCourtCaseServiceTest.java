@@ -44,7 +44,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
@@ -57,7 +56,6 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.HEARING_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
@@ -106,14 +104,14 @@ class ImmutableCourtCaseServiceTest {
             lenient().when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             incomingHearing = EntityHelper.aHearingEntity(CRN, CASE_NO);
             offender = OffenderEntity.builder().crn("X99999").probationStatus(OffenderProbationStatus.of(PROBATION_STATUS)).build();
-            defendant = buildHearingDefendant(DEFENDANT_ID, offender);
+            defendant = buildHearingDefendant(offender);
         }
 
-        private HearingDefendantEntity buildHearingDefendant(String defendantId, OffenderEntity offender) {
+        private HearingDefendantEntity buildHearingDefendant(OffenderEntity offender) {
             return HearingDefendantEntity.builder()
-                    .defendantId(defendantId)
+                    .defendantId(EntityHelper.DEFENDANT_ID)
                     .defendant(DefendantEntity.builder()
-                            .defendantId(defendantId)
+                            .defendantId(EntityHelper.DEFENDANT_ID)
                             .offender(offender)
                             .personId("1")
                             .build())
@@ -272,9 +270,7 @@ class ImmutableCourtCaseServiceTest {
                             .caseId("xcx")
                             .build())
                     .build();
-            final var exception = Assertions.assertThrows(ConflictingInputException.class, () -> {
-                service.createHearing(CASE_ID, hearing).block();
-            });
+            final var exception = Assertions.assertThrows(ConflictingInputException.class, () -> service.createHearing(CASE_ID, hearing).block());
             verify(courtRepository).findByCourtCode(COURT_CODE);
             verifyNoMoreInteractions(courtRepository, hearingRepositoryFacade, telemetryService);
             assertThat(exception.getMessage()).isEqualTo(String.format("Case Id %s does not match with value from body %s",
@@ -431,9 +427,7 @@ class ImmutableCourtCaseServiceTest {
                                     .build()
                     ))
                     .build();
-            final var exception = Assertions.assertThrows(ConflictingInputException.class, () -> {
-                service.createOrUpdateHearingByHearingId(HEARING_ID, hearing).block();
-            });
+            final var exception = Assertions.assertThrows(ConflictingInputException.class, () -> service.createOrUpdateHearingByHearingId(HEARING_ID, hearing).block());
             verify(courtRepository).findByCourtCode(COURT_CODE);
             verifyNoMoreInteractions(courtRepository, hearingRepositoryFacade, telemetryService);
             assertThat(exception.getMessage()).isEqualTo(String.format("Hearing Id %s does not match with value from body %s",
@@ -588,7 +582,7 @@ class ImmutableCourtCaseServiceTest {
 
             Pair pair = new Pair(hearingDefendant, 5);
             when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, req))
-                    .thenReturn(new PageImpl(List.of(pair, pair, pair, pair, pair), Pageable.ofSize(5).withPage(1), 11));
+                    .thenReturn(new PageImpl<>(List.of(pair, pair, pair, pair, pair), Pageable.ofSize(5).withPage(1), 11));
 
             var result = service.filterHearings(COURT_CODE, req);
 
@@ -674,7 +668,7 @@ class ImmutableCourtCaseServiceTest {
             ));
             when(hearingRepositoryFacade.findFirstByHearingId(HEARING_ID)).thenReturn(Optional.of(existingCase));
             when(groupedOffenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, "defendant1"))
-                    .thenReturn(buildOffenderMatches(matchCrn, rejectedCrn));
+                    .thenReturn(buildOffenderMatches());
             when(groupedOffenderMatchRepository.findByCaseIdAndDefendantId(CASE_ID, "defendant2")).thenReturn(Optional.empty());
             var caseToUpdate = EntityHelper.aHearingEntity(null, CASE_NO, List.of(
                     EntityHelper.aHearingDefendantEntity("defendant1", matchCrn),
@@ -706,15 +700,15 @@ class ImmutableCourtCaseServiceTest {
         }
 
         @NonNull
-        private Optional<GroupedOffenderMatchesEntity> buildOffenderMatches(String matchCrn, String rejectedCrn) {
+        private Optional<GroupedOffenderMatchesEntity> buildOffenderMatches() {
             return Optional.ofNullable(GroupedOffenderMatchesEntity.builder()
                     .offenderMatches(Arrays.asList(OffenderMatchEntity.builder()
-                                    .crn(matchCrn)
+                                    .crn("X11111")
                                     .confirmed(false)
                                     .rejected(false)
                                     .build(),
                             OffenderMatchEntity.builder()
-                                    .crn(rejectedCrn)
+                                    .crn("X99999")
                                     .confirmed(false)
                                     .rejected(false)
                                     .build()))
@@ -758,7 +752,7 @@ class ImmutableCourtCaseServiceTest {
             final var argDefendantIds = Optional.ofNullable(arg.getHearingDefendants()).orElse(Collections.emptyList())
                     .stream()
                     .map(HearingDefendantEntity::getDefendantId)
-                    .collect(Collectors.toList());
+                    .toList();
             return caseId.equals(arg.getCaseId()) && defendantIds.equals(argDefendantIds);
         }
     }

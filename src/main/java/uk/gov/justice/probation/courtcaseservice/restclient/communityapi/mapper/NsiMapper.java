@@ -51,7 +51,7 @@ public class NsiMapper {
 
     private static String getOrderName(String description, Integer length, String lengthUnits) {
         if (length == null || lengthUnits == null) {
-            return Optional.ofNullable(description).orElse(null);
+            return description;
         }
         return Optional.ofNullable(description)
                 .map(desc -> desc + " (" + length + " " + lengthUnits + ")")

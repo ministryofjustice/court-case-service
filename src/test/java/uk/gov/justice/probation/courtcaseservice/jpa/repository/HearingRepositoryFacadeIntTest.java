@@ -146,8 +146,8 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
                 aHearingDefendantEntity(DEFENDANT_ID_2, crn)
             ));
 
-        hearingEntity.getHearingDays().stream().forEach(hearingDay -> hearingDay.setHearing(hearingEntity));
-        hearingEntity.getHearingDefendants().stream().forEach(hearingDefendantEntity -> hearingDefendantEntity.setHearing(hearingEntity));
+        hearingEntity.getHearingDays().forEach(hearingDay -> hearingDay.setHearing(hearingEntity));
+        hearingEntity.getHearingDefendants().forEach(hearingDefendantEntity -> hearingDefendantEntity.setHearing(hearingEntity));
 
         assertThat(hearingRepositoryFacade.save(hearingEntity)).isEqualTo(hearingEntity);
 

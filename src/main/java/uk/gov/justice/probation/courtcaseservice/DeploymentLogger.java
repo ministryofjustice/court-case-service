@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice;
 
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +15,12 @@ import java.util.Optional;
 @Component
 @Slf4j
 @NoArgsConstructor
-@AllArgsConstructor
 public class DeploymentLogger {
-
-    @Autowired
     private BuildProperties buildProperties;
+    @Autowired
+    public DeploymentLogger(BuildProperties buildProperties) {
+        this.buildProperties = buildProperties;
+    }
 
     @EventListener
     public void onApplicationEvent(ApplicationReadyEvent readyEvent) throws UnknownHostException {

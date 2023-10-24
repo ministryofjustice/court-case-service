@@ -1,8 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository
 
-import org.assertj.core.api.Assertions
+import jakarta.persistence.EntityManager
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
@@ -14,8 +13,6 @@ import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlConfig
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState.RESULTED
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
-import java.time.LocalDate
-import javax.persistence.EntityManager
 
 @DataJpaTest
 @ActiveProfiles("test")

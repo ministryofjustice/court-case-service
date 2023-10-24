@@ -24,9 +24,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.VerdictEntity;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
@@ -202,11 +202,7 @@ public class ExtendedHearingRequestResponse {
                 .offences(offences)
                 .build();
         offences.forEach(offence -> offence.setHearingDefendant(hearingDefendantEntity));
-        offences.forEach(offenceEntity -> {
-            offenceEntity.getJudicialResults().forEach(judicialResultEntity -> {
-                judicialResultEntity.setOffence(offenceEntity);
-            });
-        });
+        offences.forEach(offenceEntity -> offenceEntity.getJudicialResults().forEach(judicialResultEntity -> judicialResultEntity.setOffence(offenceEntity)));
         return hearingDefendantEntity;
     }
 
@@ -258,7 +254,7 @@ public class ExtendedHearingRequestResponse {
                 .hearingType(hearingType)
                 .listNo(
                         Optional.ofNullable(this.getListNo()).orElseGet(
-                                () -> hearingDays.size() > 0 ? hearingDays.get(0).getListNo() : null
+                                () -> !hearingDays.isEmpty() ? hearingDays.get(0).getListNo() : null
                         )
                 )
                 .build();

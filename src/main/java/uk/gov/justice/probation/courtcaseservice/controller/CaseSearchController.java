@@ -13,7 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.service.CaseSearchService;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResult;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 

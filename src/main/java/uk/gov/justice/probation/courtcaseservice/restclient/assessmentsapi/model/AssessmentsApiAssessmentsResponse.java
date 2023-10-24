@@ -2,7 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.restclient.assessmentsapi.mode
 
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;

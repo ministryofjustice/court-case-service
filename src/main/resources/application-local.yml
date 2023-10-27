@@ -53,11 +53,13 @@ hmpps.sqs:
     picnewoffendereventsqueue:
       queueName: pic_new_offender_events_queue
       dlqName: pic_new_offender_events_dead_letter_queue
-      subscribeTopicId: hmppsdomainevents
+      subscribeTopicId: domainevents
       subscribeFilter: '{"eventType":[ "probation-case.engagement.created"] }'
   topics:
     hmppsdomainevents:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
     probationoffenderevents:
+      arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
+    domainevents:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
 

@@ -90,6 +90,7 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
     @Column(columnDefinition = "jsonb", name = "ADDRESS")
     private AddressPropertiesEntity address;
 
+    @Setter
     @Column(name = "PNC")
     private String pnc;
 

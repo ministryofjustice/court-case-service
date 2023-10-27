@@ -31,9 +31,11 @@ public interface DefendantRepository extends CrudRepository<DefendantEntity, Lon
     Page<DefendantEntity> findDefendantsByName(String tsQueryString, String name, Pageable pageable);
 
     @Query(value =
-            "select d.* from defendant d " +
-                    "where d.pnc= :pnc and d.dob = :dateOfBirth " +
-                    "and name-->> 'firstname' = :foreName and name-->>'surname' = :surName",
-            nativeQuery = true)
-    List<DefendantEntity> findMatchingDefendants(String foreName, String surName, String pnc, LocalDate dateOfBirth);
+                "select * from defendant " +
+                        "where pnc= :pnc and date_of_birth = :dateOfBirth " +
+                        "and name->>'forename1' = :forename and name->>'surname' = :surname",
+                nativeQuery = true)
+    List<DefendantEntity> findMatchingDefendants(String pnc, LocalDate dateOfBirth, String forename, String surname);
+
+    List<DefendantEntity> findDefendantsByCrn(String crn);
 }

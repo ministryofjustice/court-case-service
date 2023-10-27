@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
@@ -114,13 +115,13 @@ public class TelemetryService {
         Map<String, String> properties = new HashMap<>();
 
         ofNullable(defendantEntity.getDefendant().getDefendantId())
-            .ifPresent(id -> properties.put("defendantId", id));
+                .ifPresent(id -> properties.put("defendantId", id));
         ofNullable(defendantEntity.getDefendant().getOffender())
-            .ifPresent(offender -> properties.put("crn", offender.getCrn()));
+                .ifPresent(offender -> properties.put("crn", offender.getCrn()));
         ofNullable(defendantEntity.getDefendant().getPnc())
-            .ifPresent(pnc -> properties.put("pnc", pnc));
+                .ifPresent(pnc -> properties.put("pnc", pnc));
         ofNullable(caseId)
-            .ifPresent(id -> properties.put("caseId", id));
+                .ifPresent(id -> properties.put("caseId", id));
 
         addRequestProperties(properties);
 
@@ -224,6 +225,27 @@ public class TelemetryService {
         addRequestProperties(properties);
 
         telemetryClient.trackEvent(TelemetryEventType.OFFENDER_PROBATION_STATUS_NOT_UPDATED.eventName, properties, Collections.emptyMap());
+    }
+
+    public void trackPiCNewEngagementDefendantLinkedEvent(DefendantEntity defendantEntity) {
+        Map<String, String> properties = new HashMap<>();
+
+        ofNullable(defendantEntity)
+                .map(DefendantEntity::getCrn)
+                .ifPresent((crn) -> properties.put("crn", crn));
+
+        ofNullable(defendantEntity)
+                .map(DefendantEntity::getDefendantId)
+                .ifPresent((defendantId) -> properties.put("defendantId", defendantId));
+
+        ofNullable(defendantEntity)
+                .map(DefendantEntity::getPnc)
+                .ifPresent((pnc) -> properties.put("pnc", pnc));
+
+        addRequestProperties(properties);
+
+        telemetryClient.trackEvent(TelemetryEventType.PIC_NEW_ENGAGEMENT_DEFENDANT_LINKED.eventName, properties, Collections.emptyMap());
+
     }
 
     private void addRequestProperties(Map<String, String> properties) {

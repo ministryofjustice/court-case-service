@@ -1,10 +1,15 @@
 package uk.gov.justice.probation.courtcaseservice.client.model.listeners
 
-import lombok.*
+import com.fasterxml.jackson.annotation.JsonProperty
 
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-@Suppress("PropertyName")
-data class SQSMessage(val type: String, val message: String, val messageId: String? = null)
+data class SQSMessage(
+
+    @JsonProperty("Type")
+    val type: String,
+
+    @JsonProperty("Message")
+    val message: String,
+
+    @JsonProperty("MessageId")
+    val messageId: String? = null
+)

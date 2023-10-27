@@ -182,6 +182,9 @@ offender-service:
 feature:
   flags:
     enable-cacheable-case-list: true
+  event:
+    probation-case:
+      engagement.created: true
 
 ingress:
   url: "localhost"

@@ -24,6 +24,7 @@ import software.amazon.awssdk.services.sqs.SqsAsyncClient
 import software.amazon.awssdk.services.sqs.model.GetQueueAttributesRequest
 import software.amazon.awssdk.services.sqs.model.QueueAttributeName
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
+import uk.gov.justice.hmpps.sqs.HmppsTopic
 import uk.gov.justice.hmpps.sqs.MissingQueueException
 import uk.gov.justice.probation.courtcaseservice.controller.CCSPostgresqlContainer
 import uk.gov.justice.probation.courtcaseservice.testcontainers.LocalStackHelper
@@ -50,17 +51,29 @@ abstract class BaseIntTest {
   @SpyBean
   protected lateinit var inboundMessageServiceSpy: HmppsQueueService
 
+  //Topic
+  protected val offenderEventTopic by lazy { hmppsQueueService.findByTopicId("probationoffenderevents") ?: throw MissingQueueException("probationoffenderevents topic not found") }
+
+  internal val hmppsDomainEvents by lazy { hmppsQueueService.findByTopicId("hmppsdomainevents") as HmppsTopic }
+
+  internal val domainEventsTopic by lazy { hmppsQueueService.findByTopicId("domainevents") as HmppsTopic }
+  internal val domainEventsTopicArn by lazy { domainEventsTopic.arn }
+
+
+  //Queue
   private val emittedEventsQueue by lazy { hmppsQueueService.findByQueueId("emittedeventsqueue") ?: throw MissingQueueException("HmppsQueue emittedeventsqueue not found") }
 
   protected val emittedEventsQueueSqsClient by lazy { emittedEventsQueue.sqsClient }
 
   protected val emittedEventsQueueUrl by lazy { emittedEventsQueue.queueUrl }
 
-  protected val offenderEventTopic by lazy { hmppsQueueService.findByTopicId("probationoffenderevents") ?: throw MissingQueueException("probationoffenderevents topic not found") }
-
   protected val offenderEventReceiverQueue by lazy { hmppsQueueService.findByQueueId("picprobationoffendereventsqueue") ?: throw MissingQueueException("picprobationoffendereventsqueue not found") }
   protected val offenderEventReceiverQueueSqsClient by lazy { offenderEventReceiverQueue.sqsClient }
   protected val offenderEventReceiverQueueUrl by lazy { offenderEventReceiverQueue.queueUrl }
+
+  protected val newOffenderEventReceiverQueue by lazy { hmppsQueueService.findByQueueId("picnewoffendereventsqueue") ?: throw MissingQueueException("picprobationoffendereventsqueue not found") }
+  protected val newOffenderEventReceiverQueueSqsClient by lazy { newOffenderEventReceiverQueue.sqsClient }
+  protected val newOffenderEventReceiverQueueQueueUrl by lazy { newOffenderEventReceiverQueue.queueUrl }
 
   private fun SqsAsyncClient.countMessagesOnQueue(queueUrl: String, queueAttribute: QueueAttributeName): Int {
 
@@ -83,6 +96,12 @@ abstract class BaseIntTest {
     await untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE) } matches { it == 0 }
     await untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES) } matches { it == 0 }
   }
+
+  fun assertNewOffenderDomainEventReceiverQueueHasProcessedMessages() {
+    await untilCallTo { newOffenderEventReceiverQueueSqsClient.countMessagesOnQueue(newOffenderEventReceiverQueueQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE) } matches { it == 0 }
+    await untilCallTo { newOffenderEventReceiverQueueSqsClient.countMessagesOnQueue(newOffenderEventReceiverQueueQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES) } matches { it == 0 }
+  }
+
 
   companion object {
     private val localStackContainer = LocalStackHelper.instance

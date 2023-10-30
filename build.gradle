@@ -201,6 +201,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk9")
 
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
+
+
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.4'
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.4'
@@ -236,6 +239,7 @@ dependencies {
 
     testImplementation("org.apache.httpcomponents:fluent-hc:4.5.13")
     testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
 
     agentDeps 'com.microsoft.azure:applicationinsights-agent:3.4.2'
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10")

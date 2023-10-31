@@ -34,13 +34,26 @@ class ProbationCaseEngagementService(
                 defendantRepository.save(it)
                 telemetryService.trackPiCNewEngagementDefendantLinkedEvent(it)
             }
+        } else {
+            log.debug("No matching defendants found with {}", deliusOffenderDetail)
         }
-        log.debug("No matching defendants found with {}", deliusOffenderDetail)
     }
 
     fun createOffender(deliusOffenderDetail: DeliusOffenderDetail?): OffenderEntity? {
         log.debug("Creating new offender with details {}", deliusOffenderDetail)
-        val newOffender =  OffenderEntity(null, deliusOffenderDetail?.identifiers?.crn, deliusOffenderDetail?.identifiers?.pnc, "", emptyList(), null, null, false, false, false, null)
+        val newOffender = OffenderEntity(
+            null,
+            deliusOffenderDetail?.identifiers?.crn,
+            deliusOffenderDetail?.identifiers?.pnc,
+            "",
+            emptyList(),
+            null,
+            null,
+            false,
+            false,
+            false,
+            null
+        )
         return offenderRepository.save(newOffender)
     }
 }

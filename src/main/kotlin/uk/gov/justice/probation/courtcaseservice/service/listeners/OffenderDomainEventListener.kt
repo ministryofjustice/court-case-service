@@ -50,10 +50,8 @@ class OffenderDomainEventListener(
     }
 
     fun getEventProcessor(domainEvent: DomainEvent): IEventProcessor? {
-        if (context.containsBean(domainEvent.eventType)) {
+        context.containsBean(domainEvent.eventType).let {
             return context.getBean(domainEvent.eventType) as IEventProcessor
         }
-        LOG.info("EventProcessor does not exist for Type:'${domainEvent.eventType}'")
-        return null
     }
 }

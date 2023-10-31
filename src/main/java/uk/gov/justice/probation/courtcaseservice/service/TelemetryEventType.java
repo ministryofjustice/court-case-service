@@ -15,8 +15,8 @@ public enum TelemetryEventType {
     HEARING_NOTE_UPDATED("PicHearingNoteUpdated"),
     HEARING_NOTE_DELETED("PicHearingNoteDeleted"),
     OFFENDER_PROBATION_STATUS_UPDATED("PiCOffenderProbationStatusUpdated"),
-    OFFENDER_PROBATION_STATUS_NOT_UPDATED("PiCOffenderProbationStatusNotUpdated")
-    ;
+    OFFENDER_PROBATION_STATUS_NOT_UPDATED("PiCOffenderProbationStatusNotUpdated"),
+    PIC_NEW_ENGAGEMENT_DEFENDANT_LINKED("PiCNewEngagementDefendantLinked");
 
     final String eventName;
 

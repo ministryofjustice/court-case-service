@@ -61,6 +61,9 @@ env:
   - name: MANAGE_OFFENCES_API_BASE_URL
     value: "{{ .Values.env.manage_offences_api.base_url }}"
 
+  - name: DOMAIN_EVENT_AND_DELIUS_API_BASE_URL
+    value: "{{ .Values.env.domain_event_and_delius_api.base_url }}"
+
   - name: COURT_CASE_AND_DELIUS_API_CLIENT_ID
     valueFrom:
       secretKeyRef:
@@ -121,6 +124,18 @@ env:
         name: court-case-service-secrets
         key: nomis-oauth-client-secret
 
+  - name: DOMAIN_EVENT_AND_DELIUS_API_CLIENT_ID
+    valueFrom:
+      secretKeyRef:
+        name: court-case-service-secrets
+        key: nomis-oauth-client-id
+
+  - name: DOMAIN_EVENT_AND_DELIUS_API_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: court-case-service-secrets
+        key: nomis-oauth-client-secret
+
   - name: APPINSIGHTS_INSTRUMENTATIONKEY
     valueFrom:
       secretKeyRef:
@@ -143,6 +158,18 @@ env:
     valueFrom:
       secretKeyRef:
         name: probation-offender-events-court-case-service-dead-letter-queue
+        key: sqs_queue_name
+
+  - name: HMPPS_SQS_QUEUES_PICNEWOFFENDEREVENTSQUEUE_QUEUE_NAME
+    valueFrom:
+      secretKeyRef:
+        name: delius-offender-events-court-case-service-queue
+        key: sqs_queue_name
+
+  - name: HMPPS_SQS_QUEUES_PICNEWOFFENDEREVENTSQUEUE_DLQ_NAME
+    valueFrom:
+      secretKeyRef:
+        name: delius-offender-events-court-case-service-dead-letter-queue
         key: sqs_queue_name
 
   {{- with (index .Values.ingress.hosts 0)}}

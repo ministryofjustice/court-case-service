@@ -19,6 +19,9 @@ manage-offences-api:
 court-case-and-delius-api:
   base-url: https://court-case-service-dev.apps.live-1.cloud-platform.service.justice.gov.uk
 
+domain-event-and-delius-api:
+  base-url: https://domain-events-and-delius-dev.hmpps.service.justice.gov.uk
+
 
 feature:
   flags:

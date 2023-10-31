@@ -60,7 +60,8 @@ env:
     base_url: https://manage-offences-api.hmpps.service.justice.gov.uk
   court_case_and_delius_api:
     base_url: https://court-case-and-delius.hmpps.service.justice.gov.uk
-
+  domain_event_and_delius_api:
+    base_url: https://domain-events-and-delius.hmpps.service.justice.gov.uk
 
 spring:
   profile: instrumented,prod

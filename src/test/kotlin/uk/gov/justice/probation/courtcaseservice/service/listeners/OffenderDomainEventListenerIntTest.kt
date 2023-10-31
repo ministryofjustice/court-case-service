@@ -20,7 +20,9 @@ import uk.gov.justice.probation.courtcaseservice.client.model.listeners.PersonId
 import uk.gov.justice.probation.courtcaseservice.client.model.listeners.PersonReference
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository
 import uk.gov.justice.probation.courtcaseservice.service.listeners.notifiers.NEW_OFFENDER_CREATED
+import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
 
 @Sql(
@@ -38,6 +40,9 @@ class OffenderDomainEventListenerIntTest : BaseIntTest() {
     lateinit var defendantRepository: DefendantRepository
 
     @Autowired
+    lateinit var offenderRepository: OffenderRepository
+
+    @Autowired
     lateinit var hearingRepository: HearingRepository
 
     @Autowired
@@ -51,10 +56,18 @@ class OffenderDomainEventListenerIntTest : BaseIntTest() {
     }
 
     @Test
-    fun `Test new offender created event processed successfully and update matching defendants with crn`() {
+    fun `should create a new offender and link all matching defendants when new offender event published`() {
         // Given
-        val defendantEntitiesByCrnBeforeEvent = defendantRepository.findDefendantsByCrn("XXX1234")
-        assertThat(defendantEntitiesByCrnBeforeEvent).isEmpty()
+        val defendantsBeforeEvent = defendantRepository.findDefendantsByOffenderCrn("XXX1234")
+        assertThat(defendantsBeforeEvent).isEmpty()
+
+        val expectedMatchingDefendantToBeUpdated =
+            defendantRepository.findMatchingDefendants("PN/1234560XX", LocalDate.of(1939, 10, 10), "David", "BOWIE")
+        assertThat(expectedMatchingDefendantToBeUpdated).isNotEmpty()
+        assertThat(expectedMatchingDefendantToBeUpdated.size).isEqualTo(2)
+
+        val offenderEntityBeforeEvent = offenderRepository.findByCrn("XXX1234")
+        assertThat(offenderEntityBeforeEvent).isEmpty
 
         val domainEvent = objectMapper.writeValueAsString(createDomainEvent(NEW_OFFENDER_CREATED, "XXX1234"))
 
@@ -73,9 +86,16 @@ class OffenderDomainEventListenerIntTest : BaseIntTest() {
         //Then
         assertNewOffenderDomainEventReceiverQueueHasProcessedMessages()
 
-        val defendantEntitiesByCrnAfterEvent = defendantRepository.findDefendantsByCrn("XXX1234")
-        assertThat(defendantEntitiesByCrnAfterEvent).isNotEmpty()
-        assertThat(defendantEntitiesByCrnAfterEvent.size).isEqualTo(2)
+        val offenderEntityAfterEvent = offenderRepository.findByCrn("XXX1234")
+        assertThat(offenderEntityAfterEvent.isPresent).isTrue()
+
+        val defendantsAfterTheEvent = defendantRepository.findDefendantsByOffenderCrn("XXX1234")
+        assertThat(defendantsAfterTheEvent).isNotEmpty
+        assertThat(defendantsAfterTheEvent.size).isEqualTo(2)
+
+        assertThat(defendantsAfterTheEvent).usingRecursiveComparison()
+            .comparingOnlyFields("defendantId")
+            .isEqualTo(expectedMatchingDefendantToBeUpdated)
     }
 
     fun publishOffenderEvent(publishRequest: PublishRequest): CompletableFuture<PublishResponse>? {

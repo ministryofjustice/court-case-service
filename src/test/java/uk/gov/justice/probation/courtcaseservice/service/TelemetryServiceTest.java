@@ -333,6 +333,28 @@ class TelemetryServiceTest {
         assertThat(metricsCaptor.getValue()).isEmpty();
     }
 
+    @Test
+    void giveDefendant_whenTrackPiCNewEngagementDefendantLinkedEvent_thenEmitTelemetryEvent() {
+
+        var defendantEntity = DefendantEntity.builder()
+                .defendantId(DEFENDANT_ID)
+                .offender(OffenderEntity.builder().crn(CRN).build())
+                .pnc(PNC)
+                .build();
+
+        service.trackPiCNewEngagementDefendantLinkedEvent(defendantEntity);
+
+        verify(telemetryClient).trackEvent(eq("PiCNewEngagementDefendantLinked"), properties.capture(), metricsCaptor.capture());
+
+        var properties = this.properties.getValue();
+        assertThat(properties).hasSize(3);
+        assertThat(properties.get("crn")).isEqualTo(CRN);
+        assertThat(properties.get("pnc")).isEqualTo(PNC);
+        assertThat(properties.get("defendantId")).isEqualTo(DEFENDANT_ID);
+
+        assertThat(metricsCaptor.getValue()).isEmpty();
+    }
+
     private HearingEntity buildHearing() {
         return HearingEntity.builder()
                 .hearingId(HEARING_ID)

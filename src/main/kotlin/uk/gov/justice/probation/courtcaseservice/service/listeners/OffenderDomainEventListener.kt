@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 import uk.gov.justice.probation.courtcaseservice.client.model.listeners.DomainEvent
 import uk.gov.justice.probation.courtcaseservice.client.model.listeners.EventFeatureSwitch
 import uk.gov.justice.probation.courtcaseservice.client.model.listeners.SQSMessage
-import uk.gov.justice.probation.courtcaseservice.service.listeners.notifiers.IEventNotifier
+import uk.gov.justice.probation.courtcaseservice.service.listeners.notifiers.IEventProcessor
 
 const val PIC_NEW_OFFENDER_EVENT_QUEUE_CONFIG_KEY = "picnewoffendereventsqueue"
 
@@ -28,42 +28,32 @@ class OffenderDomainEventListener(
     fun onDomainEvent(
         rawMessage: String,
     ) {
-        var dLQException: Exception? = null
-        try {
-            LOG.debug("Enter onDomainEvent")
-            val sqsMessage = objectMapper.readValue<SQSMessage>(rawMessage)
-            LOG.debug("Received message: type:${sqsMessage.type} message:${sqsMessage.message}")
-            when (sqsMessage.type) {
-                "Notification" -> {
-                    val domainEvent = objectMapper.readValue<DomainEvent>(sqsMessage.message)
-                    val enabled = eventFeatureSwitch.isEnabled(domainEvent.eventType)
-                    if (enabled) {
-                        try {
-                            getEventNotifier(domainEvent)?.process(domainEvent)
-                        } catch (e: Exception) {
-                            LOG.error("Failed to process know domain event type:${domainEvent.eventType}", e)
-                            dLQException = e
-                        }
-                    } else {
-                        LOG.info("Received a message I wasn't expecting Type: ${sqsMessage.type}")
+        LOG.debug("Enter onDomainEvent")
+        val sqsMessage = objectMapper.readValue<SQSMessage>(rawMessage)
+        LOG.debug("Received message: type:${sqsMessage.type} message:${sqsMessage.message}")
+        when (sqsMessage.type) {
+            "Notification" -> {
+                val domainEvent = objectMapper.readValue<DomainEvent>(sqsMessage.message)
+                val enabled = eventFeatureSwitch.isEnabled(domainEvent.eventType)
+                if (enabled) {
+                    try {
+                        getEventProcessor(domainEvent)?.process(domainEvent)
+                    } catch (e: Exception) {
+                        LOG.error("Failed to process know domain event type:${domainEvent.eventType}", e)
+                        throw e
                     }
+                } else {
+                    LOG.info("Received a message I wasn't expecting Type: ${sqsMessage.type}")
                 }
             }
-        } catch (e: Exception) {
-            LOG.error("Failed to process domain event", e)
-            throw e
-        }
-        if (dLQException != null) {
-            // Throw exception caught in processing known events to push message back on event queue
-            throw dLQException
         }
     }
 
-    fun getEventNotifier(domainEvent: DomainEvent): IEventNotifier? {
+    fun getEventProcessor(domainEvent: DomainEvent): IEventProcessor? {
         if (context.containsBean(domainEvent.eventType)) {
-            return context.getBean(domainEvent.eventType) as IEventNotifier
+            return context.getBean(domainEvent.eventType) as IEventProcessor
         }
-        LOG.info("EventNotifier does not exist for Type:'${domainEvent.eventType}'")
+        LOG.info("EventProcessor does not exist for Type:'${domainEvent.eventType}'")
         return null
     }
 }

@@ -66,7 +66,7 @@ spring:
             client-name: domain-event-and-delius-api-client
             client-id: ${domain-event-and-delius-api-client-id:domain-event-and-delius-api-client}
             client-secret: ${domain-event-and-delius-api-client-secret:clientsecret}
-            client-authentication-method: basic
+            client-authentication-method: client_secret_basic
             authorization-grant-type: client_credentials
             provider: nomis-oauth-service
         provider:

@@ -33,9 +33,9 @@ public interface DefendantRepository extends CrudRepository<DefendantEntity, Lon
     @Query(value =
                 "select * from defendant " +
                         "where pnc= :pnc and date_of_birth = :dateOfBirth " +
-                        "and name->>'forename1' = :forename and name->>'surname' = :surname",
+                        "and lower(name->>'forename1') = lower(:forename) and lower(name->>'surname') = lower(:surname)",
                 nativeQuery = true)
     List<DefendantEntity> findMatchingDefendants(String pnc, LocalDate dateOfBirth, String forename, String surname);
 
-    List<DefendantEntity> findDefendantsByCrn(String crn);
+    List<DefendantEntity> findDefendantsByOffenderCrn(String crn);
 }

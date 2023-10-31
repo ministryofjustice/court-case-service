@@ -62,7 +62,6 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
     @NotAudited
     private OffenderEntity offender;
 
-    @Setter
     @Column(name = "CRN")
     private String crn;
 
@@ -90,7 +89,6 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
     @Column(columnDefinition = "jsonb", name = "ADDRESS")
     private AddressPropertiesEntity address;
 
-    @Setter
     @Column(name = "PNC")
     private String pnc;
 

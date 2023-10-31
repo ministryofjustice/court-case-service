@@ -8,17 +8,15 @@ import uk.gov.justice.probation.courtcaseservice.service.ProbationCaseEngagement
 const val NEW_OFFENDER_CREATED = "probation-case.engagement.created"
 
 @Component(value = NEW_OFFENDER_CREATED)
-class OffenderCreatedEventNotifier(
+class OffenderCreatedEventProcessor(
     val offenderDetailRestClient: OffenderDetailRestClient,
     val probationCaseEngagementService: ProbationCaseEngagementService
-) : EventNotifier() {
+) : EventProcessor() {
     override fun processEvent(domainEvent: DomainEvent) {
         val offenderDetailUrl = domainEvent.detailUrl
         val crn = domainEvent.personReference?.identifiers?.first{it.type == "CRN"}
         LOG.debug("Enter processEvent with  Info:$offenderDetailUrl")
         offenderDetailRestClient.getOffenderDetail(offenderDetailUrl, crn?.value).block()
-            .let { probationCaseEngagementService.updateMatchingDefendantsWithCrn(it) }
+            .let { probationCaseEngagementService.updateMatchingDefendantsWithOffender(it) }
     }
 }
-
-

@@ -472,8 +472,8 @@ INSERT INTO DEFENDANT(id, DEFENDANT_ID, PERSON_ID, defendant_name, name, date_of
 VALUES (4000022, '43e2efe3-77df-40d1-8c11-23a719ca25e8', 'f0250ed4-1487-4a14-b65f-2953de3b33e8', 'Mr David BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', '1939-10-10','PN/1234560BA', 'PERSON', 'MALE');
 INSERT INTO HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID, FK_DEFENDANT_ID)
 VALUES (4000022, 4000022, '43e2efe3-77df-40d1-8c11-23a719ca25e8', 4000022);
-INSERT INTO DEFENDANT(id, DEFENDANT_ID, PERSON_ID, defendant_name, name,date_of_birth, pnc, fk_offender_id, type, sex)
-VALUES (4000023, '02da0ef3-1d8a-4f7d-9582-ceb30a579176', '30f252a3-58c4-44d2-93c7-446f3dba9824', 'Mr Phil BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', '1939-10-10', 'PN/1234560XX', -1000011, 'PERSON', 'MALE');
+INSERT INTO DEFENDANT(id, DEFENDANT_ID, PERSON_ID, defendant_name, name,date_of_birth, pnc, type, sex)
+VALUES (4000023, '02da0ef3-1d8a-4f7d-9582-ceb30a579176', '30f252a3-58c4-44d2-93c7-446f3dba9824', 'Mr David BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', '1939-10-10', 'PN/1234560XX', 'PERSON', 'MALE');
 INSERT INTO HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID, FK_DEFENDANT_ID)
 VALUES (4000023, 4000022, '02da0ef3-1d8a-4f7d-9582-ceb30a579176', 4000023);
 
@@ -484,7 +484,7 @@ VALUES (4000024, 4000024, '8fbd1192-221f-4fa3-9ddd-e192acf34d45', now(), '2020-1
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
 VALUES (4000024, 4000024, 'C10JQ', 2, '2019-12-14', '13:00:00', now());
 INSERT INTO DEFENDANT(id, DEFENDANT_ID, PERSON_ID, defendant_name, name,date_of_birth, pnc, type, sex)
-VALUES (4000024, '5627f774-4599-4c8b-8de0-87d2f55fe173', 'cf437aa6-b45e-4504-9aa3-a41cc3336608', 'Mr Phil BOWIE', '{"title": "Mr", "surname": "BOWIE", "forename1": "David"}', '1939-10-10', 'PN/1234560XX', 'PERSON', 'MALE');
+VALUES (4000024, '5627f774-4599-4c8b-8de0-87d2f55fe173', 'cf437aa6-b45e-4504-9aa3-a41cc3336608', 'Mr David BOWIE', '{"title": "Mr", "surname": "bowie", "forename1": "david"}', '1939-10-10', 'PN/1234560XX', 'PERSON', 'MALE');
 INSERT INTO HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID, FK_DEFENDANT_ID)
 VALUES (4000024, 4000024, '5627f774-4599-4c8b-8de0-87d2f55fe173', 4000024);
 -- End

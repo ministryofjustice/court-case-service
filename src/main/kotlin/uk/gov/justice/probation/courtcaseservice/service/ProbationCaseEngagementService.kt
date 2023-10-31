@@ -5,34 +5,43 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.probation.courtcaseservice.client.model.DeliusOffenderDetail
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository
 
 @Service
-class ProbationCaseEngagementService (val defendantRepository: DefendantRepository,
-                                      val telemetryService: TelemetryService){
+class ProbationCaseEngagementService(
+    val defendantRepository: DefendantRepository,
+    val offenderRepository: OffenderRepository,
+    val telemetryService: TelemetryService
+) {
     private companion object {
         val log: Logger = LoggerFactory.getLogger(this::class.java)
     }
 
-    fun updateMatchingDefendantsWithCrn(deliusOffenderDetail: DeliusOffenderDetail?) {
-        log.debug("Mapping new offender with details {}", deliusOffenderDetail)
-        defendantRepository.findMatchingDefendants(
+    fun updateMatchingDefendantsWithOffender(deliusOffenderDetail: DeliusOffenderDetail?) {
+        val matchingDefendants = defendantRepository.findMatchingDefendants(
             deliusOffenderDetail?.identifiers?.pnc,
             deliusOffenderDetail?.dateOfBirth,
             deliusOffenderDetail?.name?.forename,
             deliusOffenderDetail?.name?.surname
-        ).forEach { defendantEntity ->
-            updateDefendant(defendantEntity, deliusOffenderDetail)
+        )
+
+        if (matchingDefendants.isNotEmpty()) {
+            log.debug("Mapping new offender with details {}", deliusOffenderDetail)
+            val newOffender = createOffender(deliusOffenderDetail, matchingDefendants)
+            matchingDefendants.forEach { it ->
+                it.offender = newOffender
+                defendantRepository.save(it)
+                telemetryService.trackPiCNewEngagementDefendantLinkedEvent(it)
+            }
         }
+        log.debug("No matching defendants found with {}", deliusOffenderDetail)
     }
 
-    private fun updateDefendant(
-        defendantEntity: DefendantEntity,
-        deliusOffenderDetail: DeliusOffenderDetail?
-    ) {
-        log.debug("Updating defendant {} ", defendantEntity.defendantId)
-        deliusOffenderDetail?.identifiers?.crn.also { defendantEntity.crn = it }
-        val updatedDefendant = defendantRepository.save(defendantEntity)
-        telemetryService.trackPiCNewEngagementDefendantLinkedEvent(updatedDefendant)
+    fun createOffender(deliusOffenderDetail: DeliusOffenderDetail?, defendants: List<DefendantEntity>): OffenderEntity? {
+        log.debug("Creating new offender with details {}", deliusOffenderDetail)
+        val newOffender =  OffenderEntity(null, deliusOffenderDetail?.identifiers?.crn, deliusOffenderDetail?.identifiers?.pnc, "", emptyList(), null, null, false, false, false, null)
+        return offenderRepository.save(newOffender)
     }
 }

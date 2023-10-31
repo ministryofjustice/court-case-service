@@ -26,7 +26,7 @@ import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
 
 @Sql(
-    scripts = ["classpath:before-test.sql"],
+    scripts = ["classpath:sql/before-new-offender-event-test.sql"],
     config = SqlConfig(transactionMode = TransactionMode.ISOLATED)
 )
 @Sql(

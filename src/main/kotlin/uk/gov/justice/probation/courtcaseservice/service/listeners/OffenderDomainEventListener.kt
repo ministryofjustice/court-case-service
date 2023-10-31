@@ -50,8 +50,6 @@ class OffenderDomainEventListener(
     }
 
     fun getEventProcessor(domainEvent: DomainEvent): IEventProcessor? {
-        context.containsBean(domainEvent.eventType).let {
-            return context.getBean(domainEvent.eventType) as IEventProcessor
-        }
+        return context.getBean(domainEvent.eventType).let { it as IEventProcessor }
     }
 }

@@ -29,7 +29,7 @@ class ProbationCaseEngagementService(
 
         if (matchingDefendants.isNotEmpty()) {
             log.debug("Mapping new offender with details {}", deliusOffenderDetail)
-            val newOffender = createOffender(deliusOffenderDetail, matchingDefendants)
+            val newOffender = createOffender(deliusOffenderDetail)
             matchingDefendants.forEach { it ->
                 it.offender = newOffender
                 defendantRepository.save(it)
@@ -39,7 +39,7 @@ class ProbationCaseEngagementService(
         log.debug("No matching defendants found with {}", deliusOffenderDetail)
     }
 
-    fun createOffender(deliusOffenderDetail: DeliusOffenderDetail?, defendants: List<DefendantEntity>): OffenderEntity? {
+    fun createOffender(deliusOffenderDetail: DeliusOffenderDetail?): OffenderEntity? {
         log.debug("Creating new offender with details {}", deliusOffenderDetail)
         val newOffender =  OffenderEntity(null, deliusOffenderDetail?.identifiers?.crn, deliusOffenderDetail?.identifiers?.pnc, "", emptyList(), null, null, false, false, false, null)
         return offenderRepository.save(newOffender)

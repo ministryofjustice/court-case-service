@@ -198,7 +198,6 @@ dependencies {
     implementation('org.springframework.data:spring-data-envers')
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk9")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")

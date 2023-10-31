@@ -38,4 +38,11 @@ class DefendantRepositoryIntTest {
 
         assertThat(matchingDefendants).isEmpty()
     }
+
+    @Test
+    fun shouldReturnCorrectDefendantsForCRN(){
+        val defendants = defendantRepository.findDefendantsByOffenderCrn("X375482")
+
+        assertThat(defendants).hasSize(1)
+    }
 }

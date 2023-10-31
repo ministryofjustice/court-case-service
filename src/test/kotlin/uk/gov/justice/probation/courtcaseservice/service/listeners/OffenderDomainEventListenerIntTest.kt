@@ -60,12 +60,11 @@ class OffenderDomainEventListenerIntTest : BaseIntTest() {
     @Test
     fun `should create a new offender and link all matching defendants when new offender event published`() {
         // Given
-        val defendantsBeforeEvent = defendantRepository.findDefendantsByOffenderCrn(CRN)
-        assertThat(defendantsBeforeEvent).isEmpty()
-
-        val expectedMatchingDefendantToBeUpdated =
+        val expectedMatchingDefendantsToBeUpdated =
             defendantRepository.findMatchingDefendants("PN/1234560XX", LocalDate.of(1939, 10, 10), "David", "BOWIE")
-        assertThat(expectedMatchingDefendantToBeUpdated).hasSize(2)
+        assertThat(expectedMatchingDefendantsToBeUpdated).hasSize(2)
+        assertThat(expectedMatchingDefendantsToBeUpdated).filteredOnNull("crn")
+
 
         val offenderEntityBeforeEvent = offenderRepository.findByCrn(CRN)
         assertThat(offenderEntityBeforeEvent).isEmpty

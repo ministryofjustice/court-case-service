@@ -163,13 +163,13 @@ env:
   - name: HMPPS_SQS_QUEUES_PICNEWOFFENDEREVENTSQUEUE_QUEUE_NAME
     valueFrom:
       secretKeyRef:
-        name: delius-offender-events-court-case-service-queue
+        name: sqs-pic-new-offender-events-secret
         key: sqs_queue_name
 
   - name: HMPPS_SQS_QUEUES_PICNEWOFFENDEREVENTSQUEUE_DLQ_NAME
     valueFrom:
       secretKeyRef:
-        name: delius-offender-events-court-case-service-dead-letter-queue
+        name: sqs-pic-new-offender-events-dlq-secret
         key: sqs_queue_name
 
   {{- with (index .Values.ingress.hosts 0)}}

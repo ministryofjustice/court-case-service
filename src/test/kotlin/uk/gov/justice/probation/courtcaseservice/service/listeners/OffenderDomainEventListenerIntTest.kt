@@ -108,7 +108,7 @@ class OffenderDomainEventListenerIntTest : BaseIntTest() {
 
     fun createDetailUrl(crn: String): String {
         val builder = StringBuilder()
-        builder.append("/probation-case.engagement.created/")
+        builder.append("https://domain-events-and-delius-dev.hmpps.service.justice.gov.uk/probation-case.engagement.created/")
         builder.append(crn)
         return builder.toString()
     }

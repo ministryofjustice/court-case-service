@@ -4,7 +4,9 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.probation.courtcaseservice.client.model.DeliusOffenderDetail
+import uk.gov.justice.probation.courtcaseservice.client.model.ProbationStatus
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository
 
@@ -47,8 +49,8 @@ class ProbationCaseEngagementService(
             deliusOffenderDetail?.identifiers?.pnc,
             "",
             emptyList(),
-            null,
-            null,
+            OffenderProbationStatus.NOT_SENTENCED,
+             true,
             false,
             false,
             false,

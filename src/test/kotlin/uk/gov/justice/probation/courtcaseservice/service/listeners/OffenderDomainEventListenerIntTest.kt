@@ -18,6 +18,7 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest
 import uk.gov.justice.probation.courtcaseservice.client.model.listeners.DomainEvent
 import uk.gov.justice.probation.courtcaseservice.client.model.listeners.PersonIdentifier
 import uk.gov.justice.probation.courtcaseservice.client.model.listeners.PersonReference
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository
@@ -88,6 +89,10 @@ class OffenderDomainEventListenerIntTest : BaseIntTest() {
 
         val offenderEntityAfterEvent = offenderRepository.findByCrn(CRN)
         assertThat(offenderEntityAfterEvent.isPresent).isTrue()
+
+        assertThat(offenderEntityAfterEvent.get().probationStatus).isEqualTo(OffenderProbationStatus.NOT_SENTENCED)
+        assertThat(offenderEntityAfterEvent.get().awaitingPsr).isTrue()
+
 
         val expectedMatchingDefendantsAfterUpdate =
             defendantRepository.findMatchingDefendants("PN/1234560XX", LocalDate.of(1939, 10, 10), "David", "BOWIE")

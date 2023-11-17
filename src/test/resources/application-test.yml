@@ -39,6 +39,9 @@ spring:
     properties:
       hibernate:
         format_sql: false
+        hbm2ddl:
+          auto: update
+
   datasource:
     url: jdbc:tc:postgresql:11.1:///courtcaseservicetest?currentSchema=courtcaseservicetest&stringtype=unspecified
     username: ituser

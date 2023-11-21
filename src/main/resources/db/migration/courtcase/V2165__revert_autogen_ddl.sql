@@ -11,6 +11,9 @@ alter table if exists case_comments alter column case_id set data type text;
 -- reverting column author from varchar(255) -> text
 alter table if exists case_comments alter column author set data type text;
 
+-- reverting column comment from varchar(255) -> text
+alter table if exists case_comments alter column comment set data type text;
+
 -- reverting column created from timestamp(6) -> timestamp
 alter table if exists case_comments alter column created set data type timestamp;
 

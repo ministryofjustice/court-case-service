@@ -1,6 +1,6 @@
 
-management:
-  endpoints:
-    web:
-      exposure:
-        exclude: "*"
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        exclude: "*"

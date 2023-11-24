@@ -7,7 +7,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info
+        include: 'health, info'
       base-path: /
   endpoint:
     beans:
@@ -15,6 +15,9 @@ management:
         time-to-live: 10s
     health:
       show-details: always
+      show-components: always
+      probes:
+        enabled: true
 
 database:
   schema:

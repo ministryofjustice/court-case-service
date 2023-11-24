@@ -26,7 +26,8 @@ public class OAuth2SecurityConfig {
                 .and()
                     .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                            "/health",
+                            "/health/**",
+                            "/info",
                             "/ping",
                             "/swagger-ui.html",
                             "/swagger-ui/**",

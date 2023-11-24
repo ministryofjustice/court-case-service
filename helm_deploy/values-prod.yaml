@@ -64,7 +64,7 @@ env:
     base_url: https://domain-events-and-delius.hmpps.service.justice.gov.uk
 
 spring:
-  profile: instrumented,prod
+  profile: instrumented
 
 resources:
   cpu:

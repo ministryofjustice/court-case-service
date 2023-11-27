@@ -1,4 +1,4 @@
-FROM openjdk:22-oracle
+FROM openjdk:19-jdk-slim-buster
 MAINTAINER HMPPS Digital Studio <info@digital.justice.gov.uk>
 
 ENV TZ=Europe/London
@@ -8,10 +8,14 @@ RUN groupadd --gid 2000 --system appgroup && \
     adduser --uid 2000 --system appuser --gid 2000
 
 # Install AWS RDS Root cert into Java truststore
-RUN mkdir /home/appuser
-RUN mkdir /home/appuser/.postgresql \
+RUN mkdir -p /home/appuser
+RUN apt -y update && apt -y upgrade
+RUN apt install -y curl
+RUN mkdir -p /home/appuser/.postgresql \
   && curl https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem \
     > /home/appuser/.postgresql/root.crt
+
+
 RUN curl https://s3.amazonaws.com/rds-downloads/rds-ca-2015-root.pem \
     >> /home/appuser/.postgresql/root.crt
 

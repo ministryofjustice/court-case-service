@@ -8,6 +8,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcome
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import java.time.LocalDate
 import jakarta.persistence.EntityManager
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 
 @Repository
 class HearingOutcomeRepositoryCustom(
@@ -18,7 +20,8 @@ class HearingOutcomeRepositoryCustom(
     fun findByCourtCodeAndHearingOutcome(
         courtCode: String,
         hearingOutcomeSearchRequest: HearingOutcomeSearchRequest
-    ): List<Pair<HearingEntity, LocalDate>> {
+    ): PageImpl<Pair<HearingEntity, LocalDate>> {
+        val pageable: Pageable = Pageable.ofSize(hearingOutcomeSearchRequest.size).withPage(if (hearingOutcomeSearchRequest.page > 0) hearingOutcomeSearchRequest.page - 1 else 0)
 
         val filterBuilder = StringBuilder()
 
@@ -63,25 +66,42 @@ class HearingOutcomeRepositoryCustom(
             }
         }
 
+        val coreQuery = """
+            from hearing h 
+            inner join hearing_outcome ho on h.fk_hearing_outcome = ho.id
+            $filterBuilder
+            inner join
+                (select fk_hearing_id as hday_hearing_id, min(hearing_day) as hearing_day from hearing_day where hearing_day.court_code = :courtCode group by fk_hearing_id) hday2
+                on hday2.hday_hearing_id = h.id	    """
+
         val searchQuery = """
             select
             h.*, hday2.hearing_day as hearing_day
-            from hearing h 
-            inner join hearing_outcome ho on h.fk_hearing_outcome = ho.id 
-                $filterBuilder
-            inner join
-                (select fk_hearing_id as hday_hearing_id, min(hearing_day) as hearing_day from hearing_day where hearing_day.court_code = :courtCode group by fk_hearing_id) hday2
-                on hday2.hday_hearing_id = h.id	      
+            $coreQuery  
             $orderByBuilder
         """
 
+        val countQuery = """
+            select
+            count(h.id)
+            $coreQuery  
+        """
+
         val jpaQuery = entityManager.createNativeQuery(searchQuery, "search_hearing_outcomes_custom")
+        val countJpaQuery = entityManager.createNativeQuery(countQuery)
 
         queryParams.entries.forEach {
             jpaQuery.setParameter(it.key, it.value)
+            countJpaQuery.setParameter(it.key, it.value)
         }
 
-        return jpaQuery.resultList.map { it as Array<Any> }.map { Pair(it[0] as HearingEntity, it[1] as LocalDate) }
+        jpaQuery.firstResult  = pageable.pageNumber * pageable.pageSize
+        jpaQuery.maxResults = pageable.pageSize
+
+        val content = jpaQuery.resultList.map { it as Array<Any> }.map { Pair(it[0] as HearingEntity, it[1] as LocalDate) }
+        val count = (countJpaQuery.singleResult as Long)
+
+        return PageImpl(content, pageable, count)
     }
 
     fun getDynamicOutcomeCountsByState(courtCode: String): Map<String, Int> {

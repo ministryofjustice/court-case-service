@@ -3,6 +3,8 @@ package uk.gov.justice.probation.courtcaseservice.service
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.probation.courtcaseservice.client.model.DeliusOffenderDetail
 import uk.gov.justice.probation.courtcaseservice.client.model.ProbationStatus
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity
@@ -41,7 +43,7 @@ class ProbationCaseEngagementService(
         }
     }
 
-    fun createOffender(deliusOffenderDetail: DeliusOffenderDetail?): OffenderEntity? {
+    private fun createOffender(deliusOffenderDetail: DeliusOffenderDetail?): OffenderEntity? {
         log.debug("Creating new offender with details {}", deliusOffenderDetail)
         val newOffender = OffenderEntity(
             null,

@@ -11,11 +11,10 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.web.server.ResponseStatusException
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCountByState
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
+import uk.gov.justice.probation.courtcaseservice.controller.model.*
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE
@@ -152,41 +151,58 @@ internal class CaseWorkflowServiceTest {
         val hearing2 = EntityHelper.aHearingEntityWithHearingId("case-id-2", "hearing-id-2", "defendant-id-2").withHearingOutcome(hearingOutcomeEntity2)
 
         given(courtRepository.findByCourtCode(COURT_CODE)).willReturn(Optional.of(CourtEntity.builder().build()))
-        given(hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(COURT_CODE, HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW))).willReturn(
-            listOf(
-                Pair<HearingEntity, LocalDate>(hearing1, EntityHelper.SESSION_START_TIME.toLocalDate()),
-                Pair<HearingEntity, LocalDate>(hearing2, EntityHelper.SESSION_START_TIME.toLocalDate())
+        given(
+            hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(
+                COURT_CODE,
+                HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW)
+            )
+        ).willReturn(
+            PageImpl(
+                listOf(
+                    Pair<HearingEntity, LocalDate>(hearing1, EntityHelper.SESSION_START_TIME.toLocalDate()),
+                    Pair<HearingEntity, LocalDate>(hearing2, EntityHelper.SESSION_START_TIME.toLocalDate())
+                ),
+                Pageable.ofSize(2),
+                9
             )
         )
 
         val hearingOutcomes = caseWorkflowService.fetchHearingOutcomes(COURT_CODE, HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW))
 
-        assertThat(hearingOutcomes).isEqualTo(listOf(
-            HearingOutcomeResponse(
-                hearingOutcomeType = HearingOutcomeType.REPORT_REQUESTED,
-                outcomeDate = LocalDateTime.of(2023, 6,6, 19, 9, 1),
-                hearingDate = EntityHelper.SESSION_START_TIME.toLocalDate(),
-                hearingId = "hearing-id-1",
-                defendantId = "defendant-id-1",
-                probationStatus = EntityHelper.PROBATION_STATUS,
-                offences = listOf(EntityHelper.OFFENCE_TITLE),
-                defendantName = EntityHelper.DEFENDANT_NAME,
-                crn = "X340906",
-                state = HearingOutcomeItemState.NEW
-            ),
-            HearingOutcomeResponse(
-                hearingOutcomeType = HearingOutcomeType.ADJOURNED,
-                outcomeDate = LocalDateTime.of(2023, 5,5, 19, 9, 5),
-                hearingDate = EntityHelper.SESSION_START_TIME.toLocalDate(),
-                hearingId = "hearing-id-2",
-                defendantId = "defendant-id-2",
-                probationStatus = EntityHelper.PROBATION_STATUS,
-                offences = listOf(EntityHelper.OFFENCE_TITLE),
-                defendantName = EntityHelper.DEFENDANT_NAME,
-                crn = "X340906",
-                state = HearingOutcomeItemState.NEW
+        assertThat(hearingOutcomes).isEqualTo(
+            HearingOutcomeCaseList(
+                listOf(
+                    HearingOutcomeResponse(
+                        hearingOutcomeType = HearingOutcomeType.REPORT_REQUESTED,
+                        outcomeDate = LocalDateTime.of(2023, 6, 6, 19, 9, 1),
+                        hearingDate = EntityHelper.SESSION_START_TIME.toLocalDate(),
+                        hearingId = "hearing-id-1",
+                        defendantId = "defendant-id-1",
+                        probationStatus = EntityHelper.PROBATION_STATUS,
+                        offences = listOf(EntityHelper.OFFENCE_TITLE),
+                        defendantName = EntityHelper.DEFENDANT_NAME,
+                        crn = "X340906",
+                        state = HearingOutcomeItemState.NEW
+                    ),
+                    HearingOutcomeResponse(
+                        hearingOutcomeType = HearingOutcomeType.ADJOURNED,
+                        outcomeDate = LocalDateTime.of(2023, 5, 5, 19, 9, 5),
+                        hearingDate = EntityHelper.SESSION_START_TIME.toLocalDate(),
+                        hearingId = "hearing-id-2",
+                        defendantId = "defendant-id-2",
+                        probationStatus = EntityHelper.PROBATION_STATUS,
+                        offences = listOf(EntityHelper.OFFENCE_TITLE),
+                        defendantName = EntityHelper.DEFENDANT_NAME,
+                        crn = "X340906",
+                        state = HearingOutcomeItemState.NEW
+                    )
+                ),
+                hearingOutcomes.countsByState,
+                        5,
+                        1,
+                        9
             )
-        ))
+        )
     }
 
     @Test

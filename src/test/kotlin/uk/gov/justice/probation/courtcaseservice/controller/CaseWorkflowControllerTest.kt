@@ -41,12 +41,12 @@ internal class CaseWorkflowControllerTest {
     @Test
     fun `should invoke service with court code and hearing state`() {
         val hearingOutcomeSearchRequest = HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW)
-        given(caseWorkflowService.fetchHearingOutcomes(COURT_CODE, hearingOutcomeSearchRequest)).willReturn(listOf())
-        given(caseWorkflowService.getOutcomeCountsByState(COURT_CODE)).willReturn(HearingOutcomeCountByState(1, 0, 2))
+        given(caseWorkflowService.fetchHearingOutcomes(COURT_CODE, hearingOutcomeSearchRequest)).willReturn(
+            HearingOutcomeCaseList(listOf(), HearingOutcomeCountByState(1,0,2), 2, 2, 9)
+        )
         val resp = caseWorkflowController.fetchHearingOutcomes(COURT_CODE, hearingOutcomeSearchRequest)
         verify(caseWorkflowService).fetchHearingOutcomes(COURT_CODE, hearingOutcomeSearchRequest)
-        verify(caseWorkflowService).getOutcomeCountsByState(COURT_CODE)
-        assertThat(resp).isEqualTo(HearingOutcomeCaseList(listOf(), HearingOutcomeCountByState(1,0,2)))
+        assertThat(resp).isEqualTo(HearingOutcomeCaseList(listOf(), HearingOutcomeCountByState(1,0,2), 2, 2, 9))
     }
 
     @Test

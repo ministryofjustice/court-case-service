@@ -3,10 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.service
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCountByState
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
+import uk.gov.justice.probation.courtcaseservice.controller.model.*
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepositoryCustom
@@ -62,7 +59,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
                 })
     }
 
-    fun fetchHearingOutcomes(courtCode: String, hearingOutcomeSearchRequest: HearingOutcomeSearchRequest): List<HearingOutcomeResponse> {
+    fun fetchHearingOutcomes(courtCode: String, hearingOutcomeSearchRequest: HearingOutcomeSearchRequest): HearingOutcomeCaseList {
         courtRepository.findByCourtCode(courtCode)
             .orElseThrow {
                 EntityNotFoundException(
@@ -70,7 +67,18 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
                     courtCode
                 )
             }
-        return hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(courtCode, hearingOutcomeSearchRequest).flatMap { HearingOutcomeResponse.of(it.first, it.second) }
+        val outcomesPage = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(
+            courtCode,
+            hearingOutcomeSearchRequest
+        )
+        val outcomes = outcomesPage.content.flatMap { HearingOutcomeResponse.of(it.first, it.second) }
+        return HearingOutcomeCaseList(
+            outcomes,
+            getOutcomeCountsByState(courtCode),
+            outcomesPage.totalPages,
+            hearingOutcomeSearchRequest.page,
+            outcomesPage.totalElements.toInt()
+        )
     }
 
     fun getOutcomeCountsByState(courtCode: String): HearingOutcomeCountByState {

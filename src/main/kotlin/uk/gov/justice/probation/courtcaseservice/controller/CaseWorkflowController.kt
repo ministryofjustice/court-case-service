@@ -42,7 +42,6 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
     @Operation(description = "Fetch hearing outcomes")
     @GetMapping(value = ["/courts/{courtCode}/hearing-outcomes"], produces = [APPLICATION_JSON_VALUE])
     fun fetchHearingOutcomes(@PathVariable("courtCode") courtCode: String, @Valid hearingOutcomeSearchRequest: HearingOutcomeSearchRequest): HearingOutcomeCaseList {
-        val cases = caseWorkflowService.fetchHearingOutcomes(courtCode, hearingOutcomeSearchRequest)
-        return HearingOutcomeCaseList(cases, caseWorkflowService.getOutcomeCountsByState(courtCode))
+        return caseWorkflowService.fetchHearingOutcomes(courtCode, hearingOutcomeSearchRequest)
     }
 }

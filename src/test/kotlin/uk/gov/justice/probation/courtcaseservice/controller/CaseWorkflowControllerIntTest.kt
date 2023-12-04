@@ -113,6 +113,9 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .body("countsByState.toResultCount", equalTo(1))
             .body("countsByState.inProgressCount", equalTo(0))
             .body("countsByState.resultedCount", equalTo(0))
+            .body("totalPages", equalTo(1))
+            .body("page", equalTo(1))
+            .body("totalElements", equalTo(1))
     }
 
     @Test
@@ -155,6 +158,9 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
                 .body("countsByState.toResultCount", equalTo(0))
                 .body("countsByState.inProgressCount", equalTo(2))
                 .body("countsByState.resultedCount", equalTo(0))
+                .body("totalPages", equalTo(1))
+                .body("page", equalTo(1))
+                .body("totalElements", equalTo(2))
     }
 
     @Test
@@ -189,6 +195,9 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
                 .body("countsByState.toResultCount", equalTo(0))
                 .body("countsByState.inProgressCount", equalTo(2))
                 .body("countsByState.resultedCount", equalTo(0))
+                .body("totalPages", equalTo(1))
+                .body("page", equalTo(1))
+                .body("totalElements", equalTo(1))
     }
 
     @Test

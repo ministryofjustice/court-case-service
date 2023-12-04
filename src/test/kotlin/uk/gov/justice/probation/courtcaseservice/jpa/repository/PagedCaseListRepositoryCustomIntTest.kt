@@ -17,6 +17,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType
 import java.time.LocalDate
 import jakarta.persistence.EntityManager
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingStatus
 
 
 @DataJpaTest
@@ -171,6 +172,47 @@ class PagedCaseListRepositoryCustomIntTest {
         assertThat(page1.totalPages).isEqualTo(1)
 
         assertThat(page1.content.map { it.first.defendant.defendantName }).isEqualTo(listOf("Mr Jeff Blogs", "Miss Esther Egge"))
+    }
+
+    @Test
+    fun shouldReturnHeardCasesCorrectly() {
+        val page1 = pagedCaseListRepositoryCustom.filterHearings(
+            "B14LO",
+            HearingSearchRequest(
+                date = LocalDate.of(2023, 7, 3), size = 5, page = 1,
+                hearingStatus = HearingStatus.HEARD
+            )
+        )
+        assertThat(page1.content.size).isEqualTo(2)
+        assertThat(page1.totalElements).isEqualTo(2)
+        assertThat(page1.totalPages).isEqualTo(1)
+        assertThat(page1.content.map { it.first.hearing.hearingId }).isEqualTo(listOf("cbafcebb-3430-4710-8557-5c93bd1e8be5", "0e6c7d7e-7057-45db-b788-210df7a9a624"))
+    }
+
+    @Test
+    fun shouldReturnUnHeardCasesCorrectly() {
+        val page1 = pagedCaseListRepositoryCustom.filterHearings(
+            "B14LO",
+            HearingSearchRequest(
+                date = LocalDate.of(2023, 7, 3), size = 20, page = 1,
+                hearingStatus = HearingStatus.UNHEARD
+            )
+        )
+        assertThat(page1.content.size).isEqualTo(9)
+        assertThat(page1.totalElements).isEqualTo(9)
+        assertThat(page1.totalPages).isEqualTo(1)
+
+        assertThat(page1.content.map { it.first.hearing.hearingId }.sorted()).isEqualTo(listOf(
+            "57e86555-bd97-43f7-ad1c-55a992b37a2d",
+            "1eb3a6da-8189-4de2-8377-da5910e486b9",
+            "4a7220b8-88bc-4417-8ee0-cfc318047b3c",
+            "85f400a9-82c9-4a9d-93ec-066d55be0c07",
+            "79c176bf-a6ff-4f82-afba-de136aae1536",
+            "af8fa3b5-d544-4c70-b4f4-3d8639197d4b",
+            "a9d0f014-3fde-41a8-a416-2dabc9e21bae",
+            "5a173167-5d34-4112-b563-afb1067d229d",
+            "eae601d7-3966-494f-a8bb-bb23989cfd6f",
+        ).sorted())
     }
 
     @TestConfiguration

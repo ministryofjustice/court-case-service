@@ -261,6 +261,7 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
             List.of(),
             false,
             false,
+            null,
             LocalDate.of(2023, 7, 3),
             1,
             5

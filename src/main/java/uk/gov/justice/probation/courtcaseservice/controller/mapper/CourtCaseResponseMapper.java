@@ -6,6 +6,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRes
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseMarker;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse.CourtCaseResponseBuilder;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseMarkerEntity;
@@ -74,7 +75,8 @@ public class CourtCaseResponseMapper {
                 .source(hearingEntity.getSourceType().name())
                 .createdToday(LocalDate.now().isEqual(Optional.ofNullable(hearingEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()))
                 .caseMarkers(buildCaseMarkers(hearingEntity))
-                .caseComments(buildCaseComments(hearingEntity));
+                .caseComments(buildCaseComments(hearingEntity))
+                .hearingOutcome(HearingOutcomeResponse.Companion.of(hearingEntity.getHearingOutcome()));
 
         if (SourceType.LIBRA == hearingEntity.getSourceType()) {
             builder.caseNo(hearingEntity.getCaseNo());

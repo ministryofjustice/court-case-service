@@ -12,6 +12,7 @@ data class HearingSearchRequest(
     val source: List<SourceType> = listOf(),
     val breach: Boolean = false,
     val recentlyAdded: Boolean = false,
+    val hearingStatus: HearingStatus? = null,
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     val date: LocalDate = LocalDate.now(),
     val page: Int = 1,

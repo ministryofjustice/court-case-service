@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingStatus
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession.MORNING
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 
@@ -67,9 +68,16 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
             session = """ and extract(hour from hday.hearing_time) ${ if(sessionFilter[0] == MORNING) " < 12 " else " >= 12 "} """
         }
 
+        val hearingStatusFilter = """
+            ${ if(hearingSearchRequest.hearingStatus == HearingStatus.HEARD) " and h.fk_hearing_outcome is NOT null " else ""}
+            ${ if(hearingSearchRequest.hearingStatus == HearingStatus.UNHEARD) " and h.fk_hearing_outcome is null " else ""}
+        """.trimIndent()
+
         val joins = """
                 $BASE_JOINS
-                $HEARING_JOIN ${ if(hearingSearchRequest.recentlyAdded) " and date(h.first_created) = date(now()) " else ""}
+                $HEARING_JOIN 
+                    ${ if(hearingSearchRequest.recentlyAdded) " and date(h.first_created) = date(now()) " else ""}
+                    $hearingStatusFilter
                 $COURT_CASE_JOIN
                 ${if (hasProbationStatusFilter || hearingSearchRequest.breach) JOIN_OFFENDER else ""}
             """.trimIndent()

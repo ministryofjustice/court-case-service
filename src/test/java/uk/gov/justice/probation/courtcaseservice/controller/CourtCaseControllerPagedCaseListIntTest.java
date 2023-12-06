@@ -111,6 +111,7 @@ public class CourtCaseControllerPagedCaseListIntTest extends BaseIntTest {
             .body("cases[2].source", equalTo("LIBRA"))
             .body("cases[2].caseId", equalTo("cbafcebb-3430-4710-8557-5c93bd1e8be5"))
             .body("cases[2].hearingId", equalTo("cbafcebb-3430-4710-8557-5c93bd1e8be5"))
+            .body("cases[2].hearingOutcome.hearingOutcomeType", equalTo("REPORT_REQUESTED"))
             .body("cases[2].listNo", equalTo("1st"))
             .body("cases[2].session", equalTo("MORNING"))
             .body("cases[2].defendantType", equalTo("PERSON"))

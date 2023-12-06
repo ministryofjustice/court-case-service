@@ -569,6 +569,7 @@ class ImmutableCourtCaseServiceTest {
                 List.of(),
                 false,
                 false,
+                null,
                 hearingDay,
                 1,
                 5

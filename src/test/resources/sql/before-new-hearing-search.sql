@@ -11,11 +11,6 @@ VALUES
     (7733, 'eae601d7-3966-494f-a8bb-bb23989cfd6f','23070328168837648313','2023-07-03 10:29:41.651','(court-case-matcher-7)',false,'LIBRA','12GD3634519','2023-07-03 10:29:41.651','(court-case-matcher-7)',0),
     (7734, '0e6c7d7e-7057-45db-b788-210df7a9a624','23070328168837648314','2023-07-03 10:29:48.692','(court-case-matcher-7)',false,'LIBRA','12GD3434519','2023-07-03 10:29:48.692','(court-case-matcher-7)',0);
 
-INSERT INTO hearing_outcome (id, outcome_type,created,created_by,deleted,last_updated,last_updated_by,"version",outcome_date,state)
-VALUES
-    (5, 'REPORT_REQUESTED','2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',false,'2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',0,'2023-07-11 16:55:18.496','NEW'),
-    (4, 'REPORT_REQUESTED','2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',false,'2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',0,'2023-07-11 16:55:18.496','NEW');
-
 INSERT INTO hearing (id, hearing_id,created,created_by,deleted,fk_court_case_id_remove,first_created,hearing_event_type,hearing_type,list_no,fk_court_case_id,last_updated,last_updated_by,"version",fk_hearing_outcome)
 VALUES
     (5002, '57e86555-bd97-43f7-ad1c-55a992b37a2d','2023-05-11 09:25:45.646','(court-case-matcher-7)',false,NULL,'2023-05-11 09:25:45.270','UNKNOWN','Sentence',NULL,6252,'2023-07-18 15:47:08.368','(court-case-matcher-7)',1,NULL),
@@ -113,3 +108,8 @@ VALUES
     (3466, false,'D002317',NULL,'NAME_DOB',NULL,3395,'2023-07-03 10:28:27.614','2023-07-03 10:28:27.614','(court-case-matcher-7)','(court-case-matcher-7)',false,0,false,NULL,0.9999918796),
     (3467, false,'D002319',NULL,'NAME_DOB',NULL,3395,'2023-07-03 10:28:27.616','2023-07-03 10:28:27.616','(court-case-matcher-7)','(court-case-matcher-7)',false,0,false,NULL,0.9999918796),
     (3468, false,'X375482',NULL,'NAME_DOB',NULL,3396,'2023-07-03 10:28:31.702','2023-07-03 10:28:31.702','(court-case-matcher-7)','(court-case-matcher-7)',false,0,false,NULL,0.9999918796);
+
+INSERT INTO hearing_outcome (id, outcome_type,created,created_by,deleted,last_updated,last_updated_by,"version",outcome_date,state, fk_hearing_id)
+VALUES
+    (5, 'REPORT_REQUESTED','2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',false,'2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',0,'2023-07-11 16:55:18.496','NEW', 5087),
+    (4, 'REPORT_REQUESTED','2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',false,'2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',0,'2023-07-11 16:55:18.496','NEW', 5096);

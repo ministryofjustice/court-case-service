@@ -37,6 +37,11 @@ spring:
     locations: classpath:db/migration/courtcase
   jpa:
     show-sql: true
+    properties:
+      hibernate:
+        integration:
+          envers:
+            enabled: false
 
 
 hmpps.sqs:

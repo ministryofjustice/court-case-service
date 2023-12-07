@@ -1,15 +1,6 @@
 INSERT INTO courtcaseservicetest.OFFENDER (id, crn, pnc, cro, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
 VALUES (-1000001, 'X320741', 'PNCINT007', 'CROINT007', 'CURRENT', '2010-01-01', true, true, true, true, 'court-case-history.sql');
 
-INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, outcome_date, state, created, created_by, assigned_to, assigned_to_uuid)
-VALUES (-1700020001, 'ADJOURNED', '2023-4-24 09:09:09', 'NEW', now(), 'case-progress.sql', 'Joe Blogs', '4b03d065-4c96-4b24-8d6d-75a45d2e3f12');
-
-INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, outcome_date, state, created, created_by, assigned_to, assigned_to_uuid)
-VALUES (-1700020003, 'ADJOURNED', '2023-4-24 09:09:09', 'IN_PROGRESS', now(), 'case-progress.sql', 'Joe Blogs', '4b03d065-4c96-4b24-8d6d-75a45d2e3f12');
-
-INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, outcome_date, state, created, created_by, assigned_to, assigned_to_uuid)
-VALUES (-1700020002, 'ADJOURNED', '2023-4-24 09:09:09', 'IN_PROGRESS', now(), 'case-progress.sql', 'John Smith', '8f69def4-3c52-11ee-be56-0242ac120002');
-
 INSERT INTO courtcaseservicetest.court_case (id, case_id, created, source_type, urn) VALUES (-1700028600, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', now(), 'COMMON_PLATFORM', 'URN008');
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, hearing_type, created, fk_hearing_outcome) VALUES (-1700028600, -1700028600, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'Sentence', TO_TIMESTAMP('2019-12-14 9:00:00', 'YYYY-MM-DD HH:MI:SS'), -1700020002);
 INSERT INTO courtcaseservicetest.hearing (id, fk_court_case_id, hearing_id, hearing_type, created, fk_hearing_outcome) VALUES (-1700028898, -1700028600, '2aa6f5e0-f842-4939-bc6a-01346abc09e7', 'Hearing', TO_TIMESTAMP('2019-10-14 9:00:00', 'YYYY-MM-DD HH:MI:SS'), -1700020001);
@@ -54,3 +45,12 @@ INSERT INTO courtcaseservicetest.OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SU
 VALUES (-1000100, -1000110, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, 10);
 INSERT INTO courtcaseservicetest.OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-1000101, -1000110, 'Theft from a different shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 2);
+
+INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, outcome_date, state, created, created_by, assigned_to, assigned_to_uuid, fk_hearing_id)
+VALUES (-1700020001, 'ADJOURNED', '2023-4-24 09:09:09', 'NEW', now(), 'case-progress.sql', 'Joe Blogs', '4b03d065-4c96-4b24-8d6d-75a45d2e3f12', -1700028898);
+
+INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, outcome_date, state, created, created_by, assigned_to, assigned_to_uuid, fk_hearing_id)
+VALUES (-1700020003, 'ADJOURNED', '2023-4-24 09:09:09', 'IN_PROGRESS', now(), 'case-progress.sql', 'Joe Blogs', '4b03d065-4c96-4b24-8d6d-75a45d2e3f12', -1700028897);
+
+INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, outcome_date, state, created, created_by, assigned_to, assigned_to_uuid, fk_hearing_id)
+VALUES (-1700020002, 'ADJOURNED', '2023-4-24 09:09:09', 'IN_PROGRESS', now(), 'case-progress.sql', 'John Smith', '8f69def4-3c52-11ee-be56-0242ac120002', -1700028600);

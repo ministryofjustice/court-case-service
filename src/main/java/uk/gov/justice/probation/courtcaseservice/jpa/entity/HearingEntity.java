@@ -90,8 +90,7 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
     @Column(name = "LIST_NO")
     private String listNo;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "FK_HEARING_OUTCOME", referencedColumnName = "id")
+    @OneToOne(mappedBy = "hearing", cascade = CascadeType.ALL)
     private HearingOutcomeEntity hearingOutcome;
 
     public String getCaseId() {

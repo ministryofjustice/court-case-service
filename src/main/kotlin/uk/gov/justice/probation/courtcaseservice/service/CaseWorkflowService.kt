@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
@@ -13,7 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFou
 import java.time.LocalDateTime
 
 @Service
-class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRepository: CourtRepository, val hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom) {
+class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRepository: CourtRepository, val hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom, @Value("hearing_outcomes.move_un_resulted_to_outcomes_courts") val courtCodes: List<String> = listOf()) {
 
     fun addOrUpdateHearingOutcome(hearingId: String, hearingOutcomeType: HearingOutcomeType) {
         hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
@@ -87,5 +88,13 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
             dynamicOutcomeCountsByState[HearingOutcomeItemState.NEW.name] ?: 0,
             dynamicOutcomeCountsByState[HearingOutcomeItemState.IN_PROGRESS.name] ?: 0,
             dynamicOutcomeCountsByState[HearingOutcomeItemState.RESULTED.name] ?: 0)
+    }
+
+    fun processUnResultedCases() {
+        if (this.courtCodes.isEmpty()) {
+            hearingRepository.moveUnResultedCasesToOutcomesWorkflow()
+        } else {
+            hearingRepository.moveUnResultedCasesToOutcomesWorkflow(courtCodes)
+        }
     }
 }

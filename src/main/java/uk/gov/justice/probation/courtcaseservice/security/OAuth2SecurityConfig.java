@@ -34,7 +34,7 @@ public class OAuth2SecurityConfig {
                             "/v3/api-docs/**",
                             "/queue-admin/retry-all-dlqs"
                         ).permitAll()
-                        .anyRequest().hasAnyRole("PREPARE_A_CASE", "GLOBAL_SEARCH")
+                        .anyRequest().hasRole("PREPARE_A_CASE")
                     ).oauth2ResourceServer().jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());
         return http.build();
     }

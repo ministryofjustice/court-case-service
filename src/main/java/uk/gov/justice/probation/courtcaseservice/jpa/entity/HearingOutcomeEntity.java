@@ -65,7 +65,8 @@ public class HearingOutcomeEntity extends BaseAuditedEntity implements Serializa
     @Column(name = "ASSIGNED_TO_UUID")
     private String assignedToUuid;
 
-    @OneToOne(mappedBy = "hearingOutcome")
+    @OneToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "FK_HEARING_ID", referencedColumnName = "id")
     private HearingEntity hearing;
 
     public void update(HearingOutcomeType hearingOutcomeType) {

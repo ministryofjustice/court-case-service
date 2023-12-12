@@ -11,24 +11,19 @@ VALUES
     (7733, 'eae601d7-3966-494f-a8bb-bb23989cfd6f','23070328168837648313','2023-07-03 10:29:41.651','(court-case-matcher-7)',false,'LIBRA','12GD3634519','2023-07-03 10:29:41.651','(court-case-matcher-7)',0),
     (7734, '0e6c7d7e-7057-45db-b788-210df7a9a624','23070328168837648314','2023-07-03 10:29:48.692','(court-case-matcher-7)',false,'LIBRA','12GD3434519','2023-07-03 10:29:48.692','(court-case-matcher-7)',0);
 
-INSERT INTO hearing_outcome (id, outcome_type,created,created_by,deleted,last_updated,last_updated_by,"version",outcome_date,state)
+INSERT INTO hearing (id, hearing_id,created,created_by,deleted,fk_court_case_id_remove,first_created,hearing_event_type,hearing_type,list_no,fk_court_case_id,last_updated,last_updated_by,"version")
 VALUES
-    (5, 'REPORT_REQUESTED','2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',false,'2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',0,'2023-07-11 16:55:18.496','NEW'),
-    (4, 'REPORT_REQUESTED','2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',false,'2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',0,'2023-07-11 16:55:18.496','NEW');
-
-INSERT INTO hearing (id, hearing_id,created,created_by,deleted,fk_court_case_id_remove,first_created,hearing_event_type,hearing_type,list_no,fk_court_case_id,last_updated,last_updated_by,"version",fk_hearing_outcome)
-VALUES
-    (5002, '57e86555-bd97-43f7-ad1c-55a992b37a2d','2023-05-11 09:25:45.646','(court-case-matcher-7)',false,NULL,'2023-05-11 09:25:45.270','UNKNOWN','Sentence',NULL,6252,'2023-07-18 15:47:08.368','(court-case-matcher-7)',1,NULL),
-    (5059, '1eb3a6da-8189-4de2-8377-da5910e486b9','2023-06-07 12:06:12.165','(court-case-matcher-7)',false,NULL,now(),'UNKNOWN',NULL,'4th',7699,'2023-06-07 12:06:12.165','(court-case-matcher-7)',0,NULL),
-    (5061, '4a7220b8-88bc-4417-8ee0-cfc318047b3c','2023-06-07 12:07:40.813','(court-case-matcher-7)',false,NULL,'2023-06-07 12:07:40.795','UNKNOWN',NULL,'',7699,'2023-06-07 12:07:40.813','(court-case-matcher-7)',0,NULL),
-    (5085, '85f400a9-82c9-4a9d-93ec-066d55be0c07','2023-07-03 10:28:20.769','(court-case-matcher-7)',false,NULL,'2023-07-03 10:28:20.741','UNKNOWN',NULL,'1st',7723,'2023-07-03 10:28:20.769','(court-case-matcher-7)',0,NULL),
-    (5086, '79c176bf-a6ff-4f82-afba-de136aae1536','2023-07-03 10:28:26.055','(court-case-matcher-7)',false,NULL,'2023-07-03 10:28:26.049','UNKNOWN',NULL,'1st',7724,'2023-07-03 10:28:26.055','(court-case-matcher-7)',0,NULL),
-    (5087, 'cbafcebb-3430-4710-8557-5c93bd1e8be5','2023-07-03 10:28:31.420','(court-case-matcher-7)',false,NULL,'2023-07-03 10:28:31.405','UNKNOWN',NULL,'1st',7725,'2023-07-11 16:55:18.772','AUTH_RO_USER(prepare-a-case-for-court)',1,5),
-    (5088, 'af8fa3b5-d544-4c70-b4f4-3d8639197d4b','2023-07-03 10:28:38.099','(court-case-matcher-7)',false,NULL,now(),'UNKNOWN',NULL,'1st',7726,'2023-07-03 10:28:38.099','(court-case-matcher-7)',0,NULL),
-    (5092, 'a9d0f014-3fde-41a8-a416-2dabc9e21bae','2023-07-03 10:29:28.553','(court-case-matcher-7)',false,NULL,'2023-07-03 10:29:28.546','UNKNOWN',NULL,'1st',7730,'2023-07-03 10:29:28.553','(court-case-matcher-7)',0,NULL),
-    (5094, '5a173167-5d34-4112-b563-afb1067d229d','2023-07-03 10:29:36.850','(court-case-matcher-7)',false,NULL,'2023-07-03 10:29:36.843','UNKNOWN',NULL,'1st',7732,'2023-07-03 10:29:36.850','(court-case-matcher-7)',0,NULL),
-    (5095, 'eae601d7-3966-494f-a8bb-bb23989cfd6f','2023-07-03 10:29:41.651','(court-case-matcher-7)',false,NULL,'2023-07-03 10:29:41.643','UNKNOWN',NULL,'1st',7733,'2023-07-03 10:29:41.651','(court-case-matcher-7)',0,NULL),
-    (5096, '0e6c7d7e-7057-45db-b788-210df7a9a624','2023-07-03 10:29:48.692','(court-case-matcher-7)',false,NULL,'2023-07-03 10:29:48.685','UNKNOWN',NULL,'1st',7734,'2023-07-11 16:50:33.444','AUTH_RO_USER(prepare-a-case-for-court)',1,4);
+    (5002, '57e86555-bd97-43f7-ad1c-55a992b37a2d','2023-05-11 09:25:45.646','(court-case-matcher-7)',false,NULL,'2023-05-11 09:25:45.270','UNKNOWN','Sentence',NULL,6252,'2023-07-18 15:47:08.368','(court-case-matcher-7)',1),
+    (5059, '1eb3a6da-8189-4de2-8377-da5910e486b9','2023-06-07 12:06:12.165','(court-case-matcher-7)',false,NULL,now(),'UNKNOWN',NULL,'4th',7699,'2023-06-07 12:06:12.165','(court-case-matcher-7)',0),
+    (5061, '4a7220b8-88bc-4417-8ee0-cfc318047b3c','2023-06-07 12:07:40.813','(court-case-matcher-7)',false,NULL,'2023-06-07 12:07:40.795','UNKNOWN',NULL,'',7699,'2023-06-07 12:07:40.813','(court-case-matcher-7)',0),
+    (5085, '85f400a9-82c9-4a9d-93ec-066d55be0c07','2023-07-03 10:28:20.769','(court-case-matcher-7)',false,NULL,'2023-07-03 10:28:20.741','UNKNOWN',NULL,'1st',7723,'2023-07-03 10:28:20.769','(court-case-matcher-7)',0),
+    (5086, '79c176bf-a6ff-4f82-afba-de136aae1536','2023-07-03 10:28:26.055','(court-case-matcher-7)',false,NULL,'2023-07-03 10:28:26.049','UNKNOWN',NULL,'1st',7724,'2023-07-03 10:28:26.055','(court-case-matcher-7)',0),
+    (5087, 'cbafcebb-3430-4710-8557-5c93bd1e8be5','2023-07-03 10:28:31.420','(court-case-matcher-7)',false,NULL,'2023-07-03 10:28:31.405','UNKNOWN',NULL,'1st',7725,'2023-07-11 16:55:18.772','AUTH_RO_USER(prepare-a-case-for-court)',1),
+    (5088, 'af8fa3b5-d544-4c70-b4f4-3d8639197d4b','2023-07-03 10:28:38.099','(court-case-matcher-7)',false,NULL,now(),'UNKNOWN',NULL,'1st',7726,'2023-07-03 10:28:38.099','(court-case-matcher-7)',0),
+    (5092, 'a9d0f014-3fde-41a8-a416-2dabc9e21bae','2023-07-03 10:29:28.553','(court-case-matcher-7)',false,NULL,'2023-07-03 10:29:28.546','UNKNOWN',NULL,'1st',7730,'2023-07-03 10:29:28.553','(court-case-matcher-7)',0),
+    (5094, '5a173167-5d34-4112-b563-afb1067d229d','2023-07-03 10:29:36.850','(court-case-matcher-7)',false,NULL,'2023-07-03 10:29:36.843','UNKNOWN',NULL,'1st',7732,'2023-07-03 10:29:36.850','(court-case-matcher-7)',0),
+    (5095, 'eae601d7-3966-494f-a8bb-bb23989cfd6f','2023-07-03 10:29:41.651','(court-case-matcher-7)',false,NULL,'2023-07-03 10:29:41.643','UNKNOWN',NULL,'1st',7733,'2023-07-03 10:29:41.651','(court-case-matcher-7)',0),
+    (5096, '0e6c7d7e-7057-45db-b788-210df7a9a624','2023-07-03 10:29:48.692','(court-case-matcher-7)',false,NULL,'2023-07-03 10:29:48.685','UNKNOWN',NULL,'1st',7734,'2023-07-11 16:50:33.444','AUTH_RO_USER(prepare-a-case-for-court)',1);
 
 INSERT INTO hearing_day (id,fk_hearing_id,hearing_day,hearing_time,court_code,court_room,created,created_by,last_updated,last_updated_by,"version",deleted)
 VALUES
@@ -113,3 +108,8 @@ VALUES
     (3466, false,'D002317',NULL,'NAME_DOB',NULL,3395,'2023-07-03 10:28:27.614','2023-07-03 10:28:27.614','(court-case-matcher-7)','(court-case-matcher-7)',false,0,false,NULL,0.9999918796),
     (3467, false,'D002319',NULL,'NAME_DOB',NULL,3395,'2023-07-03 10:28:27.616','2023-07-03 10:28:27.616','(court-case-matcher-7)','(court-case-matcher-7)',false,0,false,NULL,0.9999918796),
     (3468, false,'X375482',NULL,'NAME_DOB',NULL,3396,'2023-07-03 10:28:31.702','2023-07-03 10:28:31.702','(court-case-matcher-7)','(court-case-matcher-7)',false,0,false,NULL,0.9999918796);
+
+INSERT INTO hearing_outcome (id, outcome_type,created,created_by,deleted,last_updated,last_updated_by,"version",outcome_date,state, fk_hearing_id)
+VALUES
+    (5, 'REPORT_REQUESTED','2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',false,'2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',0,'2023-07-11 16:55:18.496','NEW', 5087),
+    (4, 'REPORT_REQUESTED','2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',false,'2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',0,'2023-07-11 16:55:18.496','NEW', 5096);

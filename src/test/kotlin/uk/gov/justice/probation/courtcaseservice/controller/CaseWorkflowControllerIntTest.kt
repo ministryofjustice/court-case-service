@@ -6,7 +6,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase
 import org.springframework.test.context.jdbc.SqlConfig
@@ -14,6 +16,7 @@ import org.springframework.test.context.jdbc.SqlConfig.TransactionMode
 import org.springframework.web.util.UriComponentsBuilder
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
+import uk.gov.justice.probation.courtcaseservice.service.CaseWorkflowService
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper
 import java.net.URI
 
@@ -39,6 +42,8 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
     @Autowired
     lateinit var hearingRepository: HearingRepository
 
+    @SpyBean
+    lateinit var caseWorkflowService: CaseWorkflowService
 
     @Test
     fun `given hearing id and outcome should record hearing outcome`() {
@@ -303,5 +308,15 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
         val hearing = hearingRepository.findFirstByHearingId(hearingId).get()
         assertThat(hearing.hearingOutcome.state).isEqualTo("RESULTED")
         assertThat(hearing.hearingOutcome.resultedDate).isNotNull()
+    }
+
+    @Test fun `should trigger move un resulted cases to outcomes workflow`() {
+        given()
+            .`when`()
+            .get("/process-un-resulted-cases")
+            .then()
+            .statusCode(200)
+
+        verify(caseWorkflowService).processUnResultedCases()
     }
 }

@@ -1,8 +1,11 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.server.ResponseStatusException
 import uk.gov.justice.probation.courtcaseservice.controller.model.*
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
@@ -12,9 +15,19 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositor
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
 import java.time.LocalDateTime
+import java.time.LocalTime
+import java.util.Optional
 
 @Service
-class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRepository: CourtRepository, val hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom, @Value("hearing_outcomes.move_un_resulted_to_outcomes_courts") val courtCodes: List<String> = listOf()) {
+class CaseWorkflowService(val hearingRepository: HearingRepository,
+                          val courtRepository: CourtRepository,
+                          val hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom,
+                          val telemetryService: TelemetryService,
+                          @Value("\${hearing_outcomes.move_un_resulted_to_outcomes_courts:}")
+                          val courtCodes: List<String> = listOf(),
+                          @Value("\${hearing_outcomes.move_un_resulted_to_outcomes_cutoff_time:18:30}")
+                          @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+                          val cutOffTime: LocalTime = LocalTime.of(18, 30)) {
 
     fun addOrUpdateHearingOutcome(hearingId: String, hearingOutcomeType: HearingOutcomeType) {
         hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
@@ -90,11 +103,26 @@ class CaseWorkflowService(val hearingRepository: HearingRepository, val courtRep
             dynamicOutcomeCountsByState[HearingOutcomeItemState.RESULTED.name] ?: 0)
     }
 
+    @Transactional
     fun processUnResultedCases() {
-        if (this.courtCodes.isEmpty()) {
-            hearingRepository.moveUnResultedCasesToOutcomesWorkflow()
-        } else {
-            hearingRepository.moveUnResultedCasesToOutcomesWorkflow(courtCodes)
+
+        var count: Optional<Int> = Optional.ofNullable(0)
+
+        try {
+            if(LocalTime.now().isBefore(cutOffTime)) {
+                throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invoked before cutoff time: $cutOffTime")
+            }
+
+            count = if (this.courtCodes.isEmpty()) {
+                hearingRepository.moveUnResultedCasesToOutcomesWorkflow()
+            } else {
+                hearingRepository.moveUnResultedCasesToOutcomesWorkflow(courtCodes)
+            }
+
+            telemetryService.trackMoveUnResultedCasesToOutcomesFlowJob(count.get(), courtCodes, null)
+        } catch (e: Exception) {
+            telemetryService.trackMoveUnResultedCasesToOutcomesFlowJob(count.get(), courtCodes, e)
+            throw e
         }
     }
 }

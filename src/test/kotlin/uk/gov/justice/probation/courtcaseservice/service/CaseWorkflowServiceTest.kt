@@ -2,17 +2,18 @@ package uk.gov.justice.probation.courtcaseservice.service
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert.assertThrows
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito.*
 import org.mockito.Captor
-import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.server.ResponseStatusException
 import uk.gov.justice.probation.courtcaseservice.controller.model.*
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity
@@ -27,6 +28,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenE
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.*
 
 
@@ -42,11 +44,17 @@ internal class CaseWorkflowServiceTest {
     @Mock
     lateinit var courtRepository: CourtRepository
 
-    @InjectMocks
+    @Mock
+    lateinit var telemetryService: TelemetryService
+
     lateinit var caseWorkflowService: CaseWorkflowService
 
     @Captor
     lateinit var hearingEntityCaptor: ArgumentCaptor<HearingEntity>
+    @BeforeEach
+    fun initTest() {
+         caseWorkflowService = CaseWorkflowService(hearingRepository, courtRepository, hearingOutcomeRepositoryCustom, telemetryService)
+    }
 
     @Test
     fun `given hearing outcome and hearing id exist should add hearing outcome`() {
@@ -293,5 +301,47 @@ internal class CaseWorkflowServiceTest {
         var result = caseWorkflowService.getOutcomeCountsByState(courtCode)
         verify(hearingOutcomeRepositoryCustom).getDynamicOutcomeCountsByState(courtCode)
         assertThat(result).isEqualTo(HearingOutcomeCountByState(2, 0, 5))
+    }
+
+    @Test
+    fun `given no court codes, when process un resulted cases, then invoke processUnResultedCases on repository without court codes`() {
+        var caseWorkflowService = CaseWorkflowService(hearingRepository, courtRepository, hearingOutcomeRepositoryCustom,
+            telemetryService, listOf(), LocalTime.now().minusHours(1))
+
+        given(hearingRepository.moveUnResultedCasesToOutcomesWorkflow()).willReturn(Optional.of(2))
+
+        caseWorkflowService.processUnResultedCases()
+
+        verify(hearingRepository).moveUnResultedCasesToOutcomesWorkflow()
+        verifyNoMoreInteractions(hearingRepository)
+        verify(telemetryService).trackMoveUnResultedCasesToOutcomesFlowJob(2, listOf(), null)
+    }
+    @Test
+    fun `given court codes, when process un resulted cases, then invoke processUnResultedCases on repository with court codes`() {
+        val courtCodes = listOf("CRT001", "CRT002")
+        var caseWorkflowService = CaseWorkflowService(hearingRepository, courtRepository, hearingOutcomeRepositoryCustom,
+            telemetryService, courtCodes, LocalTime.now().minusHours(1))
+
+        given(hearingRepository.moveUnResultedCasesToOutcomesWorkflow(courtCodes)).willReturn(Optional.of(2))
+
+        caseWorkflowService.processUnResultedCases()
+
+        verify(hearingRepository).moveUnResultedCasesToOutcomesWorkflow(courtCodes)
+        verifyNoMoreInteractions(hearingRepository)
+        verify(telemetryService).trackMoveUnResultedCasesToOutcomesFlowJob(2, courtCodes, null)
+    }
+
+    @Test
+    fun `given invoked before cut off time, when process un resulted cases, then throw error`() {
+        val cutOffTime = LocalTime.now().plusHours(1)
+        var caseWorkflowService = CaseWorkflowService(hearingRepository, courtRepository, hearingOutcomeRepositoryCustom,
+            telemetryService, listOf(), cutOffTime
+        )
+
+        var e = assertThrows(HttpClientErrorException::class.java) { caseWorkflowService.processUnResultedCases() }
+
+        assertThat(e.message).isEqualTo("400 Invoked before cutoff time: $cutOffTime")
+        verifyNoInteractions(hearingRepository)
+        verify(telemetryService).trackMoveUnResultedCasesToOutcomesFlowJob(0, listOf(), e)
     }
 }

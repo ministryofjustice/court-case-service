@@ -1,0 +1,81 @@
+package uk.gov.justice.probation.courtcaseservice.service
+
+import org.junit.jupiter.api.Assertions.*
+
+import jakarta.persistence.EntityManager
+import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.context.annotation.Bean
+import org.springframework.format.annotation.DateTimeFormat
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.jdbc.Sql
+import org.springframework.test.context.jdbc.SqlConfig
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepositoryCustom
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
+import java.time.LocalTime
+
+@DataJpaTest
+@ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Sql(
+    scripts = ["classpath:sql/before-common.sql", "classpath:sql/hearing-outcomes-unresulted-cases.sql"],
+    config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),
+    executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
+)
+internal class CaseWorkflowServiceIntTest {
+
+    @Autowired
+    lateinit var caseWorkflowService: CaseWorkflowService
+    @Autowired
+    lateinit var hearingRepository: HearingRepository
+    @MockBean
+    lateinit var telemetryService: TelemetryService
+
+    @Test
+    fun shouldMoveUnHeardCasesToOutcomesWorkflow() {
+        caseWorkflowService.processUnResultedCases()
+
+        var ho1 = hearingRepository.findFirstByHearingId("2aa6f5e0-f842-4939-bc6a-01346abc09e7").get().hearingOutcome
+
+        Assertions.assertThat(ho1.outcomeType).isEqualTo(HearingOutcomeType.ADJOURNED.name)
+        Assertions.assertThat(ho1.state).isEqualTo(HearingOutcomeItemState.RESULTED.name)
+
+        var ho2 = hearingRepository.findFirstByHearingId("1f93aa0a-7e46-4885-a1cb-f25a4be33a00").get().hearingOutcome
+
+        Assertions.assertThat(ho2.outcomeType).isEqualTo(HearingOutcomeType.NO_OUTCOME.name)
+        Assertions.assertThat(ho2.state).isEqualTo(HearingOutcomeItemState.NEW.name)
+
+        var ho3 = hearingRepository.findFirstByHearingId("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636").get().hearingOutcome
+        Assertions.assertThat(ho3).isNull()
+    }
+
+    @org.springframework.boot.test.context.TestConfiguration
+    class TestConfiguration {
+        @Bean
+        fun caseWorkflowService(@Autowired hearingRepository: HearingRepository,
+                                @Autowired hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom,
+                                @Autowired telemetryService: TelemetryService,
+                                @Autowired courtRepository: CourtRepository,
+                                @Value("\${hearing_outcomes.move_un_resulted_to_outcomes_cutoff_time}")
+                                @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+                                cutOffTime: LocalTime): CaseWorkflowService {
+            return CaseWorkflowService(hearingRepository, courtRepository, hearingOutcomeRepositoryCustom, telemetryService, listOf(), cutOffTime)
+        }
+
+        @Bean
+        fun pagedCaseListRepositoryCustom(entityManager: EntityManager): HearingOutcomeRepositoryCustom {
+            return HearingOutcomeRepositoryCustom(entityManager)
+        }
+        @Bean
+        fun hearingOutcomeRepositoryCustom(entityManager: EntityManager): HearingOutcomeRepositoryCustom {
+            return HearingOutcomeRepositoryCustom(entityManager)
+        }
+    }
+}

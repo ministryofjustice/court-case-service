@@ -248,6 +248,22 @@ public class TelemetryService {
 
     }
 
+    public void trackMoveUnResultedCasesToOutcomesFlowJob(int recordsProcessed, List<String> courts, Exception error) {
+        Map<String, String> properties = new HashMap<>();
+
+        properties.put("recordsProcessed", String.valueOf(recordsProcessed));
+
+        ofNullable(courts)
+                .ifPresent(c -> properties.put("courts", c.toString()));
+
+        ofNullable(error)
+                .ifPresent(e -> properties.put("error", e.getMessage()));
+
+        addRequestProperties(properties);
+
+        telemetryClient.trackEvent(TelemetryEventType.PIC_MOVE_UN_RESULTED_CASES_TO_OUTCOMES_WORKFLOW.eventName, properties, Collections.emptyMap());
+    }
+
     private void addRequestProperties(Map<String, String> properties) {
         Optional.ofNullable(clientDetails.getUsername())
                 .ifPresent((caseNo) -> properties.put("username", caseNo));

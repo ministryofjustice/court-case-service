@@ -32,7 +32,8 @@ public class OAuth2SecurityConfig {
                             "/swagger-ui.html",
                             "/swagger-ui/**",
                             "/v3/api-docs/**",
-                            "/queue-admin/retry-all-dlqs"
+                            "/queue-admin/retry-all-dlqs",
+                            "/process-un-resulted-cases"
                         ).permitAll()
                         .anyRequest().hasAnyRole("PREPARE_A_CASE")
                     ).oauth2ResourceServer().jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());

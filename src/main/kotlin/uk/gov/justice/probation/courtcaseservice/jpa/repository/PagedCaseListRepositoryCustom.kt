@@ -69,7 +69,7 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
         }
 
         val hearingStatusFilter = """
-            ${ if(hearingSearchRequest.hearingStatus == HearingStatus.HEARD) " join hearing_outcome ho on ho.fk_hearing_id = h.id " else ""}
+            ${ if(hearingSearchRequest.hearingStatus == HearingStatus.HEARD) " join hearing_outcome ho on ho.fk_hearing_id = h.id and ho.outcome_type != 'NO_OUTCOME' " else ""}
             ${ if(hearingSearchRequest.hearingStatus == HearingStatus.UNHEARD) " left join hearing_outcome ho on h.id = ho.fk_hearing_id " else ""}
         """.trimIndent()
 
@@ -87,7 +87,7 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
             ${ if(hasCourtRoom) " and hday.court_room in (:$P_COURT_ROOM)" else "" }
             ${ if(hasSourceFilter) " and cc.source_type = :$P_SOURCE" else "" }
             ${ if(hearingSearchRequest.breach) " and o.breach is true " else ""}
-            ${ if(hearingSearchRequest.hearingStatus == HearingStatus.UNHEARD) " and ho.fk_hearing_id is null " else ""}
+            ${ if(hearingSearchRequest.hearingStatus == HearingStatus.UNHEARD) " and ( ho.fk_hearing_id is null OR ho.outcome_type = 'NO_OUTCOME' ) " else ""}
             $session
             """.trimIndent()
 

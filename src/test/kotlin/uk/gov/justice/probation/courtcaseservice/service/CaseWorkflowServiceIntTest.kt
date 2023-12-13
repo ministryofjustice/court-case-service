@@ -3,7 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.service
 import org.junit.jupiter.api.Assertions.*
 
 import jakarta.persistence.EntityManager
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -40,20 +40,23 @@ internal class CaseWorkflowServiceIntTest {
 
     @Test
     fun shouldMoveUnHeardCasesToOutcomesWorkflow() {
+
+        // When
         caseWorkflowService.processUnResultedCases()
 
+        // Then
         var ho1 = hearingRepository.findFirstByHearingId("2aa6f5e0-f842-4939-bc6a-01346abc09e7").get().hearingOutcome
 
-        Assertions.assertThat(ho1.outcomeType).isEqualTo(HearingOutcomeType.ADJOURNED.name)
-        Assertions.assertThat(ho1.state).isEqualTo(HearingOutcomeItemState.RESULTED.name)
+        assertThat(ho1.outcomeType).isEqualTo(HearingOutcomeType.ADJOURNED.name)
+        assertThat(ho1.state).isEqualTo(HearingOutcomeItemState.RESULTED.name)
 
         var ho2 = hearingRepository.findFirstByHearingId("1f93aa0a-7e46-4885-a1cb-f25a4be33a00").get().hearingOutcome
 
-        Assertions.assertThat(ho2.outcomeType).isEqualTo(HearingOutcomeType.NO_OUTCOME.name)
-        Assertions.assertThat(ho2.state).isEqualTo(HearingOutcomeItemState.NEW.name)
+        assertThat(ho2.outcomeType).isEqualTo(HearingOutcomeType.NO_OUTCOME.name)
+        assertThat(ho2.state).isEqualTo(HearingOutcomeItemState.NEW.name)
 
         var ho3 = hearingRepository.findFirstByHearingId("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636").get().hearingOutcome
-        Assertions.assertThat(ho3).isNull()
+        assertThat(ho3).isNull()
     }
 
     @org.springframework.boot.test.context.TestConfiguration

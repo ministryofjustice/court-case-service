@@ -52,6 +52,8 @@ data_dictionary:
       pullPolicy: Always
     port: 8080
 
+hearing_outcomes:
+  process_un_resulted_cases_cron: "30 15-20 * * *"
 
 env:
   JAVA_OPTS: "-Xmx512m"

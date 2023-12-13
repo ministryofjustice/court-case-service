@@ -21,7 +21,7 @@ metadata:
     # Secure the retry all dlqs endpoint from outside of the Kubernetes ingress
     nginx.ingress.kubernetes.io/server-snippet: |
       server_tokens off;
-      location ~* /queue-admin/retry-all-dlqs {
+      location ~* ^/(queue-admin/retry-all-dlqs|process-un-resulted-cases) {
         deny all;
         return 403;
       }

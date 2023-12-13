@@ -46,7 +46,7 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
     }
 
     @Operation(description = "Triggers move un resulted cases to outcomes workflow")
-    @GetMapping(value = ["/process-un-resulted-cases"], produces = [APPLICATION_JSON_VALUE])
+    @PutMapping(value = ["/process-un-resulted-cases"], produces = [APPLICATION_JSON_VALUE])
     fun processUnResultedCases() {
         return caseWorkflowService.processUnResultedCases()
     }

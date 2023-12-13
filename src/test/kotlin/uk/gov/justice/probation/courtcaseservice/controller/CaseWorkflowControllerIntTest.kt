@@ -313,7 +313,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
     @Test fun `should trigger move un resulted cases to outcomes workflow`() {
         given()
             .`when`()
-            .get("/process-un-resulted-cases")
+            .put("/process-un-resulted-cases")
             .then()
             .statusCode(200)
 

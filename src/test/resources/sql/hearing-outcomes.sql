@@ -21,7 +21,7 @@ VALUES (-1700028804, '2aa6f5e0-f842-4939-bc6a-01346abc09e7', 'Judge requested PS
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
 VALUES (-1000000, -1700028600, 'B10JQ', 2, '2019-11-14', '09:00');
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
-VALUES (-1000002, -1700028600, 'B10JQ', 1, '2019-12-14', '09:00');
+VALUES (-1000002, -1700028600, 'B10JQ', 3, '2019-12-14', '09:00');
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
 VALUES (-1000003, -1700028897, 'B10JQ', 1, '2019-12-14', '09:00');
 INSERT INTO courtcaseservicetest.HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)

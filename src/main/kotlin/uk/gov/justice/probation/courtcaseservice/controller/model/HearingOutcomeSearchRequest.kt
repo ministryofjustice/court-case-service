@@ -8,6 +8,7 @@ data class HearingOutcomeSearchRequest(
     val outcomeType: List<HearingOutcomeType>? = listOf(),
     val sortBy: HearingOutcomeSortFields? = null,
     val order: SortOrder? = ASC,
+    val courtRoom: List<String> = listOf(),
     val assignedToUuid: List<String>? = listOf(),
     val page: Int = 1,
     val size: Int = 20

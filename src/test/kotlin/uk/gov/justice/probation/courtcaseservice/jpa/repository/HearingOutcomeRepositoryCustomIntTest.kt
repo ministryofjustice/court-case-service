@@ -27,11 +27,28 @@ internal class HearingOutcomeRepositoryCustomIntTest {
     @Autowired
     lateinit var hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom
 
+    @Autowired
+    lateinit var entityManager: EntityManager
+
     @Test
     fun `should return outcomes resulted within last 14 days`() {
         val result = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome("B10JQ", HearingOutcomeSearchRequest(state = RESULTED))
         assertThat(result.content.size).isEqualTo(1)
         assertThat(result.content[0].first.hearingId).isEqualTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00")
+    }
+
+    @Test
+    fun `should apply court room filter`() {
+        // Given
+        var hearingOutcomeRepositoryCustom = HearingOutcomeRepositoryCustom(entityManager, 30)
+
+        // When
+        val result = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome("B10JQ",
+            HearingOutcomeSearchRequest(state = RESULTED, courtRoom = listOf("1", "3")))
+
+        // Then
+        assertThat(result.content.size).isEqualTo(2)
+        assertThat(result.content).extracting("first.hearingId").containsExactlyInAnyOrder("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636", "1f93aa0a-7e46-4885-a1cb-f25a4be33a00")
     }
 
     @TestConfiguration

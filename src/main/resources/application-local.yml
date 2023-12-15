@@ -43,6 +43,8 @@ spring:
           envers:
             enabled: false
 
+hearing_outcomes:
+  move_un_resulted_to_outcomes_cutoff_time: "01:30"
 
 hmpps.sqs:
   provider: localstack

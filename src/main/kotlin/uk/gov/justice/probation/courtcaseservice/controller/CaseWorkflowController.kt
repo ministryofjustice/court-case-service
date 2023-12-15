@@ -44,4 +44,10 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
     fun fetchHearingOutcomes(@PathVariable("courtCode") courtCode: String, @Valid hearingOutcomeSearchRequest: HearingOutcomeSearchRequest): HearingOutcomeCaseList {
         return caseWorkflowService.fetchHearingOutcomes(courtCode, hearingOutcomeSearchRequest)
     }
+
+    @Operation(description = "Triggers move un resulted cases to outcomes workflow")
+    @PutMapping(value = ["/process-un-resulted-cases"], produces = [APPLICATION_JSON_VALUE])
+    fun processUnResultedCases() {
+        return caseWorkflowService.processUnResultedCases()
+    }
 }

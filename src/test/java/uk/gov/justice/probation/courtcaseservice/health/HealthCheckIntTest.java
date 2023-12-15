@@ -40,4 +40,15 @@ public class HealthCheckIntTest extends BaseIntTest {
                 .statusCode(200)
                 .extract().response().asString();
     }
+    @Test
+    public void testProcessUnresultedIsUnSecured() {
+        // Access to this endpoint is restricted to within the namespace in helm_deploy/court-case-service/templates/ingress.yaml
+
+        given()
+                .when()
+                .put("/process-un-resulted-cases")
+                .then()
+                .statusCode(200)
+                .extract().response().asString();
+    }
 }

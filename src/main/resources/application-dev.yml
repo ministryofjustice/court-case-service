@@ -26,3 +26,6 @@ domain-event-and-delius-api:
 feature:
   flags:
     use-community-api-for-probation-status: true
+
+hearing_outcomes:
+  move_un_resulted_to_outcomes_cutoff_time: "12:00"

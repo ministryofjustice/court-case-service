@@ -2,6 +2,9 @@ analytics_data_extractor:
   name: analytics-data-extractor
   cron_schedule: "0 1 * * *"
 
+hearing_outcomes:
+  process_un_resulted_cases_cron: "30 18-20 * * *"
+
 whitelist:
   office: "217.33.148.210/32"
   health-kick: "35.177.252.195/32"

@@ -35,6 +35,10 @@ import java.util.*
 @ExtendWith(MockitoExtension::class)
 internal class CaseWorkflowServiceTest {
 
+    companion object {
+        val TEST_COURT_ROOMS = listOf("01", "Court room - 2")
+    }
+
     @Mock
     lateinit var hearingRepository: HearingRepository
 
@@ -175,6 +179,8 @@ internal class CaseWorkflowServiceTest {
             )
         )
 
+        given(hearingRepository.getCourtroomsForCourt(EntityHelper.COURT_CODE)).willReturn(TEST_COURT_ROOMS)
+
         val hearingOutcomes = caseWorkflowService.fetchHearingOutcomes(COURT_CODE, HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW))
 
         assertThat(hearingOutcomes).isEqualTo(
@@ -206,6 +212,7 @@ internal class CaseWorkflowServiceTest {
                     )
                 ),
                 hearingOutcomes.countsByState,
+                TEST_COURT_ROOMS,
                         5,
                         1,
                         9

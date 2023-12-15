@@ -3,8 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.controller
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat
-import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.hasSize
+import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
@@ -115,6 +114,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .body("cases[0].defendantName", equalTo("Mr Johnny BALL"))
             .body("cases[0].offences", equalTo(listOf("Theft from a different shop", "Theft from a shop")))
             .body("cases[0].probationStatus", equalTo("Current"))
+            .body("courtRoomFilters", contains("2"))
             .body("countsByState.toResultCount", equalTo(1))
             .body("countsByState.inProgressCount", equalTo(0))
             .body("countsByState.resultedCount", equalTo(0))
@@ -166,6 +166,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
                 .body("totalPages", equalTo(1))
                 .body("page", equalTo(1))
                 .body("totalElements", equalTo(2))
+                .body("courtRoomFilters", contains("1", "2"))
     }
 
     @Test

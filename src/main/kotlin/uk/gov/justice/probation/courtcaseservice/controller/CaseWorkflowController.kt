@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller
 
+import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -46,6 +47,7 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
     }
 
     @Operation(description = "Triggers move un resulted cases to outcomes workflow")
+    @Hidden
     @PutMapping(value = ["/process-un-resulted-cases"], produces = [APPLICATION_JSON_VALUE])
     fun processUnResultedCases() {
         return caseWorkflowService.processUnResultedCases()

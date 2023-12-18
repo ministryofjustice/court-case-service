@@ -53,7 +53,7 @@ data_dictionary:
     port: 8080
 
 hearing_outcomes:
-  process_un_resulted_cases_cron: "30 15-20 * * *"
+  process_un_resulted_cases_cron: "30 12-20 * * *"
 
 env:
   JAVA_OPTS: "-Xmx512m"
@@ -74,6 +74,8 @@ env:
     base_url: https://court-case-and-delius-dev.hmpps.service.justice.gov.uk
   domain_event_and_delius_api:
     base_url: https://domain-events-and-delius-dev.hmpps.service.justice.gov.uk
+  hearing_outcomes:
+    move_un_resulted_to_outcomes_cutoff_time: 12:00
 
 spring:
   profile: instrumented

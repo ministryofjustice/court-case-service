@@ -64,6 +64,12 @@ env:
   - name: DOMAIN_EVENT_AND_DELIUS_API_BASE_URL
     value: "{{ .Values.env.domain_event_and_delius_api.base_url }}"
 
+  - name: HEARING_OUTCOMES_MOVE_UN_RESULTED_TO_OUTCOMES_CUTOFF_TIME
+    value: "{{ .Values.env.hearing_outcomes.move_un_resulted_to_outcomes_cutoff_time }}"
+
+  - name: HEARING_OUTCOMES_MOVE_UN_RESULTED_TO_OUTCOMES_COURTS
+    value: "{{ .Values.env.hearing_outcomes.move_un_resulted_to_outcomes_courts }}"
+
   - name: COURT_CASE_AND_DELIUS_API_CLIENT_ID
     valueFrom:
       secretKeyRef:

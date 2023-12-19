@@ -65,8 +65,9 @@ env:
     base_url: https://court-case-and-delius.hmpps.service.justice.gov.uk
   domain_event_and_delius_api:
     base_url: https://domain-events-and-delius.hmpps.service.justice.gov.uk
-  hearing_outcomes_move_un_resulted_to_outcomes_cutoff_time: "18:29"
-  hearing_outcomes_move_un_resulted_to_outcomes_courts: "B20EB,B23HS"
+  hearing_outcomes:
+    move_un_resulted_to_outcomes_cutoff_time: "18:29"
+    move_un_resulted_to_outcomes_courts: "B20EB,B23HS"
 
 spring:
   profile: instrumented

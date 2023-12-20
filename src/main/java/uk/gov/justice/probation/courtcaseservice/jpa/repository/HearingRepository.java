@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 
 import java.time.LocalDate;
@@ -111,6 +110,11 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
         nativeQuery = true)
     List<String> getCourtroomsForCourtAndHearingDay(String courtCode, LocalDate date);
 
+    @Query(value = "select distinct court_room from hearing_day " +
+        "where court_code = :courtCode order by court_room",
+        nativeQuery = true)
+    List<String> getCourtroomsForCourt(String courtCode);
+
     @Modifying
     @Query(value = "INSERT INTO hearing_outcome " +
         " (outcome_type, created, created_by, version, outcome_date, state, fk_hearing_id) " +
@@ -118,7 +122,7 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
         " from hearing_day hd join hearing h on hd.fk_hearing_id  = h.id and hd.hearing_day = CURRENT_DATE " +
         " left join hearing_outcome ho on ho.fk_hearing_id = h.id  " +
         " where ho.fk_hearing_id is null",
-    nativeQuery = true)
+        nativeQuery = true)
     Optional<Integer> moveUnResultedCasesToOutcomesWorkflow();
 
     @Modifying
@@ -128,6 +132,6 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
         " from hearing_day hd join hearing h on hd.fk_hearing_id  = h.id and hd.hearing_day = CURRENT_DATE AND hd.court_code in (:courtCodes) " +
         " left join hearing_outcome ho on ho.fk_hearing_id = h.id  " +
         " where ho.fk_hearing_id is null",
-    nativeQuery = true)
+        nativeQuery = true)
     Optional<Integer> moveUnResultedCasesToOutcomesWorkflow(List<String> courtCodes);
 }

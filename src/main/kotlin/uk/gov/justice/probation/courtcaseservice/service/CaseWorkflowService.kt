@@ -89,6 +89,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
         return HearingOutcomeCaseList(
             outcomes,
             getOutcomeCountsByState(courtCode),
+            hearingRepository.getCourtroomsForCourt(courtCode),
             outcomesPage.totalPages,
             hearingOutcomeSearchRequest.page,
             outcomesPage.totalElements.toInt()

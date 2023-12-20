@@ -66,13 +66,27 @@ class HearingOutcomeRepositoryCustom(
             }
         }
 
+        val courtRoomParamName = "courtRoom"
+
+        val hasCourtRoomFilter = hearingOutcomeSearchRequest.courtRoom.isNotEmpty()
+        if(hasCourtRoomFilter) {
+            queryParams[courtRoomParamName] = hearingOutcomeSearchRequest.courtRoom
+        }
+
         val coreQuery = """
             from hearing h 
             inner join hearing_outcome ho on ho.fk_hearing_id = h.id
             $filterBuilder
             inner join
-                (select fk_hearing_id as hday_hearing_id, min(hearing_day) as hearing_day from hearing_day where hearing_day.court_code = :courtCode group by fk_hearing_id) hday2
-                on hday2.hday_hearing_id = h.id	    """
+                (
+                    select fk_hearing_id as hday_hearing_id, min(hearing_day) as hearing_day from hearing_day
+                        where hearing_day.court_code = :courtCode
+                        ${ if(hasCourtRoomFilter) " and hearing_day.court_room in (:$courtRoomParamName) " else "" }
+                        group by fk_hearing_id
+                ) hday2
+            on hday2.hday_hearing_id = h.id	
+                
+            """
 
         val searchQuery = """
             select

@@ -87,7 +87,7 @@ internal class CaseWorkflowControllerTest {
         // Given
         val expectedResult = HearingOutcomeType.entries.toTypedArray()
         // When
-        val resp = caseWorkflowController.returnTypes()
+        val resp = caseWorkflowController.returnHearingOutcomeTypes()
         // Then
         assertThat(resp).isEqualTo(expectedResult)
     }

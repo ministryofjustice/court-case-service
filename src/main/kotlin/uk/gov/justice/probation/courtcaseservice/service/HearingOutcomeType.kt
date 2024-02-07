@@ -10,6 +10,8 @@ enum class HearingOutcomeType(@JsonProperty("hearingOutcomeType") val value: Str
     ADJOURNED("Adjourned"),
     COMMITTED_TO_CROWN("Committed to Crown"),
     CROWN_PLUS_PSR("Crown plus PSR"),
-    NO_OUTCOME("No Outcome"),
-    OTHER("Other");
+    NO_OUTCOME("NoOutcome"),
+    OTHER("Other"),
+    WARRANT("Warrant"),
+    TRIAL("Trial");
 }

@@ -58,7 +58,7 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
     @Operation(description = "Return Hearing Outcome Types")
     @GetMapping(value = ["/hearing-outcome-types"], produces = [APPLICATION_JSON_VALUE])
     @Cacheable("hearing-outcome-types")
-    fun returnTypes(): Array<HearingOutcomeType> {
+    fun returnHearingOutcomeTypes(): Array<HearingOutcomeType> {
         return HearingOutcomeType.entries.toTypedArray()
     }
 }

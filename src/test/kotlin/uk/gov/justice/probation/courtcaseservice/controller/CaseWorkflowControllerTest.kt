@@ -14,6 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_C
 import uk.gov.justice.probation.courtcaseservice.security.AuthAwareAuthenticationToken
 import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper
 import uk.gov.justice.probation.courtcaseservice.service.CaseWorkflowService
+import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType.ADJOURNED
 import java.security.Principal
 
@@ -79,5 +80,15 @@ internal class CaseWorkflowControllerTest {
 
         // Then
         verify(caseWorkflowService).resultHearingOutcome(hearingId, "test-uuid")
+    }
+
+    @Test
+    fun `should return a list of outcome types`() {
+        // Given
+        val expectedResult = HearingOutcomeType.entries.toTypedArray()
+        // When
+        val resp = caseWorkflowController.returnTypes()
+        // Then
+        assertThat(resp).isEqualTo(expectedResult)
     }
 }

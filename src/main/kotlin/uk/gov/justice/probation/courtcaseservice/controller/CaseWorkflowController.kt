@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -54,9 +55,9 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
         return caseWorkflowService.processUnResultedCases()
     }
 
-    @Operation(description = "Return Outcome Types")
-    @Hidden
-    @GetMapping(value = ["/types"], produces = [APPLICATION_JSON_VALUE])
+    @Operation(description = "Return Hearing Outcome Types")
+    @GetMapping(value = ["/hearing-outcome-types"], produces = [APPLICATION_JSON_VALUE])
+    @Cacheable("hearing-outcome-types")
     fun returnTypes(): Array<HearingOutcomeType> {
         return HearingOutcomeType.entries.toTypedArray()
     }

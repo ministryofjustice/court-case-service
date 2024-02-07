@@ -17,6 +17,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcome
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
 import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper
 import uk.gov.justice.probation.courtcaseservice.service.CaseWorkflowService
+import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType
 import java.security.Principal
 
 
@@ -51,5 +52,12 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
     @PutMapping(value = ["/process-un-resulted-cases"], produces = [APPLICATION_JSON_VALUE])
     fun processUnResultedCases() {
         return caseWorkflowService.processUnResultedCases()
+    }
+
+    @Operation(description = "Return Outcome Types")
+    @Hidden
+    @GetMapping(value = ["/types"], produces = [APPLICATION_JSON_VALUE])
+    fun returnTypes(): Array<HearingOutcomeType> {
+        return HearingOutcomeType.entries.toTypedArray()
     }
 }

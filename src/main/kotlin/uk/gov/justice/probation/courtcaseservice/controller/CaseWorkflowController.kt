@@ -6,12 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcome
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeAssignToRequest
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCaseList
@@ -20,7 +15,8 @@ import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper
 import uk.gov.justice.probation.courtcaseservice.service.CaseWorkflowService
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType
 import java.security.Principal
-
+import java.util.stream.Collectors
+import java.util.stream.Stream
 
 
 @Tag(name = "Case workflow API")
@@ -58,7 +54,9 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
     @Operation(description = "Return Hearing Outcome Types")
     @GetMapping(value = ["/hearing-outcome-types"], produces = [APPLICATION_JSON_VALUE])
     @Cacheable("hearing-outcome-types")
-    fun returnHearingOutcomeTypes(): Array<HearingOutcomeType> {
-        return HearingOutcomeType.entries.toTypedArray()
+    fun returnHearingOutcomeTypes(): List<Map<String, String>> {
+        return HearingOutcomeType.entries.map { outcome ->
+            mapOf("value" to outcome.name, "label" to outcome.value)
+        }
     }
 }

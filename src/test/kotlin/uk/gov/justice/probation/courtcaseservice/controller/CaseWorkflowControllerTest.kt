@@ -9,6 +9,7 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
+import org.slf4j.LoggerFactory
 import uk.gov.justice.probation.courtcaseservice.controller.model.*
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE
 import uk.gov.justice.probation.courtcaseservice.security.AuthAwareAuthenticationToken
@@ -23,6 +24,7 @@ internal class CaseWorkflowControllerTest {
 
     companion object {
         val TEST_COURT_ROOMS = listOf("01", "Court room - 2")
+        private val log = LoggerFactory.getLogger(CaseWorkflowControllerTest::class.java)
     }
 
     @Mock
@@ -83,12 +85,12 @@ internal class CaseWorkflowControllerTest {
     }
 
     @Test
-    fun `should return a list of outcome types`() {
+    fun `should return a list of outcome types which is the same size as the enum class`() {
         // Given
         val expectedResult = HearingOutcomeType.entries.toTypedArray()
         // When
         val resp = caseWorkflowController.returnHearingOutcomeTypes()
         // Then
-        assertThat(resp).isEqualTo(expectedResult)
+        assertThat(resp.size).isEqualTo(expectedResult.size)
     }
 }

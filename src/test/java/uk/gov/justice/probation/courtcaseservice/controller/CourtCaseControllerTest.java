@@ -44,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
@@ -448,40 +449,46 @@ class CourtCaseControllerTest {
         Mockito.verify(caseCommentsService).deleteCaseComment(caseId, commentId, testUuid);
     }
 
-
     @Test
-    void givenHearingIdAndHearingNote_shouldInvokeHearingNotesService() {
+    void givenHearingIdDefendantIdAndHearingNote_whenCreateNote_shouldInvokeHearingNotesService() {
+
+        var testHearingId = "test-hearing-id";
+        var testDefendantId = "test-defendantId";
 
         HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder()
-            .hearingId("test-hearing-id")
+            .hearingId(testHearingId)
             .author("Author One")
             .note("Note one")
             .createdByUuid(testUuid).build();
 
-        var hearingNoteRequest = HearingNoteRequest.builder().hearingId("test-hearing-id").note("Note one").author("Author One").build();
+        var hearingNoteRequest = HearingNoteRequest.builder().hearingId(testHearingId).note("Note one").author("Author One").build();
 
-        given(hearingNotesService.createHearingNote(any(HearingNoteEntity.class))).willReturn(hearingNoteEntity);
+        given(hearingNotesService.createHearingNote(eq(testHearingId), eq(testDefendantId), any(HearingNoteEntity.class))).willReturn(hearingNoteEntity);
 
-        courtCaseController.createHearingNote("test-hearing-id", hearingNoteRequest, principal);
+        courtCaseController.createHearingNote(testHearingId, testDefendantId, hearingNoteRequest, principal);
 
-        Mockito.verify(hearingNotesService).createHearingNote(any(HearingNoteEntity.class));
+        Mockito.verify(hearingNotesService).createHearingNote(eq(testHearingId), eq(testDefendantId), any(HearingNoteEntity.class));
     }
 
     @Test
-    void givenHearingIdInPathDoesNotMatchHearingNoteEntity_shouldThrowConflictingInputexception() {
+    void givenHearingIdDefendantIdAndHearingNote_whenCreateDraft_shouldInvokeHearingNotesService() {
+
+        var testHearingId = "test-hearing-id";
+        var testDefendantId = "test-defendantId";
 
         HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder()
-            .hearingId("test-hearing-id")
+            .hearingId(testHearingId)
             .author("Author One")
             .note("Note one")
             .createdByUuid(testUuid).build();
 
-        var hearingNoteRequest = HearingNoteRequest.builder().hearingId("test-hearing-id").note("Note one").author("Author One").build();
+        var hearingNoteRequest = HearingNoteRequest.builder().hearingId(testHearingId).note("Note one").author("Author One").build();
 
-        assertThrows(ConflictingInputException.class, () -> courtCaseController.createHearingNote("invalid-hearing-id", hearingNoteRequest, principal),
-            "Hearing Id 'invalid-hearing-id' provided in the path does not match the one in the hearing note request body submitted 'test-hearing-id'");
+        given(hearingNotesService.createOrUpdateHearingNoteDraft(eq(testHearingId), eq(testDefendantId), any(HearingNoteEntity.class))).willReturn(hearingNoteEntity);
 
-        Mockito.verifyNoInteractions(hearingNotesService);
+        courtCaseController.createUpdateDraftHearingNote(testHearingId, testDefendantId, hearingNoteRequest, principal);
+
+        Mockito.verify(hearingNotesService).createOrUpdateHearingNoteDraft(eq(testHearingId), eq(testDefendantId), any(HearingNoteEntity.class));
     }
 
     @Test

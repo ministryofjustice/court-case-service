@@ -59,6 +59,10 @@ public class EntityHelper {
         return new ArrayList<>(mutableList);
     }
 
+    public static HearingEntity aHearingEntity() {
+        return aHearingEntityWithHearingId(CASE_ID, HEARING_ID, DEFENDANT_ID);
+    }
+
     public static HearingEntity aHearingEntity(String caseId) {
         return aHearingEntityWithHearingId(caseId, HEARING_ID, DEFENDANT_ID);
     }
@@ -160,6 +164,7 @@ public class EntityHelper {
                 .defendantId(defendantId)
                 .defendant(defendant)
                 .offences(getMutableList(List.of(aDefendantOffence())))
+                .notes(new ArrayList<>())
                 .build();
         hearingDefendant.getOffences()
                 .forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendant));

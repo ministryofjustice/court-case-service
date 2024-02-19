@@ -51,9 +51,13 @@ public class CaseProgressHearing {
             .hearingTypeLabel(getHearingTypeLabel(hearingEntity))
             .court(hearingDay.getCourt().getName())
             .courtRoom(hearingDay.getCourtRoom())
-            .notes(notes.map(hearingNoteEntities -> hearingNoteEntities.stream().map(HearingNoteResponse::of).collect(Collectors.toList())).orElse(null))
+            .notes(mapHearingNotes(notes))
             .hearingOutcome(HearingOutcomeResponse.Companion.of(hearingEntity.getHearingOutcome()))
             .build();
+    }
+
+    private static List<HearingNoteResponse> mapHearingNotes(Optional<List<HearingNoteEntity>> notes) {
+        return notes.map(hearingNoteEntities -> hearingNoteEntities.stream().map(HearingNoteResponse::of).collect(Collectors.toList())).orElse(null);
     }
 
     // It was decided to go with the first hearing day info and revisit when multi day hearing analysis is completed

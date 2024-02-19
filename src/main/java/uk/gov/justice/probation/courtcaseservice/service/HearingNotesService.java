@@ -26,21 +26,24 @@ public class HearingNotesService {
         this.telemetryService = telemetryService;
     }
 
-    public HearingNoteEntity createHearingNote(HearingNoteEntity hearingNoteEntity) {
+    public HearingNoteEntity createHearingNote(String hearingId, String defendantId, HearingNoteEntity hearingNoteEntity) {
 
-        return createHearingNote(hearingNoteEntity, false);
+        return createHearingNote(hearingId, defendantId, hearingNoteEntity, false);
     }
 
-    private HearingNoteEntity createHearingNote(HearingNoteEntity hearingNoteEntity, boolean draft) {
-        var hearingId = hearingNoteEntity.getHearingId();
+    private HearingNoteEntity createHearingNote(String hearingId, String defendantId, HearingNoteEntity hearingNoteEntity, boolean draft) {
 
         return hearingRepository.findFirstByHearingId(hearingId)
-            .map(hearingEntity -> hearingNotesRepository.findByHearingIdAndCreatedByUuidAndDraftIsTrue(hearingId, hearingNoteEntity.getCreatedByUuid()).map(
-                dbHearingNote -> {
-                    dbHearingNote.updateNote(hearingNoteEntity.withDraft(draft));
-                    return hearingNotesRepository.save(dbHearingNote);
-                }
-            ).orElseGet(() -> hearingNotesRepository.save(hearingNoteEntity.withDraft(draft))))
+            .map(hearingEntity -> hearingEntity.getHearingDefendant(defendantId))
+            .map(hearingDefendantEntity ->
+                hearingDefendantEntity.getHearingNoteDraft(hearingNoteEntity.getCreatedByUuid())
+                .map(dbHearingNote ->
+                    {
+                        dbHearingNote.updateNote(hearingNoteEntity.withDraft(draft));
+                        return dbHearingNote;
+                    }
+                ).orElseGet(() -> hearingDefendantEntity.addHearingNote(hearingNoteEntity.withDraft(draft))))
+            .map(hearingNote -> hearingNotesRepository.save(hearingNote))
             .map(hearingNote -> {
                 if(!draft) {
                     telemetryService.trackCreateHearingNoteEvent(hearingNote);
@@ -50,9 +53,9 @@ public class HearingNotesService {
             .orElseThrow(() -> new EntityNotFoundException("Hearing %s not found", hearingId));
     }
 
-    public HearingNoteEntity createOrUpdateHearingNoteDraft(HearingNoteEntity hearingNoteDraft) {
+    public HearingNoteEntity createOrUpdateHearingNoteDraft(String hearingId, String defendantId, HearingNoteEntity hearingNoteEntity) {
 
-        return createHearingNote(hearingNoteDraft, true);
+        return createHearingNote(hearingId, defendantId, hearingNoteEntity, true);
     }
 
     public void deleteHearingNote(String hearingId, Long noteId, String userUuid) {

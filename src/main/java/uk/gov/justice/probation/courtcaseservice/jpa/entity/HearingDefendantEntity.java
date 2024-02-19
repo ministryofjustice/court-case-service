@@ -1,6 +1,17 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -10,11 +21,12 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
-import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -56,6 +68,11 @@ public class HearingDefendantEntity extends BaseAuditedEntity implements Seriali
     @OneToMany(mappedBy = "hearingDefendant", cascade = CascadeType.ALL, orphanRemoval=true)
     private List<OffenceEntity> offences;
 
+    @ToString.Exclude
+    @OneToMany(mappedBy = "hearingDefendant", cascade = CascadeType.ALL, orphanRemoval=true, fetch = FetchType.EAGER)
+    @NotAudited
+    private List<HearingNoteEntity> notes;
+
     public String getDefendantSurname() {
         return Optional.ofNullable(defendant)
                 .map(DefendantEntity::getDefendantSurname)
@@ -78,5 +95,16 @@ public class HearingDefendantEntity extends BaseAuditedEntity implements Seriali
         this.offences.forEach(offenceEntity -> offenceEntity.setHearingDefendant(this));
 
         this.defendant.update(hearingDefendant.getDefendant());
+    }
+
+    public Optional<HearingNoteEntity> getHearingNoteDraft(String createdByUuid) {
+        return this.notes.stream().filter(hearingNoteEntity -> StringUtils.equals(hearingNoteEntity.getCreatedByUuid(), createdByUuid) && hearingNoteEntity.isDraft()).findFirst();
+    }
+
+    public HearingNoteEntity addHearingNote(HearingNoteEntity hearingNoteEntity) {
+
+        hearingNoteEntity.setHearingDefendant(this);
+        this.notes.add(hearingNoteEntity);
+        return hearingNoteEntity;
     }
 }

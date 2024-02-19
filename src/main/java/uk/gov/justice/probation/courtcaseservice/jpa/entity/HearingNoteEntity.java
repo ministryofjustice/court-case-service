@@ -1,11 +1,15 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
@@ -37,6 +41,13 @@ public class HearingNoteEntity extends BaseEntity implements Serializable {
 
     @Column(name = "HEARING_ID", updatable = false, nullable = false)
     private final String hearingId;
+
+    @ManyToOne
+    @JoinColumn(name = "FK_HEARING_DEFENDANT_ID", referencedColumnName = "id")
+    @Setter
+    @JsonIgnore
+    @ToString.Exclude
+    private HearingDefendantEntity hearingDefendant;
 
     @Column(name = "CREATED_BY_UUID", updatable = false, nullable = false)
     private final String createdByUuid;

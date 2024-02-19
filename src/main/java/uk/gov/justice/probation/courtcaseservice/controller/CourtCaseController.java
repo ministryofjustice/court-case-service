@@ -141,32 +141,30 @@ public class CourtCaseController {
                 .map(ExtendedHearingRequestResponse::of);
     }
 
-    @Operation(description = "Creates a hearing note for a given hearing")
-    @PostMapping(value = "/hearing/{hearingId}/notes", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @Operation(description = "Creates a hearing note for a given hearing and defendant ID")
+    @PostMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     HearingNoteResponse createHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                          @PathVariable(value = "defendantId") String defendantId,
                                           @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
                                           Principal principal) {
 
-        validateHearingNoteRequest(hearingId, hearingNoteRequest);
-
-        HearingNoteEntity hearingNote = hearingNotesService.createHearingNote(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
+        HearingNoteEntity hearingNote = hearingNotesService.createHearingNote(hearingId, defendantId, hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
         return HearingNoteResponse.of(hearingNote);
     }
 
-    @Operation(description = "Creates/updates a draft hearing note for a given hearing")
-    @PutMapping(value = "/hearing/{hearingId}/notes/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @Operation(description = "Creates/updates a draft hearing note for a given hearing and defendant ID")
+    @PutMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     HearingNoteResponse createUpdateDraftHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                                     @PathVariable(value = "defendantId") String defendantId,
                                           @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
                                           Principal principal) {
 
-        validateHearingNoteRequest(hearingId, hearingNoteRequest);
-
         HearingNoteEntity hearingNote = hearingNotesService
-            .createOrUpdateHearingNoteDraft(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
+            .createOrUpdateHearingNoteDraft(hearingId, defendantId, hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
         return HearingNoteResponse.of(hearingNote);
     }
 

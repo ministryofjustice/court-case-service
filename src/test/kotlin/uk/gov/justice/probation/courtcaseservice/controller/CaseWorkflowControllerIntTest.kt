@@ -16,8 +16,10 @@ import org.springframework.web.util.UriComponentsBuilder
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.service.CaseWorkflowService
+import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper
 import java.net.URI
+
 
 @Sql(
     scripts = ["classpath:sql/before-common.sql", "classpath:case-progress.sql"],
@@ -319,5 +321,25 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .statusCode(200)
 
         verify(caseWorkflowService).processUnResultedCases()
+    }
+
+    @Test fun `return a list of hearing outcome types`() {
+        val expectedResult = HearingOutcomeType.entries.toTypedArray()
+        given()
+            .auth()
+            .oauth2(TokenHelper.getToken("4b03d065-4c96-4b24-8d6d-75a45d2e3f12"))
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .`when`()
+            .get("/hearing-outcome-types")
+            .then()
+            .statusCode(200)
+            .body("", hasSize<Any>(expectedResult.size))
+            .body("get(0).value", equalTo("PROBATION_SENTENCE"))
+            .body("get(0).label", equalTo("Probation sentence"))
+            .body("get(6).value", equalTo("NO_OUTCOME"))
+            .body("get(6).label", equalTo("No outcome"))
+            .body("get(9).value", equalTo("TRIAL"))
+            .body("get(9).label", equalTo("Trial"))
     }
 }

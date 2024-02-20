@@ -2,7 +2,7 @@
 basedir=$(dirname "$0")
 jardir="$basedir/libs"
 schemadir="$basedir/schema"
-pgdatabase=${POSTGRES_DB:-court_case_test}
+pgdatabase=${POSTGRES_DB:-postgres}
 
 
 mkdir -p "$jardir" "$schemadir"
@@ -12,7 +12,7 @@ mkdir -p "$jardir" "$schemadir"
   -Dflyway.password=dev \
   -Dflyway.locations="filesystem:src/main/resources/db/migration/courtcase"
 
-wget https://github.com/schemaspy/schemaspy/releases/download/v6.1.0/schemaspy-6.1.0.jar -O "$jardir/schemaspy.jar"
+wget https://github.com/schemaspy/schemaspy/releases/download/v6.2.4/schemaspy-6.2.4.jar -O "$jardir/schemaspy.jar"
 wget https://jdbc.postgresql.org/download/postgresql-42.2.19.jar -O "$jardir/postgresql.jar"
 
 java -jar "$jardir/schemaspy.jar" -t pgsql -dp "$jardir/postgresql.jar" \

@@ -322,7 +322,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
             .`when`()
-            .post("/hearing/{hearingId}/outcome/hold", hearingId)
+            .put("/hearing/{hearingId}/outcome/hold", hearingId)
             .then()
             .statusCode(200)
 

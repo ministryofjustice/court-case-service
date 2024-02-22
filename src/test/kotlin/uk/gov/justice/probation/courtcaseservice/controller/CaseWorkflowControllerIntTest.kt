@@ -291,7 +291,6 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
                 .put("/hearing/{hearingId}/outcome/assign", UNKNOWN_HEARING_ID)
                 .then()
                 .statusCode(404)
-
     }
 
     @Test
@@ -311,6 +310,38 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
         val hearing = hearingRepository.findFirstByHearingId(hearingId).get()
         assertThat(hearing.hearingOutcome.state).isEqualTo("RESULTED")
         assertThat(hearing.hearingOutcome.resultedDate).isNotNull()
+    }
+
+    @Test
+    fun `given hearing id with outcome in IN_PROGRESS state, place the case on hold`() {
+
+        val hearingId = "ddfe6b75-c3fc-4ed0-9bf6-21d66b125636"
+        given()
+            .auth()
+            .oauth2(TokenHelper.getToken("4b03d065-4c96-4b24-8d6d-75a45d2e3f12"))
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .`when`()
+            .post("/hearing/{hearingId}/outcome/hold", hearingId)
+            .then()
+            .statusCode(200)
+
+        val hearing = hearingRepository.findFirstByHearingId(hearingId).get()
+        assertThat(hearing.hearingOutcome.state).isEqualTo("ON_HOLD")
+    }
+
+    @Test
+    fun `given an unknown hearing id hold should return a 404 response `() {
+        given()
+            .auth()
+            .oauth2(TokenHelper.getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(HEARING_OUTCOME_ASSIGN_REQUEST)
+            .`when`()
+            .put("/hearing/{hearingId}/outcome/hold", UNKNOWN_HEARING_ID)
+            .then()
+            .statusCode(404)
     }
 
     @Test fun `should trigger move un resulted cases to outcomes workflow`() {

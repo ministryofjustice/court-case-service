@@ -512,8 +512,8 @@ class CourtCaseControllerTest {
         HearingNoteRequest noteUpdate = HearingNoteRequest.builder().hearingId(HEARING_ID).note("existing note updated").build();
 
         given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
-        courtCaseController.updateHearingNote(HEARING_ID, noteId, noteUpdate, principal);
-        verify(hearingNotesService).updateHearingNote(noteUpdate.asEntity(testUuid), noteId);
+        courtCaseController.updateHearingNote(HEARING_ID, DEFENDANT_ID, noteId, noteUpdate, principal);
+        verify(hearingNotesService).updateHearingNote(HEARING_ID, DEFENDANT_ID, noteUpdate.asEntity(testUuid), noteId);
     }
 
     @Test

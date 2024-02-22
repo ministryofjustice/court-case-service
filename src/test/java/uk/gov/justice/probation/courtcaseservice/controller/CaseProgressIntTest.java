@@ -177,7 +177,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .accept(ContentType.JSON)
             .body(hearingNote.replace("Judge heard", "Judge heard update"))
             .when()
-            .put("/hearing/{hearingId}/notes/{noteId}", HEARING_ID, noteId);
+            .put("/hearing/{hearingId}/defendants/{defendantId}/notes/{noteId}", HEARING_ID, DEFENDANT_ID, noteId);
         hearingNoteResponse
             .then()
             .statusCode(200);

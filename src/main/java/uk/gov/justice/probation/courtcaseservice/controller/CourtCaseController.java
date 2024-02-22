@@ -185,17 +185,16 @@ public class CourtCaseController {
         }
     }
 
-    @Operation(description = "Updates a hearing note for a given hearing and noteId")
-    @PutMapping(value = "/hearing/{hearingId}/notes/{noteId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @Operation(description = "Updates a hearing note for a given hearing, defendant and noteId")
+    @PutMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes/{noteId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public void updateHearingNote(@PathVariable(value = "hearingId") String hearingId,
-                                          @PathVariable(value = "noteId") Long noteId,
-                                          @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
+                                  @PathVariable(value = "defendantId") String defendantId,
+                                  @PathVariable(value = "noteId") Long noteId,
+                                  @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
                                           Principal principal) {
 
-        validateHearingNoteRequest(hearingId, hearingNoteRequest);
-
-        hearingNotesService.updateHearingNote(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)), noteId);
+        hearingNotesService.updateHearingNote(hearingId, defendantId, hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)), noteId);
     }
 
     @Operation(description = "Delete a hearing note for a given hearing and note id")

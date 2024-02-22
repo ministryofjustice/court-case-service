@@ -126,4 +126,21 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
             throw e
         }
     }
+
+    fun holdHearingOutcome(hearingId: String, userUuid: String) {
+        hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
+            {
+                if(it.hearingOutcome.assignedToUuid != userUuid) {
+                    throw ForbiddenException("Outcome not allocated to current user.")
+                }
+                if(it.hearingOutcome.state != HearingOutcomeItemState.IN_PROGRESS.name) {
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid state for outcome to be resulted.")
+                }
+                it.hearingOutcome.state = HearingOutcomeItemState.ON_HOLD.name
+                hearingRepository.save(it)
+            },
+            {
+                throw EntityNotFoundException("Hearing not found with id $hearingId")
+            })
+    }
 }

@@ -8,13 +8,11 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingNotesRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
-import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
 import java.util.List;
@@ -22,6 +20,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -129,48 +128,51 @@ class HearingNotesServiceTest {
     @Test
     void givenHearingIdAndNoteId_shouldMarkNoteAsDeleted() {
         var noteId = 1234L;
-        given(hearingNotesRepository.findById(noteId)).willReturn(Optional.of(hearingNote.withId(noteId)));
+        HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder().id(noteId).createdByUuid(createdByUuid).build();
 
-        hearingNotesService.deleteHearingNote(testHearingId, noteId, createdByUuid);
+        HearingEntity hearing = EntityHelper.aHearingEntity();
+        hearing.getHearingDefendants().get(0).getNotes().add(hearingNoteEntity);
+        given(hearingRepository.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+        given(hearingNotesRepository.save(noteCaptor.capture())).willReturn(hearingNoteEntity);
 
-        verify(hearingNotesRepository).findById(noteId);
-        var expected = hearingNote.withId(noteId);
-        expected.setDeleted(true);
-        verify(hearingNotesRepository).save(expected);
-        verify(telemetryService).trackDeleteHearingNoteEvent(expected);
+        hearingNotesService.deleteHearingNote(HEARING_ID, DEFENDANT_ID, noteId, createdByUuid);
+        assertTrue(hearingNoteEntity.isDeleted());
+        verify(hearingRepository).findFirstByHearingId(HEARING_ID);
+        verify(hearingNotesRepository).save(hearingNoteEntity);
+        verify(telemetryService).trackDeleteHearingNoteEvent(hearingNoteEntity);
     }
 
     @Test
-    void givenHearingIdAndNoteId_andHearingIdDoesNotMatchNoteHearingId_shouldThrowComflictingInput() {
-        var noteId = 1234L;
-        given(hearingNotesRepository.findById(noteId)).willReturn(Optional.of(hearingNote.withId(noteId)));
-
-        var invalidHearingId = "invalid-hearing-id";
-        assertThrows(ConflictingInputException.class, () -> hearingNotesService.deleteHearingNote(invalidHearingId, noteId, createdByUuid),
-            "Note 1234 not found for hearing invalid-hearing-id");
-        verify(hearingNotesRepository).findById(noteId);
-        verifyNoMoreInteractions(hearingNotesRepository);
-    }
-
-    @Test
-    void givenHearingIdNoteIdAndUserUuid_andUserUuidDoesNotMatchNoteUserUuid_shouldThrowForbiddenException() {
+    void givenHearingIdNoteIdAndUserUuid_andUserUuidDoesNotMatchNoteUserUuid_shouldThrowNotFound() {
         var noteId = 1234L;
         String invalidCreatedByUuid = "invalid-user-uuid";
-        given(hearingNotesRepository.findById(noteId)).willReturn(Optional.of(hearingNote.withId(noteId)));
-        assertThrows(ForbiddenException.class, () -> hearingNotesService.deleteHearingNote(testHearingId, noteId, invalidCreatedByUuid),
-            "User invalid-user-uuid does not have permissions to delete note 1234 on hearing test-hearing-id");
-        verify(hearingNotesRepository).findById(noteId);
-        verify(hearingNotesRepository, times(0)).save(any(HearingNoteEntity.class));
+
+        HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder().id(noteId).createdByUuid(createdByUuid).build();
+
+        HearingEntity hearing = EntityHelper.aHearingEntity();
+        hearing.getHearingDefendants().get(0).getNotes().add(hearingNoteEntity);
+        given(hearingRepository.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+
+        assertThrows(EntityNotFoundException.class, () -> hearingNotesService.deleteHearingNote(HEARING_ID, DEFENDANT_ID, noteId, invalidCreatedByUuid),
+            "Note 1234 not found for hearing 75e63d6c-5487-4244-a5bc-7cf8a38992db, defendant d1eefed2-04df-11ec-b2d8-0242ac130002 and user uuid invalid-user-uuid or the user does not have permissions to modify");
+        verify(hearingRepository).findFirstByHearingId(HEARING_ID);
+        verifyNoInteractions(hearingNotesRepository);
     }
 
     @Test
-    void givenNonExistingCommentId_shouldThrowEntityNotFound() {
+    void givenNonExistingNoteId_shouldThrowEntityNotFound() {
         var noteId = 1234L;
-        given(hearingNotesRepository.findById(noteId)).willReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> hearingNotesService.deleteHearingNote(testHearingId, noteId, createdByUuid),
-            "Note 1234 not found for hearing test-hearing-id");
-        verify(hearingNotesRepository).findById(noteId);
-        verify(hearingNotesRepository, times(0)).save(any(HearingNoteEntity.class));
+
+        HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder().id(noteId).createdByUuid(createdByUuid).build();
+
+        HearingEntity hearing = EntityHelper.aHearingEntity();
+        given(hearingRepository.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+        hearing.getHearingDefendants().get(0).getNotes().add(hearingNoteEntity);
+
+        assertThrows(EntityNotFoundException.class, () -> hearingNotesService.deleteHearingNote(HEARING_ID, DEFENDANT_ID, 567L, createdByUuid),
+            "Note 567 not found for hearing 75e63d6c-5487-4244-a5bc-7cf8a38992db, defendant d1eefed2-04df-11ec-b2d8-0242ac130002 and user uuid test-user-uuid or the user does not have permissions to modify\n");
+        verify(hearingRepository).findFirstByHearingId(HEARING_ID);
+        verifyNoInteractions(hearingNotesRepository);
     }
 
     /// ------------
@@ -231,20 +233,32 @@ class HearingNotesServiceTest {
 
     @Test
     void givenDraftNoteExistsForAUser_when_deleteDraft_shouldDeleteDraftNote() {
-        given(hearingNotesRepository.findByHearingIdAndCreatedByUuidAndDraftIsTrue(testHearingId, createdByUuid)).willReturn(Optional.of(hearingNote.withDraft(true)));
-        hearingNotesService.deleteHearingNoteDraft(testHearingId, createdByUuid);
-        verify(hearingNotesRepository).findByHearingIdAndCreatedByUuidAndDraftIsTrue(testHearingId, createdByUuid);
-        HearingNoteEntity expected = hearingNote.withDraft(true);
-        expected.setDeleted(true);
-        verify(hearingNotesRepository).save(expected);
+
+        HearingNoteEntity existingNote = HearingNoteEntity.builder().hearingId(HEARING_ID).draft(true).createdByUuid(CREATED_BY_UUID).note("existing note").build();
+
+        HearingEntity hearing = EntityHelper.aHearingEntity();
+        hearing.getHearingDefendants().get(0).getNotes().add(existingNote);
+        given(hearingRepository.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+
+        hearingNotesService.deleteHearingNoteDraft(HEARING_ID, DEFENDANT_ID, CREATED_BY_UUID);
+
+        assertTrue(existingNote.isDeleted());
+        verify(hearingRepository).findFirstByHearingId(HEARING_ID);
+        verify(hearingNotesRepository).save(existingNote);
     }
 
     @Test
-    void givenDraftDoesNotNoteExistsForAUser_when_deleteDraft_shouldThrowNotFoundError() {
-        given(hearingNotesRepository.findByHearingIdAndCreatedByUuidAndDraftIsTrue(testHearingId, createdByUuid)).willReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> hearingNotesService.deleteHearingNoteDraft(testHearingId, createdByUuid),
-            String.format("Draft note not found for user %s on hearing %s", createdByUuid, testHearingId));
-        verify(hearingNotesRepository).findByHearingIdAndCreatedByUuidAndDraftIsTrue(testHearingId, createdByUuid);
+    void givenDraftDoesNotExistsForAUser_when_deleteDraft_shouldThrowNotFoundError() {
+        HearingNoteEntity existingNote = HearingNoteEntity.builder().hearingId(HEARING_ID).draft(true).createdByUuid(CREATED_BY_UUID).note("existing note").build();
+
+        HearingEntity hearing = EntityHelper.aHearingEntity();
+        hearing.getHearingDefendants().get(0).getNotes().add(existingNote);
+        given(hearingRepository.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+
+        String differentUser = "different_user";
+        assertThrows(EntityNotFoundException.class, () -> hearingNotesService.deleteHearingNoteDraft(HEARING_ID, DEFENDANT_ID, differentUser),
+            String.format("Draft note not found for user %s on hearing %s / defendant %s", differentUser, HEARING_ID, DEFENDANT_ID));
+        verify(hearingRepository).findFirstByHearingId(HEARING_ID);
         verifyNoMoreInteractions(hearingNotesRepository);
     }
 }

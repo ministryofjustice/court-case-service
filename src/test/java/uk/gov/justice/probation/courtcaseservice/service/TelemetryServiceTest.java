@@ -12,6 +12,7 @@ import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
@@ -238,6 +239,7 @@ class TelemetryServiceTest {
         String createdBy = "created-user-name";
         var hearingNoteEntity = HearingNoteEntity.builder()
             .hearingId(HEARING_ID)
+            .hearingDefendant(HearingDefendantEntity.builder().defendantId(EntityHelper.DEFENDANT_ID).build())
             .createdByUuid(createdByUuid)
             .created(now)
             .createdBy(createdBy)
@@ -256,8 +258,9 @@ class TelemetryServiceTest {
         String createdByUuid = "created-uuid";
         LocalDateTime now = LocalDateTime.now();
         String createdBy = "created-user-name";
-        var hearingNoteEntity = HearingNoteEntity.builder()
+        HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder()
             .hearingId(HEARING_ID)
+            .hearingDefendant(HearingDefendantEntity.builder().defendantId(EntityHelper.DEFENDANT_ID).build())
             .createdByUuid(createdByUuid)
             .created(now)
             .createdBy(createdBy)
@@ -278,6 +281,7 @@ class TelemetryServiceTest {
         String createdBy = "created-user-name";
         var hearingNoteEntity = HearingNoteEntity.builder()
             .hearingId(HEARING_ID)
+            .hearingDefendant(HearingDefendantEntity.builder().defendantId(EntityHelper.DEFENDANT_ID).build())
             .createdByUuid(createdByUuid)
             .created(now)
             .createdBy(createdBy)
@@ -293,8 +297,9 @@ class TelemetryServiceTest {
 
     private void assertHearingNoteEvent(String createdByUuid, LocalDateTime now, String createdBy) {
         var properties = this.properties.getValue();
-        assertThat(properties).hasSize(5);
+        assertThat(properties).hasSize(6);
         assertThat(properties).containsEntry("hearingId", HEARING_ID);
+        assertThat(properties).containsEntry("defendantId", EntityHelper.DEFENDANT_ID);
         assertThat(properties).containsEntry("createdByUuid", createdByUuid);
         assertThat(properties).containsEntry("noteId", "1234");
         assertThat(properties).containsEntry("createdDateTime", now.toString());

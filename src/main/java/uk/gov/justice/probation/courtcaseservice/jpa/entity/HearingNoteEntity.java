@@ -61,9 +61,13 @@ public class HearingNoteEntity extends BaseEntity implements Serializable {
     @Column(name = "DRAFT", nullable = false)
     private boolean draft;
 
+    @Column(name = "LEGACY", nullable = false)
+    private boolean legacy;
+
     public void updateNote(HearingNoteEntity hearingNoteUpdate) {
         this.note = hearingNoteUpdate.getNote();
         this.draft = hearingNoteUpdate.isDraft();
+        this.legacy = false;
         this.setDeleted(false); // to reuse note drafts that were soft deleted earlier. Remove deleted flag.
     }
 }

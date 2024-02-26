@@ -198,7 +198,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .accept(ContentType.JSON)
             .body(hearingNote)
             .when()
-            .delete("/hearing/{hearingId}/notes/{noteId}", HEARING_ID, noteId);
+            .delete("/hearing/{hearingId}/defendants/{defendantId}/notes/{noteId}", HEARING_ID, "40db17d6-04db-11ec-b2d8-0242ac130002", noteId);
         hearingNoteResponse
             .then()
             .statusCode(200);
@@ -255,7 +255,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .oauth2(getToken())
             .body(hearingNote)
             .when()
-            .delete("/hearing/{hearingId}/notes/draft", testHearingId);
+            .delete("/hearing/{hearingId}/defendants/{defendantId}/notes/draft", testHearingId, "40db17d6-04db-11ec-b2d8-0242ac130002");
         hearingNoteResponse
             .then()
             .statusCode(200);

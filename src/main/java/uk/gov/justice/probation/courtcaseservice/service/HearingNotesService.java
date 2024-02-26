@@ -3,14 +3,10 @@ package uk.gov.justice.probation.courtcaseservice.service;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingNotesRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
-import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
-
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 @Service
 @Slf4j
@@ -59,34 +55,38 @@ public class HearingNotesService {
         return createHearingNote(hearingId, defendantId, hearingNoteEntity, true);
     }
 
-    public void deleteHearingNote(String hearingId, Long noteId, String userUuid) {
+    public void deleteHearingNote(String hearingId, String defendantId, Long noteId, String userUuid) {
 
-        log.info("Delete request for hearingId {} / noteId {} by user {}", hearingId, noteId, userUuid);
-
-        hearingNotesRepository.findById(noteId).ifPresentOrElse(hearingNoteEntity -> {
-
-            validateHearingNoteUpdate(hearingId, noteId, hearingNoteEntity);
-
-            if (!equalsIgnoreCase(hearingNoteEntity.getCreatedByUuid(), userUuid)) {
-                log.warn("User {} illegal attempt to delete note {} on hearing {}", userUuid, noteId, hearingId);
-                throw new ForbiddenException(String.format("User %s does not have permissions to delete note %s on hearing %s", userUuid, noteId, hearingId));
-            }
-            hearingNoteEntity.setDeleted(true);
-            hearingNotesRepository.save(hearingNoteEntity);
-            telemetryService.trackDeleteHearingNoteEvent(hearingNoteEntity);
-        }, () -> throwNoteNotFound(noteId, hearingId, null, userUuid));
+        log.info("Delete request for hearingId {} / defendantId {} / noteId {} by user {}", hearingId, defendantId, noteId, userUuid);
+        hearingRepository.findFirstByHearingId(hearingId)
+            .map(hearingEntity -> hearingEntity.getHearingDefendant(defendantId))
+            .flatMap(hearingDefendantEntity ->
+                hearingDefendantEntity.getNotes().stream().filter(
+                        hearingNoteEntity -> noteId.equals(hearingNoteEntity.getId()) && hasWritePermission(HearingNoteEntity.builder().createdByUuid(userUuid).build(), hearingNoteEntity))
+                    .findFirst())
+            .ifPresentOrElse(hearingNoteEntity -> {
+                hearingNoteEntity.setDeleted(true);
+                hearingNotesRepository.save(hearingNoteEntity);
+                telemetryService.trackDeleteHearingNoteEvent(hearingNoteEntity);
+            }, () -> throwNoteNotFound(noteId, hearingId, defendantId, userUuid));
     }
 
-    public void deleteHearingNoteDraft(String hearingId, String userUuid) {
+    public void deleteHearingNoteDraft(String hearingId, String defendantId, String userUuid) {
 
-        log.info("Request to delete draft note on a hearingId {} by user {}", hearingId, userUuid);
+        log.info("Request to delete draft note on a hearingId {} / defendantId {} by user {}", hearingId, defendantId, userUuid);
 
-        hearingNotesRepository.findByHearingIdAndCreatedByUuidAndDraftIsTrue(hearingId, userUuid).ifPresentOrElse(hearingNoteEntity -> {
-            hearingNoteEntity.setDeleted(true);
-            hearingNotesRepository.save(hearingNoteEntity);
-        }, () -> {
-            throw new EntityNotFoundException("Draft note not found for user %s on hearing %s", userUuid, hearingId);
-        });
+        hearingRepository.findFirstByHearingId(hearingId)
+            .map(hearingEntity -> hearingEntity.getHearingDefendant(defendantId))
+            .flatMap(hearingDefendantEntity ->
+                hearingDefendantEntity.getNotes().stream().filter(
+                        hearingNoteEntity -> hearingNoteEntity.isDraft() && hasWritePermission(HearingNoteEntity.builder().createdByUuid(userUuid).build(), hearingNoteEntity))
+                    .findFirst())
+            .ifPresentOrElse(hearingNoteEntity -> {
+                hearingNoteEntity.setDeleted(true);
+                hearingNotesRepository.save(hearingNoteEntity);
+            }, () -> {
+                throw new EntityNotFoundException("Draft note not found for user %s on hearing %s / defendant %s", userUuid, hearingId, defendantId);
+            });
     }
 
     public void updateHearingNote(String hearingId, String defendantId, HearingNoteEntity hearingNoteUpdate, Long noteId) {
@@ -110,13 +110,7 @@ public class HearingNotesService {
         return StringUtils.equalsIgnoreCase(hearingNoteEntity.getCreatedByUuid(), hearingNoteUpdate.getCreatedByUuid());
     }
 
-    private static void validateHearingNoteUpdate(String hearingId, Long noteId, HearingNoteEntity hearingNoteEntity) {
-        if (!equalsIgnoreCase(hearingNoteEntity.getHearingId(), hearingId)) {
-            throw new ConflictingInputException(String.format("Note %d not found for hearing %s", noteId, hearingId));
-        }
-    }
-
     private static void throwNoteNotFound(Long noteId, String hearingId, String defendantId, String createdByUuid) {
-        throw new EntityNotFoundException("Note %s not found for hearing %s, defendant %s and user uuid %s", noteId, hearingId, defendantId, createdByUuid);
+        throw new EntityNotFoundException("Note %s not found for hearing %s, defendant %s and user uuid %s or the user does not have permissions to modify", noteId, hearingId, defendantId, createdByUuid);
     }
 }

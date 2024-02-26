@@ -116,7 +116,7 @@ public class CourtCaseController {
     public @ResponseBody
     CourtCaseResponse getCourtCaseByHearingIdAndDefendantId(@PathVariable String hearingId, @PathVariable String defendantId) {
         HearingEntity hearingByHearingIdAndDefendantId = courtCaseService.getHearingByHearingIdAndDefendantId(hearingId, defendantId);
-        List<CaseProgressHearing> caseHearingProgress = caseProgressService.getCaseHearingProgress(hearingByHearingIdAndDefendantId.getCaseId());
+        List<CaseProgressHearing> caseHearingProgress = caseProgressService.getCaseHearingProgress(hearingByHearingIdAndDefendantId.getCaseId(), defendantId);
         return this.buildCourtCaseResponseForCaseIdAndDefendantId(hearingByHearingIdAndDefendantId, defendantId, caseHearingProgress);
     }
 
@@ -169,13 +169,14 @@ public class CourtCaseController {
     }
 
     @Operation(description = "Deletes the draft hearing note for a given hearing")
-    @DeleteMapping(value = "/hearing/{hearingId}/notes/draft")
+    @DeleteMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes/draft")
     @ResponseStatus(HttpStatus.OK)
     public void deleteDraftHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                       @PathVariable(value = "defendantId") String defendantId,
                                                Principal principal) {
 
         hearingNotesService
-            .deleteHearingNoteDraft(hearingId, authenticationHelper.getAuthUserUuid(principal));
+            .deleteHearingNoteDraft(hearingId, defendantId, authenticationHelper.getAuthUserUuid(principal));
     }
 
     private static void validateHearingNoteRequest(String hearingId, HearingNoteRequest hearingNoteRequest) {
@@ -198,13 +199,14 @@ public class CourtCaseController {
     }
 
     @Operation(description = "Delete a hearing note for a given hearing and note id")
-    @DeleteMapping(value = "/hearing/{hearingId}/notes/{noteId}")
+    @DeleteMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes/{noteId}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                  @PathVariable(value = "defendantId") String defendantId,
                                   @PathVariable(value = "noteId") Long noteId,
                                   Principal principal) {
 
-        hearingNotesService.deleteHearingNote(hearingId, noteId, authenticationHelper.getAuthUserUuid(principal));
+        hearingNotesService.deleteHearingNote(hearingId, defendantId, noteId, authenticationHelper.getAuthUserUuid(principal));
     }
 
 

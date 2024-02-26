@@ -10,6 +10,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteRes
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
@@ -20,12 +21,15 @@ import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHeari
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession.MORNING;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID2;
 
 @ExtendWith(MockitoExtension.class)
 class CaseProgressServiceTest {
@@ -49,31 +53,50 @@ class CaseProgressServiceTest {
         var court = CourtEntity.builder().name(courtName).build();
         String hearingIdOne = "hearing-id-one";
 
+        List<HearingNoteEntity> hearing1DefendantOneNotes = List.of(HearingNoteEntity.builder().hearingId(hearingIdOne).note("Hearing id one defendant 1 note one").build(),
+            HearingNoteEntity.builder().hearingId(hearingIdOne).note("Hearing id one defendant 1 note two").build());
+
+        List<HearingNoteEntity> hearing1DefendantTwoNotes = List.of(HearingNoteEntity.builder().hearingId(hearingIdOne).note("Hearing id defendant 2 note one").build(),
+            HearingNoteEntity.builder().hearingId(hearingIdOne).note("Hearing id one defendant 2 note two").build());
+
         List<HearingDayEntity> hearingDays = List.of(HearingDayEntity.builder().court(court).day(dateNow).time(timeNow).build());
-        List<HearingEntity> hearingEntities = List.of(HearingEntity.builder().hearingId(hearingIdOne).courtCase(courtCase).hearingDays(hearingDays).build(),
-            HearingEntity.builder().hearingId("hearing-id-two").courtCase(courtCase).hearingDays(hearingDays).build());
+
+        HearingDefendantEntity hearing1HearingDefendant1 = HearingDefendantEntity.builder().notes(new ArrayList<>()).defendantId(DEFENDANT_ID).build();
+        hearing1HearingDefendant1.getNotes().addAll(hearing1DefendantOneNotes);
+
+        HearingDefendantEntity hearing1HearingDefendant2 = HearingDefendantEntity.builder().notes(new ArrayList<>()).defendantId(DEFENDANT_ID2).build();
+        hearing1HearingDefendant2.getNotes().addAll(hearing1DefendantTwoNotes);
+
+        HearingEntity hearing1 = HearingEntity.builder().hearingId(hearingIdOne).courtCase(courtCase).hearingDays(hearingDays)
+            .hearingDefendants(List.of(hearing1HearingDefendant1, hearing1HearingDefendant2))
+            .build();
+
+        HearingEntity hearing2 = HearingEntity.builder().hearingId("hearing-id-two").courtCase(courtCase).hearingDays(hearingDays)
+            .hearingDefendants(List.of(
+                HearingDefendantEntity.builder().defendantId(DEFENDANT_ID).notes(new ArrayList<>()).build(),
+                HearingDefendantEntity.builder().defendantId(DEFENDANT_ID2).notes(new ArrayList<>()).build()
+                ))
+            .build();
+
+        List<HearingEntity> hearingEntities = List.of(hearing1,
+            hearing2);
 
         given(hearingRepository.findHearingsByCaseId(CASE_ID)).willReturn(
             Optional.of(hearingEntities));
-
-        List<HearingNoteEntity> hearingIdOneNotes = List.of(HearingNoteEntity.builder().hearingId(hearingIdOne).note("Hearing id one note one").build(),
-            HearingNoteEntity.builder().hearingId(hearingIdOne).note("Hearing id one note two").build());
-        given(hearingNotesRepository.findAllByHearingIdAndDeletedFalse(hearingIdOne)).willReturn(
-            Optional.of(hearingIdOneNotes
-            ));
 
         List<CaseProgressHearing> expected = List.of(
             CaseProgressHearing.builder().hearingId("hearing-id-one").hearingDateTime(LocalDateTime.of(dateNow, timeNow)).court(courtName).session(MORNING.name())
                 .hearingTypeLabel("Hearing type unknown")
                 .notes(List.of(
-                    HearingNoteResponse.builder().hearingId(hearingIdOne).note("Hearing id one note one").build(),
-                    HearingNoteResponse.builder().hearingId(hearingIdOne).note("Hearing id one note two").build())
+                    HearingNoteResponse.builder().hearingId(hearingIdOne).note("Hearing id one defendant 1 note one").build(),
+                    HearingNoteResponse.builder().hearingId(hearingIdOne).note("Hearing id one defendant 1 note two").build())
                 )
                 .build(),
             CaseProgressHearing.builder().hearingId("hearing-id-two").hearingDateTime(LocalDateTime.of(dateNow, timeNow)).court(courtName).session(MORNING.name())
+                .notes(new ArrayList<>())
                 .hearingTypeLabel("Hearing type unknown").build());
 
-        var progress = caseProgressService.getCaseHearingProgress(CASE_ID);
+        var progress = caseProgressService.getCaseHearingProgress(CASE_ID, DEFENDANT_ID);
 
         verify(hearingRepository).findHearingsByCaseId(CASE_ID);
         Assertions.assertThat(progress).isEqualTo(expected);

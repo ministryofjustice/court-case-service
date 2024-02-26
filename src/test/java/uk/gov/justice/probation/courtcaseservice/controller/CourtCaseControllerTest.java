@@ -495,15 +495,15 @@ class CourtCaseControllerTest {
     void givenHearingIdAndNoteId_invokeDeleteNoteOnService() {
         var noteId = 1234L;
         given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
-        courtCaseController.deleteHearingNote(HEARING_ID, noteId, principal);
-        verify(hearingNotesService).deleteHearingNote(HEARING_ID, noteId, testUuid );
+        courtCaseController.deleteHearingNote(HEARING_ID, DEFENDANT_ID, noteId, principal);
+        verify(hearingNotesService).deleteHearingNote(HEARING_ID, DEFENDANT_ID, noteId, testUuid );
     }
 
     @Test
     void givenHearingId_invokeDeleteNoteDraftOnService() {
         given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
-        courtCaseController.deleteDraftHearingNote(HEARING_ID, principal);
-        verify(hearingNotesService).deleteHearingNoteDraft(HEARING_ID, testUuid );
+        courtCaseController.deleteDraftHearingNote(HEARING_ID, DEFENDANT_ID, principal);
+        verify(hearingNotesService).deleteHearingNoteDraft(HEARING_ID, DEFENDANT_ID, testUuid );
     }
 
     @Test

@@ -97,6 +97,7 @@ public class EntityHelper {
                         .caseId(caseId)
                         .caseNo(CASE_NO)
                         .sourceType(SOURCE)
+                        .hearings(new ArrayList<>())
                         .build())
                 .build();
 
@@ -104,6 +105,7 @@ public class EntityHelper {
                 .forEach(hearingDefendant -> hearingDefendant.setHearing(hearingEntity));
         hearingEntity.getHearingDays()
                 .forEach(hearingDay -> hearingDay.setHearing(hearingEntity));
+        hearingEntity.getCourtCase().addHearing(hearingEntity);
         return hearingEntity;
     }
 

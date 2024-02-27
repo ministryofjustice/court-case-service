@@ -23,10 +23,11 @@ public class CaseCommentRequest {
     @NotBlank
     private final String author;
 
-    public CaseCommentEntity asEntity(String userUuid) {
+    public CaseCommentEntity asEntity(String userUuid, String caseId, String defendantId) {
         return CaseCommentEntity.builder()
             .comment(comment)
             .caseId(caseId)
+            .defendantId(defendantId)
             .createdByUuid(userUuid)
             .author(author)
             .build();

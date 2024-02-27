@@ -19,6 +19,7 @@ public class CaseCommentResponse {
     private final Long commentId;
     private final String caseId;
     private final String comment;
+    private final String defendantId;
     private final LocalDateTime created;
     private final String author;
     private final String createdByUuid;
@@ -29,6 +30,7 @@ public class CaseCommentResponse {
             .comment(caseCommentEntity.getComment())
             .commentId(caseCommentEntity.getId())
             .caseId(caseCommentEntity.getCaseId())
+            .defendantId(caseCommentEntity.getDefendantId())
             .created(caseCommentEntity.getCreated())
             .author(caseCommentEntity.getAuthor())
             .createdByUuid(caseCommentEntity.getCreatedByUuid())

@@ -85,7 +85,7 @@ public class CaseCommentsService {
                caseCommentEntity.update(caseCommentUpdate);
                return caseCommentsRepository.save(caseCommentEntity);
            })
-           .orElseThrow(() -> new EntityNotFoundException(COMMENTS_ERROR_MESSAGE_FORMAT_STRING, commentId, caseCommentUpdate.getCaseId(), caseCommentUpdate.getDefendantId()));
+           .orElseThrow(() -> new EntityNotFoundException(COMMENTS_ERROR_MESSAGE_FORMAT_STRING, commentId, caseCommentUpdate.getCaseId(), caseCommentUpdate.getDefendantId(), caseCommentUpdate.getDefendantId()));
     }
 
     public void deleteCaseComment(String caseId, String defendantId, Long commentId, String userUuid) {

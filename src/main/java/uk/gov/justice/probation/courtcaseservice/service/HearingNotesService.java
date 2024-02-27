@@ -34,12 +34,12 @@ public class HearingNotesService {
             .map(hearingEntity -> hearingEntity.getHearingDefendant(defendantId))
             .map(hearingDefendantEntity ->
                 hearingDefendantEntity.getHearingNoteDraft(hearingNoteEntity.getCreatedByUuid())
-                    .map(dbHearingNote ->
-                        {
-                            dbHearingNote.updateNote(hearingNoteEntity.withDraft(draft));
-                            return dbHearingNote;
-                        }
-                    ).orElseGet(() -> hearingDefendantEntity.addHearingNote(hearingNoteEntity.withDraft(draft))))
+                .map(dbHearingNote ->
+                    {
+                        dbHearingNote.updateNote(hearingNoteEntity.withDraft(draft));
+                        return dbHearingNote;
+                    }
+                ).orElseGet(() -> hearingDefendantEntity.addHearingNote(hearingNoteEntity.withDraft(draft))))
             .map(hearingNote -> {
                 hearingNotesRepository.save(hearingNote);
                 if(!draft) {

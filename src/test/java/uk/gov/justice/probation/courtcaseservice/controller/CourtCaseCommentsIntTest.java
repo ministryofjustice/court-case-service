@@ -50,7 +50,7 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
             .accept(ContentType.JSON)
             .body(caseComment)
             .when()
-            .post("/cases/{caseId}/comments", CASE_ID);
+            .post("/cases/{caseId}/defendants/{defendantId}/comments", CASE_ID, "40db17d6-04db-11ec-b2d8-0242ac130002");
         caseCommentResponse
             .then()
             .statusCode(201)
@@ -81,7 +81,7 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
             .accept(ContentType.JSON)
             .body(caseComment)
             .when()
-            .put("/cases/{caseId}/comments/draft", CASE_ID);
+            .put("/cases/{caseId}/defendants/{defendantId}/comments/draft", CASE_ID, "40db17d6-04db-11ec-b2d8-0242ac130002");
         caseCommentResponse
             .then()
             .statusCode(200)
@@ -114,11 +114,11 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
             .accept(ContentType.JSON)
             .body(caseComment.replace(CASE_ID, notFoundCaseId))
             .when()
-            .post("/cases/{caseId}/comments", notFoundCaseId);
+            .post("/cases/{caseId}/defendants/{defendantId}/comments", notFoundCaseId, "1f93aa0a-7e46-4885-a1cb-f25a4be33a00");
         caseCommentResponse
             .then()
             .statusCode(404)
-            .body("userMessage", equalTo(String.format("Court case %s not found", notFoundCaseId)))
+            .body("userMessage", equalTo("Court case 47eec326-7ceb-4dc1-aa86-b30ce2ccad8c / defendantId 1f93aa0a-7e46-4885-a1cb-f25a4be33a00 not found"))
         ;
     }
 
@@ -133,7 +133,7 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
             .when()
-            .delete("/cases/{caseId}/comments/{commentId}", CASE_ID, commentId)
+            .delete("/cases/{caseId}/defendants/{defendantId}/comments/{commentId}", CASE_ID, "40db17d6-04db-11ec-b2d8-0242ac130002", commentId)
             .then()
             .statusCode(200)
         ;
@@ -153,10 +153,10 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
             .when()
-            .delete("/cases/{caseId}/comments/{commentId}", CASE_ID, commentId)
+            .delete("/cases/{caseId}/defendants/{defendantId}/comments/{commentId}", CASE_ID, "40db17d6-04db-11ec-b2d8-0242ac130002", commentId)
             .then()
             .statusCode(404)
-            .body("userMessage", equalTo(String.format("Comment %d not found", commentId)))
+            .body("userMessage", equalTo("Comment 123 not found for caseId 1f93aa0a-7e46-4885-a1cb-f25a4be33a00, defendantId 40db17d6-04db-11ec-b2d8-0242ac130002 and user fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81 or user does not have permissions to modify"))
         ;
     }
 
@@ -172,10 +172,10 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
             .when()
-            .delete("/cases/{caseId}/comments/{commentId}", CASE_ID, commentId)
+            .delete("/cases/{caseId}/defendants/{defendantId}/comments/{commentId}", CASE_ID, "40db17d6-04db-11ec-b2d8-0242ac130002", commentId)
             .then()
-            .statusCode(403)
-            .body("userMessage", equalTo("User 4f7772a9-e42a-493a-a8f0-82caf83c6419 does not have permissions to delete comment -1700028902"))
+            .statusCode(404)
+            .body("userMessage", equalTo("Comment -1700028902 not found for caseId 1f93aa0a-7e46-4885-a1cb-f25a4be33a00, defendantId 40db17d6-04db-11ec-b2d8-0242ac130002 and user 4f7772a9-e42a-493a-a8f0-82caf83c6419 or user does not have permissions to modify"))
         ;
     }
 
@@ -188,7 +188,7 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
             .when()
-            .delete("/cases/{caseId}/comments/draft", CASE_ID)
+            .delete("/cases/{caseId}/defendants/{defendantId}/comments/draft", CASE_ID, "40db17d6-04db-11ec-b2d8-0242ac130002")
             .then()
             .statusCode(200)
         ;
@@ -208,7 +208,7 @@ class CourtCaseCommentsIntTest extends BaseIntTest {
             .accept(ContentType.JSON)
             .body(caseComment.replace("PSR is delayed", commentUpdate))
             .when()
-            .put("/cases/{caseId}/comments/{commentId}", CASE_ID, commentId);
+            .put("/cases/{caseId}/defendants/{defendantId}/comments/{commentId}", CASE_ID, "20db17d6-04db-11ec-b2d8-0242ac130002", commentId);
         caseCommentResponse
             .then()
             .statusCode(200)

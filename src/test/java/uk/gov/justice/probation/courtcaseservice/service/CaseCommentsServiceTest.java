@@ -108,7 +108,7 @@ class CaseCommentsServiceTest {
 
         assertThrows(EntityNotFoundException.class, () -> caseCommentsService.deleteCaseComment(invalidCaseId, testDefendantId, commentId, createdByUuid),
             "Comment 1234 not found for case invalid-case-id");
-        verify(caseCommentsRepository).findById(commentId);
+        verify(caseCommentsRepository).findByIdAndCaseIdAndDefendantIdAndCreatedByUuid(commentId, invalidCaseId, testDefendantId, createdByUuid);
         verifyNoMoreInteractions(caseCommentsRepository);
     }
 
@@ -155,8 +155,6 @@ class CaseCommentsServiceTest {
 
     @Test
     void givenValidCaseIdWithDraftComment_whenDeleteDraftComment_shouldDelete() {
-        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
-            .willReturn(Optional.of(courtCaseEntity));
         var existingComment = CaseCommentEntity.builder().caseId(testCaseId).comment("comment one").id(123L).draft(true).build();
         given(caseCommentsRepository.findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(testCaseId, testDefendantId, createdByUuid))
             .willReturn(Optional.of(existingComment));
@@ -212,7 +210,7 @@ class CaseCommentsServiceTest {
         given(caseCommentsRepository.findByIdAndCaseIdAndDefendantIdAndCreatedByUuid(commentId, testCaseId, testDefendantId, invalidUserUuid))
             .willReturn(Optional.empty());
         Exception e = assertThrows(EntityNotFoundException.class, () -> caseCommentsService.updateCaseComment(comment, commentId));
-        assertThat(e.getMessage()).isEqualTo("Comment 1 not found for the given user on case test-case-id");
+        assertThat(e.getMessage()).isEqualTo("Comment 1 not found for caseId test-case-id, defendantId test-defendant-id and user test-defendant-id or user does not have permissions to modify");
         verifyNoMoreInteractions(caseCommentsRepository);
     }
 

@@ -16,7 +16,16 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
@@ -245,6 +254,7 @@ public class CourtCaseController {
         var caseCommentEntity = caseCommentsService.createCaseComment(
             CaseCommentEntity.builder().caseId(caseId).defendantId(defendantId)
             .createdByUuid(authenticationHelper.getAuthUserUuid(principal))
+                .author(caseCommentRequest.getAuthor())
                 .comment(caseCommentRequest.getComment())
                 .build());
         return CaseCommentResponse.of(caseCommentEntity);

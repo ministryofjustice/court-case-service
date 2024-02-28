@@ -57,7 +57,7 @@ public class CaseProgressHearing {
     }
 
     private static List<HearingNoteResponse> mapHearingNotes(Optional<List<HearingNoteEntity>> notes) {
-        return notes.map(hearingNoteEntities -> hearingNoteEntities.stream().map(HearingNoteResponse::of).collect(Collectors.toList())).orElse(List.of());
+        return notes.map(hearingNoteEntities -> hearingNoteEntities.stream().filter(hearingNoteEntity -> !hearingNoteEntity.isDeleted()).map(HearingNoteResponse::of).collect(Collectors.toList())).orElse(List.of());
     }
 
     // It was decided to go with the first hearing day info and revisit when multi day hearing analysis is completed

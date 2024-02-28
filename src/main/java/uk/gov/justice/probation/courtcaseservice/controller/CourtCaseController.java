@@ -116,7 +116,7 @@ public class CourtCaseController {
     public @ResponseBody
     CourtCaseResponse getCourtCaseByHearingIdAndDefendantId(@PathVariable String hearingId, @PathVariable String defendantId) {
         HearingEntity hearingByHearingIdAndDefendantId = courtCaseService.getHearingByHearingIdAndDefendantId(hearingId, defendantId);
-        List<CaseProgressHearing> caseHearingProgress = caseProgressService.getCaseHearingProgress(hearingByHearingIdAndDefendantId.getCaseId());
+        List<CaseProgressHearing> caseHearingProgress = caseProgressService.getCaseHearingProgress(hearingByHearingIdAndDefendantId.getCaseId(), defendantId);
         return this.buildCourtCaseResponseForCaseIdAndDefendantId(hearingByHearingIdAndDefendantId, defendantId, caseHearingProgress);
     }
 
@@ -141,43 +141,42 @@ public class CourtCaseController {
                 .map(ExtendedHearingRequestResponse::of);
     }
 
-    @Operation(description = "Creates a hearing note for a given hearing")
-    @PostMapping(value = "/hearing/{hearingId}/notes", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @Operation(description = "Creates a hearing note for a given hearing and defendant ID")
+    @PostMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     HearingNoteResponse createHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                          @PathVariable(value = "defendantId") String defendantId,
                                           @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
                                           Principal principal) {
 
-        validateHearingNoteRequest(hearingId, hearingNoteRequest);
-
-        HearingNoteEntity hearingNote = hearingNotesService.createHearingNote(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
+        HearingNoteEntity hearingNote = hearingNotesService.createHearingNote(hearingId, defendantId, hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
         return HearingNoteResponse.of(hearingNote);
     }
 
-    @Operation(description = "Creates/updates a draft hearing note for a given hearing")
-    @PutMapping(value = "/hearing/{hearingId}/notes/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @Operation(description = "Creates/updates a draft hearing note for a given hearing and defendant ID")
+    @PutMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     HearingNoteResponse createUpdateDraftHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                                     @PathVariable(value = "defendantId") String defendantId,
                                           @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
                                           Principal principal) {
 
-        validateHearingNoteRequest(hearingId, hearingNoteRequest);
-
         HearingNoteEntity hearingNote = hearingNotesService
-            .createOrUpdateHearingNoteDraft(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
+            .createOrUpdateHearingNoteDraft(hearingId, defendantId, hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
         return HearingNoteResponse.of(hearingNote);
     }
 
     @Operation(description = "Deletes the draft hearing note for a given hearing")
-    @DeleteMapping(value = "/hearing/{hearingId}/notes/draft")
+    @DeleteMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes/draft")
     @ResponseStatus(HttpStatus.OK)
     public void deleteDraftHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                       @PathVariable(value = "defendantId") String defendantId,
                                                Principal principal) {
 
         hearingNotesService
-            .deleteHearingNoteDraft(hearingId, authenticationHelper.getAuthUserUuid(principal));
+            .deleteHearingNoteDraft(hearingId, defendantId, authenticationHelper.getAuthUserUuid(principal));
     }
 
     private static void validateHearingNoteRequest(String hearingId, HearingNoteRequest hearingNoteRequest) {
@@ -187,27 +186,27 @@ public class CourtCaseController {
         }
     }
 
-    @Operation(description = "Updates a hearing note for a given hearing and noteId")
-    @PutMapping(value = "/hearing/{hearingId}/notes/{noteId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @Operation(description = "Updates a hearing note for a given hearing, defendant and noteId")
+    @PutMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes/{noteId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public void updateHearingNote(@PathVariable(value = "hearingId") String hearingId,
-                                          @PathVariable(value = "noteId") Long noteId,
-                                          @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
+                                  @PathVariable(value = "defendantId") String defendantId,
+                                  @PathVariable(value = "noteId") Long noteId,
+                                  @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
                                           Principal principal) {
 
-        validateHearingNoteRequest(hearingId, hearingNoteRequest);
-
-        hearingNotesService.updateHearingNote(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)), noteId);
+        hearingNotesService.updateHearingNote(hearingId, defendantId, hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)), noteId);
     }
 
     @Operation(description = "Delete a hearing note for a given hearing and note id")
-    @DeleteMapping(value = "/hearing/{hearingId}/notes/{noteId}")
+    @DeleteMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes/{noteId}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                  @PathVariable(value = "defendantId") String defendantId,
                                   @PathVariable(value = "noteId") Long noteId,
                                   Principal principal) {
 
-        hearingNotesService.deleteHearingNote(hearingId, noteId, authenticationHelper.getAuthUserUuid(principal));
+        hearingNotesService.deleteHearingNote(hearingId, defendantId, noteId, authenticationHelper.getAuthUserUuid(principal));
     }
 
 

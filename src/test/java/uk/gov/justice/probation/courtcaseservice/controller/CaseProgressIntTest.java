@@ -11,7 +11,9 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteResponse;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingNotesRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper;
 
 import java.time.LocalDate;
@@ -29,6 +31,8 @@ import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.get
 public class CaseProgressIntTest extends BaseIntTest {
 
     private static final String HEARING_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
+    private static final String  DEFENDANT_ID = "40db17d6-04db-11ec-b2d8-0242ac130002";
+
     private final String hearingNote = """
             {
                     "hearingId": "1f93aa0a-7e46-4885-a1cb-f25a4be33a00",
@@ -45,6 +49,8 @@ public class CaseProgressIntTest extends BaseIntTest {
 
     @Autowired
     private HearingNotesRepository hearingNotesRepository;
+    @Autowired
+    private HearingRepository hearingRepository;
 
     @Test
     void givenExistingCaseId_whenGetHearingByDefendantId_thenReturnCaseSummaryAlongWithAllHearings() {
@@ -135,7 +141,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .accept(ContentType.JSON)
             .body(hearingNote)
             .when()
-            .post("/hearing/{hearingId}/notes", HEARING_ID);
+            .post("/hearing/{hearingId}/defendants/{defendantId}/notes", HEARING_ID, DEFENDANT_ID);
         hearingNoteResponse
             .then()
             .statusCode(201)
@@ -145,9 +151,13 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("createdByUuid", Matchers.equalTo(TokenHelper.TEST_UUID))
             .body("created", Matchers.notNullValue())
         ;
+
+        var hearing = hearingRepository.findFirstByHearingId(HEARING_ID).get();
+        var hearingDefendant = hearing.getHearingDefendant(DEFENDANT_ID);
+
         var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
 
-        var hearingNoteEntity = hearingNotesRepository.findById(hearingNote.getNoteId()).get();
+        var hearingNoteEntity = hearingDefendant.getNotes().get(0);
         assertThat(hearingNoteEntity.getNote()).isEqualTo(hearingNote.getNote());
         assertThat(hearingNoteEntity.getCreatedByUuid()).isEqualTo(hearingNote.getCreatedByUuid());
         assertThat(hearingNoteEntity.getAuthor()).isEqualTo(hearingNote.getAuthor());
@@ -167,7 +177,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .accept(ContentType.JSON)
             .body(hearingNote.replace("Judge heard", "Judge heard update"))
             .when()
-            .put("/hearing/{hearingId}/notes/{noteId}", HEARING_ID, noteId);
+            .put("/hearing/{hearingId}/defendants/{defendantId}/notes/{noteId}", HEARING_ID, DEFENDANT_ID, noteId);
         hearingNoteResponse
             .then()
             .statusCode(200);
@@ -188,7 +198,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .accept(ContentType.JSON)
             .body(hearingNote)
             .when()
-            .delete("/hearing/{hearingId}/notes/{noteId}", HEARING_ID, noteId);
+            .delete("/hearing/{hearingId}/defendants/{defendantId}/notes/{noteId}", HEARING_ID, "40db17d6-04db-11ec-b2d8-0242ac130002", noteId);
         hearingNoteResponse
             .then()
             .statusCode(200);
@@ -208,7 +218,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .accept(ContentType.JSON)
             .body(hearingNote)
             .when()
-            .put("/hearing/{hearingId}/notes/draft", HEARING_ID);
+            .put("/hearing/{hearingId}/defendants/{defendantId}/notes/draft", HEARING_ID, DEFENDANT_ID);
         hearingNoteResponse
             .then()
             .statusCode(200)
@@ -219,9 +229,14 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("created", Matchers.notNullValue())
             .body("draft", Matchers.is(true));
 
+
+        var hearing = hearingRepository.findFirstByHearingId(HEARING_ID).get();
+        var hearingDefendant = hearing.getHearingDefendant(DEFENDANT_ID);
+
         var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
 
-        var hearingNoteEntity = hearingNotesRepository.findById(hearingNote.getNoteId()).get();
+        var hearingNoteEntity = hearingDefendant.getNotes().get(0);
+
         assertThat(hearingNoteEntity.getNote()).isEqualTo(hearingNote.getNote());
         assertThat(hearingNoteEntity.getCreatedByUuid()).isEqualTo(hearingNote.getCreatedByUuid());
         assertThat(hearingNoteEntity.getAuthor()).isEqualTo(hearingNote.getAuthor());
@@ -240,7 +255,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .oauth2(getToken())
             .body(hearingNote)
             .when()
-            .delete("/hearing/{hearingId}/notes/draft", testHearingId);
+            .delete("/hearing/{hearingId}/defendants/{defendantId}/notes/draft", testHearingId, "40db17d6-04db-11ec-b2d8-0242ac130002");
         hearingNoteResponse
             .then()
             .statusCode(200);
@@ -253,6 +268,7 @@ public class CaseProgressIntTest extends BaseIntTest {
     @Test
     void givenExistingHearingId_aDraftExistAlready_whenPutDraftNote_shouldUpdateDraftNote() {
         var hearingId = "2aa6f5e0-f842-4939-bc6a-01346abc09e7";
+        var defendantId = "40db17d6-04db-11ec-b2d8-0242ac130002";
 
         Response hearingNoteResponse = given()
             .auth()
@@ -261,7 +277,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .accept(ContentType.JSON)
             .body(noteUpdate)
             .when()
-            .put("/hearing/{hearingId}/notes/draft", hearingId);
+            .put("/hearing/{hearingId}/defendants/{defendantId}/notes/draft", hearingId, defendantId);
         hearingNoteResponse
             .then()
             .statusCode(200)
@@ -274,7 +290,11 @@ public class CaseProgressIntTest extends BaseIntTest {
 
         var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
 
-        var hearingNoteEntity = hearingNotesRepository.findById(hearingNote.getNoteId()).get();
+        var hearing = hearingRepository.findFirstByHearingId(hearingId).get();
+        var hearingDefendant = hearing.getHearingDefendant(defendantId);
+
+        var hearingNoteEntity = hearingDefendant.getNotes().stream().filter(HearingNoteEntity::isDraft).findAny().get();
+
         assertThat(hearingNoteEntity.getNote()).isEqualTo("Judge heard new update update");
         assertThat(hearingNoteEntity.getCreatedByUuid()).isEqualTo(hearingNote.getCreatedByUuid());
         assertThat(hearingNoteEntity.getAuthor()).isEqualTo("Author Three");

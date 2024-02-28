@@ -21,6 +21,7 @@ class HearingNoteResponseTest {
             .createdByUuid("test-uuid")
             .created(now)
             .draft(true)
+            .legacy(true)
             .build();
 
         var hearingNoteResponse = HearingNoteResponse.of(hearingNoteEntity);
@@ -34,6 +35,7 @@ class HearingNoteResponseTest {
                 .createdByUuid("test-uuid")
                 .created(now)
                 .draft(true)
+                .legacy(true)
                 .build()
         );
     }

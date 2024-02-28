@@ -31,4 +31,11 @@ public class HearingNoteRequest {
             .author(author)
             .build();
     }
+
+    public HearingNoteEntity asEntity(String hearingId, String defendantId, String authUserUuid) { return HearingNoteEntity.builder()
+        .note(note)
+        .createdByUuid(authUserUuid)
+        .author(author)
+        .build();
+    }
 }

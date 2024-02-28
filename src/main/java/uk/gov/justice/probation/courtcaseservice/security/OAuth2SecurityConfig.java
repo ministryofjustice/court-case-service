@@ -35,7 +35,7 @@ public class OAuth2SecurityConfig {
                             "/queue-admin/retry-all-dlqs",
                             "/process-un-resulted-cases"
                         ).permitAll()
-                        .anyRequest().hasRole("PREPARE_A_CASE")
+                        .anyRequest().hasAnyRole("PREPARE_A_CASE", "GLOBAL_SEARCH")
                     ).oauth2ResourceServer().jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());
         return http.build();
     }

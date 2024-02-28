@@ -40,8 +40,8 @@ public class HearingNotesService {
                         return dbHearingNote;
                     }
                 ).orElseGet(() -> hearingDefendantEntity.addHearingNote(hearingNoteEntity.withDraft(draft))))
-            .map(hearingNote -> hearingNotesRepository.save(hearingNote))
             .map(hearingNote -> {
+                hearingNotesRepository.save(hearingNote);
                 if(!draft) {
                     telemetryService.trackCreateHearingNoteEvent(hearingNote);
                 }

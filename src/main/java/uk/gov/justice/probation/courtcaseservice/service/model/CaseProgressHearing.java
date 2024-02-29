@@ -43,7 +43,7 @@ public class CaseProgressHearing {
     private final List<HearingNoteResponse> notes;
     private final HearingOutcomeResponse hearingOutcome;
 
-    public static CaseProgressHearing of(HearingEntity hearingEntity, Optional<List<HearingNoteEntity>> notes) {
+    public static CaseProgressHearing of(HearingEntity hearingEntity, List<HearingNoteEntity> notes) {
         var hearingDay = getHearingDay(hearingEntity);
         return CaseProgressHearing.builder()
             .hearingId(hearingEntity.getHearingId())
@@ -57,8 +57,10 @@ public class CaseProgressHearing {
             .build();
     }
 
-    private static List<HearingNoteResponse> mapHearingNotes(Optional<List<HearingNoteEntity>> notes) {
-        return notes.map(hearingNoteEntities -> hearingNoteEntities.stream().filter(hearingNoteEntity -> !hearingNoteEntity.isDeleted()).map(HearingNoteResponse::of).collect(Collectors.toList())).orElse(Collections.emptyList());
+    private static List<HearingNoteResponse> mapHearingNotes(List<HearingNoteEntity> notes) {
+        return Optional.ofNullable(notes).map(hearingNoteEntities -> hearingNoteEntities.stream()
+            .filter(hearingNoteEntity -> !hearingNoteEntity.isDeleted()).map(HearingNoteResponse::of)
+            .collect(Collectors.toList())).orElse(Collections.emptyList());
     }
 
     // It was decided to go with the first hearing day info and revisit when multi day hearing analysis is completed

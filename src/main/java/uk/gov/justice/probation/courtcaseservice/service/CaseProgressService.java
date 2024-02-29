@@ -6,6 +6,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingNotesRepo
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,8 +26,8 @@ public class CaseProgressService {
     public List<CaseProgressHearing> getCaseHearingProgress(String caseId, String defendantId) {
         return hearingRepository.findHearingsByCaseId(caseId)
             .map(hearingEntities -> hearingEntities.stream().map(
-                hearingEntity -> CaseProgressHearing.of(hearingEntity, Optional.of(Optional.ofNullable(hearingEntity.getHearingDefendant(defendantId)).map(HearingDefendantEntity::getNotes).orElse(List.of())))
+                hearingEntity -> CaseProgressHearing.of(hearingEntity, Optional.ofNullable(hearingEntity.getHearingDefendant(defendantId)).map(HearingDefendantEntity::getNotes).orElse(List.of()))
             ).collect(Collectors.toList()))
-            .orElse(null);
+            .orElse(Collections.emptyList());
     }
 }

@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import org.junit.jupiter.api.Test;
+import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
 import java.util.List;
 
@@ -119,5 +120,13 @@ class HearingDefendantEntityTest {
     void shouldReturnNullIfOffenderIsNull() {
         var defendantEntity = DefendantEntity.builder().offender(null).build();
         assertThat(defendantEntity.getCrn()).isNull();
+    }
+
+    @Test
+    void givenHearingOutcomeType_shouldAddToHearing() {
+        var hearingDefendant = HearingDefendantEntity.builder().build();
+        hearingDefendant.addHearingOutcome(HearingOutcomeType.REPORT_REQUESTED);
+        assertThat(hearingDefendant.getHearingOutcome().getOutcomeType()).isEqualTo(HearingOutcomeType.REPORT_REQUESTED.name());
+        assertThat(hearingDefendant.getHearingOutcome().getOutcomeDate()).isNotNull();
     }
 }

@@ -29,13 +29,15 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
                           @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
                           val cutOffTime: LocalTime = LocalTime.of(18, 30)) {
 
-    fun addOrUpdateHearingOutcome(hearingId: String, hearingOutcomeType: HearingOutcomeType) {
+    fun addOrUpdateHearingOutcome(hearingId: String, defendantId: String, hearingOutcomeType: HearingOutcomeType) {
         hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
             { hearingEntity: HearingEntity ->
-                if (hearingEntity.hearingOutcome == null) {
-                    hearingEntity.addHearingOutcome(hearingOutcomeType)
+                val hearingDefendant = hearingEntity.getHearingDefendant(defendantId)
+                    ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
+                if (hearingDefendant.hearingOutcome == null) {
+                    hearingDefendant.addHearingOutcome(hearingOutcomeType)
                 } else {
-                    hearingEntity.hearingOutcome.update(hearingOutcomeType)
+                    hearingDefendant.hearingOutcome.update(hearingOutcomeType)
                 }
                 hearingRepository.save(hearingEntity)
             },
@@ -44,28 +46,35 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
             })
     }
 
-    fun assignAndUpdateStateToInProgress(hearingId: String, assignedTo: String, assignedToUuid: String) {
+    fun assignAndUpdateStateToInProgress(hearingId: String, defendantId: String, assignedTo: String, assignedToUuid: String) {
         hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
-                { hearingEntity: HearingEntity ->
-                    hearingEntity.hearingOutcome.assignTo(assignedTo, assignedToUuid)
-                    hearingRepository.save(hearingEntity)
+                {
+                    val hearingDefendant = it.getHearingDefendant(defendantId)
+                        ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
+
+                    hearingDefendant.hearingOutcome.assignTo(assignedTo, assignedToUuid)
+                    hearingRepository.save(it)
                 },
                 {
                     throw EntityNotFoundException("Hearing not found with id $hearingId")
                 })
     }
 
-    fun resultHearingOutcome(hearingId: String, userUuid: String) {
+    fun resultHearingOutcome(hearingId: String, defendantId: String, userUuid: String) {
         hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
                 {
-                    if(it.hearingOutcome.assignedToUuid != userUuid) {
+                    val hearingDefendant = it.getHearingDefendant(defendantId)
+                        ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
+
+                    val hearingOutcome = hearingDefendant.hearingOutcome
+                    if(hearingOutcome.assignedToUuid != userUuid) {
                         throw ForbiddenException("Outcome not allocated to current user.")
                     }
-                    if(it.hearingOutcome.state != HearingOutcomeItemState.IN_PROGRESS.name) {
+                    if(hearingOutcome.state != HearingOutcomeItemState.IN_PROGRESS.name) {
                         throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid state for outcome to be resulted.")
                     }
-                    it.hearingOutcome.state = HearingOutcomeItemState.RESULTED.name
-                    it.hearingOutcome.resultedDate = LocalDateTime.now()
+                    hearingOutcome.state = HearingOutcomeItemState.RESULTED.name
+                    hearingOutcome.resultedDate = LocalDateTime.now()
                     hearingRepository.save(it)
                 },
                 {

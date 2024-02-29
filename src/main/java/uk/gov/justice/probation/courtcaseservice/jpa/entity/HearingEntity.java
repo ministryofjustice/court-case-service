@@ -2,7 +2,22 @@ package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.ColumnResult;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityResult;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.SqlResultSetMapping;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,8 +30,6 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.Audited;
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState;
-import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -90,9 +103,6 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
     @Column(name = "LIST_NO")
     private String listNo;
 
-    @OneToOne(mappedBy = "hearing", cascade = CascadeType.ALL)
-    private HearingOutcomeEntity hearingOutcome;
-
     public String getCaseId() {
         return courtCase.getCaseId();
     }
@@ -124,14 +134,6 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
         updateHearingDays(hearingUpdate);
         updateHearingDefendant(hearingUpdate);
         return this;
-    }
-
-    public void addHearingOutcome(HearingOutcomeType hearingOutcomeType) {
-        this.hearingOutcome = HearingOutcomeEntity.builder().outcomeType(hearingOutcomeType.name())
-            .state(HearingOutcomeItemState.NEW.name())
-            .outcomeDate(LocalDateTime.now())
-            .hearing(this)
-            .build();
     }
 
     private void updateHearingDays(HearingEntity hearingUpdate) {

@@ -9,8 +9,12 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
-import org.slf4j.LoggerFactory
-import uk.gov.justice.probation.courtcaseservice.controller.model.*
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcome
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCaseList
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeAssignToRequest
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCountByState
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState.NEW
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE
 import uk.gov.justice.probation.courtcaseservice.security.AuthAwareAuthenticationToken
 import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper
@@ -24,7 +28,8 @@ internal class CaseWorkflowControllerTest {
 
     companion object {
         val TEST_COURT_ROOMS = listOf("01", "Court room - 2")
-        private val log = LoggerFactory.getLogger(CaseWorkflowControllerTest::class.java)
+        private val hearingId = "test-hearing-id"
+        private val defendantId = "test-defendant-id"
     }
 
     @Mock
@@ -41,13 +46,12 @@ internal class CaseWorkflowControllerTest {
 
     @Test
     fun `should invoke service with hearing id and outcome type`() {
-        val hearingId = "test-hearing-id"
-        caseWorkflowController.addOrUpdateHearingOutcome(hearingId, HearingOutcome(ADJOURNED))
-        verify(caseWorkflowService).addOrUpdateHearingOutcome(hearingId, ADJOURNED)
+        caseWorkflowController.addOrUpdateHearingOutcome(hearingId, defendantId, HearingOutcome(ADJOURNED))
+        verify(caseWorkflowService).addOrUpdateHearingOutcome(hearingId, defendantId, ADJOURNED)
     }
     @Test
     fun `should invoke service with court code and hearing state`() {
-        val hearingOutcomeSearchRequest = HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW)
+        val hearingOutcomeSearchRequest = HearingOutcomeSearchRequest(NEW)
         given(caseWorkflowService.fetchHearingOutcomes(COURT_CODE, hearingOutcomeSearchRequest)).willReturn(
             HearingOutcomeCaseList(listOf(), HearingOutcomeCountByState(1,0,2), TEST_COURT_ROOMS, 2, 2, 9)
         )
@@ -59,29 +63,27 @@ internal class CaseWorkflowControllerTest {
     @Test
     fun `should invoke service with user details`() {
         // Given
-        val hearingId = "test-hearing-id"
         val hearingOutcome = HearingOutcomeAssignToRequest("John Smith")
         given(authenticationHelper.getAuthUserUuid(any(Principal::class.java))).willReturn("test-uuid")
 
         // When
-        caseWorkflowController.assignUserToHearingOutcome(hearingId, hearingOutcome, principal)
+        caseWorkflowController.assignUserToHearingOutcome(hearingId, defendantId, hearingOutcome, principal)
 
         // Then
-        verify(caseWorkflowService).assignAndUpdateStateToInProgress(hearingId, "John Smith", "test-uuid")
+        verify(caseWorkflowService).assignAndUpdateStateToInProgress(hearingId, defendantId, "John Smith", "test-uuid")
     }
 
     @Test
     fun `should invoke service to result the case outcome`() {
         // Given
-        val hearingId = "test-hearing-id"
         val hearingOutcome = HearingOutcomeAssignToRequest("John Smith")
         given(authenticationHelper.getAuthUserUuid(any(Principal::class.java))).willReturn("test-uuid")
 
         // When
-        caseWorkflowController.resultHearingOutcome(hearingId, principal)
+        caseWorkflowController.resultHearingOutcome(hearingId, defendantId, principal)
 
         // Then
-        verify(caseWorkflowService).resultHearingOutcome(hearingId, "test-uuid")
+        verify(caseWorkflowService).resultHearingOutcome(hearingId, defendantId,"test-uuid")
     }
 
     @Test

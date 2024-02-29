@@ -17,6 +17,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -57,7 +58,7 @@ public class CaseProgressHearing {
     }
 
     private static List<HearingNoteResponse> mapHearingNotes(Optional<List<HearingNoteEntity>> notes) {
-        return notes.map(hearingNoteEntities -> hearingNoteEntities.stream().filter(hearingNoteEntity -> !hearingNoteEntity.isDeleted()).map(HearingNoteResponse::of).collect(Collectors.toList())).orElse(List.of());
+        return notes.map(hearingNoteEntities -> hearingNoteEntities.stream().filter(hearingNoteEntity -> !hearingNoteEntity.isDeleted()).map(HearingNoteResponse::of).collect(Collectors.toList())).orElse(Collections.emptyList());
     }
 
     // It was decided to go with the first hearing day info and revisit when multi day hearing analysis is completed

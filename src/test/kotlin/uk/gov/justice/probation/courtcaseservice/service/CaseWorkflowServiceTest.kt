@@ -14,17 +14,12 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.server.ResponseStatusException
 import uk.gov.justice.probation.courtcaseservice.controller.model.*
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingOutcomeEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepositoryCustom
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
-import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -37,6 +32,8 @@ internal class CaseWorkflowServiceTest {
 
     companion object {
         val TEST_COURT_ROOMS = listOf("01", "Court room - 2")
+        val hearingId = "hearing-id-one"
+        val defendantId = "defendant-id-one"
     }
 
     @Mock
@@ -61,32 +58,30 @@ internal class CaseWorkflowServiceTest {
     }
 
     @Test
-    fun `given hearing outcome and hearing id exist should add hearing outcome`() {
-        val hearingId = "hearing-id-one"
-        val dbHearingEntity = HearingEntity.builder().build()
-        given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(dbHearingEntity))
-        caseWorkflowService.addOrUpdateHearingOutcome(hearingId, HearingOutcomeType.REPORT_REQUESTED)
-        verify(hearingRepository).findFirstByHearingId(hearingId)
-        assertThat(dbHearingEntity.hearingOutcome)
+    fun `given hearing outcome and hearing id and defendant id exist should add hearing outcome`() {
+        val dbHearingEntity = aHearingEntity()
+        given(hearingRepository.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(dbHearingEntity))
+        caseWorkflowService.addOrUpdateHearingOutcome(HEARING_ID, DEFENDANT_ID, HearingOutcomeType.REPORT_REQUESTED)
+        verify(hearingRepository).findFirstByHearingId(HEARING_ID)
+        assertThat(dbHearingEntity.hearingDefendants[0].hearingOutcome)
             .isEqualTo(HearingOutcomeEntity.builder().outcomeType("REPORT_REQUESTED").build())
     }
 
     @Test
     fun `given hearing outcome and hearing outcome exists, should update hearing outcome`() {
-        val hearingId = "hearing-id-one"
-        val dbHearingEntity = HearingEntity.builder()
-            .hearingOutcome(HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.ADJOURNED.name).build())
-            .build()
-        given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(dbHearingEntity))
-        caseWorkflowService.addOrUpdateHearingOutcome(hearingId, HearingOutcomeType.REPORT_REQUESTED)
-        verify(hearingRepository).findFirstByHearingId(hearingId)
-        assertThat(dbHearingEntity.hearingOutcome)
+        val hearingOutcome = HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.ADJOURNED.name).build()
+        val dbHearingEntity: HearingEntity = aHearingEntity()
+            .withHearingDefendants(listOf(HearingDefendantEntity.builder().defendantId(DEFENDANT_ID).hearingOutcome(hearingOutcome).build()))
+        given(hearingRepository.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(dbHearingEntity))
+        given(hearingRepository.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(dbHearingEntity))
+        caseWorkflowService.addOrUpdateHearingOutcome(HEARING_ID, DEFENDANT_ID, HearingOutcomeType.REPORT_REQUESTED)
+        verify(hearingRepository).findFirstByHearingId(HEARING_ID)
+        assertThat(dbHearingEntity.hearingDefendants[0].hearingOutcome)
             .isEqualTo(HearingOutcomeEntity.builder().outcomeType("REPORT_REQUESTED").build())
     }
 
     @Test
     fun `given hearing outcome and hearing id does not exist should throw entity not found exception`() {
-        val hearingId = "hearing-id-one"
         given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.empty())
         assertThrows(
             "Hearing not found with id hearing-id-one",
@@ -94,6 +89,7 @@ internal class CaseWorkflowServiceTest {
         ) {
             caseWorkflowService.addOrUpdateHearingOutcome(
                 hearingId,
+                defendantId,
                 HearingOutcomeType.REPORT_REQUESTED
             )
         }
@@ -106,23 +102,23 @@ internal class CaseWorkflowServiceTest {
         val hearingId = "hearing-id-one"
         val assignedTo = "John Smith"
         val assignedToUuid = "test-uuid"
-        val hearingEntity = HearingEntity.builder()
-                .hearingOutcome(HearingOutcomeEntity.builder().build())
-                .build()
+        val hearingOutcome = HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.ADJOURNED.name).build()
+        val hearingEntity: HearingEntity = aHearingEntity()
+            .withHearingDefendants(listOf(HearingDefendantEntity.builder().defendantId(DEFENDANT_ID).hearingOutcome(hearingOutcome).build()))
 
-        given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(hearingEntity))
+        given(hearingRepository.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearingEntity))
 
         // When
-        caseWorkflowService.assignAndUpdateStateToInProgress(hearingId, assignedTo, assignedToUuid)
+        caseWorkflowService.assignAndUpdateStateToInProgress(HEARING_ID, DEFENDANT_ID, assignedTo, assignedToUuid)
 
         // Then
-        verify(hearingRepository).findFirstByHearingId(hearingId)
+        verify(hearingRepository).findFirstByHearingId(HEARING_ID)
         verify(hearingRepository).save(hearingEntityCaptor.capture())
 
-        val entity = hearingEntityCaptor.value
-        assertThat(entity.hearingOutcome.state).isEqualTo(HearingOutcomeItemState.IN_PROGRESS.name)
-        assertThat(entity.hearingOutcome.assignedTo).isEqualTo(assignedTo)
-        assertThat(entity.hearingOutcome.assignedToUuid).isEqualTo(assignedToUuid)
+        val expectedHearingOutcome = hearingEntity.hearingDefendants[0].hearingOutcome
+        assertThat(expectedHearingOutcome.state).isEqualTo(HearingOutcomeItemState.IN_PROGRESS.name)
+        assertThat(expectedHearingOutcome.assignedTo).isEqualTo(assignedTo)
+        assertThat(expectedHearingOutcome.assignedToUuid).isEqualTo(assignedToUuid)
     }
 
     @Test
@@ -142,6 +138,7 @@ internal class CaseWorkflowServiceTest {
 
             caseWorkflowService.assignAndUpdateStateToInProgress(
                     hearingId,
+                    defendantId,
                     assignedTo,
                     assignedToUuid
             )
@@ -159,8 +156,25 @@ internal class CaseWorkflowServiceTest {
         val hearingOutcomeEntity2 = HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.ADJOURNED.name).outcomeDate(
             LocalDateTime.of(2023, 5,5, 19, 9, 5)).state("NEW").build()
 
-        val hearing1 = EntityHelper.aHearingEntityWithHearingId("case-id-1", "hearing-id-1", "defendant-id-1").withHearingOutcome(hearingOutcomeEntity1)
-        val hearing2 = EntityHelper.aHearingEntityWithHearingId("case-id-2", "hearing-id-2", "defendant-id-2").withHearingOutcome(hearingOutcomeEntity2)
+        val hearingId1 = "hearing-id-1"
+        val defendantId1 = "defendant-id-1"
+        val caseId1 = "case-id-1"
+        val hearingId2 = "hearing-id-2"
+        val caseId2 = "case-id-2"
+        val defendantId2 = "defendant-id-2"
+
+        aHearingEntityWithHearingId(caseId1, hearingId1, defendantId1);
+        val hearingDefendant1 = aHearingDefendantEntity(defendantId1).withHearingOutcome(hearingOutcomeEntity1)
+
+        val hearing1 = aHearingEntityWithHearingId(caseId1, hearingId1, defendantId1)
+            .withHearingDefendants(listOf(hearingDefendant1))
+
+        val hearingDefendant2 = aHearingDefendantEntity(defendantId2).withHearingOutcome(hearingOutcomeEntity2)
+        val hearing2 = aHearingEntityWithHearingId(caseId2, hearingId2, defendantId2)
+            .withHearingDefendants(listOf(hearingDefendant2))
+
+        refreshMappings(hearing1)
+        refreshMappings(hearing2)
 
         given(courtRepository.findByCourtCode(COURT_CODE)).willReturn(Optional.of(CourtEntity.builder().build()))
         given(
@@ -171,15 +185,15 @@ internal class CaseWorkflowServiceTest {
         ).willReturn(
             PageImpl(
                 listOf(
-                    Pair<HearingEntity, LocalDate>(hearing1, EntityHelper.SESSION_START_TIME.toLocalDate()),
-                    Pair<HearingEntity, LocalDate>(hearing2, EntityHelper.SESSION_START_TIME.toLocalDate())
+                    Pair<HearingDefendantEntity, LocalDate>(hearingDefendant1, SESSION_START_TIME.toLocalDate()),
+                    Pair<HearingDefendantEntity, LocalDate>(hearingDefendant2, SESSION_START_TIME.toLocalDate())
                 ),
                 Pageable.ofSize(2),
                 9
             )
         )
 
-        given(hearingRepository.getCourtroomsForCourt(EntityHelper.COURT_CODE)).willReturn(TEST_COURT_ROOMS)
+        given(hearingRepository.getCourtroomsForCourt(COURT_CODE)).willReturn(TEST_COURT_ROOMS)
 
         val hearingOutcomes = caseWorkflowService.fetchHearingOutcomes(COURT_CODE, HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW))
 
@@ -189,24 +203,24 @@ internal class CaseWorkflowServiceTest {
                     HearingOutcomeResponse(
                         hearingOutcomeType = HearingOutcomeType.REPORT_REQUESTED,
                         outcomeDate = LocalDateTime.of(2023, 6, 6, 19, 9, 1),
-                        hearingDate = EntityHelper.SESSION_START_TIME.toLocalDate(),
-                        hearingId = "hearing-id-1",
-                        defendantId = "defendant-id-1",
-                        probationStatus = EntityHelper.PROBATION_STATUS,
-                        offences = listOf(EntityHelper.OFFENCE_TITLE),
-                        defendantName = EntityHelper.DEFENDANT_NAME,
+                        hearingDate = SESSION_START_TIME.toLocalDate(),
+                        hearingId = hearingId1,
+                        defendantId = defendantId1,
+                        probationStatus = PROBATION_STATUS,
+                        offences = listOf(OFFENCE_TITLE),
+                        defendantName = DEFENDANT_NAME,
                         crn = "X340906",
                         state = HearingOutcomeItemState.NEW
                     ),
                     HearingOutcomeResponse(
                         hearingOutcomeType = HearingOutcomeType.ADJOURNED,
                         outcomeDate = LocalDateTime.of(2023, 5, 5, 19, 9, 5),
-                        hearingDate = EntityHelper.SESSION_START_TIME.toLocalDate(),
-                        hearingId = "hearing-id-2",
-                        defendantId = "defendant-id-2",
-                        probationStatus = EntityHelper.PROBATION_STATUS,
-                        offences = listOf(EntityHelper.OFFENCE_TITLE),
-                        defendantName = EntityHelper.DEFENDANT_NAME,
+                        hearingDate = SESSION_START_TIME.toLocalDate(),
+                        hearingId = hearingId2,
+                        defendantId = defendantId2,
+                        probationStatus = PROBATION_STATUS,
+                        offences = listOf(OFFENCE_TITLE),
+                        defendantName = DEFENDANT_NAME,
                         crn = "X340906",
                         state = HearingOutcomeItemState.NEW
                     )
@@ -238,23 +252,25 @@ internal class CaseWorkflowServiceTest {
     @Test
     fun `given existing hearing with outcome in IN_PROGRESS and allocated to current user, should mark outcome as RESULTED`() {
         // Given
-        val hearingId = "hearing-id-one"
         val assignedToUuid = "test-uuid"
-        val hearingEntity = HearingEntity.builder()
-            .hearingOutcome(HearingOutcomeEntity.builder().state(HearingOutcomeItemState.IN_PROGRESS.name).assignedToUuid(assignedToUuid).build())
-            .build()
 
-        given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(hearingEntity))
+        val hearingOutcomeEntity = HearingOutcomeEntity.builder().state(HearingOutcomeItemState.IN_PROGRESS.name)
+            .assignedToUuid(assignedToUuid).build()
+
+        val hearingEntity = aHearingEntity().withHearingDefendants(listOf(aHearingDefendantEntity().withHearingOutcome(hearingOutcomeEntity)))
+
+        given(hearingRepository.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearingEntity))
 
         // When
-        caseWorkflowService.resultHearingOutcome(hearingId, assignedToUuid)
+        caseWorkflowService.resultHearingOutcome(HEARING_ID, DEFENDANT_ID, assignedToUuid)
 
         // Then
-        verify(hearingRepository).findFirstByHearingId(hearingId)
+        verify(hearingRepository).findFirstByHearingId(HEARING_ID)
         verify(hearingRepository).save(hearingEntityCaptor.capture())
 
-        assertThat(hearingEntityCaptor.value.hearingOutcome.state).isEqualTo(HearingOutcomeItemState.RESULTED.name)
-        assertThat(hearingEntityCaptor.value.hearingOutcome.resultedDate).isNotNull()
+        val actual = hearingEntityCaptor.value.hearingDefendants[0].hearingOutcome
+        assertThat(actual.state).isEqualTo(HearingOutcomeItemState.RESULTED.name)
+        assertThat(actual.resultedDate).isNotNull()
     }
 
     @Test
@@ -262,18 +278,19 @@ internal class CaseWorkflowServiceTest {
         // Given
         val hearingId = "hearing-id-one"
         val assignedToUuid = "test-uuid"
-        val hearingEntity = HearingEntity.builder()
+
+        val hearingEntity = HearingEntity.builder().hearingDefendants(listOf(HearingDefendantEntity.builder()
             .hearingOutcome(HearingOutcomeEntity.builder().state(HearingOutcomeItemState.IN_PROGRESS.name).assignedToUuid(assignedToUuid).build())
-            .build()
+            .build())).build()
 
         given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(hearingEntity))
 
         // When
         assertThrows(
             "Outcome not allocated to current user.",
-            ForbiddenException::class.java
+            EntityNotFoundException::class.java
         ) {
-            caseWorkflowService.resultHearingOutcome(hearingId, "un-allocated-to-user")
+            caseWorkflowService.resultHearingOutcome(hearingId, defendantId,"un-allocated-to-user")
         }
         verify(hearingRepository).findFirstByHearingId(hearingId)
         verifyNoMoreInteractions(hearingRepository)
@@ -284,18 +301,19 @@ internal class CaseWorkflowServiceTest {
         // Given
         val hearingId = "hearing-id-one"
         val assignedToUuid = "test-uuid"
-        val hearingEntity = HearingEntity.builder()
+
+        val hearingEntity = HearingEntity.builder().hearingDefendants(listOf(HearingDefendantEntity.builder()
             .hearingOutcome(HearingOutcomeEntity.builder().state(HearingOutcomeItemState.NEW.name).assignedToUuid(assignedToUuid).build())
-            .build()
+            .build())).build()
 
         given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(hearingEntity))
 
         // When
         assertThrows(
             "Invalid state for outcome to be resulted.",
-            ResponseStatusException::class.java
+            EntityNotFoundException::class.java
         ) {
-            caseWorkflowService.resultHearingOutcome(hearingId, assignedToUuid)
+            caseWorkflowService.resultHearingOutcome(hearingId, defendantId, assignedToUuid)
         }
         verify(hearingRepository).findFirstByHearingId(hearingId)
         verifyNoMoreInteractions(hearingRepository)
@@ -351,4 +369,57 @@ internal class CaseWorkflowServiceTest {
         verifyNoInteractions(hearingRepository)
         verify(telemetryService).trackMoveUnResultedCasesToOutcomesFlowJob(0, listOf(), e)
     }
+
+    @Test
+    fun `given hearing id and defendant id and defendant id does not exist, when result hearing outcome, should throw entity not found exception`() {
+
+        given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(aHearingEntity()))
+        assertThrows(
+            "Defendant invalid-defendant-id not found on hearing with id $hearingId",
+            EntityNotFoundException::class.java
+        ) {
+            caseWorkflowService.resultHearingOutcome(
+                hearingId,
+                "invalid-defendant-id",
+                "test-user-uuid"
+            )
+        }
+        verify(hearingRepository).findFirstByHearingId(hearingId)
+    }
+
+    @Test
+    fun `given hearing id and defendant id and defendant id does not exist, when assign hearing outcome, should throw entity not found exception`() {
+
+        given(hearingRepository.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(aHearingEntity()))
+        assertThrows(
+            "Defendant invalid-defendant-id not found on hearing with id $HEARING_ID",
+            EntityNotFoundException::class.java
+        ) {
+            caseWorkflowService.assignAndUpdateStateToInProgress(
+                HEARING_ID,
+                "invalid-defendant-id",
+                "User Two",
+                "test-user-uuid"
+            )
+        }
+        verify(hearingRepository).findFirstByHearingId(HEARING_ID)
+    }
+
+    @Test
+    fun `given hearing id and defendant id and defendant id does not exist, when add or update outcome, should throw entity not found exception`() {
+
+        given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(aHearingEntity()))
+        assertThrows(
+            "Defendant invalid-defendant-id not found on hearing with id $hearingId",
+            EntityNotFoundException::class.java
+        ) {
+            caseWorkflowService.addOrUpdateHearingOutcome(
+                hearingId,
+                "invalid-defendant-id",
+                HearingOutcomeType.REPORT_REQUESTED
+            )
+        }
+        verify(hearingRepository).findFirstByHearingId(hearingId)
+    }
+
 }

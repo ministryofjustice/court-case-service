@@ -19,6 +19,7 @@ import org.springframework.util.CollectionUtils;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 @Schema(description = "Court Case")
 @Entity
@@ -109,5 +110,9 @@ public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
             this.caseMarkers.addAll(courtCaseEntity.getCaseMarkers());
             this.caseMarkers.forEach(caseMarkerEntity -> caseMarkerEntity.setCourtCase(this));
 
+    }
+
+    public boolean hasDefendant(String defendantId) {
+        return getHearings().stream().filter(hearingEntity -> Objects.nonNull(hearingEntity.getHearingDefendant(defendantId))).findAny().isPresent();
     }
 }

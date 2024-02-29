@@ -11,6 +11,7 @@ class CaseCommentRequestTest {
     void asEntity() {
         var testComment = "awaiting PSR";
         var testCaseId = "test-case-id";
+        var testDefendantId = "test-defendant-id";
         var author = "Adam Sandler";
         var userUuid = "test-user-uuid";
         var caseCommentRequest = CaseCommentRequest.builder()
@@ -19,10 +20,11 @@ class CaseCommentRequestTest {
             .author(author)
             .build();
 
-        assertThat(caseCommentRequest.asEntity(userUuid))
+        assertThat(caseCommentRequest.asEntity(userUuid, testCaseId, testDefendantId))
             .isEqualTo(CaseCommentEntity.builder()
                 .comment(testComment)
                 .caseId(testCaseId)
+                .defendantId(testDefendantId)
                 .createdByUuid(userUuid)
                 .author(author)
                 .build());

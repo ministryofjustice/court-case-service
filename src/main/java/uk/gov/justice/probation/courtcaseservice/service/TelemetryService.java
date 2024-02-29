@@ -76,6 +76,7 @@ public class TelemetryService {
         properties.put("caseId", caseCommentEntity.getCaseId());
         properties.put("createdByUuid", caseCommentEntity.getCreatedByUuid());
         properties.put("commentId", caseCommentEntity.getId().toString());
+        properties.put("defendantId", caseCommentEntity.getDefendantId());
         properties.put("createdDateTime", caseCommentEntity.getCreated().toString());
         properties.put("username", caseCommentEntity.getCreatedBy());
 

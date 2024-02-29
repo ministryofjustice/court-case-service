@@ -4,10 +4,10 @@ VALUES (-100, 'X25829', 'CURRENT', '2010-01-01', true, true, true, true, 'before
 INSERT INTO OFFENDER (id, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
 VALUES (-99, 'X12345', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test');
 
-INSERT INTO case_comments(id, case_id, comment, "author", created, created_by, created_by_uuid) VALUES (-1700028900, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', 'PSR in progress', 'Author One', now(), 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
+INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, created_by, created_by_uuid) VALUES (-1700028900, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '0048297a-fd9c-4c96-8c03-8122b802a54d', 'PSR in progress', 'Author One', now(), 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
 
 -- Ferris Bueller
-INSERT INTO case_comments(id, case_id, comment, "author", created, deleted, created_by, created_by_uuid) VALUES (-1700028901, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', 'PSR completed', 'Author One', now(), true, 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
+INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, deleted, created_by, created_by_uuid) VALUES (-1700028901, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '1148297a-fd9c-4c96-8c03-8122b802a54d', 'PSR completed', 'Author One', now(), true, 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
 INSERT INTO court_case (id, case_id, case_no, created, source_type)
 VALUES (-198, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '1600028888', '2022-03-23 17:59:59.000', 'COMMON_PLATFORM');
 INSERT INTO hearing (id, fk_court_case_id, hearing_id, created, list_no)

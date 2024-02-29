@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CaseCommentsRepository extends CrudRepository<CaseCommentEntity, Long> {
-    List<CaseCommentEntity> findAllByCaseIdAndDeletedFalse(String caseId);
+    List<CaseCommentEntity> findByCaseIdAndDefendantId(String caseId, String defendantId);
 
-    Optional<CaseCommentEntity> findByCaseIdAndCreatedByUuidAndDraftIsTrue(String caseId, String userUuid);
-    Optional<CaseCommentEntity> findByIdAndCaseIdAndCreatedByUuid(Long commentId, String caseId, String userUuid);
+    Optional<CaseCommentEntity> findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(String caseId, String defendantId, String userUuid);
+    Optional<CaseCommentEntity> findByIdAndCaseIdAndDefendantIdAndCreatedByUuid(Long commentId, String caseId, String defendantId, String userUuid);
 }

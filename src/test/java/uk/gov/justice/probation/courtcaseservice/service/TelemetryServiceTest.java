@@ -209,9 +209,11 @@ class TelemetryServiceTest {
         String createdByUuid = "created-uuid";
         LocalDateTime now = LocalDateTime.now();
         String createdBy = "created-user-name";
+        String testDefendantId = "test-defendant-id";
         var courtCase = CaseCommentEntity.builder()
             .caseId(CASE_ID)
             .createdByUuid(createdByUuid)
+            .defendantId(testDefendantId)
             .created(now)
             .createdBy(createdBy)
             .id(1234L)
@@ -222,8 +224,9 @@ class TelemetryServiceTest {
         verify(telemetryClient).trackEvent(eq("PicCourtCaseCommentAdded"), properties.capture(), metricsCaptor.capture());
 
         var properties = this.properties.getValue();
-        assertThat(properties).hasSize(5);
+        assertThat(properties).hasSize(6);
         assertThat(properties.get("caseId")).isEqualTo(CASE_ID);
+        assertThat(properties.get("defendantId")).isEqualTo(testDefendantId);
         assertThat(properties.get("createdByUuid")).isEqualTo(createdByUuid);
         assertThat(properties.get("commentId")).isEqualTo("1234");
         assertThat(properties.get("createdDateTime")).isEqualTo(now.toString());

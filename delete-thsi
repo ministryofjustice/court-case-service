@@ -1,0 +1,6 @@
+
+
+expected:
+  notes=[HearingNoteResponse(noteId=null, hearingId=hearing-id-one, note=Hearing id one defendant 1 note one, created=null, author=null, createdByUuid=null, draft=false, legacy=false), HearingNoteResponse(noteId=null, hearingId=hearing-id-one, note=Hearing id one defendant 1 note two, created=null, author=null, createdByUuid=null, draft=false, legacy=false)], hearingOutcome=null),
+ but was:
+  notes=[HearingNoteResponse(noteId=null, hearingId=hearing-id-one, note=Hearing id one defendant 1 note one, created=null, author=null, createdByUuid=null, draft=false, legacy=false), HearingNoteResponse(noteId=null, hearingId=hearing-id-one, note=Hearing id one defendant 1 note two, created=null, author=null, createdByUuid=null, draft=false, legacy=false), HearingNoteResponse(noteId=null, hearingId=hearing-id-one, note=Hearing id defendant 2 note one, created=null, author=null, createdByUuid=null, draft=false, legacy=false), HearingNoteResponse(noteId=null, hearingId=hearing-id-one, note=Hearing id one defendant 2 note two, created=null, author=null, createdByUuid=null, draft=false, legacy=false)], hearingOutcome=null),

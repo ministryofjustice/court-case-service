@@ -3,8 +3,32 @@ package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseMarkerEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.GroupedOffenderMatchesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingOutcomeEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderMatchEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.PleaEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.VerdictEntity;
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
@@ -13,7 +37,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -71,8 +94,10 @@ class CourtCaseResponseMapperTest {
             .surname("Earp")
             .build();
 
-    private final List<CaseProgressHearing> caseProgressHearings = List.of(CaseProgressHearing.builder().hearingId("test-hearing-one").build(),
-            CaseProgressHearing.builder().hearingId("test-hearing-two").build());
+    private final List<CaseProgressHearing> caseProgressHearings = List.of(CaseProgressHearing.builder().hearingId("test-hearing-one")
+        .hearingOutcome(HearingOutcomeResponse.Companion.of(HearingOutcomeEntity.builder().state("NEW").outcomeDate(LocalDateTime.now()).outcomeType("REPORT_REQUESTED").build())).build(),
+            CaseProgressHearing.builder().hearingId("test-hearing-two")
+                .hearingOutcome(HearingOutcomeResponse.Companion.of(HearingOutcomeEntity.builder().state("NEW").outcomeDate(LocalDateTime.now()).outcomeType("REPORT_REQUESTED").build())).build());
 
     @BeforeEach
     void setUp() {
@@ -243,13 +268,13 @@ class CourtCaseResponseMapperTest {
                 .suspendedSentenceOrder(true)
                 .build();
         HearingDefendantEntity defendant = buildDefendant(name, offender);
+        defendant.addHearingOutcome(HearingOutcomeType.REPORT_REQUESTED);
 
         var hearingEntityUpdated = hearingEntity.withHearingDefendants(List.of(defendant));
-        hearingEntityUpdated.addHearingOutcome(HearingOutcomeType.REPORT_REQUESTED);
 
         var response = CourtCaseResponseMapper.mapFrom(hearingEntityUpdated, "bd1f71e5-939b-4580-8354-7d6061a58032", 5, caseProgressHearings);
 
-        assertThat(response.getHearingOutcome().getHearingOutcomeType()).isEqualTo(HearingOutcomeType.REPORT_REQUESTED);
+        assertThat(response.getHearings().get(0).getHearingOutcome().getHearingOutcomeType()).isEqualTo(HearingOutcomeType.REPORT_REQUESTED);
     }
 
     private HearingDefendantEntity buildDefendant(NamePropertiesEntity name, OffenderEntity offender) {
@@ -352,14 +377,9 @@ class CourtCaseResponseMapperTest {
     }
 
     private HearingEntity buildCourtCaseEntity(List<HearingDefendantEntity> defendants, List<HearingDayEntity> hearings) {
-       return  buildCourtCaseEntity(defendants, hearings, null);
-    }
-    private HearingEntity buildCourtCaseEntity(List<HearingDefendantEntity> defendants, List<HearingDayEntity> hearings, HearingOutcomeEntity hearingOutcomeEntity) {
 
         HearingEntity.HearingEntityBuilder<?, ?> builder = HearingEntity.builder();
-        if(Objects.nonNull(hearingOutcomeEntity)) {
-            builder.hearingOutcome(hearingOutcomeEntity);
-        }
+
         return builder
                 .id(ID)
                 .hearingId(HEARING_ID)

@@ -5,11 +5,11 @@ import org.springframework.stereotype.Repository
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSortFields.HEARING_DATE
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import java.time.LocalDate
 import jakarta.persistence.EntityManager
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 
 @Repository
 class HearingOutcomeRepositoryCustom(
@@ -20,7 +20,7 @@ class HearingOutcomeRepositoryCustom(
     fun findByCourtCodeAndHearingOutcome(
         courtCode: String,
         hearingOutcomeSearchRequest: HearingOutcomeSearchRequest
-    ): PageImpl<Pair<HearingEntity, LocalDate>> {
+    ): PageImpl<Pair<HearingDefendantEntity, LocalDate>> {
         val pageable: Pageable = Pageable.ofSize(hearingOutcomeSearchRequest.size).withPage(if (hearingOutcomeSearchRequest.page > 0) hearingOutcomeSearchRequest.page - 1 else 0)
 
         val filterBuilder = StringBuilder()
@@ -74,8 +74,8 @@ class HearingOutcomeRepositoryCustom(
         }
 
         val coreQuery = """
-            from hearing h 
-            inner join hearing_outcome ho on ho.fk_hearing_id = h.id
+            from hearing_defendant hd 
+            inner join hearing_outcome ho on ho.fk_hearing_defendant_id = hd.id
             $filterBuilder
             inner join
                 (
@@ -84,20 +84,20 @@ class HearingOutcomeRepositoryCustom(
                         ${ if(hasCourtRoomFilter) " and hearing_day.court_room in (:$courtRoomParamName) " else "" }
                         group by fk_hearing_id
                 ) hday2
-            on hday2.hday_hearing_id = h.id	
+            on hday2.hday_hearing_id = hd.fk_hearing_id	
                 
             """
 
         val searchQuery = """
             select
-            h.*, hday2.hearing_day as hearing_day
+            hd.*, hday2.hearing_day as hearing_day
             $coreQuery  
             $orderByBuilder
         """
 
         val countQuery = """
             select
-            count(h.id)
+            count(hd.id)
             $coreQuery  
         """
 
@@ -112,7 +112,7 @@ class HearingOutcomeRepositoryCustom(
         jpaQuery.firstResult  = pageable.pageNumber * pageable.pageSize
         jpaQuery.maxResults = pageable.pageSize
 
-        val content = jpaQuery.resultList.map { it as Array<Any> }.map { Pair(it[0] as HearingEntity, it[1] as LocalDate) }
+        val content = jpaQuery.resultList.map { it as Array<Any> }.map { Pair(it[0] as HearingDefendantEntity, it[1] as LocalDate) }
         val count = (countJpaQuery.singleResult as Long)
 
         return PageImpl(content, pageable, count)

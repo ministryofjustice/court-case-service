@@ -47,11 +47,11 @@ VALUES (-1000100, -1000110, 'Theft from a shop', 'On 01/01/2015 at own, stole ar
 INSERT INTO courtcaseservicetest.OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-1000101, -1000110, 'Theft from a different shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 2);
 
-INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, outcome_date, state, created, created_by, assigned_to, assigned_to_uuid, fk_hearing_id)
-VALUES (-1700020001, 'ADJOURNED', '2023-4-24 09:09:09', 'NEW', now(), 'case-progress.sql', 'Joe Blogs', '4b03d065-4c96-4b24-8d6d-75a45d2e3f12', -1700028898);
+INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, outcome_date, state, created, created_by, assigned_to, assigned_to_uuid, fk_hearing_id, fk_hearing_defendant_id)
+VALUES (-1700020001, 'ADJOURNED', '2023-4-24 09:09:09', 'NEW', now(), 'case-progress.sql', 'Joe Blogs', '4b03d065-4c96-4b24-8d6d-75a45d2e3f12', -1700028898, -1000110);
 
-INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, outcome_date, state, created, created_by, assigned_to, assigned_to_uuid, fk_hearing_id)
-VALUES (-1700020003, 'ADJOURNED', '2023-4-24 09:09:09', 'IN_PROGRESS', now(), 'case-progress.sql', 'Joe Blogs', '4b03d065-4c96-4b24-8d6d-75a45d2e3f12', -1700028897);
+INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, outcome_date, state, created, created_by, assigned_to, assigned_to_uuid, fk_hearing_id, fk_hearing_defendant_id)
+VALUES (-1700020003, 'ADJOURNED', '2023-4-24 09:09:09', 'IN_PROGRESS', now(), 'case-progress.sql', 'Joe Blogs', '4b03d065-4c96-4b24-8d6d-75a45d2e3f12', -1700028897, -1000111);
 
-INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, outcome_date, state, created, created_by, assigned_to, assigned_to_uuid, fk_hearing_id)
-VALUES (-1700020002, 'ADJOURNED', '2023-4-24 09:09:09', 'IN_PROGRESS', now(), 'case-progress.sql', 'John Smith', '8f69def4-3c52-11ee-be56-0242ac120002', -1700028600);
+INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, outcome_date, state, created, created_by, assigned_to, assigned_to_uuid, fk_hearing_id, fk_hearing_defendant_id)
+VALUES (-1700020002, 'ADJOURNED', '2023-4-24 09:09:09', 'IN_PROGRESS', now(), 'case-progress.sql', 'John Smith', '8f69def4-3c52-11ee-be56-0242ac120002', -1700028600, -1000000);

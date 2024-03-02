@@ -6,7 +6,6 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRes
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseMarker;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse.CourtCaseResponseBuilder;
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseMarkerEntity;
@@ -35,7 +34,7 @@ public class CourtCaseResponseMapper {
         final var builder = CourtCaseResponse.builder()
                 .hearings(caseHearings);
 
-        buildCaseFields(builder, hearingEntity);
+        buildCaseFields(builder, hearingEntity, defendantId);
         buildHearings(builder, hearingEntity, null);
 
         Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(Collections.emptyList())
@@ -54,18 +53,17 @@ public class CourtCaseResponseMapper {
         // Core case-based
         final var builder = CourtCaseResponse.builder();
 
-        buildCaseFields(builder, hearingEntity);
+        buildCaseFields(builder, hearingEntity, defendantEntity.getDefendantId());
         buildHearings(builder, hearingEntity, hearingDate);
 
         // Defendant-based fields
         addDefendantFields(builder, defendantEntity);
         builder.numberOfPossibleMatches(matchCount);
 
-
         return builder.build();
     }
 
-    private static void buildCaseFields(CourtCaseResponseBuilder builder, HearingEntity hearingEntity) {
+    private static void buildCaseFields(CourtCaseResponseBuilder builder, HearingEntity hearingEntity, String defendantId) {
         // Case-based fields
         builder.caseId(hearingEntity.getCaseId())
                 .hearingType(hearingEntity.getHearingType())
@@ -75,8 +73,7 @@ public class CourtCaseResponseMapper {
                 .source(hearingEntity.getSourceType().name())
                 .createdToday(LocalDate.now().isEqual(Optional.ofNullable(hearingEntity.getFirstCreated()).orElse(LocalDateTime.now()).toLocalDate()))
                 .caseMarkers(buildCaseMarkers(hearingEntity))
-                .caseComments(buildCaseComments(hearingEntity))
-                .hearingOutcome(HearingOutcomeResponse.Companion.of(hearingEntity.getHearingOutcome()));
+                .caseComments(buildCaseComments(hearingEntity));
 
         if (SourceType.LIBRA == hearingEntity.getSourceType()) {
             builder.caseNo(hearingEntity.getCaseNo());

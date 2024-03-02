@@ -94,7 +94,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
             courtCode,
             hearingOutcomeSearchRequest
         )
-        val outcomes = outcomesPage.content.flatMap { HearingOutcomeResponse.of(it.first, it.second) }
+        val outcomes = outcomesPage.content.map { HearingOutcomeResponse.of(it.first, it.second) }
         return HearingOutcomeCaseList(
             outcomes,
             getOutcomeCountsByState(courtCode),

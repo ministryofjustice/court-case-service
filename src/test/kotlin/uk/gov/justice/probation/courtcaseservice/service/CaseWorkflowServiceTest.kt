@@ -158,10 +158,14 @@ internal class CaseWorkflowServiceTest {
         val hearingOutcomeEntity2 = HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.ADJOURNED.name).outcomeDate(
             LocalDateTime.of(2023, 5,5, 19, 9, 5)).state("NEW").build()
 
+        val hearingDefendant1 =
+            HearingDefendantEntity.builder().defendantId("defendant-id-1").hearingOutcome(hearingOutcomeEntity1).build()
         val hearing1 = aHearingEntityWithHearingId("case-id-1", "hearing-id-1", "defendant-id-1")
-            .withHearingDefendants(listOf( HearingDefendantEntity.builder().defendantId("defendant-id-1").hearingOutcome(hearingOutcomeEntity1).build()))
+            .withHearingDefendants(listOf(hearingDefendant1))
+        val hearingDefendant2 =
+            HearingDefendantEntity.builder().defendantId("defendant-id-2").hearingOutcome(hearingOutcomeEntity2).build()
         val hearing2 = aHearingEntityWithHearingId("case-id-2", "hearing-id-2", "defendant-id-2")
-            .withHearingDefendants(listOf( HearingDefendantEntity.builder().defendantId("defendant-id-2").hearingOutcome(hearingOutcomeEntity2).build()))
+            .withHearingDefendants(listOf(hearingDefendant2))
 
         given(courtRepository.findByCourtCode(COURT_CODE)).willReturn(Optional.of(CourtEntity.builder().build()))
         given(
@@ -172,8 +176,8 @@ internal class CaseWorkflowServiceTest {
         ).willReturn(
             PageImpl(
                 listOf(
-                    Pair<HearingEntity, LocalDate>(hearing1, SESSION_START_TIME.toLocalDate()),
-                    Pair<HearingEntity, LocalDate>(hearing2, SESSION_START_TIME.toLocalDate())
+                    Pair<HearingDefendantEntity, LocalDate>(hearingDefendant1, SESSION_START_TIME.toLocalDate()),
+                    Pair<HearingDefendantEntity, LocalDate>(hearingDefendant2, SESSION_START_TIME.toLocalDate())
                 ),
                 Pageable.ofSize(2),
                 9

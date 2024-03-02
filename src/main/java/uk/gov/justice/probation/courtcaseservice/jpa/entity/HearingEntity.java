@@ -54,7 +54,7 @@ import java.util.Optional;
     name = "search_hearing_outcomes_custom",
     columns = { @ColumnResult(name = "hearing_day", type = LocalDate.class) },
     entities = {
-        @EntityResult(entityClass = HearingEntity.class)
+        @EntityResult(entityClass = HearingDefendantEntity.class)
     }
 )
 public class HearingEntity extends BaseAuditedEntity implements Serializable {

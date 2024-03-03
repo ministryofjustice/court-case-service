@@ -69,7 +69,7 @@ internal class HmppsDocumentManagementApiGatewayIntTest: BaseIntTest() {
             .oauth2(TokenHelper.getToken())
             .contentType(ContentType.MULTIPART)
             .`when`()
-            .post("/hearing/{hearingId}/defendant/{defendantId}/documents", HEARING_ID, DEFENDANT_ID)
+            .post("/hearing/{hearingId}/defendant/{defendantId}/file", HEARING_ID, DEFENDANT_ID)
             .then()
             .statusCode(201)
 
@@ -107,7 +107,7 @@ internal class HmppsDocumentManagementApiGatewayIntTest: BaseIntTest() {
             .`when`()
             .contentType(MediaType.TEXT_PLAIN_VALUE)
             .get(
-                "/hearing/{hearingId}/defendant/{defendantId}/documents/{documentId}/raw", HEARING_ID, DEFENDANT_ID,
+                "/hearing/{hearingId}/defendant/{defendantId}/file/{documentId}/raw", HEARING_ID, DEFENDANT_ID,
                 documentId
             )
         response
@@ -116,6 +116,8 @@ internal class HmppsDocumentManagementApiGatewayIntTest: BaseIntTest() {
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"test-upload-file.txt\"")
 
         assertThat(response.body().prettyPrint(), `is`("test file upload content"))
+
+        WIRE_MOCK_SERVER.verify(getRequestedFor(urlEqualTo("/documents/${documentId}/file")));
     }
 
     @Test
@@ -135,10 +137,12 @@ internal class HmppsDocumentManagementApiGatewayIntTest: BaseIntTest() {
             .`when`()
             .contentType(MediaType.TEXT_PLAIN_VALUE)
             .delete(
-                "/hearing/{hearingId}/defendant/{defendantId}/documents/{documentId}", HEARING_ID, DEFENDANT_ID,
+                "/hearing/{hearingId}/defendant/{defendantId}/file/{documentId}", HEARING_ID, DEFENDANT_ID,
                 documentId
             )
             .then()
             .statusCode(204)
+
+        WIRE_MOCK_SERVER.verify(deleteRequestedFor(urlEqualTo("/documents/${documentId}")));
     }
 }

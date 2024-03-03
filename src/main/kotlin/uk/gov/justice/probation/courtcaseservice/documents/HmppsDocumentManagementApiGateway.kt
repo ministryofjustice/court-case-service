@@ -21,7 +21,7 @@ class HmppsDocumentManagementApiGateway(val hmppsDocumentManagementService: Hmpp
 
     @Operation(description = "Uploads a document to HMPPS document management service")
     @PostMapping(
-        value = ["/hearing/{hearingId}/defendant/{defendantId}/documents"],
+        value = ["/hearing/{hearingId}/defendant/{defendantId}/file"],
         produces = [MediaType.APPLICATION_JSON_VALUE],
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
     )
@@ -36,7 +36,7 @@ class HmppsDocumentManagementApiGateway(val hmppsDocumentManagementService: Hmpp
 
     @Operation(description = "Retrieves a document with given documentId from HMPPS document manages service.")
     @GetMapping(
-        value = ["/hearing/{hearingId}/defendant/{defendantId}/documents/{documentId}/raw"]
+        value = ["/hearing/{hearingId}/defendant/{defendantId}/file/{documentId}/raw"]
     )
     fun getDocument(
         @PathVariable("hearingId") hearingId: String,
@@ -53,7 +53,7 @@ class HmppsDocumentManagementApiGateway(val hmppsDocumentManagementService: Hmpp
 
     @Operation(description = "Deletes a document with given documentId from HMPPS document manages service.")
     @DeleteMapping(
-        value = ["/hearing/{hearingId}/defendant/{defendantId}/documents/{documentId}"]
+        value = ["/hearing/{hearingId}/defendant/{defendantId}/file/{documentId}"]
     )
     fun deleteDocument(
         @PathVariable("hearingId") hearingId: String,

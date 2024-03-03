@@ -60,5 +60,5 @@ INSERT INTO courtcaseservicetest.case_defendant(id, fk_court_case_id, fk_case_de
 VALUES (-1900020002, -1700028600, -1000000);
 
 INSERT INTO courtcaseservicetest.case_defendant_documents(id, fk_case_defendant_id, document_id, document_name)
-VALUES (-1900020002, -1900020002, '3cfd7d45-6f62-438e-ad64-ef3d911dfe38', 'test-upload-file.txt');
+VALUES (-1900020002, -1900020002, '3cfd7d45-6f62-438e-ad64-ef3d911dfe38', 'test-upload-file-get.txt');
 

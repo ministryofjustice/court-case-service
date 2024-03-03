@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.documents
 
 import io.swagger.v3.oas.annotations.Operation
-import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.MediaType
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
 
@@ -52,6 +50,7 @@ class HmppsDocumentManagementApiGateway(val hmppsDocumentManagementService: Hmpp
             .header(HttpHeaders.CONTENT_DISPOSITION, documentResponse.headers[HttpHeaders.CONTENT_DISPOSITION]?.get(0))
             .body(documentResponse.body.blockFirst())
     }
+
     @Operation(description = "Deletes a document with given documentId from HMPPS document manages service.")
     @DeleteMapping(
         value = ["/hearing/{hearingId}/defendant/{defendantId}/documents/{documentId}"]

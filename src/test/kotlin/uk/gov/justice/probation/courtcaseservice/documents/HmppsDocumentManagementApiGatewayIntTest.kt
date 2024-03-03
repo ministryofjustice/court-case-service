@@ -64,6 +64,7 @@ internal class HmppsDocumentManagementApiGatewayIntTest: BaseIntTest() {
 
         RestAssured.given()
             .multiPart("file", File("./src/test/resources/document-upload/test-upload-file.txt"))
+            .multiPart("file", File("./src/test/resources/document-upload/test-upload-file-two.txt"))
             .auth()
             .oauth2(TokenHelper.getToken())
             .contentType(ContentType.MULTIPART)
@@ -74,9 +75,14 @@ internal class HmppsDocumentManagementApiGatewayIntTest: BaseIntTest() {
 
         val hearing = hearingRepository.findFirstByHearingId(HEARING_ID).get()
         val caseDefendant = hearing.courtCase.getCaseDefendant(DEFENDANT_ID)
-        val caseDefendantDocument = caseDefendant.get().documents[0];
-        Assertions.assertThat(caseDefendantDocument.documentName).isEqualTo("test-upload-file.txt")
-        Assertions.assertThat(caseDefendantDocument.documentId).isNotNull()
+        val caseDefendantDocument = caseDefendant.get().documents;
+        Assertions.assertThat(caseDefendantDocument).extracting("documentName")
+            .containsExactlyInAnyOrder("test-upload-file.txt", "test-upload-file-two.txt", "test-upload-file-get.txt")
+
+        Assertions.assertThat(caseDefendantDocument).extracting("documentId").isNotNull()
+
+        WIRE_MOCK_SERVER.verify(postRequestedFor(urlEqualTo("/documents/PIC_CASE_UPLOADS/${caseDefendantDocument[0].documentId}")));
+        WIRE_MOCK_SERVER.verify(postRequestedFor(urlEqualTo("/documents/PIC_CASE_UPLOADS/${caseDefendantDocument[1].documentId}")));
     }
 
     @Test

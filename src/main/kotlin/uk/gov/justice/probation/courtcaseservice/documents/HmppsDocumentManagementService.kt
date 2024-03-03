@@ -3,11 +3,9 @@ package uk.gov.justice.probation.courtcaseservice.documents
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.http.client.MultipartBodyBuilder
-import org.springframework.http.codec.multipart.Part
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import reactor.core.publisher.Flux
@@ -56,11 +54,16 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
             builder.part(it.originalFilename, it.resource)
                 .contentType(MediaType.valueOf(it.contentType))
 
-            uploadDocument(hearingId, defendantId, builder)
+            uploadDocument(hearingId, defendantId, builder, it.originalFilename)
         }
     }
 
-    private fun uploadDocument(hearingId: String, defendantId: String, filePart: MultipartBodyBuilder) {
+    private fun uploadDocument(
+        hearingId: String,
+        defendantId: String,
+        filePart: MultipartBodyBuilder,
+        originalFilename: String
+    ) {
 
         var hearing = getHearingEntity(hearingId)
 
@@ -71,7 +74,7 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
         log.debug("Response from document management API /documents/$picDocumentType/$documentUuid : $response")
 
         var courtCase = hearing.courtCase
-        courtCase.getOrCreateCaseDefendant(hearingDefendant.defendant).createDocument(documentUuid, response.documentFilename)
+        courtCase.getOrCreateCaseDefendant(hearingDefendant.defendant).createDocument(documentUuid, originalFilename)
         courtCaseRepository.save(courtCase)
     }
 

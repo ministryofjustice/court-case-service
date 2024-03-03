@@ -1,14 +1,11 @@
 package uk.gov.justice.probation.courtcaseservice.documents
 
-import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
 import io.restassured.parsing.Parser
 import org.assertj.core.api.Assertions
-import org.hamcrest.MatcherAssert
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.core.Is
 import org.hamcrest.core.Is.`is`
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,7 +17,6 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper
 import java.io.File
-import java.nio.charset.Charset
 
 @Sql(
     scripts = ["classpath:sql/before-common.sql", "classpath:case-progress.sql"],
@@ -114,5 +110,29 @@ internal class HmppsDocumentManagementApiGatewayIntTest: BaseIntTest() {
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"test-upload-file.txt\"")
 
         assertThat(response.body().prettyPrint(), `is`("test file upload content"))
+    }
+
+    @Test
+    fun `given hearing id, defendant id and document id, should delete document from document management API`() {
+        val documentId = "3cfd7d45-6f62-438e-ad64-ef3d911dfe38"
+
+        WIRE_MOCK_SERVER.stubFor(
+            delete(urlPathEqualTo("/documents/$documentId"))
+                .willReturn(
+                    aResponse().withStatus(204)
+                )
+        )
+
+        RestAssured.given()
+            .auth()
+            .oauth2(TokenHelper.getToken())
+            .`when`()
+            .contentType(MediaType.TEXT_PLAIN_VALUE)
+            .delete(
+                "/hearing/{hearingId}/defendant/{defendantId}/documents/{documentId}", HEARING_ID, DEFENDANT_ID,
+                documentId
+            )
+            .then()
+            .statusCode(204)
     }
 }

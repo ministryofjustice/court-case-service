@@ -88,12 +88,12 @@ class HmppsDocumentManagementApiClient(
             .block()
     }
 
-    fun deleteDocument(documentUuid: String) {
+    fun deleteDocument(documentUuid: String): Mono<ResponseEntity<Any>> {
 
         val documentPath = String.format(hmppsDocumentManagementApiDocumentByUuid, documentUuid)
         log.debug("Deleting document $documentPath")
 
-        clientHelper
+        return clientHelper
             .delete(documentPath)
             .header(DOCUMENT_MANAGEMENT_API_SERVICE_NAME_HEADER, clientServiceName)
             .retrieve()

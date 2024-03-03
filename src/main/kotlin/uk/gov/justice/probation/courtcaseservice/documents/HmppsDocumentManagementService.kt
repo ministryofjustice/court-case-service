@@ -30,6 +30,15 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
         val log: Logger = LoggerFactory.getLogger(this::class.java)
     }
 
+    fun deleteDocument(hearingId: String, defendantId: String, documentId: String): Optional<Mono<ResponseEntity<Any>>> {
+
+        return getHearingEntity(hearingId)?.courtCase?.getCaseDefendant(defendantId)?.map { it.getCaseDefendantDocument(documentId) }
+            ?.map {
+                hmppsDocumentManagementApiClient.deleteDocument(documentId)
+            }
+            ?: throw EntityNotFoundException("Document not found /hearing/%s/defendant/%s/documents/%s", hearingId, defendantId, documentId)
+    }
+
     fun getDocument(hearingId: String, defendantId: String, documentId: String): Optional<ResponseEntity<Flux<ByteArray>>?> {
 
         return getHearingEntity(hearingId)?.courtCase?.getCaseDefendant(defendantId)?.map { it.getCaseDefendantDocument(documentId) }

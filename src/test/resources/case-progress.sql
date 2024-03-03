@@ -55,3 +55,10 @@ VALUES (-1700020003, 'ADJOURNED', '2023-4-24 09:09:09', 'IN_PROGRESS', now(), 'c
 
 INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, outcome_date, state, created, created_by, assigned_to, assigned_to_uuid, fk_hearing_id)
 VALUES (-1700020002, 'ADJOURNED', '2023-4-24 09:09:09', 'IN_PROGRESS', now(), 'case-progress.sql', 'John Smith', '8f69def4-3c52-11ee-be56-0242ac120002', -1700028600);
+
+INSERT INTO courtcaseservicetest.case_defendant(id, fk_court_case_id, fk_case_defendant_id)
+VALUES (-1900020002, -1700028600, -1000000);
+
+INSERT INTO courtcaseservicetest.case_defendant_documents(id, fk_case_defendant_id, document_id, document_name)
+VALUES (-1900020002, -1900020002, '3cfd7d45-6f62-438e-ad64-ef3d911dfe38', 'test-upload-file.txt');
+

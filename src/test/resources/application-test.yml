@@ -6,6 +6,12 @@ feature:
     probation-case:
       engagement.created: true
 
+logging:
+  level:
+    com:
+      github:
+        tomakehurst:
+          wiremock: DEBUG
 database:
   schema:
     name: courtcaseservicetest
@@ -29,6 +35,9 @@ court-case-and-delius-api:
   base-url: http://localhost:8090
 
 domain-event-and-delius-api:
+  base-url: http://localhost:8090
+
+hmpps-document-management-api-client:
   base-url: http://localhost:8090
 
 spring:

@@ -1,8 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.application;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.codec.AbstractDataBufferDecoder;
 import org.springframework.web.reactive.function.client.WebClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper;
 
@@ -11,7 +13,7 @@ public class WebClientConfig {
 
     /**
      * Size of buffer by default.
-     * @see org.springframework.core.codec.AbstractDataBufferDecoder
+     * @see AbstractDataBufferDecoder
      * */
     private static final int DEFAULT_BYTE_BUFFER_SIZE = 262144;
 
@@ -38,6 +40,9 @@ public class WebClientConfig {
 
     @Value("${domain-event-and-delius-api.base-url}")
     private String domainEventAndDeliusApiBaseUrl;
+
+    @Value("${hmpps-document-management-api-client.base-url}")
+    private String hmppsDocumentManagementApiUrl;
 
     @Value("${web.client.document-byte-buffer-size}")
     private int documentBufferByteSize;
@@ -66,6 +71,12 @@ public class WebClientConfig {
     @Bean
     public RestClientHelper manageOffencesApiClient(WebClient manageOffencesApiWebClient) {
         return new RestClientHelper(manageOffencesApiWebClient, "manage-offences-api-client", disableAuthentication);
+    }
+
+    @Bean
+    @Qualifier("hmppsDocumentManagementApiRestClient")
+    public RestClientHelper hmppsDocumentManagementApiRestClient(WebClient hmppsDocumentManagementApiWebClient) {
+        return new RestClientHelper(hmppsDocumentManagementApiWebClient, "hmpps-document-management-api-client", disableAuthentication);
     }
 
     @Bean
@@ -116,6 +127,11 @@ public class WebClientConfig {
     @Bean
     public WebClient domainEventAndDeliusApiWebClient(WebClientFactory webClientFactory) {
         return webClientFactory.buildWebClient(domainEventAndDeliusApiBaseUrl, DEFAULT_BYTE_BUFFER_SIZE);
+    }
+
+    @Bean
+    public WebClient hmppsDocumentManagementApiWebClient(WebClientFactory webClientFactory) {
+        return webClientFactory.buildWebClient(hmppsDocumentManagementApiUrl, 5 * DEFAULT_BYTE_BUFFER_SIZE);
     }
 
 }

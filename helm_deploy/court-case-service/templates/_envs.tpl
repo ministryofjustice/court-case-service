@@ -142,6 +142,18 @@ env:
         name: court-case-service-secrets
         key: nomis-oauth-client-secret
 
+  - name: HMPPS_DOCUMENT_MANAGEMENT_API_CLIENT
+    valueFrom:
+      secretKeyRef:
+        name: court-case-service-secrets
+        key: nomis-oauth-client-id
+
+  - name: HMPPS_DOCUMENT_MANAGEMENT_API_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: court-case-service-secrets
+        key: nomis-oauth-client-secret
+
   - name: APPINSIGHTS_INSTRUMENTATIONKEY
     valueFrom:
       secretKeyRef:

@@ -52,7 +52,7 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
     fun `given hearing id, defendant id and document, should upload document to document management API`() {
 
         WIRE_MOCK_SERVER.stubFor(
-            post(urlPathMatching("/documents/PIC_CASE_UPLOADS/.*"))
+            post(urlPathMatching("/documents/PIC_CASE_DOCUMENTS/.*"))
             .withHeader("Content-Type", containing("multipart/form-data"))
             .withRequestBody(containing("file"))
             .withRequestBody(containing("test file upload content"))
@@ -81,8 +81,8 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
 
         Assertions.assertThat(caseDefendantDocument).extracting("documentId").isNotNull()
 
-        WIRE_MOCK_SERVER.verify(postRequestedFor(urlEqualTo("/documents/PIC_CASE_UPLOADS/${caseDefendantDocument[0].documentId}")));
-        WIRE_MOCK_SERVER.verify(postRequestedFor(urlEqualTo("/documents/PIC_CASE_UPLOADS/${caseDefendantDocument[1].documentId}")));
+        WIRE_MOCK_SERVER.verify(postRequestedFor(urlEqualTo("/documents/PIC_CASE_DOCUMENTS/${caseDefendantDocument[0].documentId}")));
+        WIRE_MOCK_SERVER.verify(postRequestedFor(urlEqualTo("/documents/PIC_CASE_DOCUMENTS/${caseDefendantDocument[1].documentId}")));
     }
 
     @Test

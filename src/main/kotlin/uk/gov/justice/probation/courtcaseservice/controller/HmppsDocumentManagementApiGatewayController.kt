@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller
 
 import io.swagger.v3.oas.annotations.Operation
+import org.springframework.core.io.InputStreamResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.MediaType
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import reactor.core.publisher.Mono
 import uk.gov.justice.probation.courtcaseservice.service.HmppsDocumentManagementService
-import java.io.ByteArrayInputStream
 import java.util.*
 
 @RestController
@@ -44,14 +44,14 @@ class HmppsDocumentManagementApiGatewayController(val hmppsDocumentManagementSer
         @PathVariable("hearingId") hearingId: String,
         @PathVariable("defendantId") defendantId: String,
         @PathVariable("documentId") documentId: String
-    ): ResponseEntity<ByteArrayInputStream> {
+    ): ResponseEntity<InputStreamResource> {
         val documentResponse = hmppsDocumentManagementService.getDocument(hearingId, defendantId, documentId).get()
-
+        val fileStream = documentResponse.body.blockFirst()
         return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, documentResponse.headers.contentDisposition.toString())
             .contentType(documentResponse.headers.contentType)
             .contentLength(documentResponse.headers.contentLength)
-            .header(HttpHeaders.CONTENT_DISPOSITION, documentResponse.headers[HttpHeaders.CONTENT_DISPOSITION]?.get(0))
-            .body(documentResponse.body.blockFirst())
+            .body(fileStream)
     }
 
     @Operation(description = "Deletes a document with given documentId from HMPPS document manages service.")

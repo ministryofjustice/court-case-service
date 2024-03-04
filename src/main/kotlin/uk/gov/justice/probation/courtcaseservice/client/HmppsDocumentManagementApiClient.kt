@@ -4,6 +4,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.InputStreamResource
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
@@ -56,7 +57,7 @@ class HmppsDocumentManagementApiClient(
             }
     }
 
-    fun getDocument(documentUuid: String): ResponseEntity<Flux<ByteArrayInputStream>>? {
+    fun getDocument(documentUuid: String): ResponseEntity<Flux<InputStreamResource>>? {
 
         val documentPath = "${String.format(hmppsDocumentManagementApiDocumentByUuid, documentUuid)}/file"
         log.debug("Fetching document $documentPath")
@@ -79,7 +80,7 @@ class HmppsDocumentManagementApiClient(
                     HttpMethod.POST, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API
                 )
             }
-            .toEntityFlux(ByteArrayInputStream::class.java)
+            .toEntityFlux(InputStreamResource::class.java)
             .doOnSuccess {
                 log.info("Document download success {}", documentPath)
             }

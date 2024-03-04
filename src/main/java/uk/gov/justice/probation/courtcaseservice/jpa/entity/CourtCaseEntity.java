@@ -124,8 +124,11 @@ public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
     }
 
     public Optional<CaseDefendantEntity> getCaseDefendant(String defendantId) {
-        return getCaseDefendants().stream()
-            .filter(caseDefendantEntity -> StringUtils.equals(defendantId, caseDefendantEntity.getDefendant().getDefendantId())).findFirst();
+        return Optional.ofNullable(getCaseDefendants())
+            .map(caseDefendantEntities ->
+                caseDefendantEntities.stream()
+                    .filter(caseDefendantEntity -> StringUtils.equals(defendantId, caseDefendantEntity.getDefendant().getDefendantId())).findFirst()
+            ).orElse(Optional.empty());
     }
 
     public CaseDefendantEntity getOrCreateCaseDefendant(DefendantEntity defendant) {

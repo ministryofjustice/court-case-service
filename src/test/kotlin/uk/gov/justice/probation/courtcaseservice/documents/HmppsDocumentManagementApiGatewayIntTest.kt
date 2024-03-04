@@ -113,7 +113,7 @@ internal class HmppsDocumentManagementApiGatewayIntTest: BaseIntTest() {
         response
             .then()
             .statusCode(200)
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"test-upload-file.txt\"")
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"test-upload-file.txt\"")
 
         assertThat(response.body().prettyPrint(), `is`("test file upload content"))
 

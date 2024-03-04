@@ -98,7 +98,7 @@ executors:
 
   builder-machine:
     machine:
-      image:  ubuntu-2204:2022.04.1
+      image:  ubuntu-2204:2024.01.1
 
 orbs:
   aws-cli: circleci/aws-cli@0.1.13

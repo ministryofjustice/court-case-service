@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.service
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.InputStreamResource
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.http.client.MultipartBodyBuilder
@@ -39,7 +40,7 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
             ?: throw EntityNotFoundException("Document not found /hearing/%s/defendant/%s/documents/%s", hearingId, defendantId, documentId)
     }
 
-    fun getDocument(hearingId: String, defendantId: String, documentId: String): Optional<ResponseEntity<Flux<ByteArrayInputStream>>?> {
+    fun getDocument(hearingId: String, defendantId: String, documentId: String): Optional<ResponseEntity<Flux<InputStreamResource>>?> {
 
         return getHearingEntity(hearingId)?.courtCase?.getCaseDefendant(defendantId)?.map { it.getCaseDefendantDocument(documentId) }
             ?.map {

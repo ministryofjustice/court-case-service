@@ -38,30 +38,22 @@ internal class HearingOutcomeResponseTest {
 
         val hearingDefendantEntity =
             EntityHelper.aHearingDefendantEntity("defendant-id-2", null).withHearingOutcome(hearingOutcomeEntity1)
-        EntityHelper.aHearingEntity("CRN123", "case-no-1", listOf(EntityHelper.aHearingDefendantEntity("defendant-id-1"),
-            hearingDefendantEntity
-        ))
+        val hearing = EntityHelper.aHearingEntity(
+            "CRN123", "case-no-1", listOf(
+                EntityHelper.aHearingDefendantEntity("defendant-id-1"),
+                hearingDefendantEntity
+            )
+        )
+
+        EntityHelper.refreshMappings(hearing)
 
         val response = HearingOutcomeResponse.of(hearingDefendantEntity, EntityHelper.SESSION_START_TIME.toLocalDate())
 
-        Assertions.assertThat(response).isEqualTo(listOf(
+        Assertions.assertThat(response).isEqualTo(
             HearingOutcomeResponse(
                 hearingOutcomeType = HearingOutcomeType.REPORT_REQUESTED,
-                outcomeDate = LocalDateTime.of(2023, 6,6, 19, 9, 1),
-                resultedDate =  LocalDateTime.of(2023, 6, 26, 10, 10, 10),
-                hearingDate = EntityHelper.SESSION_START_TIME.toLocalDate(),
-                hearingId = EntityHelper.HEARING_ID,
-                defendantId = "defendant-id-1",
-                probationStatus = EntityHelper.PROBATION_STATUS,
-                offences = listOf(EntityHelper.OFFENCE_TITLE),
-                defendantName = EntityHelper.DEFENDANT_NAME,
-                crn = EntityHelper.CRN,
-                state = HearingOutcomeItemState.IN_PROGRESS
-            ),
-            HearingOutcomeResponse(
-                hearingOutcomeType = HearingOutcomeType.REPORT_REQUESTED,
-                outcomeDate = LocalDateTime.of(2023, 6,6, 19, 9, 1),
-                resultedDate =  LocalDateTime.of(2023, 6, 26, 10, 10, 10),
+                outcomeDate = LocalDateTime.of(2023, 6, 6, 19, 9, 1),
+                resultedDate = LocalDateTime.of(2023, 6, 26, 10, 10, 10),
                 hearingDate = EntityHelper.SESSION_START_TIME.toLocalDate(),
                 hearingId = EntityHelper.HEARING_ID,
                 defendantId = "defendant-id-2",
@@ -71,7 +63,7 @@ internal class HearingOutcomeResponseTest {
                 crn = null,
                 state = HearingOutcomeItemState.IN_PROGRESS
             )
-        ))
+        )
     }
 
 }

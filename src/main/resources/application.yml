@@ -160,6 +160,7 @@ hmpps-document-management-api:
   create-document: /documents/%s/%s
   document-by-uuid: /documents/%s
   client-service-name: prepare-a-case
+  document-type: PIC_CASE_DOCUMENTS
 
 court-case-and-delius-api:
   probation-status-by-crn: /probation-case/%s/status

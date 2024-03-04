@@ -24,7 +24,7 @@ import kotlin.jvm.optionals.getOrElse
 class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: HmppsDocumentManagementApiClient,
                                       val hearingRepositoryFacade: HearingRepositoryFacade,
                                       val courtCaseRepository: CourtCaseRepository,
-                                      @Value("\${hmpps-document-management-api.document-type:PIC_CASE_UPLOADS}") val picDocumentType: String
+                                      @Value("\${hmpps-document-management-api.document-type:PIC_CASE_DOCUMENTS}") val picDocumentType: String
 ) {
 
     companion object {
@@ -73,7 +73,7 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
         var hearingDefendant = hearing?.getHearingDefendant(defendantId)?: throw EntityNotFoundException("Defendant %s not found for hearing %s", defendantId, hearingId)
 
         var documentUuid = UUID.randomUUID().toString()
-        var response = hmppsDocumentManagementApiClient.createDocument("PIC_CASE_UPLOADS", documentUuid, filePart).block()
+        var response = hmppsDocumentManagementApiClient.createDocument(picDocumentType, documentUuid, filePart).block()
         log.debug("Response from document management API /documents/$picDocumentType/$documentUuid : $response")
 
         var courtCase = hearing.courtCase

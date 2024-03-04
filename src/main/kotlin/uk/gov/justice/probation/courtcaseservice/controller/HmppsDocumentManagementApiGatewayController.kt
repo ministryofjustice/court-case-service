@@ -23,9 +23,7 @@ class HmppsDocumentManagementApiGatewayController(val hmppsDocumentManagementSer
 
     @Operation(description = "Uploads a document to HMPPS document management service")
     @PostMapping(
-        value = ["/hearing/{hearingId}/defendant/{defendantId}/file"],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
+        value = ["/hearing/{hearingId}/defendant/{defendantId}/file"]
     )
     @ResponseStatus(CREATED)
     fun uploadDocument(

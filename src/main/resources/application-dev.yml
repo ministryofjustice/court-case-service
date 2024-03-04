@@ -22,6 +22,8 @@ court-case-and-delius-api:
 domain-event-and-delius-api:
   base-url: https://domain-events-and-delius-dev.hmpps.service.justice.gov.uk
 
+hmpps-document-management-api-client:
+  base-url: https://document-api-dev.hmpps.service.justice.gov.uk
 
 feature:
   flags:

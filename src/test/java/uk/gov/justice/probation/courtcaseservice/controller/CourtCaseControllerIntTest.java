@@ -463,7 +463,14 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                 .body("caseComments[1].comment", equalTo("PSR completed"))
                 .body("caseComments[1].author", equalTo("Author Two"))
                 .body("caseComments[2].commentId", equalTo(-1700028900))
-                .body("caseComments[2].draft", equalTo(false));
+                .body("caseComments[2].draft", equalTo(false))
+                .body("files[0].id", equalTo("042bab62-afa6-4409-9d51-6cdf6d05bd04"))
+                .body("files[0].name", equalTo("test-upload-file-get-two.txt"))
+                .body("files[0].datetime", equalTo("2024-03-02T16:59:59"))
+                .body("files[1].id", equalTo("3cfd7d45-6f62-438e-ad64-ef3d911dfe38"))
+                .body("files[1].name", equalTo("test-upload-file-get.txt"))
+                .body("files[1].datetime", equalTo("2024-03-01T16:59:59"))
+                ;
         }
 
         @Test

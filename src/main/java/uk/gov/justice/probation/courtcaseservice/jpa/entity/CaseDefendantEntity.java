@@ -17,6 +17,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.envers.Audited;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +30,7 @@ import java.util.Optional;
 @With
 @Getter
 @ToString
-@EqualsAndHashCode(callSuper = true, exclude = "hearing")
+@EqualsAndHashCode(callSuper = true, exclude = {"documents", "courtCase", "defendant" })
 @Audited
 public class CaseDefendantEntity extends BaseAuditedEntity implements Serializable {
 
@@ -65,6 +66,7 @@ public class CaseDefendantEntity extends BaseAuditedEntity implements Serializab
             .caseDefendant(this)
             .documentId(documentUuid)
             .documentName(fileName)
+            .created(LocalDateTime.now())
             .build();
         var caseDefendantDocumentEntities = Optional.ofNullable(this.getDocuments())
             .orElseGet(() -> {

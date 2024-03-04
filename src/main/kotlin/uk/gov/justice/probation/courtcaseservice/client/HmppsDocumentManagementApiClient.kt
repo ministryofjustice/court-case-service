@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtcaseservice.documents
+package uk.gov.justice.probation.courtcaseservice.client
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -15,9 +15,9 @@ import org.springframework.web.reactive.function.client.toEntity
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import uk.gov.justice.probation.courtcaseservice.client.exception.ExternalService
-import uk.gov.justice.probation.courtcaseservice.client.handle4xxError
-import uk.gov.justice.probation.courtcaseservice.client.handle5xxError
+import uk.gov.justice.probation.courtcaseservice.client.model.documentmanagement.DocumentUploadResponse
 import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper
+import java.io.ByteArrayInputStream
 
 
 @Component
@@ -56,7 +56,7 @@ class HmppsDocumentManagementApiClient(
             }
     }
 
-    fun getDocument(documentUuid: String): ResponseEntity<Flux<ByteArray>>? {
+    fun getDocument(documentUuid: String): ResponseEntity<Flux<ByteArrayInputStream>>? {
 
         val documentPath = "${String.format(hmppsDocumentManagementApiDocumentByUuid, documentUuid)}/file"
         log.debug("Fetching document $documentPath")
@@ -79,7 +79,7 @@ class HmppsDocumentManagementApiClient(
                     HttpMethod.POST, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API
                 )
             }
-            .toEntityFlux(ByteArray::class.java)
+            .toEntityFlux(ByteArrayInputStream::class.java)
             .doOnSuccess {
                 log.info("Document download success {}", documentPath)
             }

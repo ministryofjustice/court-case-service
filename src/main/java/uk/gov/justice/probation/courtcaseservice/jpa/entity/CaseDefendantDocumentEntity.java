@@ -29,7 +29,7 @@ import org.hibernate.envers.Audited;
 @Getter
 @ToString
 @Audited
-public class CaseDefendantDocumentEntity {
+public class CaseDefendantDocumentEntity extends BaseEntity {
 
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -40,6 +40,7 @@ public class CaseDefendantDocumentEntity {
     @Setter
     @ManyToOne(optional = false, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "FK_CASE_DEFENDANT_ID", referencedColumnName = "id", nullable = false)
+    @JsonIgnore
     private CaseDefendantEntity caseDefendant;
 
     @Column(name = "DOCUMENT_ID", nullable = false)

@@ -44,4 +44,9 @@ class CourtCaseEntityTest {
         assertThat(courtCase.getCaseMarkers().get(0).getTypeDescription()).isEqualTo("description 1");
 
     }
+
+    @Test
+    void shouldCreateCaseDocumentCorrectly() {
+        // TODO PIC-3683
+    }
 }

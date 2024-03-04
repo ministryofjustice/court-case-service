@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtcaseservice.documents
+package uk.gov.justice.probation.courtcaseservice.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.http.HttpHeaders
@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import reactor.core.publisher.Mono
+import uk.gov.justice.probation.courtcaseservice.service.HmppsDocumentManagementService
+import java.io.ByteArrayInputStream
 import java.util.*
 
 @RestController
-class HmppsDocumentManagementApiGateway(val hmppsDocumentManagementService: HmppsDocumentManagementService) {
+class HmppsDocumentManagementApiGatewayController(val hmppsDocumentManagementService: HmppsDocumentManagementService) {
 
     @Operation(description = "Uploads a document to HMPPS document management service")
     @PostMapping(
@@ -42,11 +44,12 @@ class HmppsDocumentManagementApiGateway(val hmppsDocumentManagementService: Hmpp
         @PathVariable("hearingId") hearingId: String,
         @PathVariable("defendantId") defendantId: String,
         @PathVariable("documentId") documentId: String
-    ): ResponseEntity<ByteArray> {
+    ): ResponseEntity<ByteArrayInputStream> {
         val documentResponse = hmppsDocumentManagementService.getDocument(hearingId, defendantId, documentId).get()
 
         return ResponseEntity.ok()
             .contentType(documentResponse.headers.contentType)
+            .contentLength(documentResponse.headers.contentLength)
             .header(HttpHeaders.CONTENT_DISPOSITION, documentResponse.headers[HttpHeaders.CONTENT_DISPOSITION]?.get(0))
             .body(documentResponse.body.blockFirst())
     }

@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtcaseservice.documents
+package uk.gov.justice.probation.courtcaseservice.client.model.documentmanagement
 
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime

@@ -20,6 +20,7 @@ import org.hibernate.envers.NotAudited;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -93,7 +94,8 @@ public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
     @OneToMany(mappedBy = "courtCase", orphanRemoval = true, cascade = CascadeType.ALL)
-    private final List<CaseDefendantEntity> caseDefendants;
+    @Setter
+    private List<CaseDefendantEntity> caseDefendants;
 
     public void update(CourtCaseEntity courtCaseUpdate) {
         if(!CollectionUtils.isEmpty(courtCaseUpdate.getCaseMarkers())) {
@@ -135,7 +137,13 @@ public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
         var caseDefendant = CaseDefendantEntity.builder().defendant(defendant).courtCase(this).build();
         defendant.setCaseDefendant(caseDefendant);
         caseDefendant.setDefendant(defendant);
-        this.getCaseDefendants().add(caseDefendant);
+        caseDefendant.setCourtCase(this);
+        var caseDefendants = Optional.ofNullable(getCaseDefendants())
+            .orElseGet(() -> {
+                this.caseDefendants = new ArrayList<>();
+                return this.caseDefendants;
+            });
+        caseDefendants.add(caseDefendant);
         return caseDefendant;
     }
 

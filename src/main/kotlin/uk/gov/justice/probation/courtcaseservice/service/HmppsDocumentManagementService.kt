@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtcaseservice.documents
+package uk.gov.justice.probation.courtcaseservice.service
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -10,10 +10,12 @@ import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import uk.gov.justice.probation.courtcaseservice.client.HmppsDocumentManagementApiClient
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
+import java.io.ByteArrayInputStream
 import java.util.*
 import kotlin.jvm.optionals.getOrElse
 
@@ -37,7 +39,7 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
             ?: throw EntityNotFoundException("Document not found /hearing/%s/defendant/%s/documents/%s", hearingId, defendantId, documentId)
     }
 
-    fun getDocument(hearingId: String, defendantId: String, documentId: String): Optional<ResponseEntity<Flux<ByteArray>>?> {
+    fun getDocument(hearingId: String, defendantId: String, documentId: String): Optional<ResponseEntity<Flux<ByteArrayInputStream>>?> {
 
         return getHearingEntity(hearingId)?.courtCase?.getCaseDefendant(defendantId)?.map { it.getCaseDefendantDocument(documentId) }
             ?.map {

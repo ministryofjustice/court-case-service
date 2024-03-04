@@ -5,6 +5,8 @@ import java.time.LocalDateTime
 
 @Schema(description = "Hearing outcome input model")
 data class CaseDocumentResponse(val id: String,
-                                val name: String,
-                                val datetime: LocalDateTime
-)
+                                val datetime: LocalDateTime,
+                                val file: FileResponse
+) {
+    data class FileResponse(val name: String, val size: Number? = 0)
+}

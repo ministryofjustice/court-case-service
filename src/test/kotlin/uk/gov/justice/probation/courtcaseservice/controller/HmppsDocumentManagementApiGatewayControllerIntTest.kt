@@ -3,9 +3,12 @@ package uk.gov.justice.probation.courtcaseservice.controller
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
+import io.restassured.matcher.ResponseAwareMatcher
 import io.restassured.parsing.Parser
 import org.assertj.core.api.Assertions
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.notNullValue
 import org.hamcrest.core.Is.`is`
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -60,9 +63,9 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
                     aResponse().withStatus(201).withBody(DOCUMENT_MANAGEMENT_API_UPLOAD_RESPONSE)
                         .withHeader("Content-type", MediaType.APPLICATION_JSON_VALUE)
                 )
-        );
+        )
 
-        RestAssured.given()
+        var response = RestAssured.given()
             .multiPart("file", File("./src/test/resources/document-upload/test-upload-file.txt"))
             .multiPart("file", File("./src/test/resources/document-upload/test-upload-file-two.txt"))
             .auth()
@@ -80,6 +83,14 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
             .containsExactlyInAnyOrder("test-upload-file.txt", "test-upload-file-two.txt", "test-upload-file-get.txt")
 
         Assertions.assertThat(caseDefendantDocument).extracting("documentId").isNotNull()
+
+        response
+            .body("get(0).id", equalTo(caseDefendantDocument[1].documentId))
+            .body("get(0).file.name", equalTo(caseDefendantDocument[1].documentName))
+            .body("get(0).datetime", `is`(notNullValue()))
+            .body("get(1).id", equalTo(caseDefendantDocument[0].documentId))
+            .body("get(1).file.name", equalTo(caseDefendantDocument[0].documentName))
+            .body("get(1).datetime", `is`(notNullValue()))
 
         WIRE_MOCK_SERVER.verify(postRequestedFor(urlEqualTo("/documents/PIC_CASE_DOCUMENTS/${caseDefendantDocument[0].documentId}")));
         WIRE_MOCK_SERVER.verify(postRequestedFor(urlEqualTo("/documents/PIC_CASE_DOCUMENTS/${caseDefendantDocument[1].documentId}")));

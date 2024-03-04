@@ -30,9 +30,7 @@ class HmppsDocumentManagementApiGatewayController(val hmppsDocumentManagementSer
         @PathVariable("hearingId") hearingId: String,
         @PathVariable("defendantId") defendantId: String,
         @RequestParam("file") files: List<MultipartFile>
-    ) {
-        hmppsDocumentManagementService.uploadDocuments(hearingId, defendantId, files)
-    }
+    ) = hmppsDocumentManagementService.uploadDocuments(hearingId, defendantId, files)
 
     @Operation(description = "Retrieves a document with given documentId from HMPPS document manages service.")
     @GetMapping(

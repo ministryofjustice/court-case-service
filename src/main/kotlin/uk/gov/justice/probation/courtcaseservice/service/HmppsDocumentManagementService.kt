@@ -12,12 +12,13 @@ import org.springframework.web.multipart.MultipartFile
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import uk.gov.justice.probation.courtcaseservice.client.HmppsDocumentManagementApiClient
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseDocumentResponse
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
-import java.io.ByteArrayInputStream
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.jvm.optionals.getOrElse
 
 @Service
@@ -50,15 +51,16 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
             ?: throw EntityNotFoundException("Document not found /hearing/%s/defendant/%s/documents/%s", hearingId, defendantId, documentId)
     }
 
-    fun uploadDocuments(hearingId: String, defendantId: String, multipartData: List<MultipartFile>) {
+    fun uploadDocuments(hearingId: String, defendantId: String, multipartData: List<MultipartFile>): List<CaseDocumentResponse> {
 
-        multipartData.forEach {
+        return multipartData.map {
             val builder = MultipartBodyBuilder();
-            builder.part(it.originalFilename, it.resource)
+            builder.part("file", it.resource)
                 .contentType(MediaType.valueOf(it.contentType))
+                .filename(it.originalFilename)
 
             uploadDocument(hearingId, defendantId, builder, it.originalFilename)
-        }
+        }.toCollection(ArrayList())
     }
 
     private fun uploadDocument(
@@ -66,7 +68,7 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
         defendantId: String,
         filePart: MultipartBodyBuilder,
         originalFilename: String
-    ) {
+    ): CaseDocumentResponse {
 
         var hearing = getHearingEntity(hearingId)
 
@@ -77,8 +79,9 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
         log.debug("Response from document management API /documents/$picDocumentType/$documentUuid : $response")
 
         var courtCase = hearing.courtCase
-        courtCase.getOrCreateCaseDefendant(hearingDefendant.defendant).createDocument(documentUuid, originalFilename)
+        var documentEntity = courtCase.getOrCreateCaseDefendant(hearingDefendant.defendant).createDocument(documentUuid, originalFilename)
         courtCaseRepository.save(courtCase)
+        return CaseDocumentResponse(documentUuid, documentEntity.created, CaseDocumentResponse.FileResponse(originalFilename))
     }
 
     private fun getHearingEntity(hearingId: String): HearingEntity? =

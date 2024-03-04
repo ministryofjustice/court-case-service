@@ -45,7 +45,7 @@ class HmppsDocumentManagementApiGatewayController(val hmppsDocumentManagementSer
         @PathVariable("defendantId") defendantId: String,
         @PathVariable("documentId") documentId: String
     ): ResponseEntity<InputStreamResource> {
-        val documentResponse = hmppsDocumentManagementService.getDocument(hearingId, defendantId, documentId).get()
+        val documentResponse = hmppsDocumentManagementService.getDocument(hearingId, defendantId, documentId).get().block()
         val fileStream = documentResponse.body.blockFirst()
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, documentResponse.headers.contentDisposition.toString())

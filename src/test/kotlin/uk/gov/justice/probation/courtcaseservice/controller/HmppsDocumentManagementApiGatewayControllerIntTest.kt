@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtcaseservice.documents
+package uk.gov.justice.probation.courtcaseservice.controller
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import io.restassured.RestAssured
@@ -27,7 +27,7 @@ import java.io.File
     config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),
     executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD
 )
-internal class HmppsDocumentManagementApiGatewayIntTest: BaseIntTest() {
+internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest() {
 
     @Autowired
     lateinit var hearingRepository: HearingRepository

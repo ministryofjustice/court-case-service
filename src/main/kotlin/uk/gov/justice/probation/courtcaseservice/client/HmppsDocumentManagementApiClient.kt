@@ -57,7 +57,7 @@ class HmppsDocumentManagementApiClient(
             }
     }
 
-    fun getDocument(documentUuid: String): ResponseEntity<Flux<InputStreamResource>>? {
+    fun getDocument(documentUuid: String): Mono<ResponseEntity<Flux<InputStreamResource>>> {
 
         val documentPath = "${String.format(hmppsDocumentManagementApiDocumentByUuid, documentUuid)}/file"
         log.debug("Fetching document $documentPath")
@@ -84,7 +84,6 @@ class HmppsDocumentManagementApiClient(
             .doOnSuccess {
                 log.info("Document download success {}", documentPath)
             }
-            .block()
     }
 
     fun deleteDocument(documentUuid: String): Mono<ResponseEntity<Any>> {

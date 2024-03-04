@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.wiremock;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 public class WiremockMockServer extends WireMockServer {
@@ -14,6 +15,7 @@ public class WiremockMockServer extends WireMockServer {
     public WiremockMockServer(final int port, final String fileDirectory) {
         super(WireMockConfiguration.wireMockConfig().port(port)
             .usingFilesUnderClasspath(fileDirectory)
+            .notifier(new Slf4jNotifier(true))
             .jettyStopTimeout(10000L));
     }
 

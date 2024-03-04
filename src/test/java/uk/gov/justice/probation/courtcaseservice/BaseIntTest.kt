@@ -109,7 +109,7 @@ abstract class BaseIntTest {
       localStackContainer?.also { setLocalStackProperties(it, registry) }
     }
 
-    private val WIRE_MOCK_SERVER = WiremockMockServer(TestConfig.WIREMOCK_PORT)
+    public val WIRE_MOCK_SERVER = WiremockMockServer( TestConfig.WIREMOCK_PORT)
 
     @RegisterExtension
     var wiremockExtension = WiremockExtension(WIRE_MOCK_SERVER)

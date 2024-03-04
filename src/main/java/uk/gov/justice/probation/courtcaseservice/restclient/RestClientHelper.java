@@ -33,6 +33,18 @@ public class RestClientHelper {
         return get(path, new LinkedMultiValueMap<>(0));
     }
 
+    public WebClient.RequestHeadersSpec<?> delete(final String path) {
+        final WebClient.RequestHeadersSpec<?> spec = client
+            .delete()
+            .uri(uriBuilder -> uriBuilder
+                .path(path)
+                .build()
+            )
+            .accept(MediaType.APPLICATION_JSON);
+
+        return addSpecAuthAttribute(spec, path);
+    }
+
     public WebClient.RequestHeadersSpec<?> get(final String path, final MultiValueMap<String, String> queryParams) {
         final WebClient.RequestHeadersSpec<?> spec = client
             .get()
@@ -56,6 +68,16 @@ public class RestClientHelper {
             .accept(mediaType);
 
         return addSpecAuthAttribute(spec, path);
+    }
+
+    public WebClient.RequestBodySpec post(final String path) {
+
+        var spec =  client
+            .post()
+            .uri(path);
+
+        addSpecAuthAttribute(spec, path);
+        return spec;
     }
 
     private RequestHeadersSpec<?> addSpecAuthAttribute(RequestHeadersSpec<?> spec, String path) {

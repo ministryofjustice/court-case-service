@@ -460,3 +460,12 @@ INSERT INTO court_case (id, case_id, case_no, created, deleted, source_type)
 VALUES (4000011, '1b6cf731-1892-4b9e-abc3-7fab87a39c21', 1111128919, '2020-10-01 16:59:59', false, 'COMMON_PLATFORM');
 INSERT INTO hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (4000011, 4000011, '1b6cf731-1892-4b9e-abc3-7fab87a39c21', NOW() - INTERVAL '1 day');
+
+INSERT INTO courtcaseservicetest.case_defendant(id, fk_court_case_id, fk_case_defendant_id)
+VALUES (-1900020002, -1700028900, -1000000);
+
+INSERT INTO courtcaseservicetest.case_defendant_documents(id, fk_case_defendant_id, document_id, document_name, created)
+VALUES (-1800020002, -1900020002, '3cfd7d45-6f62-438e-ad64-ef3d911dfe38', 'test-upload-file-get.txt', '2024-03-01 16:59:59');
+
+INSERT INTO courtcaseservicetest.case_defendant_documents(id, fk_case_defendant_id, document_id, document_name, created)
+VALUES (-1800020003, -1900020002, '042bab62-afa6-4409-9d51-6cdf6d05bd04', 'test-upload-file-get-two.txt', '2024-03-02 16:59:59');

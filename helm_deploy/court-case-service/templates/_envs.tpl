@@ -70,6 +70,9 @@ env:
   - name: HEARING_OUTCOMES_MOVE_UN_RESULTED_TO_OUTCOMES_COURTS
     value: "{{ .Values.env.hearing_outcomes.move_un_resulted_to_outcomes_courts }}"
 
+  - name: HMPPS_DOCUMENT_MANAGEMENT_API_CLIENT_BASE_URL
+    value: "{{ .Values.env.hmpps_document_management_api_client.base_url }}"
+
   - name: COURT_CASE_AND_DELIUS_API_CLIENT_ID
     valueFrom:
       secretKeyRef:

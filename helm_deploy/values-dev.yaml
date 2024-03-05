@@ -36,21 +36,24 @@ nginx_proxy:
       pullPolicy: Always
     port: 8080
 
-data_dictionary:
-  name: pic-data-dictionary
-  service_host: http://pic-data-dictionary.pic-data-dictionary
-  replicaCount: 1
-
-  service:
-    port:
-      http: 80
-
-  deployment:
-    image:
-      repository: quay.io/hmpps/pic-data-dictionary
-      tag: latest
-      pullPolicy: Always
-    port: 8080
+# TODO - data-dictionary nginx fails currently blocking deployment of court-case-service too.
+#  Fix this issue and uncomment below entries for data-dictionary to deploy.
+#  data-dictionary is only used in dev env by analytics team.
+#data_dictionary:
+#  name: pic-data-dictionary
+#  service_host: http://pic-data-dictionary.pic-data-dictionary
+#  replicaCount: 1
+#
+#  service:
+#    port:
+#      http: 80
+#
+#  deployment:
+#    image:
+#      repository: quay.io/hmpps/pic-data-dictionary
+#      tag: latest
+#      pullPolicy: Always
+#    port: 8080
 
 hearing_outcomes:
   process_un_resulted_cases_cron: "30 12-20 * * *"
@@ -77,6 +80,8 @@ env:
   hearing_outcomes:
     move_un_resulted_to_outcomes_cutoff_time: "12:00"
     move_un_resulted_to_outcomes_courts: "B20EB,B23HS"
+  hmpps_document_management_api_client:
+    base_url: https://document-api-dev.hmpps.service.justice.gov.uk
 
 spring:
   profile: instrumented

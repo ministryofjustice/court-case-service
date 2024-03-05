@@ -3,20 +3,14 @@ package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseDocumentResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseMarker;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse.CourtCaseResponseBuilder;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseMarkerEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.PleaEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.VerdictEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
 import java.time.LocalDate;
@@ -37,6 +31,7 @@ public class CourtCaseResponseMapper {
 
         buildCaseFields(builder, hearingEntity);
         buildHearings(builder, hearingEntity, null);
+        builder.files(mapCaseDocuments(hearingEntity, defendantId));
 
         Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(Collections.emptyList())
                 .stream()
@@ -48,6 +43,15 @@ public class CourtCaseResponseMapper {
         builder.numberOfPossibleMatches(matchCount);
 
         return builder.build();
+    }
+
+    private static List<CaseDocumentResponse> mapCaseDocuments(HearingEntity hearingEntity, String defendantId) {
+        return hearingEntity.getCourtCase().getCaseDefendant(defendantId)
+            .map(CaseDefendantEntity::getDocuments)
+            .map(caseDefendantDocumentEntities -> caseDefendantDocumentEntities.stream()
+                .map(doc -> new CaseDocumentResponse(doc.getDocumentId(),doc.getCreated(), new CaseDocumentResponse.FileResponse(doc.getDocumentName(), 0)))
+                .collect(Collectors.toList())
+            ).orElse(Collections.emptyList());
     }
 
     public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, HearingDefendantEntity defendantEntity, int matchCount, LocalDate hearingDate) {

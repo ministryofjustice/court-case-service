@@ -11,8 +11,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession.MORNING;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM;
@@ -21,7 +21,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.LI
 class CaseProgressHearingTest {
 
     @Test
-    void givenCPCase_shouldMapToCaseProgressHearing() {
+    void givenCPCase_shouldMapToCaseProgressHearingExcludingDeletedNotes() {
         var hearingDayEntity1 = EntityHelper.aHearingDayEntity(LocalDateTime.of(2022, 2, 26, 9, 0)).withCourtRoom("Room 1").withCourt(CourtEntity.builder().name("Leeds mags court").build());
         var hearingDayEntity2 = EntityHelper.aHearingDayEntity(LocalDateTime.of(2022, 5, 5, 9, 0)).withCourtRoom("Room 2").withCourt(CourtEntity.builder().name("Sheffield mags court").build());
 
@@ -32,11 +32,10 @@ class CaseProgressHearingTest {
             .hearingDays(List.of(hearingDayEntity2, hearingDayEntity1))
             .build();
 
-        var hearingNotes = Optional.of(
-            List.of(
+        var hearingNotes = List.of(
                 HearingNoteEntity.builder().note("Note one").build(),
-                HearingNoteEntity.builder().note("Note two").build()
-            )
+                HearingNoteEntity.builder().note("Note two").build(),
+                HearingNoteEntity.builder().note("This delete note should note be mapped in response").deleted(true).build()
         );
 
         Assertions.assertThat(CaseProgressHearing.of(hearingEntity, hearingNotes)).isEqualTo(
@@ -69,12 +68,10 @@ class CaseProgressHearingTest {
             .hearingDays(List.of(hearingDayEntity2, hearingDayEntity1))
             .build();
 
-        var hearingNotes = Optional.of(
-            List.of(
+        var hearingNotes = List.of(
                 HearingNoteEntity.builder().note("Note one").build(),
                 HearingNoteEntity.builder().note("Note two").build()
-            )
-        );
+            );
 
         Assertions.assertThat(CaseProgressHearing.of(hearingEntity, hearingNotes)).isEqualTo(
             CaseProgressHearing.builder().
@@ -104,7 +101,7 @@ class CaseProgressHearingTest {
             .hearingDays(List.of(hearingDayEntity1))
             .build();
 
-        CaseProgressHearing caseProgressHearing = CaseProgressHearing.of(hearingEntity, Optional.empty());
+        CaseProgressHearing caseProgressHearing = CaseProgressHearing.of(hearingEntity, Collections.emptyList());
         Assertions.assertThat(caseProgressHearing.getHearingTypeLabel()).isEqualTo("Hearing type unknown");
     }
 
@@ -120,7 +117,7 @@ class CaseProgressHearingTest {
             .hearingDays(List.of(hearingDayEntity1))
             .build();
 
-        CaseProgressHearing caseProgressHearing = CaseProgressHearing.of(hearingEntity, Optional.empty());
+        CaseProgressHearing caseProgressHearing = CaseProgressHearing.of(hearingEntity, Collections.emptyList());
         Assertions.assertThat(caseProgressHearing.getHearingTypeLabel()).isEqualTo("Hearing type unknown");
     }
 

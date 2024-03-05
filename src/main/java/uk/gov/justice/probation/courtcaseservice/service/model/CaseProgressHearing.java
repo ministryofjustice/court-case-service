@@ -17,6 +17,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +43,7 @@ public class CaseProgressHearing {
     private final List<HearingNoteResponse> notes;
     private final HearingOutcomeResponse hearingOutcome;
 
-    public static CaseProgressHearing of(HearingEntity hearingEntity, Optional<List<HearingNoteEntity>> notes) {
+    public static CaseProgressHearing of(HearingEntity hearingEntity, List<HearingNoteEntity> notes) {
         var hearingDay = getHearingDay(hearingEntity);
         return CaseProgressHearing.builder()
             .hearingId(hearingEntity.getHearingId())
@@ -51,9 +52,15 @@ public class CaseProgressHearing {
             .hearingTypeLabel(getHearingTypeLabel(hearingEntity))
             .court(hearingDay.getCourt().getName())
             .courtRoom(hearingDay.getCourtRoom())
-            .notes(notes.map(hearingNoteEntities -> hearingNoteEntities.stream().map(HearingNoteResponse::of).collect(Collectors.toList())).orElse(null))
+            .notes(mapHearingNotes(notes))
             .hearingOutcome(HearingOutcomeResponse.Companion.of(hearingEntity.getHearingOutcome()))
             .build();
+    }
+
+    private static List<HearingNoteResponse> mapHearingNotes(List<HearingNoteEntity> notes) {
+        return Optional.ofNullable(notes).map(hearingNoteEntities -> hearingNoteEntities.stream()
+            .filter(hearingNoteEntity -> !hearingNoteEntity.isDeleted()).map(HearingNoteResponse::of)
+            .collect(Collectors.toList())).orElse(Collections.emptyList());
     }
 
     // It was decided to go with the first hearing day info and revisit when multi day hearing analysis is completed

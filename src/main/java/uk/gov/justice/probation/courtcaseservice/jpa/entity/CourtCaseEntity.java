@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,15 +11,19 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.springframework.util.CollectionUtils;
 
-import jakarta.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Schema(description = "Court Case")
 @Entity
@@ -84,6 +89,14 @@ public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
     @OneToMany(mappedBy = "courtCase", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<CaseMarkerEntity> caseMarkers;
 
+    @NotAudited
+    @ToString.Exclude
+    @LazyCollection(value = LazyCollectionOption.FALSE)
+    @JsonIgnore
+    @OneToMany(mappedBy = "courtCase", orphanRemoval = true, cascade = CascadeType.ALL)
+    @Setter
+    private List<CaseDefendantEntity> caseDefendants;
+
     public void update(CourtCaseEntity courtCaseUpdate) {
         if(!CollectionUtils.isEmpty(courtCaseUpdate.getCaseMarkers())) {
             updateCaseMarkers(courtCaseUpdate);
@@ -108,6 +121,36 @@ public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
 
             this.caseMarkers.addAll(courtCaseEntity.getCaseMarkers());
             this.caseMarkers.forEach(caseMarkerEntity -> caseMarkerEntity.setCourtCase(this));
+    }
 
+    public Optional<CaseDefendantEntity> getCaseDefendant(String defendantId) {
+        return Optional.ofNullable(getCaseDefendants())
+            .map(caseDefendantEntities ->
+                caseDefendantEntities.stream()
+                    .filter(caseDefendantEntity -> StringUtils.equals(defendantId, caseDefendantEntity.getDefendant().getDefendantId())).findFirst()
+            ).orElse(Optional.empty());
+    }
+
+    public CaseDefendantEntity getOrCreateCaseDefendant(DefendantEntity defendant) {
+        var defendantId = defendant.getDefendantId();
+        return getCaseDefendant(defendantId).orElseGet(() -> addCaseDefendant(defendant));
+    }
+
+    public CaseDefendantEntity addCaseDefendant(DefendantEntity defendant) {
+        var caseDefendant = CaseDefendantEntity.builder().defendant(defendant).courtCase(this).build();
+        defendant.setCaseDefendant(caseDefendant);
+        caseDefendant.setDefendant(defendant);
+        caseDefendant.setCourtCase(this);
+        var caseDefendants = Optional.ofNullable(getCaseDefendants())
+            .orElseGet(() -> {
+                this.caseDefendants = new ArrayList<>();
+                return this.caseDefendants;
+            });
+        caseDefendants.add(caseDefendant);
+        return caseDefendant;
+    }
+
+    public boolean hasDefendant(String defendantId) {
+        return getHearings().stream().filter(hearingEntity -> Objects.nonNull(hearingEntity.getHearingDefendant(defendantId))).findAny().isPresent();
     }
 }

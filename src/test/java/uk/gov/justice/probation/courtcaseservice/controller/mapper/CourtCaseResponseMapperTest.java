@@ -57,6 +57,9 @@ class CourtCaseResponseMapperTest {
     private static final String NATIONALITY_2 = "NATIONALITY_2";
     private static final CourtSession SESSION = CourtSession.MORNING;
     private static final LocalDateTime FIRST_CREATED = LocalDateTime.of(2020, 1, 1, 1, 1);
+
+    private static String DOCUMENT_ID = "document-id-one";
+    private static String DOCUMENT_NAME = "document-name-one.pdf";
     private HearingEntity hearingEntity;
     private final AddressPropertiesEntity addressPropertiesEntity = AddressPropertiesEntity.builder()
             .line1("27")
@@ -251,6 +254,24 @@ class CourtCaseResponseMapperTest {
 
         assertThat(response.getHearingOutcome().getHearingOutcomeType()).isEqualTo(HearingOutcomeType.REPORT_REQUESTED);
     }
+    @Test
+    void shouldMapCaseDocumentsFields() {
+
+        var hearing = EntityHelper.aHearingEntity();
+
+        CourtCaseEntity courtCase = hearing.getCourtCase();
+        courtCase.addCaseDefendant(
+            hearing.getHearingDefendants().get(0).getDefendant());
+
+        courtCase.getCaseDefendants().get(0).createDocument(DOCUMENT_ID, DOCUMENT_NAME);
+
+        var response = CourtCaseResponseMapper.mapFrom(hearing, EntityHelper.DEFENDANT_ID, 5, caseProgressHearings);
+
+        var caseDocument = response.getFiles().get(0);
+        assertThat(caseDocument.getId()).isEqualTo(DOCUMENT_ID);
+        assertThat(caseDocument.getFile().getName()).isEqualTo(DOCUMENT_NAME);
+        assertThat(caseDocument.getDatetime()).isNotNull();
+    }
 
     private HearingDefendantEntity buildDefendant(NamePropertiesEntity name, OffenderEntity offender) {
         return HearingDefendantEntity.builder()
@@ -378,6 +399,7 @@ class CourtCaseResponseMapperTest {
                         .caseMarkers(List.of(CaseMarkerEntity.builder()
                                 .typeDescription("description")
                                 .build()))
+                        .caseDefendants(List.of())
                         .build())
                 .created(CREATED)
                 .firstCreated(CourtCaseResponseMapperTest.FIRST_CREATED)

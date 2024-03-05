@@ -76,6 +76,7 @@ public class TelemetryService {
         properties.put("caseId", caseCommentEntity.getCaseId());
         properties.put("createdByUuid", caseCommentEntity.getCreatedByUuid());
         properties.put("commentId", caseCommentEntity.getId().toString());
+        properties.put("defendantId", caseCommentEntity.getDefendantId());
         properties.put("createdDateTime", caseCommentEntity.getCreated().toString());
         properties.put("username", caseCommentEntity.getCreatedBy());
 
@@ -102,6 +103,7 @@ public class TelemetryService {
     private void trackHearingNoteEvent(TelemetryEventType eventType, HearingNoteEntity hearingNoteEntity) {
         Map<String, String> properties = new HashMap<>();
         properties.put("hearingId", hearingNoteEntity.getHearingId());
+        properties.put("defendantId", Optional.ofNullable(hearingNoteEntity.getHearingDefendant()).map(HearingDefendantEntity::getDefendantId).orElse(null));
         properties.put("createdByUuid", hearingNoteEntity.getCreatedByUuid());
         properties.put("noteId", hearingNoteEntity.getId().toString());
         properties.put("createdDateTime", hearingNoteEntity.getCreated().toString());

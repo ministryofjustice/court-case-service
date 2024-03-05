@@ -68,6 +68,7 @@ public class CourtCaseResponse {
     private final Boolean awaitingPsr;
     private final List<CaseProgressHearing> hearings;
     private final List<CaseCommentResponse> caseComments;
+    private final List<CaseDocumentResponse> files;
     private final HearingEventType hearingEventType;
     private final Boolean confirmedOffender;
     private final String personId;

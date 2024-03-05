@@ -48,10 +48,10 @@ VALUES (-1000012, 'Z320755', 'CURRENT', '2010-01-01', true, true, true, true, 'b
 -- START DEFINITION OF CASE NO 1600028913
 INSERT INTO court_case (id, case_id, case_no, created, source_type, urn) VALUES (-1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 1600028913, now(), 'LIBRA', 'URN008');
 INSERT INTO hearing (id, fk_court_case_id, hearing_id, hearing_type, created, hearing_event_type, list_no) VALUES (-1700028900, -1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'sentence', now(), 'RESULTED', '3rd');
-INSERT INTO case_comments(id, case_id, comment, "author", created, created_by, created_by_uuid) VALUES (-1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR in progress', 'Author One', now(), 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
-INSERT INTO case_comments(id, case_id, comment, "author", created, deleted, created_by, created_by_uuid) VALUES (-1700028901, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR completed', 'Author One', now(), true, 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
-INSERT INTO case_comments(id, case_id, comment, "author", created, created_by, created_by_uuid) VALUES (-1700028902, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR completed', 'Author Two', now(), 'before-test.sql', '389fd9cf-390e-469a-b4cf-6c12024c4cae');
-INSERT INTO case_comments(id, case_id, comment, "author", created, created_by, created_by_uuid, is_draft) VALUES (-1700028903, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', 'PSR completed', 'Author Two', now(), 'before-test.sql', '389fd9cf-390e-469a-b4cf-6c12024c4cae', true);
+INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, created_by, created_by_uuid) VALUES (-1700028900, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', '40db17d6-04db-11ec-b2d8-0242ac130002', 'PSR in progress', 'Author One', now(), 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
+INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, deleted, created_by, created_by_uuid) VALUES (-1700028901, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', '20db17d6-04db-11ec-b2d8-0242ac130002', 'PSR completed', 'Author One', now(), true, 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
+INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, created_by, created_by_uuid) VALUES (-1700028902, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', '40db17d6-04db-11ec-b2d8-0242ac130002', 'PSR completed', 'Author Two', now(), 'before-test.sql', '389fd9cf-390e-469a-b4cf-6c12024c4cae');
+INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, created_by, created_by_uuid, is_draft) VALUES (-1700028903, '1f93aa0a-7e46-4885-a1cb-f25a4be33a00', '40db17d6-04db-11ec-b2d8-0242ac130002', 'PSR completed', 'Author Two', now(), 'before-test.sql', '389fd9cf-390e-469a-b4cf-6c12024c4cae', true);
 
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
 VALUES (-1000000, -1700028900, 'B10JQ', 1, '2019-12-14', '09:00');
@@ -460,3 +460,12 @@ INSERT INTO court_case (id, case_id, case_no, created, deleted, source_type)
 VALUES (4000011, '1b6cf731-1892-4b9e-abc3-7fab87a39c21', 1111128919, '2020-10-01 16:59:59', false, 'COMMON_PLATFORM');
 INSERT INTO hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (4000011, 4000011, '1b6cf731-1892-4b9e-abc3-7fab87a39c21', NOW() - INTERVAL '1 day');
+
+INSERT INTO courtcaseservicetest.case_defendant(id, fk_court_case_id, fk_case_defendant_id)
+VALUES (-1900020002, -1700028900, -1000000);
+
+INSERT INTO courtcaseservicetest.case_defendant_documents(id, fk_case_defendant_id, document_id, document_name, created)
+VALUES (-1800020002, -1900020002, '3cfd7d45-6f62-438e-ad64-ef3d911dfe38', 'test-upload-file-get.txt', '2024-03-01 16:59:59');
+
+INSERT INTO courtcaseservicetest.case_defendant_documents(id, fk_case_defendant_id, document_id, document_name, created)
+VALUES (-1800020003, -1900020002, '042bab62-afa6-4409-9d51-6cdf6d05bd04', 'test-upload-file-get-two.txt', '2024-03-02 16:59:59');

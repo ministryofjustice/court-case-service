@@ -36,6 +36,9 @@ public class EntityHelper {
     public static final AddressPropertiesEntity DEFENDANT_ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "AB21 3ES", "Bangor", null, null);
     public static final LocalDate DEFENDANT_DOB = LocalDate.of(1958, 12, 14);
     public static final String DEFENDANT_ID = "d1eefed2-04df-11ec-b2d8-0242ac130002";
+
+    public static final String DEFENDANT_ID2 = "45b969d6-b238-4573-8f89-c40250e5f7fe";
+
     public static final String PNC = "PNC";
     public static final String OFFENDER_PNC = "OFFENDER_PNC";
     public static final String CRO = "CRO/12334";
@@ -57,6 +60,10 @@ public class EntityHelper {
 
     public static <E> ArrayList<E> getMutableList(List<E> mutableList) {
         return new ArrayList<>(mutableList);
+    }
+
+    public static HearingEntity aHearingEntity() {
+        return aHearingEntityWithHearingId(CASE_ID, HEARING_ID, DEFENDANT_ID);
     }
 
     public static HearingEntity aHearingEntity(String caseId) {
@@ -90,6 +97,7 @@ public class EntityHelper {
                         .caseId(caseId)
                         .caseNo(CASE_NO)
                         .sourceType(SOURCE)
+                        .hearings(new ArrayList<>())
                         .build())
                 .build();
 
@@ -97,6 +105,7 @@ public class EntityHelper {
                 .forEach(hearingDefendant -> hearingDefendant.setHearing(hearingEntity));
         hearingEntity.getHearingDays()
                 .forEach(hearingDay -> hearingDay.setHearing(hearingEntity));
+        hearingEntity.getCourtCase().addHearing(hearingEntity);
         return hearingEntity;
     }
 
@@ -160,6 +169,7 @@ public class EntityHelper {
                 .defendantId(defendantId)
                 .defendant(defendant)
                 .offences(getMutableList(List.of(aDefendantOffence())))
+                .notes(new ArrayList<>())
                 .build();
         hearingDefendant.getOffences()
                 .forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendant));

@@ -72,6 +72,13 @@ spring:
             client-authentication-method: client_secret_basic
             authorization-grant-type: client_credentials
             provider: nomis-oauth-service
+          hmpps-document-management-api-client:
+            client-name: hmpps-document-management-api-client
+            client-id: ${hmpps-document-management-api-client:hmpps-document-management-api-client}
+            client-secret: ${hmpps-document-management-api-client-secret:clientsecret}
+            client-authentication-method: client_secret_basic
+            authorization-grant-type: client_credentials
+            provider: nomis-oauth-service
         provider:
           nomis-oauth-service:
             token-uri: ${nomis-oauth.base-url}/auth/oauth/token
@@ -148,6 +155,12 @@ delius:
 
 manage-offences-api:
   get-home-office-offence-code: /offences/ho-code/%s
+
+hmpps-document-management-api:
+  create-document: /documents/%s/%s
+  document-by-uuid: /documents/%s
+  client-service-name: prepare-a-case
+  document-type: PIC_CASE_DOCUMENTS
 
 court-case-and-delius-api:
   probation-status-by-crn: /probation-case/%s/status

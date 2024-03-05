@@ -25,7 +25,7 @@ public class DefendantRepositoryCustom {
         "  inner join (select max(h1.id) as max_id, d1.id as did from hearing h1 " +
         "         join court_case cc1 on cc1.id = h1.fk_court_case_id " +
         "         join hearing_defendant hd1  on h1.id = hd1.fk_hearing_id " +
-        "         join defendant d1 on d1.id = hd1.fk_defendant_id join offender off on off.id = d1.fk_offender_id ";
+        "         join defendant d1 on d1.id = hd1.fk_defendant_id ";
 
     private static final String DEFENDANT_SEARCH_SELECT =
             "select cc.id, cc.case_id, cc.case_no, cc.created AS ccCreated, cc.created_by AS ccCreatedBy, cc.deleted AS ccDeleted, cc.source_type, cc.urn, cc.last_updated AS ccLastUpdated, cc.last_updated_by AS ccLastUpdatedBy, cc.\"version\" AS ccVersion, " +
@@ -38,7 +38,7 @@ public class DefendantRepositoryCustom {
     private EntityManager entityManager;
     public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByCrn(String crn, Pageable pageable) {
 
-        String CRN_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where off.crn = :crn " + DEFENDANT_SEARCH_GROUPING;
+        String CRN_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " join offender off on off.id = d1.fk_offender_id " + " where off.crn = :crn " + DEFENDANT_SEARCH_GROUPING;
 
         var query = entityManager.createNativeQuery(
             DEFENDANT_SEARCH_SELECT + CRN_SEARCH_FROM + " order by cc.id desc ",

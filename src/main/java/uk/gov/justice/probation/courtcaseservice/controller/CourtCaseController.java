@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +39,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearin
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
@@ -52,7 +54,6 @@ import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
-import jakarta.validation.Valid;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -116,7 +117,7 @@ public class CourtCaseController {
     public @ResponseBody
     CourtCaseResponse getCourtCaseByHearingIdAndDefendantId(@PathVariable String hearingId, @PathVariable String defendantId) {
         HearingEntity hearingByHearingIdAndDefendantId = courtCaseService.getHearingByHearingIdAndDefendantId(hearingId, defendantId);
-        List<CaseProgressHearing> caseHearingProgress = caseProgressService.getCaseHearingProgress(hearingByHearingIdAndDefendantId.getCaseId());
+        List<CaseProgressHearing> caseHearingProgress = caseProgressService.getCaseHearingProgress(hearingByHearingIdAndDefendantId.getCaseId(), defendantId);
         return this.buildCourtCaseResponseForCaseIdAndDefendantId(hearingByHearingIdAndDefendantId, defendantId, caseHearingProgress);
     }
 
@@ -141,121 +142,121 @@ public class CourtCaseController {
                 .map(ExtendedHearingRequestResponse::of);
     }
 
-    @Operation(description = "Creates a hearing note for a given hearing")
-    @PostMapping(value = "/hearing/{hearingId}/notes", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @Operation(description = "Creates a hearing note for a given hearing and defendant ID")
+    @PostMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     HearingNoteResponse createHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                          @PathVariable(value = "defendantId") String defendantId,
                                           @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
                                           Principal principal) {
 
-        validateHearingNoteRequest(hearingId, hearingNoteRequest);
-
-        HearingNoteEntity hearingNote = hearingNotesService.createHearingNote(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
+        HearingNoteEntity hearingNote = hearingNotesService.createHearingNote(hearingId, defendantId, hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
         return HearingNoteResponse.of(hearingNote);
     }
 
-    @Operation(description = "Creates/updates a draft hearing note for a given hearing")
-    @PutMapping(value = "/hearing/{hearingId}/notes/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @Operation(description = "Creates/updates a draft hearing note for a given hearing and defendant ID")
+    @PutMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     HearingNoteResponse createUpdateDraftHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                                     @PathVariable(value = "defendantId") String defendantId,
                                           @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
                                           Principal principal) {
 
-        validateHearingNoteRequest(hearingId, hearingNoteRequest);
-
         HearingNoteEntity hearingNote = hearingNotesService
-            .createOrUpdateHearingNoteDraft(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
+            .createOrUpdateHearingNoteDraft(hearingId, defendantId, hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
         return HearingNoteResponse.of(hearingNote);
     }
 
     @Operation(description = "Deletes the draft hearing note for a given hearing")
-    @DeleteMapping(value = "/hearing/{hearingId}/notes/draft")
+    @DeleteMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes/draft")
     @ResponseStatus(HttpStatus.OK)
     public void deleteDraftHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                       @PathVariable(value = "defendantId") String defendantId,
                                                Principal principal) {
 
         hearingNotesService
-            .deleteHearingNoteDraft(hearingId, authenticationHelper.getAuthUserUuid(principal));
+            .deleteHearingNoteDraft(hearingId, defendantId, authenticationHelper.getAuthUserUuid(principal));
     }
 
-    private static void validateHearingNoteRequest(String hearingId, HearingNoteRequest hearingNoteRequest) {
-        if (!StringUtils.equals(hearingId, hearingNoteRequest.getHearingId())) {
-            throw new ConflictingInputException(String.format("Hearing Id '%s' provided in the path does not match the one in the hearing note request body submitted '%s'",
-                hearingId, hearingNoteRequest.getHearingId()));
-        }
-    }
-
-    @Operation(description = "Updates a hearing note for a given hearing and noteId")
-    @PutMapping(value = "/hearing/{hearingId}/notes/{noteId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @Operation(description = "Updates a hearing note for a given hearing, defendant and noteId")
+    @PutMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes/{noteId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public void updateHearingNote(@PathVariable(value = "hearingId") String hearingId,
-                                          @PathVariable(value = "noteId") Long noteId,
-                                          @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
+                                  @PathVariable(value = "defendantId") String defendantId,
+                                  @PathVariable(value = "noteId") Long noteId,
+                                  @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
                                           Principal principal) {
 
-        validateHearingNoteRequest(hearingId, hearingNoteRequest);
-
-        hearingNotesService.updateHearingNote(hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)), noteId);
+        hearingNotesService.updateHearingNote(hearingId, defendantId, hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)), noteId);
     }
 
     @Operation(description = "Delete a hearing note for a given hearing and note id")
-    @DeleteMapping(value = "/hearing/{hearingId}/notes/{noteId}")
+    @DeleteMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes/{noteId}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                  @PathVariable(value = "defendantId") String defendantId,
                                   @PathVariable(value = "noteId") Long noteId,
                                   Principal principal) {
 
-        hearingNotesService.deleteHearingNote(hearingId, noteId, authenticationHelper.getAuthUserUuid(principal));
+        hearingNotesService.deleteHearingNote(hearingId, defendantId, noteId, authenticationHelper.getAuthUserUuid(principal));
     }
 
 
     @Operation(description = "Creates/updates a draft case comment for a given case")
-    @PutMapping(value = "/cases/{caseId}/comments/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/cases/{caseId}/defendants/{defendantId}/comments/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     CaseCommentResponse createUpdateCaseCommentDraft(@PathVariable(value = "caseId") String caseId,
+                                                     @PathVariable(value = "defendantId") String defendantId,
                                                      @Valid @RequestBody CaseCommentRequest caseCommentRequest,
                                                      Principal principal) {
 
-        validateCaseCommentRequest(caseId, caseCommentRequest);
-        var caseCommentEntity = caseCommentsService.createUpdateCaseCommentDraft(caseCommentRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
+        var caseCommentEntity = caseCommentsService.createUpdateCaseCommentDraft(caseCommentRequest.asEntity(authenticationHelper.getAuthUserUuid(principal), caseId, defendantId));
         return CaseCommentResponse.of(caseCommentEntity);
     }
 
     @Operation(description = "Updates a case comment for a given case id and comment id")
-    @PutMapping(value = "/cases/{caseId}/comments/{commentId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/cases/{caseId}/defendants/{defendantId}/comments/{commentId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     CaseCommentResponse updateCaseComment(@PathVariable(value = "caseId") String caseId,
+                                          @PathVariable(value = "defendantId") String defendantId,
                                           @PathVariable(value = "commentId") Long commentId,
                                           @Valid @RequestBody CaseCommentRequest caseCommentRequest,
                                           Principal principal) {
 
         validateCaseCommentRequest(caseId, caseCommentRequest);
-        var caseCommentEntity = caseCommentsService.updateCaseComment(caseCommentRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)), commentId);
+        var caseCommentEntity = caseCommentsService.updateCaseComment(
+            caseCommentRequest.asEntity(authenticationHelper.getAuthUserUuid(principal), caseId, defendantId), commentId);
         return CaseCommentResponse.of(caseCommentEntity);
     }
 
     @Operation(description = "Deletes a draft case comment for a given case")
-    @DeleteMapping(value = "/cases/{caseId}/comments/draft")
+    @DeleteMapping(value = "/cases/{caseId}/defendants/{defendantId}/comments/draft")
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
-    void deleteCaseCommentDraft(@PathVariable(value = "caseId") String caseId, Principal principal) {
-        caseCommentsService.deleteCaseCommentDraft(caseId, authenticationHelper.getAuthUserUuid(principal));
+    void deleteCaseCommentDraft(@PathVariable(value = "caseId") String caseId,
+                                @PathVariable(value = "defendantId") String defendantId, Principal principal) {
+        caseCommentsService.deleteCaseCommentDraft(caseId, defendantId, authenticationHelper.getAuthUserUuid(principal));
     }
 
     @Operation(description = "Creates a comment on given court case.")
-    @PostMapping(value = "/cases/{caseId}/comments", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/cases/{caseId}/defendants/{defendantId}/comments", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     CaseCommentResponse createCaseComment(@PathVariable(value = "caseId") String caseId,
+                                          @PathVariable(value = "defendantId") String defendantId,
                                           @RequestBody CaseCommentRequest caseCommentRequest,
                                           Principal principal) {
 
-        validateCaseCommentRequest(caseId, caseCommentRequest);
-        var caseCommentEntity = caseCommentsService.createCaseComment(caseCommentRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
+        var caseCommentEntity = caseCommentsService.createCaseComment(
+            CaseCommentEntity.builder().caseId(caseId).defendantId(defendantId)
+            .createdByUuid(authenticationHelper.getAuthUserUuid(principal))
+                .author(caseCommentRequest.getAuthor())
+                .comment(caseCommentRequest.getComment())
+                .build());
         return CaseCommentResponse.of(caseCommentEntity);
     }
 
@@ -267,13 +268,14 @@ public class CourtCaseController {
     }
 
     @Operation(description = "Deletes a comment from a given court case.")
-    @DeleteMapping(value = "/cases/{caseId}/comments/{commentId}")
+    @DeleteMapping(value = "/cases/{caseId}/defendants/{defendantId}/comments/{commentId}")
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     void deleteCaseComment(@PathVariable(value = "caseId") String caseId,
+                           @PathVariable(value = "defendantId") String defendantId,
                            @PathVariable(value = "commentId") Long commentId,
                            Principal principal) {
-        caseCommentsService.deleteCaseComment(caseId, commentId, authenticationHelper.getAuthUserUuid(principal));
+        caseCommentsService.deleteCaseComment(caseId, defendantId, commentId, authenticationHelper.getAuthUserUuid(principal));
     }
 
     @Operation(description = "Returns extended court case data, by hearing id.")

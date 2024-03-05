@@ -9,7 +9,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
-import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
@@ -42,8 +41,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
@@ -371,11 +370,15 @@ class CourtCaseControllerTest {
     @Test
     void whenCreateComment_shouldInvokeCaseCommentsService() {
         var caseId = "case-id-one";
-        var caseCommentEntity = CaseCommentEntity.builder().comment("comment one").author("Author One").caseId(caseId).build();
+        var defendantId = "defendantId-id-one";
+        var caseCommentEntity = CaseCommentEntity.builder().comment("comment one").author("Author One")
+            .caseId(caseId).defendantId(defendantId).build();
         Mockito.lenient().when(caseCommentsService.createCaseComment(any(CaseCommentEntity.class))).thenReturn(caseCommentEntity.withId(3456L));
         given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
 
-        final var actual = courtCaseController.createCaseComment(caseId,
+        final var actual = courtCaseController.createCaseComment(
+            caseId,
+            defendantId,
             CaseCommentRequest.builder()
                 .caseId(caseId)
                 .comment("comment-one")
@@ -389,6 +392,7 @@ class CourtCaseControllerTest {
             CaseCommentResponse.builder()
                 .comment("comment one")
                 .caseId(caseId)
+                .defendantId(defendantId)
                 .author("Author One")
                 .commentId(3456L)
                 .build()
@@ -396,23 +400,15 @@ class CourtCaseControllerTest {
     }
 
     @Test
-    void givenCaseIdDoesNotMatchCaseCommentRequestCaseId_whenCreateComment_shouldThrowConflictingInputException() {
-
-        assertThrows(ConflictingInputException.class, () -> courtCaseController.createCaseComment("case-id-one", CaseCommentRequest.builder().caseId("invalid-case-id").build(), principal));
-
-        Mockito.verifyNoMoreInteractions(caseCommentsService);
-    }
-
-    @Test
     void whenCreateUpdateCommentDraft_shouldInvokeCaseCommentsService() {
         var caseId = "case-id-one";
-        var caseCommentEntity = CaseCommentEntity.builder().comment("comment one").author("Author One").caseId(caseId).build();
+        var defendantId = "defendant-id-one";
+        var caseCommentEntity = CaseCommentEntity.builder().comment("comment one").author("Author One").caseId(caseId).defendantId(defendantId).build();
         Mockito.lenient().when(caseCommentsService.createUpdateCaseCommentDraft(any(CaseCommentEntity.class))).thenReturn(caseCommentEntity.withId(3456L));
         given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
 
-        final var actual = courtCaseController.createUpdateCaseCommentDraft(caseId,
+        final var actual = courtCaseController.createUpdateCaseCommentDraft(caseId, defendantId,
             CaseCommentRequest.builder()
-                .caseId(caseId)
                 .comment("comment-one")
                 .author("Test Author")
                 .build(),
@@ -424,6 +420,7 @@ class CourtCaseControllerTest {
             CaseCommentResponse.builder()
                 .comment("comment one")
                 .caseId(caseId)
+                .defendantId(defendantId)
                 .author("Author One")
                 .commentId(3456L)
                 .build()
@@ -431,72 +428,71 @@ class CourtCaseControllerTest {
     }
 
     @Test
-    void givenCaseIdDoesNotMatchCaseCommentRequestCaseId_whenCreateUpdateCaseCommentDraft_shouldThrowConflictingInputException() {
-
-        assertThrows(ConflictingInputException.class, () -> courtCaseController.createUpdateCaseCommentDraft("case-id-one", CaseCommentRequest.builder().caseId("invalid-case-id").build(), principal));
-
-        Mockito.verifyNoMoreInteractions(caseCommentsService);
-    }
-
-    @Test
     void givenCaseIdAndCommentId_shouldInvokeDeleteCommentService() {
         var caseId = "test-case-id";
+        var defendantId = "test-defendant-id";
         var commentId = 1234L;
         given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
 
-        courtCaseController.deleteCaseComment(caseId, commentId, principal);
-        Mockito.verify(caseCommentsService).deleteCaseComment(caseId, commentId, testUuid);
+        courtCaseController.deleteCaseComment(caseId, defendantId, commentId, principal);
+        Mockito.verify(caseCommentsService).deleteCaseComment(caseId, defendantId, commentId, testUuid);
     }
 
-
     @Test
-    void givenHearingIdAndHearingNote_shouldInvokeHearingNotesService() {
+    void givenHearingIdDefendantIdAndHearingNote_whenCreateNote_shouldInvokeHearingNotesService() {
+
+        var testHearingId = "test-hearing-id";
+        var testDefendantId = "test-defendantId";
 
         HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder()
-            .hearingId("test-hearing-id")
+            .hearingId(testHearingId)
             .author("Author One")
             .note("Note one")
             .createdByUuid(testUuid).build();
 
-        var hearingNoteRequest = HearingNoteRequest.builder().hearingId("test-hearing-id").note("Note one").author("Author One").build();
+        var hearingNoteRequest = HearingNoteRequest.builder().hearingId(testHearingId).note("Note one").author("Author One").build();
 
-        given(hearingNotesService.createHearingNote(any(HearingNoteEntity.class))).willReturn(hearingNoteEntity);
+        given(hearingNotesService.createHearingNote(eq(testHearingId), eq(testDefendantId), any(HearingNoteEntity.class))).willReturn(hearingNoteEntity);
 
-        courtCaseController.createHearingNote("test-hearing-id", hearingNoteRequest, principal);
+        courtCaseController.createHearingNote(testHearingId, testDefendantId, hearingNoteRequest, principal);
 
-        Mockito.verify(hearingNotesService).createHearingNote(any(HearingNoteEntity.class));
+        Mockito.verify(hearingNotesService).createHearingNote(eq(testHearingId), eq(testDefendantId), any(HearingNoteEntity.class));
     }
 
     @Test
-    void givenHearingIdInPathDoesNotMatchHearingNoteEntity_shouldThrowConflictingInputexception() {
+    void givenHearingIdDefendantIdAndHearingNote_whenCreateDraft_shouldInvokeHearingNotesService() {
+
+        var testHearingId = "test-hearing-id";
+        var testDefendantId = "test-defendantId";
 
         HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder()
-            .hearingId("test-hearing-id")
+            .hearingId(testHearingId)
             .author("Author One")
             .note("Note one")
             .createdByUuid(testUuid).build();
 
-        var hearingNoteRequest = HearingNoteRequest.builder().hearingId("test-hearing-id").note("Note one").author("Author One").build();
+        var hearingNoteRequest = HearingNoteRequest.builder().hearingId(testHearingId).note("Note one").author("Author One").build();
 
-        assertThrows(ConflictingInputException.class, () -> courtCaseController.createHearingNote("invalid-hearing-id", hearingNoteRequest, principal),
-            "Hearing Id 'invalid-hearing-id' provided in the path does not match the one in the hearing note request body submitted 'test-hearing-id'");
+        given(hearingNotesService.createOrUpdateHearingNoteDraft(eq(testHearingId), eq(testDefendantId), any(HearingNoteEntity.class))).willReturn(hearingNoteEntity);
 
-        Mockito.verifyNoInteractions(hearingNotesService);
+        courtCaseController.createUpdateDraftHearingNote(testHearingId, testDefendantId, hearingNoteRequest, principal);
+
+        Mockito.verify(hearingNotesService).createOrUpdateHearingNoteDraft(eq(testHearingId), eq(testDefendantId), any(HearingNoteEntity.class));
     }
 
     @Test
     void givenHearingIdAndNoteId_invokeDeleteNoteOnService() {
         var noteId = 1234L;
         given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
-        courtCaseController.deleteHearingNote(HEARING_ID, noteId, principal);
-        verify(hearingNotesService).deleteHearingNote(HEARING_ID, noteId, testUuid );
+        courtCaseController.deleteHearingNote(HEARING_ID, DEFENDANT_ID, noteId, principal);
+        verify(hearingNotesService).deleteHearingNote(HEARING_ID, DEFENDANT_ID, noteId, testUuid );
     }
 
     @Test
     void givenHearingId_invokeDeleteNoteDraftOnService() {
         given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
-        courtCaseController.deleteDraftHearingNote(HEARING_ID, principal);
-        verify(hearingNotesService).deleteHearingNoteDraft(HEARING_ID, testUuid );
+        courtCaseController.deleteDraftHearingNote(HEARING_ID, DEFENDANT_ID, principal);
+        verify(hearingNotesService).deleteHearingNoteDraft(HEARING_ID, DEFENDANT_ID, testUuid );
     }
 
     @Test
@@ -505,28 +501,31 @@ class CourtCaseControllerTest {
         HearingNoteRequest noteUpdate = HearingNoteRequest.builder().hearingId(HEARING_ID).note("existing note updated").build();
 
         given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
-        courtCaseController.updateHearingNote(HEARING_ID, noteId, noteUpdate, principal);
-        verify(hearingNotesService).updateHearingNote(noteUpdate.asEntity(testUuid), noteId);
+        courtCaseController.updateHearingNote(HEARING_ID, DEFENDANT_ID, noteId, noteUpdate, principal);
+        verify(hearingNotesService).updateHearingNote(HEARING_ID, DEFENDANT_ID, noteUpdate.asEntity(testUuid), noteId);
     }
 
     @Test
     void givenCaseId_whenDeleteDraftComment_thenInvokeServiceToDelete() {
         given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
         var caseId = "test-case-id";
-        courtCaseController.deleteCaseCommentDraft(caseId, principal);
-        verify(caseCommentsService).deleteCaseCommentDraft(caseId, testUuid);
+        var defendantId = "test-defendant-id";
+        courtCaseController.deleteCaseCommentDraft(caseId, defendantId, principal);
+        verify(caseCommentsService).deleteCaseCommentDraft(caseId, defendantId, testUuid);
     }
 
     @Test
     void givenCaseComment_whenUpdateComment_thenInvokeServiceToUpdateComment() {
         given(authenticationHelper.getAuthUserUuid(any(Principal.class))).willReturn(testUuid);
         var caseId = "test-case-id";
+        var defendantId = "test-defendant-id";
         var commentUpdate = CaseCommentRequest.builder().caseId(caseId).comment("updated comment").build();
         var commentEntity = CaseCommentEntity.builder().caseId(caseId).comment("updated comment").build();
         var commentId = 123L;
-        given(caseCommentsService.updateCaseComment(commentUpdate.asEntity(testUuid), commentId)).willReturn(commentEntity);
-        courtCaseController.updateCaseComment( caseId, commentId, commentUpdate, principal);
-        verify(caseCommentsService).updateCaseComment(commentUpdate.asEntity(testUuid), commentId);
+        CaseCommentEntity caseCommentUpdate = commentUpdate.asEntity(testUuid, caseId, defendantId);
+        given(caseCommentsService.updateCaseComment(caseCommentUpdate, commentId)).willReturn(commentEntity);
+        courtCaseController.updateCaseComment(caseId, defendantId, commentId, commentUpdate, principal);
+        verify(caseCommentsService).updateCaseComment(caseCommentUpdate, commentId);
     }
     @Test
     void givenCaseListRequestWithFiltersShouldInvokeServiceAndReturnResponse() {

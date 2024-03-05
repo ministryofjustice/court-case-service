@@ -13,6 +13,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import uk.gov.justice.probation.courtcaseservice.client.HmppsDocumentManagementApiClient
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseDocumentResponse
+import uk.gov.justice.probation.courtcaseservice.controller.model.HmppsDocumentApiMetadata
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade
@@ -73,6 +74,8 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
         var hearing = getHearingEntity(hearingId)
 
         var hearingDefendant = hearing?.getHearingDefendant(defendantId)?: throw EntityNotFoundException("Defendant %s not found for hearing %s", defendantId, hearingId)
+
+        filePart.part("metadata", HmppsDocumentApiMetadata(hearing.courtCase.urn, defendantId))
 
         var documentUuid = UUID.randomUUID().toString()
         var response = hmppsDocumentManagementApiClient.createDocument(picDocumentType, documentUuid, filePart).block()

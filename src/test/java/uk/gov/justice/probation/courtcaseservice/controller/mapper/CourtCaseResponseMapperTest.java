@@ -269,7 +269,7 @@ class CourtCaseResponseMapperTest {
 
         var caseDocument = response.getFiles().get(0);
         assertThat(caseDocument.getId()).isEqualTo(DOCUMENT_ID);
-        assertThat(caseDocument.getName()).isEqualTo(DOCUMENT_NAME);
+        assertThat(caseDocument.getFile().getName()).isEqualTo(DOCUMENT_NAME);
         assertThat(caseDocument.getDatetime()).isNotNull();
     }
 

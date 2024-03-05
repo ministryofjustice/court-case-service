@@ -49,7 +49,7 @@ public class CourtCaseResponseMapper {
         return hearingEntity.getCourtCase().getCaseDefendant(defendantId)
             .map(CaseDefendantEntity::getDocuments)
             .map(caseDefendantDocumentEntities -> caseDefendantDocumentEntities.stream()
-                .map(doc -> new CaseDocumentResponse(doc.getDocumentId(), doc.getDocumentName(),doc.getCreated()))
+                .map(doc -> new CaseDocumentResponse(doc.getDocumentId(),doc.getCreated(), new CaseDocumentResponse.FileResponse(doc.getDocumentName(), 0)))
                 .collect(Collectors.toList())
             ).orElse(Collections.emptyList());
     }

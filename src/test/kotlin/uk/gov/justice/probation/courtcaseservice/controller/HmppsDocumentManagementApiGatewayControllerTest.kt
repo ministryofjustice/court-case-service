@@ -33,8 +33,8 @@ internal class HmppsDocumentManagementApiGatewayControllerTest {
     @Test
     fun `given hearing id, defendant id and document id to upload document should invoke document management service`() {
 
-        hmppsDocumentManagementApiGatewayController.uploadDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, listOf(multipartFile))
-        verify(hmppsDocumentManagementService).uploadDocuments(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, listOf(multipartFile))
+        hmppsDocumentManagementApiGatewayController.uploadDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, multipartFile)
+        verify(hmppsDocumentManagementService).uploadDocuments(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, multipartFile)
     }
 
     // TODO PIC-3683

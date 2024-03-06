@@ -55,16 +55,14 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
             ?: throw EntityNotFoundException("Document not found /hearing/%s/defendant/%s/documents/%s", hearingId, defendantId, documentId)
     }
 
-    fun uploadDocuments(hearingId: String, defendantId: String, multipartData: List<MultipartFile>): List<CaseDocumentResponse> {
+    fun uploadDocuments(hearingId: String, defendantId: String, it: MultipartFile): CaseDocumentResponse {
 
-        return multipartData.map {
-            val builder = MultipartBodyBuilder();
-            builder.part("file", it.resource)
-                .contentType(MediaType.valueOf(it.contentType))
-                .filename(it.originalFilename)
+        val builder = MultipartBodyBuilder();
+        builder.part("file", it.resource)
+            .contentType(MediaType.valueOf(it.contentType))
+            .filename(it.originalFilename)
 
-            uploadDocument(hearingId, defendantId, builder, it.originalFilename)
-        }.toCollection(ArrayList())
+        return uploadDocument(hearingId, defendantId, builder, it.originalFilename)
     }
 
     private fun uploadDocument(

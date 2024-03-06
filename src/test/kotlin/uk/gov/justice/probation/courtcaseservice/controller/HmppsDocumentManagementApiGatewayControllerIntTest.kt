@@ -10,6 +10,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.notNullValue
 import org.hamcrest.core.Is.`is`
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
@@ -154,6 +155,10 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
             .then()
             .statusCode(204)
 
-        WIRE_MOCK_SERVER.verify(deleteRequestedFor(urlEqualTo("/documents/${documentId}")));
+        WIRE_MOCK_SERVER.verify(deleteRequestedFor(urlEqualTo("/documents/${documentId}")))
+
+        val hearing = hearingRepository.findFirstByHearingId(HEARING_ID).get()
+        val caseDefendant = hearing.courtCase.getCaseDefendant(DEFENDANT_ID).get()
+        assertNull(caseDefendant.getCaseDefendantDocument(documentId))
     }
 }

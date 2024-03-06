@@ -37,6 +37,9 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
 
         return getHearingEntity(hearingId)?.courtCase?.getCaseDefendant(defendantId)?.map { it.getCaseDefendantDocument(documentId) }
             ?.map {
+                val caseDefendant = it.caseDefendant
+                caseDefendant.deleteCaseDocument(documentId)
+                courtCaseRepository.save(caseDefendant.courtCase)
                 hmppsDocumentManagementApiClient.deleteDocument(documentId)
             }
             ?: throw EntityNotFoundException("Document not found /hearing/%s/defendant/%s/documents/%s", hearingId, defendantId, documentId)

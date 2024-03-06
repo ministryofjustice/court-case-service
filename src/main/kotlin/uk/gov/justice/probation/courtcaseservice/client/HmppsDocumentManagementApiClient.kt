@@ -99,13 +99,13 @@ class HmppsDocumentManagementApiClient(
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError) {
                 log.error("Document delete failed $documentPath with status ${it.statusCode()}")
-                handle4xxError(it, HttpMethod.POST, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API)
+                handle4xxError(it, HttpMethod.DELETE, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API)
             }
             .onStatus(HttpStatusCode::is5xxServerError) {
                 log.error("Document delete failed $documentPath with status ${it.statusCode()}")
                 handle5xxError(
                     "${it.statusCode()} error downloading document",
-                    HttpMethod.POST, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API
+                    HttpMethod.DELETE, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API
                 )
             }.toEntity<Any>()
             .doOnSuccess {

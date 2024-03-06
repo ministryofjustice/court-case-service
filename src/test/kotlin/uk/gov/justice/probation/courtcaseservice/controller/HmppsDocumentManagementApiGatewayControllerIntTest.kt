@@ -68,7 +68,6 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
 
         var response = RestAssured.given()
             .multiPart("file", File("./src/test/resources/document-upload/test-upload-file.txt"))
-            .multiPart("file", File("./src/test/resources/document-upload/test-upload-file-two.txt"))
             .auth()
             .oauth2(TokenHelper.getToken())
             .contentType(ContentType.MULTIPART)
@@ -81,20 +80,16 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
         val caseDefendant = hearing.courtCase.getCaseDefendant(DEFENDANT_ID)
         val caseDefendantDocument = caseDefendant.get().documents;
         Assertions.assertThat(caseDefendantDocument).extracting("documentName")
-            .containsExactlyInAnyOrder("test-upload-file.txt", "test-upload-file-two.txt", "test-upload-file-get.txt")
+            .containsExactlyInAnyOrder("test-upload-file.txt", "test-upload-file-get.txt")
 
         Assertions.assertThat(caseDefendantDocument).extracting("documentId").isNotNull()
-
+        var expected = caseDefendantDocument.find { 1L == it.id }
         response
-            .body("get(0).id", equalTo(caseDefendantDocument[1].documentId))
-            .body("get(0).file.name", equalTo(caseDefendantDocument[1].documentName))
-            .body("get(0).datetime", `is`(notNullValue()))
-            .body("get(1).id", equalTo(caseDefendantDocument[0].documentId))
-            .body("get(1).file.name", equalTo(caseDefendantDocument[0].documentName))
-            .body("get(1).datetime", `is`(notNullValue()))
+            .body("id", equalTo(expected?.documentId))
+            .body("file.name", equalTo("test-upload-file.txt"))
+            .body("datetime", `is`(notNullValue()))
 
-        WIRE_MOCK_SERVER.verify(postRequestedFor(urlEqualTo("/documents/PIC_CASE_DOCUMENTS/${caseDefendantDocument[0].documentId}")));
-        WIRE_MOCK_SERVER.verify(postRequestedFor(urlEqualTo("/documents/PIC_CASE_DOCUMENTS/${caseDefendantDocument[1].documentId}")));
+        WIRE_MOCK_SERVER.verify(postRequestedFor(urlEqualTo("/documents/PIC_CASE_DOCUMENTS/${expected?.documentId}")));
     }
 
     @Test

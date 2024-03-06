@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.InputStreamResource
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatusCode
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.http.codec.multipart.DefaultPartHttpMessageReader
@@ -67,6 +68,7 @@ class HmppsDocumentManagementApiClient(
 
         return clientHelper
             .get(documentPath)
+            .accept(MediaType.ALL)
             .header(DOCUMENT_MANAGEMENT_API_SERVICE_NAME_HEADER, clientServiceName)
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError) {

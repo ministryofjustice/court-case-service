@@ -19,7 +19,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseReposit
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.jvm.optionals.getOrElse
 
 @Service
@@ -45,24 +44,34 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
             ?: throw EntityNotFoundException("Document not found /hearing/%s/defendant/%s/documents/%s", hearingId, defendantId, documentId)
     }
 
-    fun getDocument(hearingId: String, defendantId: String, documentId: String): Optional<Mono<ResponseEntity<Flux<InputStreamResource>>>> {
+    fun getDocument(
+        hearingId: String,
+        defendantId: String,
+        documentId: String
+    ): Mono<ResponseEntity<Flux<InputStreamResource>>>? {
 
-        return getHearingEntity(hearingId)?.courtCase?.getCaseDefendant(defendantId)?.map { it.getCaseDefendantDocument(documentId) }
+        return getHearingEntity(hearingId)?.courtCase?.getCaseDefendant(defendantId)
+            ?.map { it.getCaseDefendantDocument(documentId) }
             ?.map {
-                val block = hmppsDocumentManagementApiClient.getDocument(documentId)
-                block
+                return@map hmppsDocumentManagementApiClient.getDocument(documentId)
+            }?.orElseThrow {
+                throw EntityNotFoundException(
+                    "Document not found /hearing/%s/defendant/%s/documents/%s",
+                    hearingId,
+                    defendantId,
+                    documentId
+                )
             }
-            ?: throw EntityNotFoundException("Document not found /hearing/%s/defendant/%s/documents/%s", hearingId, defendantId, documentId)
     }
 
-    fun uploadDocuments(hearingId: String, defendantId: String, it: MultipartFile): CaseDocumentResponse {
+    fun uploadDocuments(hearingId: String, defendantId: String, multipartFile: MultipartFile): CaseDocumentResponse {
 
-        val builder = MultipartBodyBuilder();
-        builder.part("file", it.resource)
-            .contentType(MediaType.valueOf(it.contentType))
-            .filename(it.originalFilename)
+        val builder = MultipartBodyBuilder()
+        builder.part("file", multipartFile.resource)
+            .contentType(MediaType.valueOf(multipartFile.contentType))
+            .filename(multipartFile.originalFilename)
 
-        return uploadDocument(hearingId, defendantId, builder, it.originalFilename)
+        return uploadDocument(hearingId, defendantId, builder, multipartFile.originalFilename)
     }
 
     private fun uploadDocument(

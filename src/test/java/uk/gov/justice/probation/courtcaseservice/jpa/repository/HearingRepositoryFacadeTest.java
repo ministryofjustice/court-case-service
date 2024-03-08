@@ -154,12 +154,12 @@ class HearingRepositoryFacadeTest {
     @Test
     void whenFindByHearingIdAndDefendantId_thenReturnAHearingWithDefendantAndCaseComments() {
         when(hearingRepository.findFirstByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING));
-        when(caseCommentsRepository.findByCaseIdAndDefendantId(COURT_CASE.getCaseId(), DEFENDANT_ID)).thenReturn(List.of(CASE_COMMENT_ONE));
+        when(caseCommentsRepository.findByCaseIdAndDefendantIdAndDeletedFalse(COURT_CASE.getCaseId(), DEFENDANT_ID)).thenReturn(List.of(CASE_COMMENT_ONE));
 
         final var actual = facade.findByHearingIdAndDefendantId(HEARING_ID, DEFENDANT_ID);
 
         verify(hearingRepository).findFirstByHearingId(HEARING_ID);
-        verify(caseCommentsRepository).findByCaseIdAndDefendantId(COURT_CASE.getCaseId(), DEFENDANT_ID);
+        verify(caseCommentsRepository).findByCaseIdAndDefendantIdAndDeletedFalse(COURT_CASE.getCaseId(), DEFENDANT_ID);
 
         HearingEntity hearing = actual.get();
         AssertionsForClassTypes.assertThat(hearing).isEqualTo(HEARING);

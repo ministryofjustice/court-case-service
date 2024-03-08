@@ -73,7 +73,7 @@ public class CourtCaseResponse {
     private final Boolean confirmedOffender;
     private final String personId;
     private final List<CaseMarker> caseMarkers;
-    private final HearingOutcomeResponse hearingOutcome;
+    private final HearingPrepStatus hearingPrepStatus;
 
     @JsonProperty
     public String getProbationStatus() {

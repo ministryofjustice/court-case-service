@@ -60,7 +60,7 @@ public class HearingRepositoryFacade {
         return hearingRepository.findFirstByHearingId(hearingId)
             .map(hearingEntity -> Objects.nonNull(hearingEntity.getHearingDefendant(defendantId)) ? hearingEntity : null)
             .map(hearingEntity -> {
-                hearingEntity.getCourtCase().setCaseComments(caseCommentsRepository.findByCaseIdAndDefendantId(hearingEntity.getCaseId(), defendantId));
+                hearingEntity.getCourtCase().setCaseComments(caseCommentsRepository.findByCaseIdAndDefendantIdAndDeletedFalse(hearingEntity.getCaseId(), defendantId));
                 return hearingEntity;
             });
     }

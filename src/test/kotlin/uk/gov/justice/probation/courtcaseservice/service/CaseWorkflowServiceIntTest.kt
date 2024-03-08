@@ -45,17 +45,17 @@ internal class CaseWorkflowServiceIntTest {
         caseWorkflowService.processUnResultedCases()
 
         // Then
-        var ho1 = hearingRepository.findFirstByHearingId("2aa6f5e0-f842-4939-bc6a-01346abc09e7").get().hearingOutcome
+        var ho1 = hearingRepository.findFirstByHearingId("2aa6f5e0-f842-4939-bc6a-01346abc09e7").get().hearingDefendants[0].hearingOutcome
 
         assertThat(ho1.outcomeType).isEqualTo(HearingOutcomeType.ADJOURNED.name)
         assertThat(ho1.state).isEqualTo(HearingOutcomeItemState.RESULTED.name)
 
-        var ho2 = hearingRepository.findFirstByHearingId("1f93aa0a-7e46-4885-a1cb-f25a4be33a00").get().hearingOutcome
+        var ho2 = hearingRepository.findFirstByHearingId("1f93aa0a-7e46-4885-a1cb-f25a4be33a00").get().hearingDefendants[0].hearingOutcome
 
         assertThat(ho2.outcomeType).isEqualTo(HearingOutcomeType.NO_OUTCOME.name)
         assertThat(ho2.state).isEqualTo(HearingOutcomeItemState.NEW.name)
 
-        var ho3 = hearingRepository.findFirstByHearingId("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636").get().hearingOutcome
+        var ho3 = hearingRepository.findFirstByHearingId("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636").get().hearingDefendants[0].hearingOutcome
         assertThat(ho3).isNull()
     }
 

@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 
@@ -34,6 +35,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.CO
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CaseProgressHearing {
     private final String hearingId;
+    private final String defendantId;
     private final String court;
     private final String courtRoom;
     private final String session;
@@ -43,7 +45,7 @@ public class CaseProgressHearing {
     private final List<HearingNoteResponse> notes;
     private final HearingOutcomeResponse hearingOutcome;
 
-    public static CaseProgressHearing of(HearingEntity hearingEntity, List<HearingNoteEntity> notes) {
+    public static CaseProgressHearing of(HearingEntity hearingEntity, String defendantId, List<HearingNoteEntity> notes) {
         var hearingDay = getHearingDay(hearingEntity);
         return CaseProgressHearing.builder()
             .hearingId(hearingEntity.getHearingId())
@@ -53,11 +55,16 @@ public class CaseProgressHearing {
             .court(hearingDay.getCourt().getName())
             .courtRoom(hearingDay.getCourtRoom())
             .notes(mapHearingNotes(notes))
-            .hearingOutcome(HearingOutcomeResponse.Companion.of(hearingEntity.getHearingOutcome()))
+            .hearingOutcome(mapHearingOutcome(hearingEntity, defendantId))
             .build();
     }
 
-    private static List<HearingNoteResponse> mapHearingNotes(List<HearingNoteEntity> notes) {
+    private static HearingOutcomeResponse mapHearingOutcome(HearingEntity hearingEntity, String defendantId) {
+        return Optional.of(hearingEntity.getHearingDefendant(defendantId)).map(HearingDefendantEntity::getHearingOutcome)
+            .map(hearingOutcomeEntity -> HearingOutcomeResponse.Companion.of(hearingOutcomeEntity)).orElse(null);
+    }
+
+    private static List<HearingNoteResponse> mapHearingNotes (List<HearingNoteEntity> notes) {
         return Optional.ofNullable(notes).map(hearingNoteEntities -> hearingNoteEntities.stream()
             .filter(hearingNoteEntity -> !hearingNoteEntity.isDeleted()).map(HearingNoteResponse::of)
             .collect(Collectors.toList())).orElse(Collections.emptyList());
@@ -68,7 +75,7 @@ public class CaseProgressHearing {
         return hearingEntity.getHearingDays().stream().min(Comparator.comparing(HearingDayEntity::getSessionStartTime)).get();
     }
 
-    private static String getHearingTypeLabel(HearingEntity hearingEntity) {
+    private static String getHearingTypeLabel (HearingEntity hearingEntity) {
         final var HEARING_EVENT_UNKNOWN_TEXT = "Hearing type unknown";
         return hearingEntity.getSourceType() == COMMON_PLATFORM ?
             StringUtils.isEmpty(hearingEntity.getHearingType()) ? HEARING_EVENT_UNKNOWN_TEXT : hearingEntity.getHearingType()

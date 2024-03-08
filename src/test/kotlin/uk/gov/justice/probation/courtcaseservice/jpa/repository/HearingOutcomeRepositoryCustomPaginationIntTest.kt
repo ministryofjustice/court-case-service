@@ -32,8 +32,8 @@ internal class HearingOutcomeRepositoryCustomPaginationIntTest {
     fun `should return outcomes 1st page results`() {
         val result = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome("B10JQ", HearingOutcomeSearchRequest(state = IN_PROGRESS, page = 1, size = 2))
         assertThat(result.content.size).isEqualTo(2)
-        assertThat(result.content[0].first.hearingId).isEqualTo("2aa6f5e0-f842-4939-bc6a-01346abc09e7")
-        assertThat(result.content[1].first.hearingId).isEqualTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00")
+        assertThat(result.content[0].first.hearing.hearingId).isEqualTo("2aa6f5e0-f842-4939-bc6a-01346abc09e7")
+        assertThat(result.content[1].first.hearing.hearingId).isEqualTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00")
         assertThat(result.size).isEqualTo(2)
         assertThat(result.totalPages).isEqualTo(2)
         assertThat(result.totalElements).isEqualTo(3)
@@ -43,7 +43,7 @@ internal class HearingOutcomeRepositoryCustomPaginationIntTest {
     fun `should return outcomes 2nd page results`() {
         val result = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome("B10JQ", HearingOutcomeSearchRequest(state = IN_PROGRESS, page = 2, size = 2))
         assertThat(result.content.size).isEqualTo(1)
-        assertThat(result.content[0].first.hearingId).isEqualTo("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636")
+        assertThat(result.content[0].first.hearing.hearingId).isEqualTo("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636")
         assertThat(result.size).isEqualTo(2)
         assertThat(result.totalPages).isEqualTo(2)
         assertThat(result.totalElements).isEqualTo(3)

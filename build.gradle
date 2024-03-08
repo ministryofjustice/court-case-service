@@ -210,8 +210,9 @@ dependencies {
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.1.1")
 
-
     implementation group: 'ai.h2o', name: 'h2o-genmodel', version: '3.38.0.3'
+
+    implementation 'commons-io:commons-io:2.15.1'
 
     testAnnotationProcessor 'org.projectlombok:lombok'
 

@@ -1,5 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
+import org.apache.commons.io.FilenameUtils
+import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -18,6 +20,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
+import uk.gov.justice.probation.courtcaseservice.service.exceptions.UnsupportedFileTypeException
 import java.util.*
 import kotlin.jvm.optionals.getOrElse
 
@@ -25,8 +28,11 @@ import kotlin.jvm.optionals.getOrElse
 class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: HmppsDocumentManagementApiClient,
                                       val hearingRepositoryFacade: HearingRepositoryFacade,
                                       val courtCaseRepository: CourtCaseRepository,
-                                      @Value("\${hmpps-document-management-api.document-type:PIC_CASE_DOCUMENTS}") val picDocumentType: String
+                                      @Value("\${hmpps-document-management-api.document-type:PIC_CASE_DOCUMENTS}") val picDocumentType: String,
+                                      @Value("\${hmpps-document-management-api.allowed-file-extensions}") var allowedExtensions: List<String>
 ) {
+
+    val picDocumentAllowedFileExtensions: List<String> = allowedExtensions.map { it.lowercase() }
 
     companion object {
         val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -66,12 +72,22 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
 
     fun uploadDocuments(hearingId: String, defendantId: String, multipartFile: MultipartFile): CaseDocumentResponse {
 
+        validateFileExtension(multipartFile)
         val builder = MultipartBodyBuilder()
         builder.part("file", multipartFile.resource)
             .contentType(MediaType.valueOf(multipartFile.contentType))
             .filename(multipartFile.originalFilename)
 
         return uploadDocument(hearingId, defendantId, builder, multipartFile.originalFilename)
+    }
+
+    private fun validateFileExtension(multipartFile: MultipartFile) {
+        val extension = FilenameUtils.getExtension(multipartFile.originalFilename)?.lowercase()
+        if (StringUtils.isBlank(extension) || !picDocumentAllowedFileExtensions.contains(extension)
+        ) throw UnsupportedFileTypeException(
+            extension,
+            picDocumentAllowedFileExtensions
+        )
     }
 
     private fun uploadDocument(

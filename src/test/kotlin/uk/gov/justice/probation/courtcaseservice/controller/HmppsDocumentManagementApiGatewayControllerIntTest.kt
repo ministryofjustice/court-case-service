@@ -93,6 +93,21 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
     }
 
     @Test
+    fun `given hearing id, defendant id and document with un-allowed file extension, should return http 415 error`() {
+
+        RestAssured.given()
+            .multiPart("file", File("./src/test/resources/document-upload/test-upload-file.xyz"))
+            .auth()
+            .oauth2(TokenHelper.getToken())
+            .contentType(ContentType.MULTIPART)
+            .`when`()
+            .post("/hearing/{hearingId}/defendant/{defendantId}/file", HEARING_ID, DEFENDANT_ID)
+            .then()
+            .statusCode(415)
+            .body("userMessage", equalTo("Unsupported or missing file type {xyz}. Supported file types [csv, doc, docx, jpg, jpeg, xml, ods, odt, pdf, png, ppt, pptx, rdf, rtf, txt, xls, xlsx, xml, zip]"))
+    }
+
+    @Test
     fun `given hearing id, defendant id and document id, should download document from document management API`() {
         val documentId = "3cfd7d45-6f62-438e-ad64-ef3d911dfe38"
 

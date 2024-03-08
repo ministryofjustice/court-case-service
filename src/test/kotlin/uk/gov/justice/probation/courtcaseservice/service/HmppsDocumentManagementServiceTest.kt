@@ -28,6 +28,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
+import uk.gov.justice.probation.courtcaseservice.service.exceptions.UnsupportedFileTypeException
 import java.io.BufferedInputStream
 import java.io.ByteArrayInputStream
 import java.util.*
@@ -54,9 +55,9 @@ internal class HmppsDocumentManagementServiceTest {
         hmppsDocumentManagementService = HmppsDocumentManagementService(
             hmppsDocumentManagementApiClient,
             hearingRepositoryFacade,
-            courtCaseRepository, "PIC_DOCUMENT_UPLOADS")
+            courtCaseRepository, "PIC_DOCUMENT_UPLOADS", listOf("txt", "pdf")
+        )
     }
-
 
     @Test
     fun `given hearingId and defendantId should invoke document api to upload document and save document entity to DB`() {
@@ -156,5 +157,37 @@ internal class HmppsDocumentManagementServiceTest {
         }
 
         Assertions.assertThat(e.message).isEqualTo("Document not found /hearing/75e63d6c-5487-4244-a5bc-7cf8a38992db/defendant/d1eefed2-04df-11ec-b2d8-0242ac130002/documents/invalid-document-id")
+    }
+
+    @Test
+    fun `given hearingId, defendantId and document with invalid extension, when upload document, should throw unsupported file type exception`() {
+
+        var e = assertThrows(UnsupportedFileTypeException::class.java) {
+            hmppsDocumentManagementService.uploadDocuments(
+                HEARING_ID, DEFENDANT_ID, MockMultipartFile(
+                    "file", "file-name.abc",
+                    MediaType.TEXT_PLAIN_VALUE,
+                    "Test file content".toByteArray()
+                )
+            )
+        }
+
+        Assertions.assertThat(e.message).isEqualTo("Unsupported or missing file type {abc}. Supported file types [txt, pdf]")
+    }
+
+    @Test
+    fun `given hearingId, defendantId and document with no file extension, when upload document, should throw unsupported file type exception`() {
+
+        var e = assertThrows(UnsupportedFileTypeException::class.java) {
+            hmppsDocumentManagementService.uploadDocuments(
+                HEARING_ID, DEFENDANT_ID, MockMultipartFile(
+                    "file", "file-name",
+                    MediaType.TEXT_PLAIN_VALUE,
+                    "Test file content".toByteArray()
+                )
+            )
+        }
+
+        Assertions.assertThat(e.message).isEqualTo("Unsupported or missing file type {}. Supported file types [txt, pdf]")
     }
 }

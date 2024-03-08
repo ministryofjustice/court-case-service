@@ -1,18 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -28,7 +17,6 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState;
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepStatus;
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
 import java.io.Serializable;
@@ -70,7 +58,7 @@ public class HearingDefendantEntity extends BaseAuditedEntity implements Seriali
 
     @Setter
     @Column(name = "PREP_STATUS", nullable = false)
-    private HearingPrepStatus prepStatus;
+    private String prepStatus;
 
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)

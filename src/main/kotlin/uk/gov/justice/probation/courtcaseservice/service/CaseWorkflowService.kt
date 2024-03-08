@@ -143,7 +143,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
             {
                 val hearingDefendant = it.getHearingDefendant(defendantId)
                     ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
-                hearingDefendant.prepStatus = prepStatus
+                hearingDefendant.prepStatus = prepStatus.name
                 hearingRepository.save(it)
             },
             {

@@ -55,8 +55,11 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
     }
 
     @Operation(description = "Updates prep status for for a given hearing and defendant")
-    @PutMapping(value = ["/hearing/{hearingId}/defendants/{defendantId}/prep-status/{prepStatus}"], produces = [APPLICATION_JSON_VALUE], consumes = [APPLICATION_JSON_VALUE])
-    fun updatePrepStatus(@PathVariable("hearingId") hearingId: String, @PathVariable("defendantId") defendantId: String, @PathVariable("prepStatus") prepStatus: HearingPrepStatus) =
-        caseWorkflowService.updatePrepStatus(hearingId, defendantId, prepStatus)
+    @PutMapping(value = ["/hearing/{hearingId}/defendants/{defendantId}/prep-status/{prepStatus}"])
+    fun updatePrepStatus(
+        @PathVariable("hearingId") hearingId: String,
+        @PathVariable("defendantId") defendantId: String,
+        @PathVariable("prepStatus") prepStatus: HearingPrepStatus
+    ) = caseWorkflowService.updatePrepStatus(hearingId, defendantId, prepStatus)
 
 }

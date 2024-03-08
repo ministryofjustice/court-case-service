@@ -344,6 +344,25 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .statusCode(404)
     }
 
+    @Test
+    fun `given hearing id with outcome in ON_HOLD state, result the case`() {
+
+        val hearingId = "ddfe6b75-c3fc-4ed0-9bf6-21d66b125636"
+        given()
+            .auth()
+            .oauth2(TokenHelper.getToken("4b03d065-4c96-4b24-8d6d-75a45d2e3f12"))
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .`when`()
+            .post("/hearing/{hearingId}/outcome/result", hearingId)
+            .then()
+            .statusCode(200)
+
+        val hearing = hearingRepository.findFirstByHearingId(hearingId).get()
+        assertThat(hearing.hearingOutcome.state).isEqualTo("RESULTED")
+        assertThat(hearing.hearingOutcome.resultedDate).isNotNull()
+    }
+
     @Test fun `should trigger move un resulted cases to outcomes workflow`() {
         given()
             .`when`()

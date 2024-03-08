@@ -210,8 +210,9 @@ dependencies {
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.1.1")
 
-
     implementation group: 'ai.h2o', name: 'h2o-genmodel', version: '3.38.0.3'
+
+    implementation 'commons-io:commons-io:2.15.1'
 
     testAnnotationProcessor 'org.projectlombok:lombok'
 
@@ -228,7 +229,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
-    testImplementation("com.github.tomakehurst:wiremock-jre8:3.0.1")
+    testImplementation("org.wiremock:wiremock:3.4.2")
 
     testImplementation("au.com.dius.pact.provider:junit5spring:$pactVersion")
     testImplementation("au.com.dius.pact.provider:junit5:$pactVersion")

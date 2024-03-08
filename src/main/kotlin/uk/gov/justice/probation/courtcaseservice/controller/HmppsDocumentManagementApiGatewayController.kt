@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation
 import org.springframework.core.io.InputStreamResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus.CREATED
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile
 import reactor.core.publisher.Mono
 import uk.gov.justice.probation.courtcaseservice.service.HmppsDocumentManagementService
 import java.util.*
+import java.util.stream.Stream
 
 @RestController
 class HmppsDocumentManagementApiGatewayController(val hmppsDocumentManagementService: HmppsDocumentManagementService) {
@@ -41,12 +41,12 @@ class HmppsDocumentManagementApiGatewayController(val hmppsDocumentManagementSer
         @PathVariable("defendantId") defendantId: String,
         @PathVariable("documentId") documentId: String
     ): ResponseEntity<InputStreamResource> {
-        val documentResponse = hmppsDocumentManagementService.getDocument(hearingId, defendantId, documentId).get().block()
-        val fileStream = documentResponse.body.blockFirst()
+        val documentResponse = hmppsDocumentManagementService.getDocument(hearingId, defendantId, documentId)
+        val fileStream = documentResponse?.body?.blockFirst()
         return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, documentResponse.headers.contentDisposition.toString())
-            .contentType(documentResponse.headers.contentType)
-            .contentLength(documentResponse.headers.contentLength)
+            .header(HttpHeaders.CONTENT_DISPOSITION, documentResponse?.headers?.contentDisposition.toString())
+            .contentType(documentResponse?.headers?.contentType)
+            .contentLength(documentResponse?.headers?.contentLength?:0)
             .body(fileStream)
     }
 

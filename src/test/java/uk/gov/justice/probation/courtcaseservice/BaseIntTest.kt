@@ -1,9 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice
 
-import org.awaitility.kotlin.atLeast
-import org.awaitility.kotlin.await
-import org.awaitility.kotlin.matches
-import org.awaitility.kotlin.untilCallTo
+import org.awaitility.kotlin.*
 import org.junit.ClassRule
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -93,13 +90,13 @@ abstract class BaseIntTest {
   fun assertOffenderEventReceiverQueueHasProcessedMessages() {
     // ApproximateNumberOfMessagesNotVisible represents messages in flight. So for this case if this is 1 means the message has been consumed but still not deleted until then the value will be 1 and ApproximateNumberOfMessages is zero as the message is inflight.
     // We need to ensure the inflight message is processed before checking for ApproximateNumberOfMessages.
-    await atLeast AWAITILITY_DURATION untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE) } matches { it == 0 }
-    await atLeast AWAITILITY_DURATION untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES) } matches { it == 0 }
+    await atMost AWAITILITY_DURATION untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE) } matches { it == 0 }
+    await atMost AWAITILITY_DURATION untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES) } matches { it == 0 }
   }
 
   fun assertNewOffenderDomainEventReceiverQueueHasProcessedMessages() {
-    await atLeast AWAITILITY_DURATION untilCallTo { newOffenderEventReceiverQueueSqsClient.countMessagesOnQueue(newOffenderEventReceiverQueueQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE) } matches { it == 0 }
-    await atLeast AWAITILITY_DURATION untilCallTo { newOffenderEventReceiverQueueSqsClient.countMessagesOnQueue(newOffenderEventReceiverQueueQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES) } matches { it == 0 }
+    await atMost AWAITILITY_DURATION untilCallTo { newOffenderEventReceiverQueueSqsClient.countMessagesOnQueue(newOffenderEventReceiverQueueQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE) } matches { it == 0 }
+    await atMost AWAITILITY_DURATION untilCallTo { newOffenderEventReceiverQueueSqsClient.countMessagesOnQueue(newOffenderEventReceiverQueueQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES) } matches { it == 0 }
   }
 
 

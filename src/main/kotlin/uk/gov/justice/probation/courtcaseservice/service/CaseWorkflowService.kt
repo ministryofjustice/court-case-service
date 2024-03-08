@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.server.ResponseStatusException
 import uk.gov.justice.probation.courtcaseservice.controller.model.*
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepStatus.NOT_STARTED
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepositoryCustom
@@ -134,5 +135,19 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
             telemetryService.trackMoveUnResultedCasesToOutcomesFlowJob(count.get(), courtCodes, e)
             throw e
         }
+    }
+
+    fun updatePrepStatus(hearingId: String, defendantId: String, prepStatus: HearingPrepStatus) {
+
+        hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
+            {
+                val hearingDefendant = it.getHearingDefendant(defendantId)
+                    ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
+                hearingDefendant.prepStatus = prepStatus
+                hearingRepository.save(it)
+            },
+            {
+                throw EntityNotFoundException("Hearing not found with id $hearingId")
+            })
     }
 }

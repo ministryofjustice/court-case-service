@@ -347,4 +347,20 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .body("get(9).value", equalTo("TRIAL"))
             .body("get(9).label", equalTo("Trial"))
     }
+
+    @Test
+    fun `given hearing, defendant and prep status, should update prep status`() {
+
+        val expectedResult = HearingOutcomeType.entries.toTypedArray()
+        given()
+            .auth()
+            .oauth2(TokenHelper.getToken())
+            .`when`()
+            .put("/hearing/{hearingId}/defendants/{defendantId}outcome/assign", UNKNOWN_HEARING_ID, DEFENDANT_ID)
+            .then()
+            .statusCode(200)
+            .body("", hasSize<Any>(expectedResult.size))
+            .body("get(0).value", equalTo("PROBATION_SENTENCE"))
+
+    }
 }

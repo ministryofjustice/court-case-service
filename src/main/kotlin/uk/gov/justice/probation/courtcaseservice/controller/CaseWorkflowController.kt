@@ -7,10 +7,7 @@ import jakarta.validation.Valid
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.bind.annotation.*
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcome
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeAssignToRequest
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCaseList
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
+import uk.gov.justice.probation.courtcaseservice.controller.model.*
 import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper
 import uk.gov.justice.probation.courtcaseservice.service.CaseWorkflowService
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType
@@ -56,4 +53,10 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
             mapOf("value" to outcome.name, "label" to outcome.value)
         }
     }
+
+    @Operation(description = "Updates prep status for for a given hearing and defendant")
+    @PutMapping(value = ["/hearing/{hearingId}/defendants/{defendantId}/prep-status/{prepStatus}"], produces = [APPLICATION_JSON_VALUE], consumes = [APPLICATION_JSON_VALUE])
+    fun updatePrepStatus(@PathVariable("hearingId") hearingId: String, @PathVariable("defendantId") defendantId: String, @PathVariable("prepStatus") prepStatus: HearingPrepStatus) =
+        caseWorkflowService.updatePrepStatus(hearingId, defendantId, prepStatus)
+
 }

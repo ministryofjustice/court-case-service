@@ -28,6 +28,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepStatus;
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
 import java.io.Serializable;
@@ -66,6 +67,10 @@ public class HearingDefendantEntity extends BaseAuditedEntity implements Seriali
     @ManyToOne(optional = false, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "FK_DEFENDANT_ID", referencedColumnName = "id", nullable = false)
     private DefendantEntity defendant;
+
+    @Setter
+    @Column(name = "PREP_STATUS", nullable = false)
+    private HearingPrepStatus prepStatus;
 
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)

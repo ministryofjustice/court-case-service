@@ -54,12 +54,12 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
         hearingId: String,
         defendantId: String,
         documentId: String
-    ): Mono<ResponseEntity<Flux<InputStreamResource>>>? {
+    ): ResponseEntity<Flux<InputStreamResource>>? {
 
         return getHearingEntity(hearingId)?.courtCase?.getCaseDefendant(defendantId)
             ?.map { it.getCaseDefendantDocument(documentId) }
             ?.map {
-                return@map hmppsDocumentManagementApiClient.getDocument(documentId)
+                return@map hmppsDocumentManagementApiClient.getDocument(documentId).block()
             }?.orElseThrow {
                 throw EntityNotFoundException(
                     "Document not found /hearing/%s/defendant/%s/documents/%s",

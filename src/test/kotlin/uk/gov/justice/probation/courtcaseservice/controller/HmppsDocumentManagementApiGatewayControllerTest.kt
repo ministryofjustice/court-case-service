@@ -44,12 +44,8 @@ internal class HmppsDocumentManagementApiGatewayControllerTest {
         val documentId = "document-id-one"
         val from = Flux.just(InputStreamResource
             (ByteArrayInputStream("asdfd".toByteArray())))
-        val mono =
-            Mono.just(
-                ResponseEntity.ok().body(from)
-            )
         given(hmppsDocumentManagementService.getDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, documentId))
-            .willReturn(mono)
+            .willReturn(ResponseEntity.ok().body(from))
 
         hmppsDocumentManagementApiGatewayController.getDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID,
             documentId

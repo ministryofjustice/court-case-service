@@ -19,17 +19,12 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import uk.gov.justice.probation.courtcaseservice.client.HmppsDocumentManagementApiClient
 import uk.gov.justice.probation.courtcaseservice.client.model.documentmanagement.DocumentUploadResponse
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseDefendantDocumentEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseDefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.UnsupportedFileTypeException
-import java.io.BufferedInputStream
 import java.io.ByteArrayInputStream
 import java.util.*
 

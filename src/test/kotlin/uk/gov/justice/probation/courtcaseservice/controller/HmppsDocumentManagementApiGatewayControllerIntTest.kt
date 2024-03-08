@@ -3,7 +3,6 @@ package uk.gov.justice.probation.courtcaseservice.controller
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
-import io.restassured.matcher.ResponseAwareMatcher
 import io.restassured.parsing.Parser
 import org.assertj.core.api.Assertions
 import org.hamcrest.MatcherAssert.assertThat
@@ -39,6 +38,7 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
     companion object {
         const val HEARING_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00"
         const val DEFENDANT_ID = "40db17d6-04db-11ec-b2d8-0242ac130002"
+        const val PIC_ALLOWED_FILE_TYPES = "[csv, doc, docx, jpg, jpeg, xml, ods, odt, pdf, png, ppt, pptx, rdf, rtf, txt, xls, xlsx, xml, zip]"
         const val DOCUMENT_MANAGEMENT_API_UPLOAD_RESPONSE = """
             {
               "documentUuid": "8cdadcf3-b003-4116-9956-c99bd8df6a00",
@@ -104,7 +104,7 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
             .post("/hearing/{hearingId}/defendant/{defendantId}/file", HEARING_ID, DEFENDANT_ID)
             .then()
             .statusCode(415)
-            .body("userMessage", equalTo("Unsupported or missing file type {xyz}. Supported file types [csv, doc, docx, jpg, jpeg, xml, ods, odt, pdf, png, ppt, pptx, rdf, rtf, txt, xls, xlsx, xml, zip]"))
+            .body("userMessage", equalTo("Unsupported or missing file type {xyz}. Supported file types $PIC_ALLOWED_FILE_TYPES"))
     }
 
     @Test

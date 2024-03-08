@@ -422,4 +422,41 @@ internal class CaseWorkflowServiceTest {
         verify(hearingRepository).findFirstByHearingId(hearingId)
     }
 
+
+    @Test
+    fun `given hearing id and defendant id and defendant id does not exist, when update prep status, should throw entity not found exception`() {
+
+        val aHearingEntity = aHearingEntity()
+        given(hearingRepository.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(aHearingEntity))
+        assertThrows(
+            "Defendant invalid-defendant-id not found on hearing with id $HEARING_ID",
+            EntityNotFoundException::class.java
+        ) {
+            caseWorkflowService.updatePrepStatus(
+                HEARING_ID,
+                "invalid-defendant-id",
+               HearingPrepStatus.IN_PROGRESS
+            )
+        }
+        verify(hearingRepository).findFirstByHearingId(HEARING_ID)
+        verifyNoMoreInteractions(hearingRepository)
+    }
+
+    @Test
+    fun `given hearing id and defendant id and defendant id does not exist, when update prep status, should update prestatus`() {
+
+        val aHearingEntity = aHearingEntity()
+        given(hearingRepository.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(aHearingEntity))
+
+        caseWorkflowService.updatePrepStatus(
+            HEARING_ID,
+            DEFENDANT_ID,
+           HearingPrepStatus.IN_PROGRESS
+        )
+
+        verify(hearingRepository).findFirstByHearingId(HEARING_ID)
+        aHearingEntity.hearingDefendants[0].prepStatus = HearingPrepStatus.IN_PROGRESS.name
+        verify(hearingRepository).save(aHearingEntity)
+        verifyNoMoreInteractions(hearingRepository)
+    }
 }

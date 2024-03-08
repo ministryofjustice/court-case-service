@@ -172,7 +172,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
     }
 
     @Test
-    fun `given court code and outcome state IN_PROGRESS and assinged to user, should return outcomes corectly`() {
+    fun `given court code and outcome state IN_PROGRESS and assignedto user, should return outcomes correctly`() {
 
         val courtCode = "B10JQ"
 

@@ -15,6 +15,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenE
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.RestResourceNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.DuplicateEntityException;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.service.exceptions.UnsupportedFileTypeException;
 
 import static java.util.Objects.requireNonNull;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -84,5 +85,10 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(HttpMessageConversionException.class)
     public ResponseEntity<ErrorResponse> handle(HttpMessageConversionException exception) {
         return responseEntityFrom(exception, BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UnsupportedFileTypeException.class)
+    public ResponseEntity<ErrorResponse> handle(UnsupportedFileTypeException exception) {
+        return responseEntityFrom(exception, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 }

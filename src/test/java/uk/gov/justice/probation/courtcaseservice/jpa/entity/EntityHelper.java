@@ -76,7 +76,8 @@ public class EntityHelper {
     public static void refreshMappings(HearingEntity hearingEntity) {
         hearingEntity.getHearingDefendants().forEach(hearingDefendantEntity -> {
             hearingDefendantEntity.setHearing(hearingEntity);
-            hearingDefendantEntity.getOffences().forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendantEntity));
+            Optional.ofNullable(hearingDefendantEntity.getOffences())
+                .ifPresent(offenceEntities -> offenceEntities.forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendantEntity)));
         });
 
         hearingEntity.getHearingDays().forEach(hearingDay -> hearingDay.setHearing(hearingEntity));

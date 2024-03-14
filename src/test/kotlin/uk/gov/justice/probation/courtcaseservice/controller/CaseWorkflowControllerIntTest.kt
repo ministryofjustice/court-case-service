@@ -57,7 +57,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .accept(ContentType.JSON)
             .body(HEARING_OUTCOME_REQUEST)
             .`when`()
-            .put("/hearing/{hearingId}/defendants/{defendantId}/outcome", HEARING_ID, DEFENDANT_ID)
+            .put("/hearing/{hearingId}/defendant/{defendantId}/outcome", HEARING_ID, DEFENDANT_ID)
             .then()
             .statusCode(200)
 
@@ -78,7 +78,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .accept(ContentType.JSON)
             .body(HEARING_OUTCOME_UPDATE_REQUEST)
             .`when`()
-            .put("/hearing/{hearingId}/defendants/{defendantId}/outcome", hearingId, DEFENDANT_ID)
+            .put("/hearing/{hearingId}/defendant/{defendantId}/outcome", hearingId, DEFENDANT_ID)
             .then()
             .statusCode(200)
 
@@ -273,7 +273,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
                 .accept(ContentType.JSON)
                 .body(HEARING_OUTCOME_ASSIGN_REQUEST)
                 .`when`()
-                .put("/hearing/{hearingId}/defendants/{defendantId}/outcome/assign", HEARING_ID, DEFENDANT_ID)
+                .put("/hearing/{hearingId}/defendant/{defendantId}/outcome/assign", HEARING_ID, DEFENDANT_ID)
                 .then()
                 .statusCode(200)
 
@@ -292,7 +292,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
                 .accept(ContentType.JSON)
                 .body(HEARING_OUTCOME_ASSIGN_REQUEST)
                 .`when`()
-                .put("/hearing/{hearingId}/defendants/{defendantId}/outcome/assign", UNKNOWN_HEARING_ID, DEFENDANT_ID)
+                .put("/hearing/{hearingId}/defendant/{defendantId}/outcome/assign", UNKNOWN_HEARING_ID, DEFENDANT_ID)
                 .then()
                 .statusCode(404)
 
@@ -308,7 +308,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
             .`when`()
-            .post("/hearing/{hearingId}/defendants/{defendantId}/outcome/result", hearingId, DEFENDANT_ID)
+            .post("/hearing/{hearingId}/defendant/{defendantId}/outcome/result", hearingId, DEFENDANT_ID)
             .then()
             .statusCode(200)
 

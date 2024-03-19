@@ -118,6 +118,8 @@ _snyk_options: &snyk_options
 jobs:
   build_data_dictionary:
     executor: builder
+    environment:
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update # Create Audit Tables before DB Migrations. Do not use in Production.
     steps:
       - checkout
       - restore_cache:

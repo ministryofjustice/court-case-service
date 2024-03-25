@@ -19,6 +19,10 @@ ingress:
   hosts:
     - host: court-case-service-dev.apps.live-1.cloud-platform.service.justice.gov.uk
   path: /
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    nginx.ingress.kubernetes.io/server-snippet: |
+      client_max_body_size 100m;
 
 nginx_proxy:
   name: court-case-service-proxy

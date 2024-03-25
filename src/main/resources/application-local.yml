@@ -34,7 +34,7 @@ domain-event-and-delius-api:
 spring:
   flyway:
     defaultSchema: ${database.schema.name}
-    locations: classpath:db/migration/courtcase
+    locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local
   jpa:
     show-sql: true
     properties:

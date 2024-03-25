@@ -25,6 +25,10 @@ COPY build/libs/court-case-service*.jar /app/court-case-service.jar
 COPY build/libs/applicationinsights-agent*.jar /app/agent.jar
 COPY applicationinsights.json /app
 COPY run.sh /app
+
+RUN mkdir -p /app/src/test/resources/db/migration
+COPY src/test/resources/db/migration/local /app/src/test/resources/db/migration/local
+
 RUN chown -R appuser:appgroup /app
 
 USER 2000

@@ -25,6 +25,7 @@ metadata:
         deny all;
         return 403;
       }
+      client_max_body_size 50M;
 spec:
   ingressClassName: modsec
   tls:

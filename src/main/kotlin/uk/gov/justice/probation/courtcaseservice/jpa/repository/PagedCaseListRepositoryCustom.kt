@@ -69,8 +69,8 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
         }
 
         val hearingStatusFilter = """
-            ${ if(hearingSearchRequest.hearingStatus == HearingStatus.HEARD) " join hearing_outcome ho on ho.fk_hearing_id = h.id and ho.outcome_type != 'NO_OUTCOME' " else ""}
-            ${ if(hearingSearchRequest.hearingStatus == HearingStatus.UNHEARD) " left join hearing_outcome ho on h.id = ho.fk_hearing_id " else ""}
+            ${ if(hearingSearchRequest.hearingStatus == HearingStatus.HEARD) " inner join hearing_outcome ho on ho.fk_hearing_defendant_id = hd.id and ho.outcome_type != 'NO_OUTCOME' " else ""}
+            ${ if(hearingSearchRequest.hearingStatus == HearingStatus.UNHEARD) " left join hearing_outcome ho on ho.fk_hearing_defendant_id = hd.id " else ""}
         """.trimIndent()
 
         val joins = """
@@ -144,6 +144,7 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
         val count = (countJpaQuery.singleResult as Long)
 
         val content = result.map {(it as Array<Any>)}.map { Pair(it[0] as HearingDefendantEntity, it[1] as Int?) }
+
         return PageImpl(content, pageable, count)
     }
 }

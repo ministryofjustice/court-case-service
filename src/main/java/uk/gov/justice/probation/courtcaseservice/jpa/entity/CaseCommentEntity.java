@@ -51,8 +51,11 @@ public class CaseCommentEntity extends BaseEntity implements Serializable {
     @Column(name = "IS_DRAFT", nullable = false)
     private boolean draft;
 
+    @Column(name = "LEGACY", nullable = false)
+    private boolean legacy;
     public void update(CaseCommentEntity caseCommentEntity) {
         this.comment = caseCommentEntity.getComment();
         this.draft = caseCommentEntity.isDraft();
+        this.legacy = caseCommentEntity.isLegacy();
     }
 }

@@ -41,7 +41,7 @@ public class WebClientConfig {
     @Value("${domain-event-and-delius-api.base-url}")
     private String domainEventAndDeliusApiBaseUrl;
 
-    @Value("${hmpps-document-management-api-client.base-url}")
+    @Value("")
     private String hmppsDocumentManagementApiUrl;
 
     @Value("${web.client.document-byte-buffer-size}")

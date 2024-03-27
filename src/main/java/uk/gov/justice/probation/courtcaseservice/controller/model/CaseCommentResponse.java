@@ -24,17 +24,19 @@ public class CaseCommentResponse {
     private final String author;
     private final String createdByUuid;
     private final boolean draft;
+    private final boolean legacy;
 
     public static CaseCommentResponse of(CaseCommentEntity caseCommentEntity) {
         return CaseCommentResponse.builder()
-            .comment(caseCommentEntity.getComment())
-            .commentId(caseCommentEntity.getId())
-            .caseId(caseCommentEntity.getCaseId())
-            .defendantId(caseCommentEntity.getDefendantId())
-            .created(caseCommentEntity.getCreated())
-            .author(caseCommentEntity.getAuthor())
-            .createdByUuid(caseCommentEntity.getCreatedByUuid())
-            .draft(caseCommentEntity.isDraft())
-            .build();
+                .comment(caseCommentEntity.getComment())
+                .commentId(caseCommentEntity.getId())
+                .caseId(caseCommentEntity.getCaseId())
+                .defendantId(caseCommentEntity.getDefendantId())
+                .created(caseCommentEntity.getCreated())
+                .author(caseCommentEntity.getAuthor())
+                .createdByUuid(caseCommentEntity.getCreatedByUuid())
+                .draft(caseCommentEntity.isDraft())
+                .legacy(caseCommentEntity.isLegacy())
+                .build();
     }
 }

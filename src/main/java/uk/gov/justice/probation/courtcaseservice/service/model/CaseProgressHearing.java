@@ -17,6 +17,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,13 +56,13 @@ public class CaseProgressHearing {
             .court(hearingDay.getCourt().getName())
             .courtRoom(hearingDay.getCourtRoom())
             .notes(mapHearingNotes(notes))
-            .hearingOutcome(mapHearingOutcome(hearingEntity, defendantId))
+            .hearingOutcome(mapHearingOutcome(hearingEntity, defendantId, hearingDay.getDay()))
             .build();
     }
 
-    private static HearingOutcomeResponse mapHearingOutcome(HearingEntity hearingEntity, String defendantId) {
+    private static HearingOutcomeResponse mapHearingOutcome(HearingEntity hearingEntity, String defendantId, LocalDate hearingDate) {
         return Optional.of(hearingEntity.getHearingDefendant(defendantId)).map(HearingDefendantEntity::getHearingOutcome)
-            .map(hearingOutcomeEntity -> HearingOutcomeResponse.Companion.of(hearingOutcomeEntity)).orElse(null);
+            .map(hearingOutcomeEntity -> HearingOutcomeResponse.Companion.of(hearingEntity.getHearingDefendant(defendantId), hearingDate)).orElse(null);
     }
 
     private static List<HearingNoteResponse> mapHearingNotes (List<HearingNoteEntity> notes) {

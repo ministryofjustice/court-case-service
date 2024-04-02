@@ -55,6 +55,7 @@ hearing_outcomes:
 
 hmpps.sqs:
   provider: localstack
+  localstackUrl: http://awsmock:4566
   queues:
     picprobationoffendereventsqueue:
       queueName: pic_probation_offender_events_queue

@@ -3,14 +3,13 @@ BEGIN;
 -- the cron used an incorrect method to checking if the hearing had been resulted
 
 -- keep the first hearing outcome
-DELETE FROM
-    hearing_outcomes dup_ho
-    USING hearing_outcomes dist_ho
+DELETE FROM hearing_outcome dup_ho
+USING hearing_outcome dist_ho
 WHERE dup_ho.id > dist_ho.id
   AND dup_ho.fk_hearing_defendant_id  = dist_ho.fk_hearing_defendant_id;
 
 
-COMMIT;
+END;
 
 
 

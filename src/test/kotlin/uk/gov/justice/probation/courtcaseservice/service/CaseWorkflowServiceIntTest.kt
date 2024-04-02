@@ -41,22 +41,59 @@ internal class CaseWorkflowServiceIntTest {
     @Test
     fun shouldMoveUnHeardCasesToOutcomesWorkflow() {
 
-        // When
+        // When running first time
         caseWorkflowService.processUnResultedCases()
 
         // Then
-        var ho1 = hearingRepository.findFirstByHearingId("2aa6f5e0-f842-4939-bc6a-01346abc09e7").get().hearingDefendants[0].hearingOutcome
+        val ho1 = hearingRepository.findFirstByHearingId("2aa6f5e0-f842-4939-bc6a-01346abc09e7").get().hearingDefendants[0].hearingOutcome
 
         assertThat(ho1.outcomeType).isEqualTo(HearingOutcomeType.ADJOURNED.name)
         assertThat(ho1.state).isEqualTo(HearingOutcomeItemState.RESULTED.name)
 
-        var ho2 = hearingRepository.findFirstByHearingId("1f93aa0a-7e46-4885-a1cb-f25a4be33a00").get().hearingDefendants[0].hearingOutcome
+        val ho2 = hearingRepository.findFirstByHearingId("1f93aa0a-7e46-4885-a1cb-f25a4be33a00").get().hearingDefendants[0].hearingOutcome
 
         assertThat(ho2.outcomeType).isEqualTo(HearingOutcomeType.NO_OUTCOME.name)
         assertThat(ho2.state).isEqualTo(HearingOutcomeItemState.NEW.name)
 
-        var ho3 = hearingRepository.findFirstByHearingId("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636").get().hearingDefendants[0].hearingOutcome
+        val ho3 = hearingRepository.findFirstByHearingId("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636").get().hearingDefendants[0].hearingOutcome
         assertThat(ho3).isNull()
+    }
+
+    @Test
+    fun shouldCreateHearingOutComeRecordOnlyOnce() {
+
+        // When running first time
+        caseWorkflowService.processUnResultedCases()
+
+        // Then
+        val ho1 = hearingRepository.findFirstByHearingId("2aa6f5e0-f842-4939-bc6a-01346abc09e7").get().hearingDefendants[0].hearingOutcome
+
+        assertThat(ho1.outcomeType).isEqualTo(HearingOutcomeType.ADJOURNED.name)
+        assertThat(ho1.state).isEqualTo(HearingOutcomeItemState.RESULTED.name)
+
+        var hearingEntity = hearingRepository.findFirstByHearingId("1f93aa0a-7e46-4885-a1cb-f25a4be33a00").get()
+
+        var hearingDefendantEntity = hearingEntity.hearingDefendants
+        assertThat(hearingDefendantEntity.size).isEqualTo(1)
+
+        var hearingOutcomeEntity = hearingDefendantEntity[0].hearingOutcome
+
+        assertThat(hearingOutcomeEntity.outcomeType).isEqualTo(HearingOutcomeType.NO_OUTCOME.name)
+        assertThat(hearingOutcomeEntity.state).isEqualTo(HearingOutcomeItemState.NEW.name)
+
+        //run the job second time
+        caseWorkflowService.processUnResultedCases()
+
+        hearingEntity = hearingRepository.findFirstByHearingId("1f93aa0a-7e46-4885-a1cb-f25a4be33a00").get()
+
+        hearingDefendantEntity = hearingEntity.hearingDefendants
+        assertThat(hearingDefendantEntity.size).isEqualTo(1)
+
+        hearingOutcomeEntity = hearingDefendantEntity[0].hearingOutcome
+
+        assertThat(hearingOutcomeEntity.outcomeType).isEqualTo(HearingOutcomeType.NO_OUTCOME.name)
+        assertThat(hearingOutcomeEntity.state).isEqualTo(HearingOutcomeItemState.NEW.name)
+
     }
 
     @org.springframework.boot.test.context.TestConfiguration

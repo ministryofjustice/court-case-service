@@ -23,9 +23,12 @@ import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper
 internal class CourtCaseControllerNullPointerIntTest: BaseIntTest() {
     @Test
     fun `given hearing id and defendant id should return summary for defendant for that hearing`() {
-        val defendantId = "f6e2482a-8230-4b4c-ab7d-716bd4000a5b"
-        // val hearingId = "15cd65e6-eed1-4ecc-bd6b-37159d703733"
-        val hearingId = "b41ff816-5ff6-418a-a1f5-30a587830c03"
+//        val defendantId = "f6e2482a-8230-4b4c-ab7d-716bd4000a5b"
+//         val hearingId = "15cd65e6-eed1-4ecc-bd6b-37159d703733"
+//        val hearingId = "b41ff816-5ff6-418a-a1f5-30a587830c03"
+
+        val hearingId = "c43c12e3-f8bc-4a07-bbce-63f9034ab360"
+        val defendantId = "14a8d8d3-90db-4422-9e3e-920d7a26e2ad"
 
         given()
             .auth()

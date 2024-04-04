@@ -24,3 +24,4 @@ INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Leicester', '
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Aberystwyth', 'B63AD');
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('New New York', 'B30NY');
 INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Coventry', 'B20EB');
+INSERT INTO courtcaseservicetest.court (name, court_code) VALUES ('Warwick Crown Court sitting at Leamington Spa', 'C23WR');

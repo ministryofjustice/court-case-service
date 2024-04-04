@@ -6,15 +6,19 @@ VALUES
 (387156, '8a2f1cdc-b66e-4b1f-9fed-03089da8331b', '8a2f1cdc-b66e-4b1f-9fed-03089da8331b', '2023-05-08 11:35:03.415', '(court-case-matcher-2)', false, 'COMMON_PLATFORM', '20CV1244123', '2023-05-08 11:35:03.415', '(court-case-matcher-2)', 0);
 
 ---- HEARING
+-- John Smith Only
 INSERT INTO courtcaseservicetest.hearing
 (id, hearing_id, created, created_by, deleted, fk_court_case_id_remove, first_created, hearing_event_type, hearing_type, list_no, fk_court_case_id, last_updated, last_updated_by, "version", fk_hearing_outcome)
 VALUES(6927015, 'f57cf283-7a85-4c25-8412-4b73001e0b35', '2023-05-08 11:35:03.415', '(court-case-matcher-2)', false, NULL, '2023-05-08 11:35:03.411', 'CONFIRMED_OR_UPDATED', 'First hearing', NULL, 387156, '2023-05-08 11:35:03.415', '(court-case-matcher-2)', 0, NULL);
+-- Both
 INSERT INTO courtcaseservicetest.hearing
 (id, hearing_id, created, created_by, deleted, fk_court_case_id_remove, first_created, hearing_event_type, hearing_type, list_no, fk_court_case_id, last_updated, last_updated_by, "version", fk_hearing_outcome)
 VALUES(6927016, 'c43c12e3-f8bc-4a07-bbce-63f9034ab360', '2023-05-08 11:35:07.638', '(court-case-matcher-2)', false, NULL, '2023-05-08 11:35:07.631', 'CONFIRMED_OR_UPDATED', 'First hearing', NULL, 387156, '2023-05-08 11:35:07.638', '(court-case-matcher-2)', 0, NULL);
+--Dave Jones
 INSERT INTO courtcaseservicetest.hearing
 (id, hearing_id, created, created_by, deleted, fk_court_case_id_remove, first_created, hearing_event_type, hearing_type, list_no, fk_court_case_id, last_updated, last_updated_by, "version", fk_hearing_outcome)
 VALUES(7108620, '8007724a-ce9a-49f7-b8f5-3b3f177b7138', '2023-06-15 08:49:36.832', '(court-case-matcher-2)', false, NULL, '2023-06-15 08:49:36.822', 'CONFIRMED_OR_UPDATED', 'Bail Application', NULL, 387156, '2023-06-15 08:49:36.832', '(court-case-matcher-2)', 0, NULL);
+-- Dave Jones
 INSERT INTO courtcaseservicetest.hearing
 (id, hearing_id, created, created_by, deleted, fk_court_case_id_remove, first_created, hearing_event_type, hearing_type, list_no, fk_court_case_id, last_updated, last_updated_by, "version", fk_hearing_outcome)
 VALUES(7115926, '233efc02-9624-4ba7-abef-a439190d1361', '2023-06-16 11:22:31.974', '(court-case-matcher-2)', false, NULL, '2023-06-16 11:22:31.964', 'CONFIRMED_OR_UPDATED', 'Bail Application', NULL, 387156, '2023-06-16 11:22:31.974', '(court-case-matcher-2)', 0, NULL);
@@ -28,8 +32,7 @@ INSERT INTO courtcaseservicetest.hearing_day
 VALUES(7752714, 6927016, '2023-12-25', '10:00:00', 'B20EB', 'Courtroom 03', '2023-05-08 12:04:59.055', '(court-case-matcher-2)', '2023-05-08 12:04:59.055', '(court-case-matcher-2)', 0, false);
 INSERT INTO courtcaseservicetest.hearing_day
 (id, fk_hearing_id, hearing_day, hearing_time, court_code, court_room, created, created_by, last_updated, last_updated_by, "version", deleted)
-VALUES(8471376, 7108620, '2023-06-16', '09:15:00', '' ||
-                                                   '', 'Courtroom 04', '2023-06-16 11:22:31.610', '(court-case-matcher-2)', '2023-06-16 11:22:31.610', '(court-case-matcher-2)', 0, false);
+VALUES(8471376, 7108620, '2023-06-16', '09:15:00', 'C23WR', 'Courtroom 04', '2023-06-16 11:22:31.610', '(court-case-matcher-2)', '2023-06-16 11:22:31.610', '(court-case-matcher-2)', 0, false);
 INSERT INTO courtcaseservicetest.hearing_day
 (id, fk_hearing_id, hearing_day, hearing_time, court_code, court_room, created, created_by, last_updated, last_updated_by, "version", deleted)
 VALUES(8475165, 7115926, '2023-06-19', '09:00:00', 'C23WR', 'Courtroom 04', '2023-06-16 12:53:50.683', '(court-case-matcher-2)', '2023-06-16 12:53:50.683', '(court-case-matcher-2)', 0, false);
@@ -75,6 +78,7 @@ INSERT INTO courtcaseservicetest.hearing_outcome
 VALUES(2602, 'NO_OUTCOME', '2023-12-25 15:30:12.651', 'process_unheard_cases_job', false, NULL, NULL, 0, '2023-12-25 15:30:12.651', 'NEW', NULL, NULL, NULL, 6927016, 6024024, false);
 INSERT INTO courtcaseservicetest.hearing_outcome
 (id, outcome_type, created, created_by, deleted, last_updated, last_updated_by, "version", outcome_date, state, assigned_to, assigned_to_uuid, resulted_date, fk_hearing_id, fk_hearing_defendant_id, legacy)
+VALUES(2594, 'NO_OUTCOME', '2023-12-25 15:30:12.651', 'process_unheard_cases_job', false, NULL, NULL, 0, '2023-12-25 15:30:12.651', 'NEW', NULL, NULL, NULL, 6927015, 6024023, true);
+INSERT INTO courtcaseservicetest.hearing_outcome
+(id, outcome_type, created, created_by, deleted, last_updated, last_updated_by, "version", outcome_date, state, assigned_to, assigned_to_uuid, resulted_date, fk_hearing_id, fk_hearing_defendant_id, legacy)
 VALUES(2595, 'NO_OUTCOME', '2023-12-25 15:30:12.651', 'process_unheard_cases_job', false, NULL, NULL, 0, '2023-12-25 15:30:12.651', 'NEW', NULL, NULL, NULL, 6927015, 6024055, true);
-
-

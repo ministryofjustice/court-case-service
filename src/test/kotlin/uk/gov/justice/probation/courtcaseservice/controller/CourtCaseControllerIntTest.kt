@@ -38,6 +38,5 @@ internal class CourtCaseControllerDefendantIntTest: BaseIntTest() {
             .statusCode(200)
             .body("hearings", hasSize<Any>(3))
             .body("hearings[1].hearingOutcome.assignedTo", equalTo("Joe Blogs"))
-            .log().all().extract().asString()
     }
 }

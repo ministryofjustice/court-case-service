@@ -23,12 +23,8 @@ import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper
 internal class CourtCaseControllerNullPointerIntTest: BaseIntTest() {
     @Test
     fun `given hearing id and defendant id should return summary for defendant for that hearing`() {
-//        val defendantId = "f6e2482a-8230-4b4c-ab7d-716bd4000a5b"
-//         val hearingId = "15cd65e6-eed1-4ecc-bd6b-37159d703733"
-//        val hearingId = "b41ff816-5ff6-418a-a1f5-30a587830c03"
-
         val hearingId = "c43c12e3-f8bc-4a07-bbce-63f9034ab360"
-        val defendantId = "14a8d8d3-90db-4422-9e3e-920d7a26e2ad"
+        val defendantId = "14a8d8d3-90db-4422-9e3e-920d7a26e2ad" // John Smith
 
         given()
             .auth()
@@ -39,6 +35,27 @@ internal class CourtCaseControllerNullPointerIntTest: BaseIntTest() {
             .get("/hearing/{hearingId}/defendant/{defendantId}", hearingId, defendantId)
             .then()
             .statusCode(200)
+            .body("caseId", equalTo("8a2f1cdc-b66e-4b1f-9fed-03089da8331b"))
+            .body("hearings", hasSize<Any>(2))
+            .log().all().extract().asString()
+    }
+
+    @Test
+    fun `given hearing id and co defendant id should return summary for that co defendant for that hearing`() {
+        val hearingId = "f57cf283-7a85-4c25-8412-4b73001e0b35" // First hearing. 2 Defendants
+        val defendantId = "a25ddee6-68b0-4506-8c64-1f00b3644c61" // Dave Jones
+
+        given()
+            .auth()
+            .oauth2(TokenHelper.getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .`when`()
+            .get("/hearing/{hearingId}/defendant/{defendantId}", hearingId, defendantId)
+            .then()
+            .statusCode(200)
+            .body("caseId", equalTo("8a2f1cdc-b66e-4b1f-9fed-03089da8331b"))
+            .body("hearings", hasSize<Any>(3))
             .log().all().extract().asString()
     }
 }

@@ -61,7 +61,7 @@ public class CaseProgressHearing {
     }
 
     private static HearingOutcomeResponse mapHearingOutcome(HearingEntity hearingEntity, String defendantId, LocalDate hearingDate) {
-        return Optional.of(hearingEntity.getHearingDefendant(defendantId)).map(HearingDefendantEntity::getHearingOutcome)
+        return Optional.ofNullable(hearingEntity.getHearingDefendant(defendantId)).map(HearingDefendantEntity::getHearingOutcome)
             .map(hearingOutcomeEntity -> HearingOutcomeResponse.Companion.of(hearingEntity.getHearingDefendant(defendantId), hearingDate)).orElse(null);
     }
 

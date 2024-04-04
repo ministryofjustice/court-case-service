@@ -44,12 +44,11 @@ internal class CourtCaseControllerNullPointerIntTest: BaseIntTest() {
             .body("hearings[0].hearingOutcome.hearingOutcomeType", equalTo("NO_OUTCOME"))
             .body("hearings[0].hearingOutcome.defendantName", equalTo("John SMITH"))
             .body("hearings[0].hearingOutcome.state", equalTo("NEW"))
-            .body("hearings[0].hearingId", equalTo("c43c12e3-f8bc-4a07-bbce-63f9034ab360"))
-            .body("hearings[0].hearingTypeLabel", equalTo("First hearing"))
-            .body("hearings[0].hearingOutcome.hearingOutcomeType", equalTo("NO_OUTCOME"))
-            .body("hearings[0].hearingOutcome.defendantName", equalTo("John SMITH"))
-            .body("hearings[0].hearingOutcome.state", equalTo("NEW"))
-            .log().all().extract().asString()
+            .body("hearings[1].hearingId", equalTo("c43c12e3-f8bc-4a07-bbce-63f9034ab360"))
+            .body("hearings[1].hearingTypeLabel", equalTo("First hearing"))
+            .body("hearings[1].hearingOutcome.hearingOutcomeType", equalTo("NO_OUTCOME"))
+            .body("hearings[1].hearingOutcome.defendantName", equalTo("John SMITH"))
+            .body("hearings[1].hearingOutcome.state", equalTo("NEW"))
     }
 
     @Test

@@ -13,14 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.With;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.LazyCollection;
@@ -69,6 +62,7 @@ public class HearingDefendantEntity extends BaseAuditedEntity implements Seriali
     private DefendantEntity defendant;
 
     @Setter
+    @Builder.Default
     @Column(name = "PREP_STATUS")
     private String prepStatus = HearingPrepStatus.NOT_STARTED.name();
 

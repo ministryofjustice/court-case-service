@@ -28,6 +28,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepStatus;
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
 import java.io.Serializable;
@@ -68,8 +69,8 @@ public class HearingDefendantEntity extends BaseAuditedEntity implements Seriali
     private DefendantEntity defendant;
 
     @Setter
-    @Column(name = "PREP_STATUS", nullable = false)
-    private String prepStatus;
+    @Column(name = "PREP_STATUS")
+    private String prepStatus = HearingPrepStatus.NOT_STARTED.name();
 
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)

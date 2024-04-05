@@ -7,6 +7,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseDocumentRe
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseMarker;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse.CourtCaseResponseBuilder;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepStatus;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
@@ -163,6 +164,7 @@ public class CourtCaseResponseMapper {
                 .probationStatus(hearingDefendantEntity.getProbationStatusForDisplay())
                 .confirmedOffender(defendant.isOffenderConfirmed())
                 .personId(defendant.getPersonId())
+                .hearingPrepStatus(HearingPrepStatus.valueOf(hearingDefendantEntity.getPrepStatus()))
         ;
 
         // Offences

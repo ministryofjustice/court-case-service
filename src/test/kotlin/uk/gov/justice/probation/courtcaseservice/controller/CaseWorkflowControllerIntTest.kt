@@ -347,4 +347,31 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .body("get(9).value", equalTo("TRIAL"))
             .body("get(9).label", equalTo("Trial"))
     }
+
+    @Test
+    fun `given hearing, defendant and prep status, should update prep status`() {
+
+        given()
+            .auth()
+            .oauth2(TokenHelper.getToken())
+            .`when`()
+            .put("/hearing/{hearingId}/defendants/{defendantId}/prep-status/IN_PROGRESS", HEARING_ID, DEFENDANT_ID)
+            .then()
+            .statusCode(200)
+
+        val hearingPrepStatus = hearingRepository.findFirstByHearingId(HEARING_ID).get().getHearingDefendant(DEFENDANT_ID).prepStatus
+        assertThat(hearingPrepStatus).isEqualTo("IN_PROGRESS")
+    }
+
+    @Test
+    fun `given hearing, invalid defendant id and prep status, should throw entity not found`() {
+
+        given()
+            .auth()
+            .oauth2(TokenHelper.getToken())
+            .`when`()
+            .put("/hearing/{hearingId}/defendants/{defendantId}/prep-status/IN_PROGRESS", HEARING_ID, "invalid-defendant-id")
+            .then()
+            .statusCode(404)
+    }
 }

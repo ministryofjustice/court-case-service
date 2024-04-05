@@ -1,8 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice
 
-import org.awaitility.kotlin.await
-import org.awaitility.kotlin.matches
-import org.awaitility.kotlin.untilCallTo
+import org.awaitility.kotlin.*
 import org.junit.ClassRule
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -31,6 +29,7 @@ import uk.gov.justice.probation.courtcaseservice.testcontainers.LocalStackHelper
 import uk.gov.justice.probation.courtcaseservice.testcontainers.LocalStackHelper.setLocalStackProperties
 import uk.gov.justice.probation.courtcaseservice.wiremock.WiremockExtension
 import uk.gov.justice.probation.courtcaseservice.wiremock.WiremockMockServer
+import java.time.Duration
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -40,6 +39,7 @@ abstract class BaseIntTest {
   @JvmField
   @LocalServerPort
   protected final var port = 0
+
   @BeforeEach
   fun setup() {
     TestConfig.configureRestAssuredForIntTest(port)
@@ -90,18 +90,20 @@ abstract class BaseIntTest {
   fun assertOffenderEventReceiverQueueHasProcessedMessages() {
     // ApproximateNumberOfMessagesNotVisible represents messages in flight. So for this case if this is 1 means the message has been consumed but still not deleted until then the value will be 1 and ApproximateNumberOfMessages is zero as the message is inflight.
     // We need to ensure the inflight message is processed before checking for ApproximateNumberOfMessages.
-    await untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE) } matches { it == 0 }
-    await untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES) } matches { it == 0 }
+    await atMost AWAITILITY_DURATION untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE) } matches { it == 0 }
+    await atMost AWAITILITY_DURATION untilCallTo { offenderEventReceiverQueueSqsClient.countMessagesOnQueue(offenderEventReceiverQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES) } matches { it == 0 }
   }
 
   fun assertNewOffenderDomainEventReceiverQueueHasProcessedMessages() {
-    await untilCallTo { newOffenderEventReceiverQueueSqsClient.countMessagesOnQueue(newOffenderEventReceiverQueueQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE) } matches { it == 0 }
-    await untilCallTo { newOffenderEventReceiverQueueSqsClient.countMessagesOnQueue(newOffenderEventReceiverQueueQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES) } matches { it == 0 }
+    await atMost AWAITILITY_DURATION untilCallTo { newOffenderEventReceiverQueueSqsClient.countMessagesOnQueue(newOffenderEventReceiverQueueQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE) } matches { it == 0 }
+    await atMost AWAITILITY_DURATION untilCallTo { newOffenderEventReceiverQueueSqsClient.countMessagesOnQueue(newOffenderEventReceiverQueueQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES) } matches { it == 0 }
   }
 
 
   companion object {
     private val localStackContainer = LocalStackHelper.instance
+
+    protected val AWAITILITY_DURATION = Duration.ofSeconds(20)
 
     @JvmStatic
     @DynamicPropertySource

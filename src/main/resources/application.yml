@@ -107,6 +107,10 @@ spring:
         hibernate:
           flushMode: COMMIT
     open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
 # Uncomment the following lines to generate create.sql on build
 #      javax:
@@ -161,6 +165,7 @@ hmpps-document-management-api:
   document-by-uuid: /documents/%s
   client-service-name: prepare-a-case
   document-type: PIC_CASE_DOCUMENTS
+  allowed-file-extensions: csv, doc, docx, jpg, jpeg, xml, ods, odt, pdf, png, ppt, pptx, rdf, rtf, txt, xls, xlsx, xml, zip
 
 court-case-and-delius-api:
   probation-status-by-crn: /probation-case/%s/status

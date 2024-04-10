@@ -166,10 +166,8 @@ dependencies {
     implementation("net.minidev:json-smart:2.4.9") {
         because("SNYK scan reported secuity vulnerability in the bundled net.minidev:json-smart:2.4.8")
     }
-
-    implementation("org.springdoc:springdoc-openapi-ui:1.7.0") {
-        because("SNYK scan reported secuity vulnerability in the bundled org.springdoc:springdoc-openapi-ui:1.6.13")
-    }
+    
+    implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.4.0'
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.3")
     implementation('com.fasterxml.jackson.module:jackson-module-kotlin:2.15.3')

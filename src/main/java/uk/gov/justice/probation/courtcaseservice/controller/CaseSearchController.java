@@ -1,9 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,13 +14,6 @@ import jakarta.validation.Valid;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@OpenAPIDefinition(info =
-@Info(
-    title = "court-case-service search",
-    description = "API to search cases by defendant parameters.",
-    license = @License(name = "The MIT License (MIT)", url = "https://github.com/ministryofjustice/court-case-service/blob/main/LICENSE")
-)
-)
 @Tag(name = "Court Case Search Resources")
 @RestController
 public class CaseSearchController {

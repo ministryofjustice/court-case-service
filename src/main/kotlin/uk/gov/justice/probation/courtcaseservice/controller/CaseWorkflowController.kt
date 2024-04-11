@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import org.springdoc.core.annotations.ParameterObject
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.bind.annotation.*
@@ -34,7 +35,7 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
 
     @Operation(description = "Fetch hearing outcomes")
     @GetMapping(value = ["/courts/{courtCode}/hearing-outcomes"], produces = [APPLICATION_JSON_VALUE])
-    fun fetchHearingOutcomes(@PathVariable("courtCode") courtCode: String, @Valid hearingOutcomeSearchRequest: HearingOutcomeSearchRequest): HearingOutcomeCaseList {
+    fun fetchHearingOutcomes(@PathVariable("courtCode") courtCode: String, @Valid @ParameterObject hearingOutcomeSearchRequest: HearingOutcomeSearchRequest): HearingOutcomeCaseList {
         return caseWorkflowService.fetchHearingOutcomes(courtCode, hearingOutcomeSearchRequest)
     }
 

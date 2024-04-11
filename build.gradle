@@ -168,7 +168,6 @@ dependencies {
     }
 
     // Open API Documentation
-    implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-common', version: '2.5.0'
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.5.0'
 
 

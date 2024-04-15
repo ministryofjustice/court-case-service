@@ -62,10 +62,7 @@ class HmppsDocumentManagementApiClient(
 
         val documentPath = "${String.format(hmppsDocumentManagementApiDocumentByUuid, documentUuid)}/file"
         log.debug("Fetching document $documentPath")
-
-        val partReader = DefaultPartHttpMessageReader()
-        partReader.setStreaming(false)
-
+        
         return clientHelper
             .get(documentPath)
             .accept(MediaType.ALL)

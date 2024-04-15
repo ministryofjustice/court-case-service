@@ -226,6 +226,9 @@ dependencies {
     implementation group: 'ai.h2o', name: 'h2o-genmodel', version: '3.46.0.1'
 
     implementation 'commons-io:commons-io:2.16.1'
+    
+    implementation("com.google.guava:guava:33.1.0-jre")
+
 
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
 
@@ -240,7 +243,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
-    testImplementation("org.wiremock:wiremock:3.5.2")
+    testImplementation("org.wiremock:wiremock-standalone:3.4.2")
 
     testImplementation("au.com.dius.pact.provider:junit5spring:$pactVersion")
     testImplementation("au.com.dius.pact.provider:junit5:$pactVersion")

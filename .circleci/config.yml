@@ -218,7 +218,9 @@ jobs:
                 command: |
                   docker login -u="${QUAYIO_USERNAME}" -p="${QUAYIO_PASSWORD}" quay.io
                   docker tag hmpps/<<parameters.app_name>>:$APP_VERSION quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
+                  docker tag hmpps/<<parameters.app_name>>:$APP_VERSION quay.io/hmpps/<<parameters.app_name>>:latest
                   docker push quay.io/hmpps/<<parameters.app_name>>:$APP_VERSION
+                  docker push quay.io/hmpps/<<parameters.app_name>>:latest
       - jira/notify:
           job_type: build
 

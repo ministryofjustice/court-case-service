@@ -10,9 +10,9 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: {{ .Values.nginx_proxy.service.port.http }}
+    - name: http
+      port: {{ .Values.nginx_proxy.service.port.http }}
       targetPort: {{ .Values.nginx_proxy.deployment.port }}
       protocol: TCP
-      name: http
   selector:
     app: {{ .Values.nginx_proxy.name }}

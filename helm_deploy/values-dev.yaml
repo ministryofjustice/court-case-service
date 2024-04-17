@@ -43,7 +43,7 @@ data_dictionary:
 
   service:
     port:
-      http: 80
+      http: 8080
 
   deployment:
     image:

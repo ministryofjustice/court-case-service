@@ -45,15 +45,14 @@ nginx_proxy:
 #
 #  service:
 #    port:
-#      http: 8080
+#      http: 80
 #
 #  deployment:
 #    image:
 #      repository: quay.io/hmpps/pic-data-dictionary
 #      tag: latest
 #      pullPolicy: Always
-#    port: 8080
->>>>>>> Stashed changes
+#    port: 80
 
 hearing_outcomes:
   process_un_resulted_cases_cron: "30 12-20 * * *"

@@ -15,7 +15,7 @@ spec:
     - port: {{ .Values.data_dictionary.service.port.http }}
       targetPort: {{ .Values.data_dictionary.deployment.port }}
       protocol: TCP
-      name: http
+      name: {{ .Values.data_dictionary.name }}-http
   selector:
     app: {{ .Values.data_dictionary.name }}
 

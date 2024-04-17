@@ -10,4 +10,4 @@ RUN apk upgrade --no-cache
 COPY /nginx.conf /etc/nginx/
 COPY schema/ /usr/share/nginx/html/meta/schema
 
-EXPOSE 8080
+EXPOSE 8081

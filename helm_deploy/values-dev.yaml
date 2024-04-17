@@ -43,14 +43,14 @@ data_dictionary:
 
   service:
     port:
-      http: 8080
+      http: 8081
 
   deployment:
     image:
       repository: quay.io/hmpps/pic-data-dictionary
       tag: latest
       pullPolicy: Always
-    port: 8080
+    port: 8081
 
 hearing_outcomes:
   process_un_resulted_cases_cron: "30 12-20 * * *"

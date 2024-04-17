@@ -13,6 +13,6 @@ spec:
     - port: {{ .Values.nginx_proxy.service.port.http }}
       targetPort: {{ .Values.nginx_proxy.deployment.port }}
       protocol: TCP
-      name: {{ .Values.nginx_proxy.name }}-http
+      name: http
   selector:
     app: {{ .Values.nginx_proxy.name }}

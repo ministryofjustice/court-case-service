@@ -36,21 +36,23 @@ nginx_proxy:
       pullPolicy: Always
     port: 8080
 
-data_dictionary:
-  name: pic-data-dictionary
-  service_host: http://pic-data-dictionary.pic-data-dictionary
-  replicaCount: 1
-
-  service:
-    port:
-      http: 8080
-
-  deployment:
-    image:
-      repository: quay.io/hmpps/pic-data-dictionary
-      tag: latest
-      pullPolicy: Always
-    port: 8080
+# TODO - data-dictionary nginx fails currently blocking deployment of court-case-service too.
+#  Fix this issue and uncomment below entries for data-dictionary to deploy.
+#data_dictionary:
+#  name: pic-data-dictionary
+#  service_host: http://pic-data-dictionary.pic-data-dictionary
+#  replicaCount: 1
+#
+#  service:
+#    port:
+#      http: 80
+#
+#  deployment:
+#    image:
+#      repository: quay.io/hmpps/pic-data-dictionary
+#      tag: latest
+#      pullPolicy: Always
+#    port: 80
 
 hearing_outcomes:
   process_un_resulted_cases_cron: "30 12-20 * * *"

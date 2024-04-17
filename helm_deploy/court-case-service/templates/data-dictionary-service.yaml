@@ -11,6 +11,11 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   type: ClusterIP
+  securityContext:
+    runAsUser: 101
+    capabilities:
+      add:
+        - NET_BIND_SERVICE
   ports:
     - port: {{ .Values.data_dictionary.service.port.http }}
       targetPort: {{ .Values.data_dictionary.deployment.port }}

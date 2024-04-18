@@ -21,6 +21,7 @@ import uk.gov.justice.probation.courtcaseservice.client.HmppsDocumentManagementA
 import uk.gov.justice.probation.courtcaseservice.client.model.documentmanagement.DocumentUploadResponse
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
@@ -65,6 +66,13 @@ internal class HmppsDocumentManagementServiceTest {
         )
 
         var hearing = aHearingEntity()
+        hearing.courtCase = CourtCaseEntity.builder()
+            .caseId(hearing.caseId)
+            .caseNo(CASE_NO)
+            .sourceType(SOURCE)
+            .urn(null)
+            .hearings(ArrayList<HearingEntity>())
+            .build()
         given(hearingRepositoryFacade.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing))
 
         val courtCaseEntityKArgumentCapture = argumentCaptor<CourtCaseEntity>()
@@ -101,6 +109,7 @@ internal class HmppsDocumentManagementServiceTest {
 
             Assertions.assertThat(actualMultiPart["file"]?.get(0)).isNotNull
             Assertions.assertThat(actualMultiPart["metadata"]?.get(0)).isNotNull
+            Assertions.assertThat(actualMultiPart["metadata"]?.get(0)?.body.toString().contains("caseUrn=null")).isTrue()
         }
     }
 

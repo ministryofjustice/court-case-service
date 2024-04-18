@@ -70,7 +70,7 @@ internal class HmppsDocumentManagementServiceTest {
             .caseId(hearing.caseId)
             .caseNo(CASE_NO)
             .sourceType(SOURCE)
-            .urn(null)
+            .urn(CASE_URN)
             .hearings(ArrayList<HearingEntity>())
             .build()
         given(hearingRepositoryFacade.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing))
@@ -109,7 +109,7 @@ internal class HmppsDocumentManagementServiceTest {
 
             Assertions.assertThat(actualMultiPart["file"]?.get(0)).isNotNull
             Assertions.assertThat(actualMultiPart["metadata"]?.get(0)).isNotNull
-            Assertions.assertThat(actualMultiPart["metadata"]?.get(0)?.body.toString().contains("caseUrn=null")).isTrue()
+            Assertions.assertThat(actualMultiPart["metadata"]?.get(0)?.body.toString().contains("caseUrn=$CASE_URN")).isTrue()
         }
     }
 

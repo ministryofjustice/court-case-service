@@ -87,7 +87,7 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
             ${ if(hasCourtRoom) " and hday.court_room in (:$P_COURT_ROOM)" else "" }
             ${ if(hasSourceFilter) " and cc.source_type = :$P_SOURCE" else "" }
             ${ if(hearingSearchRequest.breach) " and o.breach is true " else ""}
-            ${ if(hearingSearchRequest.hearingStatus == HearingStatus.UNHEARD) " and ( ho.fk_hearing_id is null OR ho.outcome_type = 'NO_OUTCOME' ) " else ""}
+            ${ if(hearingSearchRequest.hearingStatus == HearingStatus.UNHEARD) " and ( ho.fk_hearing_defendant_id is null OR ho.outcome_type = 'NO_OUTCOME' ) " else ""}
             $session
             """.trimIndent()
 

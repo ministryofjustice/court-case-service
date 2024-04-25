@@ -183,10 +183,10 @@ class PagedCaseListRepositoryCustomIntTest {
                 hearingStatus = HearingStatus.HEARD
             )
         )
-        assertThat(page1.content.size).isEqualTo(2)
-        assertThat(page1.totalElements).isEqualTo(2)
+        assertThat(page1.content.size).isEqualTo(3)
+        assertThat(page1.totalElements).isEqualTo(3)
         assertThat(page1.totalPages).isEqualTo(1)
-        assertThat(page1.content.map { it.first.hearing.hearingId }).isEqualTo(listOf("cbafcebb-3430-4710-8557-5c93bd1e8be5", "0e6c7d7e-7057-45db-b788-210df7a9a624"))
+        assertThat(page1.content.map { it.first.hearing.hearingId }).isEqualTo(listOf("cbafcebb-3430-4710-8557-5c93bd1e8be5", "0e6c7d7e-7057-45db-b788-210df7a9a624", "af8fa3b5-d544-4c70-b4f4-3d8639197d4b"))
     }
 
     @Test
@@ -198,8 +198,8 @@ class PagedCaseListRepositoryCustomIntTest {
                 hearingStatus = HearingStatus.UNHEARD
             )
         )
-        assertThat(page1.content.size).isEqualTo(9)
-        assertThat(page1.totalElements).isEqualTo(9)
+        assertThat(page1.content.size).isEqualTo(8)
+        assertThat(page1.totalElements).isEqualTo(8)
         assertThat(page1.totalPages).isEqualTo(1)
 
         assertThat(page1.content.map { it.first.hearing.hearingId }.sorted()).isEqualTo(listOf(
@@ -208,7 +208,6 @@ class PagedCaseListRepositoryCustomIntTest {
             "4a7220b8-88bc-4417-8ee0-cfc318047b3c",
             "85f400a9-82c9-4a9d-93ec-066d55be0c07",
             "79c176bf-a6ff-4f82-afba-de136aae1536",
-            "af8fa3b5-d544-4c70-b4f4-3d8639197d4b",
             "a9d0f014-3fde-41a8-a416-2dabc9e21bae",
             "5a173167-5d34-4112-b563-afb1067d229d",
             "eae601d7-3966-494f-a8bb-bb23989cfd6f",

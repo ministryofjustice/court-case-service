@@ -112,4 +112,5 @@ VALUES
 INSERT INTO hearing_outcome (id, outcome_type,created,created_by,deleted,last_updated,last_updated_by,"version",outcome_date,state, fk_hearing_id, FK_HEARING_DEFENDANT_ID)
 VALUES
     (5, 'REPORT_REQUESTED','2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',false,'2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',0,'2023-07-11 16:55:18.496','NEW', 5087, 5949),
-    (4, 'REPORT_REQUESTED','2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',false,'2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',0,'2023-07-11 16:55:18.496','NEW', 5096, 5958);
+    (4, 'REPORT_REQUESTED','2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',false,'2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',0,'2023-07-11 16:55:18.496','NEW', 5096, 5958),
+    (3, 'REPORT_REQUESTED','2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',false,'2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',0,'2023-07-11 16:55:18.496','NEW', null, 5950);

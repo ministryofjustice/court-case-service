@@ -1,6 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -8,16 +11,20 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.server.ResponseStatusException
 import uk.gov.justice.probation.courtcaseservice.controller.model.*
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepStatus.NOT_STARTED
+import uk.gov.justice.probation.courtcaseservice.controller.model.v2.HearingDefendantOutcomesRequest
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingOutcomeAssignedUser
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepositoryCustom
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
+import uk.gov.justice.probation.courtcaseservice.controller.model.v2.HearingOutcomeCountByState as V2HearingOutcomeCountByState
+import uk.gov.justice.probation.courtcaseservice.controller.model.v2.HearingOutcomeCaseList as V2HearingOutcomeCaseList
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.Optional
+import java.util.*
+
 
 @Service
 class CaseWorkflowService(val hearingRepository: HearingRepository,
@@ -84,6 +91,49 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
     }
 
     fun fetchHearingOutcomes(courtCode: String, hearingOutcomeSearchRequest: HearingOutcomeSearchRequest): HearingOutcomeCaseList {
+        checkCourtExists(courtCode)
+
+        val hearingOutcomes: List<HearingOutcomeResponse> = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(
+            courtCode,
+            hearingOutcomeSearchRequest
+        ).map { HearingOutcomeResponse.of(it.first, it.second) }
+
+        val page: PageImpl<HearingOutcomeResponse> = getPageableHearingOutcomes(hearingOutcomes, hearingOutcomeSearchRequest)
+
+        return HearingOutcomeCaseList(
+            page.content,
+            getOutcomeCountsByState(courtCode),
+            hearingRepository.getCourtroomsForCourt(courtCode),
+            page.totalPages,
+            hearingOutcomeSearchRequest.page,
+            page.totalElements.toInt(),
+            allAssignedUsers(hearingOutcomes)
+        )
+    }
+
+    fun fetchV2HearingDefendantOutcomes(courtCode: String, searchRequest: HearingDefendantOutcomesRequest): V2HearingOutcomeCaseList {
+        checkCourtExists(courtCode)
+        val v1HearingOutcomeSearchRequest = HearingOutcomeSearchRequest(searchRequest.state, searchRequest.outcomeTypes, searchRequest.sortBy, searchRequest.order, searchRequest.courtRooms, searchRequest.assignedUsers, searchRequest.page, searchRequest.size)
+
+        val hearingOutcomes: List<HearingOutcomeResponse> = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(
+            courtCode,
+            v1HearingOutcomeSearchRequest
+        ).map { HearingOutcomeResponse.of(it.first, it.second) }
+
+        val page: PageImpl<HearingOutcomeResponse> = getPageableHearingOutcomes(hearingOutcomes, v1HearingOutcomeSearchRequest)
+
+        return V2HearingOutcomeCaseList(
+            page.content,
+            getV2OutcomeCountsByState(courtCode),
+            hearingRepository.getCourtroomsForCourt(courtCode),
+            page.totalPages,
+            v1HearingOutcomeSearchRequest.page,
+            page.totalElements.toInt(),
+            allAssignedUsers(hearingOutcomes)
+        )
+    }
+
+    private fun checkCourtExists(courtCode: String){
         courtRepository.findByCourtCode(courtCode)
             .orElseThrow {
                 EntityNotFoundException(
@@ -91,27 +141,49 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
                     courtCode
                 )
             }
-        val outcomesPage = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(
-            courtCode,
-            hearingOutcomeSearchRequest
-        )
-        val outcomes = outcomesPage.content.map { HearingOutcomeResponse.of(it.first, it.second) }
-        return HearingOutcomeCaseList(
-            outcomes,
-            getOutcomeCountsByState(courtCode),
-            hearingRepository.getCourtroomsForCourt(courtCode),
-            outcomesPage.totalPages,
-            hearingOutcomeSearchRequest.page,
-            outcomesPage.totalElements.toInt()
-        )
+    }
+
+    fun getPageableHearingOutcomes(hearingOutcomes: List<HearingOutcomeResponse>, hearingOutcomeSearchRequest: HearingOutcomeSearchRequest): PageImpl<HearingOutcomeResponse>{
+        val pageRequest: Pageable = PageRequest.of(hearingOutcomeSearchRequest.page - 1, hearingOutcomeSearchRequest.size);
+        var start = pageRequest.offset.toInt()
+        val end = (start + pageRequest.pageSize).coerceAtMost(hearingOutcomes.size)
+
+        val pageContent: List<HearingOutcomeResponse>? = hearingOutcomes?.subList(start, end)
+        return PageImpl<HearingOutcomeResponse>(pageContent, pageRequest, hearingOutcomes.size.toLong())
+    }
+
+    fun allAssignedUsers(hearingOutcomes: List<HearingOutcomeResponse>): List<HearingOutcomeAssignedUser> {
+        return hearingOutcomes.filter { hearingOutcomes -> !hearingOutcomes.assignedTo.isNullOrEmpty() }
+            .map{ hearingOutcome -> HearingOutcomeAssignedUser(hearingOutcome.assignedTo, hearingOutcome.assignedToUuid) }
     }
 
     fun getOutcomeCountsByState(courtCode: String): HearingOutcomeCountByState {
         val dynamicOutcomeCountsByState = hearingOutcomeRepositoryCustom.getDynamicOutcomeCountsByState(courtCode)
-        return return HearingOutcomeCountByState(
+        return HearingOutcomeCountByState(
             dynamicOutcomeCountsByState[HearingOutcomeItemState.NEW.name] ?: 0,
             dynamicOutcomeCountsByState[HearingOutcomeItemState.IN_PROGRESS.name] ?: 0,
-            dynamicOutcomeCountsByState[HearingOutcomeItemState.RESULTED.name] ?: 0)
+            dynamicOutcomeCountsByState[HearingOutcomeItemState.RESULTED.name] ?: 0
+        )
+    }
+
+    fun getV2OutcomeCountsByState(courtCode: String): V2HearingOutcomeCountByState {
+        val dynamicOutcomeCountsByState = hearingOutcomeRepositoryCustom.getDynamicOutcomeCountsByState(courtCode)
+        return V2HearingOutcomeCountByState(
+            listOf(
+                Pair(
+                    HearingOutcomeItemState.NEW.name,
+                    dynamicOutcomeCountsByState[HearingOutcomeItemState.NEW.name] ?: 0
+                ),
+                Pair(
+                    HearingOutcomeItemState.IN_PROGRESS.name,
+                    dynamicOutcomeCountsByState[HearingOutcomeItemState.IN_PROGRESS.name] ?: 0
+                ),
+                Pair(
+                    HearingOutcomeItemState.RESULTED.name,
+                    dynamicOutcomeCountsByState[HearingOutcomeItemState.RESULTED.name] ?: 0
+                )
+            )
+        )
     }
 
     @Transactional

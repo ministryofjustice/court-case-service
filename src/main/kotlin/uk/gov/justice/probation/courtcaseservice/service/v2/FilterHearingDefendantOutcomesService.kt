@@ -15,7 +15,7 @@ class FilterHearingDefendantOutcomesService(private val hearingDefendantOutcomes
         var filters: MutableList<FiltersList> = mutableListOf();
         filters.add(FiltersList("assignedUsers", "Assigned Users", true, assignedUsers))
         filters.add(FiltersList("courtRooms", "Court Rooms", true, courtRooms))
-        filters.add(FiltersList("states", "Hearing Outcome States", true, hearingOutcomeStates))
+        filters.add(FiltersList("states", "Hearing Outcome States", false, hearingOutcomeStates))
 
         return FilteredHearingDefendantOutcomesResponse(hearingDefendantOutcomes.records, filters)
     }

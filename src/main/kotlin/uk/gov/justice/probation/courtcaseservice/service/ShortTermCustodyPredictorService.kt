@@ -51,7 +51,7 @@ class ShortTermCustodyPredictorService(
             model.predictBinomial(rowData)
         }
         catch (ex: PredictUnknownCategoricalLevelException) {
-            log.warn("Invalid parameter passed into algorithm", ex)
+            log.warn("Invalid parameters passed into algorithm: $rowData")
             null
         }
 

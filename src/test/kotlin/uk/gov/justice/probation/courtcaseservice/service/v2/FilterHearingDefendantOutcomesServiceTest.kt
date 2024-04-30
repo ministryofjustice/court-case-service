@@ -48,7 +48,7 @@ class FilterHearingDefendantOutcomesServiceTest {
             mutableListOf(
                 FiltersList("assignedUsers", "Assigned Users", true, listOf(FilterItem("UUID", "John Doe", true))),
                 FiltersList("courtRooms", "Court Rooms", true, listOf(FilterItem("01", "01", true), FilterItem("Court room - 2", "Court room - 2", true))),
-                FiltersList("states", "Hearing Outcome States", true, listOf(HearingOutcomeStatesFilterItem("NEW", "New", 1, true ), HearingOutcomeStatesFilterItem("IN_PROGRESS", "In Progress", 0, true ), HearingOutcomeStatesFilterItem("RESULTED", "Resulted", 0, true)))
+                FiltersList("states", "Hearing Outcome States", false, listOf(HearingOutcomeStatesFilterItem("NEW", "New", 1, true ), HearingOutcomeStatesFilterItem("IN_PROGRESS", "In Progress", 0, true ), HearingOutcomeStatesFilterItem("RESULTED", "Resulted", 0, true)))
             )
         ))
     }

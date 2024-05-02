@@ -1,13 +1,11 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
-import au.com.dius.pact.core.support.hasProperty
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentCaptor
-import org.mockito.BDDMockito
 import org.mockito.BDDMockito.*
 import org.mockito.Captor
 import org.mockito.Mock

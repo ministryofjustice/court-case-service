@@ -4,24 +4,26 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers.any
+import org.mockito.BDDMockito
 import org.mockito.BDDMockito.given
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcome
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCaseList
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeAssignToRequest
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCountByState
+import uk.gov.justice.probation.courtcaseservice.controller.model.*
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState.NEW
+import uk.gov.justice.probation.courtcaseservice.controller.model.v2.HearingDefendantOutcomesRequest
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingOutcomeAssignedUser
 import uk.gov.justice.probation.courtcaseservice.security.AuthAwareAuthenticationToken
 import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper
 import uk.gov.justice.probation.courtcaseservice.service.CaseWorkflowService
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType.ADJOURNED
 import java.security.Principal
+import uk.gov.justice.probation.courtcaseservice.controller.model.v2.HearingOutcomeCaseList as V2HearingOutcomeCaseList
+import uk.gov.justice.probation.courtcaseservice.controller.model.v2.HearingOutcomeCountByState as V2HearingOutcomeCountByState
+
 
 @ExtendWith(MockitoExtension::class)
 internal class CaseWorkflowControllerTest {
@@ -53,11 +55,35 @@ internal class CaseWorkflowControllerTest {
     fun `should invoke service with court code and hearing state`() {
         val hearingOutcomeSearchRequest = HearingOutcomeSearchRequest(NEW)
         given(caseWorkflowService.fetchHearingOutcomes(COURT_CODE, hearingOutcomeSearchRequest)).willReturn(
-            HearingOutcomeCaseList(listOf(), HearingOutcomeCountByState(1,0,2), TEST_COURT_ROOMS, 2, 2, 9)
+            HearingOutcomeCaseList(listOf(), HearingOutcomeCountByState(1,0,2), TEST_COURT_ROOMS,1,1,1, listOf<HearingOutcomeAssignedUser>())
         )
         val resp = caseWorkflowController.fetchHearingOutcomes(COURT_CODE, hearingOutcomeSearchRequest)
         verify(caseWorkflowService).fetchHearingOutcomes(COURT_CODE, hearingOutcomeSearchRequest)
-        assertThat(resp).isEqualTo(HearingOutcomeCaseList(listOf(), HearingOutcomeCountByState(1,0,2), TEST_COURT_ROOMS,2, 2, 9))
+        assertThat(resp).isEqualTo(HearingOutcomeCaseList(listOf(), HearingOutcomeCountByState(1,0,2), TEST_COURT_ROOMS,1, 1, 1, listOf<HearingOutcomeAssignedUser>()))
+    }
+
+    @Test
+    fun `v2 hearing defendant outcomes should invoke service with court code and hearing state`() {
+        val hearingDefendantOutcomes = HearingDefendantOutcomesRequest(state = NEW)
+        given(caseWorkflowService.fetchV2HearingDefendantOutcomes(COURT_CODE, hearingDefendantOutcomes)).willReturn(
+            V2HearingOutcomeCaseList(
+                listOf(),
+                V2HearingOutcomeCountByState(listOf(Pair("NEW", 1), Pair("IN_PROGRESS",0), Pair("Resulted", 2))),
+                TEST_COURT_ROOMS,
+                1,
+                1,
+                1,
+                listOf<HearingOutcomeAssignedUser>(HearingOutcomeAssignedUser("John Doe", "UUID"))
+            )
+        )
+        val resp = caseWorkflowController.fetchHearingDefendantOutcomesV2(COURT_CODE, hearingDefendantOutcomes)
+        verify(caseWorkflowService).fetchV2HearingDefendantOutcomes(COURT_CODE, hearingDefendantOutcomes)
+
+        assertThat(resp.body.records).isEqualTo(listOf<HearingOutcomeResponse>())
+        assertThat(resp.body.filters).hasSize(3)
+        assertThat(resp.body.filters[0].id).isEqualTo("assignedUsers")
+        assertThat(resp.body.filters[0].name).isEqualTo("Assigned Users")
+        assertThat(resp.body.filters[0].items).hasSize(1)
     }
 
     @Test

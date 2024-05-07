@@ -114,7 +114,8 @@ class HearingOutcomeRepositoryCustom(
           select
             ho.state, count(ho.id) as count
             from hearing h 
-            inner join hearing_outcome ho on ho.fk_hearing_id = h.id 
+            inner join hearing_defendant hd on hd.fk_hearing_id = h.id
+            inner join hearing_outcome ho on ho.fk_hearing_defendant_id = hd.id 
             inner join
                 (select fk_hearing_id as hday_hearing_id, min(hearing_day) as hearing_day from hearing_day where hearing_day.court_code = :courtCode group by fk_hearing_id) hday2
                 on hday2.hday_hearing_id = h.id	    

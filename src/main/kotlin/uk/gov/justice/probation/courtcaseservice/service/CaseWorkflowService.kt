@@ -125,7 +125,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
         return V2HearingOutcomeCaseList(
             page.content,
             getV2OutcomeCountsByState(courtCode),
-            hearingRepository.getCourtroomsForCourt(courtCode),
+            hearingRepository.getCourtroomsForCourt(courtCode).distinct(),
             page.totalPages,
             v1HearingOutcomeSearchRequest.page,
             page.totalElements.toInt(),
@@ -154,7 +154,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
 
     fun allAssignedUsers(hearingOutcomes: List<HearingOutcomeResponse>): List<HearingOutcomeAssignedUser> {
         return hearingOutcomes.filter { hearingOutcomes -> !hearingOutcomes.assignedTo.isNullOrEmpty() }
-            .map{ hearingOutcome -> HearingOutcomeAssignedUser(hearingOutcome.assignedTo, hearingOutcome.assignedToUuid) }
+            .map{ hearingOutcome -> HearingOutcomeAssignedUser(hearingOutcome.assignedTo, hearingOutcome.assignedToUuid) }.distinct()
     }
 
     fun getOutcomeCountsByState(courtCode: String): HearingOutcomeCountByState {

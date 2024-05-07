@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentCaptor
-import org.mockito.BDDMockito
 import org.mockito.BDDMockito.*
 import org.mockito.Captor
 import org.mockito.Mock
@@ -239,7 +238,7 @@ internal class CaseWorkflowServiceTest {
     }
 
     @Test
-    fun `v2 endpoint, given court code and outcome type filter invoke repository and return hearing outcomes`(){
+    fun `v2 endpoint, given court code and outcome type filter invoke repository and return hearing outcomes with distinct filters items`(){
         val hearingOutcomeEntity1 = HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.REPORT_REQUESTED.name).outcomeDate(
             LocalDateTime.of(2023, 6,6, 19, 9, 1)).state("NEW").assignedTo("Jane Doe").assignedToUuid("fake-uuid").build()
         val hearingOutcomeEntity2 = HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.ADJOURNED.name).outcomeDate(
@@ -277,7 +276,7 @@ internal class CaseWorkflowServiceTest {
             )
         )
 
-        given(hearingRepository.getCourtroomsForCourt(COURT_CODE)).willReturn(TEST_COURT_ROOMS)
+        given(hearingRepository.getCourtroomsForCourt(COURT_CODE)).willReturn(listOf("01", "01", "Court room - 2", "Court room - 2")) // duplicate elements will be filtered out
 
         val hearingOutcomes = caseWorkflowService.fetchV2HearingDefendantOutcomes(COURT_CODE, HearingDefendantOutcomesRequest())
 
@@ -653,8 +652,38 @@ internal class CaseWorkflowServiceTest {
         verifyNoMoreInteractions(hearingRepository)
     }
 
-//    @Test
-//    fun 'hearing outcomes and hearingOutcomeSearchRequest, it returns the paginated sublist of hearing outcomes'(){
-//
-//    }
+    @Test
+    fun `given duplicate assigned users, allAssignedUsers returns a list of distinct assigned users`(){
+        val hearingDefendantOutcomeResponses =  listOf(
+            HearingOutcomeResponse(
+                hearingOutcomeType = HearingOutcomeType.REPORT_REQUESTED,
+                outcomeDate = LocalDateTime.of(2023, 6, 6, 19, 9, 1),
+                hearingDate = SESSION_START_TIME.toLocalDate(),
+                hearingId = "hearingId1",
+                defendantId = "defendantId1",
+                probationStatus = PROBATION_STATUS,
+                offences = listOf(OFFENCE_TITLE),
+                defendantName = DEFENDANT_NAME,
+                crn = "X340906",
+                assignedTo = "John Doe",
+                assignedToUuid = "duplicate-uuid",
+                state = HearingOutcomeItemState.NEW
+            ),
+            HearingOutcomeResponse(
+                hearingOutcomeType = HearingOutcomeType.ADJOURNED,
+                outcomeDate = LocalDateTime.of(2023, 5, 5, 19, 9, 5),
+                hearingDate = SESSION_START_TIME.toLocalDate(),
+                hearingId = "hearingId2",
+                defendantId = "defendantId2",
+                probationStatus = PROBATION_STATUS,
+                offences = listOf(OFFENCE_TITLE),
+                defendantName = DEFENDANT_NAME,
+                crn = "X340906",
+                assignedTo = "John Doe",
+                assignedToUuid = "duplicate-uuid",
+                state = HearingOutcomeItemState.NEW
+            ))
+        assertThat(caseWorkflowService.allAssignedUsers(hearingDefendantOutcomeResponses)).hasSize(1)
+        assertThat(caseWorkflowService.allAssignedUsers(hearingDefendantOutcomeResponses).first().uuid).isEqualTo("duplicate-uuid")
+    }
 }

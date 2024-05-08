@@ -48,7 +48,7 @@ INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, outcome_date,
 VALUES (-1710020001, 'ADJOURNED', '2023-4-24 09:09:09', 'RESULTED', now() - interval '15 days', now(), 'case-progress.sql', 'Joe Blogs', '4b03d065-4c96-4b24-8d6d-75a45d2e3f12', -1000110);
 
 INSERT INTO courtcaseservicetest.hearing_outcome(id, outcome_type, outcome_date, state, resulted_date, created, created_by, assigned_to, assigned_to_uuid, fK_hearing_defendant_id)
-VALUES (-1710020002, 'NO_OUTCOME', '2023-4-24 09:09:09', 'NEW', now() - interval '15 days', now(), 'case-progress.sql', 'Jane Doe', '4b03d065-4c96-4b24-8d6d-75a45d2e3f12', -1000000);
+VALUES (-1710020002, 'NO_OUTCOME', '2023-4-24 09:09:09', 'NEW', now() - interval '15 days', now(), 'case-progress.sql', 'Joe Blogs', '4b03d065-4c96-4b24-8d6d-75a45d2e3f12', -1000000);
 
 
 

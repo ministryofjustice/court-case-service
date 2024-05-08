@@ -2,27 +2,17 @@ package uk.gov.justice.probation.courtcaseservice.controller
 
 import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.enums.ParameterStyle
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import uk.gov.justice.probation.courtcaseservice.controller.model.*
-import uk.gov.justice.probation.courtcaseservice.controller.model.filters.*
-import uk.gov.justice.probation.courtcaseservice.controller.model.v2.HearingDefendantOutcomesRequest
 import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper
 import uk.gov.justice.probation.courtcaseservice.service.CaseWorkflowService
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType
-import uk.gov.justice.probation.courtcaseservice.service.PaginatedHeadersService
-import uk.gov.justice.probation.courtcaseservice.service.v2.FilterHearingDefendantOutcomesService
 import java.security.Principal
-import java.util.*
-import uk.gov.justice.probation.courtcaseservice.controller.model.v2.HearingOutcomeCaseList as V2HearingOutcomeCaseList
 
 @Tag(name = "Case workflow API")
 @RestController
@@ -73,23 +63,4 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
         @PathVariable("prepStatus") prepStatus: HearingPrepStatus
     ) = caseWorkflowService.updatePrepStatus(hearingId, defendantId, prepStatus)
 
-
-//    V2 endpoints
-
-    @Operation(description = "Fetch hearing defendant outcomes")
-    @GetMapping(value = ["/v2/courts/{courtCode}/hearing-defendant-outcomes"], produces = [APPLICATION_JSON_VALUE])
-    fun fetchHearingDefendantOutcomesV2(@PathVariable("courtCode") courtCode: String,
-                                        @Valid @ParameterObject searchRequest: HearingDefendantOutcomesRequest
-    ): ResponseEntity<FilteredHearingDefendantOutcomesResponse> {
-
-        val hearingDefendantOutcomes: V2HearingOutcomeCaseList = caseWorkflowService.fetchV2HearingDefendantOutcomes(courtCode, searchRequest)
-
-        val filteredResponse = FilterHearingDefendantOutcomesService(hearingDefendantOutcomes).getResponse()
-
-        val paginatedHeaders = PaginatedHeadersService().getHeaders(hearingDefendantOutcomes.page, searchRequest.size, hearingDefendantOutcomes.totalPages, hearingDefendantOutcomes.totalElements)
-
-        return ResponseEntity.ok()
-            .headers(paginatedHeaders)
-            .body<FilteredHearingDefendantOutcomesResponse>(filteredResponse)
-    }
 }

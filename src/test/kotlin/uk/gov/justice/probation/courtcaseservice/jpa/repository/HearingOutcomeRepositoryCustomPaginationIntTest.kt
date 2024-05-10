@@ -12,6 +12,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlConfig
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState.IN_PROGRESS
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState.RESULTED
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
 
 @DataJpaTest
@@ -28,22 +29,24 @@ internal class HearingOutcomeRepositoryCustomPaginationIntTest {
     lateinit var hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom
 
     @Test
-    fun `given court code it should return all HearingDefendants with outcomes for this court`() {
-        val result = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome("B10JQ", HearingOutcomeSearchRequest())
-        assertThat(result.size).isEqualTo(3)
-        assertThat(result[0].first.hearing.hearingId).isEqualTo("2aa6f5e0-f842-4939-bc6a-01346abc09e7")
-        assertThat(result[1].first.hearing.hearingId).isEqualTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00")
-        assertThat(result[2].first.hearing.hearingId).isEqualTo("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636")
+    fun `should return outcomes 1st page results`() {
+        val result = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome("B10JQ", HearingOutcomeSearchRequest(state = IN_PROGRESS, page = 1, size = 2))
+        assertThat(result.content.size).isEqualTo(2)
+        assertThat(result.content[0].first.hearing.hearingId).isEqualTo("2aa6f5e0-f842-4939-bc6a-01346abc09e7")
+        assertThat(result.content[1].first.hearing.hearingId).isEqualTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00")
+        assertThat(result.size).isEqualTo(2)
+        assertThat(result.totalPages).isEqualTo(2)
+        assertThat(result.totalElements).isEqualTo(3)
     }
 
     @Test
-    fun `given court code and search filters it should return filtered HearingDefendants with outcomes for this court`() {
-        val result = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome("B10JQ", HearingOutcomeSearchRequest(
-            state = IN_PROGRESS, assignedToUuid = listOf("8f69def4-3c52-11ee-be56-0242ac120002")))
-        assertThat(result.size).isEqualTo(1)
-        assertThat(result[0].first.hearingOutcome.assignedTo).isEqualTo("John Smith")
-        assertThat(result[0].first.hearingOutcome.assignedToUuid).isEqualTo("8f69def4-3c52-11ee-be56-0242ac120002")
-        assertThat(result[0].first.hearing.hearingId).isEqualTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00")
+    fun `should return outcomes 2nd page results`() {
+        val result = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome("B10JQ", HearingOutcomeSearchRequest(state = IN_PROGRESS, page = 2, size = 2))
+        assertThat(result.content.size).isEqualTo(1)
+        assertThat(result.content[0].first.hearing.hearingId).isEqualTo("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636")
+        assertThat(result.size).isEqualTo(2)
+        assertThat(result.totalPages).isEqualTo(2)
+        assertThat(result.totalElements).isEqualTo(3)
     }
 
     @TestConfiguration

@@ -7,6 +7,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcome
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSortFields.HEARING_DATE
 import java.time.LocalDate
 import jakarta.persistence.EntityManager
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 
 @Repository
@@ -18,7 +20,9 @@ class HearingOutcomeRepositoryCustom(
     fun findByCourtCodeAndHearingOutcome(
         courtCode: String,
         hearingOutcomeSearchRequest: HearingOutcomeSearchRequest
-    ): List<Pair<HearingDefendantEntity, LocalDate>> {
+    ): PageImpl<Pair<HearingDefendantEntity, LocalDate>> {
+        val pageable: Pageable = Pageable.ofSize(hearingOutcomeSearchRequest.size).withPage(if (hearingOutcomeSearchRequest.page > 0) hearingOutcomeSearchRequest.page - 1 else 0)
+
         val filterBuilder = StringBuilder()
 
         val queryParams = LinkedHashMap<String, Any>()
@@ -29,9 +33,9 @@ class HearingOutcomeRepositoryCustom(
             queryParams["state"] = it.name
 
             // a special case for resulted cases state to return only cases resulted within the last resultedCasesDaysOffset (default 14) days
-            if (it == HearingOutcomeItemState.RESULTED) {
+            if(it == HearingOutcomeItemState.RESULTED) {
                 filterBuilder.append(" and ho.resulted_date > :resultedDate ")
-                queryParams["resultedDate"] = LocalDate.now().minusDays(resultedCasesDaysOffset).atTime(0, 0, 0)
+                queryParams["resultedDate"] = LocalDate.now().minusDays(resultedCasesDaysOffset).atTime(0,0,0)
             }
         }
 
@@ -65,7 +69,7 @@ class HearingOutcomeRepositoryCustom(
         val courtRoomParamName = "courtRoom"
 
         val hasCourtRoomFilter = hearingOutcomeSearchRequest.courtRoom.isNotEmpty()
-        if (hasCourtRoomFilter) {
+        if(hasCourtRoomFilter) {
             queryParams[courtRoomParamName] = hearingOutcomeSearchRequest.courtRoom
         }
 
@@ -77,7 +81,7 @@ class HearingOutcomeRepositoryCustom(
                 (
                     select fk_hearing_id as hday_hearing_id, min(hearing_day) as hearing_day from hearing_day
                         where hearing_day.court_code = :courtCode
-                        ${if (hasCourtRoomFilter) " and hearing_day.court_room in (:$courtRoomParamName) " else ""}
+                        ${ if(hasCourtRoomFilter) " and hearing_day.court_room in (:$courtRoomParamName) " else "" }
                         group by fk_hearing_id
                 ) hday2
             on hday2.hday_hearing_id = hd.fk_hearing_id	
@@ -105,8 +109,13 @@ class HearingOutcomeRepositoryCustom(
             countJpaQuery.setParameter(it.key, it.value)
         }
 
-        return jpaQuery.resultList.map { it as Array<Any> }
-            .map { Pair(it[0] as HearingDefendantEntity, it[1] as LocalDate) }
+        jpaQuery.firstResult  = pageable.pageNumber * pageable.pageSize
+        jpaQuery.maxResults = pageable.pageSize
+
+        val content = jpaQuery.resultList.map { it as Array<Any> }.map { Pair(it[0] as HearingDefendantEntity, it[1] as LocalDate) }
+        val count = (countJpaQuery.singleResult as Long)
+
+        return PageImpl(content, pageable, count)
     }
 
     fun getDynamicOutcomeCountsByState(courtCode: String): Map<String, Int> {

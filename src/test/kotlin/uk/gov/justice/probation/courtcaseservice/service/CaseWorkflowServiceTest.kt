@@ -11,11 +11,10 @@ import org.mockito.Captor
 import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.web.client.HttpClientErrorException
 import uk.gov.justice.probation.courtcaseservice.controller.model.*
-import uk.gov.justice.probation.courtcaseservice.controller.model.v2.HearingOutcomeCountByState as V2HearingOutcomeCountByState
-import uk.gov.justice.probation.courtcaseservice.controller.model.v2.HearingDefendantOutcomesRequest
-import uk.gov.justice.probation.courtcaseservice.controller.model.v2.HearingOutcomeCaseList as V2HearingOutcomeCaseList
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.*
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository
@@ -147,15 +146,15 @@ internal class CaseWorkflowServiceTest {
 
         // Then
         verify(hearingRepository).findFirstByHearingId(hearingId)
-        verify(hearingRepository, never()).save(org.mockito.kotlin.any())
+        verify(hearingRepository, never()).save(any())
     }
 
     @Test
     fun `given court code and outcome type filter invoke repository and return hearing outcomes`() {
         val hearingOutcomeEntity1 = HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.REPORT_REQUESTED.name).outcomeDate(
-            LocalDateTime.of(2023, 6,6, 19, 9, 1)).state("NEW").assignedTo("Jane Doe").assignedToUuid("fake-uuid").build()
+            LocalDateTime.of(2023, 6,6, 19, 9, 1)).state("NEW").build()
         val hearingOutcomeEntity2 = HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.ADJOURNED.name).outcomeDate(
-            LocalDateTime.of(2023, 5,5, 19, 9, 5)).state("NEW").assignedTo("John Doe").assignedToUuid("fake-uuid").build()
+            LocalDateTime.of(2023, 5,5, 19, 9, 5)).state("NEW").build()
 
         val hearingId1 = "hearing-id-1"
         val defendantId1 = "defendant-id-1"
@@ -178,17 +177,20 @@ internal class CaseWorkflowServiceTest {
         refreshMappings(hearing2)
 
         given(courtRepository.findByCourtCode(COURT_CODE)).willReturn(Optional.of(CourtEntity.builder().build()))
-        lenient().`when`(
+        given(
             hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(
-                org.mockito.kotlin.eq(COURT_CODE),
-                org.mockito.kotlin.any()
-
+                COURT_CODE,
+                HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW)
             )
-        ).thenReturn(
+        ).willReturn(
+            PageImpl(
                 listOf(
                     Pair<HearingDefendantEntity, LocalDate>(hearingDefendant1, SESSION_START_TIME.toLocalDate()),
                     Pair<HearingDefendantEntity, LocalDate>(hearingDefendant2, SESSION_START_TIME.toLocalDate())
-                )
+                ),
+                Pageable.ofSize(2),
+                9
+            )
         )
 
         given(hearingRepository.getCourtroomsForCourt(COURT_CODE)).willReturn(TEST_COURT_ROOMS)
@@ -208,8 +210,6 @@ internal class CaseWorkflowServiceTest {
                         offences = listOf(OFFENCE_TITLE),
                         defendantName = DEFENDANT_NAME,
                         crn = "X340906",
-                        assignedTo = "Jane Doe",
-                        assignedToUuid = "fake-uuid",
                         state = HearingOutcomeItemState.NEW
                     ),
                     HearingOutcomeResponse(
@@ -222,208 +222,16 @@ internal class CaseWorkflowServiceTest {
                         offences = listOf(OFFENCE_TITLE),
                         defendantName = DEFENDANT_NAME,
                         crn = "X340906",
-                        assignedTo = "John Doe",
-                        assignedToUuid = "fake-uuid",
                         state = HearingOutcomeItemState.NEW
                     )
                 ),
                 hearingOutcomes.countsByState,
                 TEST_COURT_ROOMS,
+                        5,
                         1,
-                        1,
-                        2,
-                listOf(HearingOutcomeAssignedUser("Jane Doe", "fake-uuid"), HearingOutcomeAssignedUser("John Doe", "fake-uuid"))
+                        9
             )
         )
-    }
-
-    @Test
-    fun `v2 endpoint, given court code and outcome type filter invoke repository and return hearing outcomes with distinct filters items`(){
-        val hearingOutcomeEntity1 = HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.REPORT_REQUESTED.name).outcomeDate(
-            LocalDateTime.of(2023, 6,6, 19, 9, 1)).state("NEW").assignedTo("Jane Doe").assignedToUuid("fake-uuid").build()
-        val hearingOutcomeEntity2 = HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.ADJOURNED.name).outcomeDate(
-            LocalDateTime.of(2023, 5,5, 19, 9, 5)).state("NEW").assignedTo("John Doe").assignedToUuid("fake-uuid").build()
-
-        val hearingId1 = "hearing-id-1"
-        val defendantId1 = "defendant-id-1"
-        val caseId1 = "case-id-1"
-        val hearingId2 = "hearing-id-2"
-        val caseId2 = "case-id-2"
-        val defendantId2 = "defendant-id-2"
-
-        aHearingEntityWithHearingId(caseId1, hearingId1, defendantId1);
-        val hearingDefendant1 = aHearingDefendantEntity(defendantId1).withHearingOutcome(hearingOutcomeEntity1)
-
-        val hearing1 = aHearingEntityWithHearingId(caseId1, hearingId1, defendantId1)
-            .withHearingDefendants(listOf(hearingDefendant1))
-
-        val hearingDefendant2 = aHearingDefendantEntity(defendantId2).withHearingOutcome(hearingOutcomeEntity2)
-        val hearing2 = aHearingEntityWithHearingId(caseId2, hearingId2, defendantId2)
-            .withHearingDefendants(listOf(hearingDefendant2))
-
-        refreshMappings(hearing1)
-        refreshMappings(hearing2)
-
-        given(courtRepository.findByCourtCode(COURT_CODE)).willReturn(Optional.of(CourtEntity.builder().build()))
-
-        lenient().`when`(hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(
-            org.mockito.kotlin.eq(COURT_CODE),
-            org.mockito.kotlin.any()
-        )).thenReturn(
-            listOf(
-                Pair<HearingDefendantEntity, LocalDate>(hearingDefendant1, SESSION_START_TIME.toLocalDate()),
-                Pair<HearingDefendantEntity, LocalDate>(hearingDefendant2, SESSION_START_TIME.toLocalDate())
-            )
-        )
-
-        given(hearingRepository.getCourtroomsForCourt(COURT_CODE)).willReturn(listOf("01", "01", "Court room - 2", "Court room - 2")) // duplicate elements will be filtered out
-
-        val hearingOutcomes = caseWorkflowService.fetchV2HearingDefendantOutcomes(COURT_CODE, HearingDefendantOutcomesRequest())
-
-        assertThat(hearingOutcomes).isEqualTo(
-            V2HearingOutcomeCaseList(
-                records = listOf(
-                    HearingOutcomeResponse(
-                        hearingOutcomeType = HearingOutcomeType.REPORT_REQUESTED,
-                        outcomeDate = LocalDateTime.of(2023, 6, 6, 19, 9, 1),
-                        hearingDate = SESSION_START_TIME.toLocalDate(),
-                        hearingId = hearingId1,
-                        defendantId = defendantId1,
-                        probationStatus = PROBATION_STATUS,
-                        offences = listOf(OFFENCE_TITLE),
-                        defendantName = DEFENDANT_NAME,
-                        crn = "X340906",
-                        assignedTo = "Jane Doe",
-                        assignedToUuid = "fake-uuid",
-                        state = HearingOutcomeItemState.NEW
-                    ),
-                    HearingOutcomeResponse(
-                        hearingOutcomeType = HearingOutcomeType.ADJOURNED,
-                        outcomeDate = LocalDateTime.of(2023, 5, 5, 19, 9, 5),
-                        hearingDate = SESSION_START_TIME.toLocalDate(),
-                        hearingId = hearingId2,
-                        defendantId = defendantId2,
-                        probationStatus = PROBATION_STATUS,
-                        offences = listOf(OFFENCE_TITLE),
-                        defendantName = DEFENDANT_NAME,
-                        crn = "X340906",
-                        assignedTo = "John Doe",
-                        assignedToUuid = "fake-uuid",
-                        state = HearingOutcomeItemState.NEW
-                    )
-                ),
-                countsByState = V2HearingOutcomeCountByState(counts = listOf(Pair("NEW", 0), Pair("IN_PROGRESS", 0), Pair("RESULTED", 0))),
-                courtRoomFilters = listOf("01", "Court room - 2"),
-                totalPages = 1,
-                page = 1,
-                totalElements =  2,
-                assignedUsers = listOf(HearingOutcomeAssignedUser("Jane Doe", "fake-uuid"), HearingOutcomeAssignedUser("John Doe", "fake-uuid"))
-            )
-        )
-    }
-
-    @Test
-    fun `given court code and page size filter invoke repository and return hearing outcomes for page 1 of 2`(){
-        val hearingOutcomeEntity1 = HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.REPORT_REQUESTED.name).outcomeDate(
-            LocalDateTime.of(2023, 6,6, 19, 9, 1)).state("IN_PROGRESS").assignedTo("Jane Doe").assignedToUuid("fake-uuid").build()
-        val hearingOutcomeEntity2 = HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.ADJOURNED.name).outcomeDate(
-            LocalDateTime.of(2023, 5,5, 19, 9, 5)).state("IN_PROGRESS").assignedTo("John Doe").assignedToUuid("fake-uuid").build()
-
-        val hearingId1 = "hearing-id-1"
-        val defendantId1 = "defendant-id-1"
-        val caseId1 = "case-id-1"
-        val hearingId2 = "hearing-id-2"
-        val caseId2 = "case-id-2"
-        val defendantId2 = "defendant-id-2"
-
-        aHearingEntityWithHearingId(caseId1, hearingId1, defendantId1);
-        val hearingDefendant1 = aHearingDefendantEntity(defendantId1).withHearingOutcome(hearingOutcomeEntity1)
-
-        val hearing1 = aHearingEntityWithHearingId(caseId1, hearingId1, defendantId1)
-            .withHearingDefendants(listOf(hearingDefendant1))
-
-        val hearingDefendant2 = aHearingDefendantEntity(defendantId2).withHearingOutcome(hearingOutcomeEntity2)
-        val hearing2 = aHearingEntityWithHearingId(caseId2, hearingId2, defendantId2)
-            .withHearingDefendants(listOf(hearingDefendant2))
-
-        refreshMappings(hearing1)
-        refreshMappings(hearing2)
-
-        given(courtRepository.findByCourtCode(COURT_CODE)).willReturn(Optional.of(CourtEntity.builder().build()))
-        val filterOptions = HearingOutcomeSearchRequest(HearingOutcomeItemState.IN_PROGRESS, page = 1, size = 1)
-        given(
-            hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(
-                COURT_CODE,
-                filterOptions
-            )
-        ).willReturn(
-            listOf(
-                Pair<HearingDefendantEntity, LocalDate>(hearingDefendant1, SESSION_START_TIME.toLocalDate()),
-                Pair<HearingDefendantEntity, LocalDate>(hearingDefendant2, SESSION_START_TIME.toLocalDate())
-            )
-        )
-
-        given(hearingRepository.getCourtroomsForCourt(COURT_CODE)).willReturn(TEST_COURT_ROOMS)
-
-        val hearingOutcomes = caseWorkflowService.fetchHearingOutcomes(COURT_CODE, filterOptions)
-
-        assertThat(hearingOutcomes).isEqualTo(
-            HearingOutcomeCaseList(
-                listOf(
-                    HearingOutcomeResponse(
-                        hearingOutcomeType = HearingOutcomeType.REPORT_REQUESTED,
-                        outcomeDate = LocalDateTime.of(2023, 6, 6, 19, 9, 1),
-                        hearingDate = SESSION_START_TIME.toLocalDate(),
-                        hearingId = hearingId1,
-                        defendantId = defendantId1,
-                        probationStatus = PROBATION_STATUS,
-                        offences = listOf(OFFENCE_TITLE),
-                        defendantName = DEFENDANT_NAME,
-                        crn = "X340906",
-                        assignedTo = "Jane Doe",
-                        assignedToUuid = "fake-uuid",
-                        state = HearingOutcomeItemState.IN_PROGRESS
-                    )
-                ),
-                hearingOutcomes.countsByState,
-                TEST_COURT_ROOMS,
-                2,
-                1,
-                2,
-                listOf(HearingOutcomeAssignedUser("Jane Doe", "fake-uuid"), HearingOutcomeAssignedUser("John Doe", "fake-uuid"))
-            )
-        )
-    }
-
-    @Test
-    fun `given hearingOutcomeResponse and search filters when getting pageable hearing outcomes then provide pagination`(){
-        var hearingOutcomeResponseList: ArrayList<HearingOutcomeResponse> = ArrayList();
-
-        for (i in 1..3) {
-            hearingOutcomeResponseList.add(
-                HearingOutcomeResponse(
-                    HearingOutcomeType.NO_OUTCOME,
-                    outcomeDate = LocalDateTime.parse("2023-04-24T09:09:09"),
-                    resultedDate = LocalDateTime.parse("2024-04-12T00:00:00"),
-                    hearingDate=LocalDate.parse("2024-04-11"),
-                    hearingId="1f93aa0a-7e46-4885-a1cb-f25a4be33a00",
-                    defendantId = "40db17d6-04db-11ec-b2d8-0242ac130002",
-                    probationStatus="Current",
-                    offences= listOf("Theft from a different shop, Theft from a shop"),
-                    defendantName="Mr Johnny BALL",
-                    crn="crn-${i}",
-                    assignedTo="Jane Doe",
-                    assignedToUuid="4b03d065-4c96-4b24-8d6d-75a45d2e3f12",
-                    state=HearingOutcomeItemState.NEW,
-                    legacy=false
-                )
-            )
-        }
-        val searchRequest: HearingOutcomeSearchRequest = HearingOutcomeSearchRequest(page = 3, size = 1)
-        val page = caseWorkflowService.getPageableHearingOutcomes(hearingOutcomeResponseList.toList(), searchRequest)
-        assertThat(page.number).isEqualTo(2) // pageable numbers start from 0
-        assertThat(page.totalPages).isEqualTo(3)
-        assertThat(page.content[0].crn).isEqualTo("crn-3")
     }
 
     @Test
@@ -650,40 +458,5 @@ internal class CaseWorkflowServiceTest {
         aHearingEntity.hearingDefendants[0].prepStatus = HearingPrepStatus.IN_PROGRESS.name
         verify(hearingRepository).save(aHearingEntity)
         verifyNoMoreInteractions(hearingRepository)
-    }
-
-    @Test
-    fun `given duplicate assigned users, allAssignedUsers returns a list of distinct assigned users`(){
-        val hearingDefendantOutcomeResponses =  listOf(
-            HearingOutcomeResponse(
-                hearingOutcomeType = HearingOutcomeType.REPORT_REQUESTED,
-                outcomeDate = LocalDateTime.of(2023, 6, 6, 19, 9, 1),
-                hearingDate = SESSION_START_TIME.toLocalDate(),
-                hearingId = "hearingId1",
-                defendantId = "defendantId1",
-                probationStatus = PROBATION_STATUS,
-                offences = listOf(OFFENCE_TITLE),
-                defendantName = DEFENDANT_NAME,
-                crn = "X340906",
-                assignedTo = "John Doe",
-                assignedToUuid = "duplicate-uuid",
-                state = HearingOutcomeItemState.NEW
-            ),
-            HearingOutcomeResponse(
-                hearingOutcomeType = HearingOutcomeType.ADJOURNED,
-                outcomeDate = LocalDateTime.of(2023, 5, 5, 19, 9, 5),
-                hearingDate = SESSION_START_TIME.toLocalDate(),
-                hearingId = "hearingId2",
-                defendantId = "defendantId2",
-                probationStatus = PROBATION_STATUS,
-                offences = listOf(OFFENCE_TITLE),
-                defendantName = DEFENDANT_NAME,
-                crn = "X340906",
-                assignedTo = "John Doe",
-                assignedToUuid = "duplicate-uuid",
-                state = HearingOutcomeItemState.NEW
-            ))
-        assertThat(caseWorkflowService.allAssignedUsers(hearingDefendantOutcomeResponses)).hasSize(1)
-        assertThat(caseWorkflowService.allAssignedUsers(hearingDefendantOutcomeResponses).first().uuid).isEqualTo("duplicate-uuid")
     }
 }

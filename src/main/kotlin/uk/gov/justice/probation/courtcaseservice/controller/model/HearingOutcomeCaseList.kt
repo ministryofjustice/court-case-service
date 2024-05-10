@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model
 
 import io.swagger.v3.oas.annotations.media.Schema
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingOutcomeAssignedUser
 
 @Schema(description = "Hearing outcome response model")
 data class HearingOutcomeCaseList(
@@ -10,6 +9,5 @@ data class HearingOutcomeCaseList(
     val courtRoomFilters: List<String> = listOf(),
     val totalPages: Int = 0,
     val page: Int = 0,
-    val totalElements: Int = 0,
-    val assignedUsers: List<HearingOutcomeAssignedUser>
+    val totalElements: Int = 0
 )

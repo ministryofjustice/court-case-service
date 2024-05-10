@@ -1,8 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
+import org.junit.jupiter.api.Assertions.*
+
 import jakarta.persistence.EntityManager
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -14,10 +15,7 @@ import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlConfig
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCaseList
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingOutcomeAssignedUser
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepositoryCustom
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
@@ -96,20 +94,6 @@ internal class CaseWorkflowServiceIntTest {
         assertThat(hearingOutcomeEntity.outcomeType).isEqualTo(HearingOutcomeType.NO_OUTCOME.name)
         assertThat(hearingOutcomeEntity.state).isEqualTo(HearingOutcomeItemState.NEW.name)
 
-    }
-
-    @Test
-    fun shouldReturnListOfHearingOutcomesForCourt(){
-        val hearingOutcomeSearchRequest: HearingOutcomeSearchRequest = HearingOutcomeSearchRequest(page = 1, size = 1)
-        val hearingOutcomesCaseList: HearingOutcomeCaseList = caseWorkflowService.fetchHearingOutcomes("B10JQ", hearingOutcomeSearchRequest)
-
-        assertAll("hearingOutcomesCaseList",
-            { assertThat(hearingOutcomesCaseList.assignedUsers).contains(HearingOutcomeAssignedUser("Jane Doe", "4b03d065-4c96-4b24-8d6d-75a45d2e3f12")) },
-            { assertThat(hearingOutcomesCaseList.page).isEqualTo(1)},
-            { assertThat(hearingOutcomesCaseList.cases[0].hearingId).isEqualTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00") },
-            { assertThat(hearingOutcomesCaseList.cases[0].assignedTo).isEqualTo("Jane Doe") },
-            { assertThat(hearingOutcomesCaseList.cases).hasSize(1) }
-        )
     }
 
     @org.springframework.boot.test.context.TestConfiguration

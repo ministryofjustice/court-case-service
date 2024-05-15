@@ -173,6 +173,8 @@ dependencies {
     // SAR (Subject Access Request) endpoint is included here
     implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:0.2.1") {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-oauth2-resource-server'
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-oauth2-client'
     }
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.3")

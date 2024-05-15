@@ -82,7 +82,7 @@ executors:
     working_directory: ~/app
   builder:
     docker:
-      - image: cimg/openjdk:19.0-browsers
+      - image: cimg/openjdk:21.0.2-browsers
         environment:
           SPRING_PROFILES_ACTIVE: test
           DATABASE_USERNAME: root
@@ -98,7 +98,7 @@ executors:
 
   builder-machine:
     machine:
-      image:  ubuntu-2204:2024.01.1
+      image:  ubuntu-2204:2024.04.4
 
 orbs:
   aws-cli: circleci/aws-cli@0.1.13

@@ -142,17 +142,17 @@ task wipTest(type: Test) {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(19))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
 kotlin {
-    jvmToolchain(19)
+    jvmToolchain(21)
 }
 
 tasks.withType(JavaCompile).configureEach {
     javaCompiler = javaToolchains.compilerFor {
-        languageVersion = JavaLanguageVersion.of(19)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -170,15 +170,16 @@ dependencies {
     // Open API Documentation
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.5.0'
 
-
+    // SARs api included here
+    implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:0.2.1")
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.3")
     implementation('com.fasterxml.jackson.module:jackson-module-kotlin:2.15.3')
 
-    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
-    api 'org.projectlombok:lombok'
+    api 'org.projectlombok:lombok:1.18.32'
 
     runtimeOnly 'org.flywaydb:flyway-core'
     runtimeOnly "org.springframework.boot:spring-boot-devtools"
@@ -215,7 +216,7 @@ dependencies {
 
     implementation 'commons-io:commons-io:2.15.1'
 
-    testAnnotationProcessor 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
 
     testImplementation "org.testcontainers:postgresql:1.17.6"
     testImplementation "org.testcontainers:junit-jupiter:1.19.1"
@@ -291,11 +292,11 @@ task installGitHooks(type: Copy) {
 
 
 compileKotlin {
-    kotlinOptions.jvmTarget = "19"
+    kotlinOptions.jvmTarget = "21"
 }
 
 compileTestKotlin {
-    kotlinOptions.jvmTarget = "19"
+    kotlinOptions.jvmTarget = "21"
 }
 
 pact {

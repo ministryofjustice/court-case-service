@@ -26,7 +26,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
-@Sql(scripts = {"classpath:sql/before-common.sql", "classpath:case-progress.sql"}, config = @SqlConfig(transactionMode = ISOLATED))
+@Sql(scripts = {"classpath:sql/before-common.sql", "classpath:R__case-progress.sql"}, config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class CaseProgressIntTest extends BaseIntTest {
 

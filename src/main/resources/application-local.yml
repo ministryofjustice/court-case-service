@@ -34,10 +34,17 @@ court-case-and-delius-api:
 domain-event-and-delius-api:
   base-url: https://domain-events-and-delius-dev.hmpps.service.justice.gov.uk
 
+
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "http://localhost:8080" # TODO: Remove this spring configuration
+
   flyway:
     defaultSchema: courtcaseservice
-    locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local
+    locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local, filesystem:src/test/resources/
   datasource:
     url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=courtcaseservice&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
     hikari:

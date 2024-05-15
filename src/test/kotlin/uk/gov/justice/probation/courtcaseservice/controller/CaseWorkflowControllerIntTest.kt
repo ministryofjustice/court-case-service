@@ -22,7 +22,7 @@ import java.net.URI
 
 
 @Sql(
-    scripts = ["classpath:sql/before-common.sql", "classpath:case-progress.sql"],
+    scripts = ["classpath:sql/before-common.sql", "classpath:R__case-progress.sql"],
     config = SqlConfig(transactionMode = TransactionMode.ISOLATED)
 )
 @Sql(

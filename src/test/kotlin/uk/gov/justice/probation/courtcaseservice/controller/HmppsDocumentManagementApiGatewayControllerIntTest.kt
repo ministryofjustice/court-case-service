@@ -22,7 +22,7 @@ import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper
 import java.io.File
 
 @Sql(
-    scripts = ["classpath:sql/before-common.sql", "classpath:R__case-progress.sql"],
+    scripts = ["classpath:sql/before-common.sql", "classpath:case-progress.sql"],
     config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED)
 )
 @Sql(

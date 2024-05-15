@@ -171,7 +171,9 @@ dependencies {
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.5.0'
 
     // SARs api included here
-    implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:0.2.1")
+    implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:0.2.1") {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-oauth2-resource-server'
+    }
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.3")
     implementation('com.fasterxml.jackson.module:jackson-module-kotlin:2.15.3')

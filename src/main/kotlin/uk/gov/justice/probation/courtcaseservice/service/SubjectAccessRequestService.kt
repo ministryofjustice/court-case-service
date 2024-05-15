@@ -14,6 +14,4 @@ class SubjectAccessRequestService: HmppsProbationSubjectAccessRequestService {
     ): HmppsSubjectAccessRequestContent? {
         TODO("Not yet implemented")
     }
-
-
 }

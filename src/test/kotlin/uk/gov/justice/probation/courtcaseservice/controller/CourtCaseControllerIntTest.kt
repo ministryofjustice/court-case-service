@@ -11,7 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper
 
 @Sql(
-    scripts = ["classpath:sql/before-common.sql", "classpath:R__case-progress.sql"],
+    scripts = ["classpath:sql/before-common.sql", "classpath:case-progress.sql"],
     config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED)
 )
 @Sql(

@@ -85,6 +85,7 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${nomis-oauth.issuer-base-url:${nomis-oauth.base-url}}/auth/issuer
+          jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
 
   datasource:
     url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=${database.schema.name}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified

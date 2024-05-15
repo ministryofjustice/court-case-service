@@ -50,6 +50,11 @@ spring:
         format_sql: false
         hbm2ddl:
           auto: update
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
 
   datasource:
     url: jdbc:tc:postgresql:11.1:///courtcaseservicetest?currentSchema=courtcaseservicetest&stringtype=unspecified

@@ -12,6 +12,8 @@ import java.util.Optional;
 
 public interface DefendantRepository extends CrudRepository<DefendantEntity, Long> {
 
+    Optional<DefendantEntity> findByCrn(String crn);
+
     Optional<DefendantEntity> findFirstByDefendantId(String defendantId);
 
     @Query(value = "select d.* from defendant d, offender o " +

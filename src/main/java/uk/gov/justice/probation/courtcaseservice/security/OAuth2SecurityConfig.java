@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,6 +16,7 @@ public class OAuth2SecurityConfig {
 
     @SuppressWarnings("removal")
     @Bean
+    @Order(1)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 // Can't have CSRF protection as requires session
@@ -35,7 +37,7 @@ public class OAuth2SecurityConfig {
                             "/queue-admin/retry-all-dlqs",
                             "/process-un-resulted-cases"
                         ).permitAll()
-                        .anyRequest().hasAnyRole("PREPARE_A_CASE")
+                        .anyRequest().hasAnyRole("PREPARE_A_CASE", "SAR_DATA_ACCESS")
                     ).oauth2ResourceServer().jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());
         return http.build();
     }

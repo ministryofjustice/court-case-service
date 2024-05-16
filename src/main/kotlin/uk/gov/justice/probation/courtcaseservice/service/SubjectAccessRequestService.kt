@@ -12,6 +12,6 @@ class SubjectAccessRequestService: HmppsProbationSubjectAccessRequestService {
         fromDate: LocalDate?,
         toDate: LocalDate?
     ): HmppsSubjectAccessRequestContent? {
-        TODO("Not yet implemented")
+        return HmppsSubjectAccessRequestContent("stuff")
     }
 }

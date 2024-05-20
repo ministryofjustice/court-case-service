@@ -137,32 +137,34 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
         }
     }
 
-    fun holdHearingOutcome(hearingId: String, userUuid: String) {
+    fun updatePrepStatus(hearingId: String, defendantId: String, prepStatus: HearingPrepStatus) {
+
         hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
             {
-                if(it.hearingOutcome.assignedToUuid != userUuid) {
-                    throw ForbiddenException("Outcome not allocated to current user.")
-                }
-                if(it.hearingOutcome.state != HearingOutcomeItemState.IN_PROGRESS.name) {
-                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid state for outcome to be resulted.")
-                }
-                it.hearingOutcome.state = HearingOutcomeItemState.ON_HOLD.name
-                },
-                        {
-                            throw EntityNotFoundException("Hearing not found with id $hearingId")
-                        })
+                val hearingDefendant = it.getHearingDefendant(defendantId)
+                    ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
+                hearingDefendant.prepStatus = prepStatus.name
+                hearingRepository.save(it)
+            },
+            {
+                throw EntityNotFoundException("Hearing not found with id $hearingId")
+            })
     }
     
-    fun holdHearingOutcome(hearingId: String, userUuid: String) {
+    fun holdHearingOutcome(hearingId: String, defendantId: String, userUuid: String) {
         hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
             {
-                if(it.hearingOutcome.assignedToUuid != userUuid) {
+                val hearingDefendant = it.getHearingDefendant(defendantId)
+                    ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
+
+                val hearingOutcome = hearingDefendant.hearingOutcome
+                if(hearingOutcome.assignedToUuid != userUuid) {
                     throw ForbiddenException("Outcome not allocated to current user.")
                 }
-                if(it.hearingOutcome.state != HearingOutcomeItemState.IN_PROGRESS.name) {
-                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid state for outcome to be resulted.")
+                if(hearingOutcome.state != HearingOutcomeItemState.IN_PROGRESS.name) {
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid state for outcome to be placed on hold.")
                 }
-                it.hearingOutcome.state = HearingOutcomeItemState.ON_HOLD.name
+                hearingOutcome.state = HearingOutcomeItemState.ON_HOLD.name
                 hearingRepository.save(it)
             },
             {

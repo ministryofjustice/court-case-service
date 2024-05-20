@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.InputStreamResource
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatusCode
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.http.codec.multipart.DefaultPartHttpMessageReader
@@ -67,6 +68,7 @@ class HmppsDocumentManagementApiClient(
 
         return clientHelper
             .get(documentPath)
+            .accept(MediaType.ALL)
             .header(DOCUMENT_MANAGEMENT_API_SERVICE_NAME_HEADER, clientServiceName)
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError) {
@@ -97,13 +99,13 @@ class HmppsDocumentManagementApiClient(
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError) {
                 log.error("Document delete failed $documentPath with status ${it.statusCode()}")
-                handle4xxError(it, HttpMethod.POST, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API)
+                handle4xxError(it, HttpMethod.DELETE, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API)
             }
             .onStatus(HttpStatusCode::is5xxServerError) {
                 log.error("Document delete failed $documentPath with status ${it.statusCode()}")
                 handle5xxError(
                     "${it.statusCode()} error downloading document",
-                    HttpMethod.POST, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API
+                    HttpMethod.DELETE, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API
                 )
             }.toEntity<Any>()
             .doOnSuccess {

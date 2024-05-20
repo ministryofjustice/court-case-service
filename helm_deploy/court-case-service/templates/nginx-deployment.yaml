@@ -20,6 +20,9 @@ spec:
     spec:
       securityContext:
         runAsUser: 101
+        capabilities:
+          add:
+            - NET_BIND_SERVICE
       containers:
         - name: {{ printf "%s-%s" .Values.nginx_proxy.name "nginx"}}
           image: "{{ .Values.nginx_proxy.deployment.image.repository }}:{{ .Values.nginx_proxy.deployment.image.tag }}"

@@ -167,9 +167,10 @@ dependencies {
         because("SNYK scan reported secuity vulnerability in the bundled net.minidev:json-smart:2.4.8")
     }
 
-    implementation("org.springdoc:springdoc-openapi-ui:1.7.0") {
-        because("SNYK scan reported secuity vulnerability in the bundled org.springdoc:springdoc-openapi-ui:1.6.13")
-    }
+    // Open API Documentation
+    implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.5.0'
+
+
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.3")
     implementation('com.fasterxml.jackson.module:jackson-module-kotlin:2.15.3')
@@ -181,7 +182,7 @@ dependencies {
 
     runtimeOnly 'org.flywaydb:flyway-core'
     runtimeOnly "org.springframework.boot:spring-boot-devtools"
-    runtimeOnly 'org.postgresql:postgresql:42.6.0'
+    runtimeOnly 'org.postgresql:postgresql:42.6.1'
 
     implementation 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 
@@ -210,8 +211,9 @@ dependencies {
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.1.1")
 
-
     implementation group: 'ai.h2o', name: 'h2o-genmodel', version: '3.38.0.3'
+
+    implementation 'commons-io:commons-io:2.15.1'
 
     testAnnotationProcessor 'org.projectlombok:lombok'
 
@@ -228,7 +230,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
-    testImplementation("com.github.tomakehurst:wiremock-jre8:3.0.1")
+    testImplementation("org.wiremock:wiremock:3.4.2")
 
     testImplementation("au.com.dius.pact.provider:junit5spring:$pactVersion")
     testImplementation("au.com.dius.pact.provider:junit5:$pactVersion")

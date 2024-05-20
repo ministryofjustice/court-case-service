@@ -117,21 +117,23 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
 
     @Modifying
     @Query(value = "INSERT INTO hearing_outcome " +
-        " (outcome_type, created, created_by, version, outcome_date, state, fk_hearing_id) " +
-        " select 'NO_OUTCOME', now(), 'process_unheard_cases_job', 0, now(), 'NEW', h.id as fk_hearing_id " +
-        " from hearing_day hd join hearing h on hd.fk_hearing_id  = h.id and hd.hearing_day = CURRENT_DATE " +
-        " left join hearing_outcome ho on ho.fk_hearing_id = h.id  " +
-        " where ho.fk_hearing_id is null",
+        " (outcome_type, created, created_by, version, outcome_date, state, fk_hearing_defendant_id) " +
+        " select 'NO_OUTCOME', now(), 'process_unheard_cases_job', 0, now(), 'NEW', hd.id as fk_hearing_defendant_id " +
+        " from hearing_day hday join hearing h on hday.fk_hearing_id  = h.id and hday.hearing_day = CURRENT_DATE " +
+        " join hearing_defendant hd on hd.fk_hearing_id = h.id " +
+        " left join hearing_outcome ho on ho.fk_hearing_defendant_id = hd.id  " +
+        " where ho.fk_hearing_defendant_id is null",
         nativeQuery = true)
     Optional<Integer> moveUnResultedCasesToOutcomesWorkflow();
 
     @Modifying
     @Query(value = "INSERT INTO hearing_outcome " +
-        " (outcome_type, created, created_by, version, outcome_date, state, fk_hearing_id) " +
-        " select 'NO_OUTCOME', now(), 'process_unheard_cases_job', 0, now(), 'NEW', h.id as fk_hearing_id " +
-        " from hearing_day hd join hearing h on hd.fk_hearing_id  = h.id and hd.hearing_day = CURRENT_DATE AND hd.court_code in (:courtCodes) " +
-        " left join hearing_outcome ho on ho.fk_hearing_id = h.id  " +
-        " where ho.fk_hearing_id is null",
+        " (outcome_type, created, created_by, version, outcome_date, state, fk_hearing_defendant_id) " +
+        " select 'NO_OUTCOME', now(), 'process_unheard_cases_job', 0, now(), 'NEW', hd.id as fk_hearing_defendant_id " +
+        " from hearing_day hday join hearing h on hday.fk_hearing_id  = h.id and hday.hearing_day = CURRENT_DATE AND hday.court_code in (:courtCodes) " +
+        " join hearing_defendant hd on hd.fk_hearing_id = h.id " +
+        " left join hearing_outcome ho on ho.fk_hearing_defendant_id = hd.id   " +
+        " where ho.fk_hearing_defendant_id is null",
         nativeQuery = true)
     Optional<Integer> moveUnResultedCasesToOutcomesWorkflow(List<String> courtCodes);
 }

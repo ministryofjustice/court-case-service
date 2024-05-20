@@ -34,6 +34,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
 
     companion object {
         const val HEARING_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00"
+        const val DEFENDANT_ID = "40db17d6-04db-11ec-b2d8-0242ac130002"
         const val UNKNOWN_HEARING_ID = "111111-1111-1111-1111-111111111111"
         const val HEARING_OUTCOME_REQUEST: String = "{ \"hearingOutcomeType\": \"ADJOURNED\" }"
         const val HEARING_OUTCOME_UPDATE_REQUEST: String = "{ \"hearingOutcomeType\": \"REPORT_REQUESTED\" }"
@@ -56,13 +57,14 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .accept(ContentType.JSON)
             .body(HEARING_OUTCOME_REQUEST)
             .`when`()
-            .put("/hearing/{hearingId}/outcome", HEARING_ID)
+            .put("/hearing/{hearingId}/defendant/{defendantId}/outcome", HEARING_ID, DEFENDANT_ID)
             .then()
             .statusCode(200)
 
         val hearing = hearingRepository.findFirstByHearingId(HEARING_ID).get()
-        assertThat(hearing.hearingOutcome.outcomeType).isEqualTo("ADJOURNED")
-        assertThat(hearing.hearingOutcome.outcomeDate).isNotNull()
+        val hearingOutcome = hearing.hearingDefendants[0].hearingOutcome
+        assertThat(hearingOutcome.outcomeType).isEqualTo("ADJOURNED")
+        assertThat(hearingOutcome.outcomeDate).isNotNull()
     }
 
     @Test
@@ -76,13 +78,14 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .accept(ContentType.JSON)
             .body(HEARING_OUTCOME_UPDATE_REQUEST)
             .`when`()
-            .put("/hearing/{hearingId}/outcome", hearingId)
+            .put("/hearing/{hearingId}/defendant/{defendantId}/outcome", hearingId, DEFENDANT_ID)
             .then()
             .statusCode(200)
 
         val hearing = hearingRepository.findFirstByHearingId(hearingId).get()
-        assertThat(hearing.hearingOutcome.outcomeType).isEqualTo("REPORT_REQUESTED")
-        assertThat(hearing.hearingOutcome.outcomeDate).isNotNull()
+        val hearingOutcome = hearing.hearingDefendants[0].hearingOutcome
+        assertThat(hearingOutcome.outcomeType).isEqualTo("REPORT_REQUESTED")
+        assertThat(hearingOutcome.outcomeDate).isNotNull()
     }
 
     @Test
@@ -270,13 +273,14 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
                 .accept(ContentType.JSON)
                 .body(HEARING_OUTCOME_ASSIGN_REQUEST)
                 .`when`()
-                .put("/hearing/{hearingId}/outcome/assign", HEARING_ID)
+                .put("/hearing/{hearingId}/defendant/{defendantId}/outcome/assign", HEARING_ID, DEFENDANT_ID)
                 .then()
                 .statusCode(200)
 
         val hearing = hearingRepository.findFirstByHearingId(HEARING_ID).get()
-        assertThat(hearing.hearingOutcome.assignedTo).isEqualTo("John Smith")
-        assertThat(hearing.hearingOutcome.assignedToUuid).isEqualTo("fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81")
+        val hearingOutcome = hearing.hearingDefendants[0].hearingOutcome
+        assertThat(hearingOutcome.assignedTo).isEqualTo("John Smith")
+        assertThat(hearingOutcome.assignedToUuid).isEqualTo("fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81")
     }
 
     @Test
@@ -288,7 +292,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
                 .accept(ContentType.JSON)
                 .body(HEARING_OUTCOME_ASSIGN_REQUEST)
                 .`when`()
-                .put("/hearing/{hearingId}/outcome/assign", UNKNOWN_HEARING_ID)
+                .put("/hearing/{hearingId}/defendant/{defendantId}/outcome/assign", UNKNOWN_HEARING_ID, DEFENDANT_ID)
                 .then()
                 .statusCode(404)
     }
@@ -303,13 +307,14 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
             .`when`()
-            .post("/hearing/{hearingId}/outcome/result", hearingId)
+            .post("/hearing/{hearingId}/defendant/{defendantId}/outcome/result", hearingId, DEFENDANT_ID)
             .then()
             .statusCode(200)
 
         val hearing = hearingRepository.findFirstByHearingId(hearingId).get()
-        assertThat(hearing.hearingOutcome.state).isEqualTo("RESULTED")
-        assertThat(hearing.hearingOutcome.resultedDate).isNotNull()
+        val hearingOutcome = hearing.hearingDefendants[0].hearingOutcome
+        assertThat(hearingOutcome.state).isEqualTo("RESULTED")
+        assertThat(hearingOutcome.resultedDate).isNotNull()
     }
 
     @Test
@@ -391,5 +396,32 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .body("get(6).label", equalTo("No outcome"))
             .body("get(9).value", equalTo("TRIAL"))
             .body("get(9).label", equalTo("Trial"))
+    }
+
+    @Test
+    fun `given hearing, defendant and prep status, should update prep status`() {
+
+        given()
+            .auth()
+            .oauth2(TokenHelper.getToken())
+            .`when`()
+            .put("/hearing/{hearingId}/defendants/{defendantId}/prep-status/IN_PROGRESS", HEARING_ID, DEFENDANT_ID)
+            .then()
+            .statusCode(200)
+
+        val hearingPrepStatus = hearingRepository.findFirstByHearingId(HEARING_ID).get().getHearingDefendant(DEFENDANT_ID).prepStatus
+        assertThat(hearingPrepStatus).isEqualTo("IN_PROGRESS")
+    }
+
+    @Test
+    fun `given hearing, invalid defendant id and prep status, should throw entity not found`() {
+
+        given()
+            .auth()
+            .oauth2(TokenHelper.getToken())
+            .`when`()
+            .put("/hearing/{hearingId}/defendants/{defendantId}/prep-status/IN_PROGRESS", HEARING_ID, "invalid-defendant-id")
+            .then()
+            .statusCode(404)
     }
 }

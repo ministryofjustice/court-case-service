@@ -25,8 +25,12 @@ public class CaseProgressService {
 
     public List<CaseProgressHearing> getCaseHearingProgress(String caseId, String defendantId) {
         return hearingRepository.findHearingsByCaseId(caseId)
-            .map(hearingEntities -> hearingEntities.stream().map(
-                hearingEntity -> CaseProgressHearing.of(hearingEntity, Optional.ofNullable(hearingEntity.getHearingDefendant(defendantId)).map(HearingDefendantEntity::getNotes).orElse(List.of()))
+            .map(hearingEntities -> hearingEntities.stream()
+                    .filter(
+                            hearingEntity -> hearingEntity.getHearingDefendant(defendantId) != null
+                    )
+                    .map(
+                hearingEntity -> CaseProgressHearing.of(hearingEntity, defendantId, Optional.ofNullable(hearingEntity.getHearingDefendant(defendantId)).map(HearingDefendantEntity::getNotes).orElse(List.of()))
             ).collect(Collectors.toList()))
             .orElse(Collections.emptyList());
     }

@@ -76,4 +76,10 @@ public class CaseDefendantEntity extends BaseAuditedEntity implements Serializab
         caseDefendantDocumentEntities.add(caseDefendantDocumentEntity);
         return caseDefendantDocumentEntity;
     }
+
+    public void deleteCaseDocument(String documentId) {
+        var document = getCaseDefendantDocument(documentId);
+        document.setCaseDefendant(null);
+        documents.remove(document);
+    }
 }

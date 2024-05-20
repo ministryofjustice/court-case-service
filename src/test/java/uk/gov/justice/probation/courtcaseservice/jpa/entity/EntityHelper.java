@@ -58,6 +58,9 @@ public class EntityHelper {
 
     public static final String PERSON_ID = "d1eefed2-04df-11ec-b2d8-0242ac130002";
 
+    public static final String CASE_URN = "case-urn";
+
+
     public static <E> ArrayList<E> getMutableList(List<E> mutableList) {
         return new ArrayList<>(mutableList);
     }
@@ -73,7 +76,8 @@ public class EntityHelper {
     public static void refreshMappings(HearingEntity hearingEntity) {
         hearingEntity.getHearingDefendants().forEach(hearingDefendantEntity -> {
             hearingDefendantEntity.setHearing(hearingEntity);
-            hearingDefendantEntity.getOffences().forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendantEntity));
+            Optional.ofNullable(hearingDefendantEntity.getOffences())
+                .ifPresent(offenceEntities -> offenceEntities.forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendantEntity)));
         });
 
         hearingEntity.getHearingDays().forEach(hearingDay -> hearingDay.setHearing(hearingEntity));
@@ -97,6 +101,7 @@ public class EntityHelper {
                         .caseId(caseId)
                         .caseNo(CASE_NO)
                         .sourceType(SOURCE)
+                        .urn(CASE_URN)
                         .hearings(new ArrayList<>())
                         .build())
                 .build();

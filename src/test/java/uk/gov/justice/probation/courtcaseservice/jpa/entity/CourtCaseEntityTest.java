@@ -47,6 +47,11 @@ class CourtCaseEntityTest {
 
     @Test
     void shouldCreateCaseDocumentCorrectly() {
-        // TODO PIC-3683
+        var courtCase = EntityHelper.aHearingEntity().getCourtCase();
+        DefendantEntity givenDefendant = EntityHelper.aDefendantEntity();
+        courtCase.addCaseDefendant(givenDefendant);
+        CaseDefendantEntity actual = courtCase.getCaseDefendants().get(0);
+        assertThat(actual.getDefendant()).isEqualTo(givenDefendant);
+        assertThat(actual.getCourtCase()).isEqualTo(courtCase);
     }
 }

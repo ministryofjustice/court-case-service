@@ -20,6 +20,9 @@ delius:
 prison-api:
   base-url: https://prison-api-dev.prison.service.justice.gov.uk
 
+hmpps-document-management-api-client:
+  base-url: ""
+
 manage-offences-api:
   base-url: https://manage-offences-api-dev.hmpps.service.justice.gov.uk/
   client-id: manage-offences-api-client
@@ -33,8 +36,15 @@ domain-event-and-delius-api:
 
 spring:
   flyway:
-    defaultSchema: ${database.schema.name}
-    locations: classpath:db/migration/courtcase
+    defaultSchema: courtcaseservice
+    locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local
+  datasource:
+    url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=courtcaseservice&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
+    hikari:
+      pool-name: courtcaseservice
+      connectionTimeout: 1000
+      validationTimeout: 500
+      schema: courtcaseservice
   jpa:
     show-sql: true
     properties:

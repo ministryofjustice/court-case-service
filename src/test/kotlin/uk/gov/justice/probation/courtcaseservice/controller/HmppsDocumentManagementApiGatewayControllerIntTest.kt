@@ -3,13 +3,13 @@ package uk.gov.justice.probation.courtcaseservice.controller
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
-import io.restassured.matcher.ResponseAwareMatcher
 import io.restassured.parsing.Parser
 import org.assertj.core.api.Assertions
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.notNullValue
 import org.hamcrest.core.Is.`is`
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
@@ -38,6 +38,7 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
     companion object {
         const val HEARING_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00"
         const val DEFENDANT_ID = "40db17d6-04db-11ec-b2d8-0242ac130002"
+        const val PIC_ALLOWED_FILE_TYPES = "[csv, doc, docx, jpg, jpeg, xml, ods, odt, pdf, png, ppt, pptx, rdf, rtf, txt, xls, xlsx, xml, zip]"
         const val DOCUMENT_MANAGEMENT_API_UPLOAD_RESPONSE = """
             {
               "documentUuid": "8cdadcf3-b003-4116-9956-c99bd8df6a00",
@@ -67,7 +68,6 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
 
         var response = RestAssured.given()
             .multiPart("file", File("./src/test/resources/document-upload/test-upload-file.txt"))
-            .multiPart("file", File("./src/test/resources/document-upload/test-upload-file-two.txt"))
             .auth()
             .oauth2(TokenHelper.getToken())
             .contentType(ContentType.MULTIPART)
@@ -80,20 +80,31 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
         val caseDefendant = hearing.courtCase.getCaseDefendant(DEFENDANT_ID)
         val caseDefendantDocument = caseDefendant.get().documents;
         Assertions.assertThat(caseDefendantDocument).extracting("documentName")
-            .containsExactlyInAnyOrder("test-upload-file.txt", "test-upload-file-two.txt", "test-upload-file-get.txt")
+            .containsExactlyInAnyOrder("test-upload-file.txt", "test-upload-file-get.txt")
 
         Assertions.assertThat(caseDefendantDocument).extracting("documentId").isNotNull()
-
+        var expected = caseDefendantDocument.find { 1L == it.id }
         response
-            .body("get(0).id", equalTo(caseDefendantDocument[1].documentId))
-            .body("get(0).file.name", equalTo(caseDefendantDocument[1].documentName))
-            .body("get(0).datetime", `is`(notNullValue()))
-            .body("get(1).id", equalTo(caseDefendantDocument[0].documentId))
-            .body("get(1).file.name", equalTo(caseDefendantDocument[0].documentName))
-            .body("get(1).datetime", `is`(notNullValue()))
+            .body("id", equalTo(expected?.documentId))
+            .body("file.name", equalTo("test-upload-file.txt"))
+            .body("datetime", `is`(notNullValue()))
 
-        WIRE_MOCK_SERVER.verify(postRequestedFor(urlEqualTo("/documents/PIC_CASE_DOCUMENTS/${caseDefendantDocument[0].documentId}")));
-        WIRE_MOCK_SERVER.verify(postRequestedFor(urlEqualTo("/documents/PIC_CASE_DOCUMENTS/${caseDefendantDocument[1].documentId}")));
+        WIRE_MOCK_SERVER.verify(postRequestedFor(urlEqualTo("/documents/PIC_CASE_DOCUMENTS/${expected?.documentId}")));
+    }
+
+    @Test
+    fun `given hearing id, defendant id and document with un-allowed file extension, should return http 415 error`() {
+
+        RestAssured.given()
+            .multiPart("file", File("./src/test/resources/document-upload/test-upload-file.xyz"))
+            .auth()
+            .oauth2(TokenHelper.getToken())
+            .contentType(ContentType.MULTIPART)
+            .`when`()
+            .post("/hearing/{hearingId}/defendant/{defendantId}/file", HEARING_ID, DEFENDANT_ID)
+            .then()
+            .statusCode(415)
+            .body("userMessage", equalTo("Unsupported or missing file type {xyz}. Supported file types $PIC_ALLOWED_FILE_TYPES"))
     }
 
     @Test
@@ -154,6 +165,10 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
             .then()
             .statusCode(204)
 
-        WIRE_MOCK_SERVER.verify(deleteRequestedFor(urlEqualTo("/documents/${documentId}")));
+        WIRE_MOCK_SERVER.verify(deleteRequestedFor(urlEqualTo("/documents/${documentId}")))
+
+        val hearing = hearingRepository.findFirstByHearingId(HEARING_ID).get()
+        val caseDefendant = hearing.courtCase.getCaseDefendant(DEFENDANT_ID).get()
+        assertNull(caseDefendant.getCaseDefendantDocument(documentId))
     }
 }

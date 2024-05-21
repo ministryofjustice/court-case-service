@@ -8,6 +8,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CaseCommentsRepo
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
+import java.util.List;
+
 import static uk.gov.justice.probation.courtcaseservice.service.TelemetryEventType.CASE_COMMENT_ADDED;
 
 @Service
@@ -97,5 +99,9 @@ public class CaseCommentsService {
         }, () -> {
                 throw new EntityNotFoundException(COMMENTS_ERROR_MESSAGE_FORMAT_STRING, commentId, caseId, defendantId, userUuid);
         });
+    }
+
+    public List<CaseCommentEntity> getCaseCommentsForDefendant(String defendantId) {
+        return caseCommentsRepository.findByDefendantId(defendantId);
     }
 }

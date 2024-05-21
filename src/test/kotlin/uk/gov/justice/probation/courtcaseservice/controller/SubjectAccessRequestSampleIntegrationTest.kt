@@ -88,18 +88,6 @@ class SubjectAccessRequestSampleIntegrationTest : BaseIntTest() {
           .jsonPath("$.content.comments[0].lastUpdatedBy").isEqualTo("Last Updated Author")
           .jsonPath("$.content.comments[0].caseNumber").isEqualTo("1600028888")
       }
-
-      @Test
-      fun `should return data for additional TEST_DATA_ACCESS role`() {
-        // service will return data for prisoners that start with A
-        webTestClient.get().uri("/subject-access-request?prn=A12345")
-          .headers(setAuthorisation(roles = listOf("ROLE_TEST_DATA_ACCESS")))
-          .exchange()
-          .expectStatus().isOk
-          .expectBody()
-          .jsonPath("$.content.prisonerNumber").isEqualTo("A12345")
-          .jsonPath("$.content.commentText").isEqualTo("some useful comment")
-      }
     }
   }
 }

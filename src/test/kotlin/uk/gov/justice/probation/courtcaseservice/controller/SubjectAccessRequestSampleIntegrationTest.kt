@@ -71,9 +71,9 @@ class SubjectAccessRequestSampleIntegrationTest : BaseIntTest() {
     }
 
     @Nested
-    inner class HappyPath {
+    inner class CaseComments {
       @Test
-      fun `should return data if crn exists`() {
+      fun `should return case comments if present for defendant`() {
         // service will return data for prisoners that start with A
         webTestClient.get().uri("/subject-access-request?crn=X25829")
           .headers(setAuthorisation(roles = listOf("ROLE_SAR_DATA_ACCESS")))
@@ -87,6 +87,34 @@ class SubjectAccessRequestSampleIntegrationTest : BaseIntTest() {
           .jsonPath("$.content.comments[0].lastUpdated").isEqualTo("2024-04-08T09:45:55.597")
           .jsonPath("$.content.comments[0].lastUpdatedBy").isEqualTo("Last Updated Author")
           .jsonPath("$.content.comments[0].caseNumber").isEqualTo("1600028888")
+      }
+
+      @Test
+      fun `should return case comments if present for defendant but no case number if not LIBRA`() {
+        // service will return data for prisoners that start with A
+        webTestClient.get().uri("/subject-access-request?crn=B25829")
+          .headers(setAuthorisation(roles = listOf("ROLE_SAR_DATA_ACCESS")))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$.content.comments[0].comment").isEqualTo("PSR completed")
+          .jsonPath("$.content.comments[0].author").isEqualTo("Author Two")
+          .jsonPath("$.content.comments[0].created").isEqualTo("2024-05-22T09:45:55.597")
+          .jsonPath("$.content.comments[0].createdBy").isEqualTo("before-test.sql")
+          .jsonPath("$.content.comments[0].lastUpdated").isEqualTo("2024-04-09T09:45:55.597")
+          .jsonPath("$.content.comments[0].lastUpdatedBy").isEqualTo("Last Updated Author2")
+          .jsonPath("$.content.comments[0].caseNumber").isEqualTo("")
+      }
+
+      @Test
+      fun `should not return case comments if not present for defendant`() {
+        // service will return data for prisoners that start with A
+        webTestClient.get().uri("/subject-access-request?crn=Z258210")
+          .headers(setAuthorisation(roles = listOf("ROLE_SAR_DATA_ACCESS")))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$.content.comments").isEmpty
       }
     }
   }

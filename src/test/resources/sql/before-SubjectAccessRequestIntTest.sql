@@ -47,6 +47,7 @@ VALUES (-197, -197, '2022-03-23 16:59:59.000', 'd1a4f1b7-b153-4740-b68a-2b84feff
 
 
 -- Case list
+INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, deleted, created_by, created_by_uuid, last_updated, last_updated_by) VALUES (-1700028902, '3a3f5334-34c7-4caa-9b7a-9495663ea2da', '62d57ee8-a7a6-4b36-857d-8ced9e2aac9b', 'PSR completed', 'Author Two', '2024-05-22 09:45:55.597', true, 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', '2024-04-09 09:45:55.597', 'Last Updated Author2');
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)
 VALUES (-197, -197, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 16:59:59.000');
 INSERT INTO court_case (id, case_id, case_no, created, source_type)
@@ -56,7 +57,7 @@ VALUES (-195, -195, '1bfff8b7-fbc6-413f-8545-8299c26f75bd', '2022-03-23 16:59:59
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
 VALUES (-195, -195, 'B14LO', 1, '2022-03-23', '09:00', '2022-03-23 16:59:59.001');
 INSERT INTO DEFENDANT (id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, type, date_of_birth, crn, sex, created)
-VALUES (-195, '62d57ee8-a7a6-4b36-857d-8ced9e2aac9b', '18852522-4b9f-11ed-bdc3-0242ac120002', 'Mr Hearing Moved In', '{"title": "Mr", "surname": "BUELLER", "forename1": "Ferris"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', null, 'MALE', '2022-03-23 16:59:59.001');
+VALUES (-195, '62d57ee8-a7a6-4b36-857d-8ced9e2aac9b', '18852522-4b9f-11ed-bdc3-0242ac120002', 'Mr Hearing Moved In', '{"title": "Mr", "surname": "BUELLER", "forename1": "Ferris"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', 'B25829', 'MALE', '2022-03-23 16:59:59.001');
 INSERT INTO HEARING_DEFENDANT (id, fk_hearing_id, created, defendant_id, fk_defendant_id)
 VALUES (-195, -195, '2022-03-23 16:59:59.000', '62d57ee8-a7a6-4b36-857d-8ced9e2aac9b', -195);
 
@@ -130,7 +131,7 @@ VALUES (-185, -185, '961f6b9d-ae7e-4998-9d5d-4f56ceadce99', '2022-03-23 16:59:59
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
 VALUES (-185, -185, 'B14LO', 1, '2022-03-23', '09:00', '2022-03-23 16:59:59.002');
 INSERT INTO DEFENDANT (id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, type, date_of_birth, crn, sex, created)
-VALUES (-185, '4e26fdb6-aa78-4cc0-a6b4-710665bf4c44', '388e0e76-4ba7-11ed-bdc3-0242ac120002', 'Mr Hearing Moved To Another Day', '{"title": "Mr", "surname": "BUELLER", "forename1": "Ferris"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', null, 'MALE', '2022-03-23 16:59:59.002');
+VALUES (-185, '4e26fdb6-aa78-4cc0-a6b4-710665bf4c44', '388e0e76-4ba7-11ed-bdc3-0242ac120002', 'Mr Hearing Moved To Another Day', '{"title": "Mr", "surname": "BUELLER", "forename1": "Ferris"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', 'Z258210', 'MALE', '2022-03-23 16:59:59.002');
 INSERT INTO HEARING_DEFENDANT (id, fk_hearing_id, created, defendant_id, fk_defendant_id)
 VALUES (-185, -185, '2022-03-23 16:59:59.000', '4e26fdb6-aa78-4cc0-a6b4-710665bf4c44', -185);
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)

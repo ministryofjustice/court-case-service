@@ -37,7 +37,7 @@ class DefendantCaseCommentsService(
             }.toList()
 
     private fun getCaseNumber(caseComment: CaseCommentEntity): String {
-        val findByCaseId: CourtCaseEntity? = immutableCourtCaseService.findByCaseId(caseComment.caseId).orElseGet(null)
+        val findByCaseId: CourtCaseEntity? = immutableCourtCaseService.findByCaseId(caseComment.caseId).orElse(null)
         return if (findByCaseId?.sourceType == SourceType.LIBRA) findByCaseId.caseNo else ""
     }
 }

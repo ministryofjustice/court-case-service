@@ -397,4 +397,28 @@ public class EntityHelper {
                 .date(verdictDate)
                 .build();
     }
+
+    public static CaseCommentEntity aCaseCommentEntity() {
+        return CaseCommentEntity.builder()
+                .caseId("5678")
+                .comment("Some comment")
+                .author("Some author")
+                .created(LocalDateTime.of(2024, 5, 22, 12, 0))
+                .createdBy("Test User")
+                .lastUpdated(LocalDateTime.of(2024, 5, 22, 12, 30))
+                .lastUpdatedBy("Test User")
+                .build();
+    }
+
+    public static CourtCaseEntity aCourtCaseEntity() {
+        return CourtCaseEntity.builder()
+                .caseId("5678")
+                .sourceType(SourceType.LIBRA)
+                .caseNo("222333")
+                .created(LocalDateTime.of(2024, 5, 22, 12, 0))
+                .createdBy("Test User")
+                .lastUpdated(LocalDateTime.of(2024, 5, 22, 12, 30))
+                .lastUpdatedBy("Test User")
+                .build();
+    }
 }

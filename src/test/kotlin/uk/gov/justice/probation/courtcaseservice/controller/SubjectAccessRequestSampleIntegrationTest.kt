@@ -87,6 +87,13 @@ class SubjectAccessRequestSampleIntegrationTest : BaseIntTest() {
           .jsonPath("$.content.comments[0].lastUpdated").isEqualTo("2024-04-08T09:45:55.597")
           .jsonPath("$.content.comments[0].lastUpdatedBy").isEqualTo("Last Updated Author")
           .jsonPath("$.content.comments[0].caseNumber").isEqualTo("1600028888")
+          .jsonPath("$.content.comments[1].comment").isEqualTo("PSR in progress")
+          .jsonPath("$.content.comments[1].author").isEqualTo("Author Three")
+          .jsonPath("$.content.comments[1].created").isEqualTo("2024-04-21T09:45:55.597")
+          .jsonPath("$.content.comments[1].createdBy").isEqualTo("before-test.sql")
+          .jsonPath("$.content.comments[1].lastUpdated").isEqualTo("2024-03-08T09:45:55.597")
+          .jsonPath("$.content.comments[1].lastUpdatedBy").isEqualTo("Last Updated Author3")
+          .jsonPath("$.content.comments[1].caseNumber").isEqualTo("1600028888")
       }
 
       @Test

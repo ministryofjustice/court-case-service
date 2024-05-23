@@ -4,10 +4,9 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+
+import static org.hibernate.internal.util.collections.CollectionHelper.listOf;
 
 public class EntityHelper {
 
@@ -171,10 +170,12 @@ public class EntityHelper {
     private static HearingDefendantEntity aHearingDefendantEntity(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId, String crn) {
         DefendantEntity defendant = aDefendantEntity(defendantAddress, name, defendantId, crn);
         final HearingDefendantEntity hearingDefendant = HearingDefendantEntity.builder()
+                .id(1L)
                 .defendantId(defendantId)
                 .defendant(defendant)
                 .offences(getMutableList(List.of(aDefendantOffence())))
-                .notes(new ArrayList<>())
+                .hearingOutcome(aHearingOutcomeEntity())
+                .notes(listOf(aHearingNoteEntity()))
                 .build();
         hearingDefendant.getOffences()
                 .forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendant));
@@ -208,6 +209,25 @@ public class EntityHelper {
                 .phoneNumber(DEFENDANT_PHONE_NUMBER_ENTITY)
                 .personId(PERSON_ID)
                 .hearingDefendants(getMutableList(List.of()))
+                .build();
+    }
+
+    private static HearingOutcomeEntity aHearingOutcomeEntity() {
+        return HearingOutcomeEntity.builder()
+                .outcomeType("")
+                .outcomeDate(LocalDateTime.of(2020, 5, 1,0, 0))
+                .resultedDate(LocalDateTime.of(2020, 5, 1,0, 0))
+                .state("IN_PROGRESS")
+                .assignedTo("John Doe")
+                .created(LocalDateTime.of(2024, 1, 1,0, 0)).build();
+    }
+
+    private static HearingNoteEntity aHearingNoteEntity() {
+        return HearingNoteEntity.builder()
+                .note("This is a fake note")
+                .author("Note Taker")
+                .hearingId("UUID")
+                .created(LocalDateTime.of(2024, 1, 1,0, 0))
                 .build();
     }
 

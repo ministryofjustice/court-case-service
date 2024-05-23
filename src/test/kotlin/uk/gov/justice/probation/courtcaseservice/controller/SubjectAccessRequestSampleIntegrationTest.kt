@@ -123,6 +123,64 @@ class SubjectAccessRequestSampleIntegrationTest : BaseIntTest() {
           .expectBody()
           .jsonPath("$.content.comments").isEmpty
       }
+
+      @Test
+      fun `should return case comments if present for defendant between dates`() {
+        // service will return data for prisoners that start with A
+        webTestClient.get().uri("/subject-access-request?crn=X25829&fromDate=2024-04-21&toDate=2024-05-22")
+          .headers(setAuthorisation(roles = listOf("ROLE_SAR_DATA_ACCESS")))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$.content.comments[0].comment").isEqualTo("PSR in progress")
+          .jsonPath("$.content.comments[0].author").isEqualTo("Author One")
+          .jsonPath("$.content.comments[0].created").isEqualTo("2024-05-21T09:45:55.597")
+          .jsonPath("$.content.comments[0].createdBy").isEqualTo("before-test.sql")
+          .jsonPath("$.content.comments[0].lastUpdated").isEqualTo("2024-04-08T09:45:55.597")
+          .jsonPath("$.content.comments[0].lastUpdatedBy").isEqualTo("Last Updated Author")
+          .jsonPath("$.content.comments[0].caseNumber").isEqualTo("1600028888")
+          .jsonPath("$.content.comments[1].comment").isEqualTo("PSR in progress")
+          .jsonPath("$.content.comments[1].author").isEqualTo("Author Three")
+          .jsonPath("$.content.comments[1].created").isEqualTo("2024-04-21T09:45:55.597")
+          .jsonPath("$.content.comments[1].createdBy").isEqualTo("before-test.sql")
+          .jsonPath("$.content.comments[1].lastUpdated").isEqualTo("2024-03-08T09:45:55.597")
+          .jsonPath("$.content.comments[1].lastUpdatedBy").isEqualTo("Last Updated Author3")
+          .jsonPath("$.content.comments[1].caseNumber").isEqualTo("1600028888")
+      }
+
+      @Test
+      fun `should return case comments if present for defendant from date`() {
+        // service will return data for prisoners that start with A
+        webTestClient.get().uri("/subject-access-request?crn=X25829&fromDate=2024-05-21")
+          .headers(setAuthorisation(roles = listOf("ROLE_SAR_DATA_ACCESS")))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$.content.comments[0].comment").isEqualTo("PSR in progress")
+          .jsonPath("$.content.comments[0].author").isEqualTo("Author One")
+          .jsonPath("$.content.comments[0].created").isEqualTo("2024-05-21T09:45:55.597")
+          .jsonPath("$.content.comments[0].createdBy").isEqualTo("before-test.sql")
+          .jsonPath("$.content.comments[0].lastUpdated").isEqualTo("2024-04-08T09:45:55.597")
+          .jsonPath("$.content.comments[0].lastUpdatedBy").isEqualTo("Last Updated Author")
+          .jsonPath("$.content.comments[0].caseNumber").isEqualTo("1600028888")
+      }
+
+      @Test
+      fun `should return case comments if present for defendant to date`() {
+        // service will return data for prisoners that start with A
+        webTestClient.get().uri("/subject-access-request?crn=X25829&toDate=2024-04-25")
+          .headers(setAuthorisation(roles = listOf("ROLE_SAR_DATA_ACCESS")))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$.content.comments[0].comment").isEqualTo("PSR in progress")
+          .jsonPath("$.content.comments[0].author").isEqualTo("Author Three")
+          .jsonPath("$.content.comments[0].created").isEqualTo("2024-04-21T09:45:55.597")
+          .jsonPath("$.content.comments[0].createdBy").isEqualTo("before-test.sql")
+          .jsonPath("$.content.comments[0].lastUpdated").isEqualTo("2024-03-08T09:45:55.597")
+          .jsonPath("$.content.comments[0].lastUpdatedBy").isEqualTo("Last Updated Author3")
+          .jsonPath("$.content.comments[0].caseNumber").isEqualTo("1600028888")
+      }
     }
   }
 }

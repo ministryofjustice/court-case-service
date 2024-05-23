@@ -13,6 +13,6 @@ class SubjectAccessRequestService(private val defendantCaseCommentsService: Defe
         fromDate: LocalDate?,
         toDate: LocalDate?
     ): HmppsSubjectAccessRequestContent? {
-        return HmppsSubjectAccessRequestContent(ContentSarResponse(defendantCaseCommentsService.getCaseCommentsForDefendant(crn)))
+        return HmppsSubjectAccessRequestContent(ContentSarResponse(defendantCaseCommentsService.getCaseCommentsForDefendant(crn, fromDate, toDate)))
     }
 }

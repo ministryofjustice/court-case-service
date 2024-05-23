@@ -10,13 +10,10 @@ import java.util.*
 @Repository
 interface HearingOutcomeRepository: CrudRepository<HearingOutcomeEntity, Long> {
 
-    @Query(
-        value = "select ho.* from hearing_outcome ho " +
-                "inner join hearing_defendant hd on ho.fk_hearing_defendant_id = hd.id " +
-                "and ho.fk_hearing_defendant_id = :hearingDefendantId " +
-                "and (cast(:fromDate as date) IS NULL OR ho.created > :fromDate) AND (cast(:toDate as date) IS NULL OR ho.created <= :toDate)",
-                nativeQuery = true
-        )
-    fun findAllByHearingDefendantIdAndOutcomeDateBetween(hearingDefendantId: Long, fromDate: LocalDateTime?, toDate: LocalDateTime?): List<HearingOutcomeEntity>
+    fun findByHearingDefendantId(hearingDefendantId: Long): List<HearingOutcomeEntity>
+    fun findAllByHearingDefendantIdAndCreatedBefore(hearingDefendantId: Long, toDateTime: LocalDateTime?): List<HearingOutcomeEntity>
 
+    fun findAllByHearingDefendantIdAndCreatedAfter(hearingDefendantId: Long, fromDateTime: LocalDateTime?): List<HearingOutcomeEntity>
+
+    fun findAllByHearingDefendantIdAndCreatedBetween(hearingDefendantId: Long, fromDateTime: LocalDateTime?, toDateTime: LocalDateTime?): List<HearingOutcomeEntity>
 }

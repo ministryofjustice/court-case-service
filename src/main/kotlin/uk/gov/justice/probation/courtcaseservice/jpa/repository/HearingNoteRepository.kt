@@ -10,11 +10,11 @@ import java.time.LocalDateTime
 
 @Repository
 interface HearingNoteRepository: CrudRepository<HearingNoteEntity, Long> {
+    fun findAllByHearingDefendantIdAndCreatedBefore(hearingDefendantId: Long, toDateTime: LocalDateTime?): List<HearingNoteEntity>
 
-    @Query(value = "select hn.* from hearing_notes hn " +
-                "where hn.fk_hearing_defendant_id = :hearingDefendantId " +
-                "and (cast(:fromDateTime as date) IS NULL OR hn.created > :fromDateTime) AND (cast(:toDateTime as date) IS NULL OR hn.created <= :toDateTime)",
-        nativeQuery = true)
-    fun findAllByHearingDefendantIdAndCreatedIsBetween(hearingDefendantId: Long, fromDateTime: LocalDateTime?, toDateTime: LocalDateTime?): List<HearingNoteEntity>
+    fun findAllByHearingDefendantIdAndCreatedAfter(hearingDefendantId: Long, fromDateTime: LocalDateTime?): List<HearingNoteEntity>
 
+    fun findAllByHearingDefendantIdAndCreatedBetween(hearingDefendantId: Long, fromDateTime: LocalDateTime?, toDateTime: LocalDateTime?): List<HearingNoteEntity>
+
+    fun findByHearingDefendantId(hearingDefendantId: Long): List<HearingNoteEntity>
 }

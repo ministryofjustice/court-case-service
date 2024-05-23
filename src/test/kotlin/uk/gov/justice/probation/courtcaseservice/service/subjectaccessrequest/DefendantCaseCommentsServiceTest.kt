@@ -1,4 +1,4 @@
-package uk.gov.justice.probation.courtcaseservice.service
+package uk.gov.justice.probation.courtcaseservice.service.subjectaccessrequest
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -10,6 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.verifyNoInteractions
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepositoryFacade
+import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService
+import uk.gov.justice.probation.courtcaseservice.service.ImmutableCourtCaseService
 import java.time.LocalDate
 import java.util.*
 

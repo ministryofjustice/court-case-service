@@ -175,7 +175,7 @@ public class EntityHelper {
                 .defendant(defendant)
                 .offences(getMutableList(List.of(aDefendantOffence())))
                 .hearingOutcome(aHearingOutcomeEntity())
-                .notes(listOf(aHearingNoteEntity()))
+                .notes(listOf(aHearingNoteEntity(false), aHearingNoteEntity(true)))
                 .build();
         hearingDefendant.getOffences()
                 .forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendant));
@@ -222,11 +222,12 @@ public class EntityHelper {
                 .created(LocalDateTime.of(2024, 1, 1,0, 0)).build();
     }
 
-    private static HearingNoteEntity aHearingNoteEntity() {
+    private static HearingNoteEntity aHearingNoteEntity(Boolean draft) {
         return HearingNoteEntity.builder()
                 .note("This is a fake note")
                 .author("Note Taker")
                 .hearingId("UUID")
+                .draft(draft)
                 .created(LocalDateTime.of(2024, 1, 1,0, 0))
                 .build();
     }

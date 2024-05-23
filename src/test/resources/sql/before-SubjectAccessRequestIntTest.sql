@@ -20,9 +20,7 @@ VALUES (-198, '0048297a-fd9c-4c96-8c03-8122b802a54d', '732cce04-4b9e-11ed-bdc3-0
 INSERT INTO HEARING_DEFENDANT (id, fk_hearing_id, created, defendant_id, FK_DEFENDANT_ID)
 VALUES (-198, -198, '2022-03-23 16:59:59.000', '0048297a-fd9c-4c96-8c03-8122b802a54d', -198);
 INSERT INTO HEARING_OUTCOME (id, outcome_type, outcome_date, state, created, created_by, assigned_to, assigned_to_uuid, resulted_date, fk_hearing_id, fk_hearing_defendant_id)
-VALUES (-198, 'ADJOURNED', '2023-4-24 09:09:09', 'IN_PROGRESS', now(), 'before-test', 'John Smith', '8f69def4-3c52-11ee-be56-0242ac120002', '2023-4-25 09:09:09', -198, -198);
-INSERT INTO HEARING_OUTCOME (id, outcome_type, outcome_date, state, created, created_by, assigned_to, assigned_to_uuid, resulted_date, fk_hearing_id, fk_hearing_defendant_id)
-VALUES (-199, 'ADJOURNED', '2023-4-24 09:09:09', 'IN_PROGRESS', '2023-04-01 09:09:09', 'before-test', 'John Smith', '8f69def4-3c52-11ee-be56-0242ac120002', '2023-4-25 09:09:09', -198, -198);
+VALUES (-198, 'ADJOURNED', '2023-4-24 09:09:09', 'IN_PROGRESS', '2023-04-01 09:09:09', 'before-test', 'John Smith', '8f69def4-3c52-11ee-be56-0242ac120002', '2023-4-25 09:09:09', -198, -198);
 INSERT INTO HEARING_NOTES (id, hearing_id, note, author, created, created_by, created_by_uuid, last_updated, last_updated_by, deleted, version, draft, fk_hearing_defendant_id, legacy)
 VALUES (-198,'fe657c3a-b674-4e17-8772-7281c99e4f9f','This is a test comment by the Prepare a case digital team.','John Doe','2022-10-10 10:17:58.985318','user(prepare-a-case-for-court)','fefac6dc-0533-47e9-bf6a-35b4992d9d85','2022-10-10 10:17:58.985318','user(prepare-a-case-for-court)',false,0,false,-198,false);
 

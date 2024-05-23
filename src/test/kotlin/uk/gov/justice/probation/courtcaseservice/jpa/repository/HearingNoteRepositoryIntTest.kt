@@ -21,6 +21,11 @@ import java.time.LocalDateTime
     config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),
     executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
 )
+@Sql(
+    scripts = ["classpath:after-test.sql"],
+    config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),
+    executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD
+)
 class HearingNoteRepositoryIntTest {
     @Autowired
     private lateinit var hearingNoteRepository: HearingNoteRepository;
@@ -42,7 +47,7 @@ class HearingNoteRepositoryIntTest {
 
     @Test
     fun `given hearing defendant and valid date ranges, it should find matching hearing outcomes`(){
-        val matchingHearingNotes = hearingNoteRepository.findAllByHearingDefendantIdAndCreatedIsBetween(hearingDefendantEntity.id, fromDateTime, toDateTime)
+        val matchingHearingNotes = hearingNoteRepository.findAllByHearingDefendantIdAndCreatedBetween(hearingDefendantEntity.id, fromDateTime, toDateTime)
 
         assertThat(matchingHearingNotes.size).isEqualTo(1)
     }
@@ -50,7 +55,7 @@ class HearingNoteRepositoryIntTest {
     @Test
     fun `given hearing defendant and valid fromDate, it should find matching hearing outcomes`(){
         val matchingHearingNotes =
-            hearingNoteRepository.findAllByHearingDefendantIdAndCreatedIsBetween(hearingDefendantEntity.id, fromDateTime , null)
+            hearingNoteRepository.findAllByHearingDefendantIdAndCreatedAfter(hearingDefendantEntity.id, fromDateTime)
 
         assertThat(matchingHearingNotes.size).isEqualTo(1)
     }
@@ -58,28 +63,28 @@ class HearingNoteRepositoryIntTest {
     @Test
     fun `given hearing defendant and valid toDate, it should find matching hearing outcomes`(){
         val matchingHearingNotes =
-            hearingNoteRepository.findAllByHearingDefendantIdAndCreatedIsBetween(hearingDefendantEntity.id, null, toDateTime)
+            hearingNoteRepository.findAllByHearingDefendantIdAndCreatedBefore(hearingDefendantEntity.id, toDateTime)
 
         assertThat(matchingHearingNotes.size).isEqualTo(1)
     }
 
     @Test
     fun `given hearing defendant and no dates, it should find matching hearing outcomes`(){
-        val matchingHearingNotes = hearingNoteRepository.findAllByHearingDefendantIdAndCreatedIsBetween(hearingDefendantEntity.id, null, null)
+        val matchingHearingNotes = hearingNoteRepository.findByHearingDefendantId(hearingDefendantEntity.id)
 
         assertThat(matchingHearingNotes.size).isEqualTo(1)
     }
 
     @Test
     fun `given hearing defendant and hearing notes out of valid minimum date range, it should find no matching hearing notes`(){
-        val matchingHearingNotes = hearingNoteRepository.findAllByHearingDefendantIdAndCreatedIsBetween(hearingDefendantEntity.id, fromDateTime.plusDays(1), null)
+        val matchingHearingNotes = hearingNoteRepository.findAllByHearingDefendantIdAndCreatedAfter(hearingDefendantEntity.id, fromDateTime.plusDays(1))
 
         assertThat(matchingHearingNotes.size).isEqualTo(0)
     }
 
     @Test
     fun `given hearing defendant and hearing notes out of valid maximum date range, it should find no matching hearing notes`(){
-        val matchingHearingNotes = hearingNoteRepository.findAllByHearingDefendantIdAndCreatedIsBetween(hearingDefendantEntity.id, null, toDateTime.minusDays(1))
+        val matchingHearingNotes = hearingNoteRepository.findAllByHearingDefendantIdAndCreatedBefore(hearingDefendantEntity.id, toDateTime.minusDays(1))
 
         assertThat(matchingHearingNotes.size).isEqualTo(0)
     }

@@ -1,13 +1,14 @@
-package uk.gov.justice.probation.courtcaseservice.service
+package uk.gov.justice.probation.courtcaseservice.service.subjectaccessrequest
 
 import org.springframework.stereotype.Service
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentsSarResponse
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepositoryFacade
 import java.time.LocalDate
+import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService
+import uk.gov.justice.probation.courtcaseservice.service.ImmutableCourtCaseService
 
 @Service
 class DefendantCaseCommentsService(

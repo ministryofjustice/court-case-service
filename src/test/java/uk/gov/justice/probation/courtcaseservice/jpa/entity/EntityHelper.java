@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
+import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -214,7 +215,7 @@ public class EntityHelper {
 
     private static HearingOutcomeEntity aHearingOutcomeEntity() {
         return HearingOutcomeEntity.builder()
-                .outcomeType("")
+                .outcomeType("ADJOURNED")
                 .outcomeDate(LocalDateTime.of(2020, 5, 1,0, 0))
                 .resultedDate(LocalDateTime.of(2020, 5, 1,0, 0))
                 .state("IN_PROGRESS")

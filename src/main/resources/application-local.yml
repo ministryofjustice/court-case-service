@@ -37,7 +37,7 @@ domain-event-and-delius-api:
 
   flyway:
     defaultSchema: courtcaseservice
-    locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local, filesystem:src/test/resources/
+    locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local, filesystem:src/test/resources
   datasource:
     url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=courtcaseservice&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
     hikari:
@@ -86,3 +86,7 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
+
+hmpps:
+  sar:
+    additionalAccessRole: 'PREPARE_A_CASE'

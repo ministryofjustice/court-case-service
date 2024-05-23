@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.verifyNoInteractions
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepositoryFacade
 import java.util.*
@@ -60,5 +61,14 @@ class DefendantCaseCommentsServiceTest {
         assertThat(caseCommentsForDefendant[0].lastUpdated).isEqualTo("2024-05-22T12:30")
         assertThat(caseCommentsForDefendant[0].lastUpdatedBy).isEqualTo("Test User")
         assertThat(caseCommentsForDefendant[0].caseNumber).isEqualTo("222333")
+    }
+
+    @Test
+    fun `given crn does not exist then no comments are returned`() {
+        given(defendantRepositoryFacade.findDefendantsByCrn("CRN123")).willReturn(Collections.emptyList())
+        verifyNoInteractions(caseCommentsService)
+        verifyNoInteractions(immutableCourtCaseService)
+        val caseCommentsForDefendant = defendantCaseCommentsService.getCaseCommentsForDefendant("CRN123")
+        assertThat(caseCommentsForDefendant).isEmpty()
     }
 }

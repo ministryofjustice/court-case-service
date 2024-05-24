@@ -24,6 +24,7 @@ import java.security.spec.RSAMultiPrimePrivateCrtKeySpec;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import static uk.gov.justice.probation.courtcaseservice.Constants.USER_UUID_CLAIM_NAME;
 
@@ -32,6 +33,8 @@ public class TokenHelper {
     private static String cachedTokenUuid = null;
 
     public static String TEST_UUID = "fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81";
+
+    public static List<String> roles = Collections.singletonList("ROLE_PREPARE_A_CASE");
 
     public static String getToken(final String uuid) {
         if (cachedToken == null || !StringUtils.equals(uuid, cachedTokenUuid)) {
@@ -63,7 +66,7 @@ public class TokenHelper {
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject("TEST.USER")
                 .issuer("http://localhost:8090/auth/issuer")
-                .claim("authorities", Collections.singletonList("ROLE_PREPARE_A_CASE"))
+                .claim("authorities", roles)
                 .claim(USER_UUID_CLAIM_NAME, uuid)
                 .expirationTime(new Date(new Date().getTime() + 60 * 1000))
                 .build();

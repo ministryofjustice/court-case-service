@@ -1,16 +1,18 @@
 package uk.gov.justice.probation.courtcaseservice.controller
 
+import io.restassured.RestAssured
+import org.hamcrest.Matchers
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase
 import org.springframework.test.context.jdbc.SqlConfig
 import org.springframework.test.context.jdbc.SqlConfig.TransactionMode
-import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest
+import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken
+import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.roles
 
 /**
  * Sample test to check the service implementation is picked up by the endpoint and the service access request endpoint
@@ -28,19 +30,6 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest
   executionPhase = ExecutionPhase.AFTER_TEST_METHOD
 )
 class SubjectAccessRequestIntegrationTest : BaseIntTest() {
-
-  @Autowired
-  lateinit var webTestClient: WebTestClient
-
-  @Autowired
-  protected lateinit var jwtAuthHelper: JwtAuthHelper
-
-  internal fun setAuthorisation(
-    user: String = "AUTH_ADM",
-    roles: List<String> = listOf(),
-    scopes: List<String> = listOf("read"),
-  ): (HttpHeaders) -> Unit = jwtAuthHelper.setAuthorisation(user, roles, scopes)
-
   @Nested
   @DisplayName("/subject-access-request")
   inner class SubjectAccessRequestEndpoint {
@@ -48,25 +37,49 @@ class SubjectAccessRequestIntegrationTest : BaseIntTest() {
     inner class Security {
       @Test
       fun `access forbidden when no authority`() {
-        webTestClient.get().uri("/subject-access-request?prn=A12345")
-          .exchange()
-          .expectStatus().isUnauthorized
+        RestAssured.given()
+          .auth()
+          .oauth2("null")
+          .`when`()
+          .header(
+            "Accept",
+            "application/json"
+          )
+          .get("/subject-access-request?crn=A12345")
+          .then()
+          .statusCode(HttpStatus.UNAUTHORIZED.value())
       }
 
       @Test
       fun `access forbidden when no role`() {
-        webTestClient.get().uri("/subject-access-request?prn=A12345")
-          .headers(setAuthorisation(roles = listOf()))
-          .exchange()
-          .expectStatus().isForbidden
+        roles = listOf()
+        RestAssured.given()
+          .auth()
+          .oauth2(getToken())
+          .`when`()
+          .header(
+            "Accept",
+            "application/json"
+          )
+          .get("/subject-access-request?crn=A12345")
+          .then()
+          .statusCode(HttpStatus.FORBIDDEN.value())
       }
 
       @Test
       fun `access forbidden with wrong role`() {
-        webTestClient.get().uri("/subject-access-request?prn=A12345")
-          .headers(setAuthorisation(roles = listOf("ROLE_BANANAS")))
-          .exchange()
-          .expectStatus().isForbidden
+        roles = listOf("ROLE_BANANAS")
+        RestAssured.given()
+          .auth()
+          .oauth2(getToken())
+          .`when`()
+          .header(
+            "Accept",
+            "application/json"
+          )
+          .get("/subject-access-request?crn=A12345")
+          .then()
+          .statusCode(HttpStatus.FORBIDDEN.value())
       }
     }
 
@@ -74,141 +87,170 @@ class SubjectAccessRequestIntegrationTest : BaseIntTest() {
     inner class SARContent {
       @Test
       fun `should return case comments, hearing outcomes and hearing notes if present for defendant`() {
-        webTestClient.get().uri("/subject-access-request?crn=X25829")
-          .headers(setAuthorisation(roles = listOf("ROLE_SAR_DATA_ACCESS")))
-          .exchange()
-          .expectStatus().isOk
-          .expectBody()
-          .jsonPath("$.content.comments[0].comment").isEqualTo("PSR in progress")
-          .jsonPath("$.content.comments[0].author").isEqualTo("Author One")
-          .jsonPath("$.content.comments[0].created").isEqualTo("2024-05-21T09:45:55.597")
-          .jsonPath("$.content.comments[0].createdBy").isEqualTo("before-test.sql")
-          .jsonPath("$.content.comments[0].lastUpdated").isEqualTo("2024-04-08T09:45:55.597")
-          .jsonPath("$.content.comments[0].lastUpdatedBy").isEqualTo("Last Updated Author")
-          .jsonPath("$.content.comments[0].caseNumber").isEqualTo("1600028888")
-          .jsonPath("$.content.comments[1].comment").isEqualTo("PSR in progress")
-          .jsonPath("$.content.comments[1].author").isEqualTo("Author Three")
-          .jsonPath("$.content.comments[1].created").isEqualTo("2024-04-21T09:45:55.597")
-          .jsonPath("$.content.comments[1].createdBy").isEqualTo("before-test.sql")
-          .jsonPath("$.content.comments[1].lastUpdated").isEqualTo("2024-03-08T09:45:55.597")
-          .jsonPath("$.content.comments[1].lastUpdatedBy").isEqualTo("Last Updated Author3")
-          .jsonPath("$.content.comments[1].caseNumber").isEqualTo("1600028888")
-          .jsonPath("$.content.hearingOutcomes[0].outcomeType").isEqualTo("ADJOURNED")
-          .jsonPath("$.content.hearingOutcomes[0].outcomeDate").isEqualTo("2023-04-24T09:09:09")
-          .jsonPath("$.content.hearingOutcomes[0].resultedDate").isEqualTo("2023-04-25T09:09:09")
-          .jsonPath("$.content.hearingOutcomes[0].state").isEqualTo("IN_PROGRESS")
-          .jsonPath("$.content.hearingOutcomes[0].assignedTo").isEqualTo("John Smith")
-          .jsonPath("$.content.hearingNotes[0].hearingId").isEqualTo("fe657c3a-b674-4e17-8772-7281c99e4f9f")
-          .jsonPath("$.content.hearingNotes[0].note").isEqualTo("This is a test comment by the Prepare a case digital team.")
-          .jsonPath("$.content.hearingNotes[0].author").isEqualTo("John Doe")
+
+        RestAssured.given()
+          .auth()
+          .oauth2(getToken())
+          .`when`()
+          .header(
+            "Accept",
+            "application/json"
+          )
+          .get("/subject-access-request?crn=X25829")
+          .then()
+          .statusCode(200)
+          .body("content.comments[0].comment", Matchers.equalTo("PSR in progress"))
+          .body("content.comments[0].author", Matchers.equalTo("Author One"))
+          .body("content.comments[0].created", Matchers.equalTo("2024-05-21T09:45:55.597"))
+          .body("content.comments[0].createdBy", Matchers.equalTo("before-test.sql"))
+          .body("content.comments[0].lastUpdated", Matchers.equalTo("2024-04-08T09:45:55.597"))
+          .body("content.comments[0].lastUpdatedBy", Matchers.equalTo("Last Updated Author"))
+          .body("content.comments[0].caseNumber", Matchers.equalTo("1600028888"))
+          .body("content.comments[1].comment", Matchers.equalTo("PSR in progress"))
+          .body("content.comments[1].author", Matchers.equalTo("Author Three"))
+          .body("content.comments[1].created", Matchers.equalTo("2024-04-21T09:45:55.597"))
+          .body("content.comments[1].createdBy", Matchers.equalTo("before-test.sql"))
+          .body("content.comments[1].lastUpdated", Matchers.equalTo("2024-03-08T09:45:55.597"))
+          .body("content.comments[1].lastUpdatedBy", Matchers.equalTo("Last Updated Author3"))
+          .body("content.comments[1].caseNumber", Matchers.equalTo("1600028888"))
+          .body("content.hearingOutcomes[0].outcomeType", Matchers.equalTo("ADJOURNED"))
+          .body("content.hearingOutcomes[0].outcomeDate", Matchers.equalTo("2023-04-24T09:09:09"))
+          .body("content.hearingOutcomes[0].resultedDate", Matchers.equalTo("2023-04-25T09:09:09"))
+          .body("content.hearingOutcomes[0].state", Matchers.equalTo("IN_PROGRESS"))
+          .body("content.hearingOutcomes[0].assignedTo", Matchers.equalTo("John Smith"))
+          .body("content.hearingNotes[0].hearingId", Matchers.equalTo("fe657c3a-b674-4e17-8772-7281c99e4f9f"))
+          .body("content.hearingNotes[0].note", Matchers.equalTo("This is a test comment by the Prepare a case digital team."))
+          .body("content.hearingNotes[0].author", Matchers.equalTo("John Doe"))
       }
 
       @Test
       fun `should return case comments if present for defendant but no case number if not LIBRA`() {
         // service will return data for prisoners that start with A
-        webTestClient.get().uri("/subject-access-request?crn=B25829")
-          .headers(setAuthorisation(roles = listOf("ROLE_SAR_DATA_ACCESS")))
-          .exchange()
-          .expectStatus().isOk
-          .expectBody()
-          .jsonPath("$.content.comments[0].comment").isEqualTo("PSR completed")
-          .jsonPath("$.content.comments[0].author").isEqualTo("Author Two")
-          .jsonPath("$.content.comments[0].created").isEqualTo("2024-05-22T09:45:55.597")
-          .jsonPath("$.content.comments[0].createdBy").isEqualTo("before-test.sql")
-          .jsonPath("$.content.comments[0].lastUpdated").isEqualTo("2024-04-09T09:45:55.597")
-          .jsonPath("$.content.comments[0].lastUpdatedBy").isEqualTo("Last Updated Author2")
-          .jsonPath("$.content.comments[0].caseNumber").isEqualTo("")
+        RestAssured.given()
+          .auth()
+          .oauth2(getToken())
+          .`when`()
+          .header(
+            "Accept",
+            "application/json"
+          )
+          .get("/subject-access-request?crn=B25829")
+          .then()
+          .statusCode(200)
+          .body("content.comments[0].comment", Matchers.equalTo("PSR completed"))
+          .body("content.comments[0].author", Matchers.equalTo("Author Two"))
+          .body("content.comments[0].created", Matchers.equalTo("2024-05-22T09:45:55.597"))
+          .body("content.comments[0].createdBy", Matchers.equalTo("before-test.sql"))
+          .body("content.comments[0].lastUpdated", Matchers.equalTo("2024-04-09T09:45:55.597"))
+          .body("content.comments[0].lastUpdatedBy", Matchers.equalTo("Last Updated Author2"))
+          .body("content.comments[0].caseNumber", Matchers.equalTo(""))
       }
 
       @Test
       fun `should not return case comments if not present for defendant`() {
         // service will return data for prisoners that start with A
-        webTestClient.get().uri("/subject-access-request?crn=Z258210")
-          .headers(setAuthorisation(roles = listOf("ROLE_SAR_DATA_ACCESS")))
-          .exchange()
-          .expectStatus().isOk
-          .expectBody()
-          .jsonPath("$.content.comments").isEmpty
+        RestAssured.given()
+          .auth()
+          .oauth2(getToken())
+          .`when`()
+          .header(
+            "Accept",
+            "application/json"
+          )
+          .get("/subject-access-request?crn=Z258210")
+          .then()
+          .statusCode(200)
+          .body("content.comments", Matchers.empty<String>())
       }
 
       @Test
-      fun `should return case comments if present for defendant between dates`() {
-        // service will return data for prisoners that start with A
-        webTestClient.get().uri("/subject-access-request?crn=X25829&fromDate=2024-04-21&toDate=2024-05-22")
-        fun `should return case comments, hearing notes and hearing outcomes if between valid date ranges `() {
-          // service will return data for prisoners that start with A
-          webTestClient.get().uri("/subject-access-request?crn=B25829")
-            .headers(setAuthorisation(roles = listOf("ROLE_SAR_DATA_ACCESS")))
-            .exchange()
-            .expectStatus().isOk
-            .expectBody()
-            .jsonPath("$.content.comments[0].comment").isEqualTo("PSR in progress")
-            .jsonPath("$.content.comments[0].author").isEqualTo("Author One")
-            .jsonPath("$.content.comments[0].created").isEqualTo("2024-05-21T09:45:55.597")
-            .jsonPath("$.content.comments[0].createdBy").isEqualTo("before-test.sql")
-            .jsonPath("$.content.comments[0].lastUpdated").isEqualTo("2024-04-08T09:45:55.597")
-            .jsonPath("$.content.comments[0].lastUpdatedBy").isEqualTo("Last Updated Author")
-            .jsonPath("$.content.comments[0].caseNumber").isEqualTo("1600028888")
-            .jsonPath("$.content.comments[1].comment").isEqualTo("PSR in progress")
-            .jsonPath("$.content.comments[1].author").isEqualTo("Author Three")
-            .jsonPath("$.content.comments[1].created").isEqualTo("2024-04-21T09:45:55.597")
-            .jsonPath("$.content.comments[1].createdBy").isEqualTo("before-test.sql")
-            .jsonPath("$.content.comments[1].lastUpdated").isEqualTo("2024-03-08T09:45:55.597")
-            .jsonPath("$.content.comments[1].lastUpdatedBy").isEqualTo("Last Updated Author3")
-            .jsonPath("$.content.comments[1].caseNumber").isEqualTo("1600028888")
-        }
+      fun `should return case comments, hearing notes and hearing outcomes if between valid date ranges `() {
+        RestAssured.given()
+          .auth()
+          .oauth2(getToken())
+          .`when`()
+          .header(
+            "Accept",
+            "application/json"
+          )
+          .get("/subject-access-request?crn=B25829")
+          .then()
+          .statusCode(200)
+          .body("content.comments[0].comment", Matchers.equalTo("PSR in progress"))
+          .body("content.comments[0].author", Matchers.equalTo("Author One"))
+          .body("content.comments[0].created", Matchers.equalTo("2024-05-21T09:45:55.597"))
+          .body("content.comments[0].createdBy", Matchers.equalTo("before-test.sql"))
+          .body("content.comments[0].lastUpdated", Matchers.equalTo("2024-04-08T09:45:55.597"))
+          .body("content.comments[0].lastUpdatedBy", Matchers.equalTo("Last Updated Author"))
+          .body("content.comments[0].caseNumber", Matchers.equalTo("1600028888"))
+          .body("content.comments[1].comment", Matchers.equalTo("PSR in progress"))
+          .body("content.comments[1].author", Matchers.equalTo("Author Three"))
+          .body("content.comments[1].created", Matchers.equalTo("2024-04-21T09:45:55.597"))
+          .body("content.comments[1].createdBy", Matchers.equalTo("before-test.sql"))
+          .body("content.comments[1].lastUpdated", Matchers.equalTo("2024-03-08T09:45:55.597"))
+          .body("content.comments[1].lastUpdatedBy", Matchers.equalTo("Last Updated Author3"))
+          .body("content.comments[1].caseNumber", Matchers.equalTo("1600028888"))
+      }
 
         @Test
         fun `should return case comments if present for defendant from date`() {
-          // service will return data for prisoners that start with A
-          webTestClient.get().uri("/subject-access-request?crn=X25829&fromDate=2024-05-21")
-            .headers(setAuthorisation(roles = listOf("ROLE_SAR_DATA_ACCESS")))
-            .exchange()
-            .expectStatus().isOk
-            .expectBody()
-            .jsonPath("$.content.comments[0].comment").isEqualTo("PSR in progress")
-            .jsonPath("$.content.comments[0].author").isEqualTo("Author One")
-            .jsonPath("$.content.comments[0].created").isEqualTo("2024-05-21T09:45:55.597")
-            .jsonPath("$.content.comments[0].createdBy").isEqualTo("before-test.sql")
-            .jsonPath("$.content.comments[0].lastUpdated").isEqualTo("2024-04-08T09:45:55.597")
-            .jsonPath("$.content.comments[0].lastUpdatedBy").isEqualTo("Last Updated Author")
-            .jsonPath("$.content.comments[0].caseNumber").isEqualTo("1600028888")
+          RestAssured.given()
+            .auth()
+            .oauth2(getToken())
+            .`when`()
+            .header(
+              "Accept",
+              "application/json"
+            )
+            .get("/subject-access-request?crn=X25829&fromDate=2024-05-21")
+            .then()
+            .statusCode(200)
+            .body("content.comments[0].comment", Matchers.equalTo("PSR in progress"))
+            .body("content.comments[0].author", Matchers.equalTo("Author One"))
+            .body("content.comments[0].created", Matchers.equalTo("2024-05-21T09:45:55.597"))
+            .body("content.comments[0].createdBy", Matchers.equalTo("before-test.sql"))
+            .body("content.comments[0].lastUpdated", Matchers.equalTo("2024-04-08T09:45:55.597"))
+            .body("content.comments[0].lastUpdatedBy", Matchers.equalTo("Last Updated Author"))
+            .body("content.comments[0].caseNumber", Matchers.equalTo("1600028888"))
         }
 
         @Test
         fun `should return case comments if present for defendant to date`() {
-          // service will return data for prisoners that start with A
-          webTestClient.get().uri("/subject-access-request?crn=X25829&toDate=2024-04-25")
-            .headers(setAuthorisation(roles = listOf("ROLE_SAR_DATA_ACCESS")))
-            .exchange()
-            .expectStatus().isOk
-            .expectBody()
-            .jsonPath("$.content.comments[0].comment").isEqualTo("PSR in progress")
-            .jsonPath("$.content.comments[0].author").isEqualTo("Author Three")
-            .jsonPath("$.content.comments[0].created").isEqualTo("2024-04-21T09:45:55.597")
-            .jsonPath("$.content.comments[0].createdBy").isEqualTo("before-test.sql")
-            .jsonPath("$.content.comments[0].lastUpdated").isEqualTo("2024-03-08T09:45:55.597")
-            .jsonPath("$.content.comments[0].lastUpdatedBy").isEqualTo("Last Updated Author3")
-            .jsonPath("$.content.comments[0].caseNumber").isEqualTo("1600028888")
-            .jsonPath("$.content.comments[0].comment").isEqualTo("PSR completed")
-            .jsonPath("$.content.comments[0].author").isEqualTo("Author Two")
-            .jsonPath("$.content.comments[0].created").isEqualTo("2024-05-22T09:45:55.597")
-            .jsonPath("$.content.comments[0].createdBy").isEqualTo("before-test.sql")
-            .jsonPath("$.content.comments[0].lastUpdated").isEqualTo("2024-04-09T09:45:55.597")
-            .jsonPath("$.content.comments[0].lastUpdatedBy").isEqualTo("Last Updated Author2")
-            .jsonPath("$.content.comments[0].caseNumber").isEqualTo("")
-            .jsonPath("$.content.hearingOutcomes[0].hearingId").isEqualTo("-198")
-            .jsonPath("$.content.hearingOutcomes[0].outcomeType").isEqualTo("ADJOURNED")
-            .jsonPath("$.content.hearingOutcomes[0].outcomeDate").isEqualTo("2023-04-24T09:09:09")
-            .jsonPath("$.content.hearingOutcomes[0].resultedDate").isEqualTo("2023-04-25T09:09:09")
-            .jsonPath("$.content.hearingOutcomes[0].state").isEqualTo("IN_PROGRESS")
-            .jsonPath("$.content.hearingOutcomes[0].assignedTo").isEqualTo("John Smith")
-            .jsonPath("$.content.hearingNotes[0].hearingId").isEqualTo("fe657c3a-b674-4e17-8772-7281c99e4f9f")
-            .jsonPath("$.content.hearingNotes[0].note")
-            .isEqualTo("This is a test comment by the Prepare a case digital team.")
-            .jsonPath("$.content.hearingNotes[0].author").isEqualTo("John Doe")
+          RestAssured.given()
+            .auth()
+            .oauth2(getToken())
+            .`when`()
+            .header(
+              "Accept",
+              "application/json"
+            )
+            .get("/subject-access-request?crn=X25829&toDate=2024-04-25")
+            .then()
+            .statusCode(200)
+            .body("content.comments[0].comment", Matchers.equalTo("PSR in progress"))
+            .body("content.comments[0].author", Matchers.equalTo("Author Three"))
+            .body("content.comments[0].created", Matchers.equalTo("2024-04-21T09:45:55.597"))
+            .body("content.comments[0].createdBy", Matchers.equalTo("before-test.sql"))
+            .body("content.comments[0].lastUpdated", Matchers.equalTo("2024-03-08T09:45:55.597"))
+            .body("content.comments[0].lastUpdatedBy", Matchers.equalTo("Last Updated Author3"))
+            .body("content.comments[0].caseNumber", Matchers.equalTo("1600028888"))
+            .body("content.comments[0].comment", Matchers.equalTo("PSR completed"))
+            .body("content.comments[0].author", Matchers.equalTo("Author Two"))
+            .body("content.comments[0].created", Matchers.equalTo("2024-05-22T09:45:55.597"))
+            .body("content.comments[0].createdBy", Matchers.equalTo("before-test.sql"))
+            .body("content.comments[0].lastUpdated", Matchers.equalTo("2024-04-09T09:45:55.597"))
+            .body("content.comments[0].lastUpdatedBy", Matchers.equalTo("Last Updated Author2"))
+            .body("content.comments[0].caseNumber", Matchers.equalTo(""))
+            .body("content.hearingOutcomes[0].hearingId", Matchers.equalTo("-198"))
+            .body("content.hearingOutcomes[0].outcomeType", Matchers.equalTo("ADJOURNED"))
+            .body("content.hearingOutcomes[0].outcomeDate", Matchers.equalTo("2023-04-24T09:09:09"))
+            .body("content.hearingOutcomes[0].resultedDate", Matchers.equalTo("2023-04-25T09:09:09"))
+            .body("content.hearingOutcomes[0].state", Matchers.equalTo("IN_PROGRESS"))
+            .body("content.hearingOutcomes[0].assignedTo", Matchers.equalTo("John Smith"))
+            .body("content.hearingNotes[0].hearingId", Matchers.equalTo("fe657c3a-b674-4e17-8772-7281c99e4f9f"))
+            .body("content.hearingNotes[0].note", Matchers.equalTo("This is a test comment by the Prepare a case digital team."))
+            .body("content.hearingNotes[0].author", Matchers.equalTo("John Doe"))
         }
-      }
     }
   }
 }

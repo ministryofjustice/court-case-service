@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 
 @Service
-class HearingOutcomesSARService(
+class HearingOutcomesService(
     val hearingDefendantRepository: HearingDefendantRepository,
     val hearingOutcomeRepository: HearingOutcomeRepository
 ) {

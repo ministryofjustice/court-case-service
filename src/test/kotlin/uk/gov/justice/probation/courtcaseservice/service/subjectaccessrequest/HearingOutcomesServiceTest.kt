@@ -30,11 +30,11 @@ internal class HearingOutcomesServiceTest {
     lateinit var hearingOutcomeRepository: HearingOutcomeRepository
 
 
-    private lateinit var hearingOutcomesService: HearingOutcomesSARService
+    private lateinit var hearingOutcomesService: HearingOutcomesService
 
     @BeforeEach
     fun initTest() {
-        hearingOutcomesService = HearingOutcomesSARService(
+        hearingOutcomesService = HearingOutcomesService(
             hearingDefendantRepository,
             hearingOutcomeRepository
         )

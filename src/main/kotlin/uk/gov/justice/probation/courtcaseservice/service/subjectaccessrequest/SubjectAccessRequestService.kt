@@ -8,7 +8,7 @@ import java.time.LocalDate
 
 @Service
 class SubjectAccessRequestService(
-    private val defendantCaseCommentsService: DefendantCaseCommentsService, val hearingNotesService: HearingNotesSARService, val hearingOutcomesService: HearingOutcomesSARService
+    private val defendantCaseCommentsService: DefendantCaseCommentsService, val hearingNotesService: HearingNotesSARService, val hearingOutcomesService: HearingOutcomesService
 ): HmppsProbationSubjectAccessRequestService {
 
     override fun getProbationContentFor(

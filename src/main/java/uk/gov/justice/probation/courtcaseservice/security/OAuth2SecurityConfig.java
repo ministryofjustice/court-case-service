@@ -57,13 +57,4 @@ public class OAuth2SecurityConfig {
                 .jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());
         return http.build();
     }
-
-//    @Bean
-//    JwtDecoder jwtDecoder() {
-//        return NimbusJwtDecoder.withIssuerLocation(this.issuer)
-//                .jwsAlgorithms(algorithms -> {
-//                    algorithms.add(SignatureAlgorithm.valueOf(RS512));
-//                    algorithms.add(SignatureAlgorithm.valueOf(ES512));
-//                }).build();
-//    }
 }

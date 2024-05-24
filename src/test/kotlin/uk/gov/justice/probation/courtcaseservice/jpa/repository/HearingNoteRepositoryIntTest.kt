@@ -21,11 +21,6 @@ import java.time.LocalDateTime
     config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),
     executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
 )
-@Sql(
-    scripts = ["classpath:after-test.sql"],
-    config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),
-    executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD
-)
 class HearingNoteRepositoryIntTest {
     @Autowired
     private lateinit var hearingNoteRepository: HearingNoteRepository;

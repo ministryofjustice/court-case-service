@@ -22,11 +22,6 @@ import java.util.*
     config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),
     executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
 )
-//@Sql(
-//    scripts = ["classpath:after-test.sql"],
-//    config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),
-//    executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD
-//)
 class HearingOutcomeRepositoryIntTest {
     @Autowired
     private lateinit var hearingOutcomeRepository: HearingOutcomeRepository;

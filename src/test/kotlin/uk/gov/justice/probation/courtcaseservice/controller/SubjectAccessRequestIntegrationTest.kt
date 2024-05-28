@@ -87,6 +87,7 @@ class SubjectAccessRequestIntegrationTest : BaseIntTest() {
 
         @Test
         fun `should return case comments, hearing outcomes and hearing notes if present for defendant`() {
+            roles = listOf("ROLE_SAR_DATA_ACCESS")
             RestAssured.given()
                 .auth()
                 .oauth2(getToken())

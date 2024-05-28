@@ -41,7 +41,7 @@ internal class HearingNotesServiceTest {
 
     @Test
     fun `given defendant crn it should return hearing notes`() {
-        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntity()
+        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
         BDDMockito.given(hearingDefendantRepository.findAllByDefendantCrn(crn)).willReturn(listOf(dbHearingDefendantEntity))
 
         BDDMockito.given(hearingNoteRepository.findByHearingDefendantId(dbHearingDefendantEntity.id))
@@ -64,7 +64,7 @@ internal class HearingNotesServiceTest {
         val fromDate = hearingNoteCreatedDate.toLocalDate()
         val toDate = hearingNoteCreatedDate.toLocalDate().plusDays(1)
 
-        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntity()
+        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
         BDDMockito.given(hearingDefendantRepository.findAllByDefendantCrn(crn)).willReturn(listOf(dbHearingDefendantEntity))
 
         BDDMockito.given(hearingNoteRepository.findAllByHearingDefendantIdAndCreatedBetween(dbHearingDefendantEntity.id, fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX)))
@@ -86,7 +86,7 @@ internal class HearingNotesServiceTest {
         val hearingNoteCreatedDate = LocalDateTime.parse("2024-01-01T00:00")
         val fromDate = hearingNoteCreatedDate.toLocalDate()
 
-        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntity()
+        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
         BDDMockito.given(hearingDefendantRepository.findAllByDefendantCrn(crn)).willReturn(listOf(dbHearingDefendantEntity))
 
         BDDMockito.given(hearingNoteRepository.findAllByHearingDefendantIdAndCreatedAfter(dbHearingDefendantEntity.id, fromDate.atStartOfDay()))
@@ -108,7 +108,7 @@ internal class HearingNotesServiceTest {
         val hearingNoteCreatedDate = LocalDateTime.parse("2024-01-01T00:00")
         val toDate = hearingNoteCreatedDate.toLocalDate().plusDays(1)
 
-        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntity()
+        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
         BDDMockito.given(hearingDefendantRepository.findAllByDefendantCrn(crn)).willReturn(listOf(dbHearingDefendantEntity))
 
         BDDMockito.given(hearingNoteRepository.findAllByHearingDefendantIdAndCreatedBefore(dbHearingDefendantEntity.id, toDate.atTime(LocalTime.MAX)))
@@ -132,7 +132,7 @@ internal class HearingNotesServiceTest {
         val fromDate = hearingNoteCreatedDate.toLocalDate()
         val toDate = hearingNoteCreatedDate.toLocalDate().plusDays(1)
 
-        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntity()
+        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
         BDDMockito.given(hearingDefendantRepository.findAllByDefendantCrn(crn)).willReturn(listOf(dbHearingDefendantEntity))
 
         BDDMockito.given(hearingNoteRepository.findAllByHearingDefendantIdAndCreatedBetween(dbHearingDefendantEntity.id, fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX)))

@@ -37,9 +37,9 @@ class HearingNotesSARService(
     }
 
     private fun getFilteredHearingNotes(hearingDefendants: List<HearingDefendantEntity>, fromDate: LocalDate?, toDate: LocalDate?): List<HearingNoteEntity> {
-        return hearingDefendants.flatMap() {
+        return hearingDefendants.mapNotNull() {
             filterHearingNotesByDate(it, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))
-        }.mapNotNull { it }
+        }.flatten()
     }
 
     private fun filterHearingNotesByDate(hearingDefendant: HearingDefendantEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): List<HearingNoteEntity> {

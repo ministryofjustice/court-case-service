@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 
 @Repository
 interface HearingNoteRepository: CrudRepository<HearingNoteEntity, Long> {
-    fun findAllByHearingDefendantIdAndCreatedBefore(hearingDefendantId: Long?, toDateTime: LocalDateTime?): List<HearingNoteEntity>
+    fun findAllByHearingDefendantIdAndCreatedBefore(hearingDefendantId: Long, toDateTime: LocalDateTime?): List<HearingNoteEntity>
 
     fun findAllByHearingDefendantIdAndCreatedAfter(hearingDefendantId: Long, fromDateTime: LocalDateTime?): List<HearingNoteEntity>
 

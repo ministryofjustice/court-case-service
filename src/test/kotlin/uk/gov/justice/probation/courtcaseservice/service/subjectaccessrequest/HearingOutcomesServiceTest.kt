@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito
+import org.mockito.BDDMockito.BDDStubber
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
@@ -42,7 +43,7 @@ internal class HearingOutcomesServiceTest {
 
     @Test
     fun `given defendant crn it should return hearing outcomes`() {
-        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntity()
+        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
         BDDMockito.given(hearingDefendantRepository.findAllByDefendantCrn(crn)).willReturn(listOf(dbHearingDefendantEntity))
 
         BDDMockito.given(hearingOutcomeRepository.findByHearingDefendantId(dbHearingDefendantEntity.id))
@@ -68,7 +69,8 @@ internal class HearingOutcomesServiceTest {
         val fromDate = hearingOutcomeCreatedDate.toLocalDate()
         val toDate = hearingOutcomeCreatedDate.toLocalDate().plusDays(1)
 
-        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntity()
+        var dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
+
         BDDMockito.given(hearingDefendantRepository.findAllByDefendantCrn(crn)).willReturn(listOf(dbHearingDefendantEntity))
 
         BDDMockito.given(hearingOutcomeRepository.findAllByHearingDefendantIdAndCreatedBetween(dbHearingDefendantEntity.id, fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX)))
@@ -93,7 +95,7 @@ internal class HearingOutcomesServiceTest {
         val hearingOutcomeCreatedDate = LocalDateTime.parse("2024-01-01T00:00")
         val fromDate = hearingOutcomeCreatedDate.toLocalDate()
 
-        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntity()
+        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
         BDDMockito.given(hearingDefendantRepository.findAllByDefendantCrn(crn)).willReturn(listOf(dbHearingDefendantEntity))
 
         BDDMockito.given(hearingOutcomeRepository.findAllByHearingDefendantIdAndCreatedAfter(dbHearingDefendantEntity.id, fromDate.atStartOfDay()))
@@ -118,7 +120,7 @@ internal class HearingOutcomesServiceTest {
         val hearingOutcomeCreatedDate = LocalDateTime.parse("2024-01-01T00:00")
         val toDate = hearingOutcomeCreatedDate.toLocalDate().plusDays(1)
 
-        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntity()
+        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
         BDDMockito.given(hearingDefendantRepository.findAllByDefendantCrn(crn)).willReturn(listOf(dbHearingDefendantEntity))
 
         BDDMockito.given(hearingOutcomeRepository.findAllByHearingDefendantIdAndCreatedBefore(dbHearingDefendantEntity.id, toDate.atTime(LocalTime.MAX)))

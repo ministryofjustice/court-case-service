@@ -168,9 +168,27 @@ public class EntityHelper {
         return aHearingDefendantEntity(DEFENDANT_ADDRESS, NAME, defendantId, crn);
     }
 
+    public static HearingDefendantEntity aHearingDefendantEntityWithCrn(Long id, String crn) {
+        return aHearingDefendantEntityWithId(DEFENDANT_ID, crn, id);
+    }
     private static HearingDefendantEntity aHearingDefendantEntity(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId, String crn) {
         DefendantEntity defendant = aDefendantEntity(defendantAddress, name, defendantId, crn);
         final HearingDefendantEntity hearingDefendant = HearingDefendantEntity.builder()
+                .defendantId(defendantId)
+                .defendant(defendant)
+                .offences(getMutableList(List.of(aDefendantOffence())))
+                .notes(listOf(aHearingNoteEntity(false), aHearingNoteEntity(true)))
+                .build();
+        hearingDefendant.getOffences()
+                .forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendant));
+        defendant.addHearingDefendant(hearingDefendant);
+        return hearingDefendant;
+    }
+
+    private static HearingDefendantEntity aHearingDefendantEntityWithId(String defendantId, String crn, Long id) {
+        DefendantEntity defendant = aDefendantEntity(defendantId, crn);
+        final HearingDefendantEntity hearingDefendant = HearingDefendantEntity.builder()
+                .id(id)
                 .defendantId(defendantId)
                 .defendant(defendant)
                 .offences(getMutableList(List.of(aDefendantOffence())))
@@ -181,6 +199,16 @@ public class EntityHelper {
                 .forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendant));
         defendant.addHearingDefendant(hearingDefendant);
         return hearingDefendant;
+    }
+
+    public static HearingOutcomeEntity aHearingOutcomeEntity() {
+        return HearingOutcomeEntity.builder()
+                .outcomeType("ADJOURNED")
+                .outcomeDate(LocalDateTime.of(2020, 5, 1, 0, 0))
+                .resultedDate(LocalDateTime.of(2020, 5, 1, 0, 0))
+                .state("IN_PROGRESS")
+                .assignedTo("John Doe")
+                .created(LocalDateTime.of(2024, 1, 1, 0, 0)).build();
     }
 
     public static DefendantEntity aDefendantEntity(String defendantId, String crn) {
@@ -210,16 +238,6 @@ public class EntityHelper {
                 .personId(PERSON_ID)
                 .hearingDefendants(getMutableList(List.of()))
                 .build();
-    }
-
-    private static HearingOutcomeEntity aHearingOutcomeEntity() {
-        return HearingOutcomeEntity.builder()
-                .outcomeType("ADJOURNED")
-                .outcomeDate(LocalDateTime.of(2020, 5, 1,0, 0))
-                .resultedDate(LocalDateTime.of(2020, 5, 1,0, 0))
-                .state("IN_PROGRESS")
-                .assignedTo("John Doe")
-                .created(LocalDateTime.of(2024, 1, 1,0, 0)).build();
     }
 
     private static HearingNoteEntity aHearingNoteEntity(Boolean draft) {

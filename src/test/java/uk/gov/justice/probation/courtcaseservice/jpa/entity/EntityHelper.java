@@ -171,7 +171,6 @@ public class EntityHelper {
     private static HearingDefendantEntity aHearingDefendantEntity(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId, String crn) {
         DefendantEntity defendant = aDefendantEntity(defendantAddress, name, defendantId, crn);
         final HearingDefendantEntity hearingDefendant = HearingDefendantEntity.builder()
-                .id(1L)
                 .defendantId(defendantId)
                 .defendant(defendant)
                 .offences(getMutableList(List.of(aDefendantOffence())))
@@ -227,6 +226,7 @@ public class EntityHelper {
         return HearingNoteEntity.builder()
                 .note("This is a fake note")
                 .author("Note Taker")
+                .createdByUuid("UUID")
                 .hearingId("UUID")
                 .draft(draft)
                 .created(LocalDateTime.of(2024, 1, 1,0, 0))

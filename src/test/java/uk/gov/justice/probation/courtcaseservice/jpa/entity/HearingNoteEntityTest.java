@@ -12,7 +12,7 @@ class HearingNoteEntityTest {
             .hearingId("test-id")
             .id(1L)
             .author("auth one")
-            .createdByUuid("uuid")
+            .createdByUuid("UUID")
             .draft(false)
             .deleted(true)
             .build();

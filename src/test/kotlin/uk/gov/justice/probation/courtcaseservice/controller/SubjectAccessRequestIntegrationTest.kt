@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller
 
 import io.restassured.RestAssured
+import io.restassured.http.ContentType
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.*
 import org.springframework.http.HttpStatus
@@ -87,15 +88,12 @@ class SubjectAccessRequestIntegrationTest : BaseIntTest() {
 
         @Test
         fun `should return case comments, hearing outcomes and hearing notes if present for defendant`() {
-            roles = listOf("ROLE_SAR_DATA_ACCESS")
             RestAssured.given()
                 .auth()
                 .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
                 .`when`()
-                .header(
-                    "Accept",
-                    "application/json"
-                )
                 .get("/subject-access-request?crn=X25829")
                 .then()
                 .statusCode(200)

@@ -80,10 +80,6 @@ class SubjectAccessRequestIntegrationTest : BaseIntTest() {
 
     @Nested
     inner class SARContent {
-        @BeforeEach
-        fun setAuthRoles() {
-            roles = listOf("ROLE_SAR_DATA_ACCESS")
-        }
 
         @Test
         fun `should return case comments, hearing outcomes and hearing notes if present for defendant`() {
@@ -128,6 +124,7 @@ class SubjectAccessRequestIntegrationTest : BaseIntTest() {
 
         @Test
         fun `should return case comments if present for defendant but no case number if not LIBRA`() {
+            roles = listOf("ROLE_SAR_DATA_ACCESS")
             RestAssured.given()
                 .auth()
                 .oauth2(getToken())
@@ -150,6 +147,7 @@ class SubjectAccessRequestIntegrationTest : BaseIntTest() {
 
         @Test
         fun `should not return case comments if not present for defendant`() {
+            roles = listOf("ROLE_SAR_DATA_ACCESS")
             RestAssured.given()
                 .auth()
                 .oauth2(getToken())
@@ -166,6 +164,7 @@ class SubjectAccessRequestIntegrationTest : BaseIntTest() {
 
         @Test
         fun `should return case comments, hearing notes and hearing outcomes if between valid date ranges `() {
+            roles = listOf("ROLE_SAR_DATA_ACCESS")
             RestAssured.given()
                 .auth()
                 .oauth2(getToken())
@@ -200,6 +199,7 @@ class SubjectAccessRequestIntegrationTest : BaseIntTest() {
 
         @Test
         fun `should return case comments if present for defendant from date`() {
+            roles = listOf("ROLE_SAR_DATA_ACCESS")
             RestAssured.given()
                 .auth()
                 .oauth2(getToken())
@@ -224,6 +224,7 @@ class SubjectAccessRequestIntegrationTest : BaseIntTest() {
 
         @Test
         fun `should return hearing notes and hearing outcomes if present for defendant from date`() {
+            roles = listOf("ROLE_SAR_DATA_ACCESS")
             RestAssured.given()
                 .auth()
                 .oauth2(getToken())
@@ -251,6 +252,7 @@ class SubjectAccessRequestIntegrationTest : BaseIntTest() {
 
         @Test
         fun `should return case comments, hearing outcomes and hearing notes if present for defendant to date`() {
+            roles = listOf("ROLE_SAR_DATA_ACCESS")
             RestAssured.given()
                 .auth()
                 .oauth2(getToken())
@@ -285,6 +287,7 @@ class SubjectAccessRequestIntegrationTest : BaseIntTest() {
 
         @Test
         fun `should return no case comments, hearing outcomes and hearing notes if not present for defendant to date`() {
+            roles = listOf("ROLE_SAR_DATA_ACCESS")
             RestAssured.given()
                 .auth()
                 .oauth2(getToken())

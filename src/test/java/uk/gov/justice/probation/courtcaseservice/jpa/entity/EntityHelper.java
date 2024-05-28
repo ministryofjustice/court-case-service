@@ -214,6 +214,7 @@ public class EntityHelper {
 
     private static HearingOutcomeEntity aHearingOutcomeEntity() {
         return HearingOutcomeEntity.builder()
+                .id(1L)
                 .outcomeType("ADJOURNED")
                 .outcomeDate(LocalDateTime.of(2020, 5, 1,0, 0))
                 .resultedDate(LocalDateTime.of(2020, 5, 1,0, 0))
@@ -226,7 +227,7 @@ public class EntityHelper {
         return HearingNoteEntity.builder()
                 .note("This is a fake note")
                 .author("Note Taker")
-                .createdByUuid("UUID")
+                .createdByUuid("created-by-uuid")
                 .hearingId("UUID")
                 .draft(draft)
                 .created(LocalDateTime.of(2024, 1, 1,0, 0))

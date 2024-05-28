@@ -1,16 +1,13 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository
 
-import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
-import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity
 import java.time.LocalDateTime
 
 @Repository
 interface HearingNoteRepository: CrudRepository<HearingNoteEntity, Long> {
-    fun findAllByHearingDefendantIdAndCreatedBefore(hearingDefendantId: Long, toDateTime: LocalDateTime?): List<HearingNoteEntity>
+    fun findAllByHearingDefendantIdAndCreatedBefore(hearingDefendantId: Long?, toDateTime: LocalDateTime?): List<HearingNoteEntity>
 
     fun findAllByHearingDefendantIdAndCreatedAfter(hearingDefendantId: Long, fromDateTime: LocalDateTime?): List<HearingNoteEntity>
 

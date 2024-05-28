@@ -28,7 +28,7 @@ import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.roles
     config = SqlConfig(transactionMode = TransactionMode.ISOLATED),
     executionPhase = ExecutionPhase.AFTER_TEST_METHOD
 )
-internal class SubjectAccessRequestIntTest: BaseIntTest() {
+internal class SubjectAccessRequestControllerIntTest: BaseIntTest() {
     @Nested
     inner class Security {
         @Test
@@ -81,7 +81,7 @@ internal class SubjectAccessRequestIntTest: BaseIntTest() {
 
     @Test
     fun `should return case comments, hearing outcomes and hearing notes if present for defendant`() {
-        roles = listOf("ROLE_SAR_DATA_ACCESS", "ROLE_PREPARE_A_CASE")
+        roles = listOf("ROLE_SAR_DATA_ACCESS")
 
         RestAssured.given()
             .auth()

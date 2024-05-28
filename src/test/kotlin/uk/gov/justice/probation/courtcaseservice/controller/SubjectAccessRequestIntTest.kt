@@ -28,7 +28,7 @@ import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.roles
     config = SqlConfig(transactionMode = TransactionMode.ISOLATED),
     executionPhase = ExecutionPhase.AFTER_TEST_METHOD
 )
-class SubjectAccessRequestIntTest: BaseIntTest() {
+internal class SubjectAccessRequestIntTest: BaseIntTest() {
     @Nested
     inner class Security {
         @Test

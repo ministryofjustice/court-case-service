@@ -156,7 +156,6 @@ abstract class BaseIntTest {
 
   @TestConfiguration
   @EnableWebSecurity
-//  @EnableMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
   class OverrideConfiguration {
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {

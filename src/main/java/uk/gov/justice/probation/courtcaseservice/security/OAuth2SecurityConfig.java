@@ -50,11 +50,7 @@ public class OAuth2SecurityConfig {
                             "/process-un-resulted-cases"
                         ).permitAll()
                         .anyRequest().hasAnyRole("PREPARE_A_CASE", "SAR_DATA_ACCESS")
-                    ).oauth2ResourceServer(
-
-                )
-
-                .jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());
+                    ).oauth2ResourceServer().jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());
         return http.build();
     }
 }

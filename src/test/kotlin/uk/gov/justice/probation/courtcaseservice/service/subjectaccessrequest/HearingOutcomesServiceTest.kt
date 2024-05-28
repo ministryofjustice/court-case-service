@@ -50,7 +50,7 @@ internal class HearingOutcomesServiceTest {
 
         Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(crn, null, null))
             .isEqualTo(listOf(HearingOutcomeSarResponse(
-                "",
+                "ADJOURNED",
                 LocalDateTime.parse("2020-05-01T00:00"),
                 LocalDateTime.parse("2020-05-01T00:00"),
                 "IN_PROGRESS",
@@ -76,7 +76,7 @@ internal class HearingOutcomesServiceTest {
 
         Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(crn, hearingOutcomeCreatedDate.toLocalDate(), toDate))
             .isEqualTo(listOf(HearingOutcomeSarResponse(
-                "",
+                "ADJOURNED",
                 LocalDateTime.parse("2020-05-01T00:00"),
                 LocalDateTime.parse("2020-05-01T00:00"),
                 "IN_PROGRESS",
@@ -101,7 +101,7 @@ internal class HearingOutcomesServiceTest {
 
         Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(crn, hearingOutcomeCreatedDate.toLocalDate(), null))
             .isEqualTo(listOf(HearingOutcomeSarResponse(
-                "",
+                "ADJOURNED",
                 LocalDateTime.parse("2020-05-01T00:00"),
                 LocalDateTime.parse("2020-05-01T00:00"),
                 "IN_PROGRESS",
@@ -126,7 +126,7 @@ internal class HearingOutcomesServiceTest {
 
         Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(crn, null, toDate))
             .isEqualTo(listOf(HearingOutcomeSarResponse(
-                "",
+                "ADJOURNED",
                 LocalDateTime.parse("2020-05-01T00:00"),
                 LocalDateTime.parse("2020-05-01T00:00"),
                 "IN_PROGRESS",

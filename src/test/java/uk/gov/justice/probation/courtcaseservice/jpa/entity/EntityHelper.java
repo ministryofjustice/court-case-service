@@ -214,7 +214,6 @@ public class EntityHelper {
 
     private static HearingOutcomeEntity aHearingOutcomeEntity() {
         return HearingOutcomeEntity.builder()
-                .id(1L)
                 .outcomeType("ADJOURNED")
                 .outcomeDate(LocalDateTime.of(2020, 5, 1,0, 0))
                 .resultedDate(LocalDateTime.of(2020, 5, 1,0, 0))

@@ -32,6 +32,11 @@ import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.roles
 internal class SubjectAccessRequestControllerIntTest: BaseIntTest() {
     @Nested
     inner class Security {
+        @BeforeEach
+        fun setAuthRoles() {
+            TokenHelper.cachedToken = null
+        }
+        
         @Test
         fun `access forbidden when no authority`() {
             RestAssured.given()

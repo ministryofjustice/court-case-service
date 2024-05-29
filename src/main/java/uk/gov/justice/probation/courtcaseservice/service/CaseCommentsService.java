@@ -8,6 +8,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CaseCommentsRepo
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import static uk.gov.justice.probation.courtcaseservice.service.TelemetryEventType.CASE_COMMENT_ADDED;
 
 @Service
@@ -97,5 +100,21 @@ public class CaseCommentsService {
         }, () -> {
                 throw new EntityNotFoundException(COMMENTS_ERROR_MESSAGE_FORMAT_STRING, commentId, caseId, defendantId, userUuid);
         });
+    }
+
+    public List<CaseCommentEntity> getCaseCommentsForDefendant(String defendantId) {
+        return caseCommentsRepository.findByDefendantId(defendantId);
+    }
+
+    public List<CaseCommentEntity> getCaseCommentsForDefendantBetween(String defendantId, LocalDate fromDate, LocalDate toDate) {
+        return caseCommentsRepository.findByDefendantIdAndCreatedBetween(defendantId, fromDate.atStartOfDay(), toDate.atStartOfDay());
+    }
+
+    public List<CaseCommentEntity> getCaseCommentsForDefendantFrom(String defendantId, LocalDate fromDate) {
+        return caseCommentsRepository.findByDefendantIdAndCreatedAfter(defendantId, fromDate.atStartOfDay());
+    }
+
+    public List<CaseCommentEntity> getCaseCommentsForDefendantTo(String defendantId, LocalDate toDate) {
+        return caseCommentsRepository.findByDefendantIdAndCreatedBefore(defendantId, toDate.atStartOfDay());
     }
 }

@@ -133,6 +133,12 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     @Override
+    public Optional<CourtCaseEntity> findByCaseId(String caseId) {
+        assert courtCaseRepository != null;
+        return courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId);
+    }
+
+    @Override
     public CaseListResponse filterHearings(String courtCode, HearingSearchRequest hearingSearchRequest) {
 
         final var hearingsPage = pagedCaseListRepositoryCustom.filterHearings(courtCode, hearingSearchRequest);

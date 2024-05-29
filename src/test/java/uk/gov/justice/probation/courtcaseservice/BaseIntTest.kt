@@ -5,12 +5,23 @@ import org.junit.ClassRule
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.Profile
 import org.springframework.retry.annotation.EnableRetry
+import org.springframework.security.config.Customizer
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -25,6 +36,7 @@ import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.HmppsTopic
 import uk.gov.justice.hmpps.sqs.MissingQueueException
 import uk.gov.justice.probation.courtcaseservice.controller.CCSPostgresqlContainer
+import uk.gov.justice.probation.courtcaseservice.security.AuthAwareTokenConverter
 import uk.gov.justice.probation.courtcaseservice.testcontainers.LocalStackHelper
 import uk.gov.justice.probation.courtcaseservice.testcontainers.LocalStackHelper.setLocalStackProperties
 import uk.gov.justice.probation.courtcaseservice.wiremock.WiremockExtension
@@ -34,6 +46,7 @@ import java.time.Duration
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @EnableRetry
+@Import(BaseIntTest.OverrideConfiguration::class)
 abstract class BaseIntTest {
 
   @JvmField
@@ -138,6 +151,38 @@ abstract class BaseIntTest {
     @AfterAll
     fun afterAll() {
       WIRE_MOCK_SERVER.stop()
+    }
+  }
+
+  @TestConfiguration
+  @EnableWebSecurity
+  class OverrideConfiguration {
+    @Bean
+    fun filterChain(http: HttpSecurity): SecurityFilterChain {
+      return http.csrf { it.disable() }
+        .sessionManagement{ it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)}
+        .oauth2Client {}
+        .authorizeHttpRequests(
+          Customizer { auth ->
+          auth
+            .requestMatchers(
+              "/health/**",
+              "/info",
+              "/ping",
+              "/swagger-ui.html",
+              "/swagger-ui/**",
+              "/v3/api-docs/**",
+              "/queue-admin/retry-all-dlqs",
+              "/process-un-resulted-cases"
+            ).permitAll()
+            .anyRequest()
+            .hasAnyRole("PREPARE_A_CASE", "SAR_DATA_ACCESS")
+        })
+        .oauth2ResourceServer { it ->
+          it.jwt{
+            it.jwtAuthenticationConverter(AuthAwareTokenConverter())
+          }
+        }.build()
     }
   }
 }

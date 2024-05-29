@@ -60,7 +60,6 @@ public class CaseProgressIntTest extends BaseIntTest {
         String testHearingId = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
 
         var response = given()
-            .given()
             .auth()
             .oauth2(getToken())
             .when()

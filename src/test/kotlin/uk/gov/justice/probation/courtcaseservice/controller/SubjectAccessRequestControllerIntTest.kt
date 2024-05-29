@@ -165,8 +165,7 @@ internal class SubjectAccessRequestControllerIntTest: BaseIntTest() {
                 )
                 .get("/subject-access-request?crn=Z258210")
                 .then()
-                .statusCode(200)
-                .body("content.comments", Matchers.empty<String>())
+                .statusCode(204)
         }
 
         @Test

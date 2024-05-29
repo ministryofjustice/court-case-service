@@ -18,9 +18,11 @@ class SubjectAccessRequestService(
     ): HmppsSubjectAccessRequestContent? {
         val hearingOutcomes = hearingOutcomesService.getHearingOutcomes(crn, fromDate, toDate)
         val hearingNotes = hearingNotesService.getHearingNotes(crn, fromDate, toDate)
+        val caseComments = defendantCaseCommentsService.getCaseCommentsForDefendant(crn, fromDate, toDate)
 
-        return HmppsSubjectAccessRequestContent(
-            ContentSarResponse(defendantCaseCommentsService.getCaseCommentsForDefendant(crn, fromDate, toDate), hearingOutcomes, hearingNotes)
-        )
+        if(hearingNotes.isEmpty() && hearingOutcomes.isEmpty() && caseComments.isEmpty()) {
+            return null
+        }
+        return HmppsSubjectAccessRequestContent(ContentSarResponse(caseComments, hearingOutcomes, hearingNotes))
     }
 }

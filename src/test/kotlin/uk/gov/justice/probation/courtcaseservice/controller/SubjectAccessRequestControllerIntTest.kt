@@ -10,6 +10,7 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase
 import org.springframework.test.context.jdbc.SqlConfig
 import org.springframework.test.context.jdbc.SqlConfig.TransactionMode
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest
+import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.roles
 
@@ -83,6 +84,7 @@ internal class SubjectAccessRequestControllerIntTest: BaseIntTest() {
     inner class SARContent {
         @BeforeEach
         fun setAuthRoles() {
+            TokenHelper.cachedToken = null
             roles = listOf("ROLE_SAR_DATA_ACCESS")
         }
 

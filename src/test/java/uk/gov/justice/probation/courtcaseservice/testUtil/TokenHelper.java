@@ -29,7 +29,7 @@ import java.util.List;
 import static uk.gov.justice.probation.courtcaseservice.Constants.USER_UUID_CLAIM_NAME;
 
 public class TokenHelper {
-    private static String cachedToken = null;
+    public static String cachedToken = null;
     private static String cachedTokenUuid = null;
 
     public static String TEST_UUID = "fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81";

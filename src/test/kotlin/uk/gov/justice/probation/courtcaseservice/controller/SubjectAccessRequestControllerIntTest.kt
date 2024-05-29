@@ -299,10 +299,7 @@ internal class SubjectAccessRequestControllerIntTest: BaseIntTest() {
                 )
                 .get("/subject-access-request?crn=X25829&toDate=2021-04-25")
                 .then()
-                .statusCode(200)
-                .body("content.comments", Matchers.empty<Any>())
-                .body("content.hearingOutcomes", Matchers.empty<Any>())
-                .body("content.hearingNotes", Matchers.empty<Any>())
+                .statusCode(204)
         }
     }
 }

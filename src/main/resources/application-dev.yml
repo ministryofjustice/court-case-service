@@ -38,3 +38,7 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
+
+hmpps:
+  sar:
+    additionalAccessRole: PREPARE_A_CASE

@@ -39,6 +39,12 @@ spring:
         jwt:
           jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
 
+azure:
+  application-insights:
+    web:
+      enable-W3C: true
+      enable-W3C-backcompat-mode: true
+
 hmpps:
   sar:
     additionalAccessRole: 'PREPARE_A_CASE'

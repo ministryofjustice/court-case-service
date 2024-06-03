@@ -83,7 +83,7 @@ env:
     base_url: https://document-api-dev.hmpps.service.justice.gov.uk
 
 spring:
-  profile: instrumented
+  profile: dev
 
 resources:
   cpu:

@@ -54,9 +54,8 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
     private String crn;
 
     @ToString.Exclude
-    @LazyCollection(value = LazyCollectionOption.TRUE)
     @JsonIgnore
-    @OneToMany(mappedBy = "defendant")
+    @OneToMany(mappedBy = "defendant", fetch = FetchType.LAZY)
     private List<HearingDefendantEntity> hearingDefendants;
 
     @ToString.Exclude

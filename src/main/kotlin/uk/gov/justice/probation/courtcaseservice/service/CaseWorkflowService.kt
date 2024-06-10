@@ -69,7 +69,8 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
 
                     val hearingOutcome = hearingDefendant.hearingOutcome
                     if(hearingOutcome.assignedToUuid != userUuid) {
-                        throw ForbiddenException("Outcome not allocated to current user.")
+                        telemetryService.trackMoveToResultedUnAuthorisedEvent(hearingId, defendantId, userUuid, hearingOutcome.assignedToUuid)
+                        throw ForbiddenException("Outcome (Hearing ID $hearingId and Defendant ID $defendantId) not allocated to current user.")
                     }
                     if(hearingOutcome.state != HearingOutcomeItemState.IN_PROGRESS.name) {
                         throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid state for outcome to be resulted.")
@@ -108,7 +109,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
 
     fun getOutcomeCountsByState(courtCode: String): HearingOutcomeCountByState {
         val dynamicOutcomeCountsByState = hearingOutcomeRepositoryCustom.getDynamicOutcomeCountsByState(courtCode)
-        return return HearingOutcomeCountByState(
+        return HearingOutcomeCountByState(
             dynamicOutcomeCountsByState[HearingOutcomeItemState.NEW.name] ?: 0,
             dynamicOutcomeCountsByState[HearingOutcomeItemState.IN_PROGRESS.name] ?: 0,
             dynamicOutcomeCountsByState[HearingOutcomeItemState.RESULTED.name] ?: 0)

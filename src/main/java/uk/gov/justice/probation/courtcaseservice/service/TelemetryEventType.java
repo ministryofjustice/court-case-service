@@ -17,8 +17,8 @@ public enum TelemetryEventType {
     OFFENDER_PROBATION_STATUS_UPDATED("PiCOffenderProbationStatusUpdated"),
     OFFENDER_PROBATION_STATUS_NOT_UPDATED("PiCOffenderProbationStatusNotUpdated"),
     PIC_NEW_ENGAGEMENT_DEFENDANT_LINKED("PiCNewEngagementDefendantLinked"),
-
-    PIC_MOVE_UN_RESULTED_CASES_TO_OUTCOMES_WORKFLOW("PiCMoveUnResultedCasesToOutcomesWorkflow");
+    PIC_MOVE_UN_RESULTED_CASES_TO_OUTCOMES_WORKFLOW("PiCMoveUnResultedCasesToOutcomesWorkflow"),
+    PIC_RESULT_OUTCOME_NOT_ASSIGNED_TO_CURRENT_USER("PiCResultOutcomeNotAssignedToCurrent_User");
 
     final String eventName;
 

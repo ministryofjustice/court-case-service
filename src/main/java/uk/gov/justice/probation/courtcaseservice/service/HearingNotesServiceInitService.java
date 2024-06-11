@@ -20,10 +20,9 @@ public class HearingNotesServiceInitService {
     @Transactional
     public Optional<HearingEntity> initializeNote(String hearingId) {
         var hearing = hearingRepository.findFirstByHearingId(hearingId);
-
-//        Hibernate.initialize(hearing.map(hearingEntity -> hearingEntity.getHearingDefendants().getFirst().getNotes()));
-        Hibernate.initialize(hearing.get().getHearingDefendants().getFirst().getNotes());
-
+        if(hearing.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
+            Hibernate.initialize(hearing.get().getHearingDefendants().getFirst().getNotes());
+        }
         return hearing;
     }
 }

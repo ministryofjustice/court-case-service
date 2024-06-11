@@ -2,20 +2,14 @@ package uk.gov.justice.probation.courtcaseservice.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingNotesRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
-import java.util.Optional;
-
 @Service
-//@Slf4j
+@Slf4j
 public class HearingNotesService {
 
     private final HearingRepository hearingRepository;
@@ -36,7 +30,6 @@ public class HearingNotesService {
         return createHearingNote(hearingId, defendantId, hearingNoteEntity, false);
     }
 
-    @Transactional
     public HearingNoteEntity createHearingNote(String hearingId, String defendantId, HearingNoteEntity hearingNoteEntity, boolean draft) {
         return hearingNotesServiceInitService.initializeNote(hearingId)
             .map(hearingEntity -> hearingEntity.getHearingDefendant(defendantId))
@@ -65,8 +58,8 @@ public class HearingNotesService {
 
     public void deleteHearingNote(String hearingId, String defendantId, Long noteId, String userUuid) {
 
-//        log.info("Delete request for hearingId {} / defendantId {} / noteId {} by user {}", hearingId, defendantId, noteId, userUuid);
-        hearingRepository.findFirstByHearingId(hearingId)
+        log.info("Delete request for hearingId {} / defendantId {} / noteId {} by user {}", hearingId, defendantId, noteId, userUuid);
+        hearingNotesServiceInitService.initializeNote(hearingId)
             .map(hearingEntity -> hearingEntity.getHearingDefendant(defendantId))
             .flatMap(hearingDefendantEntity ->
                 hearingDefendantEntity.getNotes().stream().filter(
@@ -81,9 +74,9 @@ public class HearingNotesService {
 
     public void deleteHearingNoteDraft(String hearingId, String defendantId, String userUuid) {
 
-//        log.info("Request to delete draft note on a hearingId {} / defendantId {} by user {}", hearingId, defendantId, userUuid);
+        log.info("Request to delete draft note on a hearingId {} / defendantId {} by user {}", hearingId, defendantId, userUuid);
 
-        hearingRepository.findFirstByHearingId(hearingId)
+        hearingNotesServiceInitService.initializeNote(hearingId)
             .map(hearingEntity -> hearingEntity.getHearingDefendant(defendantId))
             .flatMap(hearingDefendantEntity ->
                 hearingDefendantEntity.getNotes().stream().filter(
@@ -99,9 +92,9 @@ public class HearingNotesService {
 
     public void updateHearingNote(String hearingId, String defendantId, HearingNoteEntity hearingNoteUpdate, Long noteId) {
         final var userUuid = hearingNoteUpdate.getCreatedByUuid();
-//        log.info("Update request for hearingId {} / defendantId {} / noteId {} by user {}", hearingId, defendantId, noteId, userUuid);
+        log.info("Update request for hearingId {} / defendantId {} / noteId {} by user {}", hearingId, defendantId, noteId, userUuid);
 
-        hearingRepository.findFirstByHearingId(hearingId)
+        hearingNotesServiceInitService.initializeNote(hearingId)
             .map(hearingEntity -> hearingEntity.getHearingDefendant(defendantId))
             .flatMap(hearingDefendantEntity ->
                 hearingDefendantEntity.getNotes().stream().filter(

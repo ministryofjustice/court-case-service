@@ -40,6 +40,9 @@ class HearingNotesServiceTest {
     @Mock
     private TelemetryService telemetryService;
 
+    @Mock
+    private HearingNotesServiceInitService hearingNotesServiceInitService;
+
     @InjectMocks
     private HearingNotesService hearingNotesService;
 
@@ -52,17 +55,17 @@ class HearingNotesServiceTest {
     private static final String CREATED_BY_UUID = "uuid";
 
     @Test
-    void givenHearingIdExistsInDatabase_andADraftNoteDoNotExists_shouldCreatetNote() {
+    void givenHearingIdExistsInDatabase_andADraftNoteDoNotExists_shouldCreateNote() {
         HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder().hearingId("hearingId").createdByUuid(createdByUuid).build();
 
         HearingEntity hearing = EntityHelper.aHearingEntity();
-        given(hearingRepository.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+        given(hearingNotesServiceInitService.initializeNote(HEARING_ID)).willReturn(Optional.of(hearing));
         given(hearingNotesRepository.save(hearingNoteEntity)).willReturn(hearingNoteEntity);
 
 
         hearingNotesService.createHearingNote(HEARING_ID, EntityHelper.DEFENDANT_ID, hearingNoteEntity);
 
-        verify(hearingRepository).findFirstByHearingId(HEARING_ID);
+        verify(hearingNotesServiceInitService).initializeNote(HEARING_ID);
         verify(hearingNotesRepository).save(hearingNoteEntity);
         verify(telemetryService).trackCreateHearingNoteEvent(hearingNoteEntity);
     }

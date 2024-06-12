@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.service.HearingEntityInitService;
+import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -95,6 +96,10 @@ public class HearingRepositoryFacade {
         updatedWithExistingDefendantsFromDb(hearingEntity);
 
         return hearingRepository.save(hearingEntity);
+    }
+
+    public List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter) {
+        return hearingEntityInitService.filterHearings(hearingSearchFilter);
     }
 
     private void updateWithExistingOffenders(HearingEntity hearingEntity) {

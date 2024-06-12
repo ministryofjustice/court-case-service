@@ -41,7 +41,7 @@ class HearingNotesServiceTest {
     private TelemetryService telemetryService;
 
     @Mock
-    private HearingNotesServiceInitService hearingNotesServiceInitService;
+    private HearingNotesInitService hearingNotesServiceInitService;
 
     @InjectMocks
     private HearingNotesService hearingNotesService;

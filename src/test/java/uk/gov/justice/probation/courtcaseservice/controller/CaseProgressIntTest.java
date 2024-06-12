@@ -14,7 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteRes
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingNotesRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
-import uk.gov.justice.probation.courtcaseservice.service.HearingNotesServiceInitService;
+import uk.gov.justice.probation.courtcaseservice.service.HearingNotesInitService;
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper;
 
 import java.time.LocalDate;
@@ -52,7 +52,7 @@ public class CaseProgressIntTest extends BaseIntTest {
     private HearingNotesRepository hearingNotesRepository;
 
     @Autowired
-    private HearingNotesServiceInitService hearingNotesServiceInitService;
+    private HearingNotesInitService hearingNotesServiceInitService;
 
     @Autowired
     private HearingRepository hearingRepository;

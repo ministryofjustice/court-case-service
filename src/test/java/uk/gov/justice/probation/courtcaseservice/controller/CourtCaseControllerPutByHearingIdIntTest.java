@@ -20,6 +20,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantReposit
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 import uk.gov.justice.probation.courtcaseservice.listener.EventMessage;
+import uk.gov.justice.probation.courtcaseservice.service.CourtCaseInitService;
+import uk.gov.justice.probation.courtcaseservice.service.HearingNotesInitService;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReference;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType;
@@ -59,6 +61,12 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
     @Autowired
     HearingRepositoryFacade courtCaseRepository;
+
+    @Autowired
+    CourtCaseInitService courtCaseInitService;
+
+    @Autowired
+    HearingNotesInitService hearingNotesInitService;
 
     @Autowired
     OffenderRepository offenderRepository;
@@ -108,7 +116,6 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
     @Test
     void whenCreateCaseByHearingId_thenCreateNewRecord() {
-
         given()
             .auth()
             .oauth2(getToken())
@@ -153,7 +160,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             .body("hearingDays[0].sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
             .body("caseMarkers", hasSize(1));
 
-        var cc = courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID);
+        var cc = courtCaseInitService.initializeHearing(JSON_HEARING_ID);
         cc.ifPresentOrElse(hearingEntity -> {
             assertThat(hearingEntity.getCaseId()).isEqualTo(JSON_CASE_ID);
             assertThat(hearingEntity.getHearingId()).isEqualTo(JSON_HEARING_ID);
@@ -221,7 +228,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .body("hearingDays[0].sessionStartTime", equalTo(sessionStartTime.format(DateTimeFormatter.ISO_DATE_TIME)))
                 .body("hearingDays", hasSize(1));
 
-        var cc = courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID);
+        var cc = courtCaseInitService.initializeHearing(JSON_HEARING_ID);
         cc.ifPresentOrElse(hearingEntity -> {
             assertThat(hearingEntity.getCaseId()).isEqualTo(JSON_CASE_ID);
             assertThat(hearingEntity.getHearingId()).isEqualTo(JSON_HEARING_ID);
@@ -342,7 +349,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             .then()
             .statusCode(201);
 
-        courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID).ifPresentOrElse( hearing ->
+        courtCaseInitService.initializeHearing(JSON_HEARING_ID).ifPresentOrElse(hearing ->
                 assertThat(hearing.getHearingDefendants().get(0).getOffences()).allMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore() == null),
         () -> fail("Short Term Custody score should not be persisted"));
     }
@@ -361,7 +368,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             .then()
             .statusCode(201);
 
-        courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID).ifPresentOrElse( hearing ->
+        courtCaseInitService.initializeHearing(JSON_HEARING_ID).ifPresentOrElse(hearing ->
                         assertThat(hearing.getHearingDefendants().get(0).getOffences()).allMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore() == null),
                 () -> fail("Short Term Custody score should not be persisted"));
     }
@@ -385,7 +392,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             .statusCode(201);
 
         // Then
-        courtCaseRepository.findFirstByHearingId(hearingId).ifPresentOrElse(hearing ->
+        courtCaseInitService.initializeHearing(hearingId).ifPresentOrElse(hearing ->
             assertThat(hearing.getHearingDefendants().get(0).getOffences())
                     .anyMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore().compareTo(BigDecimal.valueOf(0.10611282999398507)) == 0),
             () -> fail("Short Term Custody score should be persisted"));
@@ -410,7 +417,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             .then()
             .statusCode(201);
 
-        courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID).ifPresentOrElse( hearing ->
+        courtCaseInitService.initializeHearing(JSON_HEARING_ID).ifPresentOrElse(hearing ->
                         assertThat(hearing.getHearingDefendants().get(0).getOffences()).allMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore() == null),
                 () -> fail("Short Term Custody score should not be persisted"));
     }
@@ -493,7 +500,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         ;
 
         // The correct offender is now associated
-        courtCaseRepository.findFirstByHearingId(caseId)
+        courtCaseInitService.initializeHearing(caseId)
                 .ifPresentOrElse(theCase -> {
                     var defendants = theCase.getHearingDefendants();
                     assertThat(defendants).hasSize(1);
@@ -520,7 +527,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .replace("\"defendantId\": \"d1eefed2-04df-11ec-b2d8-0242ac130002\"", "\"defendantId\": \"" + defendantId + "\"");
 
         // No offenders associated with the defendants
-        courtCaseRepository.findFirstByHearingId(caseId)
+        courtCaseInitService.initializeHearing(caseId)
                 .ifPresentOrElse(theCase -> {
                     var defendants = theCase.getHearingDefendants();
                     assertThat(defendants).hasSize(1);
@@ -558,7 +565,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         ;
 
         // The correct offender is now associated
-        courtCaseRepository.findFirstByHearingId(caseId)
+        hearingNotesInitService.initializeNote(caseId)
                 .ifPresentOrElse(theCase -> {
                     var defendants = theCase.getHearingDefendants();
                     assertThat(defendants).hasSize(1);
@@ -586,7 +593,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .body("hearingId", equalTo(JSON_HEARING_ID));
 
         // No offenders associated with the defendants
-        courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID)
+        courtCaseInitService.initializeHearing(JSON_HEARING_ID)
                 .ifPresentOrElse(theCase -> assertThat(theCase.getHearingDefendants()
                         .stream()
                         .map(HearingDefendantEntity::getDefendant)
@@ -615,7 +622,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .body("hearingId", equalTo(JSON_HEARING_ID))
                 .body("hearingEventType", equalTo("ConfirmedOrUpdated"));
 
-        courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID)
+        courtCaseInitService.initializeHearing(JSON_HEARING_ID)
                 .ifPresentOrElse(theCase -> assertThat(theCase.getHearingEventType()).isEqualTo(HearingEventType.CONFIRMED_OR_UPDATED), () -> fail("Hearing event type should be ConfirmedOrUpdated"));
 
         assertThat(getEmittedEventsQueueSqsClient()
@@ -643,7 +650,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
                 .body("hearingId", equalTo(JSON_HEARING_ID))
                 .body("hearingEventType", equalTo(resultedHearingEventType));
 
-        courtCaseRepository.findFirstByHearingId(JSON_HEARING_ID)
+        courtCaseInitService.initializeHearing(JSON_HEARING_ID)
                 .ifPresentOrElse(theCase -> assertThat(theCase.getHearingEventType()).isEqualTo(HearingEventType.RESULTED), () -> fail("Hearing event type should be Resulted"));
 
         await().atLeast(Duration.ofMillis(100));

@@ -16,7 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.service.CaseWorkflowService
-import uk.gov.justice.probation.courtcaseservice.service.HearingNotesServiceInitService
+import uk.gov.justice.probation.courtcaseservice.service.HearingNotesInitService
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper
 import java.net.URI
@@ -46,7 +46,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
     lateinit var hearingRepository: HearingRepository
 
     @Autowired
-    lateinit var hearingNotesServiceInitService: HearingNotesServiceInitService
+    lateinit var hearingNotesInitService: HearingNotesInitService
 
     @SpyBean
     lateinit var caseWorkflowService: CaseWorkflowService
@@ -65,7 +65,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .then()
             .statusCode(200)
 
-        val hearing = hearingNotesServiceInitService.initializeNote(HEARING_ID).get()
+        val hearing = hearingNotesInitService.initializeNote(HEARING_ID).get()
         val hearingOutcome = hearing.hearingDefendants[0].hearingOutcome
         assertThat(hearingOutcome.outcomeType).isEqualTo("ADJOURNED")
         assertThat(hearingOutcome.outcomeDate).isNotNull()
@@ -86,7 +86,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .then()
             .statusCode(200)
 
-        val hearing = hearingNotesServiceInitService.initializeNote(hearingId).get();
+        val hearing = hearingNotesInitService.initializeNote(hearingId).get();
         val hearingOutcome = hearing.hearingDefendants[0].hearingOutcome
         assertThat(hearingOutcome.outcomeType).isEqualTo("REPORT_REQUESTED")
         assertThat(hearingOutcome.outcomeDate).isNotNull()
@@ -281,7 +281,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
                 .then()
                 .statusCode(200)
 
-        val hearing = hearingNotesServiceInitService.initializeNote(HEARING_ID).get()
+        val hearing = hearingNotesInitService.initializeNote(HEARING_ID).get()
         val hearingOutcome = hearing.hearingDefendants[0].hearingOutcome
         assertThat(hearingOutcome.assignedTo).isEqualTo("John Smith")
         assertThat(hearingOutcome.assignedToUuid).isEqualTo("fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81")
@@ -316,7 +316,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .then()
             .statusCode(200)
 
-        val hearing = hearingNotesServiceInitService.initializeNote(hearingId).get();
+        val hearing = hearingNotesInitService.initializeNote(hearingId).get();
         val hearingOutcome = hearing.hearingDefendants[0].hearingOutcome
         assertThat(hearingOutcome.state).isEqualTo("RESULTED")
         assertThat(hearingOutcome.resultedDate).isNotNull()
@@ -363,7 +363,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .then()
             .statusCode(200)
 
-        val hearingPrepStatus = hearingNotesServiceInitService.initializeNote(HEARING_ID).get().getHearingDefendant(DEFENDANT_ID).prepStatus
+        val hearingPrepStatus = hearingNotesInitService.initializeNote(HEARING_ID).get().getHearingDefendant(DEFENDANT_ID).prepStatus
         assertThat(hearingPrepStatus).isEqualTo("IN_PROGRESS")
     }
 

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.service.HearingNotesInitService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,22 +27,25 @@ public class HearingRepositoryFacade {
     private final OffenderRepository offenderRepository;
     private final OffenderRepositoryFacade offenderRepositoryFacade;
     private final HearingRepository hearingRepository;
+
+    private final HearingNotesInitService hearingNotesInitService;
     private final DefendantRepository defendantRepository;
     private final CaseCommentsRepository caseCommentsRepository;
 
     @Autowired
     public HearingRepositoryFacade(OffenderRepository offenderRepository, OffenderRepositoryFacade offenderRepositoryFacade,
-                                   HearingRepository hearingRepository, DefendantRepository defendantRepository,
+                                   HearingRepository hearingRepository, HearingNotesInitService hearingNotesInitService, DefendantRepository defendantRepository,
                                    CaseCommentsRepository caseCommentsRepository) {
         this.offenderRepository = offenderRepository;
         this.offenderRepositoryFacade = offenderRepositoryFacade;
         this.hearingRepository = hearingRepository;
+        this.hearingNotesInitService = hearingNotesInitService;
         this.defendantRepository = defendantRepository;
         this.caseCommentsRepository = caseCommentsRepository;
     }
 
     public Optional<HearingEntity> findFirstByHearingId(String hearingId) {
-        return hearingRepository.findFirstByHearingId(hearingId);
+        return hearingNotesInitService.initializeNote(hearingId);
     }
 
     public Optional<HearingEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo, String listNo) {
@@ -57,7 +61,7 @@ public class HearingRepositoryFacade {
     }
 
     public Optional<HearingEntity> findByHearingIdAndDefendantId(String hearingId, String defendantId) {
-        return hearingRepository.findFirstByHearingId(hearingId)
+        return hearingNotesInitService.initializeNote(hearingId)
             .map(hearingEntity -> Objects.nonNull(hearingEntity.getHearingDefendant(defendantId)) ? hearingEntity : null)
             .map(hearingEntity -> {
                 hearingEntity.getCourtCase().setCaseComments(caseCommentsRepository.findByCaseIdAndDefendantIdAndDeletedFalse(hearingEntity.getCaseId(), defendantId));

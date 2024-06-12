@@ -16,10 +16,10 @@ public class HearingNotesService {
     private final HearingNotesRepository hearingNotesRepository;
     private final TelemetryService telemetryService;
 
-    private final HearingNotesInitService hearingNotesServiceInitService;
+    private final HearingEntityInitService hearingNotesServiceInitService;
 
     public HearingNotesService(HearingRepository hearingRepository, HearingNotesRepository hearingNotesRepository,
-                               TelemetryService telemetryService, HearingNotesInitService hearingNotesServiceInitService) {
+                               TelemetryService telemetryService, HearingEntityInitService hearingNotesServiceInitService) {
         this.hearingRepository = hearingRepository;
         this.hearingNotesRepository = hearingNotesRepository;
         this.telemetryService = telemetryService;

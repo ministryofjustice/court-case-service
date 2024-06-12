@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
+import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -15,7 +16,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
-import uk.gov.justice.probation.courtcaseservice.service.HearingNotesInitService;
+import uk.gov.justice.probation.courtcaseservice.service.HearingEntityInitService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,7 +38,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProba
         "classpath:sql/before-common.sql",
         "classpath:sql/before-HearingRepositoryFacadeIntTest.sql"
 }, config = @SqlConfig(transactionMode = ISOLATED))
-public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
+public class HearingRepositoryFacadeIntTest extends BaseIntTest {
     @Autowired
     private OffenderRepository offenderRepository;
     private OffenderRepositoryFacade offenderRepositoryFacade;
@@ -48,14 +49,15 @@ public class HearingRepositoryFacadeIntTest extends BaseRepositoryIntTest {
     @Autowired
     private CaseCommentsRepository caseCommentsRepository;
     @Autowired
-    private HearingNotesInitService hearingNotesInitService;
+    private HearingEntityInitService hearingEntityInitService;
+
     private HearingRepositoryFacade hearingRepositoryFacade;
 
 
     @BeforeEach
     public void setUp() {
         offenderRepositoryFacade = new OffenderRepositoryFacade(offenderRepository);
-        hearingRepositoryFacade = new HearingRepositoryFacade(offenderRepository, offenderRepositoryFacade, hearingRepository, hearingNotesInitService, defendantRepository, caseCommentsRepository);
+        hearingRepositoryFacade = new HearingRepositoryFacade(offenderRepository, offenderRepositoryFacade, hearingRepository, hearingEntityInitService, defendantRepository, caseCommentsRepository);
     }
 
     @Test

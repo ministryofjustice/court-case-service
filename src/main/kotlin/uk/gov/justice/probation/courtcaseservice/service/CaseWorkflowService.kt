@@ -21,6 +21,7 @@ import java.util.Optional
 
 @Service
 class CaseWorkflowService(val hearingRepository: HearingRepository,
+                          val hearingNotesServiceInitService: HearingNotesServiceInitService,
                           val courtRepository: CourtRepository,
                           val hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom,
                           val telemetryService: TelemetryService,
@@ -31,7 +32,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
                           val cutOffTime: LocalTime = LocalTime.of(18, 30)) {
 
     fun addOrUpdateHearingOutcome(hearingId: String, defendantId: String, hearingOutcomeType: HearingOutcomeType) {
-        hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
+        hearingNotesServiceInitService.initializeNote(hearingId).ifPresentOrElse(
             { hearingEntity: HearingEntity ->
                 val hearingDefendant = hearingEntity.getHearingDefendant(defendantId)
                     ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
@@ -48,7 +49,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
     }
 
     fun assignAndUpdateStateToInProgress(hearingId: String, defendantId: String, assignedTo: String, assignedToUuid: String) {
-        hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
+        hearingNotesServiceInitService.initializeNote(hearingId).ifPresentOrElse(
                 {
                     val hearingDefendant = it.getHearingDefendant(defendantId)
                         ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
@@ -62,7 +63,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
     }
 
     fun resultHearingOutcome(hearingId: String, defendantId: String, userUuid: String) {
-        hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
+        hearingNotesServiceInitService.initializeNote(hearingId).ifPresentOrElse(
                 {
                     val hearingDefendant = it.getHearingDefendant(defendantId)
                         ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
@@ -139,8 +140,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
     }
 
     fun updatePrepStatus(hearingId: String, defendantId: String, prepStatus: HearingPrepStatus) {
-
-        hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
+        hearingNotesServiceInitService.initializeNote(hearingId).ifPresentOrElse(
             {
                 val hearingDefendant = it.getHearingDefendant(defendantId)
                     ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")

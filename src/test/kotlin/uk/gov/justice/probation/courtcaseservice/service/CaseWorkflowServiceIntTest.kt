@@ -100,13 +100,14 @@ internal class CaseWorkflowServiceIntTest {
     class TestConfiguration {
         @Bean
         fun caseWorkflowService(@Autowired hearingRepository: HearingRepository,
+                                @Autowired hearingNotesServiceInitService: HearingNotesServiceInitService,
                                 @Autowired hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom,
                                 @Autowired telemetryService: TelemetryService,
                                 @Autowired courtRepository: CourtRepository,
                                 @Value("\${hearing_outcomes.move_un_resulted_to_outcomes_cutoff_time}")
                                 @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
                                 cutOffTime: LocalTime): CaseWorkflowService {
-            return CaseWorkflowService(hearingRepository, courtRepository, hearingOutcomeRepositoryCustom, telemetryService, listOf(), cutOffTime)
+            return CaseWorkflowService(hearingRepository, hearingNotesServiceInitService, courtRepository, hearingOutcomeRepositoryCustom, telemetryService, listOf(), cutOffTime)
         }
 
         @Bean

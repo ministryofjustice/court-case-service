@@ -21,7 +21,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositor
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 import uk.gov.justice.probation.courtcaseservice.listener.EventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseInitService;
-import uk.gov.justice.probation.courtcaseservice.service.HearingNotesInitService;
+import uk.gov.justice.probation.courtcaseservice.service.HearingEntityInitService;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReference;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType;
@@ -66,7 +66,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     CourtCaseInitService courtCaseInitService;
 
     @Autowired
-    HearingNotesInitService hearingNotesInitService;
+    HearingEntityInitService hearingEntityInitService;
 
     @Autowired
     OffenderRepository offenderRepository;
@@ -565,7 +565,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         ;
 
         // The correct offender is now associated
-        hearingNotesInitService.initializeNote(caseId)
+        hearingEntityInitService.initializeNote(caseId)
                 .ifPresentOrElse(theCase -> {
                     var defendants = theCase.getHearingDefendants();
                     assertThat(defendants).hasSize(1);

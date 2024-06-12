@@ -6,7 +6,9 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
+import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -55,5 +57,17 @@ public class HearingEntityInitService {
             }));
         }
         return hearing;
+    }
+
+    @Transactional
+    public List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter) {
+        var hearings = hearingRepository.filterHearings(hearingSearchFilter);
+        return hearings.stream().peek(hearingEntity -> {
+            Hibernate.initialize(hearingEntity.getHearingDefendants().getFirst().getNotes());
+            Hibernate.initialize(hearingEntity.getHearingDefendants().stream().map(hearingDefendantEntity -> {
+                // something up with judicial results here
+                return hearingDefendantEntity.getOffences().stream().map(OffenceEntity::getJudicialResults);
+            }));
+        }).toList();
     }
 }

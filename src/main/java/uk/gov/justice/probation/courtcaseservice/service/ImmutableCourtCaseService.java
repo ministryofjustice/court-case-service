@@ -146,7 +146,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     @Override
     public List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter) {
-        return hearingRepository.filterHearings(hearingSearchFilter);
+        return hearingRepositoryFacade.filterHearings(hearingSearchFilter);
     }
 
     @Override

@@ -46,7 +46,7 @@ public class HearingRepositoryFacade {
     }
 
     public Optional<HearingEntity> findFirstByHearingId(String hearingId) {
-        return hearingEntityInitService.initializeNote(hearingId);
+        return hearingEntityInitService.findFirstByHearingId(hearingId);
     }
 
     public Optional<HearingEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo, String listNo) {
@@ -62,7 +62,7 @@ public class HearingRepositoryFacade {
     }
 
     public Optional<HearingEntity> findByHearingIdAndDefendantId(String hearingId, String defendantId) {
-        return hearingEntityInitService.initializeNote(hearingId)
+        return hearingEntityInitService.findFirstByHearingId(hearingId)
             .map(hearingEntity -> Objects.nonNull(hearingEntity.getHearingDefendant(defendantId)) ? hearingEntity : null)
             .map(hearingEntity -> {
                 hearingEntity.getCourtCase().setCaseComments(caseCommentsRepository.findByCaseIdAndDefendantIdAndDeletedFalse(hearingEntity.getCaseId(), defendantId));

@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.service;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
@@ -24,7 +25,7 @@ public class HearingEntityInitService {
     public Optional<HearingEntity> findFirstByHearingId(String hearingId) {
         var hearing = hearingRepository.findFirstByHearingId(hearingId);
         if(hearing.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
-            Hibernate.initialize(hearing.get().getHearingDefendants().getFirst().getNotes());
+            Hibernate.initialize(hearing.get().getHearingDefendants().stream().map(HearingDefendantEntity::getNotes));
             hearing.get().getHearingDefendants().forEach(hearingDefendantEntity ->
                 hearingDefendantEntity.getOffences().forEach(offence -> Hibernate.initialize(offence.getJudicialResults()))
             );
@@ -62,7 +63,8 @@ public class HearingEntityInitService {
     public List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter) {
         var hearings = hearingRepository.filterHearings(hearingSearchFilter);
         return hearings.stream().peek(hearingEntity -> {
-            Hibernate.initialize(hearingEntity.getHearingDefendants().getFirst().getNotes());
+            Hibernate.initialize(hearingEntity.getHearingDefendants());
+            hearingEntity.getHearingDefendants().forEach(hearingDefendantEntity -> Hibernate.initialize(hearingDefendantEntity.getNotes()));
             Hibernate.initialize(hearingEntity.getHearingDefendants().stream().map(hearingDefendantEntity -> {
                 return hearingDefendantEntity.getOffences().stream().map(OffenceEntity::getJudicialResults);
             }));

@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.service;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
@@ -51,6 +52,8 @@ public class HearingEntityInitService {
         var hearing = hearingRepository.findMostRecentByCourtCodeAndCaseNo(courtCode, caseNo);
         if(hearing.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
             Hibernate.initialize(hearing.get().getHearingDefendants().getFirst().getNotes());
+            Hibernate.initialize(hearing.get().getCourtCase().getCaseDefendants());
+            Hibernate.initialize(hearing.get().getCourtCase().getCaseDefendants().stream().map(CaseDefendantEntity::getDocuments));
             Hibernate.initialize(hearing.get().getHearingDefendants().stream().map(hearingDefendantEntity -> {
                 // something up with judicial results here
                 return hearingDefendantEntity.getOffences().stream().map(OffenceEntity::getJudicialResults);

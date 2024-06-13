@@ -39,8 +39,11 @@ public class HearingEntityInitService {
             hearing.get().getHearingDefendants().forEach(hearingDefendantEntity -> Hibernate.initialize(hearingDefendantEntity.getNotes()));
             Hibernate.initialize(hearing.get().getCourtCase().getCaseDefendants());
             hearing.get().getCourtCase().getCaseDefendants().forEach(caseDefendantEntity -> Hibernate.initialize(caseDefendantEntity.getDocuments()));
-            hearing.get().getHearingDefendants().forEach(hearingDefendantEntity ->
-                    hearingDefendantEntity.getOffences().forEach(offence -> Hibernate.initialize(offence.getJudicialResults()))
+            Hibernate.initialize(hearing.get().getCourtCase().getHearings());
+            hearing.get().getHearingDefendants().forEach(hearingDefendantEntity -> {
+                Hibernate.initialize(hearingDefendantEntity.getDefendant().getHearingDefendants());
+                hearingDefendantEntity.getOffences().forEach(offence -> Hibernate.initialize(offence.getJudicialResults()));
+            }
             );
         }
         return hearing;

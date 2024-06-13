@@ -17,6 +17,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.service.HearingEntityInitService;
+import uk.gov.justice.probation.courtcaseservice.service.OffenderEntityInitService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,6 +43,9 @@ public class HearingRepositoryFacadeIntTest extends BaseIntTest {
     @Autowired
     private OffenderRepository offenderRepository;
     private OffenderRepositoryFacade offenderRepositoryFacade;
+
+    @Autowired
+    private OffenderEntityInitService offenderEntityInitService;
     @Autowired
     private HearingRepository hearingRepository;
     @Autowired
@@ -56,7 +60,7 @@ public class HearingRepositoryFacadeIntTest extends BaseIntTest {
 
     @BeforeEach
     public void setUp() {
-        offenderRepositoryFacade = new OffenderRepositoryFacade(offenderRepository);
+        offenderRepositoryFacade = new OffenderRepositoryFacade(offenderRepository, offenderEntityInitService);
         hearingRepositoryFacade = new HearingRepositoryFacade(offenderRepository, offenderRepositoryFacade, hearingRepository, hearingEntityInitService, defendantRepository, caseCommentsRepository);
     }
 

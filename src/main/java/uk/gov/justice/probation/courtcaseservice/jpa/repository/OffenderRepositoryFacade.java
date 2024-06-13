@@ -1,9 +1,13 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.service.OffenderEntityInitService;
+
+import java.util.Optional;
 
 @Repository
 @Transactional
@@ -11,9 +15,12 @@ public class OffenderRepositoryFacade {
 
     private final OffenderRepository offenderRepository;
 
+    private final OffenderEntityInitService offenderEntityInitService;
+
     @Autowired
-    public OffenderRepositoryFacade(OffenderRepository offenderRepository) {
+    public OffenderRepositoryFacade(OffenderRepository offenderRepository, OffenderEntityInitService offenderEntityInitService) {
         this.offenderRepository = offenderRepository;
+        this.offenderEntityInitService = offenderEntityInitService;
     }
 
     public OffenderEntity save(OffenderEntity offenderUpdate) {
@@ -32,7 +39,7 @@ public class OffenderRepositoryFacade {
     }
 
     public OffenderEntity upsertOffender(OffenderEntity updatedOffender) {
-        return offenderRepository.findByCrn(updatedOffender.getCrn())
+        return offenderEntityInitService.findByCrn(updatedOffender.getCrn())
             .map(existingOffender -> {
                 if(!existingOffender.withId(null).equals(updatedOffender)) {
                     existingOffender.update(updatedOffender);

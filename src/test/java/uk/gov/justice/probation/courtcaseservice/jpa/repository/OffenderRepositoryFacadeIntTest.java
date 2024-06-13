@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.service.OffenderEntityInitService;
 
 import java.time.LocalDate;
 
@@ -24,11 +25,14 @@ public class OffenderRepositoryFacadeIntTest extends BaseRepositoryIntTest {
     @Autowired
     private OffenderRepository offenderRepository;
 
+    @Autowired
+    private OffenderEntityInitService offenderEntityInitService;
+
     private OffenderRepositoryFacade offenderRepositoryFacade;
 
     @BeforeEach
     void setup() {
-        offenderRepositoryFacade = new OffenderRepositoryFacade(offenderRepository);
+        offenderRepositoryFacade = new OffenderRepositoryFacade(offenderRepository, offenderEntityInitService);
     }
 
     @Test

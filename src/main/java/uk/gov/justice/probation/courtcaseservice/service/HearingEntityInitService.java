@@ -1,11 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 import org.hibernate.Hibernate;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
@@ -24,24 +23,25 @@ public class HearingEntityInitService {
     @Transactional
     public Optional<HearingEntity> findFirstByHearingId(String hearingId) {
         var hearing = hearingRepository.findFirstByHearingId(hearingId);
-        if(hearing.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
-            Hibernate.initialize(hearing.get().getHearingDefendants().stream().map(HearingDefendantEntity::getNotes));
-            hearing.get().getHearingDefendants().forEach(hearingDefendantEntity ->
-                hearingDefendantEntity.getOffences().forEach(offence -> Hibernate.initialize(offence.getJudicialResults()))
-            );
-        }
-        return hearing;
+        return InitializeHearingEntity(hearing);
     }
 
     @Transactional
     public Optional<HearingEntity> findByCourtCodeCaseNoAndListNo(String courtCode, String caseNo, String listNo) {
         var hearing = hearingRepository.findByCourtCodeCaseNoAndListNo(courtCode, caseNo, listNo);
+        return InitializeHearingEntity(hearing);
+    }
+
+    @NotNull
+    private Optional<HearingEntity> InitializeHearingEntity(Optional<HearingEntity> hearing) {
         if(hearing.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
-            Hibernate.initialize(hearing.get().getHearingDefendants().getFirst().getNotes());
+            Hibernate.initialize(hearing.get().getHearingDefendants());
+            hearing.get().getHearingDefendants().forEach(hearingDefendantEntity -> Hibernate.initialize(hearingDefendantEntity.getNotes()));
             Hibernate.initialize(hearing.get().getCourtCase().getCaseDefendants());
             hearing.get().getCourtCase().getCaseDefendants().forEach(caseDefendantEntity -> Hibernate.initialize(caseDefendantEntity.getDocuments()));
-            Hibernate.initialize(hearing.get().getHearingDefendants().stream().map(hearingDefendantEntity ->
-                    hearingDefendantEntity.getOffences().stream().map(OffenceEntity::getJudicialResults)));
+            hearing.get().getHearingDefendants().forEach(hearingDefendantEntity ->
+                    hearingDefendantEntity.getOffences().forEach(offence -> Hibernate.initialize(offence.getJudicialResults()))
+            );
         }
         return hearing;
     }
@@ -50,11 +50,11 @@ public class HearingEntityInitService {
     public Optional<HearingEntity> findMostRecentByCourtCodeAndCaseNo(String courtCode, String caseNo) {
         var hearing = hearingRepository.findMostRecentByCourtCodeAndCaseNo(courtCode, caseNo);
         if(hearing.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
-            Hibernate.initialize(hearing.get().getHearingDefendants().getFirst().getNotes());
-            Hibernate.initialize(hearing.get().getHearingDefendants().stream().map(hearingDefendantEntity -> {
-                // something up with judicial results here
-                return hearingDefendantEntity.getOffences().stream().map(OffenceEntity::getJudicialResults);
-            }));
+            Hibernate.initialize(hearing.get().getHearingDefendants());
+            hearing.get().getHearingDefendants().forEach(hearingDefendantEntity -> Hibernate.initialize(hearingDefendantEntity.getNotes()));
+            hearing.get().getHearingDefendants().forEach(hearingDefendantEntity ->
+                    hearingDefendantEntity.getOffences().forEach(offence -> Hibernate.initialize(offence.getJudicialResults()))
+            );
         }
         return hearing;
     }
@@ -65,9 +65,9 @@ public class HearingEntityInitService {
         return hearings.stream().peek(hearingEntity -> {
             Hibernate.initialize(hearingEntity.getHearingDefendants());
             hearingEntity.getHearingDefendants().forEach(hearingDefendantEntity -> Hibernate.initialize(hearingDefendantEntity.getNotes()));
-            Hibernate.initialize(hearingEntity.getHearingDefendants().stream().map(hearingDefendantEntity -> {
-                return hearingDefendantEntity.getOffences().stream().map(OffenceEntity::getJudicialResults);
-            }));
+            hearingEntity.getHearingDefendants().forEach(hearingDefendantEntity ->
+                    hearingDefendantEntity.getOffences().forEach(offence -> Hibernate.initialize(offence.getJudicialResults()))
+            );
         }).toList();
     }
 }

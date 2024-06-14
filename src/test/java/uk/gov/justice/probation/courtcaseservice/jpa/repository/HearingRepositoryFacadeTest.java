@@ -189,7 +189,7 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void whenFindByCourtCodeAndHearingDay_andDateTimeIsMinMax_thenCallRepoMethodWithoutDateConstraints() {
-        when(hearingRepository.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE))
+        when(hearingEntityInitService.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE))
                 .thenReturn(List.of(HEARING, HEARING_WITH_MULTIPLE_DEFENDANTS));
 
         final var actual = facade.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, LocalDateTime.MIN, LocalDateTime.MAX);
@@ -198,13 +198,13 @@ class HearingRepositoryFacadeTest {
         AssertionsForClassTypes.assertThat(actual.get(1).getHearingDefendants().get(0).getDefendant()).isEqualTo(DEFENDANT_2);
         AssertionsForClassTypes.assertThat(actual.get(1).getHearingDefendants().get(1).getDefendant()).isEqualTo(DEFENDANT);
 
-        verify(hearingRepository).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE);
+        verify(hearingEntityInitService).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
     @Test
     void whenFindByCourtCodeAndHearingDay_andDateTimesAreNull_thenCallRepoMethodWithoutDateConstraints() {
-        when(hearingRepository.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE))
+        when(hearingEntityInitService.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE))
                 .thenReturn(List.of(HEARING, HEARING_WITH_MULTIPLE_DEFENDANTS));
 
         final var actual = facade.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, null, null);
@@ -213,18 +213,18 @@ class HearingRepositoryFacadeTest {
         AssertionsForClassTypes.assertThat(actual.get(1).getHearingDefendants().get(0).getDefendant()).isEqualTo(DEFENDANT_2);
         AssertionsForClassTypes.assertThat(actual.get(1).getHearingDefendants().get(1).getDefendant()).isEqualTo(DEFENDANT);
 
-        verify(hearingRepository).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE);
+        verify(hearingEntityInitService).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
     @Test
     void whenFindByCourtCodeAndHearingDay_thenReturnDefendants() {
-        when(hearingRepository.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, A_DATETIME, A_DATETIME))
+        when(hearingEntityInitService.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, A_DATETIME, A_DATETIME))
                 .thenReturn(List.of(HEARING, HEARING_WITH_MULTIPLE_DEFENDANTS));
 
         final var actual = facade.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, A_DATETIME, A_DATETIME);
 
-        verify(hearingRepository).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, A_DATETIME, A_DATETIME);
+        verify(hearingEntityInitService).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, A_DATETIME, A_DATETIME);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 

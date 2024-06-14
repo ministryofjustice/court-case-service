@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
+import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderEntityInitService;
 
@@ -18,7 +19,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProba
 @Sql(scripts = {
     "classpath:before-test.sql"
 }, config = @SqlConfig(transactionMode = ISOLATED))
-public class OffenderRepositoryFacadeIntTest extends BaseRepositoryIntTest {
+public class OffenderRepositoryFacadeIntTest extends BaseIntTest {
 
     private static final String CRO = "CRO007";
     private static final String PNC = "PNC007";
@@ -31,7 +32,7 @@ public class OffenderRepositoryFacadeIntTest extends BaseRepositoryIntTest {
     private OffenderRepositoryFacade offenderRepositoryFacade;
 
     @BeforeEach
-    void setup() {
+    void setUp() {
         offenderRepositoryFacade = new OffenderRepositoryFacade(offenderRepository, offenderEntityInitService);
     }
 

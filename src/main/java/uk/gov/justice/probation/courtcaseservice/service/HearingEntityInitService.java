@@ -8,6 +8,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,6 +85,22 @@ public class HearingEntityInitService {
             hearingEntity.getHearingDefendants().forEach(hearingDefendantEntity ->
                     hearingDefendantEntity.getOffences().forEach(offence -> Hibernate.initialize(offence.getJudicialResults()))
             );
+        }).toList();
+    }
+
+    @Transactional
+    public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay) {
+        var hearings = hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay);
+        return hearings.stream().peek(hearingEntity -> {
+            Hibernate.initialize(hearingEntity.getHearingDefendants());
+        }).toList();
+    }
+
+    @Transactional
+    public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
+        var hearings = hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay, createdAfter, createdBefore);
+        return hearings.stream().peek(hearingEntity -> {
+            Hibernate.initialize(hearingEntity.getHearingDefendants());
         }).toList();
     }
 }

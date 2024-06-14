@@ -7,15 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 import uk.gov.justice.probation.courtcaseservice.service.HearingEntityInitService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderEntityInitService;
 
@@ -30,9 +22,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.HEARING_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingDefendantEntity;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus.CURRENT;
 
 @Sql(scripts = {
@@ -168,48 +158,62 @@ public class HearingRepositoryFacadeIntTest extends BaseIntTest {
     @Test
     public void givenAnExistingOffender_whenSave_thenPersistOffender() {
 
-        final var offenderEntity = OffenderEntity.builder()
-                .crn("X25829")
-                .awaitingPsr(false)
-                .preSentenceActivity(false)
-                .suspendedSentenceOrder(false)
-                .preSentenceActivity(false)
-                .previouslyKnownTerminationDate(null)
-                .build();
+        String crn = "X25829";
+        var DEFENDANT_ID_1 = "d1eefed2-04df-11ec-b2d8-0242ac130002";
 
-        final var defendantEntity = DefendantEntity.builder()
-                .defendantId("d1eefed2-04df-11ec-b2d8-0242ac130002")
-                .defendantName("Ferris Bueller")
-                .name(NamePropertiesEntity.builder()
+        final var defendantentity = EntityHelper.aDefendantEntity()
+                .withId(1L)
+                .withOffender(anOffender("X25829"))
+                .withDefendantId(DEFENDANT_ID_1)
+                .withDefendantName("Ferris Bueller")
+                .withName(NamePropertiesEntity.builder()
                         .forename1("Ferris")
                         .surname("Bueller")
                         .build())
-                .type(DefendantType.PERSON)
-                .personId(UUID.randomUUID().toString())
-                .offender(offenderEntity)
-                .build();
+                .withPersonId(UUID.randomUUID().toString());
 
-        final var hearingDefendantEntity = HearingDefendantEntity.builder()
-                .defendantId("d1eefed2-04df-11ec-b2d8-0242ac130002")
-                .defendant(defendantEntity)
-                .build();
+        defendantentity.getOffender().setDefendants(List.of(defendantentity));
 
-        final var hearingEntity = HearingEntity.builder()
-                .courtCase(CourtCaseEntity.builder()
+        final var hearingEntity = EntityHelper.aHearingEntityWithCrn(crn)
+                .withId(1L)
+                .withHearingId(HEARING_ID)
+//                .withFirstCreated(LocalDateTime.parse("2022-03-23"))
+                .withCourtCase(CourtCaseEntity.builder()
+                        .id(null)
                         .caseId(CASE_ID)
+                        .caseDefendants(List.of())
+                        .caseMarkers(List.of())
+                        .hearings(null)
+                        .lastUpdated(LocalDateTime.now())
+//                        .created(LocalDateTime.parse("2022-03-23 17:59:59.000"))
                         .build())
-                .hearingId(HEARING_ID)
-                .hearingDefendants(Collections.singletonList(
-                        hearingDefendantEntity
-                ))
-                .build();
+                .withHearingDefendants(List.of(
+                        aHearingDefendantEntity(DEFENDANT_ID_1, crn).withDefendant(defendantentity).withId(1L)
+                ));
 
-        hearingDefendantEntity.setHearing(hearingEntity);
+        hearingEntity.getHearingDefendants().forEach(hearingDefendantEntity -> {
+            hearingDefendantEntity.getOffences().forEach(offenceEntity -> {
+                offenceEntity.setHearingDefendant(hearingDefendantEntity);
+            });
+        });
+        hearingEntity.getHearingDays().forEach(hearingDay -> {
+            hearingDay.setHearing(hearingEntity);
+        });
+        hearingEntity.getHearingDefendants().forEach(hearingDefendantEntity1 -> {
+            hearingDefendantEntity1.setHearing(hearingEntity);
+            hearingDefendantEntity1.setDefendant(defendantentity);
+        });
+        hearingEntity.getHearingDefendants().forEach(hearingDefendantEntity -> {
+                    hearingDefendantEntity.getDefendant().addHearingDefendant(hearingDefendantEntity);
+                    hearingDefendantEntity.getDefendant().getOffender().setDefendants(List.of(hearingDefendantEntity.getDefendant()));
+                    hearingDefendantEntity.setHearing(hearingEntity);
+                }
+        );
 
         assertThat(hearingRepositoryFacade.save(hearingEntity)).isEqualTo(hearingEntity);
 
-        assertThat(hearingRepositoryFacade.findFirstByHearingId(HEARING_ID).orElseThrow())
-                .usingRecursiveComparison().ignoringFields("created")
+        assertThat(hearingEntityInitService.findFirstByHearingIdWithOffenders(HEARING_ID).orElseThrow())
+                .usingRecursiveComparison().ignoringFields("created", "firstCreated", "courtCase.hearings", "version", "lastUpdated", "courtCase.created", "courtCase.id", "courtCase.version", "hearingDays[0].*")
                 .isEqualTo(hearingEntity);
     }
 

@@ -78,12 +78,12 @@ public class HearingRepositoryFacade {
     public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
 
         return canIgnoreCreatedDates(createdAfter, createdBefore)
-            ? hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay)
-            : hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay, createdAfter, createdBefore);
+            ? hearingEntityInitService.findByCourtCodeAndHearingDay(courtCode, hearingDay)
+            : hearingEntityInitService.findByCourtCodeAndHearingDay(courtCode, hearingDay, createdAfter, createdBefore);
     }
 
     public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay) {
-        return hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay);
+        return hearingEntityInitService.findByCourtCodeAndHearingDay(courtCode, hearingDay);
     }
 
     public Optional<LocalDateTime> findLastModifiedByHearingDay(String courtCode, LocalDate hearingDay) {

@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.service.OffenderEntityInitService;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -26,6 +27,9 @@ class OffenderRepositoryFacadeTest {
 
     @Mock
     private OffenderRepository offenderRepository;
+
+    @Mock
+    private OffenderEntityInitService offenderEntityInitService;
 
     @Spy
     @InjectMocks
@@ -152,12 +156,12 @@ class OffenderRepositoryFacadeTest {
             .preSentenceActivity(false)
             .build();
 
-        given(offenderRepository.findByCrn(CRN)).willReturn(Optional.of(existingOffender));
+        given(offenderEntityInitService.findByCrn(CRN)).willReturn(Optional.of(existingOffender));
         given(offenderRepository.save(existingOffender)).willReturn(existingOffender);
 
         final var actual = offenderRepositoryFacade.upsertOffender(updatedOffender);
 
-        verify(offenderRepository).findByCrn(CRN);
+        verify(offenderEntityInitService).findByCrn(CRN);
         verify(offenderRepository).save(existingOffender);
         assertThat(existingOffender).isEqualTo(updatedOffender.withId(1L));
         assertThat(actual).isEqualTo(existingOffender);
@@ -178,10 +182,10 @@ class OffenderRepositoryFacadeTest {
             .preSentenceActivity(true)
             .build();
 
-        given(offenderRepository.findByCrn(CRN)).willReturn(Optional.empty());
+        given(offenderEntityInitService.findByCrn(CRN)).willReturn(Optional.empty());
 
         final var actual = offenderRepositoryFacade.upsertOffender(updatedOffender);
-        verify(offenderRepository).findByCrn(CRN);
+        verify(offenderEntityInitService).findByCrn(CRN);
         verify(offenderRepository).save(updatedOffender);
     }
     @Test
@@ -199,10 +203,10 @@ class OffenderRepositoryFacadeTest {
             .preSentenceActivity(true)
             .build();
 
-        given(offenderRepository.findByCrn(CRN)).willReturn(Optional.of(updatedOffender));
+        given(offenderEntityInitService.findByCrn(CRN)).willReturn(Optional.of(updatedOffender));
 
         final var actual = offenderRepositoryFacade.upsertOffender(updatedOffender);
-        verify(offenderRepository).findByCrn(CRN);
+        verify(offenderEntityInitService).findByCrn(CRN);
         verifyNoMoreInteractions(offenderRepository);
     }
 }

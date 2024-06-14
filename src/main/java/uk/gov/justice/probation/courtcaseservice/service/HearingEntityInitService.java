@@ -23,17 +23,17 @@ public class HearingEntityInitService {
     @Transactional
     public Optional<HearingEntity> findFirstByHearingId(String hearingId) {
         var hearing = hearingRepository.findFirstByHearingId(hearingId);
-        return InitializeHearingEntity(hearing);
+        return initializeHearingEntity(hearing);
     }
 
     @Transactional
     public Optional<HearingEntity> findByCourtCodeCaseNoAndListNo(String courtCode, String caseNo, String listNo) {
         var hearing = hearingRepository.findByCourtCodeCaseNoAndListNo(courtCode, caseNo, listNo);
-        return InitializeHearingEntity(hearing);
+        return initializeHearingEntity(hearing);
     }
 
     @NotNull
-    private Optional<HearingEntity> InitializeHearingEntity(Optional<HearingEntity> hearing) {
+    private Optional<HearingEntity> initializeHearingEntity(Optional<HearingEntity> hearing) {
         if(hearing.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
             Hibernate.initialize(hearing.get().getHearingDefendants());
             hearing.get().getHearingDefendants().forEach(hearingDefendantEntity -> Hibernate.initialize(hearingDefendantEntity.getNotes()));

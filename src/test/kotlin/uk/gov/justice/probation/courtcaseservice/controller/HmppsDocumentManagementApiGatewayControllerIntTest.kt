@@ -171,7 +171,7 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
 
         WIRE_MOCK_SERVER.verify(deleteRequestedFor(urlEqualTo("/documents/${documentId}")))
 
-        val hearing = hearingRepository.findFirstByHearingId(HEARING_ID).get()
+        val hearing = hearingEntityInitService.findFirstByHearingId(HEARING_ID).get()
         val caseDefendant = hearing.courtCase.getCaseDefendant(DEFENDANT_ID).get()
         assertNull(caseDefendant.getCaseDefendantDocument(documentId))
     }

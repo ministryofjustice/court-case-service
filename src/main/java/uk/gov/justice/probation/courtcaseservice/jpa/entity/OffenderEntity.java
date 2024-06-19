@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -14,16 +15,6 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
@@ -56,9 +47,8 @@ public class OffenderEntity extends BaseEntity implements Serializable {
     private String cro;
 
     @ToString.Exclude
-    @LazyCollection(LazyCollectionOption.TRUE)
     @JsonIgnore
-    @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DefendantEntity> defendants;
 
     @Column(name = "PROBATION_STATUS")

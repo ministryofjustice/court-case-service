@@ -174,7 +174,7 @@ public class HearingRepositoryFacadeIntTest extends BaseIntTest {
 
         assertThat(hearingRepositoryFacade.findFirstByHearingId("b229b992-02d2-4393-affd-3878f2c7d61e").orElseThrow())
                 .usingRecursiveComparison().ignoringFields("created", "firstCreated")
-                .ignoringFieldsMatchingRegexes("hearingDefendants*.defendant.offender.defendants", "hearingDefendants*.hearing.firstCreated", "hearingDefendants[*].defendant.created", "hearingDefendants[*].created")
+                .ignoringFieldsMatchingRegexes("hearingDefendants*.defendant.offender.defendants", "hearingDefendants*.hearing.firstCreated", "hearingDefendants[*].defendant.created", "hearingDefendants[*].created", "lastUpdated", "created")
                 .isEqualTo(hearingEntity);
     }
 
@@ -269,7 +269,7 @@ public class HearingRepositoryFacadeIntTest extends BaseIntTest {
         var updatedHearingEntity = hearingRepositoryFacade.findFirstByHearingId(HEARING_ID).orElseThrow();
         assertThat(updatedHearingEntity)
                 .usingRecursiveComparison().ignoringFields("created", "firstCreated")
-                .ignoringFieldsMatchingRegexes("hearingDefendants*.defendant.offender.defendants", "hearingDefendants*.hearing.firstCreated")
+                .ignoringFieldsMatchingRegexes("hearingDefendants*.defendant.offender.defendants", "hearingDefendants*.hearing.firstCreated", "lastUpdated", "created")
                 .ignoringCollectionOrder().isEqualTo(hearingEntity);
 
 //        assertThat(updatedHearingEntity.getHearingDefendants())
@@ -334,7 +334,7 @@ public class HearingRepositoryFacadeIntTest extends BaseIntTest {
         var updatedHearingEntity = hearingRepositoryFacade.findFirstByHearingId(HEARING_ID).orElseThrow();
         assertThat(updatedHearingEntity)
                 .usingRecursiveComparison().ignoringFields("created", "firstCreated")
-                .ignoringFieldsMatchingRegexes("hearingDefendants*.defendant.offender.defendants", "hearingDefendants*.hearing.firstCreated")
+                .ignoringFieldsMatchingRegexes("hearingDefendants*.defendant.offender.defendants", "hearingDefendants*.hearing.firstCreated", "lastUpdated", "created")
                 .isEqualTo(hearingEntity);
         assertThat(updatedHearingEntity.getHearingDefendants().getFirst().getDefendant().getOffender().getDefendants().size()).isEqualTo(1);
     }
@@ -464,7 +464,7 @@ public class HearingRepositoryFacadeIntTest extends BaseIntTest {
 
         assertThat(hearingEntity)
                 .usingRecursiveComparison().ignoringFields("created", "firstCreated")
-                .ignoringFieldsMatchingRegexes("hearingDefendants*.defendant.offender.defendants", "hearingDefendants*.hearing.firstCreated")
+                .ignoringFieldsMatchingRegexes("hearingDefendants*.defendant.offender.defendants", "hearingDefendants*.hearing.firstCreated", "lastUpdated", "created")
                 .isEqualTo(updatedHearingEntity);
 
         assertJudicialResultsOrder(Optional.of(updatedHearingEntity));

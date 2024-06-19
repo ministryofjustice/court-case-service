@@ -45,7 +45,9 @@ public class HearingEntityInitService {
                 Hibernate.initialize(hearingDefendantEntity.getNotes());
                 Hibernate.initialize(hearingDefendantEntity.getDefendant().getHearingDefendants());
                 hearingDefendantEntity.getOffences().forEach(offence -> Hibernate.initialize(offence.getJudicialResults()));
-                Hibernate.initialize(hearingDefendantEntity.getDefendant().getOffender().getDefendants());
+                if(hearingDefendantEntity.getDefendant().getOffender() != null) {
+                    Hibernate.initialize(hearingDefendantEntity.getDefendant().getOffender().getDefendants());
+                }
             }
             );
         }

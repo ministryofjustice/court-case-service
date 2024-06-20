@@ -83,7 +83,7 @@ internal class CaseWorkflowControllerTest {
         caseWorkflowController.resultHearingOutcome(hearingId, defendantId, principal)
 
         // Then
-        verify(caseWorkflowService).resultHearingOutcome(hearingId, defendantId,"test-uuid")
+        verify(caseWorkflowService).resultHearingOutcome(hearingId, defendantId,"test-uuid", "test-user-id", "test-user-name", "test-user-id")
     }
 
     @Test

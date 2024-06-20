@@ -6,4 +6,7 @@ import lombok.experimental.UtilityClass;
 public class Constants {
 
     public static String USER_UUID_CLAIM_NAME = "user_uuid";
+    public static String USER_ID_CLAIM_NAME = "user_id";
+    public static String USER_NAME_CLAIM_NAME = "user_name";
+    public static String AUTH_SOURCE_CLAIM_NAME = "auth_source";
 }

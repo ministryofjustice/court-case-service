@@ -1,8 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingNotesRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
@@ -23,22 +22,15 @@ public class CaseProgressService {
         this.hearingRepository = hearingRepository;
         this.hearingNotesRepository = hearingNotesRepository;
     }
-    @Transactional
+
     public List<CaseProgressHearing> getCaseHearingProgress(String caseId, String defendantId) {
         return hearingRepository.findHearingsByCaseId(caseId)
             .map(hearingEntities -> hearingEntities.stream()
                     .filter(
                             hearingEntity -> hearingEntity.getHearingDefendant(defendantId) != null
-                    ).map(
-                            (hearingEntity) -> {
-
-                                return CaseProgressHearing.of(hearingEntity, defendantId, Optional.ofNullable(hearingEntity.getHearingDefendant(defendantId))
-                                        .map((hearingDefendant) -> {
-                                            Hibernate.initialize(hearingDefendant.getNotes());
-                                            return hearingDefendant.getNotes();
-                                        })
-                                        .orElse(List.of()));
-                            }
+                    )
+                    .map(
+                hearingEntity -> CaseProgressHearing.of(hearingEntity, defendantId, Optional.ofNullable(hearingEntity.getHearingDefendant(defendantId)).map(HearingDefendantEntity::getNotes).orElse(List.of()))
             ).collect(Collectors.toList()))
             .orElse(Collections.emptyList());
     }

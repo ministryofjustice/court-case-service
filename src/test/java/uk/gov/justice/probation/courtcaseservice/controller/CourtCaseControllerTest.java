@@ -146,7 +146,7 @@ class CourtCaseControllerTest {
     void getCourtCaseByHearingIdAndDefendantId_shouldReturnCourtCaseResponseNoCaseNo() {
 
         Mockito.when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(2));
-        Mockito.when(courtCaseService.getHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(CASE_ID, DEFENDANT_ID)).thenReturn(hearingEntity);
+        Mockito.when(courtCaseService.getHearingByHearingIdAndDefendantId(CASE_ID, DEFENDANT_ID)).thenReturn(hearingEntity);
 
         var courtCase = courtCaseController.getCourtCaseByHearingIdAndDefendantId(CASE_ID, DEFENDANT_ID);
         assertThat(courtCase.getCourtCode()).isEqualTo(COURT_CODE);
@@ -155,7 +155,7 @@ class CourtCaseControllerTest {
         assertThat(courtCase.getNumberOfPossibleMatches()).isEqualTo(2);
         assertThat(courtCase.getSession()).isSameAs(session);
 
-        Mockito.verify(courtCaseService).getHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(CASE_ID, DEFENDANT_ID);
+        Mockito.verify(courtCaseService).getHearingByHearingIdAndDefendantId(CASE_ID, DEFENDANT_ID);
         Mockito.verify(offenderMatchService).getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID);
         Mockito.verifyNoMoreInteractions(courtCaseService, offenderMatchService);
     }

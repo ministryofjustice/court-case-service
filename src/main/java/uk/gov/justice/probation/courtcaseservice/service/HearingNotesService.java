@@ -16,22 +16,21 @@ public class HearingNotesService {
     private final HearingNotesRepository hearingNotesRepository;
     private final TelemetryService telemetryService;
 
-    private final HearingEntityInitService hearingNotesServiceInitService;
-
     public HearingNotesService(HearingRepository hearingRepository, HearingNotesRepository hearingNotesRepository,
-                               TelemetryService telemetryService, HearingEntityInitService hearingNotesServiceInitService) {
+                               TelemetryService telemetryService) {
         this.hearingRepository = hearingRepository;
         this.hearingNotesRepository = hearingNotesRepository;
         this.telemetryService = telemetryService;
-        this.hearingNotesServiceInitService = hearingNotesServiceInitService;
     }
 
     public HearingNoteEntity createHearingNote(String hearingId, String defendantId, HearingNoteEntity hearingNoteEntity) {
+
         return createHearingNote(hearingId, defendantId, hearingNoteEntity, false);
     }
 
-    public HearingNoteEntity createHearingNote(String hearingId, String defendantId, HearingNoteEntity hearingNoteEntity, boolean draft) {
-        return hearingNotesServiceInitService.findFirstByHearingId(hearingId)
+    private HearingNoteEntity createHearingNote(String hearingId, String defendantId, HearingNoteEntity hearingNoteEntity, boolean draft) {
+
+        return hearingRepository.findFirstByHearingId(hearingId)
             .map(hearingEntity -> hearingEntity.getHearingDefendant(defendantId))
             .map(hearingDefendantEntity ->
                 hearingDefendantEntity.getHearingNoteDraft(hearingNoteEntity.getCreatedByUuid())
@@ -59,7 +58,7 @@ public class HearingNotesService {
     public void deleteHearingNote(String hearingId, String defendantId, Long noteId, String userUuid) {
 
         log.info("Delete request for hearingId {} / defendantId {} / noteId {} by user {}", hearingId, defendantId, noteId, userUuid);
-        hearingNotesServiceInitService.findFirstByHearingId(hearingId)
+        hearingRepository.findFirstByHearingId(hearingId)
             .map(hearingEntity -> hearingEntity.getHearingDefendant(defendantId))
             .flatMap(hearingDefendantEntity ->
                 hearingDefendantEntity.getNotes().stream().filter(
@@ -76,7 +75,7 @@ public class HearingNotesService {
 
         log.info("Request to delete draft note on a hearingId {} / defendantId {} by user {}", hearingId, defendantId, userUuid);
 
-        hearingNotesServiceInitService.findFirstByHearingId(hearingId)
+        hearingRepository.findFirstByHearingId(hearingId)
             .map(hearingEntity -> hearingEntity.getHearingDefendant(defendantId))
             .flatMap(hearingDefendantEntity ->
                 hearingDefendantEntity.getNotes().stream().filter(
@@ -94,7 +93,7 @@ public class HearingNotesService {
         final var userUuid = hearingNoteUpdate.getCreatedByUuid();
         log.info("Update request for hearingId {} / defendantId {} / noteId {} by user {}", hearingId, defendantId, noteId, userUuid);
 
-        hearingNotesServiceInitService.findFirstByHearingId(hearingId)
+        hearingRepository.findFirstByHearingId(hearingId)
             .map(hearingEntity -> hearingEntity.getHearingDefendant(defendantId))
             .flatMap(hearingDefendantEntity ->
                 hearingDefendantEntity.getNotes().stream().filter(

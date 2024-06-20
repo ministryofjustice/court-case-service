@@ -17,9 +17,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlConfig
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
-import uk.gov.justice.probation.courtcaseservice.service.HearingEntityInitService
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper
 import java.io.File
 
@@ -36,8 +34,6 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
 
     @Autowired
     lateinit var hearingRepository: HearingRepository
-    @Autowired
-    lateinit var hearingEntityInitService : HearingEntityInitService
 
     companion object {
         const val HEARING_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00"
@@ -80,7 +76,7 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
             .then()
             .statusCode(201)
 
-        val hearing = hearingEntityInitService.findFirstByHearingId(HEARING_ID).get()
+        val hearing = hearingRepository.findFirstByHearingId(HEARING_ID).get()
         val caseDefendant = hearing.courtCase.getCaseDefendant(DEFENDANT_ID)
         val caseDefendantDocument = caseDefendant.get().documents;
         Assertions.assertThat(caseDefendantDocument).extracting("documentName")
@@ -171,7 +167,7 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
 
         WIRE_MOCK_SERVER.verify(deleteRequestedFor(urlEqualTo("/documents/${documentId}")))
 
-        val hearing = hearingEntityInitService.findFirstByHearingId(HEARING_ID).get()
+        val hearing = hearingRepository.findFirstByHearingId(HEARING_ID).get()
         val caseDefendant = hearing.courtCase.getCaseDefendant(DEFENDANT_ID).get()
         assertNull(caseDefendant.getCaseDefendantDocument(documentId))
     }

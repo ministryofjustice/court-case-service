@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.retry.annotation.Retryable;
@@ -120,22 +119,6 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Hearing %s not found for defendant %s", hearingId, defendantId)));
     }
 
-    @Transactional
-    @Override
-    public HearingEntity getHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(String hearingId, String defendantId) throws EntityNotFoundException {
-        log.info("Court case requested for hearing ID {} and defendant ID {}", hearingId, defendantId);
-        var hearingEntity = hearingRepositoryFacade.findByHearingIdAndDefendantId(hearingId, defendantId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Hearing %s not found for defendant %s", hearingId, defendantId)));
-        Hibernate.initialize(hearingEntity.getCourtCase().getCaseDefendants());
-        hearingEntity.getCourtCase().getCaseDefendant(defendantId)
-                .map ( caseDefendantEntity -> {
-                    Hibernate.initialize(caseDefendantEntity.getDocuments());
-                    return caseDefendantEntity.getDocuments();
-                }
-                );
-        return hearingEntity;
-    }
-
     @Override
     public List<HearingEntity> filterHearings(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
         final var court = courtRepository.findByCourtCode(courtCode)
@@ -146,7 +129,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     @Override
     public List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter) {
-        return hearingRepositoryFacade.filterHearings(hearingSearchFilter);
+        return hearingRepository.filterHearings(hearingSearchFilter);
     }
 
     @Override

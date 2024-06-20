@@ -61,7 +61,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
                 })
     }
 
-    fun resultHearingOutcome(hearingId: String, defendantId: String, userUuid: String) {
+    fun resultHearingOutcome(hearingId: String, defendantId: String, userUuid: String, userId: String, userName: String, authSource: String) {
         hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
                 {
                     val hearingDefendant = it.getHearingDefendant(defendantId)
@@ -69,7 +69,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
 
                     val hearingOutcome = hearingDefendant.hearingOutcome
                     if(hearingOutcome.assignedToUuid != userUuid) {
-                        telemetryService.trackMoveToResultedUnAuthorisedEvent(hearingId, defendantId, userUuid, hearingOutcome.assignedToUuid)
+                        telemetryService.trackMoveToResultedUnAuthorisedEvent(hearingId, defendantId, userUuid, hearingOutcome.assignedToUuid, userId, userName, authSource)
                         throw ForbiddenException("Outcome (Hearing ID $hearingId and Defendant ID $defendantId) not allocated to current user.")
                     }
                     if(hearingOutcome.state != HearingOutcomeItemState.IN_PROGRESS.name) {

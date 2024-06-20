@@ -253,6 +253,9 @@ internal class CaseWorkflowServiceTest {
     fun `given existing hearing with outcome in IN_PROGRESS and allocated to current user, should mark outcome as RESULTED`() {
         // Given
         val assignedToUuid = "test-uuid"
+        val userId = "test-user-id"
+        val userName = "test-user-name"
+        val authSource = "test-auth-source"
 
         val hearingOutcomeEntity = HearingOutcomeEntity.builder().state(HearingOutcomeItemState.IN_PROGRESS.name)
             .assignedToUuid(assignedToUuid).build()
@@ -262,7 +265,7 @@ internal class CaseWorkflowServiceTest {
         given(hearingRepository.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearingEntity))
 
         // When
-        caseWorkflowService.resultHearingOutcome(HEARING_ID, DEFENDANT_ID, assignedToUuid)
+        caseWorkflowService.resultHearingOutcome(HEARING_ID, DEFENDANT_ID, assignedToUuid, userId, userName, authSource)
 
         // Then
         verify(hearingRepository).findFirstByHearingId(HEARING_ID)
@@ -278,6 +281,9 @@ internal class CaseWorkflowServiceTest {
         // Given
         val hearingId = "hearing-id-one"
         val assignedToUuid = "test-uuid"
+        val userId = "test-user-id"
+        val userName = "test-user-name"
+        val authSource = "test-auth-source"
 
         val hearingEntity = HearingEntity.builder().hearingDefendants(listOf(HearingDefendantEntity.builder()
             .hearingOutcome(HearingOutcomeEntity.builder().state(HearingOutcomeItemState.IN_PROGRESS.name).assignedToUuid(assignedToUuid).build())
@@ -290,7 +296,7 @@ internal class CaseWorkflowServiceTest {
             "Outcome not allocated to current user.",
             EntityNotFoundException::class.java
         ) {
-            caseWorkflowService.resultHearingOutcome(hearingId, defendantId,"un-allocated-to-user")
+            caseWorkflowService.resultHearingOutcome(hearingId, defendantId,"un-allocated-to-user", userId, userName, authSource)
         }
         verify(hearingRepository).findFirstByHearingId(hearingId)
         verifyNoMoreInteractions(hearingRepository)
@@ -301,6 +307,9 @@ internal class CaseWorkflowServiceTest {
         // Given
         val hearingId = "hearing-id-one"
         val assignedToUuid = "test-uuid"
+        val userId = "test-user-id"
+        val userName = "test-user-name"
+        val authSource = "test-auth-source"
 
         val hearingEntity = HearingEntity.builder().hearingDefendants(listOf(HearingDefendantEntity.builder()
             .hearingOutcome(HearingOutcomeEntity.builder().state(HearingOutcomeItemState.NEW.name).assignedToUuid(assignedToUuid).build())
@@ -313,7 +322,7 @@ internal class CaseWorkflowServiceTest {
             "Invalid state for outcome to be resulted.",
             EntityNotFoundException::class.java
         ) {
-            caseWorkflowService.resultHearingOutcome(hearingId, defendantId, assignedToUuid)
+            caseWorkflowService.resultHearingOutcome(hearingId, defendantId, assignedToUuid, userId, userName, authSource)
         }
         verify(hearingRepository).findFirstByHearingId(hearingId)
         verifyNoMoreInteractions(hearingRepository)
@@ -381,7 +390,10 @@ internal class CaseWorkflowServiceTest {
             caseWorkflowService.resultHearingOutcome(
                 hearingId,
                 "invalid-defendant-id",
-                "test-user-uuid"
+                "test-user-uuid",
+                "test-user-id",
+                "test-user-name",
+                "test-auth-source"
             )
         }
         verify(hearingRepository).findFirstByHearingId(hearingId)

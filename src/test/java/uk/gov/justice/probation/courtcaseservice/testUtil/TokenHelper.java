@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import static uk.gov.justice.probation.courtcaseservice.Constants.USER_UUID_CLAIM_NAME;
+import static uk.gov.justice.probation.courtcaseservice.Constants.*;
 
 public class TokenHelper {
     public static String cachedToken = null;
@@ -68,6 +68,9 @@ public class TokenHelper {
                 .issuer("http://localhost:8090/auth/issuer")
                 .claim("authorities", roles)
                 .claim(USER_UUID_CLAIM_NAME, uuid)
+                .claim(USER_ID_CLAIM_NAME, "test-user-id")
+                .claim(USER_NAME_CLAIM_NAME, "test-user-name")
+                .claim(AUTH_SOURCE_CLAIM_NAME, "test-auth-source")
                 .expirationTime(new Date(new Date().getTime() + 60 * 1000))
                 .build();
 

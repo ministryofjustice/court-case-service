@@ -78,6 +78,8 @@ internal class CaseWorkflowControllerTest {
         // Given
         val hearingOutcome = HearingOutcomeAssignToRequest("John Smith")
         given(authenticationHelper.getAuthUserUuid(any(Principal::class.java))).willReturn("test-uuid")
+        given(authenticationHelper.getAuthUserName(any(Principal::class.java))).willReturn("test-user-name")
+        given(authenticationHelper.getAuthUserId(any(Principal::class.java))).willReturn("test-user-id")
 
         // When
         caseWorkflowController.resultHearingOutcome(hearingId, defendantId, principal)

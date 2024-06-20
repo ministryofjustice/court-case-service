@@ -289,13 +289,13 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
     }
 
     private List<CourtCaseEntity> findAllByCaseId(String caseId) {
-        return entityManager.createQuery("select c from CourtCaseEntity c where c.caseId = :caseId", CourtCaseEntity.class)
+        return entityManager.createQuery("select c from CourtCaseEntity c JOIN FETCH c.hearings h where c.caseId = :caseId", CourtCaseEntity.class)
             .setParameter("caseId", caseId)
             .getResultList();
     }
 
     private List<HearingEntity> findAllByHearingId(String hearingId) {
-        return entityManager.createQuery("select h from HearingEntity h where h.hearingId = :hearingId")
+        return entityManager.createQuery("select h from HearingEntity h JOIN FETCH h.hearingDefendants hd where h.hearingId = :hearingId")
             .setParameter("hearingId", hearingId)
             .getResultList();
     }

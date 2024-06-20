@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.service.HearingEntityInitService;
+import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,38 +28,41 @@ public class HearingRepositoryFacade {
     private final OffenderRepository offenderRepository;
     private final OffenderRepositoryFacade offenderRepositoryFacade;
     private final HearingRepository hearingRepository;
+
+    private final HearingEntityInitService hearingEntityInitService;
     private final DefendantRepository defendantRepository;
     private final CaseCommentsRepository caseCommentsRepository;
 
     @Autowired
     public HearingRepositoryFacade(OffenderRepository offenderRepository, OffenderRepositoryFacade offenderRepositoryFacade,
-                                   HearingRepository hearingRepository, DefendantRepository defendantRepository,
+                                   HearingRepository hearingRepository, HearingEntityInitService hearingEntityInitService, DefendantRepository defendantRepository,
                                    CaseCommentsRepository caseCommentsRepository) {
         this.offenderRepository = offenderRepository;
         this.offenderRepositoryFacade = offenderRepositoryFacade;
         this.hearingRepository = hearingRepository;
+        this.hearingEntityInitService = hearingEntityInitService;
         this.defendantRepository = defendantRepository;
         this.caseCommentsRepository = caseCommentsRepository;
     }
 
     public Optional<HearingEntity> findFirstByHearingId(String hearingId) {
-        return hearingRepository.findFirstByHearingId(hearingId);
+        return hearingEntityInitService.findFirstByHearingId(hearingId);
     }
 
     public Optional<HearingEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo, String listNo) {
         Optional<HearingEntity> hearing;
         if(StringUtils.isEmpty(listNo)) {
-            hearing = hearingRepository.findByCourtCodeCaseNoAndListNo(courtCode, caseNo, null);
+            hearing = hearingEntityInitService.findByCourtCodeCaseNoAndListNo(courtCode, caseNo, null);
         } else {
-            hearing = hearingRepository.findByCourtCodeCaseNoAndListNo(courtCode, caseNo, listNo)
-                .or(() -> hearingRepository.findByCourtCodeCaseNoAndListNo(courtCode, caseNo, null));
+            hearing = hearingEntityInitService.findByCourtCodeCaseNoAndListNo(courtCode, caseNo, listNo)
+                .or(() -> hearingEntityInitService.findByCourtCodeCaseNoAndListNo(courtCode, caseNo, null));
         }
         return hearing
-            .or(() -> hearingRepository.findMostRecentByCourtCodeAndCaseNo(courtCode, caseNo).map(hearingEntity -> hearingEntity.withHearingId(null)));
+            .or(() -> hearingEntityInitService.findMostRecentByCourtCodeAndCaseNo(courtCode, caseNo).map(hearingEntity -> hearingEntity.withHearingId(null)));
     }
 
     public Optional<HearingEntity> findByHearingIdAndDefendantId(String hearingId, String defendantId) {
-        return hearingRepository.findFirstByHearingId(hearingId)
+        return hearingEntityInitService.findFirstByHearingId(hearingId)
             .map(hearingEntity -> Objects.nonNull(hearingEntity.getHearingDefendant(defendantId)) ? hearingEntity : null)
             .map(hearingEntity -> {
                 hearingEntity.getCourtCase().setCaseComments(caseCommentsRepository.findByCaseIdAndDefendantIdAndDeletedFalse(hearingEntity.getCaseId(), defendantId));
@@ -73,12 +78,12 @@ public class HearingRepositoryFacade {
     public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
 
         return canIgnoreCreatedDates(createdAfter, createdBefore)
-            ? hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay)
-            : hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay, createdAfter, createdBefore);
+            ? hearingEntityInitService.findByCourtCodeAndHearingDay(courtCode, hearingDay)
+            : hearingEntityInitService.findByCourtCodeAndHearingDay(courtCode, hearingDay, createdAfter, createdBefore);
     }
 
     public List<HearingEntity> findByCourtCodeAndHearingDay(String courtCode, LocalDate hearingDay) {
-        return hearingRepository.findByCourtCodeAndHearingDay(courtCode, hearingDay);
+        return hearingEntityInitService.findByCourtCodeAndHearingDay(courtCode, hearingDay);
     }
 
     public Optional<LocalDateTime> findLastModifiedByHearingDay(String courtCode, LocalDate hearingDay) {
@@ -91,6 +96,10 @@ public class HearingRepositoryFacade {
         updatedWithExistingDefendantsFromDb(hearingEntity);
 
         return hearingRepository.save(hearingEntity);
+    }
+
+    public List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter) {
+        return hearingEntityInitService.filterHearings(hearingSearchFilter);
     }
 
     private void updateWithExistingOffenders(HearingEntity hearingEntity) {

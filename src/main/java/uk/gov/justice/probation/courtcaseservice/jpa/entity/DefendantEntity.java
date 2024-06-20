@@ -45,7 +45,7 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
 
     @Setter
     @ToString.Exclude
-    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @ManyToOne()
     @JoinColumn(name = "fk_offender_id", referencedColumnName = "id")
     @NotAudited
     private OffenderEntity offender;
@@ -54,9 +54,8 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
     private String crn;
 
     @ToString.Exclude
-    @LazyCollection(value = LazyCollectionOption.TRUE)
     @JsonIgnore
-    @OneToMany(mappedBy = "defendant")
+    @OneToMany(mappedBy = "defendant", fetch = FetchType.LAZY)
     private List<HearingDefendantEntity> hearingDefendants;
 
     @ToString.Exclude

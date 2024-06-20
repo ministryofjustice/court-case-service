@@ -266,12 +266,15 @@ public class TelemetryService {
         telemetryClient.trackEvent(TelemetryEventType.PIC_MOVE_UN_RESULTED_CASES_TO_OUTCOMES_WORKFLOW.eventName, properties, Collections.emptyMap());
     }
 
-    public void trackMoveToResultedUnAuthorisedEvent(String hearingId, String defendantId, String userUuid, String assignedUuid) {
+    public void trackMoveToResultedUnAuthorisedEvent(String hearingId, String defendantId, String userUuid, String assignedUuid, String userId, String userName, String authSource) {
         Map<String, String> properties = new HashMap<>();
         properties.put("hearingId", String.valueOf(hearingId));
         properties.put("defendantId", String.valueOf(defendantId));
         properties.put("userUuid", String.valueOf(userUuid));
         properties.put("assignedUuid", String.valueOf(assignedUuid));
+        properties.put("userId", String.valueOf(userId));
+        properties.put("userName", String.valueOf(userName));
+        properties.put("authSource", String.valueOf(authSource));
 
         telemetryClient.trackEvent(TelemetryEventType.PIC_RESULT_OUTCOME_NOT_ASSIGNED_TO_CURRENT_USER.eventName, properties, Collections.emptyMap());
     }

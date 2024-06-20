@@ -5,11 +5,23 @@ import uk.gov.justice.probation.courtcaseservice.security.AuthAwareAuthenticatio
 
 import java.security.Principal;
 
-import static uk.gov.justice.probation.courtcaseservice.Constants.USER_UUID_CLAIM_NAME;
+import static uk.gov.justice.probation.courtcaseservice.Constants.*;
 
 @Component
 public class AuthenticationHelper {
     public String getAuthUserUuid(Principal principal) {
         return ((AuthAwareAuthenticationToken)principal).getTokenAttributes().get(USER_UUID_CLAIM_NAME).toString();
+    }
+
+    public String getAuthUserId(Principal principal) {
+        return ((AuthAwareAuthenticationToken)principal).getTokenAttributes().get(USER_ID_CLAIM_NAME).toString();
+    }
+
+    public String getAuthUserName(Principal principal) {
+        return ((AuthAwareAuthenticationToken)principal).getTokenAttributes().get(USER_NAME_CLAIM_NAME).toString();
+    }
+
+    public String getAuthSource(Principal principal) {
+        return ((AuthAwareAuthenticationToken)principal).getTokenAttributes().get(AUTH_SOURCE_CLAIM_NAME).toString();
     }
 }

@@ -72,7 +72,7 @@ public class HearingDefendantEntity extends BaseAuditedEntity implements Seriali
     private List<OffenceEntity> offences;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "hearingDefendant", cascade = CascadeType.ALL, orphanRemoval=true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "hearingDefendant", cascade = CascadeType.ALL, orphanRemoval=true, fetch = FetchType.EAGER)
     @NotAudited
     private List<HearingNoteEntity> notes;
 

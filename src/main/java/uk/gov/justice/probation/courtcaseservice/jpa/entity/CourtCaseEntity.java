@@ -68,8 +68,9 @@ public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
     private String urn;
 
     @ToString.Exclude
+    @LazyCollection(LazyCollectionOption.FALSE)
     @JsonIgnore
-    @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL)
     private final List<HearingEntity> hearings;
 
     @ToString.Exclude
@@ -90,8 +91,9 @@ public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
 
     @NotAudited
     @ToString.Exclude
+    @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
-    @OneToMany(mappedBy = "courtCase", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "courtCase", orphanRemoval = true, cascade = CascadeType.ALL)
     @Setter
     private List<CaseDefendantEntity> caseDefendants;
 

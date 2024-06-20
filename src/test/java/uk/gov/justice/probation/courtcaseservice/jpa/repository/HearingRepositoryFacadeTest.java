@@ -17,7 +17,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEnti
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
-import uk.gov.justice.probation.courtcaseservice.service.HearingEntityInitService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -94,8 +93,6 @@ class HearingRepositoryFacadeTest {
     private DefendantRepository defendantRepository;
     @Mock
     private CaseCommentsRepository caseCommentsRepository;
-    @Mock
-    private HearingEntityInitService hearingEntityInitService;
 
     @Captor
     private ArgumentCaptor<HearingEntity> hearingCaptor;
@@ -105,63 +102,63 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void whenFindFirstByHearingIdOrderByIdDesc_thenReturnDefendants() {
-        when(hearingEntityInitService.findFirstByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
+        when(hearingRepository.findFirstByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
         final var actual = facade.findFirstByHearingId(HEARING_ID);
 
-        verify(hearingEntityInitService).findFirstByHearingId(HEARING_ID);
-        verifyNoMoreInteractions(hearingEntityInitService, defendantRepository);
+        verify(hearingRepository).findFirstByHearingId(HEARING_ID);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
     @Test
     void givenCaseDoesNotExistWithLisNoAndWithNullListNo_whenFindByCourtCodeCaseNoAndListNo_thenFallbackToMostRecentCase_andReturnHearingIdSetToNull() {
-        when(hearingEntityInitService.findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(Optional.empty());
-        when(hearingEntityInitService.findMostRecentByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
+        when(hearingRepository.findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(Optional.empty());
+        when(hearingRepository.findMostRecentByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
 
         final var actual = facade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, LIST_NO);
         Assertions.assertThat(actual.get().getHearingId()).isNull();
 
         AssertionsForClassTypes.assertThat(actual).get().isEqualTo(HEARING_WITH_MULTIPLE_DEFENDANTS);
-        verify(hearingEntityInitService).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO);
-        verify(hearingEntityInitService).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, null);
-        verify(hearingEntityInitService).findMostRecentByCourtCodeAndCaseNo(COURT_CODE, CASE_NO);
-        verifyNoMoreInteractions(hearingEntityInitService, defendantRepository);
+        verify(hearingRepository).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO);
+        verify(hearingRepository).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, null);
+        verify(hearingRepository).findMostRecentByCourtCodeAndCaseNo(COURT_CODE, CASE_NO);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
     @Test
     void givenCaseDoesNotExistWithCourtCodeAndCaseNo_withOrWithoutLisNo_whenFindByCourtCodeCaseNoAndListNo_thenReturnEmpty() {
-        when(hearingEntityInitService.findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(Optional.empty());
-        when(hearingEntityInitService.findMostRecentByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.empty());
+        when(hearingRepository.findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO)).thenReturn(Optional.empty());
+        when(hearingRepository.findMostRecentByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.empty());
 
         var actual = facade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, LIST_NO);
 
         AssertionsForClassTypes.assertThat(actual).isEmpty();
 
-        verify(hearingEntityInitService).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO);
-        verify(hearingEntityInitService).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, null);
-        verify(hearingEntityInitService).findMostRecentByCourtCodeAndCaseNo(COURT_CODE, CASE_NO);
+        verify(hearingRepository).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO);
+        verify(hearingRepository).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, null);
+        verify(hearingRepository).findMostRecentByCourtCodeAndCaseNo(COURT_CODE, CASE_NO);
         verifyNoInteractions(defendantRepository);
-        verifyNoMoreInteractions(hearingEntityInitService);
+        verifyNoMoreInteractions(hearingRepository);
     }
 
     @Test
     void whenFindByCourtCodeCaseNoAnd_NoListNoProvided_thenReturnDefendants() {
-        when(hearingEntityInitService.findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, null)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
+        when(hearingRepository.findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, null)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
         final var actual = facade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, null);
         Assertions.assertThat(actual.get().getHearingId()).isEqualTo(HEARING_ID);
 
         AssertionsForClassTypes.assertThat(actual).get().isEqualTo(HEARING_WITH_MULTIPLE_DEFENDANTS);
-        verify(hearingEntityInitService).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, null);
-        verifyNoMoreInteractions(hearingEntityInitService, defendantRepository);
+        verify(hearingRepository).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, null);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
     @Test
     void whenFindByHearingIdAndDefendantId_thenReturnAHearingWithDefendantAndCaseComments() {
-        when(hearingEntityInitService.findFirstByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING));
+        when(hearingRepository.findFirstByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING));
         when(caseCommentsRepository.findByCaseIdAndDefendantIdAndDeletedFalse(COURT_CASE.getCaseId(), DEFENDANT_ID)).thenReturn(List.of(CASE_COMMENT_ONE));
 
         final var actual = facade.findByHearingIdAndDefendantId(HEARING_ID, DEFENDANT_ID);
 
-        verify(hearingEntityInitService).findFirstByHearingId(HEARING_ID);
+        verify(hearingRepository).findFirstByHearingId(HEARING_ID);
         verify(caseCommentsRepository).findByCaseIdAndDefendantIdAndDeletedFalse(COURT_CASE.getCaseId(), DEFENDANT_ID);
 
         HearingEntity hearing = actual.get();
@@ -172,7 +169,7 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void givenMultipleDefendants_whenFindByHearingIdAndDefendantId_thenReturnAHearingWithAllDefendants() {
-        when(hearingEntityInitService.findFirstByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
+        when(hearingRepository.findFirstByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
 
         final var actual = facade.findByHearingIdAndDefendantId(HEARING_ID, DEFENDANT_ID);
         AssertionsForClassTypes.assertThat(actual).get().isEqualTo(HEARING);
@@ -182,14 +179,14 @@ class HearingRepositoryFacadeTest {
 
     @Test
     void givenDefendantIdNotOnCase_whenFindByHearingIdAndDefendantId_thenReturnEmpty() {
-        when(hearingEntityInitService.findFirstByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING));
+        when(hearingRepository.findFirstByHearingId(HEARING_ID)).thenReturn(Optional.of(HEARING));
 
         AssertionsForClassTypes.assertThat(facade.findByHearingIdAndDefendantId(HEARING_ID, "THE_WRONG_DEFENDANT_ID")).isEmpty();
     }
 
     @Test
     void whenFindByCourtCodeAndHearingDay_andDateTimeIsMinMax_thenCallRepoMethodWithoutDateConstraints() {
-        when(hearingEntityInitService.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE))
+        when(hearingRepository.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE))
                 .thenReturn(List.of(HEARING, HEARING_WITH_MULTIPLE_DEFENDANTS));
 
         final var actual = facade.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, LocalDateTime.MIN, LocalDateTime.MAX);
@@ -198,13 +195,13 @@ class HearingRepositoryFacadeTest {
         AssertionsForClassTypes.assertThat(actual.get(1).getHearingDefendants().get(0).getDefendant()).isEqualTo(DEFENDANT_2);
         AssertionsForClassTypes.assertThat(actual.get(1).getHearingDefendants().get(1).getDefendant()).isEqualTo(DEFENDANT);
 
-        verify(hearingEntityInitService).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE);
+        verify(hearingRepository).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
     @Test
     void whenFindByCourtCodeAndHearingDay_andDateTimesAreNull_thenCallRepoMethodWithoutDateConstraints() {
-        when(hearingEntityInitService.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE))
+        when(hearingRepository.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE))
                 .thenReturn(List.of(HEARING, HEARING_WITH_MULTIPLE_DEFENDANTS));
 
         final var actual = facade.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, null, null);
@@ -213,18 +210,18 @@ class HearingRepositoryFacadeTest {
         AssertionsForClassTypes.assertThat(actual.get(1).getHearingDefendants().get(0).getDefendant()).isEqualTo(DEFENDANT_2);
         AssertionsForClassTypes.assertThat(actual.get(1).getHearingDefendants().get(1).getDefendant()).isEqualTo(DEFENDANT);
 
-        verify(hearingEntityInitService).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE);
+        verify(hearingRepository).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 
     @Test
     void whenFindByCourtCodeAndHearingDay_thenReturnDefendants() {
-        when(hearingEntityInitService.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, A_DATETIME, A_DATETIME))
+        when(hearingRepository.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, A_DATETIME, A_DATETIME))
                 .thenReturn(List.of(HEARING, HEARING_WITH_MULTIPLE_DEFENDANTS));
 
         final var actual = facade.findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, A_DATETIME, A_DATETIME);
 
-        verify(hearingEntityInitService).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, A_DATETIME, A_DATETIME);
+        verify(hearingRepository).findByCourtCodeAndHearingDay(COURT_CODE, A_DATE, A_DATETIME, A_DATETIME);
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 

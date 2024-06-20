@@ -14,7 +14,6 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteRes
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingNotesRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
-import uk.gov.justice.probation.courtcaseservice.service.HearingEntityInitService;
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper;
 
 import java.time.LocalDate;
@@ -50,10 +49,6 @@ public class CaseProgressIntTest extends BaseIntTest {
 
     @Autowired
     private HearingNotesRepository hearingNotesRepository;
-
-    @Autowired
-    private HearingEntityInitService hearingEntityInitService;
-
     @Autowired
     private HearingRepository hearingRepository;
 
@@ -156,7 +151,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("created", Matchers.notNullValue())
         ;
 
-        var hearing = hearingEntityInitService.findFirstByHearingId(HEARING_ID).get();
+        var hearing = hearingRepository.findFirstByHearingId(HEARING_ID).get();
         var hearingDefendant = hearing.getHearingDefendant(DEFENDANT_ID);
 
         var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
@@ -234,7 +229,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("draft", Matchers.is(true));
 
 
-        var hearing = hearingEntityInitService.findFirstByHearingId(HEARING_ID).get();
+        var hearing = hearingRepository.findFirstByHearingId(HEARING_ID).get();
         var hearingDefendant = hearing.getHearingDefendant(DEFENDANT_ID);
 
         var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
@@ -294,7 +289,7 @@ public class CaseProgressIntTest extends BaseIntTest {
 
         var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
 
-        var hearing = hearingEntityInitService.findFirstByHearingId(hearingId).get();
+        var hearing = hearingRepository.findFirstByHearingId(hearingId).get();
         var hearingDefendant = hearing.getHearingDefendant(defendantId);
 
         var hearingNoteEntity = hearingDefendant.getNotes().stream().filter(HearingNoteEntity::isDraft).findAny().get();

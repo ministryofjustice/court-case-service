@@ -48,7 +48,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
     }
 
     fun assignAndUpdateStateToInProgress(hearingId: String, defendantId: String, assignedTo: String, assignedToUuid: String) {
-        hearingEntityInitService.findFirstByHearingId(hearingId).ifPresentOrElse(
+        hearingEntityInitService.findFirstByHearingIdAssignState(hearingId).ifPresentOrElse(
                 {
                     val hearingDefendant = it.getHearingDefendant(defendantId)
                         ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")

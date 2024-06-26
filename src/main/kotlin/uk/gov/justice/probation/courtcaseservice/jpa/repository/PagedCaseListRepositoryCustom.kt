@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository
 
 import jakarta.persistence.EntityManager
+import org.hibernate.query.Query
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
@@ -8,6 +9,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchR
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingStatus
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession.MORNING
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
+import uk.gov.justice.probation.courtcaseservice.service.HearingDefendantTransformer
+
 
 @Repository
 class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
@@ -111,7 +114,7 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
             $filters
             """.trimIndent()
 
-        val mainJpaQuery = entityManager.createNativeQuery(mainQuery, "search_hearings_custom")
+        val mainJpaQuery = entityManager.createNativeQuery(mainQuery)
         val countJpaQuery = entityManager.createNativeQuery(countQuery)
 
         mainJpaQuery.setParameter(P_COURT_CODE, courtCode)
@@ -119,6 +122,10 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
 
         countJpaQuery.setParameter(P_COURT_CODE, courtCode)
         countJpaQuery.setParameter(P_DATE, hearingSearchRequest.date)
+
+        // cannot simultaneously fetch multiple bags
+        val resultCustomQuery = entityManager.createQuery("select h from HearingDTO h JOIN FETCH h.hearingDefendants hd JOIN FETCH hd.notes where h.hearingId = :hearingId")
+            .setParameter("hearingId", "1eb3a6da-8189-4de2-8377-da5910e486b9").resultList
 
         if(hasSourceFilter) {
             val source = hearingSearchRequest.source[0].name

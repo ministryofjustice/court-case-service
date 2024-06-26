@@ -70,6 +70,15 @@ public class HearingRepositoryFacade {
             });
     }
 
+    public Optional<HearingEntity> findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(String hearingId, String defendantId) {
+        return hearingEntityInitService.findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(hearingId, defendantId)
+            .map(hearingEntity -> Objects.nonNull(hearingEntity.getHearingDefendant(defendantId)) ? hearingEntity : null)
+            .map(hearingEntity -> {
+                hearingEntity.getCourtCase().setCaseComments(caseCommentsRepository.findByCaseIdAndDefendantIdAndDeletedFalse(hearingEntity.getCaseId(), defendantId));
+                return hearingEntity;
+            });
+    }
+
     @Deprecated
     /**
      * @deprecated Deprecated in favour of the version without createdAfter and createdBefore parameters as the lookup is

@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.retry.annotation.Retryable;
@@ -18,12 +17,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResp
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.PagedCaseListRepositoryCustom;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.*;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
@@ -120,20 +114,11 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Hearing %s not found for defendant %s", hearingId, defendantId)));
     }
 
-    @Transactional
     @Override
     public HearingEntity getHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(String hearingId, String defendantId) throws EntityNotFoundException {
         log.info("Court case requested for hearing ID {} and defendant ID {}", hearingId, defendantId);
-        var hearingEntity = hearingRepositoryFacade.findByHearingIdAndDefendantId(hearingId, defendantId)
+        return hearingRepositoryFacade.findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(hearingId, defendantId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Hearing %s not found for defendant %s", hearingId, defendantId)));
-        Hibernate.initialize(hearingEntity.getCourtCase().getCaseDefendants());
-        hearingEntity.getCourtCase().getCaseDefendant(defendantId)
-                .map ( caseDefendantEntity -> {
-                    Hibernate.initialize(caseDefendantEntity.getDocuments());
-                    return caseDefendantEntity.getDocuments();
-                }
-                );
-        return hearingEntity;
     }
 
     @Override

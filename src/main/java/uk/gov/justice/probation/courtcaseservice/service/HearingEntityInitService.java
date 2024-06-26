@@ -29,6 +29,22 @@ public class HearingEntityInitService {
     }
 
     @Transactional
+    public Optional<HearingEntity> findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(String hearingId, String defendantId) {
+        var hearing = hearingRepository.findFirstByHearingId(hearingId);
+        if(hearing.isPresent()) {
+            HearingEntity hearingEntity = hearing.get();
+            Hibernate.initialize(hearingEntity.getCourtCase().getCaseDefendants());
+            hearingEntity.getCourtCase().getCaseDefendant(defendantId)
+                .map (caseDefendantEntity -> {
+                            Hibernate.initialize(caseDefendantEntity.getDocuments());
+                            return caseDefendantEntity.getDocuments();
+                        }
+                );
+        }
+        return hearing;
+    }
+
+    @Transactional
     public Optional<HearingEntity> findFirstByHearingIdAssignState(String hearingId) {
         var hearing = hearingRepository.findFirstByHearingId(hearingId);
         hearing.ifPresent(hearingEntity -> Hibernate.initialize(hearingEntity.getHearingDefendants()));

@@ -62,7 +62,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
     }
 
     fun resultHearingOutcome(hearingId: String, defendantId: String, userUuid: String, userId: String, userName: String, authSource: String) {
-        hearingEntityInitService.findFirstByHearingId(hearingId).ifPresentOrElse(
+        hearingEntityInitService.findFirstByHearingIdAndOutcome(hearingId).ifPresentOrElse(
                 {
                     val hearingDefendant = it.getHearingDefendant(defendantId)
                         ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")

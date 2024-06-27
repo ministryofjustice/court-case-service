@@ -29,6 +29,13 @@ public class HearingEntityInitService {
     }
 
     @Transactional
+    public Optional<HearingEntity> findFirstByHearingIdAndOutcome(String hearingId) {
+        var hearing = hearingRepository.findFirstByHearingId(hearingId);
+        hearing.ifPresent(hearingEntity -> Hibernate.initialize(hearingEntity.getHearingDefendants()));
+        return hearing;
+    }
+
+    @Transactional
     public Optional<HearingEntity> findFirstByHearingIdFileUpload(String hearingId) {
         var hearing = hearingRepository.findFirstByHearingId(hearingId);
         if(hearing.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional

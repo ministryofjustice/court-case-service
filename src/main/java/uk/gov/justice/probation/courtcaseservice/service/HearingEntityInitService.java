@@ -29,6 +29,17 @@ public class HearingEntityInitService {
     }
 
     @Transactional
+    public Optional<HearingEntity> findFirstByHearingIdFileUpload(String hearingId) {
+        var hearing = hearingRepository.findFirstByHearingId(hearingId);
+        if(hearing.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
+            Hibernate.initialize(hearing.get().getHearingDefendants());
+            Hibernate.initialize(hearing.get().getCourtCase().getCaseDefendants());
+            hearing.get().getCourtCase().getCaseDefendants().forEach(caseDefendantEntity -> Hibernate.initialize(caseDefendantEntity.getDocuments()));
+        }
+        return hearing;
+    }
+
+    @Transactional
     public Optional<HearingEntity> findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(String hearingId, String defendantId) {
         var hearing = hearingRepository.findFirstByHearingId(hearingId);
         if(hearing.isPresent()) {

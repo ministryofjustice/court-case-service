@@ -29,14 +29,14 @@ public class HearingEntityInitService {
     }
 
     @Transactional
-    public Optional<HearingEntity> findFirstByHearingIdAndOutcome(String hearingId) {
+    public Optional<HearingEntity> findFirstByHearingIdAndInitHearingDefendants(String hearingId) {
         var hearing = hearingRepository.findFirstByHearingId(hearingId);
         hearing.ifPresent(hearingEntity -> Hibernate.initialize(hearingEntity.getHearingDefendants()));
         return hearing;
     }
 
     @Transactional
-    public Optional<HearingEntity> findFirstByHearingIdInitNoteHearingDefendant(String hearingId) {
+    public Optional<HearingEntity> findFirstByHearingIdAndInitHearingNotes(String hearingId) {
         var hearing = hearingRepository.findFirstByHearingId(hearingId);
         if(hearing.isPresent()) {
             Hibernate.initialize(hearing.get().getHearingDefendants());

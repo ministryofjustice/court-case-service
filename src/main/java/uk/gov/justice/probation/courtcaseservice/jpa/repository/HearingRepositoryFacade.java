@@ -50,7 +50,7 @@ public class HearingRepositoryFacade {
     }
 
     public Optional<HearingEntity> findFirstByHearingIdInitNoteCreation(String hearingId) {
-        return hearingEntityInitService.findFirstByHearingIdInitNoteHearingDefendant(hearingId);
+        return hearingEntityInitService.findFirstByHearingIdAndInitHearingNotes(hearingId);
     }
 
     public Optional<HearingEntity> findFirstByHearingIdFileUpload(String hearingId) {

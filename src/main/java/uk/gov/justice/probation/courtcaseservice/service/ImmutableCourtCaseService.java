@@ -169,7 +169,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     private Mono<HearingEntity> createOrUpdateHearing(String hearingId, final HearingEntity updatedHearing) {
-        var hearing = hearingRepositoryFacade.findFirstByHearingId(hearingId)
+        var hearing = hearingRepositoryFacade.findFirstByHearingIdInitHearing(hearingId)
             .map(existingHearing -> {
                 trackUpdateEvents(existingHearing, updatedHearing);
                 return existingHearing.update(updatedHearing);

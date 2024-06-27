@@ -59,13 +59,13 @@ class HearingNotesServiceTest {
         HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder().hearingId("hearingId").createdByUuid(createdByUuid).build();
 
         HearingEntity hearing = EntityHelper.aHearingEntity();
-        given(hearingNotesServiceInitService.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+        given(hearingNotesServiceInitService.findFirstByHearingIdAndInitHearingNotes(HEARING_ID)).willReturn(Optional.of(hearing));
         given(hearingNotesRepository.save(hearingNoteEntity)).willReturn(hearingNoteEntity);
 
 
         hearingNotesService.createHearingNote(HEARING_ID, EntityHelper.DEFENDANT_ID, hearingNoteEntity);
 
-        verify(hearingNotesServiceInitService).findFirstByHearingId(HEARING_ID);
+        verify(hearingNotesServiceInitService).findFirstByHearingIdAndInitHearingNotes(HEARING_ID);
         verify(hearingNotesRepository).save(hearingNoteEntity);
         verify(telemetryService).trackCreateHearingNoteEvent(hearingNoteEntity);
     }
@@ -78,12 +78,12 @@ class HearingNotesServiceTest {
         HearingEntity hearing = EntityHelper.aHearingEntity()
             .withHearingDefendants(List.of(EntityHelper.aHearingDefendantEntity().withNotes(EntityHelper.getMutableList(List.of(dbHearingNoteEntity)))));
 
-        given(hearingNotesServiceInitService.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+        given(hearingNotesServiceInitService.findFirstByHearingIdAndInitHearingNotes(HEARING_ID)).willReturn(Optional.of(hearing));
         given(hearingNotesRepository.save(noteCaptor.capture())).willReturn(dbHearingNoteEntity);
 
         hearingNotesService.createHearingNote(HEARING_ID, EntityHelper.DEFENDANT_ID, hearingNoteEntity);
         assertThat(noteCaptor.getValue()).isEqualTo(dbHearingNoteEntity.withNote("word1 word2 word3").withDraft(false));
-        verify(hearingNotesServiceInitService).findFirstByHearingId(HEARING_ID);
+        verify(hearingNotesServiceInitService).findFirstByHearingIdAndInitHearingNotes(HEARING_ID);
         verify(hearingNotesRepository).save(dbHearingNoteEntity);
     }
 
@@ -91,11 +91,11 @@ class HearingNotesServiceTest {
     void givenHearingIdDoesNotExistsInDatabase_shouldThrowEntityNotFound() {
         HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder().build();
 
-        given(hearingNotesServiceInitService.findFirstByHearingId(HEARING_ID)).willReturn(Optional.empty());
+        given(hearingNotesServiceInitService.findFirstByHearingIdAndInitHearingNotes(HEARING_ID)).willReturn(Optional.empty());
 
         Assertions.assertThrows(EntityNotFoundException.class, () -> hearingNotesService.createHearingNote(HEARING_ID, EntityHelper.DEFENDANT_ID, hearingNoteEntity), "Hearing hearingId not found");
 
-        verify(hearingNotesServiceInitService).findFirstByHearingId(HEARING_ID);
+        verify(hearingNotesServiceInitService).findFirstByHearingIdAndInitHearingNotes(HEARING_ID);
         verifyNoInteractions(hearingNotesRepository);
     }
 
@@ -106,13 +106,13 @@ class HearingNotesServiceTest {
         HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder().createdByUuid(createdByUuid).build();
 
         HearingEntity hearing = EntityHelper.aHearingEntity();
-        given(hearingNotesServiceInitService.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+        given(hearingNotesServiceInitService.findFirstByHearingIdAndInitHearingNotes(HEARING_ID)).willReturn(Optional.of(hearing));
         given(hearingNotesRepository.save(noteCaptor.capture())).willReturn(hearingNoteEntity);
 
         hearingNotesService.createOrUpdateHearingNoteDraft(HEARING_ID, EntityHelper.DEFENDANT_ID, hearingNoteEntity);
         HearingNoteEntity dbNote = noteCaptor.getValue();
         assertThat(dbNote.isDraft()).isTrue();
-        verify(hearingNotesServiceInitService).findFirstByHearingId(HEARING_ID);
+        verify(hearingNotesServiceInitService).findFirstByHearingIdAndInitHearingNotes(HEARING_ID);
         verify(hearingNotesRepository).save(dbNote);
     }
 
@@ -120,11 +120,11 @@ class HearingNotesServiceTest {
     void givenHearingIdDoesNotExistsInDatabase__whenCreateOrUpdateHearingNoteDraft_shouldThrowEntityNotFound() {
         HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder().build();
 
-        given(hearingNotesServiceInitService.findFirstByHearingId(HEARING_ID)).willReturn(Optional.empty());
+        given(hearingNotesServiceInitService.findFirstByHearingIdAndInitHearingNotes(HEARING_ID)).willReturn(Optional.empty());
 
         Assertions.assertThrows(EntityNotFoundException.class, () -> hearingNotesService.createOrUpdateHearingNoteDraft(HEARING_ID, EntityHelper.DEFENDANT_ID, hearingNoteEntity), "Hearing hearingId not found");
 
-        verify(hearingNotesServiceInitService).findFirstByHearingId(HEARING_ID);
+        verify(hearingNotesServiceInitService).findFirstByHearingIdAndInitHearingNotes(HEARING_ID);
         verifyNoInteractions(hearingNotesRepository);
     }
 
@@ -135,12 +135,12 @@ class HearingNotesServiceTest {
 
         HearingEntity hearing = EntityHelper.aHearingEntity();
         hearing.getHearingDefendants().get(0).getNotes().add(hearingNoteEntity);
-        given(hearingNotesServiceInitService.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+        given(hearingNotesServiceInitService.findFirstByHearingIdAndInitHearingNotes(HEARING_ID)).willReturn(Optional.of(hearing));
         given(hearingNotesRepository.save(noteCaptor.capture())).willReturn(hearingNoteEntity);
 
         hearingNotesService.deleteHearingNote(HEARING_ID, DEFENDANT_ID, noteId, createdByUuid);
         assertTrue(hearingNoteEntity.isDeleted());
-        verify(hearingNotesServiceInitService).findFirstByHearingId(HEARING_ID);
+        verify(hearingNotesServiceInitService).findFirstByHearingIdAndInitHearingNotes(HEARING_ID);
         verify(hearingNotesRepository).save(hearingNoteEntity);
         verify(telemetryService).trackDeleteHearingNoteEvent(hearingNoteEntity);
     }
@@ -154,11 +154,11 @@ class HearingNotesServiceTest {
 
         HearingEntity hearing = EntityHelper.aHearingEntity();
         hearing.getHearingDefendants().get(0).getNotes().add(hearingNoteEntity);
-        given(hearingNotesServiceInitService.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+        given(hearingNotesServiceInitService.findFirstByHearingIdAndInitHearingNotes(HEARING_ID)).willReturn(Optional.of(hearing));
 
         assertThrows(EntityNotFoundException.class, () -> hearingNotesService.deleteHearingNote(HEARING_ID, DEFENDANT_ID, noteId, invalidCreatedByUuid),
             "Note 1234 not found for hearing 75e63d6c-5487-4244-a5bc-7cf8a38992db, defendant d1eefed2-04df-11ec-b2d8-0242ac130002 and user uuid invalid-user-uuid or the user does not have permissions to modify");
-        verify(hearingNotesServiceInitService).findFirstByHearingId(HEARING_ID);
+        verify(hearingNotesServiceInitService).findFirstByHearingIdAndInitHearingNotes(HEARING_ID);
         verifyNoInteractions(hearingNotesRepository);
     }
 
@@ -169,12 +169,12 @@ class HearingNotesServiceTest {
         HearingNoteEntity hearingNoteEntity = HearingNoteEntity.builder().id(noteId).createdByUuid(createdByUuid).build();
 
         HearingEntity hearing = EntityHelper.aHearingEntity();
-        given(hearingNotesServiceInitService.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+        given(hearingNotesServiceInitService.findFirstByHearingIdAndInitHearingNotes(HEARING_ID)).willReturn(Optional.of(hearing));
         hearing.getHearingDefendants().get(0).getNotes().add(hearingNoteEntity);
 
         assertThrows(EntityNotFoundException.class, () -> hearingNotesService.deleteHearingNote(HEARING_ID, DEFENDANT_ID, 567L, createdByUuid),
             "Note 567 not found for hearing 75e63d6c-5487-4244-a5bc-7cf8a38992db, defendant d1eefed2-04df-11ec-b2d8-0242ac130002 and user uuid test-user-uuid or the user does not have permissions to modify\n");
-        verify(hearingNotesServiceInitService).findFirstByHearingId(HEARING_ID);
+        verify(hearingNotesServiceInitService).findFirstByHearingIdAndInitHearingNotes(HEARING_ID);
         verifyNoInteractions(hearingNotesRepository);
     }
 
@@ -191,12 +191,12 @@ class HearingNotesServiceTest {
         hearing.getHearingDefendants().get(0).getNotes().add(existingNote);
 
 
-        given(hearingNotesServiceInitService.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+        given(hearingNotesServiceInitService.findFirstByHearingIdAndInitHearingNotes(HEARING_ID)).willReturn(Optional.of(hearing));
         given(hearingNotesRepository.save(noteCaptor.capture())).willReturn(existingNote);
 
         hearingNotesService.updateHearingNote(HEARING_ID, DEFENDANT_ID, noteUpdate, noteId);
 
-        verify(hearingNotesServiceInitService).findFirstByHearingId(HEARING_ID);
+        verify(hearingNotesServiceInitService).findFirstByHearingIdAndInitHearingNotes(HEARING_ID);
         var expected = existingNote.withId(noteId).withNote("existing note updated");
         verify(hearingNotesRepository).save(expected);
         verify(telemetryService).trackUpdateHearingNoteEvent(expected);
@@ -211,12 +211,12 @@ class HearingNotesServiceTest {
         HearingEntity hearing = EntityHelper.aHearingEntity();
         hearing.getHearingDefendants().get(0).getNotes().add(existingNote);
 
-        given(hearingNotesServiceInitService.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+        given(hearingNotesServiceInitService.findFirstByHearingIdAndInitHearingNotes(HEARING_ID)).willReturn(Optional.of(hearing));
 
         assertThrows(EntityNotFoundException.class, () -> hearingNotesService.updateHearingNote(HEARING_ID, DEFENDANT_ID, noteUpdate, noteId),
             "User forbidden-uuid does not have permissions to delete note 1234 on hearing test-hearing-id");
         verifyNoMoreInteractions(hearingNotesRepository);
-        verify(hearingNotesServiceInitService).findFirstByHearingId(HEARING_ID);
+        verify(hearingNotesServiceInitService).findFirstByHearingIdAndInitHearingNotes(HEARING_ID);
     }
 
     @Test
@@ -226,12 +226,12 @@ class HearingNotesServiceTest {
 
         HearingEntity hearing = EntityHelper.aHearingEntity();
 
-        given(hearingNotesServiceInitService.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+        given(hearingNotesServiceInitService.findFirstByHearingIdAndInitHearingNotes(HEARING_ID)).willReturn(Optional.of(hearing));
 
         assertThrows(EntityNotFoundException.class, () -> hearingNotesService.updateHearingNote(HEARING_ID, DEFENDANT_ID, noteUpdate, noteId),
             "Note 1234 not found for hearing test-hearing-id");
         verify(hearingNotesRepository, times(0)).save(any(HearingNoteEntity.class));
-        verify(hearingNotesServiceInitService).findFirstByHearingId(HEARING_ID);
+        verify(hearingNotesServiceInitService).findFirstByHearingIdAndInitHearingNotes(HEARING_ID);
     }
 
     @Test
@@ -241,12 +241,12 @@ class HearingNotesServiceTest {
 
         HearingEntity hearing = EntityHelper.aHearingEntity();
         hearing.getHearingDefendants().get(0).getNotes().add(existingNote);
-        given(hearingNotesServiceInitService.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+        given(hearingNotesServiceInitService.findFirstByHearingIdAndInitHearingNotes(HEARING_ID)).willReturn(Optional.of(hearing));
 
         hearingNotesService.deleteHearingNoteDraft(HEARING_ID, DEFENDANT_ID, CREATED_BY_UUID);
 
         assertTrue(existingNote.isDeleted());
-        verify(hearingNotesServiceInitService).findFirstByHearingId(HEARING_ID);
+        verify(hearingNotesServiceInitService).findFirstByHearingIdAndInitHearingNotes(HEARING_ID);
         verify(hearingNotesRepository).save(existingNote);
     }
 
@@ -256,12 +256,12 @@ class HearingNotesServiceTest {
 
         HearingEntity hearing = EntityHelper.aHearingEntity();
         hearing.getHearingDefendants().get(0).getNotes().add(existingNote);
-        given(hearingNotesServiceInitService.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearing));
+        given(hearingNotesServiceInitService.findFirstByHearingIdAndInitHearingNotes(HEARING_ID)).willReturn(Optional.of(hearing));
 
         String differentUser = "different_user";
         assertThrows(EntityNotFoundException.class, () -> hearingNotesService.deleteHearingNoteDraft(HEARING_ID, DEFENDANT_ID, differentUser),
             String.format("Draft note not found for user %s on hearing %s / defendant %s", differentUser, HEARING_ID, DEFENDANT_ID));
-        verify(hearingNotesServiceInitService).findFirstByHearingId(HEARING_ID);
+        verify(hearingNotesServiceInitService).findFirstByHearingIdAndInitHearingNotes(HEARING_ID);
         verifyNoMoreInteractions(hearingNotesRepository);
     }
 }

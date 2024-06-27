@@ -114,6 +114,6 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
     }
 
     private fun getHearingEntity(hearingId: String): HearingEntity? =
-        hearingRepositoryFacade.findFirstByHearingId(hearingId)
+        hearingRepositoryFacade.findFirstByHearingIdFileUpload(hearingId)
             .getOrElse { throw EntityNotFoundException("Hearing %s not found", hearingId) }
 }

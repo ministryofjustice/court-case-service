@@ -104,8 +104,8 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
         filePart.part("metadata", HmppsDocumentApiMetadata(hearing.courtCase.urn, defendantId))
 
         var documentUuid = UUID.randomUUID().toString()
-        //var response = hmppsDocumentManagementApiClient.createDocument(picDocumentType, documentUuid, filePart).block()
-        //log.debug("Response from document management API /documents/$picDocumentType/$documentUuid : $response")
+        var response = hmppsDocumentManagementApiClient.createDocument(picDocumentType, documentUuid, filePart).block()
+        log.debug("Response from document management API /documents/$picDocumentType/$documentUuid : $response")
 
         var courtCase = hearing.courtCase
         var documentEntity = courtCase.getOrCreateCaseDefendant(hearingDefendant.defendant).createDocument(documentUuid, originalFilename)

@@ -104,6 +104,7 @@ public class HearingEntityInitService {
         if(hearing.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
             Hibernate.initialize(hearing.get().getHearingDefendants());
             Hibernate.initialize(hearing.get().getCourtCase().getCaseDefendants());
+            hearing.get().getCourtCase().getCaseDefendants().forEach(caseDefendantEntity -> Hibernate.initialize(caseDefendantEntity.getDocuments()));
             hearing.get().getHearingDefendants().forEach(hearingDefendantEntity ->
                     hearingDefendantEntity.getOffences().forEach(offence -> Hibernate.initialize(offence.getJudicialResults()))
             );

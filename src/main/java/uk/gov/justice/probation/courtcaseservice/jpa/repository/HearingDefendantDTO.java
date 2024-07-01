@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,9 @@ import java.util.List;
 @Table(name = "HEARING_DEFENDANT")
 public class HearingDefendantDTO {
     @Id
+    @Column(name = "id", updatable = false, nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Long id;
 
     public void setId(Long id) {

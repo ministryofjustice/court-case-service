@@ -11,6 +11,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepSta
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDTO;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendantDTO;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
 import java.time.LocalDate;
@@ -68,6 +70,21 @@ public class CourtCaseResponseMapper {
         return builder.build();
     }
 
+    public static CourtCaseResponse mapFrom(HearingDTO hearingEntity, HearingDefendantDTO defendantEntity, int matchCount, LocalDate hearingDate) {
+        // Core case-based
+        final var builder = CourtCaseResponse.builder();
+
+//        buildCaseFields(builder, hearingEntity, defendantEntity.getDefendantId());
+        buildHearings(builder, hearingEntity, hearingDate);
+
+        // Defendant-based fields
+        addDefendantFields(builder, defendantEntity);
+        builder.numberOfPossibleMatches(matchCount);
+
+        return builder.build();
+    }
+
+
     private static void buildCaseFields(CourtCaseResponseBuilder builder, HearingEntity hearingEntity, String defendantId) {
         // Case-based fields
         builder.caseId(hearingEntity.getCaseId())
@@ -114,6 +131,24 @@ public class CourtCaseResponseMapper {
                 .sessionStartTime(targetHearing.getSessionStartTime())
                 .session(targetHearing.getSession())
                 .listNo(hearingEntity.getListNo());
+    }
+
+    static void buildHearings(CourtCaseResponseBuilder builder, HearingDTO hearingEntity, LocalDate hearingDate) {
+//        var hearings = Optional.ofNullable(hearingEntity.getHearingDays())
+//                .orElseThrow();
+//
+//        var targetHearing = hearings
+//                .stream()
+//                .filter(hearingDayEntity -> hearingDate == null || hearingDate.isEqual(hearingDayEntity.getDay()))
+//                .findFirst()
+//                .orElseThrow();
+//
+//        // Populate the top level fields with the details from the single hearing
+//        builder.courtCode(targetHearing.getCourtCode())
+//                .courtRoom(getNormalisedCourtRoom(targetHearing.getCourtRoom()))
+//                .sessionStartTime(targetHearing.getSessionStartTime())
+//                .session(targetHearing.getSession())
+//                .listNo(hearingEntity.getListNo());
     }
 
     private static String getNormalisedCourtRoom(String courtRoom) {
@@ -169,6 +204,34 @@ public class CourtCaseResponseMapper {
 
         // Offences
         builder.offences(mapOffencesFromDefendantOffences(hearingDefendantEntity.getOffences()));
+    }
+
+    private static void addDefendantFields(CourtCaseResponseBuilder builder, HearingDefendantDTO hearingDefendantDTO) {
+        //        final var defendant = hearingDefendantEntity.getDefendant();
+//        addOffenderFields(builder, defendant.getOffender());
+//        builder
+//                .defendantName(defendant.getDefendantName())
+//                .name(defendant.getName())
+//                .defendantAddress(defendant.getAddress())
+//                .defendantDob(defendant.getDateOfBirth())
+//                .defendantSex(defendant.getSex())
+//                .defendantType(defendant.getType())
+//                .defendantId(defendant.getDefendantId())
+//                .phoneNumber(PhoneNumber.of(defendant.getPhoneNumber()))
+//                .nationality1(defendant.getNationality1())
+//                .nationality2(defendant.getNationality2())
+//                .cro(defendant.getCro())
+//                .pnc(defendant.getPnc())
+//                .crn(hearingDefendantEntity.getCrn())
+//                .probationStatus(hearingDefendantEntity.getProbationStatusForDisplay())
+//                .confirmedOffender(defendant.isOffenderConfirmed())
+//                .personId(defendant.getPersonId())
+//                .hearingPrepStatus(HearingPrepStatus.valueOf(hearingDefendantEntity.getPrepStatus()))
+//        ;
+//
+//        // Offences
+//        builder.offences(mapOffencesFromDefendantOffences(hearingDefendantEntity.getOffences()));
+
     }
 
     private static void addOffenderFields(CourtCaseResponseBuilder builder, OffenderEntity offender) {

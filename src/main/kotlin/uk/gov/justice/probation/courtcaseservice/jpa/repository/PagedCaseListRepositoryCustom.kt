@@ -112,7 +112,7 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
             $filters
             """.trimIndent()
 
-        val mainJpaQuery = entityManager.createNativeQuery(mainQuery)
+        val mainJpaQuery = entityManager.createNativeQuery(mainQuery, "search_hearings_custom")
         val countJpaQuery = entityManager.createNativeQuery(countQuery)
 
         mainJpaQuery.setParameter(P_COURT_CODE, courtCode)
@@ -123,15 +123,11 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
 
 
         // cannot simultaneously fetch multiple bags
-//        val resultCustomQuery = entityManager.createQuery("select h from HearingDTO h JOIN FETCH h.hearingDefendants hd JOIN FETCH hd.notes where h.hearingId = :hearingId")
-//            .setParameter("hearingId", "1eb3a6da-8189-4de2-8377-da5910e486b9").resultList
+        //        val resultCustomQuery = entityManager.createQuery("select h from HearingDTO h JOIN FETCH h.hearingDefendants hd JOIN FETCH hd.notes where h.hearingId = :hearingId")
+        //            .setParameter("hearingId", "1eb3a6da-8189-4de2-8377-da5910e486b9").resultList
 
         // cannot simultaneously fetch multiple bags
-        val hearings: List<HearingDTO> = entityManager.createQuery("select h from HearingDTO h JOIN FETCH h.hearingDefendants hd where h.hearingId = :hearingId", HearingDTO::class.java)
-            .setParameter("hearingId", "1eb3a6da-8189-4de2-8377-da5910e486b9").resultList
 
-
-        val hearingDefendants: List<HearingDefendantDTO> = hearings.map { hearing -> hearing.hearingDefendants }.flatten()
 
         if(hasSourceFilter) {
             val source = hearingSearchRequest.source[0].name
@@ -156,8 +152,23 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
         val result = mainJpaQuery.resultList
         val count = (countJpaQuery.singleResult as Long)
 
-        val content = result.map {(it as Array<Any>)}.map { Pair(it[0] as HearingDefendantEntity, it[1] as Int?) }
 
-        return PageImpl(content, pageable, count)
+//        result.map {(it as Array<Any>)}.map { hd -> Pair(getHearingDefendantDTO(hd[0] as HearingDefendantEntity), hd[1] as Int?) }
+
+        result.map {(it as Array<Any>)}.map { Pair(it[0], it[1] as Int?) }
+
+        return PageImpl(null, pageable, count)
+    }
+
+    public fun getHearingDefendantDTO(hearingDefendantEntity: HearingDefendantEntity): List<HearingDefendantDTO> {
+//        val hearings: List<HearingDTO> = entityManager.createQuery("select h from HearingDTO h JOIN FETCH h.hearingDefendants hd where h.hearingId = :hearingId", HearingDTO::class.java)
+//            .setParameter("hearingId", hearingDefendantEntity.hearing).resultList
+
+//        val hearingDefendants: List<HearingDefendantDTO> = hearings.map { hearing -> hearing.hearingDefendants }.flatten()
+
+        val hearingDefendants: List<HearingDefendantDTO> = entityManager.createQuery("select hd from HearingDefendantDTO hd JOIN FETCH hd.notes hn where hd.id = :hearingDefendantId", HearingDefendantDTO::class.java)
+            .setParameter("hearingDefendantId", hearingDefendantEntity.id).resultList
+
+        return hearingDefendants;
     }
 }

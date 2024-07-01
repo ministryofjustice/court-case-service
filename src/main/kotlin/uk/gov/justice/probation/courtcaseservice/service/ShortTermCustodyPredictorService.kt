@@ -66,30 +66,30 @@ class ShortTermCustodyPredictorService(
 
     fun addPredictorScoresToHearing(hearingEntity: HearingEntity) {
         log.debug("Entered addPredictorScoresToHearing for hearing with case number: ${hearingEntity.caseNo}")
-
-        if (!isMagistratesCourtCode(hearingEntity.hearingDays[0].courtCode)) {
-            log.info("Short term custody algorithm only support magistrate court hearings - no score will be calculated")
-            return
-        }
-
-        log.debug("Case has ${hearingEntity.hearingDefendants.size} defendants")
-        hearingEntity.hearingDefendants.forEach { defendant ->
-            log.debug("Defendant has ${defendant.offences.size} offences")
-            defendant.offences.forEach { offence ->
-                val homeOfficeOffenceCode : String? =
-                try {
-                    offence.offenceCode?.let { offencesRestClient.getHomeOfficeOffenceCodeByCJSCode(it) }
-                } catch (e : ExternalApiEntityNotFoundException) {
-                    log.warn("No corresponding Home office offence code could be found for CJS code: ${offence.offenceCode}", e)
-                    null
-                } catch (e : ExternalApiUnknownException) {
-                    log.error("Unknown error occurred whilst looking up Home office offence code for CJS code: ${offence.offenceCode}", e)
-                    null
-                }
-                log.debug("Home office code returned: $homeOfficeOffenceCode")
-                addPredictorScoreToOffence(homeOfficeOffenceCode, hearingEntity, defendant, offence)
-            }
-        }
+//
+//        if (!isMagistratesCourtCode(hearingEntity.hearingDays[0].courtCode)) {
+//            log.info("Short term custody algorithm only support magistrate court hearings - no score will be calculated")
+//            return
+//        }
+//
+//        log.debug("Case has ${hearingEntity.hearingDefendants.size} defendants")
+//        hearingEntity.hearingDefendants.forEach { defendant ->
+//            log.debug("Defendant has ${defendant.offences.size} offences")
+//            defendant.offences.forEach { offence ->
+//                val homeOfficeOffenceCode : String? =
+//                try {
+//                    offence.offenceCode?.let { offencesRestClient.getHomeOfficeOffenceCodeByCJSCode(it) }
+//                } catch (e : ExternalApiEntityNotFoundException) {
+//                    log.warn("No corresponding Home office offence code could be found for CJS code: ${offence.offenceCode}", e)
+//                    null
+//                } catch (e : ExternalApiUnknownException) {
+//                    log.error("Unknown error occurred whilst looking up Home office offence code for CJS code: ${offence.offenceCode}", e)
+//                    null
+//                }
+//                log.debug("Home office code returned: $homeOfficeOffenceCode")
+//                addPredictorScoreToOffence(homeOfficeOffenceCode, hearingEntity, defendant, offence)
+//            }
+//        }
     }
 
     private fun addPredictorScoreToOffence(

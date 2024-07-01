@@ -1,11 +1,10 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.envers.NotAudited;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 
 import java.util.List;
 
@@ -30,7 +29,8 @@ public class HearingDefendantDTO {
 
     @ToString.Exclude
     @ManyToOne()
-    @JoinColumn(name = "FK_HEARING_ID", referencedColumnName = "id")
+    @JoinColumn(name = "FK_HEARING_ID", referencedColumnName = "id")  
+    @Getter
     @Setter
     private HearingDTO hearing;
 }

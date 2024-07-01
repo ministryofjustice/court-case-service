@@ -123,9 +123,17 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
         countJpaQuery.setParameter(P_COURT_CODE, courtCode)
         countJpaQuery.setParameter(P_DATE, hearingSearchRequest.date)
 
+
         // cannot simultaneously fetch multiple bags
         val resultCustomQuery = entityManager.createQuery("select h from HearingDTO h JOIN FETCH h.hearingDefendants hd JOIN FETCH hd.notes where h.hearingId = :hearingId")
             .setParameter("hearingId", "1eb3a6da-8189-4de2-8377-da5910e486b9").resultList
+
+        // cannot simultaneously fetch multiple bags
+        val hearing = entityManager.createQuery("select h from HearingDTO h JOIN FETCH h.hearingDefendants hd where h.hearingId = :hearingId")
+            .setParameter("hearingId", "1eb3a6da-8189-4de2-8377-da5910e486b9").resultList.first()
+
+        val hearingNotes = entityManager.createQuery("select hn from HearingNoteDTO hn where hn.hearingDefendantDTO = :hearingDefendant")
+            .setParameter("hearingDefendant", (hearing as HearingDTO).hearingDefendants).resultList
 
         if(hasSourceFilter) {
             val source = hearingSearchRequest.source[0].name

@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.springframework.util.CollectionUtils;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Schema(description = "Court Case")
+//@Schema(description = "Court Case")
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
@@ -35,7 +36,6 @@ import java.util.Optional;
 @Getter
 @With
 @Table(name = "COURT_CASE")
-@Audited
 @SqlResultSetMapping(
     name = "search_defendants_result_mapping",
     entities = {
@@ -50,6 +50,7 @@ import java.util.Optional;
         @EntityResult(entityClass = HearingDefendantEntity.class)
     }
 )
+@Audited
 public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
 
     @Id

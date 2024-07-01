@@ -3,8 +3,9 @@ package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 
 import java.util.List;
 
@@ -13,7 +14,6 @@ import java.util.List;
 public class HearingDTO {
     @Id
     private Long id;
-
 
     public void setId(Long id) {
         this.id = id;
@@ -29,5 +29,7 @@ public class HearingDTO {
     @ToString.Exclude
     @JsonIgnore
     @OneToMany(mappedBy = "hearing", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Getter
+    @Setter
     private final List<HearingDefendantDTO> hearingDefendants = List.of();
 }

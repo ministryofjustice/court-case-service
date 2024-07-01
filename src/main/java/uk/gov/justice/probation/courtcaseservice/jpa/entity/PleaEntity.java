@@ -10,13 +10,15 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
+
 @Entity
 @Table(name = "PLEA")
 @AllArgsConstructor
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @Getter
-@Audited
+@Audited(targetAuditMode = NOT_AUDITED)
 public class PleaEntity extends BaseAuditedEntity implements Serializable {
 
 

@@ -7,7 +7,7 @@ pgdatabase=${POSTGRES_DB:-postgres}
 
 mkdir -p "$jardir" "$schemadir"
 
-./gradlew flywayMigrate -Pflyway.url="jdbc:postgresql://localhost:5432/${pgdatabase}" \
+./gradlew flywayMigrate -Pflyway.url="jdbc:postgresql://postgres:5432/${pgdatabase}" \
   -Dflyway.user=root \
   -Dflyway.password=dev \
   -Dflyway.locations="filesystem:src/main/resources/db/migration/courtcase"
@@ -16,7 +16,7 @@ wget https://github.com/schemaspy/schemaspy/releases/download/v6.2.4/schemaspy-6
 wget https://jdbc.postgresql.org/download/postgresql-42.2.19.jar -O "$jardir/postgresql.jar"
 
 java -jar "$jardir/schemaspy.jar" -t pgsql -dp "$jardir/postgresql.jar" \
-  -db "${pgdatabase}" -host "localhost" -port "5432" -u "root" -p "dev" \
+  -db "${pgdatabase}" -host "postgres" -port "5432" -u "root" -p "dev" \
   -nopages \
   -o "${schemadir}"
 

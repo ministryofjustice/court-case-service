@@ -2,10 +2,26 @@ version: '3.3'
 
 services:
 
+  ccs:
+    image: courtcaseservice
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    networks:
+      - hmpps
+    depends_on:
+      - postgres
+      - localstack-court-case-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres?currentSchema=courtcaseservice&user=root&password=dev&stringtype=unspecified
+
   postgres:
     image: postgres:11.15-alpine
     ports:
-      - 5432:5432
+      - "5432:5432"
     networks:
       - hmpps
     environment:

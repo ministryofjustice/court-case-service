@@ -4,10 +4,10 @@ feature:
     fetch-sentence-data: true
 
 community-api:
-  base-url: http://localhost:8096
+  base-url: http://host.docker.internal:8096
 
 offender-assessments-api:
-  base-url: http://localhost:8097
+  base-url: http://host.docker.internal:8097
   client-id: sentence-plan-api-client
   client-secret: clientsecret
 
@@ -33,25 +33,6 @@ court-case-and-delius-api:
 
 domain-event-and-delius-api:
   base-url: https://domain-events-and-delius-dev.hmpps.service.justice.gov.uk
-
-
-  flyway:
-    defaultSchema: courtcaseservice
-    locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local, filesystem:src/test/resources
-  datasource:
-    url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=courtcaseservice&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
-    hikari:
-      pool-name: courtcaseservice
-      connectionTimeout: 1000
-      validationTimeout: 500
-      schema: courtcaseservice
-  jpa:
-    show-sql: true
-    properties:
-      hibernate:
-        integration:
-          envers:
-            enabled: false
 
 hearing_outcomes:
   move_un_resulted_to_outcomes_cutoff_time: "01:30"
@@ -86,6 +67,23 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
+  flyway:
+      defaultSchema: courtcaseservice
+      locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local, filesystem:src/test/resources
+  datasource:
+    url: jdbc:postgresql://postgres:5432/postgres?currentSchema=courtcaseservice&user=root&password=dev&stringtype=unspecified
+    hikari:
+      pool-name: courtcaseservice
+      connectionTimeout: 1000
+      validationTimeout: 500
+      schema: courtcaseservice
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        integration:
+          envers:
+          enabled: false
 
 hmpps:
   sar:

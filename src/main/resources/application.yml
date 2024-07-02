@@ -88,9 +88,10 @@ spring:
           jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
 
   datasource:
-    url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=${database.schema.name}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
+    url: jdbc:postgresql://postgres:5432/${database.name:postgres}?currentSchema=${database.schema.name}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
 
   flyway:
+    url: jdbc:postgresql://postgres:5432/${database.name:postgres}?currentSchema=${database.schema.name}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
     schemas: ${database.schema.name}
     locations: classpath:db/migration/courtcase
     enabled: true

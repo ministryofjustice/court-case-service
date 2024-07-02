@@ -155,19 +155,28 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
 
 //        result.map {(it as Array<Any>)}.map { hd -> Pair(getHearingDefendantDTO(hd[0] as HearingDefendantEntity), hd[1] as Int?) }
 
-        result.map {(it as Array<Any>)}.map { Pair(it[0], it[1] as Int?) }
+        val content = result.map { (it as Array<Any>) }.map { Pair(it[0] as HearingDefendantDTO, it[1] as Int?) }
+        val dtoList = content.map { it.first }
 
+        getHearingDefendantDTO(dtoList)
         return PageImpl(null, pageable, count)
     }
 
-    public fun getHearingDefendantDTO(hearingDefendantEntity: HearingDefendantEntity): List<HearingDefendantDTO> {
+    public fun getHearingDefendantDTO(hearingDefendantDtos: List<HearingDefendantDTO>): List<HearingDefendantDTO> {
 //        val hearings: List<HearingDTO> = entityManager.createQuery("select h from HearingDTO h JOIN FETCH h.hearingDefendants hd where h.hearingId = :hearingId", HearingDTO::class.java)
 //            .setParameter("hearingId", hearingDefendantEntity.hearing).resultList
 
 //        val hearingDefendants: List<HearingDefendantDTO> = hearings.map { hearing -> hearing.hearingDefendants }.flatten()
+        val hearingDefendants = hearingDefendantDtos.map { hearingDefendantDTO ->
+            entityManager.createQuery(
+                "select hd from HearingDefendantDTO hd JOIN FETCH hd.notes hn where hd.id = :hearingDefendantId",
+                HearingDefendantDTO::class.java
+            ).setParameter("hearingDefendantId", hearingDefendantDTO.id).resultList
+        }.toList().flatten()
 
-        val hearingDefendants: List<HearingDefendantDTO> = entityManager.createQuery("select hd from HearingDefendantDTO hd JOIN FETCH hd.notes hn where hd.id = :hearingDefendantId", HearingDefendantDTO::class.java)
-            .setParameter("hearingDefendantId", hearingDefendantEntity.id).resultList
+
+//        val hearingDefendants: List<HearingDefendantDTO> = entityManager.createQuery("select hd from HearingDefendantDTO hd JOIN FETCH hd.notes hn where hd.id = :hearingDefendantId", HearingDefendantDTO::class.java)
+//            .setParameter("hearingDefendantId", hearingDefendantEntity.id).resultList
 
         return hearingDefendants;
     }

@@ -1,11 +1,10 @@
-package uk.gov.justice.probation.courtcaseservice.jpa.repository;
+package uk.gov.justice.probation.courtcaseservice.jpa.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.envers.NotAudited;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 
 @Entity
 @Table(name = "HEARING_NOTES")

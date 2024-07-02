@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,11 +14,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.springframework.util.CollectionUtils;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendantDTO;
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO;
 
 import java.io.Serializable;
 import java.util.ArrayList;

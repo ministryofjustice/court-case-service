@@ -11,8 +11,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepSta
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDTO;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendantDTO;
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDTO;
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
 import java.time.LocalDate;

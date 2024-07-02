@@ -87,6 +87,9 @@ spring:
           envers:
           enabled: false
 
+ingress:
+  url: http://localstack-court-case-service:4566
+
 hmpps:
   sqs:
     localstackUrl: http://localstack-court-case-service:4566

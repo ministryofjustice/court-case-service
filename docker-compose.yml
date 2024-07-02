@@ -16,6 +16,7 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=local
+      - DOCKER_HOST=unix:///var/run/docker.sock
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres?currentSchema=courtcaseservice&user=root&password=dev&stringtype=unspecified
 
   postgres:

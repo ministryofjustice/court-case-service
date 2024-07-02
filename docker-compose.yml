@@ -55,6 +55,7 @@ services:
     environment:
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=dev
+      - DOCKER_HOST=unix:///var/run/docker.sock
 
   offender-assessment-api:
     image: mojdigitalstudio/offender-assessments-api:latest

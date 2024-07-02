@@ -37,8 +37,10 @@ domain-event-and-delius-api:
 hearing_outcomes:
   move_un_resulted_to_outcomes_cutoff_time: "01:30"
 
+
 hmpps.sqs:
   provider: localstack
+  localstackUrl: http://localstack-court-case-service:4566
   queues:
     picprobationoffendereventsqueue:
       queueName: pic_probation_offender_events_queue
@@ -86,5 +88,7 @@ spring:
           enabled: false
 
 hmpps:
+  sqs:
+    localstackUrl: http://localstack-court-case-service:4566
   sar:
     additionalAccessRole: 'PREPARE_A_CASE'

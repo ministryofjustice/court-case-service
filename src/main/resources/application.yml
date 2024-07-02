@@ -213,6 +213,7 @@ h2o:
   model-path: classpath:h2o/20230227_model.zip
 
 hmpps.sqs:
+  localstackUrl: http://localstack-court-case-service:4566
   useWebToken: true
 
 hearing_outcomes:

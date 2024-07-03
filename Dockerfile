@@ -18,6 +18,9 @@ COPY build/libs/applicationinsights-agent*.jar /app/agent.jar
 COPY applicationinsights.json /app
 COPY run.sh /app
 
+ADD /src/main/resources/ /app/resources
+#ADD /src/main/resources/application-local.yml /app/application-local.properties
+
 RUN mkdir -p /app/src/test/resources/db/migration
 COPY src/test/resources/db/migration/local /app/src/test/resources/db/migration/local
 

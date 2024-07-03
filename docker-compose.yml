@@ -14,9 +14,15 @@ services:
       - localstack-court-case-service
     ports:
       - "8080:8080"
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
     environment:
       - SPRING_PROFILES_ACTIVE=local
+      - AWS_ENDPOINT_URL=http://localstack-court-case-service:4566
+#      - HMPPS_SQS_LOCALSTACKURL=http://localstack-court-case-service:4566
+      - SPRING_CONFIG_LOCATION=classpath:file:/app/resources/
       - DOCKER_HOST=unix:///var/run/docker.sock
+      - SPRING_CLOUD_QUEUE_URI=http://localstack-court-case-service:4566
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres?currentSchema=courtcaseservice&user=root&password=dev&stringtype=unspecified
 
   postgres:
@@ -86,6 +92,7 @@ services:
       - DEBUG=${DEBUG- }
       - PERSISTENCE=1
       - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOSTNAME_EXTERNAL=localstack-court-case-service
     volumes:
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"

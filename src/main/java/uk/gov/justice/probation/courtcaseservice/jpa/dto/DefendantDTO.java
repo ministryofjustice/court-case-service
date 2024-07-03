@@ -4,16 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.type.SqlTypes;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 @Entity
@@ -25,7 +22,6 @@ import java.util.Optional;
 @Getter
 @ToString
 @EqualsAndHashCode(exclude = {"offender", "hearingDefendants", "id"})
-@Audited
 public class DefendantDTO {
     @Id
     @Column(name = "ID", updatable = false, nullable = false)

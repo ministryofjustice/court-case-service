@@ -5,14 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.envers.Audited;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PleaEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.VerdictEntity;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Entity
 @Table(name = "OFFENCE")
@@ -20,7 +16,6 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @Getter
-@Audited
 public class OffenceDTO {
     @Id
     @Column(name = "ID", updatable = false, nullable = false)
@@ -59,4 +54,11 @@ public class OffenceDTO {
     @OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "verdict_id", referencedColumnName = "id")
     private VerdictEntity verdict;
+
+    @ManyToOne
+    @JoinColumn(name = "FK_HEARING_DEFENDANT_ID", referencedColumnName = "id")
+    @Setter
+    @JsonIgnore
+    @ToString.Exclude
+    private HearingDefendantDTO hearingDefendantDTO;
 }

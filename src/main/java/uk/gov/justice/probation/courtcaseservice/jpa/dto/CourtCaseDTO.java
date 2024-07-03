@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseMarkerEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 
 import java.util.List;

@@ -4,13 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
-import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Table(name = "OFFENDER")

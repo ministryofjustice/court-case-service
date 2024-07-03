@@ -8,6 +8,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchR
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingStatus
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDTO
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.OffenceDTO
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession.MORNING
 
 
@@ -170,7 +171,7 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
 //        val hearingDefendants: List<HearingDefendantDTO> = hearings.map { hearing -> hearing.hearingDefendants }.flatten()
 
         val hdDTO = entityManager.createQuery(
-            "select hd from HearingDefendantDTO hd JOIN FETCH hd.notes hn where hd.id = :hearingDefendantId",
+            "select hd from HearingDefendantDTO hd JOIN FETCH hd.offences ho where hd.id = :hearingDefendantId",
             HearingDefendantDTO::class.java
         ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList.first()
 

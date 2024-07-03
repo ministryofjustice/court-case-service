@@ -3,13 +3,9 @@ package uk.gov.justice.probation.courtcaseservice.jpa.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.envers.NotAudited;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepStatus;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 
 import java.util.List;
 
@@ -34,7 +30,7 @@ public class HearingDefendantDTO {
     private DefendantDTO defendant;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "hearingDefendant", cascade = CascadeType.ALL, orphanRemoval=true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "hearingDefendantDTO", cascade = CascadeType.ALL, orphanRemoval=true, fetch = FetchType.LAZY)
     private List<OffenceDTO> offences;
 
     @Setter

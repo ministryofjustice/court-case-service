@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.envers.Audited;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseMarker;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseMarkerEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 
 @Entity
@@ -15,7 +13,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @Getter
-@Audited
 public class CaseMarkerDTO {
     @Id
     @Column(name = "ID", updatable = false, nullable = false)

@@ -40,7 +40,7 @@ public class CourtCaseDTO {
     @ToString.Exclude
     @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
-    @OneToMany(mappedBy = "courtCase", orphanRemoval = true, cascade = CascadeType.ALL)
-    private final List<CaseMarkerEntity> caseMarkers;
+    @OneToMany(mappedBy = "courtCase", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private final List<CaseMarkerDTO> caseMarkers;
 
 }

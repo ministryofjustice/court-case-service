@@ -39,11 +39,11 @@ public class DefendantDTO {
     @Column(name = "CRN")
     private String crn;
 
-    @ToString.Exclude
-    @Setter
-    @JsonIgnore
-    @OneToOne(mappedBy = "defendant")
-    private CaseDefendantEntity caseDefendant;
+//    @ToString.Exclude
+//    @Setter
+//    @JsonIgnore
+//    @OneToOne(mappedBy = "defendant")
+//    private CaseDefendantEntity caseDefendant;
 
     @Column(name = "DEFENDANT_ID", nullable = false)
     private String defendantId;

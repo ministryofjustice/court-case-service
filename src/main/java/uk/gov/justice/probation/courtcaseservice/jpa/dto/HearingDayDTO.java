@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.envers.NotAudited;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -39,10 +37,10 @@ public class HearingDayDTO {
     @Column(name = "COURT_CODE", nullable = false)
     private final String courtCode;
 
-    @NotAudited
-    @OneToOne
-    @JoinColumn(name = "COURT_CODE", referencedColumnName = "COURT_CODE", insertable = false, updatable = false)
-    private final CourtEntity court;
+//    @NotAudited
+//    @OneToOne
+//    @JoinColumn(name = "COURT_CODE", referencedColumnName = "COURT_CODE", insertable = false, updatable = false)
+//    private final CourtDTO court;
 
     @Column(name = "COURT_ROOM", nullable = false)
     private final String courtRoom;

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingStatus
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.CourtCaseDTO
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDTO
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.OffenceDTO
@@ -180,6 +181,16 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
             HearingDTO::class.java
         ).setParameter("hearingId", hdDTO.hearing.id).resultList.first()
 
+        val courtCaseDTO = entityManager.createQuery(
+            "select cc from CourtCaseDTO cc JOIN FETCH cc.caseMarkers cm where cc.id = :courtCaseId",
+            CourtCaseDTO::class.java
+        ).setParameter("courtCaseId", hearingDTO.courtCase.id).resultList
+
+        if(courtCaseDTO.isNotEmpty()) {
+            hearingDTO.courtCase = courtCaseDTO.first()
+        } else {
+            hearingDTO.courtCase.caseMarkers = emptyList()
+        }
         hdDTO.hearing = hearingDTO
         //hdDTO.hearing  = hearingDTO
 //        val hearingDefendants: List<HearingDefendantDTO> = entityManager.createQuery("select hd from HearingDefendantDTO hd JOIN FETCH hd.notes hn where hd.id = :hearingDefendantId", HearingDefendantDTO::class.java)

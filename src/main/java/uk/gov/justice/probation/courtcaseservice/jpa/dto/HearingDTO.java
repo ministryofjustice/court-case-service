@@ -36,7 +36,7 @@ public class HearingDTO {
     @JsonIgnore
     @OneToMany(mappedBy = "hearing", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OrderBy("day, time ASC")
-    private final List<HearingDayEntity> hearingDays;
+    private final List<HearingDayDTO> hearingDays;
 
     @Column(name = "first_created", insertable = false, updatable = false)
     private LocalDateTime firstCreated;

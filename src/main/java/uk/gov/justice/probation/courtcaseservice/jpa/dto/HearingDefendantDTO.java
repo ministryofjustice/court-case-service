@@ -7,6 +7,7 @@ import org.hibernate.envers.NotAudited;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -31,6 +32,7 @@ public class HearingDefendantDTO {
 
     @ToString.Exclude
     @OneToMany(mappedBy = "hearingDefendantDTO", cascade = CascadeType.ALL, orphanRemoval=true, fetch = FetchType.LAZY)
+    @Setter
     private List<OffenceDTO> offences;
 
     @Setter
@@ -38,16 +40,14 @@ public class HearingDefendantDTO {
     private String prepStatus = HearingPrepStatus.NOT_STARTED.name();
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "hearingDefendantDTO", cascade = CascadeType.ALL, orphanRemoval=true, fetch = FetchType.LAZY)
-    @NotAudited
-    private List<HearingNoteDTO> notes;
-
-    @ToString.Exclude
     @ManyToOne()
     @JoinColumn(name = "FK_HEARING_ID", referencedColumnName = "id")  
     @Getter
     @Setter
     private HearingDTO hearing;
+
+    @OneToOne(mappedBy = "hearingDefendant")
+    private HearingOutcomeDTO hearingOutcome;
 
     public String getCrn() {
         return defendant.getCrn();

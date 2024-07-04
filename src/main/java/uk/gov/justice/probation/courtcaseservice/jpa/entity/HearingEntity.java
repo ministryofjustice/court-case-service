@@ -17,6 +17,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.Audited;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -41,7 +42,7 @@ import java.util.Optional;
     name = "search_hearing_outcomes_custom",
     columns = { @ColumnResult(name = "hearing_day", type = LocalDate.class) },
     entities = {
-        @EntityResult(entityClass = HearingDefendantEntity.class)
+        @EntityResult(entityClass = HearingDefendantDTO.class)
     }
 )
 public class HearingEntity extends BaseAuditedEntity implements Serializable {

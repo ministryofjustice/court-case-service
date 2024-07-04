@@ -26,7 +26,7 @@ public class CaseMarkerDTO {
     @ManyToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "FK_COURT_CASE_ID", referencedColumnName = "id", nullable = false)
     @Setter
-    private CourtCaseEntity courtCase;
+    private CourtCaseDTO courtCase;
 
     public static CaseMarker of(CaseMarkerDTO caseMarkerDTO){
         return CaseMarker.builder()

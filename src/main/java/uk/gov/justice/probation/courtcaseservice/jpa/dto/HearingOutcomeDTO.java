@@ -45,7 +45,7 @@ public class HearingOutcomeDTO {
     @Column(name = "ASSIGNED_TO_UUID")
     private String assignedToUuid;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FK_HEARING_DEFENDANT_ID", referencedColumnName = "id")
     private HearingDefendantDTO hearingDefendant;
 }

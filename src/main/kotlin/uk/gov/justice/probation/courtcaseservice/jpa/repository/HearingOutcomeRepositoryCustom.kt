@@ -148,10 +148,22 @@ class HearingOutcomeRepositoryCustom(
             HearingDefendantDTO::class.java
         ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList
 
+        val hdDTO2 = entityManager.createQuery(
+            "select hd from HearingDefendantDTO hd JOIN FETCH hd.defendant ho where hd.id = :hearingDefendantId",
+            HearingDefendantDTO::class.java
+        ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList
+
         if(hdDTO.isNotEmpty()) {
             hdDTOobj = hdDTO.first();
         } else {
             hdDTOobj.offences = emptyList()
+        }
+
+        if(hdDTO2.isNotEmpty()) {
+            var hdDTOobj2 = hdDTO2.first();
+            hdDTOobj.defendant = hdDTOobj2.defendant
+        } else {
+            hdDTOobj.defendant = null
         }
 
         return hdDTOobj;

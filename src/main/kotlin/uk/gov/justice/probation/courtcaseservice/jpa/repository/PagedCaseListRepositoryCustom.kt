@@ -171,15 +171,22 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
 
 //        val hearingDefendants: List<HearingDefendantDTO> = hearings.map { hearing -> hearing.hearingDefendants }.flatten()
 
+        var hdDTOobj: HearingDefendantDTO = hearingDefendantDto
+
         val hdDTO = entityManager.createQuery(
             "select hd from HearingDefendantDTO hd JOIN FETCH hd.offences ho where hd.id = :hearingDefendantId",
             HearingDefendantDTO::class.java
-        ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList.first()
+        ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList
+
+        val hdDTO2 = entityManager.createQuery(
+            "select hd from HearingDefendantDTO hd JOIN FETCH hd.defendant ho where hd.id = :hearingDefendantId",
+            HearingDefendantDTO::class.java
+        ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList
 
         val hearingDTO = entityManager.createQuery(
             "select h from HearingDTO h JOIN FETCH h.hearingDays hd where h.id = :hearingId",
             HearingDTO::class.java
-        ).setParameter("hearingId", hdDTO.hearing.id).resultList.first()
+        ).setParameter("hearingId", hdDTOobj.hearing.id).resultList.first()
 
         val courtCaseDTO = entityManager.createQuery(
             "select cc from CourtCaseDTO cc JOIN FETCH cc.caseMarkers cm where cc.id = :courtCaseId",
@@ -191,12 +198,26 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
         } else {
             hearingDTO.courtCase.caseMarkers = emptyList()
         }
-        hdDTO.hearing = hearingDTO
+
+        if(hdDTO.isNotEmpty()) {
+            hdDTOobj = hdDTO.first();
+        } else {
+            hdDTOobj.offences = emptyList()
+        }
+
+        if(hdDTO2.isNotEmpty()) {
+            var hdDTOobj2 = hdDTO2.first();
+            hdDTOobj.defendant = hdDTOobj2.defendant
+        } else {
+            hdDTOobj.defendant = null
+        }
+        hdDTOobj.hearing = hearingDTO
+
+        return hdDTOobj;
         //hdDTO.hearing  = hearingDTO
 //        val hearingDefendants: List<HearingDefendantDTO> = entityManager.createQuery("select hd from HearingDefendantDTO hd JOIN FETCH hd.notes hn where hd.id = :hearingDefendantId", HearingDefendantDTO::class.java)
 //            .setParameter("hearingDefendantId", hearingDefendantEntity.id).resultList
 
-        return hdDTO;
     }
 
     fun getHearingDefendantDTOList(hearingDefendantDtos: List<HearingDefendantDTO>): List<HearingDefendantDTO> {

@@ -26,7 +26,7 @@ public class HearingDefendantDTO {
     private final String defendantId;
 
     @Setter
-    @ManyToOne(optional = false, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @ManyToOne(optional = false, cascade = { CascadeType.MERGE, CascadeType.PERSIST }, fetch = FetchType.LAZY)
     @JoinColumn(name = "FK_DEFENDANT_ID", referencedColumnName = "id", nullable = false)
     private DefendantDTO defendant;
 

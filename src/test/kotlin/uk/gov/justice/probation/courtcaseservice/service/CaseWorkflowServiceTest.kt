@@ -171,7 +171,7 @@ internal class CaseWorkflowServiceTest {
         val hearingId2 = "hearing-id-2"
         val caseId2 = "case-id-2"
         val defendantId2 = "defendant-id-2"
-        
+
         val hearingDefendant1 = aHearingDefendantDTO(defendantId1).withHearingOutcome(hearingOutcomeEntity1)
 
         val hearing1: HearingDTO = aHearingDTOWithHearingId(caseId1, hearingId1, defendantId1)

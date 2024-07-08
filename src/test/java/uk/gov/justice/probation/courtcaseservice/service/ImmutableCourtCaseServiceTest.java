@@ -17,7 +17,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepStatus;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
+import uk.gov.justice.probation.courtcaseservice.jpa.DTOHelper;
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -559,8 +562,7 @@ class ImmutableCourtCaseServiceTest {
         @Test
         void shouldInvokePagedCaseListRepositoryAndTransformResult() {
 
-            LocalDate hearingDay = EntityHelper.SESSION_START_TIME.toLocalDate();
-
+            LocalDate hearingDay = DTOHelper.SESSION_START_TIME.toLocalDate();
 
             var req = new HearingSearchRequest(
                 List.of(),
@@ -579,7 +581,9 @@ class ImmutableCourtCaseServiceTest {
             when(hearingRepository.getRecentlyAddedCasesCount(COURT_CODE, hearingDay)).thenReturn(Optional.of(2));
             when(hearingRepository.getCourtroomsForCourtAndHearingDay(COURT_CODE, hearingDay)).thenReturn(List.of("01", "03", "04", "05", "1", "Crown Court 5-1"));
 
-            HearingDefendantEntity hearingDefendant = EntityHelper.aHearingEntity(CASE_ID).getHearingDefendants().get(0);
+            HearingDefendantDTO hearingDefendant = DTOHelper.aHearingDefendantDTO(DTOHelper.DEFENDANT_NAME);
+            hearingDefendant.setPrepStatus(String.valueOf(HearingPrepStatus.IN_PROGRESS));
+            hearingDefendant.setHearing(DTOHelper.aHearingDTO(CASE_ID));
 
             Pair pair = new Pair(hearingDefendant, 5);
             when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, req))

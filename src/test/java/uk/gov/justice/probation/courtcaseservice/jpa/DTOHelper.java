@@ -78,18 +78,6 @@ public class DTOHelper {
         return aHearingDTOWithHearingId(caseId, HEARING_ID, DEFENDANT_ID);
     }
 
-//    public static void refreshMappings(HearingDTO hearingDTO) {
-//        hearingDTO.getHearingDefendants().forEach(hearingDefendantEntity -> {
-//            hearingDefendantEntity.setHearing(hearingDTO);
-//            Optional.ofNullable(hearingDefendantEntity.getOffences())
-//                    .ifPresent(offenceEntities -> offenceEntities.forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendantEntity)));
-//        });
-//
-//        hearingDTO.getHearingDays().forEach(hearingDay -> hearingDay.setHearing(hearingDTO));
-//        Optional.ofNullable(hearingDTO.getCourtCase().getHearings())
-//                .ifPresent(hearings -> hearings.forEach(hearingEntity1 -> hearingEntity1.setCourtCase(hearingDTO.getCourtCase())));
-//    }
-
     public static HearingDTO aHearingDTOWithHearingId(String caseId, String hearingId, String defendantId) {
         final var hearingDTO = populateBasics(CRN, hearingId, defendantId)
                 .hearingId(hearingId)

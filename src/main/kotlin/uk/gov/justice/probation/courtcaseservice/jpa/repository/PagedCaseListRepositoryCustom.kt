@@ -10,7 +10,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.dto.CourtCaseDTO
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDTO
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession.MORNING
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 
 @Repository
 class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
@@ -152,48 +151,66 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
     }
 
     fun getHearingDefendantDTO(hearingDefendantDto: HearingDefendantDTO): HearingDefendantDTO {
-        var hdDTOobj: HearingDefendantDTO = hearingDefendantDto
+        val hdDTO: HearingDefendantDTO = hearingDefendantDto
+        addOffences(hearingDefendantDto, hdDTO)
+        addHearingAndCourtCase(hdDTO)
+        addDefendant(hearingDefendantDto, hdDTO)
+        return hdDTO;
+    }
 
-        val hdDTO = entityManager.createQuery(
-            "select hd from HearingDefendantDTO hd JOIN FETCH hd.offences ho where hd.id = :hearingDefendantId",
-            HearingDefendantDTO::class.java
-        ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList
-
-        val hdDTO2 = entityManager.createQuery(
+    private fun addDefendant(
+        hearingDefendantDto: HearingDefendantDTO,
+        hdDTO: HearingDefendantDTO
+    ) {
+        val hdDTO2WithDefendant = entityManager.createQuery(
             "select hd from HearingDefendantDTO hd JOIN FETCH hd.defendant ho where hd.id = :hearingDefendantId",
             HearingDefendantDTO::class.java
         ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList
 
-        val hearingDTO = entityManager.createQuery(
+        if (hdDTO2WithDefendant.isNotEmpty()) {
+            hdDTO.defendant = hdDTO2WithDefendant.first().defendant
+        } else {
+            hdDTO.defendant = null
+        }
+    }
+
+    private fun addOffences(
+        hearingDefendantDto: HearingDefendantDTO,
+        hdDTO: HearingDefendantDTO
+    ) {
+        val hdDTOWithOffences = entityManager.createQuery(
+            "select hd from HearingDefendantDTO hd JOIN FETCH hd.offences ho where hd.id = :hearingDefendantId",
+            HearingDefendantDTO::class.java
+        ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList
+
+        if (hdDTOWithOffences.isNotEmpty()) {
+            hdDTO.offences = hdDTOWithOffences.first().offences;
+        } else {
+            hdDTO.offences = emptyList()
+        }
+    }
+
+    private fun addHearingAndCourtCase(hdDTO: HearingDefendantDTO) {
+        val hearingDTOWithHearingDays = entityManager.createQuery(
             "select h from HearingDTO h JOIN FETCH h.hearingDays hd where h.id = :hearingId",
             HearingDTO::class.java
-        ).setParameter("hearingId", hdDTOobj.hearing.id).resultList.first()
+        ).setParameter("hearingId", hdDTO.hearing.id).resultList
 
-        val courtCaseDTO = entityManager.createQuery(
-            "select cc from CourtCaseDTO cc JOIN FETCH cc.caseMarkers cm where cc.id = :courtCaseId",
-            CourtCaseDTO::class.java
-        ).setParameter("courtCaseId", hearingDTO.courtCase.id).resultList
+        if (hearingDTOWithHearingDays.isNotEmpty()) {
+            val hearingDTO = hearingDTOWithHearingDays.first()
+            val courtCaseDTO = entityManager.createQuery(
+                "select cc from CourtCaseDTO cc JOIN FETCH cc.caseMarkers cm where cc.id = :courtCaseId",
+                CourtCaseDTO::class.java
+            ).setParameter("courtCaseId", hearingDTO.courtCase.id).resultList
 
-        if(courtCaseDTO.isNotEmpty()) {
-            hearingDTO.courtCase = courtCaseDTO.first()
+            if (courtCaseDTO.isNotEmpty()) {
+                hearingDTO.courtCase = courtCaseDTO.first()
+            } else {
+                hearingDTO.courtCase.caseMarkers = emptyList()
+            }
+            hdDTO.hearing = hearingDTO
         } else {
-            hearingDTO.courtCase.caseMarkers = emptyList()
+            hdDTO.hearing = null
         }
-
-        if(hdDTO.isNotEmpty()) {
-            hdDTOobj = hdDTO.first();
-        } else {
-            hdDTOobj.offences = emptyList()
-        }
-
-        if(hdDTO2.isNotEmpty()) {
-            var hdDTOobj2 = hdDTO2.first();
-            hdDTOobj.defendant = hdDTOobj2.defendant
-        } else {
-            hdDTOobj.defendant = null
-        }
-        hdDTOobj.hearing = hearingDTO
-
-        return hdDTOobj;
     }
 }

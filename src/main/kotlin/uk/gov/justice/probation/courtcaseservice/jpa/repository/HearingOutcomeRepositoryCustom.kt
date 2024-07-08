@@ -9,6 +9,7 @@ import java.time.LocalDate
 import jakarta.persistence.EntityManager
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 
 @Repository
@@ -20,7 +21,7 @@ class HearingOutcomeRepositoryCustom(
     fun findByCourtCodeAndHearingOutcome(
         courtCode: String,
         hearingOutcomeSearchRequest: HearingOutcomeSearchRequest
-    ): PageImpl<Pair<HearingDefendantEntity, LocalDate>> {
+    ): PageImpl<Pair<HearingDefendantDTO, LocalDate>> {
         val pageable: Pageable = Pageable.ofSize(hearingOutcomeSearchRequest.size).withPage(if (hearingOutcomeSearchRequest.page > 0) hearingOutcomeSearchRequest.page - 1 else 0)
 
         val filterBuilder = StringBuilder()
@@ -112,10 +113,39 @@ class HearingOutcomeRepositoryCustom(
         jpaQuery.firstResult  = pageable.pageNumber * pageable.pageSize
         jpaQuery.maxResults = pageable.pageSize
 
-        val content = jpaQuery.resultList.map { it as Array<Any> }.map { Pair(it[0] as HearingDefendantEntity, it[1] as LocalDate) }
+        val content = jpaQuery.resultList.map { (it as Array<Any>) }.map { Pair(getHearingDefendantDTO(it[0] as HearingDefendantDTO), it[1] as LocalDate) }
         val count = (countJpaQuery.singleResult as Long)
 
         return PageImpl(content, pageable, count)
+    }
+
+    fun getHearingDefendantDTO(hearingDefendantDto: HearingDefendantDTO): HearingDefendantDTO {
+        var hdDTOobj: HearingDefendantDTO = hearingDefendantDto
+
+        val hdDTO = entityManager.createQuery(
+            "select hd from HearingDefendantDTO hd JOIN FETCH hd.offences ho where hd.id = :hearingDefendantId",
+            HearingDefendantDTO::class.java
+        ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList
+
+        val hdDTO2 = entityManager.createQuery(
+            "select hd from HearingDefendantDTO hd JOIN FETCH hd.defendant ho where hd.id = :hearingDefendantId",
+            HearingDefendantDTO::class.java
+        ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList
+
+        if(hdDTO.isNotEmpty()) {
+            hdDTOobj = hdDTO.first();
+        } else {
+            hdDTOobj.offences = emptyList()
+        }
+
+        if(hdDTO2.isNotEmpty()) {
+            var hdDTOobj2 = hdDTO2.first();
+            hdDTOobj.defendant = hdDTOobj2.defendant
+        } else {
+            hdDTOobj.defendant = null
+        }
+
+        return hdDTOobj;
     }
 
     fun getDynamicOutcomeCountsByState(courtCode: String): Map<String, Int> {

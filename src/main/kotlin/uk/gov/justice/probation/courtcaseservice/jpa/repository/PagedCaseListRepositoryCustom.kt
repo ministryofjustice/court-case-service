@@ -6,6 +6,9 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingStatus
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.CourtCaseDTO
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDTO
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession.MORNING
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 
@@ -54,7 +57,7 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
     fun filterHearings(
         courtCode: String,
         hearingSearchRequest: HearingSearchRequest
-    ): PageImpl<Pair<HearingDefendantEntity, Int?>> {
+    ): PageImpl<Pair<HearingDefendantDTO, Int?>> {
 
         val pageable: Pageable = Pageable.ofSize(hearingSearchRequest.size).withPage(if (hearingSearchRequest.page > 0) hearingSearchRequest.page - 1 else 0)
 
@@ -143,8 +146,54 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
         val result = mainJpaQuery.resultList
         val count = (countJpaQuery.singleResult as Long)
 
-        val content = result.map {(it as Array<Any>)}.map { Pair(it[0] as HearingDefendantEntity, it[1] as Int?) }
+        val content = result.map { (it as Array<Any>) }.map { Pair(getHearingDefendantDTO(it[0] as HearingDefendantDTO), it[1] as Int?) }
 
         return PageImpl(content, pageable, count)
+    }
+
+    fun getHearingDefendantDTO(hearingDefendantDto: HearingDefendantDTO): HearingDefendantDTO {
+        var hdDTOobj: HearingDefendantDTO = hearingDefendantDto
+
+        val hdDTO = entityManager.createQuery(
+            "select hd from HearingDefendantDTO hd JOIN FETCH hd.offences ho where hd.id = :hearingDefendantId",
+            HearingDefendantDTO::class.java
+        ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList
+
+        val hdDTO2 = entityManager.createQuery(
+            "select hd from HearingDefendantDTO hd JOIN FETCH hd.defendant ho where hd.id = :hearingDefendantId",
+            HearingDefendantDTO::class.java
+        ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList
+
+        val hearingDTO = entityManager.createQuery(
+            "select h from HearingDTO h JOIN FETCH h.hearingDays hd where h.id = :hearingId",
+            HearingDTO::class.java
+        ).setParameter("hearingId", hdDTOobj.hearing.id).resultList.first()
+
+        val courtCaseDTO = entityManager.createQuery(
+            "select cc from CourtCaseDTO cc JOIN FETCH cc.caseMarkers cm where cc.id = :courtCaseId",
+            CourtCaseDTO::class.java
+        ).setParameter("courtCaseId", hearingDTO.courtCase.id).resultList
+
+        if(courtCaseDTO.isNotEmpty()) {
+            hearingDTO.courtCase = courtCaseDTO.first()
+        } else {
+            hearingDTO.courtCase.caseMarkers = emptyList()
+        }
+
+        if(hdDTO.isNotEmpty()) {
+            hdDTOobj = hdDTO.first();
+        } else {
+            hdDTOobj.offences = emptyList()
+        }
+
+        if(hdDTO2.isNotEmpty()) {
+            var hdDTOobj2 = hdDTO2.first();
+            hdDTOobj.defendant = hdDTOobj2.defendant
+        } else {
+            hdDTOobj.defendant = null
+        }
+        hdDTOobj.hearing = hearingDTO
+
+        return hdDTOobj;
     }
 }

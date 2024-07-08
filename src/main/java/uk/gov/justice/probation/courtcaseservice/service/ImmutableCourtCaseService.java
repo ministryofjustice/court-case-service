@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
+import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseListResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
@@ -145,7 +146,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
         final var hearingsPage = pagedCaseListRepositoryCustom.filterHearings(courtCode, hearingSearchRequest);
         var hearings = hearingsPage.getContent().stream()
-            .map(pair -> CourtCaseResponseMapper.mapFrom(pair.getFirst().getHearing(), pair.getFirst(), Optional.ofNullable(pair.getSecond()).orElse(0), hearingSearchRequest.getDate()))
+            .map(pair -> CourtCaseListResponseMapper.mapFrom(pair.getFirst().getHearing(), pair.getFirst(), Optional.ofNullable(pair.getSecond()).orElse(0), hearingSearchRequest.getDate()))
             .collect(Collectors.toList());
 
         return CaseListResponse.builder()

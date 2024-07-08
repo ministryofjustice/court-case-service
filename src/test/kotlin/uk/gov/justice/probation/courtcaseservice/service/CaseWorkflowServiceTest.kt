@@ -171,8 +171,7 @@ internal class CaseWorkflowServiceTest {
         val hearingId2 = "hearing-id-2"
         val caseId2 = "case-id-2"
         val defendantId2 = "defendant-id-2"
-
-        aHearingEntityWithHearingId(caseId1, hearingId1, defendantId1);
+        
         val hearingDefendant1 = aHearingDefendantDTO(defendantId1).withHearingOutcome(hearingOutcomeEntity1)
 
         val hearing1: HearingDTO = aHearingDTOWithHearingId(caseId1, hearingId1, defendantId1)
@@ -180,8 +179,8 @@ internal class CaseWorkflowServiceTest {
         val hearingDefendant2 = aHearingDefendantDTO(defendantId2).withHearingOutcome(hearingOutcomeEntity2)
         val hearing2 = aHearingDTOWithHearingId(caseId2, hearingId2, defendantId2)
 
-        refreshMappings(hearing1)
-        refreshMappings(hearing2)
+        hearingDefendant1.hearing = hearing1
+        hearingDefendant2.hearing = hearing2
 
         given(courtRepository.findByCourtCode(COURT_CODE)).willReturn(Optional.of(CourtEntity.builder().build()))
         given(

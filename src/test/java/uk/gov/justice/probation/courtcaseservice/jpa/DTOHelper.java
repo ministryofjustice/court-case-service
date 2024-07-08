@@ -78,15 +78,24 @@ public class DTOHelper {
         return aHearingDTOWithHearingId(caseId, HEARING_ID, DEFENDANT_ID);
     }
 
-    public static void refreshMappings(HearingDTO hearingDTO) {
-        hearingDTO.getHearingDays().forEach(hearingDay -> hearingDay.setHearing(hearingDTO));
-    }
+//    public static void refreshMappings(HearingDTO hearingDTO) {
+//        hearingDTO.getHearingDefendants().forEach(hearingDefendantEntity -> {
+//            hearingDefendantEntity.setHearing(hearingDTO);
+//            Optional.ofNullable(hearingDefendantEntity.getOffences())
+//                    .ifPresent(offenceEntities -> offenceEntities.forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendantEntity)));
+//        });
+//
+//        hearingDTO.getHearingDays().forEach(hearingDay -> hearingDay.setHearing(hearingDTO));
+//        Optional.ofNullable(hearingDTO.getCourtCase().getHearings())
+//                .ifPresent(hearings -> hearings.forEach(hearingEntity1 -> hearingEntity1.setCourtCase(hearingDTO.getCourtCase())));
+//    }
 
     public static HearingDTO aHearingDTOWithHearingId(String caseId, String hearingId, String defendantId) {
         final var hearingDTO = populateBasics(CRN, hearingId, defendantId)
                 .hearingId(hearingId)
                 .hearingEventType(HearingEventType.UNKNOWN)
                 .hearingType("Unknown")
+                .hearingDays(listOf(aHearingDayDTO()))
                 .courtCase(CourtCaseDTO.builder()
                         .caseId(caseId)
                         .caseNo(CASE_NO)
@@ -161,6 +170,7 @@ public class DTOHelper {
         final HearingDefendantDTO hearingDefendant = HearingDefendantDTO.builder()
                 .defendantId(defendantId)
                 .defendant(defendant)
+                .hearing(aHearingDTO())
                 .offences(getMutableList(List.of(aDefendantOffence())))
                 .build();
         return hearingDefendant;
@@ -241,13 +251,12 @@ public class DTOHelper {
                 .orElse(null);
     }
 
-    public static HearingDayEntity aHearingDayEntity() {
-        return aHearingDayEntity(SESSION_START_TIME);
-
+    public static HearingDayDTO aHearingDayDTO() {
+        return aHearingDayDTO(SESSION_START_TIME);
     }
 
-    public static HearingDayEntity aHearingDayEntity(LocalDateTime sessionStartTime) {
-        return HearingDayEntity.builder()
+    public static HearingDayDTO aHearingDayDTO(LocalDateTime sessionStartTime) {
+        return HearingDayDTO.builder()
                 .day(sessionStartTime.toLocalDate())
                 .time(sessionStartTime.toLocalTime())
                 .courtRoom(COURT_ROOM)
@@ -259,7 +268,6 @@ public class DTOHelper {
         return populateBasics(crn, HEARING_ID, DEFENDANT_ID);
     }
     private static HearingDTO.HearingDTOBuilder populateBasics(String crn, String hearingId, String defendantId, HearingEventType hearingEventType) {
-        var defendant = aHearingDefendantDTO(defendantId, crn);
         return HearingDTO.builder()
                 .hearingId(hearingId)
                 .hearingEventType(hearingEventType)
@@ -285,12 +293,6 @@ public class DTOHelper {
                 .build();
 
         return offenceDTO;
-    }
-
-
-    public static HearingDefendantDTO aHearingDefendant(NamePropertiesEntity name) {
-        final var offender = anOffender(CRN);
-        return aHearingDefendant(name, offender);
     }
 
     public static HearingDefendantDTO aHearingDefendant(NamePropertiesEntity name, OffenderDTO offender) {

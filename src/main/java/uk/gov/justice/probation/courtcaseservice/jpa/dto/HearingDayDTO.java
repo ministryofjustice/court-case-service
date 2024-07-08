@@ -3,6 +3,7 @@ package uk.gov.justice.probation.courtcaseservice.jpa.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession;
 
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ import java.time.LocalTime;
 @Table(name = "HEARING_DAY")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+@SuperBuilder
 @Getter
 public class HearingDayDTO {
 

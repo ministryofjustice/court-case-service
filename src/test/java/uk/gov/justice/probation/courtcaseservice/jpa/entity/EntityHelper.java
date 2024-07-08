@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
-import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDTO;
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
 import java.time.LocalDate;
@@ -85,11 +84,6 @@ public class EntityHelper {
         Optional.ofNullable(hearingEntity.getCourtCase().getHearings())
             .ifPresent(hearings -> hearings.forEach(hearingEntity1 -> hearingEntity1.setCourtCase(hearingEntity.getCourtCase())));
     }
-
-    public static void refreshMappings(HearingDTO hearingDTO) {
-        hearingDTO.getHearingDays().forEach(hearingDay -> hearingDay.setHearing(hearingDTO));
-    }
-
 
     public static void refreshMappings(CourtCaseEntity courtCaseEntity) {
         courtCaseEntity.getHearings().forEach(hearingEntity -> {

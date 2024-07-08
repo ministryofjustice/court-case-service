@@ -56,19 +56,19 @@ data class HearingOutcomeResponse(
             )
         }
 
-        fun of(defendantDTO: HearingDefendantDTO, hearingDate: LocalDate): HearingOutcomeResponse {
-            val hearingOutcomeEntity = defendantDTO.hearingOutcome
+        fun of(hearingDefendantDTO: HearingDefendantDTO, hearingDate: LocalDate): HearingOutcomeResponse {
+            val hearingOutcomeEntity = hearingDefendantDTO.hearingOutcome
             return HearingOutcomeResponse(
                 hearingOutcomeType = HearingOutcomeType.valueOf(hearingOutcomeEntity.outcomeType),
                 outcomeDate = hearingOutcomeEntity.outcomeDate,
                 resultedDate = hearingOutcomeEntity.resultedDate,
                 hearingDate = hearingDate,
-                hearingId = defendantDTO.hearing.hearingId,
-                defendantId = defendantDTO.defendantId,
-                probationStatus = defendantDTO.defendant.probationStatusForDisplay.getName(),
-                offences = defendantDTO.offences.map { offenceEntity -> offenceEntity.title },
-                defendantName = defendantDTO.defendant.defendantName,
-                crn = defendantDTO.defendant?.offender?.crn,
+                hearingId = hearingDefendantDTO.hearing.hearingId,
+                defendantId = hearingDefendantDTO.defendantId,
+                probationStatus = hearingDefendantDTO.defendant.probationStatusForDisplay.getName(),
+                offences = hearingDefendantDTO.offences.map { offenceEntity -> offenceEntity.title },
+                defendantName = hearingDefendantDTO.defendant.defendantName,
+                crn = hearingDefendantDTO.defendant?.offender?.crn,
                 assignedTo = hearingOutcomeEntity.assignedTo,
                 assignedToUuid = hearingOutcomeEntity.assignedToUuid,
                 state = HearingOutcomeItemState.valueOf(hearingOutcomeEntity.state),

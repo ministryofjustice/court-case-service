@@ -69,7 +69,8 @@ VALUES
     (5956, 5094,'2023-07-03 10:29:36.857','(court-case-matcher-7)','5e63423f-2488-41c7-a99a-dc4f02449df1'::uuid,5846,'2023-07-03 10:29:36.857','(court-case-matcher-7)',0,false),
     (5957, 5095,'2023-07-03 10:29:41.660','(court-case-matcher-7)','c985bc09-e940-4bd5-8abd-c87ec10940e1'::uuid,5847,'2023-07-03 10:29:41.660','(court-case-matcher-7)',0,false),
     (5958, 5096,'2023-07-03 10:29:48.699','(court-case-matcher-7)','e4ea7459-2f55-4f06-95fd-9896e6e9f3ce'::uuid,5848,'2023-07-03 10:29:48.699','(court-case-matcher-7)',0,false),
-    (5980, 5002,'2023-07-18 15:47:08.359','(court-case-matcher-7)','7cece15c-78e8-4be9-a509-35d74eb68839'::uuid,5093,'2023-07-18 15:47:08.369','(court-case-matcher-7)',1,false);
+    (5980, 5002,'2023-07-18 15:47:08.359','(court-case-matcher-7)','7cece15c-78e8-4be9-a509-35d74eb68839'::uuid,5093,'2023-07-18 15:47:08.369','(court-case-matcher-7)',1,false),
+    (5999, 5002,'2023-07-18 15:47:08.359','(court-case-matcher-7)','7cece15c-78e8-4be9-a509-35d74eb68839'::uuid,5093,'2023-07-18 15:47:08.369','(court-case-matcher-7)',1,false);
 
 INSERT INTO hearing_notes (id, hearing_id, note, "author", created, created_by, created_by_uuid, fk_hearing_defendant_id)
 VALUES (-1700028803, '1eb3a6da-8189-4de2-8377-da5910e486b9', 'Judge requested PSR', 'Author Three', now(), 'before-new-hearing-search.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', 5920);

@@ -120,32 +120,27 @@ class HearingOutcomeRepositoryCustom(
     }
 
     fun getHearingDefendantDTO(hearingDefendantDto: HearingDefendantDTO): HearingDefendantDTO {
-        var hdDTOobj: HearingDefendantDTO = hearingDefendantDto
+        var hearingDefendant: HearingDefendantDTO = hearingDefendantDto
 
-        val hdDTO = entityManager.createQuery(
+        val offencesHearingDefendant = entityManager.createQuery(
             "select hd from HearingDefendantDTO hd JOIN FETCH hd.offences ho where hd.id = :hearingDefendantId",
             HearingDefendantDTO::class.java
         ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList
 
-        val hdDTO2 = entityManager.createQuery(
+        val defendantHearingDefendant = entityManager.createQuery(
             "select hd from HearingDefendantDTO hd JOIN FETCH hd.defendant ho where hd.id = :hearingDefendantId",
             HearingDefendantDTO::class.java
         ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList
 
-        if(hdDTO.isNotEmpty()) {
-            hdDTOobj = hdDTO.first();
+        if(offencesHearingDefendant.isNotEmpty()) {
+            hearingDefendant.offences = offencesHearingDefendant.first().offences;
         } else {
-            hdDTOobj.offences = emptyList()
+            hearingDefendant.offences = emptyList()
         }
 
-        if(hdDTO2.isNotEmpty()) {
-            var hdDTOobj2 = hdDTO2.first();
-            hdDTOobj.defendant = hdDTOobj2.defendant
-        } else {
-            hdDTOobj.defendant = null
-        }
+        hearingDefendant.defendant = defendantHearingDefendant.first().defendant
 
-        return hdDTOobj;
+        return hearingDefendant;
     }
 
     fun getDynamicOutcomeCountsByState(courtCode: String): Map<String, Int> {

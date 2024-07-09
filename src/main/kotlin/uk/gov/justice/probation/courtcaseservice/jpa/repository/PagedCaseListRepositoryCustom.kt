@@ -150,7 +150,7 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
         return PageImpl(content, pageable, count)
     }
 
-    fun getHearingDefendantDTO(hearingDefendantDto: HearingDefendantDTO): HearingDefendantDTO {
+    private fun getHearingDefendantDTO(hearingDefendantDto: HearingDefendantDTO): HearingDefendantDTO {
         addOffences(hearingDefendantDto)
         addHearingAndCourtCase(hearingDefendantDto)
         addDefendant(hearingDefendantDto)

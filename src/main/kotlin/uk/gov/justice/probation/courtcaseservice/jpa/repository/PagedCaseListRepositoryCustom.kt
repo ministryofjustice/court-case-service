@@ -151,21 +151,19 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
     }
 
     fun getHearingDefendantDTO(hearingDefendantDto: HearingDefendantDTO): HearingDefendantDTO {
-        val hdDTO: HearingDefendantDTO = hearingDefendantDto
-        addOffences(hearingDefendantDto, hdDTO)
-        addHearingAndCourtCase(hdDTO)
-        addDefendant(hearingDefendantDto, hdDTO)
-        return hdDTO;
+        addOffences(hearingDefendantDto)
+        addHearingAndCourtCase(hearingDefendantDto)
+        addDefendant(hearingDefendantDto)
+        return hearingDefendantDto;
     }
 
     private fun addDefendant(
-        hearingDefendantDto: HearingDefendantDTO,
         hdDTO: HearingDefendantDTO
     ) {
         val hdDTO2WithDefendant = entityManager.createQuery(
             "select hd from HearingDefendantDTO hd JOIN FETCH hd.defendant ho where hd.id = :hearingDefendantId",
             HearingDefendantDTO::class.java
-        ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList
+        ).setParameter("hearingDefendantId", hdDTO.id).resultList
 
         if (hdDTO2WithDefendant.isNotEmpty()) {
             hdDTO.defendant = hdDTO2WithDefendant.first().defendant
@@ -175,13 +173,12 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
     }
 
     private fun addOffences(
-        hearingDefendantDto: HearingDefendantDTO,
         hdDTO: HearingDefendantDTO
     ) {
         val hdDTOWithOffences = entityManager.createQuery(
             "select hd from HearingDefendantDTO hd JOIN FETCH hd.offences ho where hd.id = :hearingDefendantId",
             HearingDefendantDTO::class.java
-        ).setParameter("hearingDefendantId", hearingDefendantDto.id).resultList
+        ).setParameter("hearingDefendantId", hdDTO.id).resultList
 
         if (hdDTOWithOffences.isNotEmpty()) {
             hdDTO.offences = hdDTOWithOffences.first().offences;

@@ -13,6 +13,8 @@ import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlConfig
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState.RESULTED
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
+import uk.gov.justice.probation.courtcaseservice.jpa.DTOHelper.aHearingDefendantDTO
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO
 
 @DataJpaTest
 @ActiveProfiles("test")

@@ -138,7 +138,12 @@ class HearingOutcomeRepositoryCustom(
             hearingDefendant.offences = emptyList()
         }
 
-        hearingDefendant.defendant = defendantHearingDefendant.first().defendant
+        if(defendantHearingDefendant.isNotEmpty()) {
+            var defendantHearingDefendant = defendantHearingDefendant.first();
+            hearingDefendant.defendant = defendantHearingDefendant.defendant
+        } else {
+            hearingDefendant.defendant = null
+        }
 
         return hearingDefendant;
     }

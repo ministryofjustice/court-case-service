@@ -24,12 +24,14 @@ import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO
     config = SqlConfig(transactionMode = TransactionMode.ISOLATED),
     executionPhase = ExecutionPhase.BEFORE_TEST_METHOD
 )
-class HearingOutcomeRepositoryCustomDTOIntTest {
+internal class HearingOutcomeRepositoryCustomDTOIntTest {
     @Autowired
-    lateinit var hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom
+    lateinit var entityManager: EntityManager
 
     @Test
     fun `given Defendant and Offences exist, should return hearing defendant details`(){
+        var hearingOutcomeRepositoryCustom = HearingOutcomeRepositoryCustom(entityManager, 30)
+
         val hearingDefendantDTO: HearingDefendantDTO = aHearingDefendantDTO(5944)
         // using null instead of a Hibernate Proxy object as a Lazy loaded proxy object
         hearingDefendantDTO.defendant = null
@@ -43,6 +45,8 @@ class HearingOutcomeRepositoryCustomDTOIntTest {
 
     @Test
     fun `given Offences does not exist, should return hearing defendant details`(){
+        var hearingOutcomeRepositoryCustom = HearingOutcomeRepositoryCustom(entityManager, 30)
+
         val hearingDefendantDTO: HearingDefendantDTO = aHearingDefendantDTO(6000)
         // using null instead of a Hibernate Proxy object as a Lazy loaded proxy object
         hearingDefendantDTO.defendant = null

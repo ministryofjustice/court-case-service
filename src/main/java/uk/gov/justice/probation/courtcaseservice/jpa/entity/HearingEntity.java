@@ -2,22 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.ColumnResult;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityResult;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderBy;
-import jakarta.persistence.SqlResultSetMapping;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,10 +11,13 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.Audited;
+import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -54,7 +42,7 @@ import java.util.Optional;
     name = "search_hearing_outcomes_custom",
     columns = { @ColumnResult(name = "hearing_day", type = LocalDate.class) },
     entities = {
-        @EntityResult(entityClass = HearingDefendantEntity.class)
+        @EntityResult(entityClass = HearingDefendantDTO.class)
     }
 )
 public class HearingEntity extends BaseAuditedEntity implements Serializable {
@@ -84,9 +72,8 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
     private final List<HearingDayEntity> hearingDays;
 
     @ToString.Exclude
-    @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
-    @OneToMany(mappedBy = "hearing", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "hearing", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private final List<HearingDefendantEntity> hearingDefendants;
 
     @Column(name = "first_created", insertable = false, updatable = false)

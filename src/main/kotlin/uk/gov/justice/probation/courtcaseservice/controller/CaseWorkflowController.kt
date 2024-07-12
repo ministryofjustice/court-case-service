@@ -36,7 +36,7 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
     @Operation(description = "Processes a hearing outcome for resulted for the given hearing Id.")
     @PostMapping(value = ["/hearing/{hearingId}/defendant/{defendantId}/outcome/result"], produces = [APPLICATION_JSON_VALUE])
     fun resultHearingOutcome(@PathVariable("hearingId") hearingId: String, @PathVariable("defendantId") defendantId: String, principal: Principal) =
-            caseWorkflowService.resultHearingOutcome(hearingId, defendantId, authenticationHelper.getAuthUserUuid(principal))
+            caseWorkflowService.resultHearingOutcome(hearingId, defendantId, authenticationHelper.getAuthUserUuid(principal),  authenticationHelper.getAuthUserId(principal), authenticationHelper.getAuthUserName(principal), authenticationHelper.getAuthSource(principal))
 
     @Operation(description = "Fetch hearing outcomes")
     @GetMapping(value = ["/courts/{courtCode}/hearing-outcomes"], produces = [APPLICATION_JSON_VALUE])

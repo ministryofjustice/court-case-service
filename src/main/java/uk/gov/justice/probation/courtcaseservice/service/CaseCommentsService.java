@@ -1,12 +1,19 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CaseCommentsRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
+
+import java.time.LocalDate;
+import java.util.List;
 
 import static uk.gov.justice.probation.courtcaseservice.service.TelemetryEventType.CASE_COMMENT_ADDED;
 
@@ -21,18 +28,19 @@ public class CaseCommentsService {
     private final CaseCommentsRepository caseCommentsRepository;
     private final TelemetryService telemetryService;
 
-    public CaseCommentsService(CourtCaseRepository courtCaseRepository, CaseCommentsRepository caseCommentsRepository,
-                               TelemetryService telemetryService) {
+    public CaseCommentsService(CourtCaseRepository courtCaseRepository, CaseCommentsRepository caseCommentsRepository, TelemetryService telemetryService) {
         this.courtCaseRepository = courtCaseRepository;
         this.caseCommentsRepository = caseCommentsRepository;
         this.telemetryService = telemetryService;
     }
 
+    @Transactional
     public CaseCommentEntity createCaseComment(CaseCommentEntity caseComment) {
         String caseId = caseComment.getCaseId();
         var defendantId = caseComment.getDefendantId();
-        return courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId)
-            .filter(courtCaseEntity -> courtCaseEntity.hasDefendant(defendantId))
+        var courtCase =  courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId);
+        Hibernate.initialize(courtCase.map(CourtCaseEntity::getCaseDefendants));
+        return courtCase.filter(courtCaseEntity -> courtCaseEntity.hasDefendant(defendantId))
             .map(courtCaseEntity -> {
                 var commentToSave = caseCommentsRepository
                     .findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(caseId, defendantId, caseComment.getCreatedByUuid())
@@ -97,5 +105,21 @@ public class CaseCommentsService {
         }, () -> {
                 throw new EntityNotFoundException(COMMENTS_ERROR_MESSAGE_FORMAT_STRING, commentId, caseId, defendantId, userUuid);
         });
+    }
+
+    public List<CaseCommentEntity> getCaseCommentsForDefendant(String defendantId) {
+        return caseCommentsRepository.findByDefendantId(defendantId);
+    }
+
+    public List<CaseCommentEntity> getCaseCommentsForDefendantBetween(String defendantId, LocalDate fromDate, LocalDate toDate) {
+        return caseCommentsRepository.findByDefendantIdAndCreatedBetween(defendantId, fromDate.atStartOfDay(), toDate.atStartOfDay());
+    }
+
+    public List<CaseCommentEntity> getCaseCommentsForDefendantFrom(String defendantId, LocalDate fromDate) {
+        return caseCommentsRepository.findByDefendantIdAndCreatedAfter(defendantId, fromDate.atStartOfDay());
+    }
+
+    public List<CaseCommentEntity> getCaseCommentsForDefendantTo(String defendantId, LocalDate toDate) {
+        return caseCommentsRepository.findByDefendantIdAndCreatedBefore(defendantId, toDate.atStartOfDay());
     }
 }

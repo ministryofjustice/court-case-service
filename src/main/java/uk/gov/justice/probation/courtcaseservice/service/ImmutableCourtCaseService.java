@@ -13,16 +13,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
+import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseListResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.PagedCaseListRepositoryCustom;
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.*;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
@@ -120,6 +116,13 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     @Override
+    public HearingEntity getHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(String hearingId, String defendantId) throws EntityNotFoundException {
+        log.info("Court case requested for hearing ID {} and defendant ID {}", hearingId, defendantId);
+        return hearingRepositoryFacade.findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(hearingId, defendantId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Hearing %s not found for defendant %s", hearingId, defendantId)));
+    }
+
+    @Override
     public List<HearingEntity> filterHearings(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
         final var court = courtRepository.findByCourtCode(courtCode)
                 .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
@@ -129,7 +132,13 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     @Override
     public List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter) {
-        return hearingRepository.filterHearings(hearingSearchFilter);
+        return hearingRepositoryFacade.filterHearings(hearingSearchFilter);
+    }
+
+    @Override
+    public Optional<CourtCaseEntity> findByCaseId(String caseId) {
+        assert courtCaseRepository != null;
+        return courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId);
     }
 
     @Override
@@ -137,7 +146,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
         final var hearingsPage = pagedCaseListRepositoryCustom.filterHearings(courtCode, hearingSearchRequest);
         var hearings = hearingsPage.getContent().stream()
-            .map(pair -> CourtCaseResponseMapper.mapFrom(pair.getFirst().getHearing(), pair.getFirst(), Optional.ofNullable(pair.getSecond()).orElse(0), hearingSearchRequest.getDate()))
+            .map(pair -> CourtCaseListResponseMapper.mapFrom(pair.getFirst().getHearing(), pair.getFirst(), Optional.ofNullable(pair.getSecond()).orElse(0), hearingSearchRequest.getDate()))
             .collect(Collectors.toList());
 
         return CaseListResponse.builder()
@@ -161,7 +170,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     private Mono<HearingEntity> createOrUpdateHearing(String hearingId, final HearingEntity updatedHearing) {
-        var hearing = hearingRepositoryFacade.findFirstByHearingId(hearingId)
+        var hearing = hearingRepositoryFacade.findFirstByHearingIdInitHearing(hearingId)
             .map(existingHearing -> {
                 trackUpdateEvents(existingHearing, updatedHearing);
                 return existingHearing.update(updatedHearing);

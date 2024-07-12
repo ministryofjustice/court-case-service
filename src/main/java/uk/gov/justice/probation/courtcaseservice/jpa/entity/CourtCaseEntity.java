@@ -18,6 +18,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.springframework.util.CollectionUtils;
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ import java.util.Optional;
     name = "search_hearings_custom",
     columns = { @ColumnResult(name = "match_count", type = Integer.class) },
     entities = {
-        @EntityResult(entityClass = HearingDefendantEntity.class)
+        @EntityResult(entityClass = HearingDefendantDTO.class)
     }
 )
 public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
@@ -68,9 +69,8 @@ public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
     private String urn;
 
     @ToString.Exclude
-    @LazyCollection(LazyCollectionOption.FALSE)
     @JsonIgnore
-    @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "courtCase", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private final List<HearingEntity> hearings;
 
     @ToString.Exclude
@@ -91,9 +91,8 @@ public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {
 
     @NotAudited
     @ToString.Exclude
-    @LazyCollection(value = LazyCollectionOption.FALSE)
     @JsonIgnore
-    @OneToMany(mappedBy = "courtCase", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "courtCase", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Setter
     private List<CaseDefendantEntity> caseDefendants;
 

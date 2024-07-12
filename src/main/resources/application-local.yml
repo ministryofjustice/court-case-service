@@ -34,10 +34,10 @@ court-case-and-delius-api:
 domain-event-and-delius-api:
   base-url: https://domain-events-and-delius-dev.hmpps.service.justice.gov.uk
 
-spring:
+
   flyway:
     defaultSchema: courtcaseservice
-    locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local
+    locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local, filesystem:src/test/resources
   datasource:
     url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=courtcaseservice&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
     hikari:
@@ -80,3 +80,13 @@ hmpps.sqs:
     domainevents:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
 
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
+
+hmpps:
+  sar:
+    additionalAccessRole: 'PREPARE_A_CASE'

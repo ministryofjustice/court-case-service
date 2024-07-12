@@ -14,6 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteRes
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingNotesRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
+import uk.gov.justice.probation.courtcaseservice.service.HearingEntityInitService;
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper;
 
 import java.time.LocalDate;
@@ -49,6 +50,10 @@ public class CaseProgressIntTest extends BaseIntTest {
 
     @Autowired
     private HearingNotesRepository hearingNotesRepository;
+
+    @Autowired
+    private HearingEntityInitService hearingEntityInitService;
+
     @Autowired
     private HearingRepository hearingRepository;
 
@@ -60,7 +65,6 @@ public class CaseProgressIntTest extends BaseIntTest {
         String testHearingId = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
 
         var response = given()
-            .given()
             .auth()
             .oauth2(getToken())
             .when()
@@ -152,7 +156,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("created", Matchers.notNullValue())
         ;
 
-        var hearing = hearingRepository.findFirstByHearingId(HEARING_ID).get();
+        var hearing = hearingEntityInitService.findFirstByHearingId(HEARING_ID).get();
         var hearingDefendant = hearing.getHearingDefendant(DEFENDANT_ID);
 
         var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
@@ -230,7 +234,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("draft", Matchers.is(true));
 
 
-        var hearing = hearingRepository.findFirstByHearingId(HEARING_ID).get();
+        var hearing = hearingEntityInitService.findFirstByHearingId(HEARING_ID).get();
         var hearingDefendant = hearing.getHearingDefendant(DEFENDANT_ID);
 
         var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
@@ -290,7 +294,7 @@ public class CaseProgressIntTest extends BaseIntTest {
 
         var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
 
-        var hearing = hearingRepository.findFirstByHearingId(hearingId).get();
+        var hearing = hearingEntityInitService.findFirstByHearingId(hearingId).get();
         var hearingDefendant = hearing.getHearingDefendant(defendantId);
 
         var hearingNoteEntity = hearingDefendant.getNotes().stream().filter(HearingNoteEntity::isDraft).findAny().get();

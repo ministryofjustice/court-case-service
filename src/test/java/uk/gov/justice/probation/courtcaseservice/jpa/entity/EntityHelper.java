@@ -1,13 +1,13 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.entity;
 
 import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
+import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+
+import static org.hibernate.internal.util.collections.CollectionHelper.listOf;
 
 public class EntityHelper {
 
@@ -168,18 +168,47 @@ public class EntityHelper {
         return aHearingDefendantEntity(DEFENDANT_ADDRESS, NAME, defendantId, crn);
     }
 
+    public static HearingDefendantEntity aHearingDefendantEntityWithCrn(Long id, String crn) {
+        return aHearingDefendantEntityWithId(DEFENDANT_ID, crn, id);
+    }
     private static HearingDefendantEntity aHearingDefendantEntity(AddressPropertiesEntity defendantAddress, NamePropertiesEntity name, String defendantId, String crn) {
         DefendantEntity defendant = aDefendantEntity(defendantAddress, name, defendantId, crn);
         final HearingDefendantEntity hearingDefendant = HearingDefendantEntity.builder()
                 .defendantId(defendantId)
                 .defendant(defendant)
                 .offences(getMutableList(List.of(aDefendantOffence())))
-                .notes(new ArrayList<>())
+                .notes(listOf(aHearingNoteEntity(false), aHearingNoteEntity(true)))
                 .build();
         hearingDefendant.getOffences()
                 .forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendant));
         defendant.addHearingDefendant(hearingDefendant);
         return hearingDefendant;
+    }
+
+    private static HearingDefendantEntity aHearingDefendantEntityWithId(String defendantId, String crn, Long id) {
+        DefendantEntity defendant = aDefendantEntity(defendantId, crn);
+        final HearingDefendantEntity hearingDefendant = HearingDefendantEntity.builder()
+                .id(id)
+                .defendantId(defendantId)
+                .defendant(defendant)
+                .offences(getMutableList(List.of(aDefendantOffence())))
+                .hearingOutcome(aHearingOutcomeEntity())
+                .notes(listOf(aHearingNoteEntity(false), aHearingNoteEntity(true)))
+                .build();
+        hearingDefendant.getOffences()
+                .forEach(offenceEntity -> offenceEntity.setHearingDefendant(hearingDefendant));
+        defendant.addHearingDefendant(hearingDefendant);
+        return hearingDefendant;
+    }
+
+    public static HearingOutcomeEntity aHearingOutcomeEntity() {
+        return HearingOutcomeEntity.builder()
+                .outcomeType("ADJOURNED")
+                .outcomeDate(LocalDateTime.of(2020, 5, 1, 0, 0))
+                .resultedDate(LocalDateTime.of(2020, 5, 1, 0, 0))
+                .state("IN_PROGRESS")
+                .assignedTo("John Doe")
+                .created(LocalDateTime.of(2024, 1, 1, 0, 0)).build();
     }
 
     public static DefendantEntity aDefendantEntity(String defendantId, String crn) {
@@ -208,6 +237,17 @@ public class EntityHelper {
                 .phoneNumber(DEFENDANT_PHONE_NUMBER_ENTITY)
                 .personId(PERSON_ID)
                 .hearingDefendants(getMutableList(List.of()))
+                .build();
+    }
+
+    private static HearingNoteEntity aHearingNoteEntity(Boolean draft) {
+        return HearingNoteEntity.builder()
+                .note("This is a fake note")
+                .author("Note Taker")
+                .createdByUuid("created-by-uuid")
+                .hearingId("UUID")
+                .draft(draft)
+                .created(LocalDateTime.of(2024, 1, 1,0, 0))
                 .build();
     }
 
@@ -395,6 +435,30 @@ public class EntityHelper {
         return VerdictEntity.builder()
                 .typeDescription(typeDescription)
                 .date(verdictDate)
+                .build();
+    }
+
+    public static CaseCommentEntity aCaseCommentEntity() {
+        return CaseCommentEntity.builder()
+                .caseId("5678")
+                .comment("Some comment")
+                .author("Some author")
+                .created(LocalDateTime.of(2024, 5, 22, 12, 0))
+                .createdBy("Test User")
+                .lastUpdated(LocalDateTime.of(2024, 5, 22, 12, 30))
+                .lastUpdatedBy("Test User")
+                .build();
+    }
+
+    public static CourtCaseEntity aCourtCaseEntity() {
+        return CourtCaseEntity.builder()
+                .caseId("5678")
+                .sourceType(SourceType.LIBRA)
+                .caseNo("222333")
+                .created(LocalDateTime.of(2024, 5, 22, 12, 0))
+                .createdBy("Test User")
+                .lastUpdated(LocalDateTime.of(2024, 5, 22, 12, 30))
+                .lastUpdatedBy("Test User")
                 .build();
     }
 }

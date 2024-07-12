@@ -1,7 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
-import org.junit.jupiter.api.Assertions.*
-
 import jakarta.persistence.EntityManager
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -106,7 +104,8 @@ internal class CaseWorkflowServiceIntTest {
                                 @Value("\${hearing_outcomes.move_un_resulted_to_outcomes_cutoff_time}")
                                 @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
                                 cutOffTime: LocalTime): CaseWorkflowService {
-            return CaseWorkflowService(hearingRepository, courtRepository, hearingOutcomeRepositoryCustom, telemetryService, listOf(), cutOffTime)
+            var hearingEntityInitService = HearingEntityInitService(hearingRepository)
+            return CaseWorkflowService(hearingRepository, hearingEntityInitService, courtRepository, hearingOutcomeRepositoryCustom, telemetryService, listOf(), cutOffTime)
         }
 
         @Bean

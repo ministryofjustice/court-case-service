@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.server.ResponseStatusException
 import uk.gov.justice.probation.courtcaseservice.controller.model.*
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepStatus.NOT_STARTED
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepositoryCustom
@@ -21,6 +20,7 @@ import java.util.Optional
 
 @Service
 class CaseWorkflowService(val hearingRepository: HearingRepository,
+                          val hearingEntityInitService: HearingEntityInitService,
                           val courtRepository: CourtRepository,
                           val hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom,
                           val telemetryService: TelemetryService,
@@ -31,7 +31,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
                           val cutOffTime: LocalTime = LocalTime.of(18, 30)) {
 
     fun addOrUpdateHearingOutcome(hearingId: String, defendantId: String, hearingOutcomeType: HearingOutcomeType) {
-        hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
+        hearingEntityInitService.findFirstByHearingIdAndInitHearingDefendants(hearingId).ifPresentOrElse(
             { hearingEntity: HearingEntity ->
                 val hearingDefendant = hearingEntity.getHearingDefendant(defendantId)
                     ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
@@ -48,7 +48,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
     }
 
     fun assignAndUpdateStateToInProgress(hearingId: String, defendantId: String, assignedTo: String, assignedToUuid: String) {
-        hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
+        hearingEntityInitService.findFirstByHearingIdAssignState(hearingId).ifPresentOrElse(
                 {
                     val hearingDefendant = it.getHearingDefendant(defendantId)
                         ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
@@ -61,15 +61,16 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
                 })
     }
 
-    fun resultHearingOutcome(hearingId: String, defendantId: String, userUuid: String) {
-        hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
+    fun resultHearingOutcome(hearingId: String, defendantId: String, userUuid: String, userId: String, userName: String, authSource: String) {
+        hearingEntityInitService.findFirstByHearingIdAndInitHearingDefendants(hearingId).ifPresentOrElse(
                 {
                     val hearingDefendant = it.getHearingDefendant(defendantId)
                         ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
 
                     val hearingOutcome = hearingDefendant.hearingOutcome
                     if(hearingOutcome.assignedToUuid != userUuid) {
-                        throw ForbiddenException("Outcome not allocated to current user.")
+                        telemetryService.trackMoveToResultedUnAuthorisedEvent(hearingId, defendantId, userUuid, hearingOutcome.assignedToUuid, userId, userName, authSource)
+                        throw ForbiddenException("Outcome (Hearing ID $hearingId and Defendant ID $defendantId) not allocated to current user.")
                     }
                     if(hearingOutcome.state != HearingOutcomeItemState.IN_PROGRESS.name) {
                         throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid state for outcome to be resulted.")
@@ -108,7 +109,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
 
     fun getOutcomeCountsByState(courtCode: String): HearingOutcomeCountByState {
         val dynamicOutcomeCountsByState = hearingOutcomeRepositoryCustom.getDynamicOutcomeCountsByState(courtCode)
-        return return HearingOutcomeCountByState(
+        return HearingOutcomeCountByState(
             dynamicOutcomeCountsByState[HearingOutcomeItemState.NEW.name] ?: 0,
             dynamicOutcomeCountsByState[HearingOutcomeItemState.IN_PROGRESS.name] ?: 0,
             dynamicOutcomeCountsByState[HearingOutcomeItemState.RESULTED.name] ?: 0)
@@ -138,8 +139,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
     }
 
     fun updatePrepStatus(hearingId: String, defendantId: String, prepStatus: HearingPrepStatus) {
-
-        hearingRepository.findFirstByHearingId(hearingId).ifPresentOrElse(
+        hearingEntityInitService.findFirstByHearingIdAndInitHearingDefendants(hearingId).ifPresentOrElse(
             {
                 val hearingDefendant = it.getHearingDefendant(defendantId)
                     ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")

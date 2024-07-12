@@ -142,17 +142,17 @@ task wipTest(type: Test) {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(19))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
 kotlin {
-    jvmToolchain(19)
+    jvmToolchain(21)
 }
 
 tasks.withType(JavaCompile).configureEach {
     javaCompiler = javaToolchains.compilerFor {
-        languageVersion = JavaLanguageVersion.of(19)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -170,15 +170,20 @@ dependencies {
     // Open API Documentation
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.5.0'
 
-
+    // SAR (Subject Access Request) endpoint is included here
+    implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:0.2.1") {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-oauth2-resource-server'
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-oauth2-client'
+    }
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.3")
     implementation('com.fasterxml.jackson.module:jackson-module-kotlin:2.15.3')
 
-    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
-    api 'org.projectlombok:lombok'
+    api 'org.projectlombok:lombok:1.18.32'
 
     runtimeOnly 'org.flywaydb:flyway-core'
     runtimeOnly "org.springframework.boot:spring-boot-devtools"
@@ -204,7 +209,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
 
 
-    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+    implementation 'io.jsonwebtoken:jjwt:0.12.5'
     implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.4'
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.4'
     implementation 'net.logstash.logback:logstash-logback-encoder:7.2'
@@ -215,7 +220,7 @@ dependencies {
 
     implementation 'commons-io:commons-io:2.15.1'
 
-    testAnnotationProcessor 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
 
     testImplementation "org.testcontainers:postgresql:1.17.6"
     testImplementation "org.testcontainers:junit-jupiter:1.19.1"
@@ -241,7 +246,7 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
 
-    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.4.9'
+    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.5.2'
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10")
 
     // Spring ignores constructor binding on Kotlin data classes without this which in turn breaks hmpps-sqs-spring-boot-starter autoconfiguration
@@ -249,7 +254,7 @@ dependencies {
 }
 
 jacoco {
-    toolVersion = '0.8.9'
+    toolVersion = '0.8.11'
 }
 
 jacocoTestCoverageVerification {
@@ -291,11 +296,11 @@ task installGitHooks(type: Copy) {
 
 
 compileKotlin {
-    kotlinOptions.jvmTarget = "19"
+    kotlinOptions.jvmTarget = "21"
 }
 
 compileTestKotlin {
-    kotlinOptions.jvmTarget = "19"
+    kotlinOptions.jvmTarget = "21"
 }
 
 pact {

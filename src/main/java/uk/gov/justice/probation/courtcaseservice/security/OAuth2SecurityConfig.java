@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -12,6 +13,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @Profile("!unsecured")
 public class OAuth2SecurityConfig {
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String issuer;
 
     @SuppressWarnings("removal")
     @Bean
@@ -35,7 +39,7 @@ public class OAuth2SecurityConfig {
                             "/queue-admin/retry-all-dlqs",
                             "/process-un-resulted-cases"
                         ).permitAll()
-                        .anyRequest().hasAnyRole("PREPARE_A_CASE")
+                        .anyRequest().hasAnyRole("PREPARE_A_CASE", "SAR_DATA_ACCESS")
                     ).oauth2ResourceServer().jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());
         return http.build();
     }

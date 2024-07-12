@@ -6,8 +6,10 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingStatus
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.CourtCaseDTO
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDTO
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtSession.MORNING
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 
 @Repository
 class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
@@ -54,7 +56,7 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
     fun filterHearings(
         courtCode: String,
         hearingSearchRequest: HearingSearchRequest
-    ): PageImpl<Pair<HearingDefendantEntity, Int?>> {
+    ): PageImpl<Pair<HearingDefendantDTO, Int?>> {
 
         val pageable: Pageable = Pageable.ofSize(hearingSearchRequest.size).withPage(if (hearingSearchRequest.page > 0) hearingSearchRequest.page - 1 else 0)
 
@@ -143,8 +145,69 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
         val result = mainJpaQuery.resultList
         val count = (countJpaQuery.singleResult as Long)
 
-        val content = result.map {(it as Array<Any>)}.map { Pair(it[0] as HearingDefendantEntity, it[1] as Int?) }
+        val content = result.map { (it as Array<Any>) }.map { Pair(getHearingDefendantDTO(it[0] as HearingDefendantDTO), it[1] as Int?) }
 
         return PageImpl(content, pageable, count)
+    }
+
+    private fun getHearingDefendantDTO(hearingDefendantDto: HearingDefendantDTO): HearingDefendantDTO {
+        addOffences(hearingDefendantDto)
+        addHearingAndCourtCase(hearingDefendantDto)
+        addDefendant(hearingDefendantDto)
+        return hearingDefendantDto;
+    }
+
+    private fun addDefendant(
+        hdDTO: HearingDefendantDTO
+    ) {
+        val hdDTO2WithDefendant = entityManager.createQuery(
+            "select hd from HearingDefendantDTO hd JOIN FETCH hd.defendant ho where hd.id = :hearingDefendantId",
+            HearingDefendantDTO::class.java
+        ).setParameter("hearingDefendantId", hdDTO.id).resultList
+
+        if (hdDTO2WithDefendant.isNotEmpty()) {
+            hdDTO.defendant = hdDTO2WithDefendant.first().defendant
+        } else {
+            hdDTO.defendant = null
+        }
+    }
+
+    private fun addOffences(
+        hdDTO: HearingDefendantDTO
+    ) {
+        val hdDTOWithOffences = entityManager.createQuery(
+            "select hd from HearingDefendantDTO hd JOIN FETCH hd.offences ho where hd.id = :hearingDefendantId",
+            HearingDefendantDTO::class.java
+        ).setParameter("hearingDefendantId", hdDTO.id).resultList
+
+        if (hdDTOWithOffences.isNotEmpty()) {
+            hdDTO.offences = hdDTOWithOffences.first().offences;
+        } else {
+            hdDTO.offences = emptyList()
+        }
+    }
+
+    private fun addHearingAndCourtCase(hdDTO: HearingDefendantDTO) {
+        val hearingDTOWithHearingDays = entityManager.createQuery(
+            "select h from HearingDTO h JOIN FETCH h.hearingDays hd where h.id = :hearingId",
+            HearingDTO::class.java
+        ).setParameter("hearingId", hdDTO.hearing.id).resultList
+
+        if (hearingDTOWithHearingDays.isNotEmpty()) {
+            val hearingDTO = hearingDTOWithHearingDays.first()
+            val courtCaseDTO = entityManager.createQuery(
+                "select cc from CourtCaseDTO cc JOIN FETCH cc.caseMarkers cm where cc.id = :courtCaseId",
+                CourtCaseDTO::class.java
+            ).setParameter("courtCaseId", hearingDTO.courtCase.id).resultList
+
+            if (courtCaseDTO.isNotEmpty()) {
+                hearingDTO.courtCase = courtCaseDTO.first()
+            } else {
+                hearingDTO.courtCase.caseMarkers = emptyList()
+            }
+            hdDTO.hearing = hearingDTO
+        } else {
+            hdDTO.hearing = null
+        }
     }
 }

@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model
 
 import io.swagger.v3.oas.annotations.media.Schema
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingOutcomeEntity
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType
@@ -48,6 +49,26 @@ data class HearingOutcomeResponse(
                 offences = defendantEntity.offences.map { offenceEntity -> offenceEntity.title },
                 defendantName = defendantEntity.defendant.defendantName,
                 crn = defendantEntity.defendant?.offender?.crn,
+                assignedTo = hearingOutcomeEntity.assignedTo,
+                assignedToUuid = hearingOutcomeEntity.assignedToUuid,
+                state = HearingOutcomeItemState.valueOf(hearingOutcomeEntity.state),
+                legacy = hearingOutcomeEntity.isLegacy
+            )
+        }
+
+        fun of(hearingDefendantDTO: HearingDefendantDTO, hearingDate: LocalDate): HearingOutcomeResponse {
+            val hearingOutcomeEntity = hearingDefendantDTO.hearingOutcome
+            return HearingOutcomeResponse(
+                hearingOutcomeType = HearingOutcomeType.valueOf(hearingOutcomeEntity.outcomeType),
+                outcomeDate = hearingOutcomeEntity.outcomeDate,
+                resultedDate = hearingOutcomeEntity.resultedDate,
+                hearingDate = hearingDate,
+                hearingId = hearingDefendantDTO.hearing.hearingId,
+                defendantId = hearingDefendantDTO.defendantId,
+                probationStatus = hearingDefendantDTO.defendant.probationStatusForDisplay.getName(),
+                offences = hearingDefendantDTO.offences.map { offenceEntity -> offenceEntity.title },
+                defendantName = hearingDefendantDTO.defendant.defendantName,
+                crn = hearingDefendantDTO.defendant?.offender?.crn,
                 assignedTo = hearingOutcomeEntity.assignedTo,
                 assignedToUuid = hearingOutcomeEntity.assignedToUuid,
                 state = HearingOutcomeItemState.valueOf(hearingOutcomeEntity.state),

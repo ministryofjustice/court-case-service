@@ -18,7 +18,6 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.springframework.util.CollectionUtils;
-import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -48,7 +47,7 @@ import java.util.Optional;
     name = "search_hearings_custom",
     columns = { @ColumnResult(name = "match_count", type = Integer.class) },
     entities = {
-        @EntityResult(entityClass = HearingDefendantDTO.class)
+        @EntityResult(entityClass = HearingDefendantEntity.class)
     }
 )
 public class CourtCaseEntity extends BaseAuditedEntity implements Serializable {

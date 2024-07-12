@@ -71,19 +71,6 @@ VALUES
     (5958, 5096,'2023-07-03 10:29:48.699','(court-case-matcher-7)','e4ea7459-2f55-4f06-95fd-9896e6e9f3ce'::uuid,5848,'2023-07-03 10:29:48.699','(court-case-matcher-7)',0,false),
     (5980, 5002,'2023-07-18 15:47:08.359','(court-case-matcher-7)','7cece15c-78e8-4be9-a509-35d74eb68839'::uuid,5093,'2023-07-18 15:47:08.369','(court-case-matcher-7)',1,false);
 
-INSERT INTO hearing_notes (id, hearing_id, note, "author", created, created_by, created_by_uuid, fk_hearing_defendant_id)
-VALUES (-1700028803, '1eb3a6da-8189-4de2-8377-da5910e486b9', 'Judge requested PSR', 'Author Three', now(), 'before-new-hearing-search.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', 5920);
-VALUES (-1700028804, '1eb3a6da-8189-4de2-8377-da5910e486b9', 'Judge requested PSR', 'Author Three', now(), 'before-new-hearing-search.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d82', 5920);
-VALUES (-1700028805, '4a7220b8-88bc-4417-8ee0-cfc318047b3c', 'Judge requested PSR', 'Author Three', now(), 'before-new-hearing-search.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d83');
-VALUES (-1700028806, '85f400a9-82c9-4a9d-93ec-066d55be0c07', 'Judge requested PSR', 'Author Three', now(), 'before-new-hearing-search.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d84');
-VALUES (-1700028807, '79c176bf-a6ff-4f82-afba-de136aae1536', 'Judge requested PSR', 'Author Three', now(), 'before-new-hearing-search.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d85');
-VALUES (-1700028808, 'cbafcebb-3430-4710-8557-5c93bd1e8be5', 'Judge requested PSR', 'Author Three', now(), 'before-new-hearing-search.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d86');
-VALUES (-1700028809, 'af8fa3b5-d544-4c70-b4f4-3d8639197d4b', 'Judge requested PSR', 'Author Three', now(), 'before-new-hearing-search.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d87');
-VALUES (-1700028810, 'a9d0f014-3fde-41a8-a416-2dabc9e21bae', 'Judge requested PSR', 'Author Three', now(), 'before-new-hearing-search.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d88');
-VALUES (-1700028811, '5a173167-5d34-4112-b563-afb1067d229d', 'Judge requested PSR', 'Author Three', now(), 'before-new-hearing-search.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d89');
-VALUES (-1700028812, 'eae601d7-3966-494f-a8bb-bb23989cfd6f', 'Judge requested PSR', 'Author Three', now(), 'before-new-hearing-search.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d10');
-VALUES (-1700028813, '0e6c7d7e-7057-45db-b788-210df7a9a624', 'Judge requested PSR', 'Author Three', now(), 'before-new-hearing-search.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d11');
-
 INSERT INTO offence (id, fk_hearing_defendant_id,summary,title,"sequence",act,created,created_by,list_no,last_updated,last_updated_by,"version",deleted,offence_code,short_term_custody_predictor_score,plea_id,verdict_id)
 VALUES
     (9795, 5947,'On 01/01/2016 at Town, stole Article, to the value of £100.00, belonging to Person.','Theft from a shop',1,'Contrary to section 1(1) and 7 of the Theft Act 1968.','2023-07-03 10:28:20.868','(court-case-matcher-7)',NULL,'2023-07-03 10:28:20.868','(court-case-matcher-7)',0,false,'RW89008',NULL,NULL,NULL),
@@ -127,7 +114,3 @@ VALUES
     (5, 'REPORT_REQUESTED','2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',false,'2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',0,'2023-07-11 16:55:18.496','NEW', 5087, 5949),
     (4, 'REPORT_REQUESTED','2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',false,'2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',0,'2023-07-11 16:55:18.496','NEW', 5096, 5958),
     (3, 'REPORT_REQUESTED','2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',false,'2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',0,'2023-07-11 16:55:18.496','NEW', null, 5950);
-
-INSERT INTO case_marker(id, type_description, fk_court_case_id)
-VALUES
-    (1234, 'some type', 7734);

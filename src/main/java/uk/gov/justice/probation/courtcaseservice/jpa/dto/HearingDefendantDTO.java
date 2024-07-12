@@ -27,12 +27,12 @@ public class HearingDefendantDTO {
     private final String defendantId;
 
     @Setter
-    @ManyToOne(optional = false, cascade = { CascadeType.MERGE, CascadeType.PERSIST }, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "FK_DEFENDANT_ID", referencedColumnName = "id", nullable = false)
     private DefendantDTO defendant;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "hearingDefendantDTO", cascade = CascadeType.ALL, orphanRemoval=true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "hearingDefendantDTO",fetch = FetchType.LAZY)
     @Setter
     private List<OffenceDTO> offences;
 

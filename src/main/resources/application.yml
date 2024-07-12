@@ -104,6 +104,7 @@ spring:
         jdbc:
           lob:
             non_contextual_creation: true
+        generate_statistics: true
       org:
         hibernate:
           flushMode: COMMIT

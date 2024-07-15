@@ -9,6 +9,7 @@ import java.time.LocalDate
 import jakarta.persistence.EntityManager
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 
@@ -18,6 +19,7 @@ class HearingOutcomeRepositoryCustom(
     @Value("\${hearing-outcomes.resultedCasesDaysOffset:14}") private val resultedCasesDaysOffset: Long = 14
 ) {
 
+    @Transactional
     fun findByCourtCodeAndHearingOutcome(
         courtCode: String,
         hearingOutcomeSearchRequest: HearingOutcomeSearchRequest

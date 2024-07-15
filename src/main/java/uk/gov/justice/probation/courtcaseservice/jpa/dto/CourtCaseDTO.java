@@ -41,7 +41,7 @@ public class CourtCaseDTO extends BaseAuditedEntity implements Serializable {
     @ToString.Exclude
     @JsonIgnore
     @Setter
-    @OneToMany(mappedBy = "courtCase", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "courtCase", fetch = FetchType.LAZY)
     private List<CaseMarkerDTO> caseMarkers;
 
 }

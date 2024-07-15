@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingStatus
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.CourtCaseDTO
@@ -53,6 +54,7 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
         private const val ORDER_BY = """order by hday.court_room, hday.hearing_time, text(json(d."name")->'surname') """
     }
 
+    @Transactional
     fun filterHearings(
         courtCode: String,
         hearingSearchRequest: HearingSearchRequest

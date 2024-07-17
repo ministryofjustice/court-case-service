@@ -14,6 +14,7 @@ import software.amazon.awssdk.services.sns.model.MessageAttributeValue
 import software.amazon.awssdk.services.sns.model.PublishRequest
 import software.amazon.awssdk.services.sns.model.PublishResponse
 import software.amazon.awssdk.services.sqs.model.PurgeQueueRequest
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest
 import uk.gov.justice.probation.courtcaseservice.client.model.listeners.DomainEvent
 import uk.gov.justice.probation.courtcaseservice.client.model.listeners.PersonIdentifier
@@ -24,6 +25,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositor
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository
 import uk.gov.justice.probation.courtcaseservice.service.listeners.notifiers.NEW_OFFENDER_CREATED
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.concurrent.CompletableFuture
 
 private const val CRN = "XXX1234"

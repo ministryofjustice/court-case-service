@@ -175,6 +175,12 @@ env:
         name: probation-offender-events-court-case-service-main-queue
         key: sqs_queue_name
 
+  - name: HMPPS_SQS_QUEUES_PICPROBATIONOFFENDEREVENTSQUEUE_QUEUE_URL
+    valueFrom:
+      secretKeyRef:
+        name: probation-offender-events-court-case-service-main-queue-url
+        key: sqs_queue_url
+
   - name: HMPPS_SQS_QUEUES_PICPROBATIONOFFENDEREVENTSQUEUE_DLQ_NAME
     valueFrom:
       secretKeyRef:

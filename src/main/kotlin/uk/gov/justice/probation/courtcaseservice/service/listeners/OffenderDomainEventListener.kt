@@ -7,6 +7,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Component
+import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest
+import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.probation.courtcaseservice.client.model.listeners.DomainEvent
 import uk.gov.justice.probation.courtcaseservice.client.model.listeners.EventFeatureSwitch
 import uk.gov.justice.probation.courtcaseservice.client.model.listeners.SQSMessage
@@ -20,6 +22,7 @@ class OffenderDomainEventListener(
     val context: ApplicationContext,
     val objectMapper: ObjectMapper,
     val eventFeatureSwitch: EventFeatureSwitch,
+    val hmppsQueueService: HmppsQueueService
 ) {
     private companion object {
         val LOG: Logger = LoggerFactory.getLogger(this::class.java)
@@ -42,6 +45,7 @@ class OffenderDomainEventListener(
                     if (enabled) {
                         try {
                             getEventProcessor(domainEvent)?.process(domainEvent)
+                            val deleteRequest = DeleteMessageRequest.builder().queueUrl(clientQueueConfig.queueUrl).receiptHandle(sqsMessage.receiptHandle()).build()
                         } catch (e: Exception) {
                             LOG.error("Failed to process know domain event type:${domainEvent.eventType}", e)
                             throw e

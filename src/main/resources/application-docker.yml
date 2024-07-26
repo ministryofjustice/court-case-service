@@ -86,6 +86,23 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
+  flyway:
+    defaultSchema: courtcaseservice
+    locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=courtcaseservice&user=appuser&password=postgres&stringtype=unspecified
+    hikari:
+      pool-name: courtcaseservice
+      connectionTimeout: 1000
+      validationTimeout: 500
+      schema: courtcaseservice
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        integration:
+          envers:
+            enabled: false
 
 hmpps:
   sar:

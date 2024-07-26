@@ -57,7 +57,7 @@ hearing_outcomes:
   move_un_resulted_to_outcomes_cutoff_time: "01:30"
 
 hmpps.sqs:
-  provider: localstack-court-case-service
+  provider: localstack
   queues:
     picprobationoffendereventsqueue:
       queueName: pic_probation_offender_events_queue

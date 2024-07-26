@@ -3,7 +3,7 @@ version: '3.3'
 services:
 
   court-case-service:
-    image: docker.io/mojdigitalstudio/court-case-service:latest
+    image: quay.io/hmpps/court-case-service:latest
     container_name: court-case-service
     networks:
       - hmpps
@@ -16,13 +16,10 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/auth/health"]
     environment:
-      - SPRING_PROFILES_ACTIVE=local
-#      - HMPPS_AUTH_URL=http://hmpps-auth:8095/auth
+      - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_USER=appuser
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
-#      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://hmpps-auth:8095/auth/.well-known/jwks.json
-#      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://hmpps-auth:8095/auth/issuer
 
   postgres:
     image: postgres:11.15-alpine
@@ -88,15 +85,19 @@ services:
     networks:
       - hmpps
     container_name: localstack-court-case-service
+    hostname: awslocal
     ports:
-      - "4566-4597:4566-4597"
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
     environment:
       - SERVICES=sns,sqs
       - DEBUG=${DEBUG- }
       - PERSISTENCE=1
       - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOSTNAME_EXTERNAL=awslocal
     volumes:
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+
 networks:
   hmpps:

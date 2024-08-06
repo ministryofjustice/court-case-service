@@ -26,9 +26,13 @@ public class HearingEntityInitService {
         var hearing = hearingRepository.findFirstByHearingId(hearingId);
         if(hearing.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
             Hibernate.initialize(hearing.get().getHearingDefendants());
+            Hibernate.initialize(hearing.get().getCourtCase().getCaseDefendants());
+            hearing.get().getCourtCase().getCaseDefendants().forEach(caseDefendantEntity -> Hibernate.initialize(caseDefendantEntity.getDocuments()));
+            Hibernate.initialize(hearing.get().getCourtCase().getHearings());
             hearing.get().getHearingDefendants().forEach(hearingDefendantEntity -> {
-                hearingDefendantEntity.getOffences().forEach(offence -> Hibernate.initialize(offence.getJudicialResults()));
+                Hibernate.initialize(hearingDefendantEntity.getNotes());
                 Hibernate.initialize(hearingDefendantEntity.getDefendant().getHearingDefendants());
+                hearingDefendantEntity.getOffences().forEach(offence -> Hibernate.initialize(offence.getJudicialResults()));
                 if(hearingDefendantEntity.getDefendant().getOffender() != null) {
                     Hibernate.initialize(hearingDefendantEntity.getDefendant().getOffender().getDefendants());
                 }
@@ -148,26 +152,5 @@ public class HearingEntityInitService {
         return hearings.stream().peek(hearingEntity -> {
             Hibernate.initialize(hearingEntity.getHearingDefendants());
         }).toList();
-    }
-
-    @Transactional
-    public Optional<HearingEntity> findFirstByHearingIdFullyInitialised(String hearingId) {
-        var hearing = hearingRepository.findFirstByHearingId(hearingId);
-        if(hearing.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
-            Hibernate.initialize(hearing.get().getHearingDefendants());
-            Hibernate.initialize(hearing.get().getCourtCase().getCaseDefendants());
-            hearing.get().getCourtCase().getCaseDefendants().forEach(caseDefendantEntity -> Hibernate.initialize(caseDefendantEntity.getDocuments()));
-            Hibernate.initialize(hearing.get().getCourtCase().getHearings());
-            hearing.get().getHearingDefendants().forEach(hearingDefendantEntity -> {
-                        Hibernate.initialize(hearingDefendantEntity.getNotes());
-                        Hibernate.initialize(hearingDefendantEntity.getDefendant().getHearingDefendants());
-                        hearingDefendantEntity.getOffences().forEach(offence -> Hibernate.initialize(offence.getJudicialResults()));
-                        if(hearingDefendantEntity.getDefendant().getOffender() != null) {
-                            Hibernate.initialize(hearingDefendantEntity.getDefendant().getOffender().getDefendants());
-                        }
-                    }
-            );
-        }
-        return hearing;
     }
 }

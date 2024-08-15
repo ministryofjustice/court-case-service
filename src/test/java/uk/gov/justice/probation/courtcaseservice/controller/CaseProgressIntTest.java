@@ -156,7 +156,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("created", Matchers.notNullValue())
         ;
 
-        var hearing = hearingEntityInitService.findFirstByHearingId(HEARING_ID).get();
+        var hearing = hearingEntityInitService.findFirstByHearingIdFullyInitialised(HEARING_ID).get();
         var hearingDefendant = hearing.getHearingDefendant(DEFENDANT_ID);
 
         var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
@@ -234,7 +234,7 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("draft", Matchers.is(true));
 
 
-        var hearing = hearingEntityInitService.findFirstByHearingId(HEARING_ID).get();
+        var hearing = hearingEntityInitService.findFirstByHearingIdFullyInitialised(HEARING_ID).get();
         var hearingDefendant = hearing.getHearingDefendant(DEFENDANT_ID);
 
         var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
@@ -294,7 +294,7 @@ public class CaseProgressIntTest extends BaseIntTest {
 
         var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
 
-        var hearing = hearingEntityInitService.findFirstByHearingId(hearingId).get();
+        var hearing = hearingEntityInitService.findFirstByHearingIdFullyInitialised(hearingId).get();
         var hearingDefendant = hearing.getHearingDefendant(defendantId);
 
         var hearingNoteEntity = hearingDefendant.getNotes().stream().filter(HearingNoteEntity::isDraft).findAny().get();

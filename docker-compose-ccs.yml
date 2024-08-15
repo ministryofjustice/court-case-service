@@ -1,0 +1,103 @@
+version: '3.3'
+
+services:
+
+  court-case-service:
+    image: quay.io/hmpps/court-case-service:latest
+    container_name: court-case-service
+    networks:
+      - hmpps
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    entrypoint: ["/bin/sh", "/app/run.sh"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/health"]
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_USER=appuser
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
+
+  postgres:
+    image: postgres:11.15-alpine
+    ports:
+      - 5432:5432
+    networks:
+      - hmpps
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: postgres
+    tmpfs:
+      - /var/lib/postgresql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U appuser" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  oauth:
+    image: mojdigitalstudio/nomis-oauth2-server:latest
+    networks:
+      - hmpps
+    container_name: oauth
+    ports:
+      - '8095:8095'
+    healthcheck:
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:8095/auth/health' ]
+    environment:
+      - SERVER_PORT=8095
+      - SPRING_PROFILES_ACTIVE=dev
+
+  community-api:
+    image: quay.io/hmpps/community-api:latest
+    networks:
+      - hmpps
+    container_name: community-api
+    ports:
+      - "8096:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=dev
+
+  offender-assessment-api:
+    image: mojdigitalstudio/offender-assessments-api:latest
+    networks:
+      - hmpps
+    container_name: offender-assessment-api
+    depends_on:
+    - oauth
+    ports:
+      - "8097:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=dev
+      - OAUTH_ENDPOINT_URL=http://oauth:8095/auth
+
+  localstack-court-case-service:
+    image: localstack/localstack:latest
+    networks:
+      - hmpps
+    container_name: localstack-court-case-service
+    hostname: awslocal
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    environment:
+      - SERVICES=sns,sqs
+      - DEBUG=${DEBUG- }
+      - PERSISTENCE=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOSTNAME_EXTERNAL=awslocal
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+networks:
+  hmpps:

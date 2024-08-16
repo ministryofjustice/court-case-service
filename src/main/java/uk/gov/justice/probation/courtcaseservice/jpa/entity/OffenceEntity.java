@@ -67,6 +67,10 @@ public class OffenceEntity extends BaseAuditedEntity implements Serializable  {
     @Setter
     private BigDecimal shortTermCustodyPredictorScore;
 
+    @Column(name = "DATA_MODEL_VERSION")
+    @Setter
+    private String dataModelVersion;
+
     @OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "plea_id", referencedColumnName = "id")
     private PleaEntity plea;

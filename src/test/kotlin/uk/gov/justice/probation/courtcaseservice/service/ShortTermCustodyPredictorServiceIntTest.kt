@@ -18,7 +18,7 @@ class ShortTermCustodyPredictorServiceIntTest : BaseIntTest() {
     fun `should calculate predictor score for valid court codes`(courtCode : String) {
         // Given
         val offenderAge = 25
-        val offenceCode = "80702"
+        val offenceCode = "RT88507"
         val shortTermCustodyPredictorParameters = ShortTermCustodyPredictorParameters(offenderAge, offenceCode, courtCode)
 
         // When
@@ -66,7 +66,7 @@ class ShortTermCustodyPredictorServiceIntTest : BaseIntTest() {
     fun `should calculate score when home office offence code contains non-numeric characters`() {
         // Given
         val offenderAge = 25
-        val offenceCode = "046/00"
+        val offenceCode = "RT/88507"
         val courtCode = "B04DS"
         val shortTermCustodyPredictorParameters = ShortTermCustodyPredictorParameters(offenderAge, offenceCode, courtCode)
 
@@ -76,7 +76,7 @@ class ShortTermCustodyPredictorServiceIntTest : BaseIntTest() {
 
         // Then
         assertThat(custodyPredictorScore).isNotNull
-        assertThat(custodyPredictorScore).isEqualTo(0.0688746427716538)
+        assertThat(custodyPredictorScore).isEqualTo(0.0019851346263594777)
     }
 
     @Test
@@ -114,7 +114,7 @@ class ShortTermCustodyPredictorServiceIntTest : BaseIntTest() {
     fun `should calculate predictor score when offender age is not provided`() {
         // Given
         val offenderAge = null
-        val offenceCode = "80702"
+        val offenceCode = "RT88507"
         val courtCode = "B04DS"
         val shortTermCustodyPredictorParameters = ShortTermCustodyPredictorParameters(offenderAge, offenceCode, courtCode)
 
@@ -123,7 +123,7 @@ class ShortTermCustodyPredictorServiceIntTest : BaseIntTest() {
         val custodyPredictorScore = predictorService.calculateShortTermCustodyPredictorScore(shortTermCustodyPredictorParameters)
 
         // Then
-        assertThat(custodyPredictorScore).isEqualTo(0.012913778633032313)
+        assertThat(custodyPredictorScore).isEqualTo(0.002057568311792386)
     }
 
     companion object {
@@ -219,7 +219,6 @@ class ShortTermCustodyPredictorServiceIntTest : BaseIntTest() {
                 "B36HN",
                 "B36JU",
                 "B37HI",
-                "B40BC",
                 "B40IM",
                 "B41ME",
                 "B41MJ",
@@ -249,7 +248,6 @@ class ShortTermCustodyPredictorServiceIntTest : BaseIntTest() {
                 "B46LN",
                 "B47CL",
                 "B47EC",
-                "B47FB",
                 "B47GL",
                 "B47HB",
                 "B47OV",

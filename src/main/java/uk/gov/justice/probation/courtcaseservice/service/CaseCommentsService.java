@@ -58,7 +58,7 @@ public class CaseCommentsService {
     }
 
     public Optional<CaseCommentEntity> getDraftComment(String caseId, String defendantId, String userUuid){
-        List<CaseCommentEntity> draftComments = caseCommentsRepository.findAllByIdAndCaseIdAndDefendantIdAndCreatedByUuidOrderByCreatedAtDescAndDraftIsTrue(caseId, defendantId, userUuid);
+        List<CaseCommentEntity> draftComments = caseCommentsRepository.findAllByIdAndCaseIdAndDefendantIdAndCreatedByUuidOrderByCreatedDescAndDraftIsTrue(caseId, defendantId, userUuid);
         if (draftComments.size() > 1){
             // Delete older draft comments
             for (int i = 1; i < draftComments.size(); i++) {

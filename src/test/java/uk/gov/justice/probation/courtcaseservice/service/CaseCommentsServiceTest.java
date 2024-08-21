@@ -225,7 +225,7 @@ class CaseCommentsServiceTest {
         var existingDraftCommentLatest = CaseCommentEntity.builder().caseId(testCaseId).defendantId(EntityHelper.DEFENDANT_ID).createdByUuid(createdByUuid).comment("comment one").id(1L).draft(true).created(LocalDateTime.now()).build();
         var existingDraftCommentOldest = CaseCommentEntity.builder().caseId(testCaseId).defendantId(EntityHelper.DEFENDANT_ID).createdByUuid(createdByUuid).comment("comment one").id(2L).draft(true).created(LocalDateTime.now().minusHours(1)).build();
 
-        given(caseCommentsRepository.findAllByIdAndCaseIdAndDefendantIdAndCreatedByUuidOrderByCreatedDescAndDraftIsTrue(testCaseId, EntityHelper.DEFENDANT_ID, createdByUuid))
+        given(caseCommentsRepository.findAllByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrueOrderByCreatedDesc(testCaseId, EntityHelper.DEFENDANT_ID, createdByUuid))
                 .willReturn(List.of(existingDraftCommentLatest, existingDraftCommentOldest));
 
         var expectedSavedComment = existingDraftCommentLatest.withComment("updated comment").withDraft(false);
@@ -236,7 +236,7 @@ class CaseCommentsServiceTest {
         caseCommentsService.createCaseComment(expectedSavedComment);
 
         verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
-        verify(caseCommentsRepository).findAllByIdAndCaseIdAndDefendantIdAndCreatedByUuidOrderByCreatedDescAndDraftIsTrue(testCaseId, EntityHelper.DEFENDANT_ID, createdByUuid);
+        verify(caseCommentsRepository).findAllByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrueOrderByCreatedDesc(testCaseId, EntityHelper.DEFENDANT_ID, createdByUuid);
         verify(caseCommentsRepository).save(expectedSavedComment);
     }
 

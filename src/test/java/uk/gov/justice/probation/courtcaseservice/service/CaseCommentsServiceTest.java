@@ -12,7 +12,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CaseCommentsRepo
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -212,6 +214,30 @@ class CaseCommentsServiceTest {
         Exception e = assertThrows(EntityNotFoundException.class, () -> caseCommentsService.updateCaseComment(comment, commentId));
         assertThat(e.getMessage()).isEqualTo("Comment 1 not found for caseId test-case-id, defendantId test-defendant-id and user test-defendant-id or user does not have permissions to modify");
         verifyNoMoreInteractions(caseCommentsRepository);
+    }
+
+    @Test
+    void givenValidCaseCommentDraft_and_multiple_draft_comments_already_exist_shouldCreateCommentAndDeleteOlderDraftComments() {
+        var courtCase = EntityHelper.aHearingEntity().getCourtCase();
+        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
+                .willReturn(Optional.of(courtCase));
+
+        var existingDraftCommentLatest = CaseCommentEntity.builder().caseId(testCaseId).defendantId(EntityHelper.DEFENDANT_ID).createdByUuid(createdByUuid).comment("comment one").id(1L).draft(true).created(LocalDateTime.now()).build();
+        var existingDraftCommentOldest = CaseCommentEntity.builder().caseId(testCaseId).defendantId(EntityHelper.DEFENDANT_ID).createdByUuid(createdByUuid).comment("comment one").id(2L).draft(true).created(LocalDateTime.now().minusHours(1)).build();
+
+        given(caseCommentsRepository.findAllByIdAndCaseIdAndDefendantIdAndCreatedByUuidOrderByCreatedAtDescAndDraftIsTrue(testCaseId, EntityHelper.DEFENDANT_ID, createdByUuid))
+                .willReturn(List.of(existingDraftCommentLatest, existingDraftCommentOldest));
+
+        var expectedSavedComment = existingDraftCommentLatest.withComment("updated comment").withDraft(false);
+        expectedSavedComment.setCreated(existingDraftCommentLatest.getCreated());
+
+        given(caseCommentsRepository.save(expectedSavedComment)).willReturn(existingDraftCommentLatest);
+
+        caseCommentsService.createCaseComment(expectedSavedComment);
+
+        verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
+        verify(caseCommentsRepository).findAllByIdAndCaseIdAndDefendantIdAndCreatedByUuidOrderByCreatedAtDescAndDraftIsTrue(testCaseId, EntityHelper.DEFENDANT_ID, createdByUuid);
+        verify(caseCommentsRepository).save(expectedSavedComment);
     }
 
 }

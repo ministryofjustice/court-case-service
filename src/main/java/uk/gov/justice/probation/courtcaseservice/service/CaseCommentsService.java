@@ -59,14 +59,14 @@ public class CaseCommentsService {
 
     public Optional<CaseCommentEntity> getDraftComment(String caseId, String defendantId, String userUuid){
         List<CaseCommentEntity> draftComments = caseCommentsRepository.findAllByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrueOrderByCreatedDesc(caseId, defendantId, userUuid);
-        if (draftComments.size() > 1){
+        if (draftComments.size() > 1) {
             // Delete older draft comments
             draftComments.stream().skip(1).forEach(draftComment -> {
                 draftComment.setDeleted(true);
                 caseCommentsRepository.delete(draftComment);
             });
         }
-        return Optional.ofNullable(draftComments.getFirst());
+        return draftComments.stream().findFirst();
     }
 
     public CaseCommentEntity createUpdateCaseCommentDraft(CaseCommentEntity caseComment) {

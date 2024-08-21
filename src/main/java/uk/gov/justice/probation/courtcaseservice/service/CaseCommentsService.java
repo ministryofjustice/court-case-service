@@ -61,11 +61,10 @@ public class CaseCommentsService {
         List<CaseCommentEntity> draftComments = caseCommentsRepository.findAllByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrueOrderByCreatedDesc(caseId, defendantId, userUuid);
         if (draftComments.size() > 1){
             // Delete older draft comments
-            for (int i = 1; i < draftComments.size(); i++) {
-                CaseCommentEntity draftComment = draftComments.get(i);
+            draftComments.stream().skip(1).forEach(draftComment -> {
                 draftComment.setDeleted(true);
                 caseCommentsRepository.delete(draftComment);
-            }
+            });
         }
         return Optional.ofNullable(draftComments.getFirst());
     }

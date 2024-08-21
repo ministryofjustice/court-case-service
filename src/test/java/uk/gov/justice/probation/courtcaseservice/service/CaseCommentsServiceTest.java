@@ -65,13 +65,13 @@ class CaseCommentsServiceTest {
         var courtCase = EntityHelper.aHearingEntity().getCourtCase();
         given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(EntityHelper.CASE_ID)).willReturn(Optional.of(courtCase));
 
-        given(caseCommentsRepository.findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(EntityHelper.CASE_ID, EntityHelper.DEFENDANT_ID, createdByUuid))
-            .willReturn(Optional.of(existingComment));
+        given(caseCommentsRepository.findAllByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrueOrderByCreatedDesc(EntityHelper.CASE_ID, EntityHelper.DEFENDANT_ID, createdByUuid))
+            .willReturn(List.of(existingComment));
 
         var expectedComment = existingComment.withComment("updated and finalised comment to save").withDraft(false);
         given(caseCommentsRepository.save(expectedComment)).willReturn(caseComment);
         caseCommentsService.createCaseComment(expectedComment);
-        verify(caseCommentsRepository).findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(EntityHelper.CASE_ID, EntityHelper.DEFENDANT_ID, createdByUuid);
+        verify(caseCommentsRepository).findAllByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrueOrderByCreatedDesc(EntityHelper.CASE_ID, EntityHelper.DEFENDANT_ID, createdByUuid);
         verify(caseCommentsRepository).save(existingComment.withDraft(false).withComment("updated and finalised comment to save"));
         verify(telemetryService).trackCourtCaseCommentEvent(CASE_COMMENT_ADDED, caseComment);
     }

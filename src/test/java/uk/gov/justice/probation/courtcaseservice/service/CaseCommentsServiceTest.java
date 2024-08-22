@@ -238,6 +238,7 @@ class CaseCommentsServiceTest {
         verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
         verify(caseCommentsRepository).findAllByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrueOrderByCreatedDesc(testCaseId, EntityHelper.DEFENDANT_ID, createdByUuid);
         verify(caseCommentsRepository).save(expectedSavedComment);
+        verify(caseCommentsRepository).delete(existingDraftCommentOldest);
     }
 
 }

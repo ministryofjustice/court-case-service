@@ -9,11 +9,11 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CaseCommentsRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static uk.gov.justice.probation.courtcaseservice.service.TelemetryEventType.CASE_COMMENT_ADDED;
 
@@ -42,8 +42,7 @@ public class CaseCommentsService {
         Hibernate.initialize(courtCase.map(CourtCaseEntity::getCaseDefendants));
         return courtCase.filter(courtCaseEntity -> courtCaseEntity.hasDefendant(defendantId))
             .map(courtCaseEntity -> {
-                var commentToSave = caseCommentsRepository
-                    .findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(caseId, defendantId, caseComment.getCreatedByUuid())
+                var commentToSave = getDraftComment(caseId, defendantId, caseComment.getCreatedByUuid())
                     .map(caseCommentEntity -> {
                         caseCommentEntity.update(caseComment.withDraft(false));
                         return caseCommentEntity;
@@ -56,6 +55,18 @@ public class CaseCommentsService {
                 return savedCaseComment;
             })
             .orElseThrow(() -> new EntityNotFoundException("Court case %s / defendantId %s not found", caseId, defendantId));
+    }
+
+    public Optional<CaseCommentEntity> getDraftComment(String caseId, String defendantId, String userUuid){
+        List<CaseCommentEntity> draftComments = caseCommentsRepository.findAllByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrueOrderByCreatedDesc(caseId, defendantId, userUuid);
+        if (draftComments.size() > 1) {
+            // Delete older draft comments
+            draftComments.stream().skip(1).forEach(draftComment -> {
+                draftComment.setDeleted(true);
+                caseCommentsRepository.delete(draftComment);
+            });
+        }
+        return draftComments.stream().findFirst();
     }
 
     public CaseCommentEntity createUpdateCaseCommentDraft(CaseCommentEntity caseComment) {

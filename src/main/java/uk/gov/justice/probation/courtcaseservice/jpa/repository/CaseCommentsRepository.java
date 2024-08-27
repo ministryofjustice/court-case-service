@@ -15,5 +15,6 @@ public interface CaseCommentsRepository extends CrudRepository<CaseCommentEntity
     List<CaseCommentEntity> findByDefendantIdAndCreatedBefore(String defendantId, LocalDateTime toDate);
 
     Optional<CaseCommentEntity> findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(String caseId, String defendantId, String userUuid);
+    List<CaseCommentEntity> findAllByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrueOrderByCreatedDesc(String caseId, String defendantId, String userUuid);
     Optional<CaseCommentEntity> findByIdAndCaseIdAndDefendantIdAndCreatedByUuid(Long commentId, String caseId, String defendantId, String userUuid);
 }

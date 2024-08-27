@@ -28,7 +28,7 @@ class ManageOffencesRestClientIntTest : BaseIntTest() {
         val homeOfficeOffenceCode = manageOffencesRestClient.getHomeOfficeOffenceCodeByCJSCode(cjsCode)
 
         // Then
-        assertThat(homeOfficeOffenceCode).isEqualTo("80702")
+        assertThat(homeOfficeOffenceCode).isEqualTo("RT88507")
     }
 
     @Test

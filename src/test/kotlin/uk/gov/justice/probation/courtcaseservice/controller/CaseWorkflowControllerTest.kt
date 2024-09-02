@@ -98,4 +98,17 @@ internal class CaseWorkflowControllerTest {
         // Then
         assertThat(resp.size).isEqualTo(expectedResult.size)
     }
+
+    @Test
+    fun `should invoke service to place a hearing on hold`() {
+        // Given
+        val hearingOutcome = HearingOutcomeAssignToRequest("John Smith")
+        given(authenticationHelper.getAuthUserUuid(any(Principal::class.java))).willReturn("test-uuid")
+
+        // When
+        caseWorkflowController.holdHearingOutcome(hearingId, defendantId, principal)
+
+        // Then
+        verify(caseWorkflowService).holdHearingOutcome(hearingId, defendantId,"test-uuid")
+    }
 }

@@ -88,7 +88,7 @@ spring:
           jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
 
   datasource:
-    url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=${database.schema.name}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
+    url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=${database.schema.name}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified&sslmode=verify-full
 
   flyway:
     schemas: ${database.schema.name}
@@ -104,7 +104,6 @@ spring:
         jdbc:
           lob:
             non_contextual_creation: true
-        generate_statistics: true
       org:
         hibernate:
           flushMode: COMMIT
@@ -210,7 +209,7 @@ ingress:
   url: "localhost"
 
 h2o:
-  model-path: classpath:h2o/20230227_model.zip
+  model-path: classpath:h2o/20240219_model.zip
 
 hmpps.sqs:
   useWebToken: true

@@ -50,7 +50,7 @@ env:
   JAVA_OPTS: "-Xmx2048m"
   FEATURE_FLAGS_ENABLE_CACHEABLE_CASE_LIST: false
   community_api:
-    base_url: https://community-api-secure.probation.service.justice.gov.uk
+    base_url: https://court-case-and-delius.hmpps.service.justice.gov.uk
   nomis_oauth:
     base_url: https://sign-in.hmpps.service.justice.gov.uk
   offender_assessments_api:

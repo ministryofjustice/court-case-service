@@ -1,59 +1,27 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Hibernate;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRequest;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffender;
-import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearingRequestResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteRequest;
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity;
-import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper;
-import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
-import uk.gov.justice.probation.courtcaseservice.service.CaseProgressService;
-import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
-import uk.gov.justice.probation.courtcaseservice.service.HearingNotesService;
-import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
-import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
+import uk.gov.justice.probation.courtcaseservice.controller.model.*;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
+import uk.gov.justice.probation.courtcaseservice.service.*;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
@@ -61,11 +29,7 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -359,6 +323,55 @@ public class CourtCaseController {
                 .body(CaseListResponse.builder().cases(courtCaseResponses).build());
     }
 
+    @Operation(summary = "Gets case data for a court on a date and parameters",
+            description = "Response is sorted by court room, session start time and by defendant surname. The createdAfter and " +
+                    "createdBefore filters will not filter out updates originating from prepare-a-case, these manual updates" +
+                    " are always assumed to be correct as they have been deliberately made by authorised users rather than " +
+                    "automated systems.")
+    @GetMapping(value = "/court/{courtCode}/matcher-cases", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<CaseListResponse> getCaseListForMatcher(
+            @PathVariable String courtCode,
+            @RequestParam(value = "date")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(value = "numberOfPossibleMatches", required = false) Long numberOfPossibleMatches,
+            @RequestParam(value = "forename", required = false) String forename,
+            @RequestParam(value = "surname", required = false) String surname,
+            @RequestParam(value = "defendantName", required = false) String defendantName,
+            @RequestParam(value = "caseId", required = false) String caseId,
+            @RequestParam(value = "hearingId", required = false) String hearingId,
+            @RequestParam(value = "defendantId", required = false) String defendantId,
+            WebRequest webRequest
+    ) {
+        var partialResponse = ResponseEntity.ok();
+        if (enableCacheableCaseList) {
+            var lastModified = courtCaseService.filterHearingsLastModified(courtCode, date)
+                    .orElse(NEVER_MODIFIED_DATE)
+                    .toInstant(ZoneOffset.UTC);
+            if (webRequest.checkNotModified(lastModified.toEpochMilli())) {
+                return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
+                        .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS))
+                        .build();
+            }
+
+            partialResponse = partialResponse
+                    .lastModified(lastModified)
+                    .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS));
+        }
+
+        final var hearingSearchFilter = HearingSearchFilter.builder()
+                .courtCode(courtCode)
+                .hearingDay(date)
+                .source(null)
+                .breach(false)
+                .build();
+
+        var courtCases = courtCaseService.filterHearings(hearingSearchFilter);
+
+        var courtCaseResponses = filterCourtCaseResponses(date, numberOfPossibleMatches, forename, surname, defendantName, caseId, hearingId, defendantId, courtCases);
+
+        return partialResponse.body(CaseListResponse.builder().cases(courtCaseResponses).build());
+    }
+
     @Operation(summary = "Gets case data for a court on a date with pagination support",
         description = "Response is sorted by court room, session start time and by defendant surname. Supports filtering by Supports pagination of results.")
     @GetMapping(value = "/court/{courtCode}/cases", produces = APPLICATION_JSON_VALUE, params = { "VERSION2" })
@@ -399,5 +412,24 @@ public class CourtCaseController {
         final var defendant = Optional.ofNullable(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).orElseThrow();
         var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingEntity.getCaseId(), defendant.getDefendantId()).orElse(0);
         return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate);
+    }
+
+    List<CourtCaseResponse> filterCourtCaseResponses(LocalDate date, Long numberOfPossibleMatches, String forename, String surname,
+                                                     String defendantName, String caseId, String hearingId, String defendantId, List<HearingEntity> courtCases) {
+        return courtCases.stream()
+                .flatMap(courtCaseEntity -> buildCourtCaseResponses(courtCaseEntity, date).stream())
+                .filter(courtCaseResponse -> courtCaseResponse.getProbationStatus().equalsIgnoreCase(CourtCaseResponse.POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS))
+                .filter(courtCaseResponse -> numberOfPossibleMatches == null || courtCaseResponse.getNumberOfPossibleMatches() == numberOfPossibleMatches)
+                .filter(courtCaseResponse -> defendantName == null || courtCaseResponse.getDefendantName().equalsIgnoreCase(defendantName))
+                .filter(courtCaseResponse -> surname == null || courtCaseResponse.getDefendantSurname().equalsIgnoreCase(surname))
+                .filter(courtCaseResponse -> forename == null || courtCaseResponse.getDefendantForename().equalsIgnoreCase(forename))
+                .filter(courtCaseResponse -> caseId == null || courtCaseResponse.getCaseId().equalsIgnoreCase(caseId))
+                .filter(courtCaseResponse -> hearingId == null || courtCaseResponse.getHearingId().equalsIgnoreCase(hearingId))
+                .filter(courtCaseResponse -> defendantId == null ||courtCaseResponse.getDefendantId().equalsIgnoreCase(defendantId))
+                .sorted(Comparator
+                        .comparing(CourtCaseResponse::getCourtRoom)
+                        .thenComparing(CourtCaseResponse::getSessionStartTime)
+                        .thenComparing(CourtCaseResponse::getName))
+                .collect(Collectors.toList());
     }
 }

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.kotlin.MockingKt;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
@@ -45,10 +46,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM;
 
 @ExtendWith(MockitoExtension.class)
@@ -545,6 +543,74 @@ class CourtCaseControllerTest {
         var result = courtCaseController.getCaseList(COURT_CODE, req);
         verify(courtCaseService).filterHearings(COURT_CODE, req);
         assertThat(result).isEqualTo(CaseListResponse.builder().build());
+    }
+
+    @Test
+    void filterCourtCaseResponsesWithSampleCriteria() {
+        List<HearingEntity> courtCases = List.of(HearingEntity.builder()
+                        .hearingId(HEARING_ID)
+                        .hearingDays(List.of(HearingDayEntity.builder()
+                                .day(LocalDate.of(2019, 12, 14))
+                                .courtRoom("Courtroom 1")
+                                .time(LocalTime.of(1, 1, 1)).build()))
+                        .courtCase(CourtCaseEntity.builder()
+                                .caseId(CASE_ID)
+                                .caseNo(CASE_ID)
+                                .sourceType(COMMON_PLATFORM).build())
+                .hearingDefendants(List.of(HearingDefendantEntity.builder()
+                                .defendantId(DEFENDANT_ID)
+                        .defendant(DefendantEntity.builder()
+                                .defendantId(DEFENDANT_ID)
+                                .defendantName("Joe Bloggs")
+                                .name(NamePropertiesEntity.builder().forename1("Joe").surname("Bloggs").build())
+                                .build())
+                        .build(),
+                        HearingDefendantEntity.builder()
+                                .defendantId(DEFENDANT_ID2)
+                                .defendant(DefendantEntity.builder()
+                                        .defendantId(DEFENDANT_ID2)
+                                        .defendantName("Fred Smith")
+                                        .name(NamePropertiesEntity.builder().forename1("Fred").surname("Smith").build())
+                                        .build())
+                                .build())).build());
+
+        Mockito.when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(3));
+
+        List<CourtCaseResponse> forename = courtCaseController.filterCourtCaseResponses(LocalDate.of(2019, 12, 14), null,
+                "Joe", null, null, null, null, null, courtCases);
+        assertThat(forename.size()).isEqualTo(1);
+
+        List<CourtCaseResponse> numberOfMatches = courtCaseController.filterCourtCaseResponses(LocalDate.of(2019, 12, 14), 3L,
+                null, null, null, null, null, null, courtCases);
+        assertThat(numberOfMatches.size()).isEqualTo(1);
+        assertThat(numberOfMatches.getFirst().getNumberOfPossibleMatches()).isEqualTo(3L);
+
+        List<CourtCaseResponse> defendantName = courtCaseController.filterCourtCaseResponses(LocalDate.of(2019, 12, 14), null,
+                null, null, "Joe Bloggs", null, null, null, courtCases);
+        assertThat(defendantName.size()).isEqualTo(1);
+        assertThat(defendantName.getFirst().getDefendantName()).isEqualTo("Joe Bloggs");
+
+        List<CourtCaseResponse> caseId = courtCaseController.filterCourtCaseResponses(LocalDate.of(2019, 12, 14), null,
+                null, null, null, CASE_ID, null, null, courtCases);
+        assertThat(caseId.size()).isEqualTo(1);
+        assertThat(caseId.getFirst().getCaseId()).isEqualTo(CASE_ID);
+
+        List<CourtCaseResponse> hearingId = courtCaseController.filterCourtCaseResponses(LocalDate.of(2019, 12, 14), null,
+                null, null, null, null, HEARING_ID, null, courtCases);
+        assertThat(hearingId.size()).isEqualTo(1);
+        assertThat(hearingId.getFirst().getHearingId()).isEqualTo(HEARING_ID);
+
+        Mockito.when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID2)).thenReturn(Optional.of(3));
+
+        List<CourtCaseResponse> surname = courtCaseController.filterCourtCaseResponses(LocalDate.of(2019, 12, 14), null,
+        null, "Smith", null, null, null, null, courtCases);
+        assertThat(surname.size()).isEqualTo(1);
+        assertThat(surname.getFirst().getDefendantSurname()).isEqualTo("Smith");
+
+        List<CourtCaseResponse> defendantId = courtCaseController.filterCourtCaseResponses(LocalDate.of(2019, 12, 14), null,
+        null, "Smith", null, null, null, DEFENDANT_ID2, courtCases);
+        assertThat(defendantId.size()).isEqualTo(1);
+        assertThat(defendantId.getFirst().getDefendantSurname()).isEqualTo("Smith");
     }
 
     private void assertPosition(int position, List<CourtCaseResponse> cases, String courtRoom, NamePropertiesEntity defendantName, LocalDateTime sessionTime) {

@@ -149,6 +149,8 @@ public class CourtCaseResponseMapper {
         addOffenderFields(builder, defendant.getOffender());
         builder
                 .defendantName(defendant.getDefendantName())
+                .defendantSurname(defendant.getDefendantSurname())
+                .defendantForename(defendant.getName().getForename1())
                 .name(defendant.getName())
                 .defendantAddress(defendant.getAddress())
                 .defendantDob(defendant.getDateOfBirth())

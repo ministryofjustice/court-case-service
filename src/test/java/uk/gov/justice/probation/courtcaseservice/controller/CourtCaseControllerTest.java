@@ -98,6 +98,7 @@ class CourtCaseControllerTest {
                     HearingDefendantEntity.builder()
                             .defendant(DefendantEntity.builder()
                                     .defendantId(DEFENDANT_ID)
+                                    .name(NamePropertiesEntity.builder().forename1("Joe").surname("Bloggs").build())
                                     .build())
                             .build()
             ))

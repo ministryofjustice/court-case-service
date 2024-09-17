@@ -393,11 +393,16 @@ public class CourtCaseController {
                 .hearingDay(date)
                 .source(null)
                 .breach(false)
+                .numberOfPossibleMatches(numberOfPossibleMatches)
+                .forename(forename)
+                .surname(surname)
+                .defendantName(defendantName)
+                .caseId(caseId)
+                .hearingId(hearingId)
+                .defendantId(defendantId)
                 .build();
 
-        var courtCases = courtCaseService.filterHearings(hearingSearchFilter);
-
-        var courtCaseResponses = filterCourtCaseResponses(date, numberOfPossibleMatches, forename, surname, defendantName, caseId, hearingId, defendantId, courtCases);
+        var courtCaseResponses = courtCaseService.filterHearingsForMatcher(hearingSearchFilter);
 
         return partialResponse.body(CaseListResponse.builder().cases(courtCaseResponses).build());
     }
@@ -442,24 +447,5 @@ public class CourtCaseController {
         final var defendant = Optional.ofNullable(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).orElseThrow();
         var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingEntity.getCaseId(), defendant.getDefendantId()).orElse(0);
         return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate);
-    }
-
-    List<CourtCaseResponse> filterCourtCaseResponses(LocalDate date, Long numberOfPossibleMatches, String forename, String surname,
-                                                     String defendantName, String caseId, String hearingId, String defendantId, List<HearingEntity> courtCases) {
-        return courtCases.stream()
-                .flatMap(courtCaseEntity -> buildCourtCaseResponses(courtCaseEntity, date).stream())
-                .filter(courtCaseResponse -> courtCaseResponse.getProbationStatus().equalsIgnoreCase(CourtCaseResponse.POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS))
-                .filter(courtCaseResponse -> numberOfPossibleMatches == null || courtCaseResponse.getNumberOfPossibleMatches() == numberOfPossibleMatches)
-                .filter(courtCaseResponse -> defendantName == null || courtCaseResponse.getDefendantName().equalsIgnoreCase(defendantName))
-                .filter(courtCaseResponse -> surname == null || courtCaseResponse.getDefendantSurname().equalsIgnoreCase(surname))
-                .filter(courtCaseResponse -> forename == null || courtCaseResponse.getDefendantForename().equalsIgnoreCase(forename))
-                .filter(courtCaseResponse -> caseId == null || courtCaseResponse.getCaseId().equalsIgnoreCase(caseId))
-                .filter(courtCaseResponse -> hearingId == null || courtCaseResponse.getHearingId().equalsIgnoreCase(hearingId))
-                .filter(courtCaseResponse -> defendantId == null ||courtCaseResponse.getDefendantId().equalsIgnoreCase(defendantId))
-                .sorted(Comparator
-                        .comparing(CourtCaseResponse::getCourtRoom)
-                        .thenComparing(CourtCaseResponse::getSessionStartTime)
-                        .thenComparing(CourtCaseResponse::getName))
-                .collect(Collectors.toList());
     }
 }

@@ -16,6 +16,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.exceptions.Conflicti
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseListResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.*;
@@ -24,7 +25,9 @@ import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilt
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +44,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private final GroupedOffenderMatchRepository matchRepository;
     private final DomainEventService domainEventService;
     private final CourtCaseRepository courtCaseRepository;
+    private final OffenderMatchService offenderMatchService;
 
     private HearingRepository hearingRepository;
 
@@ -57,7 +61,8 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                                      CourtCaseRepository courtCaseRepository,
                                      ShortTermCustodyPredictorService shortTermCustodyPredictorService,
                                      HearingRepository hearingRepository,
-                                     PagedCaseListRepositoryCustom pagedCaseListRepositoryCustom) {
+                                     PagedCaseListRepositoryCustom pagedCaseListRepositoryCustom,
+                                     OffenderMatchService offenderMatchService) {
         this.courtRepository = courtRepository;
         this.hearingRepositoryFacade = hearingRepositoryFacade;
         this.telemetryService = telemetryService;
@@ -67,6 +72,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         this.shortTermCustodyPredictorService = shortTermCustodyPredictorService;
         this.hearingRepository = hearingRepository;
         this.pagedCaseListRepositoryCustom = pagedCaseListRepositoryCustom;
+        this.offenderMatchService = offenderMatchService;
     }
 
     @Override
@@ -133,6 +139,11 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     @Override
     public List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter) {
         return hearingRepositoryFacade.filterHearings(hearingSearchFilter);
+    }
+
+    @Override
+    public List<CourtCaseResponse> filterHearingsForMatcher(HearingSearchFilter hearingSearchFilter) {
+        return filterCourtCaseResponses(hearingSearchFilter, hearingRepositoryFacade.filterHearings(hearingSearchFilter));
     }
 
     @Override
@@ -324,6 +335,41 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                                     .collect(Collectors.toList())).orElse(null)
             );
         }
+    }
+
+    private List<CourtCaseResponse> buildCourtCaseResponses(HearingEntity hearingEntity, LocalDate hearingDate) {
+
+        var defendantEntities = new ArrayList<>(Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(Collections.emptyList()));
+
+        return defendantEntities.stream()
+                .sorted(Comparator.comparing(HearingDefendantEntity::getDefendantSurname))
+                .map(hearingDefendantEntity -> buildCourtCaseResponse(hearingEntity, hearingDate, hearingDefendantEntity))
+                .toList();
+    }
+
+
+    private CourtCaseResponse buildCourtCaseResponse(HearingEntity hearingEntity, LocalDate hearingDate, HearingDefendantEntity hearingDefendantEntity) {
+        final var defendant = Optional.ofNullable(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).orElseThrow();
+        var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingEntity.getCaseId(), defendant.getDefendantId()).orElse(0);
+        return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate);
+    }
+
+    List<CourtCaseResponse> filterCourtCaseResponses(HearingSearchFilter hearingSearchFilter, List<HearingEntity> hearingEntities) {
+        return hearingEntities.stream()
+                .flatMap(courtCaseEntity -> buildCourtCaseResponses(courtCaseEntity, hearingSearchFilter.getHearingDay()).stream())
+                .filter(courtCaseResponse -> courtCaseResponse.getProbationStatus().equalsIgnoreCase(CourtCaseResponse.POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS))
+                .filter(courtCaseResponse -> hearingSearchFilter.getNumberOfPossibleMatches() == null || courtCaseResponse.getNumberOfPossibleMatches() ==  hearingSearchFilter.getNumberOfPossibleMatches())
+                .filter(courtCaseResponse -> hearingSearchFilter.getDefendantName() == null || courtCaseResponse.getDefendantName().equalsIgnoreCase(hearingSearchFilter.getDefendantName()))
+                .filter(courtCaseResponse -> hearingSearchFilter.getSurname() == null || courtCaseResponse.getDefendantSurname().equalsIgnoreCase(hearingSearchFilter.getSurname()))
+                .filter(courtCaseResponse -> hearingSearchFilter.getForename() == null || courtCaseResponse.getDefendantForename().equalsIgnoreCase(hearingSearchFilter.getForename()))
+                .filter(courtCaseResponse -> hearingSearchFilter.getCaseId() == null || courtCaseResponse.getCaseId().equalsIgnoreCase(hearingSearchFilter.getCaseId()))
+                .filter(courtCaseResponse -> hearingSearchFilter.getHearingId() == null || courtCaseResponse.getHearingId().equalsIgnoreCase(hearingSearchFilter.getHearingId()))
+                .filter(courtCaseResponse -> hearingSearchFilter.getDefendantId() == null ||courtCaseResponse.getDefendantId().equalsIgnoreCase(hearingSearchFilter.getDefendantId()))
+                .sorted(Comparator
+                        .comparing(CourtCaseResponse::getCourtRoom)
+                        .thenComparing(CourtCaseResponse::getSessionStartTime)
+                        .thenComparing(CourtCaseResponse::getName))
+                .collect(Collectors.toList());
     }
 
 }

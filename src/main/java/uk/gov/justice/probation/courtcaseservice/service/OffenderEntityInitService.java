@@ -24,8 +24,7 @@ public class OffenderEntityInitService {
         var offender = offenderRepository.findByCrn(crn);
         if(offender.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
             Hibernate.initialize(offender.get().getDefendants());
-            var offenderDefendants = offender.get().getDefendants();
-            if(offenderDefendants == null) {
+            if(offender.get().getDefendants() == null) {
                 log.error("Offender is not associated to a Defendant. Offender CRN: {}", offender.get().getCrn());
             }
             offender.get().getDefendants().forEach(defendantEntity -> Hibernate.initialize(defendantEntity.getHearingDefendants()));

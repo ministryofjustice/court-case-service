@@ -39,7 +39,7 @@ public interface CourtCaseService {
 
     List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter);
 
-    List<CourtCaseResponse> filterHearingsForMatcher(HearingSearchFilter hearingSearchFilter);
+    CaseListResponse filterHearingsForMatcher(String courtCode, HearingSearchRequest hearingSearchFilter);
 
     Optional<CourtCaseEntity> findByCaseId(String caseId);
 

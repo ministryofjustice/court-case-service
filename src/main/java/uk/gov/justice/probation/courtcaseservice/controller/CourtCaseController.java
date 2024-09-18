@@ -354,57 +354,13 @@ public class CourtCaseController {
     }
 
     @Operation(summary = "Gets case data for a court on a date and parameters",
-            description = "Response is sorted by court room, session start time and by defendant surname. The createdAfter and " +
-                    "createdBefore filters will not filter out updates originating from prepare-a-case, these manual updates" +
-                    " are always assumed to be correct as they have been deliberately made by authorised users rather than " +
-                    "automated systems.")
-    @GetMapping(value = "/court/{courtCode}/matcher-cases", produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<CaseListResponse> getCaseListForMatcher(
+            description = "Response is filtered by the criteria supplied to the endpoint and sorted by court room, session start time and by defendant surname.")
+    @GetMapping(value = "/court/{courtCode}/cases/matcher", produces = APPLICATION_JSON_VALUE)
+    public CaseListResponse getCaseListForMatcher(
             @PathVariable String courtCode,
-            @RequestParam(value = "date")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(value = "numberOfPossibleMatches", required = false) Long numberOfPossibleMatches,
-            @RequestParam(value = "forename", required = false) String forename,
-            @RequestParam(value = "surname", required = false) String surname,
-            @RequestParam(value = "defendantName", required = false) String defendantName,
-            @RequestParam(value = "caseId", required = false) String caseId,
-            @RequestParam(value = "hearingId", required = false) String hearingId,
-            @RequestParam(value = "defendantId", required = false) String defendantId,
-            WebRequest webRequest
+            @Valid HearingSearchRequest hearingSearchRequest
     ) {
-        var partialResponse = ResponseEntity.ok();
-        if (enableCacheableCaseList) {
-            var lastModified = courtCaseService.filterHearingsLastModified(courtCode, date)
-                    .orElse(NEVER_MODIFIED_DATE)
-                    .toInstant(ZoneOffset.UTC);
-            if (webRequest.checkNotModified(lastModified.toEpochMilli())) {
-                return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
-                        .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS))
-                        .build();
-            }
-
-            partialResponse = partialResponse
-                    .lastModified(lastModified)
-                    .cacheControl(CacheControl.maxAge(MAX_AGE, TimeUnit.SECONDS));
-        }
-
-        final var hearingSearchFilter = HearingSearchFilter.builder()
-                .courtCode(courtCode)
-                .hearingDay(date)
-                .source(null)
-                .breach(false)
-                .numberOfPossibleMatches(numberOfPossibleMatches)
-                .forename(forename)
-                .surname(surname)
-                .defendantName(defendantName)
-                .caseId(caseId)
-                .hearingId(hearingId)
-                .defendantId(defendantId)
-                .build();
-
-        var courtCaseResponses = courtCaseService.filterHearingsForMatcher(hearingSearchFilter);
-
-        return partialResponse.body(CaseListResponse.builder().cases(courtCaseResponses).build());
+        return courtCaseService.filterHearingsForMatcher(courtCode, hearingSearchRequest);
     }
 
     @Operation(summary = "Gets case data for a court on a date with pagination support",

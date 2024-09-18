@@ -12,13 +12,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import uk.gov.justice.probation.courtcaseservice.controller.exceptions.ConflictingInputException;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepStatus;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.DTOHelper;
@@ -43,11 +41,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositor
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.PagedCaseListRepositoryCustom;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
-import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -61,15 +57,13 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.probation.courtcaseservice.jpa.DTOHelper.DEFENDANT_ID_2;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID2;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.HEARING_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.PROBATION_STATUS;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM;
 
 @ExtendWith(MockitoExtension.class)
 class ImmutableCourtCaseServiceTest {
@@ -99,8 +93,6 @@ class ImmutableCourtCaseServiceTest {
     private HearingRepository hearingRepository;
     @Mock
     private PagedCaseListRepositoryCustom pagedCaseListRepositoryCustom;
-    @Mock
-    private OffenderMatchService offenderMatchService;
 
     @ExtendWith(MockitoExtension.class)
     @Nested
@@ -115,7 +107,7 @@ class ImmutableCourtCaseServiceTest {
         void setup() {
             service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository,
                     domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository,
-                    pagedCaseListRepositoryCustom, offenderMatchService);
+                    pagedCaseListRepositoryCustom);
             lenient().when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             incomingHearing = EntityHelper.aHearingEntity(CRN, CASE_NO);
             offender = OffenderEntity.builder().crn("X99999").probationStatus(OffenderProbationStatus.of(PROBATION_STATUS)).build();
@@ -146,7 +138,7 @@ class ImmutableCourtCaseServiceTest {
         void setup() {
             service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository,
                     domainEventService, courtCaseRepository, shortTermCustodyPredictorService,hearingRepository,
-                    pagedCaseListRepositoryCustom,  offenderMatchService);
+                    pagedCaseListRepositoryCustom);
             lenient().when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             hearing = EntityHelper.aHearingEntity(CRN, CASE_NO);
         }
@@ -306,7 +298,7 @@ class ImmutableCourtCaseServiceTest {
         void setup() {
             service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository,
                     domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository,
-                    pagedCaseListRepositoryCustom,  offenderMatchService);
+                    pagedCaseListRepositoryCustom);
             lenient().when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             hearing = EntityHelper.aHearingEntity(CRN, CASE_NO);
         }
@@ -484,7 +476,7 @@ class ImmutableCourtCaseServiceTest {
         void setup() {
             service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository,
                     domainEventService, courtCaseRepository, shortTermCustodyPredictorService, hearingRepository,
-                    pagedCaseListRepositoryCustom, offenderMatchService);
+                    pagedCaseListRepositoryCustom);
         }
 
         @Test
@@ -505,7 +497,7 @@ class ImmutableCourtCaseServiceTest {
         void givenUseExtendedCases_filterByHearingDayShouldRetrieveCourtCasesFromRepository() {
             service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository,
                     domainEventService, courtCaseRepository, shortTermCustodyPredictorService,
-                    hearingRepository, pagedCaseListRepositoryCustom, offenderMatchService);
+                    hearingRepository, pagedCaseListRepositoryCustom);
             when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             when(courtEntity.getCourtCode()).thenReturn(COURT_CODE);
             when(hearingRepositoryFacade.findByCourtCodeAndHearingDay(COURT_CODE, SEARCH_DATE, CREATED_AFTER, CREATED_BEFORE))
@@ -562,81 +554,6 @@ class ImmutableCourtCaseServiceTest {
 
             assertThat(lastModified).isEmpty();
         }
-
-        @Test
-        void filterCourtCaseResponsesWithSampleCriteria() {
-            List<HearingEntity> hearingEntities = List.of(HearingEntity.builder()
-                    .hearingId(HEARING_ID)
-                    .hearingDays(List.of(HearingDayEntity.builder()
-                            .day(LocalDate.of(2019, 12, 14))
-                            .courtRoom("Courtroom 1")
-                            .time(LocalTime.of(1, 1, 1)).build()))
-                    .courtCase(CourtCaseEntity.builder()
-                            .caseId(CASE_ID)
-                            .caseNo(CASE_ID)
-                            .sourceType(COMMON_PLATFORM).build())
-                    .hearingDefendants(List.of(HearingDefendantEntity.builder()
-                                    .defendantId(DEFENDANT_ID)
-                                    .defendant(DefendantEntity.builder()
-                                            .defendantId(DEFENDANT_ID)
-                                            .defendantName("Joe Bloggs")
-                                            .name(NamePropertiesEntity.builder().forename1("Joe").surname("Bloggs").build())
-                                            .build())
-                                    .build(),
-                            HearingDefendantEntity.builder()
-                                    .defendantId(DEFENDANT_ID2)
-                                    .defendant(DefendantEntity.builder()
-                                            .defendantId(DEFENDANT_ID2)
-                                            .defendantName("Fred Smith")
-                                            .name(NamePropertiesEntity.builder().forename1("Fred").surname("Smith").build())
-                                            .build())
-                                    .build())).build());
-
-            Mockito.when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID)).thenReturn(Optional.of(3));
-
-            List<CourtCaseResponse> forename = service.filterCourtCaseResponses(
-                    HearingSearchFilter.builder().hearingDay(LocalDate.of(2019, 12, 14)).forename("Joe").build(),
-                    hearingEntities);
-            assertThat(forename.size()).isEqualTo(1);
-
-            List<CourtCaseResponse> numberOfMatches = service.filterCourtCaseResponses(
-                    HearingSearchFilter.builder().hearingDay(LocalDate.of(2019, 12, 14)).numberOfPossibleMatches(3L).build(),
-                    hearingEntities);
-            assertThat(numberOfMatches.size()).isEqualTo(1);
-            assertThat(numberOfMatches.getFirst().getNumberOfPossibleMatches()).isEqualTo(3L);
-
-            List<CourtCaseResponse> defendantName = service.filterCourtCaseResponses(
-                    HearingSearchFilter.builder().hearingDay(LocalDate.of(2019, 12, 14)).defendantName("Joe Bloggs").build(),
-                    hearingEntities);
-            assertThat(defendantName.size()).isEqualTo(1);
-            assertThat(defendantName.getFirst().getDefendantName()).isEqualTo("Joe Bloggs");
-
-            List<CourtCaseResponse> caseId = service.filterCourtCaseResponses(
-                    HearingSearchFilter.builder().hearingDay(LocalDate.of(2019, 12, 14)).caseId(CASE_ID).build(),
-                    hearingEntities);
-            assertThat(caseId.size()).isEqualTo(1);
-            assertThat(caseId.getFirst().getCaseId()).isEqualTo(CASE_ID);
-
-            List<CourtCaseResponse> hearingId = service.filterCourtCaseResponses(
-                    HearingSearchFilter.builder().hearingDay(LocalDate.of(2019, 12, 14)).hearingId(HEARING_ID).build(),
-                    hearingEntities);
-            assertThat(hearingId.size()).isEqualTo(1);
-            assertThat(hearingId.getFirst().getHearingId()).isEqualTo(HEARING_ID);
-
-            Mockito.when(offenderMatchService.getMatchCountByCaseIdAndDefendant(CASE_ID, DEFENDANT_ID2)).thenReturn(Optional.of(3));
-
-            List<CourtCaseResponse> surname = service.filterCourtCaseResponses(
-                    HearingSearchFilter.builder().hearingDay(LocalDate.of(2019, 12, 14)).surname("Smith").build(),
-                    hearingEntities);
-            assertThat(surname.size()).isEqualTo(1);
-            assertThat(surname.getFirst().getDefendantSurname()).isEqualTo("Smith");
-
-            List<CourtCaseResponse> defendantId = service.filterCourtCaseResponses(
-                    HearingSearchFilter.builder().hearingDay(LocalDate.of(2019, 12, 14)).surname("Smith").defendantId(DEFENDANT_ID2).build(),
-                    hearingEntities);
-            assertThat(defendantId.size()).isEqualTo(1);
-            assertThat(defendantId.getFirst().getDefendantSurname()).isEqualTo("Smith");
-        }
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -653,7 +570,7 @@ class ImmutableCourtCaseServiceTest {
         void setup() {
             service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository,
                     domainEventService, courtCaseRepository, shortTermCustodyPredictorService,
-                    hearingRepository, pagedCaseListRepositoryCustom, offenderMatchService);
+                    hearingRepository, pagedCaseListRepositoryCustom);
         }
 
         @Test
@@ -662,16 +579,23 @@ class ImmutableCourtCaseServiceTest {
             LocalDate hearingDay = DTOHelper.SESSION_START_TIME.toLocalDate();
 
             var req = new HearingSearchRequest(
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of(),
-                false,
-                false,
-                null,
-                hearingDay,
-                1,
-                5
+                    List.of(),
+                    List.of(),
+                    List.of(),
+                    List.of(),
+                    false,
+                    false,
+                    null,
+                    hearingDay,
+                    1,
+                    5,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
             );
 
             when(groupedOffenderMatchRepository.getPossibleMatchesCountByDate(COURT_CODE, hearingDay)).thenReturn(Optional.of(2));
@@ -701,6 +625,79 @@ class ImmutableCourtCaseServiceTest {
             verify(groupedOffenderMatchRepository).getPossibleMatchesCountByDate(COURT_CODE, hearingDay);
             verifyNoMoreInteractions(hearingRepository);
         }
+
+        @Test
+        void filterCourtCaseResponsesWithSampleCriteriaForMatcher() {
+            HearingDefendantDTO hearingDefendant = DTOHelper.aNoRecordHearingDefendantDTO(5990, DTOHelper.DEFENDANT_ID);
+            hearingDefendant.setPrepStatus(String.valueOf(HearingPrepStatus.IN_PROGRESS));
+            hearingDefendant.setHearing(DTOHelper.aHearingDTO(CASE_ID));
+            HearingDefendantDTO hearingDefendant2 = DTOHelper.aNoRecordHearingDefendantDTO(5991, DEFENDANT_ID_2,
+                    NamePropertiesEntity.builder().forename1("Joe").surname("BLOGGS").title("Mr").build());
+            hearingDefendant2.setPrepStatus(String.valueOf(HearingPrepStatus.IN_PROGRESS));
+            hearingDefendant2.setHearing(DTOHelper.aHearingDTO("ac24a1be-939b-49a4-a524-21a3d228f8b"));
+            Pair pair = new Pair(hearingDefendant, 2);
+            Pair pair2 = new Pair(hearingDefendant2, 2);
+            PageImpl pageImpl = new PageImpl<>(List.of(pair, pair2), Pageable.ofSize(5).withPage(1), 1);
+
+            var forename = new HearingSearchRequest(List.of(), List.of(), List.of(), List.of(),false,false,
+                    null, DTOHelper.SESSION_START_TIME.toLocalDate(),1,5,null,
+                    "Gordon",null,null,null,null,null);
+            when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, forename))
+                    .thenReturn(pageImpl);
+            var resultForename = service.filterHearingsForMatcher(COURT_CODE,
+                    forename);
+            assertThat(resultForename.getCases().size()).isEqualTo(1);
+            assertThat(resultForename.getCases().getFirst().getDefendantForename()).isEqualTo("Gordon");
+
+            var surname = new HearingSearchRequest(List.of(), List.of(), List.of(), List.of(),false,false,
+                    null,DTOHelper.SESSION_START_TIME.toLocalDate(),1,5,null,
+                    null,"bennett",null,null,null,null);
+            when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, surname)).thenReturn(pageImpl);
+            var resultSurname = service.filterHearingsForMatcher(COURT_CODE, surname);
+            assertThat(resultSurname.getCases().size()).isEqualTo(1);
+            assertThat(resultSurname.getCases().getFirst().getDefendantSurname()).isEqualTo("BENNETT");
+
+            var numberOfMatches = new HearingSearchRequest(List.of(), List.of(), List.of(), List.of(),false,false,
+                    null,DTOHelper.SESSION_START_TIME.toLocalDate(),1,5,2L,
+                    null,null,null,null,null,null);
+            when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, numberOfMatches)).thenReturn(pageImpl);
+            var resultNumberOfMatches = service.filterHearingsForMatcher(COURT_CODE, numberOfMatches);
+            assertThat(resultNumberOfMatches.getCases().size()).isEqualTo(2);
+            assertThat(resultNumberOfMatches.getCases().getFirst().getNumberOfPossibleMatches()).isEqualTo(2);
+
+            var defendantName = new HearingSearchRequest(List.of(), List.of(), List.of(), List.of(),false,false,
+                    null,DTOHelper.SESSION_START_TIME.toLocalDate(),1,5,null,
+                    null,null,"Mr Joe Bloggs",null,null,null);
+            when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, defendantName)).thenReturn(pageImpl);
+            var resultDefendantName = service.filterHearingsForMatcher(COURT_CODE, defendantName);
+            assertThat(resultDefendantName.getCases().size()).isEqualTo(1);
+            assertThat(resultDefendantName.getCases().getFirst().getDefendantName()).isEqualTo("Mr Joe BLOGGS");
+
+            var caseId = new HearingSearchRequest(List.of(), List.of(), List.of(), List.of(),false,false,
+                    null,DTOHelper.SESSION_START_TIME.toLocalDate(),1,5,null,
+                    null,null,null,CASE_ID,null,null);
+            when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, caseId)).thenReturn(pageImpl);
+            var resultCaseId = service.filterHearingsForMatcher(COURT_CODE, caseId);
+            assertThat(resultCaseId.getCases().size()).isEqualTo(1);
+            assertThat(resultCaseId.getCases().getFirst().getCaseId()).isEqualTo(CASE_ID);
+            assertThat(resultCaseId.getCases().getFirst().getDefendantName()).isEqualTo("Mr Gordon BENNETT");
+
+            var hearingId = new HearingSearchRequest(List.of(), List.of(), List.of(), List.of(),false,false,
+                    null,DTOHelper.SESSION_START_TIME.toLocalDate(),1,5,null,
+                    null,null,null, null, HEARING_ID,null);
+            when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, hearingId)).thenReturn(pageImpl);
+            var resultHearingId = service.filterHearingsForMatcher(COURT_CODE, hearingId);
+            assertThat(resultHearingId.getCases().size()).isEqualTo(2);
+            assertThat(resultHearingId.getCases().getFirst().getHearingId()).isEqualTo(HEARING_ID);
+
+            var defendantId = new HearingSearchRequest(List.of(), List.of(), List.of(), List.of(),false,false,
+                    null,DTOHelper.SESSION_START_TIME.toLocalDate(),1,5,null,
+                    null,null,null, null, null, DEFENDANT_ID_2);
+            when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, defendantId)).thenReturn(pageImpl);
+            var resultDefendantId = service.filterHearingsForMatcher(COURT_CODE, defendantId);
+            assertThat(resultDefendantId.getCases().size()).isEqualTo(1);
+            assertThat(resultDefendantId.getCases().getFirst().getDefendantId()).isEqualTo(DEFENDANT_ID_2);
+        }
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -712,7 +709,7 @@ class ImmutableCourtCaseServiceTest {
         void setup() {
             service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository,
                     domainEventService, courtCaseRepository, shortTermCustodyPredictorService,
-                    hearingRepository, pagedCaseListRepositoryCustom, offenderMatchService);
+                    hearingRepository, pagedCaseListRepositoryCustom);
         }
 
         @Test
@@ -760,7 +757,7 @@ class ImmutableCourtCaseServiceTest {
         void setup() {
             service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService, groupedOffenderMatchRepository,
                     domainEventService, courtCaseRepository, shortTermCustodyPredictorService,
-                    hearingRepository, pagedCaseListRepositoryCustom, offenderMatchService);
+                    hearingRepository, pagedCaseListRepositoryCustom);
         }
 
         @Test
@@ -831,7 +828,7 @@ class ImmutableCourtCaseServiceTest {
         void setup() {
             service = new ImmutableCourtCaseService(courtRepository, hearingRepositoryFacade, telemetryService,
                     groupedOffenderMatchRepository, domainEventService, courtCaseRepository,
-                    shortTermCustodyPredictorService, hearingRepository, pagedCaseListRepositoryCustom, offenderMatchService);
+                    shortTermCustodyPredictorService, hearingRepository, pagedCaseListRepositoryCustom);
         }
 
         @Test

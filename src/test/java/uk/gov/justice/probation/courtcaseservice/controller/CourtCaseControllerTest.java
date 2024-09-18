@@ -538,7 +538,14 @@ class CourtCaseControllerTest {
             null,
             LocalDate.of(2023, 7, 3),
             1,
-            5
+            5,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
         );
         given(courtCaseService.filterHearings(COURT_CODE, req)).willReturn(CaseListResponse.builder().build());
         var result = courtCaseController.getCaseList(COURT_CODE, req);

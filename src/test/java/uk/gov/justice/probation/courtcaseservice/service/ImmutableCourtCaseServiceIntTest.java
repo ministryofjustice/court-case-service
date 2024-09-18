@@ -257,14 +257,21 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
         var req = new HearingSearchRequest(
             List.of(),
             List.of(),
-            List.of(),
-            List.of(),
-            false,
-            false,
-            null,
-            LocalDate.of(2023, 7, 3),
-            1,
-            5
+                List.of(),
+                List.of(),
+                false,
+                false,
+                null,
+                LocalDate.of(2023, 7, 3),
+                1,
+                5,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
         );
         var result = courtCaseService.filterHearings("B14LO", req);
         assertThat(result.getCases().size()).isEqualTo(5);

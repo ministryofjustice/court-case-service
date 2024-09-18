@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.kotlin.MockingKt;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
@@ -45,10 +46,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM;
 
 @ExtendWith(MockitoExtension.class)
@@ -100,6 +98,7 @@ class CourtCaseControllerTest {
                     HearingDefendantEntity.builder()
                             .defendant(DefendantEntity.builder()
                                     .defendantId(DEFENDANT_ID)
+                                    .name(NamePropertiesEntity.builder().forename1("Joe").surname("Bloggs").build())
                                     .build())
                             .build()
             ))
@@ -539,7 +538,14 @@ class CourtCaseControllerTest {
             null,
             LocalDate.of(2023, 7, 3),
             1,
-            5
+            5,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
         );
         given(courtCaseService.filterHearings(COURT_CODE, req)).willReturn(CaseListResponse.builder().build());
         var result = courtCaseController.getCaseList(COURT_CODE, req);

@@ -161,6 +161,40 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
         }
 
         @Test
+        void GET_cases_givenCommonPlatformSourceFilterParam_whenGetCases_thenReturnMatchedCaseBasedOnDefendantName() {
+
+            given()
+                    .auth()
+                    .oauth2(getToken())
+                    .when()
+                    .get("/court/{courtCode}/cases/matcher?date={date}&defendantName={defendantName}", COURT_CODE, DECEMBER_14.format(DateTimeFormatter.ISO_DATE), "Ms Emma Radical")
+                    .then()
+                    .assertThat()
+                    .statusCode(200)
+                    .body("cases", hasSize(1))
+                    .body("cases[0].courtCode", equalTo(COURT_CODE))
+                    .body("cases[0].defendantName", equalTo("Ms Emma Radical"))
+            ;
+        }
+
+        @Test
+        void GET_cases_givenCommonPlatformSourceFilterParam_whenGetCases_thenReturnMatchedCaseBasedOnDefendantId() {
+
+            given()
+                    .auth()
+                    .oauth2(getToken())
+                    .when()
+                    .get("/court/{courtCode}/cases/matcher?date={date}&defendantId={defendantId}", COURT_CODE, DECEMBER_14.format(DateTimeFormatter.ISO_DATE), "7a320a46-037c-481c-ab1e-dbfab62af4d6")
+                    .then()
+                    .assertThat()
+                    .statusCode(200)
+                    .body("cases", hasSize(1))
+                    .body("cases[0].courtCode", equalTo(COURT_CODE))
+                    .body("cases[0].defendantName", equalTo("Ms Emma Radical"))
+            ;
+        }
+
+        @Test
         void GET_cases_givenLibraSourceFilterParamWithBreachFilterParam_whenGetCases_thenReturnOnlyCasesWithBreachFlagTrue() {
 
             given()

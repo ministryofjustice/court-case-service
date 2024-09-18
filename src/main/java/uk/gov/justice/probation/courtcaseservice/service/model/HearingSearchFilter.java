@@ -21,4 +21,11 @@ public class HearingSearchFilter {
     LocalDate hearingDay;
     String source;
     boolean breach;
+    Long numberOfPossibleMatches;
+    String forename;
+    String surname;
+    String defendantName;
+    String caseId;
+    String hearingId;
+    String defendantId;
 }

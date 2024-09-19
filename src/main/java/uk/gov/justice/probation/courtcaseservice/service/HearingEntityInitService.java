@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-@Slf4j
 @Service
 public class HearingEntityInitService {
 
@@ -165,11 +163,7 @@ public class HearingEntityInitService {
                         Hibernate.initialize(hearingDefendantEntity.getDefendant().getHearingDefendants());
                         hearingDefendantEntity.getOffences().forEach(offence -> Hibernate.initialize(offence.getJudicialResults()));
                         if(hearingDefendantEntity.getDefendant().getOffender() != null) {
-                            var offenderDefendants = hearingDefendantEntity.getDefendant().getOffender().getDefendants();
-                            if (offenderDefendants == null){
-                                log.error("Offender is not associated to a Defendant. Offender CRN: {} , Defendant id: {} and Hearing id: {}", hearingDefendantEntity.getDefendant().getOffender().getCrn(), hearingDefendantEntity.getDefendantId(), hearingDefendantEntity.getHearing().getHearingId());
-                            }
-                            Hibernate.initialize(offenderDefendants);
+                            Hibernate.initialize(hearingDefendantEntity.getDefendant().getOffender().getDefendants());
                         }
                     }
             );

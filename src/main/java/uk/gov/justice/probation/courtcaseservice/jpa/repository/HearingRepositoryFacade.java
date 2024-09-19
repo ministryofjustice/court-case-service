@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@Slf4j
 @Repository
 @Transactional
 /**
@@ -120,9 +122,13 @@ public class HearingRepositoryFacade {
     }
 
     private void updateWithExistingOffenders(HearingEntity hearingEntity) {
-        hearingEntity.getHearingDefendants().stream().filter(hearingDefendantEntity ->
-                Objects.nonNull(hearingDefendantEntity.getDefendant().getOffender()) &&
-                    Objects.isNull(hearingDefendantEntity.getDefendant().getOffender().getId()))
+        hearingEntity.getHearingDefendants().stream().filter(hearingDefendantEntity -> {
+                    if (hearingDefendantEntity.getDefendant().getOffender() == null) {
+                        log.info("Defendant with id {} has no offender", hearingDefendantEntity.getDefendant().getDefendantId());
+                    }
+                    return Objects.nonNull(hearingDefendantEntity.getDefendant().getOffender()) && Objects.isNull(hearingDefendantEntity.getDefendant().getOffender().getId());
+                }
+        )
             .forEach((HearingDefendantEntity hearingDefendantEntity) -> {
                 var defendant = hearingDefendantEntity.getDefendant();
                 defendant.setOffender(offenderRepositoryFacade.upsertOffender(defendant.getOffender()));

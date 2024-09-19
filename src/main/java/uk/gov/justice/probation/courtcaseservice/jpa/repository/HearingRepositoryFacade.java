@@ -126,14 +126,14 @@ public class HearingRepositoryFacade {
                     if (hearingDefendantEntity.getDefendant().getOffender() == null) {
                         log.info("Defendant with id {} has no offender", hearingDefendantEntity.getDefendant().getDefendantId());
                     }
-                    return Objects.nonNull(hearingDefendantEntity.getDefendant().getOffender()) && Objects.isNull(hearingDefendantEntity.getDefendant().getOffender().getId());
-                }
-        )
+                    return Objects.nonNull(hearingDefendantEntity.getDefendant().getOffender()) &&
+                                    Objects.isNull(hearingDefendantEntity.getDefendant().getOffender().getId());
+                        })
             .forEach((HearingDefendantEntity hearingDefendantEntity) -> {
                 var defendant = hearingDefendantEntity.getDefendant();
                 var updatedOffender = offenderRepositoryFacade.upsertOffender(defendant.getOffender());
 
-                log.info("Updated offender has defendants? ", !updatedOffender.getDefendants().isEmpty());
+                log.info("Updated offender has defendants? ", !(Objects.isNull(updatedOffender.getDefendants()) || updatedOffender.getDefendants().isEmpty()));
                 defendant.setOffender(updatedOffender);
         });
     }

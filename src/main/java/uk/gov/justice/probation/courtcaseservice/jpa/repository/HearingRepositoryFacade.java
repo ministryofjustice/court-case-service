@@ -133,7 +133,7 @@ public class HearingRepositoryFacade {
                 var defendant = hearingDefendantEntity.getDefendant();
                 var updatedOffender = offenderRepositoryFacade.upsertOffender(defendant.getOffender());
 
-                log.info("Updated offender has defendants? ", !(Objects.isNull(updatedOffender.getDefendants()) || updatedOffender.getDefendants().isEmpty()));
+                log.info("Updated offender has defendants? {}", !(Objects.isNull(updatedOffender.getDefendants()) || updatedOffender.getDefendants().isEmpty()));
                 defendant.setOffender(updatedOffender);
         });
     }

@@ -25,7 +25,7 @@ public class OffenderEntityInitService {
         // Hibernate initialize seems to have issues if mapping over an optional
         offender.ifPresent(o -> {
             Hibernate.initialize(offender.get().getDefendants());
-            if (o.getDefendants() != null) {
+            if (o.getDefendants() != null) { // getDefendants() requires the defendant to exist in the database with an association to this offender.
                 o.getDefendants().forEach(defendantEntity -> Hibernate.initialize(defendantEntity.getHearingDefendants()));
             }
         });

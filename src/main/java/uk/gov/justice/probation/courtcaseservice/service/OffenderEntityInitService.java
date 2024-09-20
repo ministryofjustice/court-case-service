@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,6 +9,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderReposito
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class OffenderEntityInitService {
 
@@ -25,6 +27,8 @@ public class OffenderEntityInitService {
             Hibernate.initialize(offender.get().getDefendants());
             if (o.getDefendants() != null) {
                 o.getDefendants().forEach(defendantEntity -> Hibernate.initialize(defendantEntity.getHearingDefendants()));
+            } else {
+                log.error("Offender with crn {} has no defendants", crn);
             }
         });
         return offender;

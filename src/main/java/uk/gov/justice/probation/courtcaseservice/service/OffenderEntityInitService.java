@@ -20,10 +20,13 @@ public class OffenderEntityInitService {
     @Transactional
     public Optional<OffenderEntity> findByCrn(String crn) {
         var offender = offenderRepository.findByCrn(crn);
-        if(offender.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
+        // Hibernate initialize seems to have issues if mapping over an optional
+        offender.ifPresent(o -> {
             Hibernate.initialize(offender.get().getDefendants());
-            offender.get().getDefendants().forEach(defendantEntity -> Hibernate.initialize(defendantEntity.getHearingDefendants()));
-        }
+            if (o.getDefendants() != null) {
+                o.getDefendants().forEach(defendantEntity -> Hibernate.initialize(defendantEntity.getHearingDefendants()));
+            }
+        });
         return offender;
     }
 }

@@ -27,8 +27,6 @@ public class OffenderEntityInitService {
             Hibernate.initialize(offender.get().getDefendants());
             if (o.getDefendants() != null) {
                 o.getDefendants().forEach(defendantEntity -> Hibernate.initialize(defendantEntity.getHearingDefendants()));
-            } else {
-                log.error("Offender with crn {} has no defendants", crn);
             }
         });
         return offender;

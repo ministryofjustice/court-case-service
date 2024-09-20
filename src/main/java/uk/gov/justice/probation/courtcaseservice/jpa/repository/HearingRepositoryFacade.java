@@ -122,8 +122,13 @@ public class HearingRepositoryFacade {
     }
 
     private void updateWithExistingOffenders(HearingEntity hearingEntity) {
-        hearingEntity.getHearingDefendants().stream().filter(hearingDefendantEntity -> Objects.nonNull(hearingDefendantEntity.getDefendant().getOffender()) &&
-                                    Objects.isNull(hearingDefendantEntity.getDefendant().getOffender().getId()))
+        hearingEntity.getHearingDefendants().stream().filter(hearingDefendantEntity -> {
+                    if (hearingDefendantEntity.getDefendant().getOffender() == null) {
+                        log.info("Defendant with id {} has no offender", hearingDefendantEntity.getDefendant().getDefendantId());
+                    }
+                    return Objects.nonNull(hearingDefendantEntity.getDefendant().getOffender()) &&
+                                    Objects.isNull(hearingDefendantEntity.getDefendant().getOffender().getId());
+                        })
             .forEach((HearingDefendantEntity hearingDefendantEntity) -> {
                 var defendant = hearingDefendantEntity.getDefendant();
                 var updatedOffender = offenderRepositoryFacade.upsertOffender(defendant.getOffender());

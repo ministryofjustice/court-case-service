@@ -81,3 +81,5 @@ resources:
   memory:
     limit: 4Gi
     request: 2Gi
+
+alertSeverity: probation_in_court_alerts_prod

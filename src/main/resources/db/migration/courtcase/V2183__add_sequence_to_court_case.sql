@@ -1,0 +1,5 @@
+BEGIN;
+
+ALTER TABLE IF EXISTS COURT_CASE ALTER COLUMN id SET DEFAULT nextval('court_case_id_seq');
+
+COMMIT;

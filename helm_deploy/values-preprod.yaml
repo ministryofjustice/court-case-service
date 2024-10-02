@@ -17,7 +17,7 @@ ingress:
   enabled: true
   enable_whitelist: true
   hosts:
-    - host: court-case-service-preprod.apps.live-1.cloud-platform.service.justice.gov.uk
+    - host: court-case-service-preprod.apps.cloud-platform.service.justice.gov.uk
   path: /
 
 nginx_proxy:

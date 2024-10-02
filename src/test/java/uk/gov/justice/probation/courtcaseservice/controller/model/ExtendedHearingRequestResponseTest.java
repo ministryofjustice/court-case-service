@@ -388,6 +388,7 @@ class ExtendedHearingRequestResponseTest {
         assertThat(actual.getDefendants().get(0).getOffences().get(0).getAct()).isEqualTo("act2");
         assertThat(actual.getDefendants().get(0).getOffences().get(1).getAct()).isEqualTo("act");
         assertThat(actual.getDefendants().get(1).getPersonId()).isEqualTo("PersonId-2");
+        assertThat(actual.getLastUpdated()).isEqualTo(LocalDateTime.of(2024, 10, 2, 11, 11, 11));
 
 
     }
@@ -465,6 +466,7 @@ class ExtendedHearingRequestResponseTest {
                 .hearingId("HEARING_ID")
                 .hearingEventType(HearingEventType.CONFIRMED_OR_UPDATED)
                 .listNo("1")
+                .lastUpdated(LocalDateTime.of(2024, 10, 2, 11, 11, 11))
                 .courtCase(CourtCaseEntity.builder()
                         .sourceType(SourceType.LIBRA)
                         .caseId(CASE_ID)

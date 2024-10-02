@@ -63,6 +63,8 @@ public class ExtendedHearingRequestResponse {
     private final String listNo;
     private final List<CaseMarker> caseMarkers;
 
+    private final LocalDateTime lastUpdated;
+
     public static ExtendedHearingRequestResponse of(HearingEntity hearing) {
         return ExtendedHearingRequestResponse.builder()
                 .caseNo(hearing.getCaseNo())
@@ -73,6 +75,7 @@ public class ExtendedHearingRequestResponse {
                 .source(hearing.getSourceType().name())
                 .hearingEventType(Optional.ofNullable(hearing.getHearingEventType()).map(HearingEventType::getName).orElse(null))
                 .hearingType(hearing.getHearingType())
+                .lastUpdated(hearing.getLastUpdated())
                 .hearingDays(hearing.getHearingDays().stream()
                         .map(hearingDayEntity -> HearingDay.builder()
                                 .courtCode(hearingDayEntity.getCourtCode())

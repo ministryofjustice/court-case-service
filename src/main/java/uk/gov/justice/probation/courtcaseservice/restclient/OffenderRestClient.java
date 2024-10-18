@@ -32,6 +32,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.PssRequirement;
 import uk.gov.justice.probation.courtcaseservice.service.model.Registration;
 import uk.gov.justice.probation.courtcaseservice.service.model.Requirement;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
@@ -81,6 +82,7 @@ public class OffenderRestClient {
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError, (clientResponse) -> Mono.empty())
             .bodyToMono(CommunityApiOffenderResponse.class)
+            .timeout(Duration.ofMillis(8000))
             .doOnError(e -> log.error(String.format("Unexpected exception when retrieving offender match detail data for CRN '%s'", crn), e))
             .map(offender -> OffenderMapper.offenderMatchDetailFrom(offender, addressCode));
     }
@@ -102,6 +104,7 @@ public class OffenderRestClient {
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, (clientResponse) -> clientHelper.handleOffenderError(crn, clientResponse))
                 .bodyToMono(CommunityApiConvictionsResponse.class)
+                .timeout(Duration.ofMillis(8000))
                 .doOnError(e -> log.error(String.format("Unexpected exception when retrieving convictions data for CRN '%s'", crn), e))
                 .map(OffenderMapper::convictionsFrom);
     }

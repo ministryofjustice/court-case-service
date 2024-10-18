@@ -12,6 +12,7 @@ import uk.gov.justice.probation.courtcaseservice.client.exception.ExternalServic
 import uk.gov.justice.probation.courtcaseservice.client.model.DeliusProbationStatusDetail
 import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper
 import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDetail
+import java.time.Duration
 
 @Component
 class ProbationStatusDetailRestClient(
@@ -39,6 +40,7 @@ class ProbationStatusDetailRestClient(
                     ExternalService.PROBATION_STATUS_DETAIL)
             }
             .bodyToMono(DeliusProbationStatusDetail::class.java)
+            .timeout(Duration.ofMillis(8000))
             .map { DeliusProbationStatusDetail.from(it) }
     }
 

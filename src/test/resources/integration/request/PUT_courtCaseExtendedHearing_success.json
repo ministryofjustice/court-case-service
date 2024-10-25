@@ -1,0 +1,112 @@
+{
+  "courtCode": "B14LO",
+  "caseId": "1f93aa0a-7e46-4885-a1cb-f25a4be33a00",
+  "hearingId": "2aa6f5e0-f842-4939-bc6a-01346abc09e7",
+  "urn": "URN007",
+  "source": "COMMON_PLATFORM",
+  "hearingEventType": "ConfirmedOrUpdated",
+  "hearingType": "sentenced",
+  "hearingDays": [
+    {
+      "courtCode": "B14LO",
+      "courtRoom": "1",
+      "sessionStartTime": "2019-12-14T09:00:00",
+      "listNo": 4
+    }
+  ],
+  "caseMarkers": [
+    {
+      "markerTypeDescription": "description 1"
+    }
+  ],
+  "defendants": [
+    {
+      "name": {
+        "title": "Mr",
+        "forename1": "Dylan",
+        "forename2": "Adam",
+        "surname": "ARMSTRONG"
+      },
+      "dateOfBirth": "1958-12-14",
+      "address": {
+        "line1": "27",
+        "line2": "Elm Place",
+        "postcode": "ad21 5dr",
+        "line3": "Bangor"
+      },
+      "probationStatus": "PREVIOUSLY_KNOWN",
+      "type": "PERSON",
+      "sex": "MALE",
+      "crn": "X320741",
+      "pnc": "A/1234560BA",
+      "cro": "99999",
+      "defendantId": "40db17d6-04db-11ec-b2d8-0242ac130002",
+      "previouslyKnownTerminationDate": "2018-06-24",
+      "suspendedSentenceOrder": true,
+      "breach": true,
+      "preSentenceActivity": true,
+      "awaitingPsr": true,
+      "phoneNumber": {
+        "home": "07000000013",
+        "mobile": "07000000014",
+        "work": "07000000015"
+      },
+      "offender": {
+        "pnc": "OFFENDER_PNC"
+      },
+      "offences": [
+        {
+          "offenceTitle": "Theft from a shop",
+          "offenceSummary": "On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.",
+          "act": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
+          "offenceCode": "RT88191",
+          "listNo": 5,
+          "plea": {
+            "pleaValue": "plea value 1",
+            "pleaDate": "2023-03-01"
+          },
+          "verdict": {
+            "verdictType": {
+              "description": "type 1"
+            },
+            "date": "2023-03-01"
+          },
+          "judicialResults": [
+            {
+              "isConvictedResult": false,
+              "label": "Label-1",
+              "judicialResultType": {
+                "description": "Description-1",
+                "id": "ID-ONE"
+              },
+              "resultText": "result-text"
+            },
+            {
+              "isConvictedResult": false,
+              "label": "Label-2",
+              "judicialResultType": {
+                "description": "Description-2",
+                "id": "ID-TWO"
+              }
+            },
+            {
+              "isConvictedResult": false,
+              "label": "Label-3 loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooloooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooloooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooggggg",
+              "judicialResultType": {
+                "description": "Description-3 loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooloooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooloooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooggggg",
+                "id": "ID 3"
+              }
+            }
+          ]
+        },
+        {
+          "offenceTitle": "Theft from a different shop",
+          "offenceSummary": "On 02/01/2015 at own, stole article, to the value of £123.00, belonging to person. A very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very huuuuuuuuuuuuuuuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùuuuuuuuuuuuùgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee offence",
+          "act": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
+          "listNo": 8,
+          "offenceCode": "RT88191"
+        }
+      ]
+    }
+  ]
+}

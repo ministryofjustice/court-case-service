@@ -76,7 +76,7 @@ public class HearingDefendantEntity extends BaseAuditedEntity implements Seriali
     @NotAudited
     private List<HearingNoteEntity> notes;
 
-    @OneToOne(mappedBy = "hearingDefendant", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "hearingDefendant", cascade = CascadeType.ALL, orphanRemoval=true)
     private HearingOutcomeEntity hearingOutcome;
 
     public String getDefendantSurname() {

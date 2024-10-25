@@ -106,7 +106,7 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
         return Optional.ofNullable(hearingDefendants)
                 .map(Collection::stream)
                 .flatMap(defendantEntityStream -> defendantEntityStream
-                        .filter(d -> defendantId.equals(d.getDefendantId()))
+                        .filter(d -> defendantId.equalsIgnoreCase(d.getDefendantId()))
                         .findFirst()
                 )
                 .orElse(null);
@@ -134,7 +134,9 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
     private void updateHearingDefendant(HearingEntity hearingUpdate) {
         // remove hearing defendants that are not on the hearing update
         this.hearingDefendants.stream().filter(
-                        hearingDefendantEntity -> Objects.isNull(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId())))
+                        hearingDefendantEntity -> {
+                            return Objects.isNull(hearingUpdate.getHearingDefendant(hearingDefendantEntity.getDefendantId()));
+                        })
                 .toList()
                 .forEach(this::removeHearingDefendant);
 

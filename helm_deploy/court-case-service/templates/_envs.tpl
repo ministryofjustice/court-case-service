@@ -193,6 +193,18 @@ env:
         name: sqs-pic-new-offender-events-dlq-secret
         key: sqs_queue_name
 
+  - name: DATABASE_READONLY_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: court-case-service-readonly-user
+        key: database_readonly_username
+
+  - name: DATABASE_READONLY_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: court-case-service-readonly-user
+        key: database_readonly_password
+
   {{- with (index .Values.ingress.hosts 0)}}
   - name: INGRESS_URL
     value: {{ .host }}

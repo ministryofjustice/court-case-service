@@ -77,6 +77,11 @@ spring:
   flyway:
     defaultSchema: courtcaseservice
     locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local, filesystem:src/test/resources
+    placeholders:
+      schemas: ${database.schema.name}
+      readonly:
+        user: readonly
+        password: password
   jpa:
     show-sql: true
     properties:

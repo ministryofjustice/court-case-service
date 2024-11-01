@@ -94,6 +94,11 @@ spring:
     schemas: ${database.schema.name}
     locations: classpath:db/migration/courtcase
     enabled: true
+    placeholders:
+      schemas: ${database.schema.name}
+      readonly:
+        user: ${database.readonly.username}
+        password: ${database.readonly.password}
 
 
   jpa:

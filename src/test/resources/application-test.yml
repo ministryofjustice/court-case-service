@@ -43,6 +43,11 @@ hmpps-document-management-api-client:
 spring:
   flyway:
     clean-on-validation-error: true
+    placeholders:
+      schemas: courtcaseservicetest
+      readonly:
+        user: readonly
+        password: password
   jpa:
     show-sql: false
     properties:

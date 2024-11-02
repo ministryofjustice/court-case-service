@@ -1,4 +1,6 @@
 -- Create a group
+DROP ROLE IF EXISTS readonly;
+
 CREATE ROLE readonly;
 
 -- Grant access to existing tables

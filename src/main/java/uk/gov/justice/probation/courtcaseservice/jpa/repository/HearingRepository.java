@@ -16,7 +16,15 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
 
     Optional<HearingEntity> findFirstByHearingId(String hearingId);
 
+    @Query(value = "select * from hearing h where h.hearing_id = :hearingId " +
+            "and fk_court_case_id = (select id from court_case where case_id = :caseId)",
+            nativeQuery = true)
+    Optional<HearingEntity> findByHearingIdAndCaseId(String hearingId, String caseId);
+
     Optional<HearingEntity> findFirstByHearingDefendantsDefendantId(String defendantId);
+
+
+    Optional<HearingEntity> findByHearingDefendantsDefendantId(String defendantId);
 
     @Query(value = "select h.* from court_case cc " +
         "join hearing h on cc.id = h.fk_court_case_id " +

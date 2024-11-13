@@ -847,6 +847,23 @@ class ImmutableCourtCaseServiceTest {
             final var exception = assertThrows(EntityNotFoundException.class, () -> service.getHearingByHearingId(HEARING_ID));
             assertThat(exception.getMessage()).isEqualTo(String.format("Hearing %s not found", HEARING_ID));
         }
+
+        @Test
+        void givenHearingExistWithHearingId_whenGetByHearingIdAndCourtCaseId_thenReturnHearingEntity() {
+            when(hearingRepositoryFacade.findFirstByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID))
+                    .thenReturn(Optional.of(HearingEntity.builder().build()));
+            final var actual = service.getHearingByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID);
+            verify(hearingRepositoryFacade).findFirstByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID);
+            assertThat(actual).isEqualTo(HearingEntity.builder().build());
+        }
+
+        @Test
+        void givenHearingDoesNoeExistWithHearingId_whenGetByHearingIdAndCourtCaseId_thenThrowEntityNotFoundException() {
+            when(hearingRepositoryFacade.findFirstByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID))
+                    .thenReturn(Optional.empty());
+            final var exception = assertThrows(EntityNotFoundException.class, () -> service.getHearingByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID));
+            assertThat(exception.getMessage()).isEqualTo(String.format("Hearing %s not found for court case %s", HEARING_ID, CASE_ID));
+        }
     }
 
     record HearingEntityMatcher(String caseId,

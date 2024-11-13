@@ -51,6 +51,10 @@ public class HearingRepositoryFacade {
         return hearingEntityInitService.findFirstByHearingId(hearingId);
     }
 
+    public Optional<HearingEntity> findFirstByHearingIdAndCourtCaseId(String hearingId, String courtCaseId) {
+        return hearingEntityInitService.findFirstByHearingIdCourtCaseId(hearingId, courtCaseId);
+    }
+
     public Optional<HearingEntity> findFirstByHearingIdInitHearing(String hearingId) {
         return hearingEntityInitService.findFirstByHearingIdInitHearing(hearingId);
     }
@@ -80,8 +84,8 @@ public class HearingRepositoryFacade {
             });
     }
 
-    public Optional<HearingEntity> findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(String hearingId, String defendantId) {
-        return hearingEntityInitService.findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(hearingId, defendantId)
+    public Optional<HearingEntity> findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(String defendantId) {
+        return hearingEntityInitService.findAllHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(defendantId)
             .map(hearingEntity -> Objects.nonNull(hearingEntity.getHearingDefendant(defendantId)) ? hearingEntity : null)
             .map(hearingEntity -> {
                 hearingEntity.getCourtCase().setCaseComments(caseCommentsRepository.findByCaseIdAndDefendantIdAndDeletedFalse(hearingEntity.getCaseId(), defendantId));

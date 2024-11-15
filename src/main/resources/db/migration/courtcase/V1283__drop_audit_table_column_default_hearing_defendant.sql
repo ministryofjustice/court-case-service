@@ -1,0 +1,1 @@
+ALTER TABLE hearing_defendant_aud ALTER COLUMN prep_status DROP DEFAULT;

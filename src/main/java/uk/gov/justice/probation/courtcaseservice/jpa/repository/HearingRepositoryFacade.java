@@ -85,7 +85,7 @@ public class HearingRepositoryFacade {
     }
 
     public Optional<HearingEntity> findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(String hearingId, String defendantId) {
-        return hearingEntityInitService.findAllHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(hearingId, defendantId)
+        return hearingEntityInitService.findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(hearingId, defendantId)
             .map(hearingEntity -> Objects.nonNull(hearingEntity.getHearingDefendant(defendantId)) ? hearingEntity : null)
             .map(hearingEntity -> {
                 hearingEntity.getCourtCase().setCaseComments(caseCommentsRepository.findByCaseIdAndDefendantIdAndDeletedFalse(hearingEntity.getCaseId(), defendantId));

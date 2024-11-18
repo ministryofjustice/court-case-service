@@ -84,7 +84,7 @@ public class HearingEntityInitService {
     }
 
     @Transactional
-    public Optional<HearingEntity> findAllHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(String hearingId, String defendantId) {
+    public Optional<HearingEntity> findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(String hearingId, String defendantId) {
         var hearing = hearingRepository.findByHearingIdAndHearingDefendantsDefendantId(hearingId, defendantId);
 
         if(hearing.isPresent()) {

@@ -277,7 +277,7 @@ public class CourtCaseController {
         return ExtendedHearingRequestResponse.of(hearingEntity);
     }
 
-    @Operation(description = "Returns extended court case data, by hearing id.")
+    @Operation(description = "Returns extended court case data, by hearing id and court case id.")
     @GetMapping(value = "/hearing/{hearingId}/case/{courtCaseId}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody

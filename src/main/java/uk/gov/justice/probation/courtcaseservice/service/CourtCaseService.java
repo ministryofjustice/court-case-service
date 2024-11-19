@@ -20,6 +20,8 @@ public interface CourtCaseService {
 
     HearingEntity getHearingByHearingId(String hearingId) throws EntityNotFoundException;
 
+    HearingEntity getHearingByHearingIdAndCourtCaseId(String hearingId, String courtCaseId) throws EntityNotFoundException;
+
     HearingEntity getHearingByHearingIdAndDefendantId(String caseId, String defendantId) throws EntityNotFoundException;
 
     HearingEntity getHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(String hearingId, String defendantId) throws EntityNotFoundException;

@@ -277,6 +277,16 @@ public class CourtCaseController {
         return ExtendedHearingRequestResponse.of(hearingEntity);
     }
 
+    @Operation(description = "Returns extended court case data, by hearing id and court case id.")
+    @GetMapping(value = "/hearing/{hearingId}/case/{courtCaseId}", produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    ExtendedHearingRequestResponse getHearingByHearingIdAndCourtCaseId(@PathVariable(value = "hearingId") String hearingId,
+                                                                       @PathVariable(value = "courtCaseId") String courtCaseId) {
+        final var hearingEntity = courtCaseService.getHearingByHearingIdAndCourtCaseId(hearingId, courtCaseId);
+        return ExtendedHearingRequestResponse.of(hearingEntity);
+    }
+
     @Operation(description = "Saves and returns the offender details by defendant id.")
     @PutMapping(value = "/defendant/{defendantId}/offender", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)

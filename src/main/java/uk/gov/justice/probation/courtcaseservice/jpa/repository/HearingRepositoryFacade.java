@@ -51,6 +51,10 @@ public class HearingRepositoryFacade {
         return hearingEntityInitService.findFirstByHearingId(hearingId);
     }
 
+    public Optional<HearingEntity> findFirstByHearingIdAndCourtCaseId(String hearingId, String courtCaseId) {
+        return hearingEntityInitService.findFirstByHearingIdCourtCaseId(hearingId, courtCaseId);
+    }
+
     public Optional<HearingEntity> findFirstByHearingIdInitHearing(String hearingId) {
         return hearingEntityInitService.findFirstByHearingIdInitHearing(hearingId);
     }

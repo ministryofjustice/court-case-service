@@ -59,6 +59,20 @@ public class HearingRepositoryFacadeIntTest extends BaseIntTest {
     }
 
     @Test
+    public void whenFindFirstByHearingIdAndCourtCaseId_thenReturnCorrectRecordWithOffender() {
+        final var actual = hearingRepositoryFacade.findFirstByHearingIdAndCourtCaseId("5564cbfd-3d53-4f36-9508-437416b08738", "727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b");
+
+        assertIsFerrisBueller(actual);
+    }
+
+    @Test
+    public void whenFindFirstByHearingIdAndCourtCaseId_thenDoNotReturnRecord() {
+        final var actual = hearingRepositoryFacade.findFirstByHearingIdAndCourtCaseId("5564cbfd-3d53-4f36-9508-437416b08738", "827af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b");
+
+        assertThat(actual).isEmpty();
+    }
+
+    @Test
     public void whenFindByHearingIdAndDefendantId_thenReturnCorrectRecordWithOffender() {
         final var actual = hearingRepositoryFacade.findByHearingIdAndDefendantId("5564cbfd-3d53-4f36-9508-437416b08738", "0048297a-fd9c-4c96-8c03-8122b802a54d");
 

@@ -31,7 +31,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
                           val cutOffTime: LocalTime = LocalTime.of(18, 30)) {
 
     fun addOrUpdateHearingOutcome(hearingId: String, defendantId: String, hearingOutcomeType: HearingOutcomeType) {
-        hearingEntityInitService.findFirstByHearingIdAndInitHearingDefendants(hearingId).ifPresentOrElse(
+        hearingEntityInitService.findFirstByHearingIdAndInitHearingDefendants(hearingId, defendantId).ifPresentOrElse(
             { hearingEntity: HearingEntity ->
                 val hearingDefendant = hearingEntity.getHearingDefendant(defendantId)
                     ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
@@ -62,7 +62,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
     }
 
     fun resultHearingOutcome(hearingId: String, defendantId: String, userUuid: String, userId: String, userName: String, authSource: String) {
-        hearingEntityInitService.findFirstByHearingIdAndInitHearingDefendants(hearingId).ifPresentOrElse(
+        hearingEntityInitService.findFirstByHearingIdAndInitHearingDefendants(hearingId, defendantId).ifPresentOrElse(
                 {
                     val hearingDefendant = it.getHearingDefendant(defendantId)
                         ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
@@ -139,7 +139,7 @@ class CaseWorkflowService(val hearingRepository: HearingRepository,
     }
 
     fun updatePrepStatus(hearingId: String, defendantId: String, prepStatus: HearingPrepStatus) {
-        hearingEntityInitService.findFirstByHearingIdAndInitHearingDefendants(hearingId).ifPresentOrElse(
+        hearingEntityInitService.findFirstByHearingIdAndInitHearingDefendants(hearingId, defendantId).ifPresentOrElse(
             {
                 val hearingDefendant = it.getHearingDefendant(defendantId)
                     ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")

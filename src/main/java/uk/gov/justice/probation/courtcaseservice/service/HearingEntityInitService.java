@@ -56,8 +56,8 @@ public class HearingEntityInitService {
     }
 
     @Transactional
-    public Optional<HearingEntity> findFirstByHearingIdAndInitHearingDefendants(String hearingId) {
-        var hearing = hearingRepository.findFirstByHearingId(hearingId);
+    public Optional<HearingEntity> findFirstByHearingIdAndInitHearingDefendants(String hearingId, String defendantId) {
+        var hearing = hearingRepository.findByHearingIdAndHearingDefendantsDefendantId(hearingId, defendantId);
         hearing.ifPresent(hearingEntity -> Hibernate.initialize(hearingEntity.getHearingDefendants()));
         return hearing;
     }

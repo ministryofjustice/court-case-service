@@ -55,12 +55,8 @@ public class HearingRepositoryFacade {
         return hearingEntityInitService.findFirstByHearingIdCourtCaseId(hearingId, courtCaseId);
     }
 
-    public Optional<HearingEntity> findFirstByHearingIdInitHearing(String hearingId) {
-        return hearingEntityInitService.findFirstByHearingIdInitHearing(hearingId);
-    }
-
-    public Optional<HearingEntity> findFirstByHearingIdFileUpload(String hearingId) {
-        return hearingEntityInitService.findFirstByHearingIdFileUpload(hearingId);
+    public Optional<HearingEntity> findFirstByHearingIdFileUpload(String hearingId, String defendantId) {
+        return hearingEntityInitService.findFirstByHearingIdFileUpload(hearingId, defendantId);
     }
 
     public Optional<HearingEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo, String listNo) {

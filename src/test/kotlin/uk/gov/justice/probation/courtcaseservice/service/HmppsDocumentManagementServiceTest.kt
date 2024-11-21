@@ -116,7 +116,7 @@ internal class HmppsDocumentManagementServiceTest {
     @Test
     fun `given hearing id and defendantId and defendantId not found, when upload document, should throw entity not found exception`() {
 
-        given(hearingRepositoryFacade.findFirstByHearingIdFileUpload(HEARING_ID, DEFENDANT_ID)).willReturn(Optional.of(aHearingEntity()))
+        given(hearingRepositoryFacade.findFirstByHearingIdFileUpload(HEARING_ID, "invalid-defendant-id")).willReturn(Optional.of(aHearingEntity()))
 
         var e = assertThrows(EntityNotFoundException::class.java) {
             hmppsDocumentManagementService.uploadDocuments(

@@ -2,6 +2,9 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.microsoft.applicationinsights.boot.dependencies.apachecommons.io.FileUtils;
 import io.restassured.http.ContentType;
+import io.restassured.http.Method;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -25,6 +28,7 @@ import uk.gov.justice.probation.courtcaseservice.service.HearingEntityInitServic
 import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReference;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType;
+import uk.gov.justice.probation.courtcaseservice.testUtil.ConcurrentRequestUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +43,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -112,6 +117,27 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             PurgeQueueRequest.builder()
                 .queueUrl(getEmittedEventsQueueUrl())
                 .build());
+    }
+
+    @Test
+    void duplicate_hearings() throws ExecutionException, InterruptedException, TimeoutException {
+        RequestSpecification requestSpecification = given()
+                .auth()
+                .oauth2(getToken())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(caseDetailsExtendedJson)
+                .basePath(PUT_BY_HEARING_ID_ENDPOINT.replace("{hearingId}", JSON_HEARING_ID));
+
+        List<Response> responses = ConcurrentRequestUtil.runConcurrentRequests(requestSpecification, 5, Method.PUT);
+
+        System.out.println("Wait for it");
+        responses.forEach(r ->
+                r.then()
+                .statusCode(201)
+        );
+
+
     }
 
     @Test

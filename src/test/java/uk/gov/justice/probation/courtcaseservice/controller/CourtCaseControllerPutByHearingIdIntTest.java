@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.applicationinsights.boot.dependencies.apachecommons.io.FileUtils;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+
 import software.amazon.awssdk.services.sqs.model.PurgeQueueRequest;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
@@ -50,11 +51,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -62,7 +63,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static org.springframework.util.StreamUtils.copyToString;
-import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
+
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.OFFENDER_PNC;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TestUtils.UUID_REGEX;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;

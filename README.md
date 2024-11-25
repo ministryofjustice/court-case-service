@@ -7,6 +7,10 @@
 For more informations, check our [Runbook](https://dsdmoj.atlassian.net/wiki/spaces/NDSS/pages/2548662614/Prepare+a+Case+for+Sentence+RUNBOOK)
 
 ---
+## Testing
+
+`docker compose up localstack-court-case-service postgres`
+`./gradlew check`
 
 
 ## Quick Start
@@ -79,7 +83,7 @@ The following actuator endpoints are available:
 ---
 
 ## Database
-The application uses a Postgres 11 database which is managed by Flyway. The SpringBoot integration will automatically manage migrations, so we only need these commands for debugging or if the local database has become corrupted. 
+The application uses a Postgres 14 database which is managed by Flyway. The SpringBoot integration will automatically manage migrations, so we only need these commands for debugging or if the local database has become corrupted. 
 * *Clean schema* : `$ ./gradlew flywayClean`
 * *View details and status information about all migrations* : `$ ./gradlew flywayInfo`
 

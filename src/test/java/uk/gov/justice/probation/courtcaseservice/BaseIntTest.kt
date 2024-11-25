@@ -43,20 +43,11 @@ import uk.gov.justice.probation.courtcaseservice.wiremock.WiremockExtension
 import uk.gov.justice.probation.courtcaseservice.wiremock.WiremockMockServer
 import java.time.Duration
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
 @EnableRetry
 @Import(BaseIntTest.OverrideConfiguration::class)
 abstract class BaseIntTest {
-
-  @JvmField
-  @LocalServerPort
-  protected final var port = 0
-
-  @BeforeEach
-  fun setup() {
-    TestConfig.configureRestAssuredForIntTest(port)
-  }
 
   @Autowired
   protected lateinit var hmppsQueueService: HmppsQueueService
@@ -114,32 +105,14 @@ abstract class BaseIntTest {
 
 
   companion object {
-    private val localStackContainer = LocalStackHelper.instance
 
     protected val AWAITILITY_DURATION = Duration.ofSeconds(20)
-
-    @JvmStatic
-    @DynamicPropertySource
-    fun testcontainers(registry: DynamicPropertyRegistry) {
-      localStackContainer?.also { setLocalStackProperties(it, registry) }
-    }
 
     public val WIRE_MOCK_SERVER = WiremockMockServer( TestConfig.WIREMOCK_PORT)
 
     @RegisterExtension
     var wiremockExtension = WiremockExtension(WIRE_MOCK_SERVER)
-    var localstackImage = DockerImageName.parse("localstack/localstack:1.17.3")
 
-    @Container
-    var postgresqlContainer: PostgreSQLContainer<*> = CCSPostgresqlContainer.getInstance()
-
-    @JvmField
-    @ClassRule
-    var localstack = LocalStackContainer(localstackImage)
-      .withServices(
-        LocalStackContainer.Service.SNS,
-        LocalStackContainer.EnabledService.named("events")
-      )
 
     @BeforeAll
     @Throws(Exception::class)

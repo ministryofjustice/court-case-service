@@ -37,7 +37,6 @@ class OffenderControllerConvictionIntTest extends BaseIntTest {
 
     @BeforeEach
     void setUp() {
-        super.setup();
         featureFlags.setFlagValue("fetch-sentence-data",true);
     }
 

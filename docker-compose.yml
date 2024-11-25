@@ -3,14 +3,14 @@ version: '3.3'
 services:
 
   postgres:
-    image: postgres:11.15-alpine
+    image: postgres:14.12-alpine
     ports:
       - 5432:5432
     networks:
       - hmpps
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: dev
+      POSTGRES_USER: ituser
+      POSTGRES_PASSWORD: itpass
     tmpfs:
       - /var/lib/postgresql
 

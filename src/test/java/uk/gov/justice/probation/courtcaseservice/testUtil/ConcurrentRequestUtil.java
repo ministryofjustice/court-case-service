@@ -1,8 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice.testUtil;
 
-import io.restassured.http.Method;
-import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,42 +15,46 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-
-import static io.restassured.RestAssured.given;
+import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
 public class ConcurrentRequestUtil {
     private static final int REQUEST_TIMEOUT_SECONDS = 30;
 
-    public static List<Response> runConcurrentRequests(RequestSpecification requestSpec, int requestCount, Method method)
+    public static List<WebTestClient.ResponseSpec> runConcurrentRequests(WebTestClient.RequestBodyUriSpec requestSpec, int requestCount, List<String> ports, String url, Resource caseDetailsExtendedResource)
             throws InterruptedException, ExecutionException, TimeoutException {
         ExecutorService executor = Executors.newFixedThreadPool(requestCount);
-        List<Future<Response>> futures = new ArrayList<>();
+        List<Future<WebTestClient.ResponseSpec>> futures = new ArrayList<>();
         for (int i = 0; i < requestCount; i++) {
-            Future<Response> future = executor.submit(new SendRequest(requestSpec, method));
+
+            WebTestClient.RequestBodySpec spec = (WebTestClient.RequestBodySpec) requestSpec
+                    .uri(url.replace("{port}", ports.get(i % 2)))
+                    .header("authorization", "Bearer " + getToken())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(BodyInserters.fromResource(caseDetailsExtendedResource));
+            Future<WebTestClient.ResponseSpec> future = executor.submit(new SendRequest(spec));
             futures.add(future);
         }
         executor.shutdownNow();
 
-        List<Response> responses = new ArrayList<>();
-        for (Future<Response> future : futures) {
+        List<WebTestClient.ResponseSpec> responses = new ArrayList<>();
+        for (Future<WebTestClient.ResponseSpec> future : futures) {
             responses.add(future.get(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS));
         }
 
         return responses;
     }
 
-    static class SendRequest implements Callable<Response> {
-        private final RequestSpecification requestSpec;
-        private final Method httpMethod;
+    static class SendRequest implements Callable<WebTestClient.ResponseSpec> {
+        private final WebTestClient.RequestBodySpec requestSpec;
 
-        public SendRequest(RequestSpecification requestSpec, Method httpMethod) {
+        public SendRequest(WebTestClient.RequestBodySpec requestSpec) {
             this.requestSpec = requestSpec;
-            this.httpMethod = httpMethod;
         }
 
         @Override
-        public Response call() {
-            return given(requestSpec).request(httpMethod);
+        public WebTestClient.ResponseSpec call() {
+            return requestSpec.exchange();
         }
     }
 }

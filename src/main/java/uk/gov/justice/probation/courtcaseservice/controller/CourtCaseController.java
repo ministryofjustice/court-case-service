@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -64,7 +66,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
+import org.springframework.context.ApplicationContext;
 @Tag(name = "Court Case Resources")
 @RestController
 public class CourtCaseController {
@@ -82,6 +84,7 @@ public class CourtCaseController {
     private final AuthenticationHelper authenticationHelper;
     private final CaseProgressService caseProgressService;
     private final HearingNotesService hearingNotesService;
+    private final ApplicationContext applicationContext;
 
     @Autowired
     public CourtCaseController(CourtCaseService courtCaseService,
@@ -91,7 +94,8 @@ public class CourtCaseController {
                                AuthenticationHelper authenticationHelper,
                                CaseProgressService caseProgressService,
                                HearingNotesService hearingNotesService,
-                               @Value("${feature.flags.enable-cacheable-case-list:true}") boolean enableCacheableCaseList) {
+                               @Value("${feature.flags.enable-cacheable-case-list:true}") boolean enableCacheableCaseList,
+                               ApplicationContext applicationContext) {
         this.courtCaseService = courtCaseService;
         this.offenderMatchService = offenderMatchService;
         this.offenderUpdateService = offenderUpdateService;
@@ -100,7 +104,9 @@ public class CourtCaseController {
         this.authenticationHelper = authenticationHelper;
         this.caseProgressService = caseProgressService;
         this.hearingNotesService = hearingNotesService;
+        this.applicationContext = applicationContext;
     }
+    private static final Logger log = LoggerFactory.getLogger(CaseCommentsService.class);
 
     @Operation(description = "Gets the court case data by hearing id and defendant id.")
     @GetMapping(value = "/hearing/{hearingId}/defendant/{defendantId}", produces = APPLICATION_JSON_VALUE)
@@ -128,6 +134,18 @@ public class CourtCaseController {
     public @ResponseBody
     Mono<ExtendedHearingRequestResponse> createOrUpdateHearingByHearingId(@PathVariable(value = "hearingId") String hearingId,
                                                                           @Valid @RequestBody ExtendedHearingRequestResponse putHearingRequest) {
+        log.error("-----------------------------------");
+        log.error("-----------------------------------");
+        log.error("-----------------------------------");
+        log.error("-----------------------------------");
+        log.error("-----------------------------------");
+        log.error("-----------------------------------");
+        log.error("-----------------------------------");
+        log.error("-----------------------------------");
+        log.error("-----------------------------------");
+        log.error("-----------------------------------");
+
+        log.error("processed by ApplicationContext " + applicationContext.getId());
         return courtCaseService.createOrUpdateHearingByHearingId(hearingId, putHearingRequest.asHearingEntity())
                 .map(ExtendedHearingRequestResponse::of);
     }

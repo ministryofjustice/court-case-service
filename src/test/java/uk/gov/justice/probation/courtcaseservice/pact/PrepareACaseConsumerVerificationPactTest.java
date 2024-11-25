@@ -112,7 +112,7 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
 
     @BeforeEach
     void setupTestTarget(PactVerificationContext context) {
-        context.setTarget(new HttpTestTarget("localhost", port, "/"));
+        context.setTarget(new HttpTestTarget("localhost", 8080, "/"));
     }
 
     @TestTemplate

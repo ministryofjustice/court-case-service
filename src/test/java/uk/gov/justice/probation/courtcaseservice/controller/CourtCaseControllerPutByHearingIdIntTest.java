@@ -2,23 +2,27 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.microsoft.applicationinsights.boot.dependencies.apachecommons.io.FileUtils;
 import io.restassured.http.ContentType;
-import io.restassured.http.Method;
-import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import software.amazon.awssdk.services.sqs.model.PurgeQueueRequest;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
@@ -29,6 +33,7 @@ import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEvent
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReference;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType;
 import uk.gov.justice.probation.courtcaseservice.testUtil.ConcurrentRequestUtil;
+import uk.gov.justice.probation.courtcaseservice.testUtil.MultiApplicationContextExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +67,10 @@ import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.get
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
+@ExtendWith(MultiApplicationContextExtension.class)
 class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
+    @Autowired
+    WebTestClient webTestClient;
 
     @Autowired
     HearingRepositoryFacade courtCaseRepository;
@@ -120,22 +128,28 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     }
 
     @Test
-    void duplicate_hearings() throws ExecutionException, InterruptedException, TimeoutException {
-        RequestSpecification requestSpecification = given()
-                .auth()
-                .oauth2(getToken())
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(caseDetailsExtendedJson)
-                .basePath(PUT_BY_HEARING_ID_ENDPOINT.replace("{hearingId}", JSON_HEARING_ID));
+    void duplicate_hearings() throws ExecutionException, TimeoutException {
 
-        List<Response> responses = ConcurrentRequestUtil.runConcurrentRequests(requestSpecification, 5, Method.PUT);
+        List<String> ports = List.of("8080" ,"8084");
+        WebTestClient.RequestBodyUriSpec spec = webTestClient.put();
+
+
+        List<WebTestClient.ResponseSpec> responses = null;
+        try {
+            responses = ConcurrentRequestUtil.runConcurrentRequests(spec, 5,  ports, "http://localhost:{port}" + PUT_BY_HEARING_ID_ENDPOINT.replace("{hearingId}", JSON_HEARING_ID), caseDetailsExtendedResource);
+        } catch (InterruptedException | ExecutionException e) {
+            // check if this is a 500 exception, they are expected behaviour if it is a duplicate.
+            // main thing is that there should not be 2x 201s
+            System.out.println(e);
+        }
 
         System.out.println("Wait for it");
-        responses.forEach(r ->
-                r.then()
-                .statusCode(201)
-        );
+        responses.get(0).expectStatus().isCreated();
+        responses.get(1).expectStatus().is5xxServerError();
+        responses.get(2).expectStatus().is5xxServerError();
+        responses.get(3).expectStatus().is5xxServerError();
+        responses.get(4).expectStatus().is5xxServerError();
+
 
 
     }

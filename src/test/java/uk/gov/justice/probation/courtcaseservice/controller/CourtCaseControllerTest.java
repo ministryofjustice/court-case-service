@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.kotlin.MockingKt;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
@@ -110,7 +109,7 @@ class CourtCaseControllerTest {
     @BeforeEach
     public void setUp() {
         courtCaseController = new CourtCaseController(courtCaseService, offenderMatchService,
-            offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, true);
+            offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, true,null);
     }
 
     @Test
@@ -303,7 +302,7 @@ class CourtCaseControllerTest {
     @Test
     void givenCacheableCaseListDisabled_whenListIsNotModified_thenReturnFullList() {
         final var nonCachingController = new CourtCaseController(courtCaseService,
-            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, false);
+            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, false,null);
 
         final var courtCaseEntity = this.hearingEntity.withHearingDefendants(List.of(EntityHelper.aHearingDefendantEntity()))
                 .withHearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()

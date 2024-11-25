@@ -6,4 +6,5 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingCourtCaseEnti
 
 @Repository
 public interface HearingCourtCaseRepository extends JpaRepository<HearingCourtCaseEntity, Long> {
+    HearingCourtCaseEntity findHearingCourtCaseEntityByHearingIdAndCaseId(String hearingId, String caseId);
 }

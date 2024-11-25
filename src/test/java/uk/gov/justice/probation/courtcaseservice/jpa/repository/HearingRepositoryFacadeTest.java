@@ -26,6 +26,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -103,6 +104,9 @@ class HearingRepositoryFacadeTest {
     @Captor
     private ArgumentCaptor<HearingEntity> hearingCaptor;
 
+    @Captor
+    private ArgumentCaptor<HearingCourtCaseEntity> hearingCourtCaseCaptor;
+
     @InjectMocks
     private HearingRepositoryFacade facade;
 
@@ -121,7 +125,7 @@ class HearingRepositoryFacadeTest {
         when(hearingEntityInitService.findMostRecentByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
 
         final var actual = facade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, LIST_NO);
-        Assertions.assertThat(actual.get().getHearingId()).isNull();
+        assertThat(actual.get().getHearingId()).isNull();
 
         AssertionsForClassTypes.assertThat(actual).get().isEqualTo(HEARING_WITH_MULTIPLE_DEFENDANTS);
         verify(hearingEntityInitService).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO);
@@ -150,7 +154,7 @@ class HearingRepositoryFacadeTest {
     void whenFindByCourtCodeCaseNoAnd_NoListNoProvided_thenReturnDefendants() {
         when(hearingEntityInitService.findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, null)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
         final var actual = facade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, null);
-        Assertions.assertThat(actual.get().getHearingId()).isEqualTo(HEARING_ID);
+        assertThat(actual.get().getHearingId()).isEqualTo(HEARING_ID);
 
         AssertionsForClassTypes.assertThat(actual).get().isEqualTo(HEARING_WITH_MULTIPLE_DEFENDANTS);
         verify(hearingEntityInitService).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, null);
@@ -350,6 +354,25 @@ class HearingRepositoryFacadeTest {
         expectedHearingDefendant.setDefendant(expectedDefendant);
         var expectedHearing = HEARING.withHearingDefendants(List.of(expectedHearingDefendant));
         verify(hearingRepository).save(HEARING);
+        verifyNoMoreInteractions(hearingRepository, defendantRepository);
+    }
+
+    @Test
+    void whenSave_thenSaveHearing_and_hearingCourtCase() {
+        when(offenderRepositoryFacade.upsertOffender(OFFENDER)).thenReturn(OFFENDER);
+        when(hearingRepository.save(any(HearingEntity.class))).thenReturn(HearingEntity.builder().build());
+        when(hearingCourtCaseRepository.save(any(HearingCourtCaseEntity.class))).thenReturn(HearingCourtCaseEntity.builder().build());
+        facade.save(HEARING);
+
+        verify(offenderRepositoryFacade).upsertOffender(any(OffenderEntity.class));
+        verify(defendantRepository).findFirstByDefendantId(HEARING.getHearingDefendants().getFirst().getDefendantId());
+        verify(hearingCourtCaseRepository).save(hearingCourtCaseCaptor.capture());
+        verify(hearingRepository).save(HEARING);
+
+        HearingCourtCaseEntity hearingCourtCaseEntity = hearingCourtCaseCaptor.getValue();
+        assertThat(hearingCourtCaseEntity.getHearingId()).isEqualTo(HEARING_ID);
+        assertThat(hearingCourtCaseEntity.getCaseId()).isEqualTo(COURT_CASE.getCaseId());
+
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 }

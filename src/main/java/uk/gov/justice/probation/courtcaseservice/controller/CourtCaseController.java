@@ -7,8 +7,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -102,7 +100,6 @@ public class CourtCaseController {
         this.caseProgressService = caseProgressService;
         this.hearingNotesService = hearingNotesService;
     }
-    private static final Logger log = LoggerFactory.getLogger(CaseCommentsService.class);
 
     @Operation(description = "Gets the court case data by hearing id and defendant id.")
     @GetMapping(value = "/hearing/{hearingId}/defendant/{defendantId}", produces = APPLICATION_JSON_VALUE)
@@ -130,7 +127,6 @@ public class CourtCaseController {
     public @ResponseBody
     Mono<ExtendedHearingRequestResponse> createOrUpdateHearingByHearingId(@PathVariable(value = "hearingId") String hearingId,
                                                                           @Valid @RequestBody ExtendedHearingRequestResponse putHearingRequest) {
-
         return courtCaseService.createOrUpdateHearingByHearingId(hearingId, putHearingRequest.asHearingEntity())
                 .map(ExtendedHearingRequestResponse::of);
     }

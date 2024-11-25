@@ -9,8 +9,8 @@ services:
     networks:
       - hmpps
     environment:
-      POSTGRES_USER: ituser
-      POSTGRES_PASSWORD: itpass
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: dev
     tmpfs:
       - /var/lib/postgresql
 

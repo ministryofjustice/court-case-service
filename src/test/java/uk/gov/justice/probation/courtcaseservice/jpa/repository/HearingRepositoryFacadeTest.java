@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingCourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
@@ -96,6 +97,8 @@ class HearingRepositoryFacadeTest {
     private CaseCommentsRepository caseCommentsRepository;
     @Mock
     private HearingEntityInitService hearingEntityInitService;
+    @Mock
+    private HearingCourtCaseRepository hearingCourtCaseRepository;
 
     @Captor
     private ArgumentCaptor<HearingEntity> hearingCaptor;

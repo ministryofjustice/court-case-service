@@ -66,7 +66,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import org.springframework.context.ApplicationContext;
 @Tag(name = "Court Case Resources")
 @RestController
 public class CourtCaseController {
@@ -84,7 +83,6 @@ public class CourtCaseController {
     private final AuthenticationHelper authenticationHelper;
     private final CaseProgressService caseProgressService;
     private final HearingNotesService hearingNotesService;
-    private final ApplicationContext applicationContext;
 
     @Autowired
     public CourtCaseController(CourtCaseService courtCaseService,
@@ -94,8 +92,7 @@ public class CourtCaseController {
                                AuthenticationHelper authenticationHelper,
                                CaseProgressService caseProgressService,
                                HearingNotesService hearingNotesService,
-                               @Value("${feature.flags.enable-cacheable-case-list:true}") boolean enableCacheableCaseList,
-                               ApplicationContext applicationContext) {
+                               @Value("${feature.flags.enable-cacheable-case-list:true}") boolean enableCacheableCaseList) {
         this.courtCaseService = courtCaseService;
         this.offenderMatchService = offenderMatchService;
         this.offenderUpdateService = offenderUpdateService;
@@ -104,7 +101,6 @@ public class CourtCaseController {
         this.authenticationHelper = authenticationHelper;
         this.caseProgressService = caseProgressService;
         this.hearingNotesService = hearingNotesService;
-        this.applicationContext = applicationContext;
     }
     private static final Logger log = LoggerFactory.getLogger(CaseCommentsService.class);
 
@@ -135,7 +131,6 @@ public class CourtCaseController {
     Mono<ExtendedHearingRequestResponse> createOrUpdateHearingByHearingId(@PathVariable(value = "hearingId") String hearingId,
                                                                           @Valid @RequestBody ExtendedHearingRequestResponse putHearingRequest) {
 
-        log.info("processed by ApplicationContext " + applicationContext.getId());
         return courtCaseService.createOrUpdateHearingByHearingId(hearingId, putHearingRequest.asHearingEntity())
                 .map(ExtendedHearingRequestResponse::of);
     }

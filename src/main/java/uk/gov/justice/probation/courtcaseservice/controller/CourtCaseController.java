@@ -134,18 +134,8 @@ public class CourtCaseController {
     public @ResponseBody
     Mono<ExtendedHearingRequestResponse> createOrUpdateHearingByHearingId(@PathVariable(value = "hearingId") String hearingId,
                                                                           @Valid @RequestBody ExtendedHearingRequestResponse putHearingRequest) {
-        log.error("-----------------------------------");
-        log.error("-----------------------------------");
-        log.error("-----------------------------------");
-        log.error("-----------------------------------");
-        log.error("-----------------------------------");
-        log.error("-----------------------------------");
-        log.error("-----------------------------------");
-        log.error("-----------------------------------");
-        log.error("-----------------------------------");
-        log.error("-----------------------------------");
 
-        log.error("processed by ApplicationContext " + applicationContext.getId());
+        log.info("processed by ApplicationContext " + applicationContext.getId());
         return courtCaseService.createOrUpdateHearingByHearingId(hearingId, putHearingRequest.asHearingEntity())
                 .map(ExtendedHearingRequestResponse::of);
     }

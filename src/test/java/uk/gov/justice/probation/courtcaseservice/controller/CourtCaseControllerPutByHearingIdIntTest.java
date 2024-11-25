@@ -2,7 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.microsoft.applicationinsights.boot.dependencies.apachecommons.io.FileUtils;
 import io.restassured.http.ContentType;
-import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -20,9 +19,11 @@ import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
@@ -47,6 +48,7 @@ import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -128,29 +130,15 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     }
 
     @Test
-    void duplicate_hearings() throws ExecutionException, TimeoutException {
-
+    void duplicate_hearings() throws ExecutionException, InterruptedException {
+        Optional<HearingEntity> hearingDoesNotExist = courtCaseRepository.findFirstByHearingId("75e63d6c-5487-4244-a5bc-7cf8a38992db");
+        assertThat(hearingDoesNotExist.isEmpty()).isTrue();
         List<String> ports = List.of("8080" ,"8084");
-        WebTestClient.RequestBodyUriSpec spec = webTestClient.put();
 
+        ConcurrentRequestUtil.runConcurrentRequests(webTestClient, 20,  ports, "http://localhost:{port}" + PUT_BY_HEARING_ID_ENDPOINT.replace("{hearingId}", JSON_HEARING_ID), caseDetailsExtendedResource);
 
-        List<WebTestClient.ResponseSpec> responses = null;
-        try {
-            responses = ConcurrentRequestUtil.runConcurrentRequests(spec, 5,  ports, "http://localhost:{port}" + PUT_BY_HEARING_ID_ENDPOINT.replace("{hearingId}", JSON_HEARING_ID), caseDetailsExtendedResource);
-        } catch (InterruptedException | ExecutionException e) {
-            // check if this is a 500 exception, they are expected behaviour if it is a duplicate.
-            // main thing is that there should not be 2x 201s
-            System.out.println(e);
-        }
-
-        System.out.println("Wait for it");
-        responses.get(0).expectStatus().isCreated();
-        responses.get(1).expectStatus().is5xxServerError();
-        responses.get(2).expectStatus().is5xxServerError();
-        responses.get(3).expectStatus().is5xxServerError();
-        responses.get(4).expectStatus().is5xxServerError();
-
-
+        HearingEntity hearing = courtCaseRepository.findFirstByHearingId("75e63d6c-5487-4244-a5bc-7cf8a38992db").get();
+        assertThat(hearing.getSourceType()).isEqualTo(SourceType.COMMON_PLATFORM);
 
     }
 

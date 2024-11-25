@@ -60,29 +60,6 @@ public class HearingRepositoryFacadeIntTest extends BaseIntTest {
 
     private HearingRepositoryFacade hearingRepositoryFacade;
 
-    static final OffenderEntity OFFENDER_ENTITY = OffenderEntity.builder()
-            .crn("X25827")
-            .awaitingPsr(false)
-            .defendants(new ArrayList<DefendantEntity>())
-            .preSentenceActivity(false)
-            .suspendedSentenceOrder(false)
-            .preSentenceActivity(false)
-            .previouslyKnownTerminationDate(null)
-            .build();
-
-    static final DefendantEntity DEFENDANT_ENTITY = DefendantEntity.builder()
-            .defendantId("d1eefed2-04df-11ec-b2d8-0242ac130002")
-            .defendantName("Ferris Bueller")
-            .name(NamePropertiesEntity.builder()
-                    .forename1("Ferris")
-                    .surname("Bueller")
-                    .build())
-            .hearingDefendants(new ArrayList<HearingDefendantEntity>())
-            .type(DefendantType.PERSON)
-            .personId(UUID.randomUUID().toString())
-            .offender(OFFENDER_ENTITY)
-            .build();
-
     @BeforeEach
     public void setUp() {
         offenderRepositoryFacade = new OffenderRepositoryFacade(offenderRepository, offenderEntityInitService);
@@ -173,9 +150,32 @@ public class HearingRepositoryFacadeIntTest extends BaseIntTest {
 
     @Test
     public void whenSave_thenPersistHearingAndDefendantsAndOffenders() {
+        final var offenderEntity = OffenderEntity.builder()
+                .crn("X25827")
+                .awaitingPsr(false)
+                .defendants(new ArrayList<DefendantEntity>())
+                .preSentenceActivity(false)
+                .suspendedSentenceOrder(false)
+                .preSentenceActivity(false)
+                .previouslyKnownTerminationDate(null)
+                .build();
+
+        final var defendantEntity = DefendantEntity.builder()
+                .defendantId("d1eefed2-04df-11ec-b2d8-0242ac130002")
+                .defendantName("Ferris Bueller")
+                .name(NamePropertiesEntity.builder()
+                        .forename1("Ferris")
+                        .surname("Bueller")
+                        .build())
+                .hearingDefendants(new ArrayList<HearingDefendantEntity>())
+                .type(DefendantType.PERSON)
+                .personId(UUID.randomUUID().toString())
+                .offender(offenderEntity)
+                .build();
+
         final var hearingDefendantEntity = HearingDefendantEntity.builder()
                 .defendantId("d1eefed2-04df-11ec-b2d8-0242ac130002")
-                .defendant(DEFENDANT_ENTITY)
+                .defendant(defendantEntity)
                 .notes(List.of())
                 .offences(List.of())
                 .build();
@@ -209,9 +209,32 @@ public class HearingRepositoryFacadeIntTest extends BaseIntTest {
 
     @Test
     public void whenSave_thenPersistHearingAndHearingCourtCase() {
+        final var offenderEntity = OffenderEntity.builder()
+                .crn("X25827")
+                .awaitingPsr(false)
+                .defendants(new ArrayList<DefendantEntity>())
+                .preSentenceActivity(false)
+                .suspendedSentenceOrder(false)
+                .preSentenceActivity(false)
+                .previouslyKnownTerminationDate(null)
+                .build();
+
+        final var defendantEntity = DefendantEntity.builder()
+                .defendantId("d1eefed2-04df-11ec-b2d8-0242ac130002")
+                .defendantName("Ferris Bueller")
+                .name(NamePropertiesEntity.builder()
+                        .forename1("Ferris")
+                        .surname("Bueller")
+                        .build())
+                .hearingDefendants(new ArrayList<HearingDefendantEntity>())
+                .type(DefendantType.PERSON)
+                .personId(UUID.randomUUID().toString())
+                .offender(offenderEntity)
+                .build();
+
         final var hearingDefendantEntity = HearingDefendantEntity.builder()
                 .defendantId("d1eefed2-04df-11ec-b2d8-0242ac130002")
-                .defendant(DEFENDANT_ENTITY)
+                .defendant(defendantEntity)
                 .notes(List.of())
                 .offences(List.of())
                 .build();

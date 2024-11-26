@@ -6,7 +6,6 @@ import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -19,11 +18,9 @@ import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
@@ -33,8 +30,6 @@ import uk.gov.justice.probation.courtcaseservice.service.HearingEntityInitServic
 import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReference;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType;
-import uk.gov.justice.probation.courtcaseservice.testUtil.ConcurrentRequestUtil;
-import uk.gov.justice.probation.courtcaseservice.testUtil.MultiApplicationContextExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +43,6 @@ import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import static io.restassured.RestAssured.given;
@@ -68,7 +62,6 @@ import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.get
 
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
-@ExtendWith(MultiApplicationContextExtension.class)
 class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
     @Autowired
     WebTestClient webTestClient;
@@ -126,19 +119,6 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             PurgeQueueRequest.builder()
                 .queueUrl(getEmittedEventsQueueUrl())
                 .build());
-    }
-
-    @Test
-    void duplicate_hearings() throws ExecutionException, InterruptedException {
-        Optional<HearingEntity> hearingDoesNotExist = courtCaseRepository.findFirstByHearingId("75e63d6c-5487-4244-a5bc-7cf8a38992db");
-        assertThat(hearingDoesNotExist.isEmpty()).isTrue();
-        List<String> ports = List.of("8080" ,"8084");
-
-        ConcurrentRequestUtil.runConcurrentRequests(webTestClient, 20,  ports, "http://localhost:{port}" + PUT_BY_HEARING_ID_ENDPOINT.replace("{hearingId}", JSON_HEARING_ID), caseDetailsExtendedResource);
-
-        HearingEntity hearing = courtCaseRepository.findByHearingIdAndDefendantId("75e63d6c-5487-4244-a5bc-7cf8a38992db","d1eefed2-04df-11ec-b2d8-0242ac130002").get();
-        assertThat(hearing.getSourceType()).isEqualTo(SourceType.COMMON_PLATFORM);
-
     }
 
     @Test

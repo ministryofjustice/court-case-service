@@ -58,7 +58,7 @@ class WebClientFactoryIntTest extends BaseIntTest {
 
     @Test
     void shouldReturnWorkingGenericClient() {
-        final var client = webClientFactory.buildWebClient(String.format("http://localhost:%s", 8080), 262144);
+        final var client = webClientFactory.buildWebClient(String.format("http://localhost:%s", port), 262144);
         final var responseString = client.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/ping")

@@ -3,11 +3,13 @@ package uk.gov.justice.probation.courtcaseservice
 import org.awaitility.kotlin.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.mock.mockito.SpyBean
+import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.retry.annotation.EnableRetry
@@ -28,11 +30,20 @@ import uk.gov.justice.probation.courtcaseservice.wiremock.WiremockExtension
 import uk.gov.justice.probation.courtcaseservice.wiremock.WiremockMockServer
 import java.time.Duration
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @EnableRetry
 @Import(BaseIntTest.OverrideConfiguration::class)
 abstract class BaseIntTest {
+
+  @JvmField
+  @LocalServerPort
+  protected final var port = 0
+
+  @BeforeEach
+  fun setup() {
+    TestConfig.configureRestAssuredForIntTest(port)
+  }
 
   @Autowired
   protected lateinit var hmppsQueueService: HmppsQueueService

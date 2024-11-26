@@ -138,7 +138,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
         ConcurrentRequestUtil.runConcurrentRequests(webTestClient, 20,  ports, "http://localhost:{port}" + PUT_BY_HEARING_ID_ENDPOINT.replace("{hearingId}", JSON_HEARING_ID), caseDetailsExtendedResource);
 
-        HearingEntity hearing = courtCaseRepository.findFirstByHearingId("75e63d6c-5487-4244-a5bc-7cf8a38992db").get();
+        HearingEntity hearing = courtCaseRepository.findByHearingIdAndDefendantId("75e63d6c-5487-4244-a5bc-7cf8a38992db","d1eefed2-04df-11ec-b2d8-0242ac130002").get();
         assertThat(hearing.getSourceType()).isEqualTo(SourceType.COMMON_PLATFORM);
 
     }

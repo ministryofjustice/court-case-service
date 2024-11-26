@@ -63,7 +63,7 @@ class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
 
     @BeforeEach
     void setupTestTarget(PactVerificationContext context) {
-        context.setTarget(new HttpTestTarget("localhost", 8080, "/"));
+        context.setTarget(new HttpTestTarget("localhost", port, "/"));
     }
 
     @TestTemplate

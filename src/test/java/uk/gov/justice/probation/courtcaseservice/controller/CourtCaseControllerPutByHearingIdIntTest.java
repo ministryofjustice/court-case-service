@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.reactive.server.WebTestClient;
-
 import software.amazon.awssdk.services.sqs.model.PurgeQueueRequest;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
@@ -63,7 +62,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static org.springframework.util.StreamUtils.copyToString;
-
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.OFFENDER_PNC;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TestUtils.UUID_REGEX;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;

@@ -64,6 +64,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @Tag(name = "Court Case Resources")
 @RestController
 public class CourtCaseController {

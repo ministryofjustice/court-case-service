@@ -7,7 +7,6 @@ import org.junit.jupiter.api.extension.ExtensionContext.Store.CloseableResource
 import org.springframework.boot.builder.SpringApplicationBuilder
 import uk.gov.justice.probation.courtcaseservice.CourtCaseServiceApplication
 
-
 class MultiApplicationContextExtension : BeforeAllCallback, CloseableResource {
 
     private val instance1: SpringApplicationBuilder = SpringApplicationBuilder(CourtCaseServiceApplication::class.java)

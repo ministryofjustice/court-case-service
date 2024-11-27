@@ -95,6 +95,13 @@ task integrationTest(type: Test) {
     }
 }
 
+task initialiseDatabase(type: Test) {
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching '*PingerIntTest*'
+    }
+}
+
 task pactVerifyPublish(type: Test) {
     useJUnitPlatform()
     filter {
@@ -222,9 +229,7 @@ dependencies {
 
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
 
-    testImplementation "org.testcontainers:postgresql:1.17.6"
     testImplementation "org.testcontainers:junit-jupiter:1.20.1"
-    testImplementation "org.testcontainers:localstack:1.20.1"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.35.0'
     testImplementation("io.rest-assured:json-path:$restAssuredVersion")

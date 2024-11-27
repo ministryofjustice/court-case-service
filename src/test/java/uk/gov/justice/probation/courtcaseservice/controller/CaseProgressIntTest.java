@@ -161,7 +161,7 @@ public class CaseProgressIntTest extends BaseIntTest {
 
         var hearingNote = hearingNoteResponse.getBody().as(HearingNoteResponse.class, ObjectMapperType.JACKSON_2);
 
-        var hearingNoteEntity = hearingDefendant.getNotes().get(0);
+        var hearingNoteEntity = hearingDefendant.getNotes().stream().filter(it -> it.getId().equals(hearingNote.getNoteId())).findFirst().get();
         assertThat(hearingNoteEntity.getNote()).isEqualTo(hearingNote.getNote());
         assertThat(hearingNoteEntity.getCreatedByUuid()).isEqualTo(hearingNote.getCreatedByUuid());
         assertThat(hearingNoteEntity.getAuthor()).isEqualTo(hearingNote.getAuthor());

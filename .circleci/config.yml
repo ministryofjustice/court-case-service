@@ -372,7 +372,7 @@ workflows:
       - hmpps/helm_lint:
           name: helm_lint_dev
       - hmpps/database_schema_report:
-          schema: "courtcaseservice"
+          schema: "courtcaseservicetest"
           initialise_database: "./gradlew initialiseDatabase"
       - build_data_dictionary:
           filters:

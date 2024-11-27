@@ -115,24 +115,24 @@ public class CaseProgressIntTest extends BaseIntTest {
             .body("hearings[1].hearingDateTime", Matchers.equalTo("2019-10-14T09:00:00"))
 
             .body("hearings[1].notes", Matchers.hasSize(2))
-            .body("hearings[1].notes[0].noteId", Matchers.equalTo(-1700028804))
-            .body("hearings[1].notes[0].hearingId", Matchers.equalTo("2aa6f5e0-f842-4939-bc6a-01346abc09e7"))
-            .body("hearings[1].notes[0].note", Matchers.equalTo("Judge requested PSR"))
-            .body("hearings[1].notes[0].created", Matchers.notNullValue())
-            .body("hearings[1].notes[0].author", Matchers.equalTo("Author Three"))
-            .body("hearings[1].notes[0].createdByUuid", Matchers.equalTo("fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81"))
-            .body("hearings[1].notes[0].draft", Matchers.equalTo(true))
-            .body("hearings[1].hearingOutcome.hearingOutcomeType", Matchers.equalTo("ADJOURNED"))
-            .body("hearings[1].hearingOutcome.hearingOutcomeDescription", Matchers.equalTo("Adjourned"))
-            .body("hearings[1].hearingOutcome.outcomeDate", Matchers.equalTo("2023-04-24T09:09:09"))
-
-            .body("hearings[1].notes[1].noteId", Matchers.equalTo(-1700028803))
+            .body("hearings[1].notes[1].noteId", Matchers.equalTo(-1700028804))
             .body("hearings[1].notes[1].hearingId", Matchers.equalTo("2aa6f5e0-f842-4939-bc6a-01346abc09e7"))
             .body("hearings[1].notes[1].note", Matchers.equalTo("Judge requested PSR"))
             .body("hearings[1].notes[1].created", Matchers.notNullValue())
             .body("hearings[1].notes[1].author", Matchers.equalTo("Author Three"))
             .body("hearings[1].notes[1].createdByUuid", Matchers.equalTo("fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81"))
-            .body("hearings[1].notes[1].draft", Matchers.equalTo(false));
+            .body("hearings[1].notes[1].draft", Matchers.equalTo(true))
+            .body("hearings[1].hearingOutcome.hearingOutcomeType", Matchers.equalTo("ADJOURNED"))
+            .body("hearings[1].hearingOutcome.hearingOutcomeDescription", Matchers.equalTo("Adjourned"))
+            .body("hearings[1].hearingOutcome.outcomeDate", Matchers.equalTo("2023-04-24T09:09:09"))
+
+            .body("hearings[1].notes[0].noteId", Matchers.equalTo(-1700028803))
+            .body("hearings[1].notes[0].hearingId", Matchers.equalTo("2aa6f5e0-f842-4939-bc6a-01346abc09e7"))
+            .body("hearings[1].notes[0].note", Matchers.equalTo("Judge requested PSR"))
+            .body("hearings[1].notes[0].created", Matchers.notNullValue())
+            .body("hearings[1].notes[0].author", Matchers.equalTo("Author Three"))
+            .body("hearings[1].notes[0].createdByUuid", Matchers.equalTo("fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81"))
+            .body("hearings[1].notes[0].draft", Matchers.equalTo(false));
     }
 
     @Test

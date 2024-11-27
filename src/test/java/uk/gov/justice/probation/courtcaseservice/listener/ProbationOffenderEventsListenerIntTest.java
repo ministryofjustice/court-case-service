@@ -34,11 +34,11 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
     @Autowired
     OffenderRepository offenderRepository;
 
+    @Autowired
     ObjectMapper objectMapper;
 
     @BeforeEach
     public void setUp() {
-        objectMapper = new ObjectMapper();
         getOffenderEventReceiverQueueSqsClient().purgeQueue(
                 PurgeQueueRequest.builder()
                         .queueUrl(getOffenderEventReceiverQueueUrl())

@@ -87,6 +87,11 @@ abstract class BaseIntTest {
     }
   }
 
+  fun assertMessagesOnEmittedEventsQueue() {
+    await atMost AWAITILITY_DURATION untilCallTo { emittedEventsQueueSqsClient.countMessagesOnQueue(emittedEventsQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES) } matches { it == 2 }
+
+  }
+
   fun assertOffenderEventReceiverQueueHasProcessedMessages() {
     // ApproximateNumberOfMessagesNotVisible represents messages in flight. So for this case if this is 1 means the message has been consumed but still not deleted until then the value will be 1 and ApproximateNumberOfMessages is zero as the message is inflight.
     // We need to ensure the inflight message is processed before checking for ApproximateNumberOfMessages.

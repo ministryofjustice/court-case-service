@@ -65,6 +65,7 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
 
         HearingEntity savedHearing = courtCaseService.createOrUpdateHearingByHearingId(newHearingEntity.getHearingId(), newHearingEntity).block();
         assertThat(savedHearing.withId(null)).isEqualTo(newHearingEntity.withId(null));
+        assertThat(savedHearing.getCourtCaseId()).isEqualTo(newHearingEntity.getCourtCaseId());
 
         assertThatHearingIsNotImmutable(caseId, hearingId, DEFENDANT_ID_1);
         var hearingAudits = findAllAuditByHearingId(hearingId);

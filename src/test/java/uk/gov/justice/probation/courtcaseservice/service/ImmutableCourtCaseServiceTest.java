@@ -315,6 +315,7 @@ class ImmutableCourtCaseServiceTest {
             verify(hearingRepositoryFacade).save(hearing);
             assertThat(savedCourtCase).isNotNull();
             assertThat(savedCourtCase.getHearingId()).isEqualTo(HEARING_ID);
+            assertThat(savedCourtCase.getCourtCaseId()).isEqualTo(CASE_ID);
             verifyNoMoreInteractions(hearingRepositoryFacade, telemetryService);
         }
 

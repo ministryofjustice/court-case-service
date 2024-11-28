@@ -116,27 +116,6 @@ _snyk_options: &snyk_options
   additional-arguments: "--policy-path=.snyk"
 
 jobs:
-  build_data_dictionary:
-    executor: builder
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - gradle-{{ checksum "build.gradle" }}
-            - gradle-
-      - run:
-          name: Build data dictionary
-#          below sed is to address this issue - https://stackoverflow.com/questions/55647076/the-repository-http-dl-google-com-linux-chrome-deb-stable-release-is-not-sig
-          command: |
-            sudo sed -i 's/^deb/#deb/' /etc/apt/sources.list.d/google-chrome.list
-            sudo apt update 
-            sudo apt install graphviz
-            data_dictionary/build-data-dictionary.sh
-      - persist_to_workspace:
-          root: .
-          paths:
-            - data_dictionary
-
   build:
     executor:
       name: hmpps/java_localstack_postgres
@@ -374,10 +353,9 @@ workflows:
       - hmpps/database_schema_report:
           schema: "courtcaseservicetest"
           initialise_database: "./gradlew initialiseDatabase"
-      - build_data_dictionary:
           filters:
-            tags:
-              ignore: /.*/
+            branches:
+              only: main
       - build_docker:
           name: build_docker
           context: [ hmpps-common-vars ]
@@ -394,15 +372,6 @@ workflows:
           requires:
             - build
           main: true
-      - build_docker:
-          name: build_docker_data_dictionary
-          context: [hmpps-common-vars]
-          app_name: pic-data-dictionary
-          dockerfile_path: ./data_dictionary
-          requires:
-            - build
-            - build_data_dictionary
-          main: true
       - deploy_dev:
           context:
             - hmpps-common-vars
@@ -410,7 +379,6 @@ workflows:
             - helm_lint_dev
             - build_docker
             - build_docker_nginx
-            - build_data_dictionary
           filters:
             branches:
               only:

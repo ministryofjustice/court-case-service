@@ -99,10 +99,6 @@ executors:
           POSTGRES_PASSWORD: dev
     working_directory: ~/app
 
-  builder-machine:
-    machine:
-      image:  ubuntu-2204:2024.04.4
-
 orbs:
   aws-cli: circleci/aws-cli@0.1.13
   hmpps: ministryofjustice/hmpps@10.1.1
@@ -144,7 +140,11 @@ jobs:
           job_type: build
 
   pact-consumer-publish:
-    executor: builder-machine
+    executor:
+      name: hmpps/java_localstack_postgres
+      jdk_tag: "21.0"
+      localstack_tag: "3.0"
+      postgres_tag: "14.12"
     steps:
       - checkout
       - restore_cache:
@@ -207,7 +207,11 @@ jobs:
     environment:
       PACTBROKER_HOST: "pact-broker-prod.apps.live-1.cloud-platform.service.justice.gov.uk"
       PACTBROKER_AUTH_USERNAME: "interventions"
-    executor: builder-machine
+    executor:
+      name: hmpps/java_localstack_postgres
+      jdk_tag: "21.0"
+      localstack_tag: "3.0"
+      postgres_tag: "14.12"
     steps:
       - checkout
       - restore_cache:

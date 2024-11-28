@@ -10,6 +10,8 @@ metadata:
 spec:
   revisionHistoryLimit: 2
   minReadySeconds: 10
+  minReplicas: {{ .Values.minReplicaCount }}
+  maxReplicas: {{ .Values.maxReplicaCount }}
   strategy:
     rollingUpdate:
       maxSurge: {{ .Values.maxSurge }}

@@ -96,8 +96,6 @@ class HearingRepositoryFacadeTest {
     private CaseCommentsRepository caseCommentsRepository;
     @Mock
     private HearingEntityInitService hearingEntityInitService;
-    @Mock
-    private HearingCourtCaseRepository hearingCourtCaseRepository;
 
     @Captor
     private ArgumentCaptor<HearingEntity> hearingCaptor;

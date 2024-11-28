@@ -35,19 +35,16 @@ public class HearingRepositoryFacade {
     private final DefendantRepository defendantRepository;
     private final CaseCommentsRepository caseCommentsRepository;
 
-    private final HearingCourtCaseRepository hearingCourtCaseRepository;
-
     @Autowired
     public HearingRepositoryFacade(OffenderRepository offenderRepository, OffenderRepositoryFacade offenderRepositoryFacade,
                                    HearingRepository hearingRepository, HearingEntityInitService hearingEntityInitService, DefendantRepository defendantRepository,
-                                   CaseCommentsRepository caseCommentsRepository, HearingCourtCaseRepository hearingCourtCaseRepository) {
+                                   CaseCommentsRepository caseCommentsRepository) {
         this.offenderRepository = offenderRepository;
         this.offenderRepositoryFacade = offenderRepositoryFacade;
         this.hearingRepository = hearingRepository;
         this.hearingEntityInitService = hearingEntityInitService;
         this.defendantRepository = defendantRepository;
         this.caseCommentsRepository = caseCommentsRepository;
-        this.hearingCourtCaseRepository = hearingCourtCaseRepository;
     }
 
     public Optional<HearingEntity> findFirstByHearingId(String hearingId) {

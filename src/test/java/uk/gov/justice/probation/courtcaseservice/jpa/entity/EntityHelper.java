@@ -140,6 +140,7 @@ public class EntityHelper {
                         .urn(URN)
                         .sourceType(SOURCE)
                         .build())
+                .courtCaseId(CASE_ID)
                 .hearingDefendants(defendants)
                 .build();
     }

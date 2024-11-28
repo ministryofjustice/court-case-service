@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingCourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
@@ -103,9 +101,6 @@ class HearingRepositoryFacadeTest {
 
     @Captor
     private ArgumentCaptor<HearingEntity> hearingCaptor;
-
-    @Captor
-    private ArgumentCaptor<HearingCourtCaseEntity> hearingCourtCaseCaptor;
 
     @InjectMocks
     private HearingRepositoryFacade facade;
@@ -354,25 +349,6 @@ class HearingRepositoryFacadeTest {
         expectedHearingDefendant.setDefendant(expectedDefendant);
         var expectedHearing = HEARING.withHearingDefendants(List.of(expectedHearingDefendant));
         verify(hearingRepository).save(HEARING);
-        verifyNoMoreInteractions(hearingRepository, defendantRepository);
-    }
-
-    @Test
-    void whenSave_thenSaveHearing_and_hearingCourtCase() {
-        when(offenderRepositoryFacade.upsertOffender(OFFENDER)).thenReturn(OFFENDER);
-        when(hearingRepository.save(any(HearingEntity.class))).thenReturn(HearingEntity.builder().build());
-        when(hearingCourtCaseRepository.save(any(HearingCourtCaseEntity.class))).thenReturn(HearingCourtCaseEntity.builder().build());
-        facade.save(HEARING);
-
-        verify(offenderRepositoryFacade).upsertOffender(any(OffenderEntity.class));
-        verify(defendantRepository).findFirstByDefendantId(HEARING.getHearingDefendants().getFirst().getDefendantId());
-        verify(hearingCourtCaseRepository).save(hearingCourtCaseCaptor.capture());
-        verify(hearingRepository).save(HEARING);
-
-        HearingCourtCaseEntity hearingCourtCaseEntity = hearingCourtCaseCaptor.getValue();
-        assertThat(hearingCourtCaseEntity.getHearingId()).isEqualTo(HEARING_ID);
-        assertThat(hearingCourtCaseEntity.getCaseId()).isEqualTo(COURT_CASE.getCaseId());
-
         verifyNoMoreInteractions(hearingRepository, defendantRepository);
     }
 }

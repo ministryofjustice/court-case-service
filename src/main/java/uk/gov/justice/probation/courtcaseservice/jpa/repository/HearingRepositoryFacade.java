@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingCourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.service.HearingEntityInitService;
@@ -120,16 +119,7 @@ public class HearingRepositoryFacade {
 
         updatedWithExistingDefendantsFromDb(hearingEntity);
 
-        checkForDuplicateHearing(hearingEntity);
-
         return hearingRepository.save(hearingEntity);
-    }
-
-    private void checkForDuplicateHearing(HearingEntity hearingEntity) {
-        hearingCourtCaseRepository.save(HearingCourtCaseEntity.builder()
-                .hearingId(hearingEntity.getHearingId())
-                .caseId(hearingEntity.getCaseId())
-                .build());
     }
 
     public List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter) {

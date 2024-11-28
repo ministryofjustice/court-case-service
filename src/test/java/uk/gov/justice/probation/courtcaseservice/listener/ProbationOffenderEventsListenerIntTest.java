@@ -1,12 +1,13 @@
 package uk.gov.justice.probation.courtcaseservice.listener;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+
 import software.amazon.awssdk.services.sns.model.MessageAttributeValue;
 import software.amazon.awssdk.services.sns.model.PublishRequest;
 import software.amazon.awssdk.services.sns.model.PublishResponse;
@@ -33,11 +34,11 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
     @Autowired
     OffenderRepository offenderRepository;
 
+    @Autowired
     ObjectMapper objectMapper;
 
     @BeforeEach
     public void setUp() {
-        objectMapper = new ObjectMapper();
         getOffenderEventReceiverQueueSqsClient().purgeQueue(
                 PurgeQueueRequest.builder()
                         .queueUrl(getOffenderEventReceiverQueueUrl())

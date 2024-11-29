@@ -32,16 +32,11 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
         deleteHearingsService.deleteDuplicateHearings();
         Optional<HearingEntity> hearingEntityDeleted = hearingRepositoryFacade.findById(-198L);
         assertThat(hearingEntityDeleted.isPresent()).isTrue();
-        assertThat(hearingEntityDeleted.get().getId()).isEqualTo(-198L);
         assertThat(hearingEntityDeleted.get().isDeleted()).isTrue();
+        assertThat(hearingEntityDeleted.get().getCourtCase().isDeleted()).isTrue();
 
-        //Check other record is not set to deleted
-        
-        //PUT 1 /hearing/{heraingId}/case/{caseId}  ---- persist top guard table
-        //PUT 2 /hearing/{hearingId} [payload]  ----this checks guard table
-
-        //race put
-        //PUT 1 /hearing/{heraingId}/case/{caseId}  ---- 500
-        //PUT 2 doesnt happen
+        Optional<HearingEntity> hearingEntityNotDeleted = hearingRepositoryFacade.findById(-199L);
+        assertThat(hearingEntityNotDeleted.get().getId()).isEqualTo(-199L);
+        assertThat(hearingEntityNotDeleted.get().isDeleted()).isFalse();
     }
 }

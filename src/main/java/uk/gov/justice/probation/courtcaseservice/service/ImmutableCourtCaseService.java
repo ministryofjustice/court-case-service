@@ -162,7 +162,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     @Override
     public Optional<CourtCaseEntity> findByCaseId(String caseId) {
         assert courtCaseRepository != null;
-        return courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId);
+        return courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(caseId);
     }
 
     @Override
@@ -200,7 +200,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
             })
             .orElseGet(() -> {
                 trackCreateEvents(updatedHearing);
-                courtCaseRepository.findFirstByCaseIdOrderByIdDesc(updatedHearing.getCaseId())
+                courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(updatedHearing.getCaseId())
                     .ifPresent(courtCaseEntity -> addHearingToCase(updatedHearing, courtCaseEntity));
                 return updatedHearing;
             });

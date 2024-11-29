@@ -1,12 +1,15 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingCourtCaseDTO;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DuplicateHearingRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class DeleteHearingsService {
 
@@ -18,19 +21,12 @@ public class DeleteHearingsService {
         this.duplicateHearingRepository = duplicateHearingRepository;
     }
 
+    @Transactional
     public void deleteDuplicateHearings() {
         List<HearingCourtCaseDTO> oldestDuplicateHearings = duplicateHearingRepository.findOldestDuplicateHearings();
         oldestDuplicateHearings.forEach(hearingCourtCaseDTO -> {
-            hearingRepositoryFacade.findById(hearingCourtCaseDTO.getId()).ifPresent(hearingEntity -> {
-                hearingEntity.setDeleted(true);
-                hearingEntity.getCourtCase().setDeleted(true);
-                hearingEntity.getHearingDefendants().forEach(hearingDefendantEntity -> {
-                    hearingDefendantEntity.setDeleted(true);
-                    hearingDefendantEntity.getOffences().forEach(offenceEntity -> offenceEntity.setDeleted(true));
-                });
-                hearingEntity.getHearingDays().forEach(hearingDayEntity -> hearingDayEntity.setDeleted(true));
-                hearingRepositoryFacade.save(hearingEntity);
-            });
+            hearingRepositoryFacade.deleteHearing(hearingCourtCaseDTO.getId());
+            log.info("Deleted hearing with id {}", hearingCourtCaseDTO.getId());
         });
     }
 }

@@ -19,7 +19,7 @@ import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.IS
         "classpath:sql/before-common.sql",
         "classpath:sql/before-HearingRepositoryDeleteIntTest.sql"
 }, config = @SqlConfig(transactionMode = ISOLATED))
-public class DuplicatedRepositoryIntTest extends BaseIntTest {
+public class DuplicateHearingRepositoryIntTest extends BaseIntTest {
     private DuplicateHearingRepository duplicateHearingRepository;
     @Autowired
     private EntityManager entityManager;

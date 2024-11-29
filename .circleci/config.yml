@@ -1,12 +1,9 @@
 version: 2.1
 
 parameters:
-  only_pacts:
-    type: boolean
-    default: false
-  pact_consumer_tags:
+  alerts-slack-channel:
     type: string
-    default: main
+    default: probation_in_court_alerts_dev
 
 commands:
   setup-live:
@@ -96,24 +93,13 @@ executors:
           POSTGRES_PASSWORD: dev
     working_directory: ~/app
 
-  builder-machine:
-    machine:
-      image:  ubuntu-2204:2024.04.4
-
 orbs:
   aws-cli: circleci/aws-cli@0.1.13
   hmpps: ministryofjustice/hmpps@10.1.1
   kubernetes: circleci/kubernetes@1.3.1
   helm: circleci/helm@2.0.1
   mem: circleci/rememborb@0.0.1
-  snyk: snyk/snyk@1.1.2
   jira: circleci/jira@1.2.2
-
-_snyk_options: &snyk_options
-  organization: "digital-probation-services"
-  severity-threshold: "high" # note: this does not affect snyk 'monitor' commands
-  fail-on-issues: true
-  additional-arguments: "--policy-path=.snyk"
 
 jobs:
   build:
@@ -146,17 +132,6 @@ jobs:
             - app_version.txt
       - jira/notify:
           job_type: build
-
-  pact-consumer-publish:
-    executor: builder-machine
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - gradle-{{ checksum "build.gradle" }}
-            - gradle-
-      - run: PACTCONSUMER_VERSION=main ./gradlew -Dpact.writer.overwrite=true test
-      - run: PACTCONSUMER_VERSION=main ./gradlew -Dpact.writer.overwrite=true pactPublish
 
   build_docker:
     executor: deployer
@@ -203,70 +178,6 @@ jobs:
       - jira/notify:
           job_type: build
 
-  pact_check_and_publish:
-    parameters:
-      pact_consumer_tags:
-        type: string
-        default: main
-    environment:
-      PACTBROKER_HOST: "pact-broker-prod.apps.live-1.cloud-platform.service.justice.gov.uk"
-      PACTBROKER_AUTH_USERNAME: "interventions"
-    executor: builder-machine
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - gradle-{{ checksum "build.gradle" }}
-            - gradle-
-      - run:
-          command: |
-            PACT_PROVIDER_VERSION="$CIRCLE_SHA1" \
-              PACT_PROVIDER_TAG="$CIRCLE_BRANCH" \
-              PACT_CONSUMER_TAG="<< parameters.pact_consumer_tags >>" \
-              PACT_PUBLISH_RESULTS="true" \
-              SPRING_PROFILES_ACTIVE="unsecured" \
-              ./gradlew pactTestPublish
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: gradle-{{ checksum "build.gradle" }}
-      - store_test_results:
-          path: build/test-results
-      - store_artifacts:
-          path: build/reports/tests
-
-  app_scan:
-    executor: builder
-    parameters:
-      main:
-        type: boolean
-        default: false
-    steps:
-      - checkout
-      - snyk/scan:
-          project: '${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH}'
-          monitor-on-build: << parameters.main >>
-          <<: *snyk_options
-
-  image_scan:
-    executor: deployer
-    parameters:
-      image_name:
-        type: string
-      dockerfile:
-        type: string
-        default: Dockerfile
-    steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - snyk/scan:
-          project: '${CIRCLE_PROJECT_REPONAME}-docker/${CIRCLE_BRANCH}'
-          docker-image-name: 'quay.io/hmpps/<<parameters.image_name>>:latest'
-          target-file: '<<parameters.dockerfile>>'
-          monitor-on-build: true
-          <<: *snyk_options
-
   deploy_dev:
     executor: deployer
     steps:
@@ -297,57 +208,51 @@ jobs:
 
 workflows:
   version: 2
-  scheduled:
+  security:
     triggers:
       - schedule:
-          cron: "0 7 * * 1-5"
+          cron: "52 6 * * 1-5"
           filters:
             branches:
               only:
                 - main
     jobs:
-      - build:
-          name: build_scheduled
-          context: [hmpps-common-vars]
+      - hmpps/gradle_owasp_dependency_check:
+          slack_channel: << pipeline.parameters.alerts-slack-channel >>
+          jdk_tag: "21.0"
+          context:
+            - hmpps-common-vars
+      - hmpps/trivy_latest_scan:
+          slack_channel: << pipeline.parameters.alerts-slack-channel >>
+          context:
+            - hmpps-common-vars
+      - hmpps/veracode_pipeline_scan:
+          slack_channel: << pipeline.parameters.alerts-slack-channel >>
+          context:
+            - hmpps-common-vars
+            - veracode-credentials
+  security-weekly:
+    triggers:
+      - schedule:
+          cron: "23 4 * * 1"
           filters:
             branches:
               only:
                 - main
-      - app_scan:
-          main: true
-      - image_scan:
-          name: court-case-service-scan
-          image_name: court-case-service
-      - image_scan:
-          name: court-case-service-scan-nginx
-          image_name: court-case-service-nginx
-          dockerfile: ./nginx/Dockerfile
+    jobs:
+      - hmpps/veracode_policy_scan:
+          slack_channel: << pipeline.parameters.alerts-slack-channel >>
+          context:
+            - veracode-credentials
+            - hmpps-common-vars
 
   build-test-and-deploy:
-    unless: << pipeline.parameters.only_pacts >>
     jobs:
-      - app_scan:
-          filters:
-            branches:
-              ignore: main
-      - app_scan:
-          name: app_scan_main
-          filters:
-            branches:
-              only: main
-          main: true
       - build:
           context: [hmpps-common-vars]
           filters:
             tags:
               ignore: /.*/
-      - pact-consumer-publish:
-          context: [hmpps-common-vars]
-          requires:
-            - build
-          filters:
-            branches:
-              only: main
       - hmpps/helm_lint:
           name: helm_lint_dev
       - hmpps/database_schema_report:
@@ -404,9 +309,3 @@ workflows:
             - hmpps-common-vars
           requires:
             - request_prod_approval
-
-  pact:
-    jobs:
-      - pact_check_and_publish:
-          pact_consumer_tags: << pipeline.parameters.pact_consumer_tags >>
-          context: [hmpps-common-vars]

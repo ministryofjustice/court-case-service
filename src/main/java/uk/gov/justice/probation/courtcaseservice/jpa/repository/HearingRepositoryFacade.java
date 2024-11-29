@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingCourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.service.HearingEntityInitService;
@@ -36,19 +35,16 @@ public class HearingRepositoryFacade {
     private final DefendantRepository defendantRepository;
     private final CaseCommentsRepository caseCommentsRepository;
 
-    private final HearingCourtCaseRepository hearingCourtCaseRepository;
-
     @Autowired
     public HearingRepositoryFacade(OffenderRepository offenderRepository, OffenderRepositoryFacade offenderRepositoryFacade,
                                    HearingRepository hearingRepository, HearingEntityInitService hearingEntityInitService, DefendantRepository defendantRepository,
-                                   CaseCommentsRepository caseCommentsRepository, HearingCourtCaseRepository hearingCourtCaseRepository) {
+                                   CaseCommentsRepository caseCommentsRepository) {
         this.offenderRepository = offenderRepository;
         this.offenderRepositoryFacade = offenderRepositoryFacade;
         this.hearingRepository = hearingRepository;
         this.hearingEntityInitService = hearingEntityInitService;
         this.defendantRepository = defendantRepository;
         this.caseCommentsRepository = caseCommentsRepository;
-        this.hearingCourtCaseRepository = hearingCourtCaseRepository;
     }
 
     public Optional<HearingEntity> findFirstByHearingId(String hearingId) {
@@ -120,16 +116,7 @@ public class HearingRepositoryFacade {
 
         updatedWithExistingDefendantsFromDb(hearingEntity);
 
-        checkForDuplicateHearing(hearingEntity);
-
         return hearingRepository.save(hearingEntity);
-    }
-
-    private void checkForDuplicateHearing(HearingEntity hearingEntity) {
-        hearingCourtCaseRepository.save(HearingCourtCaseEntity.builder()
-                .hearingId(hearingEntity.getHearingId())
-                .caseId(hearingEntity.getCaseId())
-                .build());
     }
 
     public List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter) {

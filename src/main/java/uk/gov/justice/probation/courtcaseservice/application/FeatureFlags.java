@@ -23,6 +23,8 @@ public class FeatureFlags {
         return flags.getOrDefault("fetch-sentence-data", true);
     }
 
+    public boolean deleteHearing() { return flags.getOrDefault("delete-hearing", false); }
+
     public void setFlagValue(final String flagName, final boolean value) {
         flags.put(flagName, value);
     }

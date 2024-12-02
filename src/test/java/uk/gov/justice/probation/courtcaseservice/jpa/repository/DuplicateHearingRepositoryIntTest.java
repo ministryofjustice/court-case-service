@@ -32,7 +32,21 @@ public class DuplicateHearingRepositoryIntTest extends BaseIntTest {
     @Test
     void findDuplicateRecords() {
         List<HearingCourtCaseDTO> hearingEntities = duplicateHearingRepository.findOldestDuplicateHearings();
-        assertThat(hearingEntities).hasSize(2);
+        var numberOfDuplicates = 2;
+        assertThat(hearingEntities).hasSize(numberOfDuplicates);
+        assertThat(hearingEntities.get(0).getId()).isEqualTo(-197);
+        assertThat(hearingEntities.get(0).getCreated()).isEqualTo(
+                LocalDateTime.of(2024, 11, 23, 17, 59, 58, 500000000));
+        assertThat(hearingEntities.get(1).getId()).isEqualTo(-198);
+        assertThat(hearingEntities.get(1).getCreated()).isEqualTo(
+                LocalDateTime.of(2024, 11, 23, 17, 59, 59, 0));
+    }
+
+    @Test
+    void given_duplicatesBeforeReleaseDate_theyAreExcluded() {
+        List<HearingCourtCaseDTO> hearingEntities = duplicateHearingRepository.findOldestDuplicateHearings();
+        var numberOfDuplicates = 2;
+        assertThat(hearingEntities).hasSize(numberOfDuplicates);
         assertThat(hearingEntities.get(0).getId()).isEqualTo(-197);
         assertThat(hearingEntities.get(0).getCreated()).isEqualTo(
                 LocalDateTime.of(2024, 11, 23, 17, 59, 58, 500000000));

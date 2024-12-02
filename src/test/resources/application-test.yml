@@ -2,6 +2,7 @@ feature:
   flags:
     disable-auth: false
     fetch-sentence-data: true
+    delete-hearing: false
   event:
     probation-case:
       engagement.created: true

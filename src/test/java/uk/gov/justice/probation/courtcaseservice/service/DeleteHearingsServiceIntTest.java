@@ -1,9 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
@@ -15,6 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositor
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Map;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -36,14 +35,15 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
     @Autowired
     private HearingRepositoryFacade hearingRepositoryFacade;
 
-    @Value("${feature.flags.delete-hearing:false}")
-    private boolean deleteHearing;
+    @Autowired
+    private FeatureFlags featureFlags;
 
     @MockBean
     private TelemetryService telemetryService;
 
     @Test
     void givenFeatureFlagEnabledAndDuplicateHearings_whenDeleteDuplicateHearing_ThenDuplicateHearingsAreDeleted() {
+        featureFlags.setFlags(Map.of("delete-hearing", true));
         deleteHearingsService.deleteDuplicateHearings();
         Optional<HearingEntity> hearing1Deleted = hearingRepositoryFacade.findById(-198L);
         assertThat(hearing1Deleted.isPresent()).isTrue();
@@ -54,7 +54,7 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
         testHearingSoftDeleted(hearing2Deleted.get());
 
         verify(telemetryService, times(2))
-                .trackDeleteHearingEvent(eq(TelemetryEventType.PIC_DELETE_HEARING), any(HearingCourtCaseDTO.class), eq(deleteHearing));
+                .trackDeleteHearingEvent(eq(TelemetryEventType.PIC_DELETE_HEARING), any(HearingCourtCaseDTO.class), eq(featureFlags.deleteHearing()));
 
         Optional<HearingEntity> hearingEntityNotDeleted = hearingRepositoryFacade.findById(-199L);
         assertThat(hearingEntityNotDeleted.isPresent()).isTrue();

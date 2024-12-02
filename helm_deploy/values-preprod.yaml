@@ -42,6 +42,7 @@ hearing_outcomes:
 env:
   JAVA_OPTS: "-Xmx2048m"
   FEATURE_FLAGS_ENABLE_CACHEABLE_CASE_LIST: false
+  FEATURE_FLAGS_ENABLE_DELETE_HEARING: false
   community_api:
     base_url: https://court-case-and-delius-preprod.hmpps.service.justice.gov.uk
   nomis_oauth:

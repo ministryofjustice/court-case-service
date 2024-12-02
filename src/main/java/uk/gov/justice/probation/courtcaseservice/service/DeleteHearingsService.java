@@ -1,7 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
@@ -10,7 +10,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.DuplicateHearing
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
@@ -20,28 +19,26 @@ public class DeleteHearingsService {
     private final DuplicateHearingRepository duplicateHearingRepository;
     private final TelemetryService telemetryService;
 
-    @Autowired
-    private final FeatureFlags featureFlags;
+    @Value("${feature.flags.delete-hearing:false}")
+    private boolean deleteHearing;
 
     public DeleteHearingsService(HearingRepositoryFacade hearingRepositoryFacade, DuplicateHearingRepository duplicateHearingRepository, TelemetryService telemetryService) {
         this.hearingRepositoryFacade = hearingRepositoryFacade;
         this.duplicateHearingRepository = duplicateHearingRepository;
         this.telemetryService = telemetryService;
-        this.featureFlags = new FeatureFlags();
     }
 
     @Transactional
     public void deleteDuplicateHearings() {
         List<HearingCourtCaseDTO> oldestDuplicateHearings = duplicateHearingRepository.findOldestDuplicateHearings();
         oldestDuplicateHearings.forEach(hearingCourtCaseDTO -> {
-            if (featureFlags.deleteHearing()) {
+            if (deleteHearing) {
                 hearingRepositoryFacade.deleteHearing(hearingCourtCaseDTO.getId());
-                // it seems to not be an exact soft delete. it deletes child associations but only soft deletes the parent (the hearing) ?
                 log.info("Soft deleted duplicate hearing with id {}, hearing id {} and case id {}", hearingCourtCaseDTO.getId(), hearingCourtCaseDTO.getHearingId(), hearingCourtCaseDTO.getCaseId());
-                telemetryService.trackDeleteHearingEvent(TelemetryEventType.PIC_DELETE_HEARING, hearingCourtCaseDTO, featureFlags.deleteHearing());
+                telemetryService.trackDeleteHearingEvent(TelemetryEventType.PIC_DELETE_HEARING, hearingCourtCaseDTO, deleteHearing);
             } else {
                 log.info("DryRun enabled, soft deleting duplicate hearing with id {}, hearing id {} and case id {}", hearingCourtCaseDTO.getId(), hearingCourtCaseDTO.getHearingId(), hearingCourtCaseDTO.getCaseId());
-                telemetryService.trackDeleteHearingEvent(TelemetryEventType.PIC_DELETE_HEARING, hearingCourtCaseDTO, featureFlags.deleteHearing());
+                telemetryService.trackDeleteHearingEvent(TelemetryEventType.PIC_DELETE_HEARING, hearingCourtCaseDTO, deleteHearing);
             }
         });
     }

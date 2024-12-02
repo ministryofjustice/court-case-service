@@ -2,8 +2,8 @@ package uk.gov.justice.probation.courtcaseservice.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
@@ -36,21 +36,14 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
     @Autowired
     private HearingRepositoryFacade hearingRepositoryFacade;
 
-    @Autowired
-    private FeatureFlags featureFlags;
+    @Value("${feature.flags.delete-hearing:false}")
+    private boolean deleteHearing;
 
     @MockBean
     private TelemetryService telemetryService;
 
-    @BeforeEach
-    void setUp() {
-        super.setup();
-        featureFlags.setFlagValue("delete-hearing",false);
-    }
-
     @Test
     void givenFeatureFlagEnabledAndDuplicateHearings_whenDeleteDuplicateHearing_ThenDuplicateHearingsAreDeleted() {
-        featureFlags.setFlagValue("delete-hearing",true);
         deleteHearingsService.deleteDuplicateHearings();
         Optional<HearingEntity> hearing1Deleted = hearingRepositoryFacade.findById(-198L);
         assertThat(hearing1Deleted.isPresent()).isTrue();
@@ -61,7 +54,7 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
         testHearingSoftDeleted(hearing2Deleted.get());
 
         verify(telemetryService, times(2))
-                .trackDeleteHearingEvent(eq(TelemetryEventType.PIC_DELETE_HEARING), any(HearingCourtCaseDTO.class), eq(featureFlags.deleteHearing()));
+                .trackDeleteHearingEvent(eq(TelemetryEventType.PIC_DELETE_HEARING), any(HearingCourtCaseDTO.class), eq(deleteHearing));
 
         Optional<HearingEntity> hearingEntityNotDeleted = hearingRepositoryFacade.findById(-199L);
         assertThat(hearingEntityNotDeleted.isPresent()).isTrue();
@@ -78,7 +71,6 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
 
     @Test
     void givenFeatureFlagDisabled_whenDeleteDuplicateHearings_thenNoHearingsDeleted() {
-        featureFlags.setFlagValue("delete-hearing",false);
         deleteHearingsService.deleteDuplicateHearings();
         Optional<HearingEntity> hearing1Deleted = hearingRepositoryFacade.findById(-198L);
         assertThat(hearing1Deleted.isPresent()).isTrue();

@@ -19,23 +19,17 @@ public class DuplicateHearingRepository {
 
     @SuppressWarnings("unchecked")
     public List<HearingCourtCaseDTO> findOldestDuplicateHearings() {
-        String sql = "WITH OldestHearings AS (" +
-                "    SELECT h.hearing_id, cc.case_id, MIN(h.created) as oldest_created " +
+        String sql = "WITH RankedHearings AS (" +
+                "    SELECT h.id, h.hearing_id, cc.case_id, h.created, " +
+                "           ROW_NUMBER() OVER (PARTITION BY h.hearing_id, cc.case_id ORDER BY h.created DESC) as rank " +
                 "    FROM hearing h " +
                 "    JOIN court_case cc ON h.fk_court_case_id = cc.id " +
                 "    WHERE h.created > '2024-11-21 12:00:00' " +
-                "    GROUP BY h.hearing_id, cc.case_id " +
-                "    HAVING COUNT(*) > 1 " +
-                "), " +
-                "DuplicateHearings AS (" +
-                "    SELECT h.id, h.hearing_id, h.created, cc.case_id " +
-                "    FROM hearing h " +
-                "    JOIN court_case cc ON h.fk_court_case_id = cc.id " +
-                "    JOIN OldestHearings oh ON h.hearing_id = oh.hearing_id AND h.created = oh.oldest_created AND cc.case_id = oh.case_id " +
                 ") " +
-                "SELECT dh.id, dh.hearing_id, dh.case_id, dh.created " +
-                "FROM DuplicateHearings dh " +
-                "ORDER BY dh.created ASC";
+                "SELECT id, hearing_id, case_id, created " +
+                "FROM RankedHearings " +
+                "WHERE rank > 1 " +
+                "ORDER BY hearing_id, case_id, created ASC";
 
         Query query = entityManager.createNativeQuery(sql);
 

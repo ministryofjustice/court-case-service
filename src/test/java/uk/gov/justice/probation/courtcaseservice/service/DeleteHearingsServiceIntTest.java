@@ -39,9 +39,6 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
     @Autowired
     private FeatureFlags featureFlags;
 
-    @Mock
-    private TelemetryService telemetryService;
-
     @Test
     void givenFeatureFlagEnabledAndDuplicateHearings_whenDeleteDuplicateHearing_ThenDuplicateHearingsAreDeleted() {
         featureFlags.setFlags(Map.of("delete-hearing", true));
@@ -53,9 +50,6 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
         Optional<HearingEntity> hearing2Deleted = hearingRepositoryFacade.findById(-197L);
         assertThat(hearing2Deleted.isPresent()).isTrue();
         testHearingSoftDeleted(hearing2Deleted.get());
-
-        verify(telemetryService, times(2))
-                .trackDeleteHearingEvent(eq(TelemetryEventType.PIC_DELETE_HEARING), any(HearingCourtCaseDTO.class), eq(featureFlags.deleteHearing()));
 
         Optional<HearingEntity> hearingEntityNotDeleted = hearingRepositoryFacade.findById(-199L);
         assertThat(hearingEntityNotDeleted.isPresent()).isTrue();

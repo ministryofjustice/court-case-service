@@ -43,7 +43,7 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
 
     @Test
     void givenFeatureFlagEnabledAndDuplicateHearings_whenDeleteDuplicateHearing_ThenDuplicateHearingsAreDeleted() {
-        //featureFlags.setFlags(Map.of("delete-hearing", true));
+        featureFlags.setFlags(Map.of("delete-hearing", true));
         deleteHearingsService.deleteDuplicateHearings();
         Optional<HearingEntity> hearing1Deleted = hearingRepositoryFacade.findById(-198L);
         assertThat(hearing1Deleted.isPresent()).isTrue();

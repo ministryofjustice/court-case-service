@@ -157,4 +157,13 @@ public class HearingRepositoryFacade {
                 .filter(hearingDefendantEntity -> defendantId.equals(hearingDefendantEntity.getDefendantId()))
                 .findFirst();
     }
+
+
+    public Optional<HearingEntity> findById(Long id) {
+        return hearingEntityInitService.findByIdAndInitHearingDefendants(id);
+    }
+
+    public void deleteHearing(Long hearingDbId) {
+        hearingRepository.deleteById(hearingDbId);
+    }
 }

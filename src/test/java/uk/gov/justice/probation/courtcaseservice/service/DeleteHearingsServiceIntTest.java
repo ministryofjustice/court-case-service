@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.jdbc.Sql;
@@ -37,9 +38,9 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
 
     @Autowired
     private FeatureFlags featureFlags;
-//
-//    @MockBean
-//    private TelemetryService telemetryService;
+
+    @Mock
+    private TelemetryService telemetryService;
 
     @Test
     void givenFeatureFlagEnabledAndDuplicateHearings_whenDeleteDuplicateHearing_ThenDuplicateHearingsAreDeleted() {
@@ -53,8 +54,8 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
         assertThat(hearing2Deleted.isPresent()).isTrue();
         testHearingSoftDeleted(hearing2Deleted.get());
 
-//        verify(telemetryService, times(2))
-//                .trackDeleteHearingEvent(eq(TelemetryEventType.PIC_DELETE_HEARING), any(HearingCourtCaseDTO.class), eq(featureFlags.deleteHearing()));
+        verify(telemetryService, times(2))
+                .trackDeleteHearingEvent(eq(TelemetryEventType.PIC_DELETE_HEARING), any(HearingCourtCaseDTO.class), eq(featureFlags.deleteHearing()));
 
         Optional<HearingEntity> hearingEntityNotDeleted = hearingRepositoryFacade.findById(-199L);
         assertThat(hearingEntityNotDeleted.isPresent()).isTrue();

@@ -85,6 +85,4 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
         assertThat(hearingEntityNotDeleted.get().getId()).isEqualTo(-199L);
         assertThat(hearingEntityNotDeleted.get().isDeleted()).isFalse();
     }
-
-    // TODO: Test case defendants deletion and original hearings' associations were not deleted
 }

@@ -20,8 +20,8 @@ public class DeleteHearingsService {
     private final DuplicateHearingRepository duplicateHearingRepository;
     private final TelemetryService telemetryService;
 
-    @Autowired
-    private FeatureFlags featureFlags;
+//    @Autowired
+//    private FeatureFlags featureFlags;
 
     public DeleteHearingsService(HearingRepositoryFacade hearingRepositoryFacade, DuplicateHearingRepository duplicateHearingRepository, TelemetryService telemetryService) {
         this.hearingRepositoryFacade = hearingRepositoryFacade;
@@ -33,14 +33,14 @@ public class DeleteHearingsService {
     public void deleteDuplicateHearings() {
         List<HearingCourtCaseDTO> oldestDuplicateHearings = duplicateHearingRepository.findOldestDuplicateHearings();
         oldestDuplicateHearings.forEach(hearingCourtCaseDTO -> {
-            if (featureFlags.deleteHearing()) {
+           // if (featureFlags.deleteHearing()) {
                 hearingRepositoryFacade.deleteHearing(hearingCourtCaseDTO.getId());
                 log.info("Soft deleted duplicate hearing with id {}, hearing id {} and case id {}", hearingCourtCaseDTO.getId(), hearingCourtCaseDTO.getHearingId(), hearingCourtCaseDTO.getCaseId());
-                telemetryService.trackDeleteHearingEvent(TelemetryEventType.PIC_DELETE_HEARING, hearingCourtCaseDTO, featureFlags.deleteHearing());
-            } else {
-                log.info("DryRun enabled, soft deleting duplicate hearing with id {}, hearing id {} and case id {}", hearingCourtCaseDTO.getId(), hearingCourtCaseDTO.getHearingId(), hearingCourtCaseDTO.getCaseId());
-                telemetryService.trackDeleteHearingEvent(TelemetryEventType.PIC_DELETE_HEARING, hearingCourtCaseDTO, featureFlags.deleteHearing());
-            }
+                //telemetryService.trackDeleteHearingEvent(TelemetryEventType.PIC_DELETE_HEARING, hearingCourtCaseDTO, featureFlags.deleteHearing());
+         //   } else {
+          //      log.info("DryRun enabled, soft deleting duplicate hearing with id {}, hearing id {} and case id {}", hearingCourtCaseDTO.getId(), hearingCourtCaseDTO.getHearingId(), hearingCourtCaseDTO.getCaseId());
+         //       telemetryService.trackDeleteHearingEvent(TelemetryEventType.PIC_DELETE_HEARING, hearingCourtCaseDTO, featureFlags.deleteHearing());
+         //  }
         });
     }
 }

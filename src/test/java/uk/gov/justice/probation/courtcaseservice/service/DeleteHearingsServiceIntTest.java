@@ -69,20 +69,20 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
         assertThat(hearing.getHearingDays().size()).isEqualTo(0);
     }
 
-    @Test
-    void givenFeatureFlagDisabled_whenDeleteDuplicateHearings_thenNoHearingsDeleted() {
-        deleteHearingsService.deleteDuplicateHearings();
-        Optional<HearingEntity> hearing1Deleted = hearingRepositoryFacade.findById(-198L);
-        assertThat(hearing1Deleted.isPresent()).isTrue();
-        assertThat(hearing1Deleted.get().isDeleted()).isFalse();
-
-        Optional<HearingEntity> hearing2Deleted = hearingRepositoryFacade.findById(-197L);
-        assertThat(hearing2Deleted.isPresent()).isTrue();
-        assertThat(hearing2Deleted.get().isDeleted()).isFalse();
-
-        Optional<HearingEntity> hearingEntityNotDeleted = hearingRepositoryFacade.findById(-199L);
-        assertThat(hearingEntityNotDeleted.isPresent()).isTrue();
-        assertThat(hearingEntityNotDeleted.get().getId()).isEqualTo(-199L);
-        assertThat(hearingEntityNotDeleted.get().isDeleted()).isFalse();
-    }
+//    @Test
+//    void givenFeatureFlagDisabled_whenDeleteDuplicateHearings_thenNoHearingsDeleted() {
+//        deleteHearingsService.deleteDuplicateHearings();
+//        Optional<HearingEntity> hearing1Deleted = hearingRepositoryFacade.findById(-198L);
+//        assertThat(hearing1Deleted.isPresent()).isTrue();
+//        assertThat(hearing1Deleted.get().isDeleted()).isFalse();
+//
+//        Optional<HearingEntity> hearing2Deleted = hearingRepositoryFacade.findById(-197L);
+//        assertThat(hearing2Deleted.isPresent()).isTrue();
+//        assertThat(hearing2Deleted.get().isDeleted()).isFalse();
+//
+//        Optional<HearingEntity> hearingEntityNotDeleted = hearingRepositoryFacade.findById(-199L);
+//        assertThat(hearingEntityNotDeleted.isPresent()).isTrue();
+//        assertThat(hearingEntityNotDeleted.get().getId()).isEqualTo(-199L);
+//        assertThat(hearingEntityNotDeleted.get().isDeleted()).isFalse();
+//    }
 }

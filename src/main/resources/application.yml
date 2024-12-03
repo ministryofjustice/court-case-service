@@ -201,7 +201,7 @@ offender-service:
 feature:
   flags:
     enable-cacheable-case-list: true
-    disable-auth: false
+    delete-hearing: true
   event:
     probation-case:
       engagement.created: true

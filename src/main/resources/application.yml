@@ -107,6 +107,8 @@ spring:
       org:
         hibernate:
           flushMode: COMMIT
+          envers:
+            store_data_at_delete: true
     open-in-view: false
   servlet:
     multipart:

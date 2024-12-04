@@ -13,8 +13,6 @@ import lombok.With;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.type.SqlTypes;

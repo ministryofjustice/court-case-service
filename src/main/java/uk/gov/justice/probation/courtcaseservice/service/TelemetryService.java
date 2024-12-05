@@ -289,7 +289,7 @@ public class TelemetryService {
         ofNullable(hearing.getCaseId())
                 .ifPresent(caseId -> properties.put("caseId", caseId));
         ofNullable(dryRun)
-                .ifPresent(isEnabled -> properties.put("dryRun", isEnabled.toString()));
+                .ifPresent(isEnabled -> properties.put("isEnabled", isEnabled.toString()));
 
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }

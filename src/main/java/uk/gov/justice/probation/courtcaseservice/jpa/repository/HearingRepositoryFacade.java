@@ -163,10 +163,6 @@ public class HearingRepositoryFacade {
     }
 
     public void deleteHearing(Long hearingDbId) {
-        try {
-            hearingRepository.deleteById(hearingDbId);
-        } catch (Exception e) {
-            log.error("Error deleting hearing with id {}", hearingDbId, e);
-        }
+        hearingRepository.deleteById(hearingDbId);
     }
 }

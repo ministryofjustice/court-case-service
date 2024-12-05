@@ -377,7 +377,7 @@ class TelemetryServiceTest {
         assertThat(properties).hasSize(3);
         assertThat(properties.get("caseId")).isEqualTo(CASE_ID);
         assertThat(properties.get("hearingId")).isEqualTo(HEARING_ID);
-        assertThat(properties.get("dryRunIsEnabled")).isEqualTo("true");
+        assertThat(properties.get("deleteHearingIsEnabled")).isEqualTo("true");
 
         assertThat(metricsCaptor.getValue()).isEmpty();
     }

@@ -280,7 +280,7 @@ public class TelemetryService {
         telemetryClient.trackEvent(TelemetryEventType.PIC_RESULT_OUTCOME_NOT_ASSIGNED_TO_CURRENT_USER.eventName, properties, Collections.emptyMap());
     }
 
-    void trackDeleteHearingEvent(TelemetryEventType eventType, HearingCourtCaseDTO hearing, Boolean dryRun) {
+    void trackDeleteHearingEvent(TelemetryEventType eventType, HearingCourtCaseDTO hearing, boolean featureFlag) {
 
         Map<String, String> properties = new HashMap<>();
 
@@ -288,8 +288,8 @@ public class TelemetryService {
                 .ifPresent(id -> properties.put("hearingId", id));
         ofNullable(hearing.getCaseId())
                 .ifPresent(caseId -> properties.put("caseId", caseId));
-        ofNullable(dryRun)
-                .ifPresent(isEnabled -> properties.put("dryRun", isEnabled.toString()));
+        Optional.of(featureFlag)
+                .ifPresent(deleteHearingIsEnabled -> properties.put("deleteHearingIsEnabled", deleteHearingIsEnabled.toString()));
 
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }

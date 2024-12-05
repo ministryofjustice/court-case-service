@@ -109,7 +109,6 @@ public class HearingRepositoryFacade {
         return hearingRepository.findLastModifiedByHearingDay(courtCode, hearingDay);
     }
 
-    @Transactional
     public HearingEntity save(HearingEntity hearingEntity) {
 
         updateWithExistingOffenders(hearingEntity);
@@ -164,6 +163,10 @@ public class HearingRepositoryFacade {
     }
 
     public void deleteHearing(Long hearingDbId) {
-        hearingRepository.deleteById(hearingDbId);
+        try {
+            hearingRepository.deleteById(hearingDbId);
+        } catch (Exception e) {
+            log.error("Error deleting hearing with id {}", hearingDbId, e);
+        }
     }
 }

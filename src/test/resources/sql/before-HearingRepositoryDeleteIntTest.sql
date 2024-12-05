@@ -12,6 +12,8 @@ INSERT INTO HEARING_DEFENDANT (id, fk_hearing_id, created, defendant_id, FK_DEFE
 VALUES (-197, -197, '2022-03-23 16:59:59.000', '0048297a-fd9c-4c96-8c03-8122b802a54d', -999);
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)
 VALUES (-197, -197, 'Theft from a garage', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 17:59:59.000');
+INSERT INTO hearing_outcome (id, outcome_type,created,created_by,deleted,last_updated,last_updated_by,"version",outcome_date,state, fk_hearing_id, FK_HEARING_DEFENDANT_ID)
+VALUES (-197, 'REPORT_REQUESTED','2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',false,'2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)',0,'2023-07-11 16:55:18.496','NEW', -197, -197);
 
 -- Insert duplicate data x 1
 INSERT INTO court_case (id, case_id, case_no, created, source_type)

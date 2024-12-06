@@ -30,16 +30,21 @@ public class DeleteHearingsService {
 
     public void deleteDuplicateHearings() {
         List<HearingCourtCaseDTO> oldestDuplicateHearings = duplicateHearingRepository.findOldestDuplicateHearings();
-        oldestDuplicateHearings.forEach(hearingCourtCaseDTO -> {
+        logHearingsToBeDeleted(oldestDuplicateHearings);
+        if(featureFlags.deleteHearing()) {
+            hearingRepositoryFacade.setHearingsToDeleted(oldestDuplicateHearings.stream().map(HearingCourtCaseDTO::getId).toList());
+        }
+    }
+
+    private void logHearingsToBeDeleted(List<HearingCourtCaseDTO> hearingsCourtCaseDTOs) {
+        hearingsCourtCaseDTOs.forEach(hearingCourtCaseDTO -> {
             if (featureFlags.deleteHearing()) {
                 log.info("Soft deleting duplicate hearing with id {}, hearing id {} and case id {}", hearingCourtCaseDTO.getId(), hearingCourtCaseDTO.getHearingId(), hearingCourtCaseDTO.getCaseId());
-                hearingRepositoryFacade.deleteHearing(hearingCourtCaseDTO.getId());
-                log.info("Successfully soft deleted hearing hearing with id {}, hearing id {} and case id {}", hearingCourtCaseDTO.getId(), hearingCourtCaseDTO.getHearingId(), hearingCourtCaseDTO.getCaseId());
                 telemetryService.trackDeleteHearingEvent(TelemetryEventType.PIC_DELETE_HEARING, hearingCourtCaseDTO, featureFlags.deleteHearing());
             } else {
                 log.info("DryRun enabled, soft deleting duplicate hearing with id {}, hearing id {} and case id {}", hearingCourtCaseDTO.getId(), hearingCourtCaseDTO.getHearingId(), hearingCourtCaseDTO.getCaseId());
                 telemetryService.trackDeleteHearingEvent(TelemetryEventType.PIC_DELETE_HEARING, hearingCourtCaseDTO, featureFlags.deleteHearing());
-           }
+            }
         });
     }
 }

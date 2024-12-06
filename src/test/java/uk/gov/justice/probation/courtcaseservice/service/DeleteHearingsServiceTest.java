@@ -40,7 +40,7 @@ class DeleteHearingsServiceTest {
         when(duplicateHearingRepository.findOldestDuplicateHearings()).thenReturn(duplicateHearings());
         when(featureFlags.deleteHearing()).thenReturn(true);
         deleteHearingsService.deleteDuplicateHearings();
-        verify(hearingRepositoryFacade, times(1)).deleteHearing(1L);
+        verify(hearingRepositoryFacade, times(1)).setHearingsToDeleted(List.of(1L));
         verify(telemetryService, times(1))
                 .trackDeleteHearingEvent(eq(TelemetryEventType.PIC_DELETE_HEARING), any(HearingCourtCaseDTO.class), eq(true));
     }

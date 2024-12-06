@@ -60,8 +60,12 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
     void testHearingSoftDeleted(HearingEntity hearing) {
         assertThat(hearing.isDeleted()).isTrue();
         assertThat(hearing.getCourtCase().isDeleted()).isTrue();
-        assertThat(hearing.getHearingDefendants().size()).isEqualTo(0);
-        assertThat(hearing.getHearingDays().size()).isEqualTo(0);
+        hearing.getHearingDefendants().forEach(hearingDefendant -> {
+            assertThat(hearingDefendant.isDeleted()).isTrue();
+        });
+        hearing.getHearingDays().forEach(hearingDay -> {
+            assertThat(hearingDay.isDeleted()).isTrue();
+        });
     }
 
     @Test

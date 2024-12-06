@@ -168,9 +168,17 @@ public class HearingRepositoryFacade {
         matchingHearings.forEach(hearingEntity -> {
             hearingEntity.setDeleted(true);
             hearingEntity.getCourtCase().setDeleted(true);
-            hearingEntity.getCourtCase().getCaseDefendants().forEach(caseDefendant -> caseDefendant.setDeleted(true));
+            hearingEntity.getCourtCase().getCaseMarkers().forEach(caseMarker -> caseMarker.setDeleted(true));
+            hearingEntity.getCourtCase().getCaseDefendants().forEach(caseDefendant -> {
+                caseDefendant.setDeleted(true);
+                caseDefendant.getDocuments().forEach(document -> document.setDeleted(true));
+            });
             hearingEntity.getHearingDays().forEach(hearingDay -> hearingDay.setDeleted(true));
-            hearingEntity.getHearingDefendants().forEach(hearingDefendant -> hearingDefendant.setDeleted(true));
+            hearingEntity.getHearingDefendants().forEach(hearingDefendant -> {
+                hearingDefendant.setDeleted(true);
+                hearingDefendant.getOffences().forEach(offence -> offence.setDeleted(true));
+                hearingDefendant.getHearingOutcome().setDeleted(true);
+            });
         });
         hearingRepository.saveAll(matchingHearings);
     }

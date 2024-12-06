@@ -53,19 +53,39 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
 
         Optional<HearingEntity> hearingEntityNotDeleted = hearingRepositoryFacade.findById(-199L);
         assertThat(hearingEntityNotDeleted.isPresent()).isTrue();
-        assertThat(hearingEntityNotDeleted.get().getId()).isEqualTo(-199L);
-        assertThat(hearingEntityNotDeleted.get().isDeleted()).isFalse();
+        testHearingNotSoftDeleted(hearingEntityNotDeleted.get());
+    }
+
+    void testHearingNotSoftDeleted(HearingEntity hearing) {
+        assertThat(hearing.isDeleted()).isFalse();
+        assertThat(hearing.getCourtCase().isDeleted()).isFalse();
+        hearing.getCourtCase().getCaseMarkers().forEach(caseMarker -> assertThat(caseMarker.isDeleted()).isFalse());
+        hearing.getCourtCase().getCaseDefendants().forEach(caseDefendant -> {
+            assertThat(caseDefendant.isDeleted()).isFalse();
+            caseDefendant.getDocuments().forEach(document -> assertThat(document.isDeleted()).isFalse());
+        });
+        hearing.getHearingDefendants().forEach(hearingDefendant -> {
+            assertThat(hearingDefendant.isDeleted()).isFalse();
+            hearingDefendant.getOffences().forEach(offence -> assertThat(offence.isDeleted()).isFalse());
+            assertThat(hearingDefendant.getHearingOutcome().isDeleted()).isFalse();
+        });
+        hearing.getHearingDays().forEach(hearingDay -> assertThat(hearingDay.isDeleted()).isFalse());
     }
 
     void testHearingSoftDeleted(HearingEntity hearing) {
         assertThat(hearing.isDeleted()).isTrue();
         assertThat(hearing.getCourtCase().isDeleted()).isTrue();
+        hearing.getCourtCase().getCaseMarkers().forEach(caseMarker -> assertThat(caseMarker.isDeleted()).isTrue());
+        hearing.getCourtCase().getCaseDefendants().forEach(caseDefendant -> {
+            assertThat(caseDefendant.isDeleted()).isTrue();
+            caseDefendant.getDocuments().forEach(document -> assertThat(document.isDeleted()).isTrue());
+        });
         hearing.getHearingDefendants().forEach(hearingDefendant -> {
             assertThat(hearingDefendant.isDeleted()).isTrue();
+            hearingDefendant.getOffences().forEach(offence -> assertThat(offence.isDeleted()).isTrue());
+            assertThat(hearingDefendant.getHearingOutcome().isDeleted()).isTrue();
         });
-        hearing.getHearingDays().forEach(hearingDay -> {
-            assertThat(hearingDay.isDeleted()).isTrue();
-        });
+        hearing.getHearingDays().forEach(hearingDay -> assertThat(hearingDay.isDeleted()).isTrue());
     }
 
     @Test

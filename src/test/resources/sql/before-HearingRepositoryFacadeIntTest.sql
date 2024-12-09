@@ -22,6 +22,8 @@ VALUES (-198, -198, '2022-03-23 16:59:59.000', '0048297a-fd9c-4c96-8c03-8122b802
 -- Insert duplicate data
 -- hearing and court_case created date is 1 second before original
 INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, deleted, created_by, created_by_uuid) VALUES (-1700028902, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '0148297a-fd9c-4c96-8c03-8122b802a54d', 'PSR completed', 'Author One', now(), true, 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
+INSERT INTO court_case (id, case_id, case_no, created, source_type)
+VALUES (-199, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '1600028888', '2022-03-23 17:59:58.000', 'COMMON_PLATFORM');
 INSERT INTO hearing (id, fk_court_case_id, hearing_id, created, list_no, deleted)
 VALUES (-199, -198, '5564cbfd-3d53-4f36-9508-437416b08738', '2022-03-23 17:59:58.000', '3rd', true);
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)

@@ -43,6 +43,10 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
         assertThat(hearing2Deleted.isPresent()).isTrue();
         testHearingSoftDeleted(hearing2Deleted.get());
 
+        Optional<HearingEntity> hearing3Deleted = hearingRepositoryFacade.findById(-298L);
+        assertThat(hearing3Deleted.isPresent()).isTrue();
+        testHearingSoftDeleted(hearing3Deleted.get());
+
         Optional<HearingEntity> hearingEntityNotDeleted = hearingRepositoryFacade.findById(-199L);
         assertThat(hearingEntityNotDeleted.isPresent()).isTrue();
         testHearingNotSoftDeleted(hearingEntityNotDeleted.get());
@@ -75,7 +79,9 @@ public class DeleteHearingsServiceIntTest extends BaseIntTest {
         hearing.getHearingDefendants().forEach(hearingDefendant -> {
             assertThat(hearingDefendant.isDeleted()).isTrue();
             hearingDefendant.getOffences().forEach(offence -> assertThat(offence.isDeleted()).isTrue());
-            assertThat(hearingDefendant.getHearingOutcome().isDeleted()).isTrue();
+            if(hearingDefendant.getHearingOutcome() != null) {
+                assertThat(hearingDefendant.getHearingOutcome().isDeleted()).isTrue();
+            }
         });
         hearing.getHearingDays().forEach(hearingDay -> assertThat(hearingDay.isDeleted()).isTrue());
     }

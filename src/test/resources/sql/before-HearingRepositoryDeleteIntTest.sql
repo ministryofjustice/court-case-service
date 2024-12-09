@@ -62,6 +62,30 @@ VALUES (-199, '2023-07-11 16:55:18.756', 'AUTH_RO_USER(prepare-a-case-for-court)
 INSERT INTO case_marker(id, fk_court_case_id, type_description, created, created_by, deleted, last_updated, last_updated_by, version)
 VALUES (-199, -199, 'description', '2023-07-11 16:55:18.756', 'AUTH_RO_USER(prepare-a-case-for-court)', false, '2023-07-11 16:55:18.756','AUTH_RO_USER(prepare-a-case-for-court)', 0);
 
+-- Insert duplicate data 1 of 2
+INSERT INTO court_case (id, case_id, case_no, created, source_type)
+VALUES (-298, '827af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '1600028888', '2024-11-23 16:59:59.100', 'COMMON_PLATFORM');
+INSERT INTO hearing (id, fk_court_case_id, hearing_id, created, list_no)
+VALUES (-298, -298, '6564cbfd-3d53-4f36-9508-437416b08738', '2024-11-23 16:59:59.100', '3rd');
+INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
+VALUES (-298, -298, 'B33HU', 1, '2022-3-25', '09:00', '2024-11-23 17:59:59.100');
+INSERT INTO HEARING_DEFENDANT (id, fk_hearing_id, created, defendant_id, FK_DEFENDANT_ID)
+VALUES (-298, -298, '2022-03-23 16:59:59.000', '0048297a-fd9c-4c96-8c03-8122b802a54d', -999);
+INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)
+VALUES (-298, -298, 'Theft from a garage', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 17:59:59.000');
+
+-- Insert duplicate data 2 of 2
+INSERT INTO court_case (id, case_id, case_no, created, source_type)
+VALUES (-299, '827af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '1600028888', '2024-11-23 16:59:59.200', 'COMMON_PLATFORM');
+INSERT INTO hearing (id, fk_court_case_id, hearing_id, created, list_no)
+VALUES (-299, -299, '6564cbfd-3d53-4f36-9508-437416b08738', '2024-11-23 16:59:59.200', '3rd');
+INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
+VALUES (-299, -299, 'B33HU', 1, '2022-3-25', '09:00', '2024-11-23 17:59:59.100');
+INSERT INTO HEARING_DEFENDANT (id, fk_hearing_id, created, defendant_id, FK_DEFENDANT_ID)
+VALUES (-299, -299, '2022-03-23 16:59:59.000', '0048297a-fd9c-4c96-8c03-8122b802a54d', -999);
+INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)
+VALUES (-299, -299, 'Theft from a garage', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 17:59:59.000');
+
 -- Insert duplicate data x3
 -- The data is created before the p2 incident start date
 INSERT INTO court_case (id, case_id, case_no, created, source_type)

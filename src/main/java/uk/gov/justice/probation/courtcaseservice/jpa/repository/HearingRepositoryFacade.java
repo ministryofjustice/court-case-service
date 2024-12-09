@@ -177,7 +177,9 @@ public class HearingRepositoryFacade {
             hearingEntity.getHearingDefendants().forEach(hearingDefendant -> {
                 hearingDefendant.setDeleted(true);
                 hearingDefendant.getOffences().forEach(offence -> offence.setDeleted(true));
-                hearingDefendant.getHearingOutcome().setDeleted(true);
+                if(hearingDefendant.getHearingOutcome() != null) {
+                    hearingDefendant.getHearingOutcome().setDeleted(true);
+                }
             });
         });
         hearingRepository.saveAll(matchingHearings);

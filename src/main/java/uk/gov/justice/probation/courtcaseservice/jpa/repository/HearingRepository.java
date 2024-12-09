@@ -16,12 +16,7 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
 
     Optional<HearingEntity> findFirstByHearingIdOrderByCreatedDesc(String hearingId);
 
-    @Query(value = "select * from hearing h where h.hearing_id = :hearingId " +
-            "and fk_court_case_id = (select id from court_case where case_id = :caseId and deleted = false order by created desc limit 1) " +
-            "and deleted = false " +
-            "order by created desc limit 1",
-            nativeQuery = true)
-    Optional<HearingEntity> findByHearingIdAndCaseId(String hearingId, String caseId);
+    Optional<HearingEntity> findByHearingIdAndCourtCaseCaseIdAndDeletedFalse(String hearingId, String courtCaseCaseId);
 
     Optional<HearingEntity> findFirstByHearingDefendantsDefendantId(String defendantId);
 

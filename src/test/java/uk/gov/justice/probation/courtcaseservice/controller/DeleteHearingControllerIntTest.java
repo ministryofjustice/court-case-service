@@ -36,6 +36,7 @@ class DeleteHearingControllerIntTest extends BaseIntTest {
         featureFlags.setFlags(Map.of("delete-hearing", true));
         givenDeleteHearing();
         expectedHearingsSetToDeleted();
+        expectedHearingsNotSetToDeleted();
     }
 
     @Test
@@ -45,6 +46,7 @@ class DeleteHearingControllerIntTest extends BaseIntTest {
         givenDeleteHearing();
         givenDeleteHearing();
         expectedHearingsSetToDeleted();
+        expectedHearingsNotSetToDeleted();
     }
 
     @Test
@@ -66,17 +68,32 @@ class DeleteHearingControllerIntTest extends BaseIntTest {
     }
 
     private void expectedHearingsSetToDeleted() {
-        Optional<HearingEntity> hearingEntity = hearingRepositoryFacade.findById(-199L);
-        assertTrue(hearingEntity.isPresent());
-        assertThat(hearingEntity.get().isDeleted()).isFalse();
-
         Optional<HearingEntity> firstHearingEntityDeleted = hearingRepositoryFacade.findById(-198L);
         assertTrue(firstHearingEntityDeleted.isPresent());
         assertThat(firstHearingEntityDeleted.get().isDeleted()).isTrue();
 
-        Optional<HearingEntity> secondHearingEntityDeleted = hearingRepositoryFacade.findById(-198L);
+        Optional<HearingEntity> secondHearingEntityDeleted = hearingRepositoryFacade.findById(-197L);
         assertTrue(secondHearingEntityDeleted.isPresent());
         assertThat(secondHearingEntityDeleted.get().isDeleted()).isTrue();
+
+        Optional<HearingEntity> thirdHearingEntityDeleted = hearingRepositoryFacade.findById(-298L);
+        assertTrue(thirdHearingEntityDeleted.isPresent());
+        assertThat(secondHearingEntityDeleted.get().isDeleted()).isTrue();
+    }
+
+    private void expectedHearingsNotSetToDeleted() {
+        Optional<HearingEntity> hearingEntity = hearingRepositoryFacade.findById(-199L);
+        assertTrue(hearingEntity.isPresent());
+        assertThat(hearingEntity.get().isDeleted()).isFalse();
+
+        Optional<HearingEntity> hearingEntity2 = hearingRepositoryFacade.findById(-299L);
+        assertTrue(hearingEntity2.isPresent());
+        assertThat(hearingEntity.get().isDeleted()).isFalse();
+
+        Optional<HearingEntity> hearingEntity3 = hearingRepositoryFacade.findById(-200L);
+        assertTrue(hearingEntity3.isPresent());
+        assertThat(hearingEntity.get().isDeleted()).isFalse();
+
     }
 
     private void noHearingsSetToDeleted() {
@@ -88,8 +105,12 @@ class DeleteHearingControllerIntTest extends BaseIntTest {
         assertTrue(firstHearingEntityDeleted.isPresent());
         assertThat(firstHearingEntityDeleted.get().isDeleted()).isFalse();
 
-        Optional<HearingEntity> secondHearingEntityDeleted = hearingRepositoryFacade.findById(-198L);
+        Optional<HearingEntity> secondHearingEntityDeleted = hearingRepositoryFacade.findById(-197L);
         assertTrue(secondHearingEntityDeleted.isPresent());
+        assertThat(secondHearingEntityDeleted.get().isDeleted()).isFalse();
+
+        Optional<HearingEntity> thirdHearingEntityDeleted = hearingRepositoryFacade.findById(-298L);
+        assertTrue(thirdHearingEntityDeleted.isPresent());
         assertThat(secondHearingEntityDeleted.get().isDeleted()).isFalse();
     }
 }

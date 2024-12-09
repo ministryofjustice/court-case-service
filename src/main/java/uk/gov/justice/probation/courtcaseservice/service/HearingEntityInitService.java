@@ -30,7 +30,7 @@ public class HearingEntityInitService {
 
     @Transactional
     public Optional<HearingEntity> findFirstByHearingIdCourtCaseId(String hearingId, String courtCaseId) {
-        var hearing = hearingRepository.findByHearingIdAndCaseId(hearingId, courtCaseId);
+        var hearing = hearingRepository.findByHearingIdAndCourtCaseCaseIdAndDeletedFalse(hearingId, courtCaseId);
         return getHearingEntity(hearing);
     }
 

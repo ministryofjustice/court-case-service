@@ -77,7 +77,7 @@ class HearingOutcomeRepositoryCustom(
         }
 
         val coreQuery = """
-            from hearing_defendant hd 
+            from hearing_defendant hd
             inner join hearing_outcome ho on ho.fk_hearing_defendant_id = hd.id
             $filterBuilder
             inner join
@@ -88,7 +88,8 @@ class HearingOutcomeRepositoryCustom(
                         group by fk_hearing_id
                 ) hday2
             on hday2.hday_hearing_id = hd.fk_hearing_id	
-                
+            where ho.deleted = false
+            
             """
 
         val searchQuery = """

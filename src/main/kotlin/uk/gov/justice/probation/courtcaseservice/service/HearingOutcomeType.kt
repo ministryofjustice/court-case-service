@@ -13,5 +13,7 @@ enum class HearingOutcomeType(@JsonProperty("hearingOutcomeType") val value: Str
     NO_OUTCOME("No outcome"),
     OTHER("Other"),
     WARRANT("Warrant"),
-    TRIAL("Trial");
+    TRIAL("Trial"),
+    DISMISSED("Dismissed"),
+    FINE("Fine");
 }

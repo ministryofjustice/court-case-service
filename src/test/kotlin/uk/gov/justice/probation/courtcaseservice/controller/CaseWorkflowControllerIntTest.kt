@@ -350,6 +350,8 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .body("get(6).label", equalTo("No outcome"))
             .body("get(9).value", equalTo("TRIAL"))
             .body("get(9).label", equalTo("Trial"))
+            .body("get(11).value", equalTo("FINE"))
+            .body("get(11).label", equalTo("Fine"))
     }
 
     @Test

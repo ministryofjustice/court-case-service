@@ -252,10 +252,6 @@ dependencies {
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 
     agentDeps 'com.microsoft.azure:applicationinsights-agent:3.5.2'
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10")
-
-    // Spring ignores constructor binding on Kotlin data classes without this which in turn breaks hmpps-sqs-spring-boot-starter autoconfiguration
-    runtimeOnly 'org.jetbrains.kotlin:kotlin-reflect:1.7.10'
 }
 
 jacoco {

@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 
 @Repository
 class HearingOutcomeRepositoryCustom(

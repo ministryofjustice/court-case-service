@@ -11,12 +11,10 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.Audited;
-import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO;
 
 import java.io.Serializable;

@@ -53,7 +53,10 @@ public class HearingEntityInitService {
     @Transactional
     public Optional<HearingEntity> findByHearingIdAndInitHearingDefendants(String hearingId, String defendantId) {
         var hearing = hearingRepository.findByHearingIdAndHearingDefendantsDefendantIdAndDeletedFalse(hearingId, defendantId);
-        hearing.ifPresent(hearingEntity -> Hibernate.initialize(hearingEntity.getHearingDefendants()));
+        hearing.ifPresent(hearingEntity -> {
+            Hibernate.initialize(hearingEntity.getHearingDefendants());
+            Hibernate.initialize(hearingEntity.getCourtCase().getCaseDefendants());
+        });
         return hearing;
     }
 
@@ -108,7 +111,10 @@ public class HearingEntityInitService {
     @Transactional
     public Optional<HearingEntity> findByHearingIdAndDefendantIdAssignState(String hearingId, String defendantId) {
         var hearing = hearingRepository.findByHearingIdAndHearingDefendantsDefendantIdAndDeletedFalse(hearingId, defendantId);
-        hearing.ifPresent(hearingEntity -> Hibernate.initialize(hearingEntity.getHearingDefendants()));
+        hearing.ifPresent(hearingEntity -> {
+            Hibernate.initialize(hearingEntity.getHearingDefendants());
+            Hibernate.initialize(hearingEntity.getCourtCase().getCaseDefendants());
+        });
         return hearing;
     }
 

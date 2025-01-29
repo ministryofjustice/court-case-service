@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito
-import org.mockito.BDDMockito.BDDStubber
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
@@ -15,7 +14,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendant
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepository
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.*
 
 @ExtendWith(MockitoExtension::class)
 internal class HearingOutcomesServiceTest {
@@ -51,11 +49,11 @@ internal class HearingOutcomesServiceTest {
 
         Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(crn, null, null))
             .isEqualTo(listOf(HearingOutcomeSarResponse(
-                "ADJOURNED",
+                "Adjourned",
                 LocalDateTime.parse("2020-05-01T00:00"),
                 LocalDateTime.parse("2020-05-01T00:00"),
-                "IN_PROGRESS",
-                "John Doe",
+                "In progress",
+                "Doe",
                 LocalDateTime.parse("2024-01-01T00:00")
             )))
 
@@ -78,11 +76,11 @@ internal class HearingOutcomesServiceTest {
 
         Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(crn, hearingOutcomeCreatedDate.toLocalDate(), toDate))
             .isEqualTo(listOf(HearingOutcomeSarResponse(
-                "ADJOURNED",
+                "Adjourned",
                 LocalDateTime.parse("2020-05-01T00:00"),
                 LocalDateTime.parse("2020-05-01T00:00"),
-                "IN_PROGRESS",
-                "John Doe",
+                "In progress",
+                "Doe",
                 hearingOutcomeCreatedDate
             )))
 
@@ -103,11 +101,11 @@ internal class HearingOutcomesServiceTest {
 
         Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(crn, hearingOutcomeCreatedDate.toLocalDate(), null))
             .isEqualTo(listOf(HearingOutcomeSarResponse(
-                "ADJOURNED",
+                "Adjourned",
                 LocalDateTime.parse("2020-05-01T00:00"),
                 LocalDateTime.parse("2020-05-01T00:00"),
-                "IN_PROGRESS",
-                "John Doe",
+                "In progress",
+                "Doe",
                 hearingOutcomeCreatedDate
             )))
 
@@ -128,11 +126,11 @@ internal class HearingOutcomesServiceTest {
 
         Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(crn, null, toDate))
             .isEqualTo(listOf(HearingOutcomeSarResponse(
-                "ADJOURNED",
+                "Adjourned",
                 LocalDateTime.parse("2020-05-01T00:00"),
                 LocalDateTime.parse("2020-05-01T00:00"),
-                "IN_PROGRESS",
-                "John Doe",
+                "In progress",
+                "Doe",
                 hearingOutcomeCreatedDate
             )))
 

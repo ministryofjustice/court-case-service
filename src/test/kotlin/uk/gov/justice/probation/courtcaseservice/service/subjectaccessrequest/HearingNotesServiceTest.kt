@@ -47,11 +47,13 @@ internal class HearingNotesServiceTest {
         BDDMockito.given(hearingNoteRepository.findByHearingDefendantId(dbHearingDefendantEntity.id))
             .willReturn(dbHearingDefendantEntity.notes)
 
+        val authorSurname = "Taker"
+
         Assertions.assertThat(hearingNotesService.getHearingNotes(crn, null, null))
             .isEqualTo(listOf(HearingNotesSarResponse(
                 "UUID",
                 "This is a fake note",
-                "Note Taker"
+                authorSurname
             )))
 
         Mockito.verify(hearingDefendantRepository).findAllByDefendantCrn(crn)
@@ -74,7 +76,7 @@ internal class HearingNotesServiceTest {
             .isEqualTo(listOf(HearingNotesSarResponse(
                 "UUID",
                 "This is a fake note",
-                "Note Taker"
+                "Taker"
             )))
 
         Mockito.verify(hearingDefendantRepository).findAllByDefendantCrn(crn)
@@ -96,7 +98,7 @@ internal class HearingNotesServiceTest {
             .isEqualTo(listOf(HearingNotesSarResponse(
                 "UUID",
                 "This is a fake note",
-                "Note Taker"
+                "Taker"
             )))
 
         Mockito.verify(hearingDefendantRepository).findAllByDefendantCrn(crn)
@@ -118,7 +120,7 @@ internal class HearingNotesServiceTest {
             .isEqualTo(listOf(HearingNotesSarResponse(
                 "UUID",
                 "This is a fake note",
-                "Note Taker"
+                "Taker"
             )))
 
 
@@ -142,7 +144,7 @@ internal class HearingNotesServiceTest {
             .isEqualTo(listOf(HearingNotesSarResponse(
                 "UUID",
                 "This is a fake note",
-                "Note Taker"
+                "Taker"
             )))
 
         Mockito.verify(hearingDefendantRepository).findAllByDefendantCrn(crn)

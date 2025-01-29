@@ -29,15 +29,19 @@ class HearingNotesSARService(
     private fun hearingNotesResponse(hearingNotes: List<HearingNoteEntity>): List<HearingNotesSarResponse> {
         return hearingNotes.filter {
             note -> !note.isDraft
-        }.mapNotNull { note -> HearingNotesSarResponse(
+        }.map { note -> HearingNotesSarResponse(
             note.hearingId,
             note.note,
-            note.author
+            getSurname(note.author)
         ) }
     }
 
+    private fun getSurname(name: String): String {
+        return name.split(" ").last()
+    }
+
     private fun getFilteredHearingNotes(hearingDefendants: List<HearingDefendantEntity>, fromDate: LocalDate?, toDate: LocalDate?): List<HearingNoteEntity> {
-        return hearingDefendants.mapNotNull() {
+        return hearingDefendants.map() {
             filterHearingNotesByDate(it, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))
         }.flatten()
     }

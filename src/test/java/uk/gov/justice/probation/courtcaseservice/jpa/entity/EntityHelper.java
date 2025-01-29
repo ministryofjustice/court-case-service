@@ -443,11 +443,11 @@ public class EntityHelper {
         return CaseCommentEntity.builder()
                 .caseId("5678")
                 .comment("Some comment")
-                .author("Some author")
+                .author("Some Author")
                 .created(LocalDateTime.of(2024, 5, 22, 12, 0))
-                .createdBy("Test User")
+                .createdBy("TestUser(prepare-a-case)")
                 .lastUpdated(LocalDateTime.of(2024, 5, 22, 12, 30))
-                .lastUpdatedBy("Test User")
+                .lastUpdatedBy("TestUser(prepare-a-case)")
                 .build();
     }
 

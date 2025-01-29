@@ -4,8 +4,8 @@ VALUES (-100, 'X25829', 'CURRENT', '2010-01-01', true, true, true, true, 'before
 INSERT INTO OFFENDER (id, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
 VALUES (-99, 'X12345', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test');
 
-INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, created_by, created_by_uuid, last_updated, last_updated_by) VALUES (-1700028900, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '0048297a-fd9c-4c96-8c03-8122b802a54d', 'PSR in progress', 'Author One', '2024-05-21 09:45:55.597', 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', '2024-04-08 09:45:55.597', 'Last Updated Author');
-INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, created_by, created_by_uuid, last_updated, last_updated_by) VALUES (-1700028903, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '0048297a-fd9c-4c96-8c03-8122b802a54d', 'PSR in progress', 'Author Three', '2024-04-21 09:45:55.597', 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', '2024-03-08 09:45:55.597', 'Last Updated Author3');
+INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, created_by, created_by_uuid, last_updated, last_updated_by) VALUES (-1700028900, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '0048297a-fd9c-4c96-8c03-8122b802a54d', 'PSR in progress', 'Author One', '2024-05-21 09:45:55.597', 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', '2024-04-08 09:45:55.597', 'LastUpdatedAuthor(prepare-a-case)');
+INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, created_by, created_by_uuid, last_updated, last_updated_by) VALUES (-1700028903, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '0048297a-fd9c-4c96-8c03-8122b802a54d', 'PSR in progress', 'Author Three', '2024-04-21 09:45:55.597', 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', '2024-03-08 09:45:55.597', 'LastUpdatedAuthor3(prepare-a-case)');
 
 -- Ferris Bueller
 INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, deleted, created_by, created_by_uuid) VALUES (-1700028901, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '1148297a-fd9c-4c96-8c03-8122b802a54d', 'PSR completed', 'Author One', now(), true, 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
@@ -54,7 +54,7 @@ VALUES (-197, -197, '2022-03-23 16:59:59.000', 'd1a4f1b7-b153-4740-b68a-2b84feff
 
 
 -- Case list
-INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, deleted, created_by, created_by_uuid, last_updated, last_updated_by) VALUES (-1700028902, '3a3f5334-34c7-4caa-9b7a-9495663ea2da', '62d57ee8-a7a6-4b36-857d-8ced9e2aac9b', 'PSR completed', 'Author Two', '2024-05-22 09:45:55.597', true, 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', '2024-04-09 09:45:55.597', 'Last Updated Author2');
+INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, deleted, created_by, created_by_uuid, last_updated, last_updated_by) VALUES (-1700028902, '3a3f5334-34c7-4caa-9b7a-9495663ea2da', '62d57ee8-a7a6-4b36-857d-8ced9e2aac9b', 'PSR completed', 'Author Two', '2024-05-22 09:45:55.597', true, 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', '2024-04-09 09:45:55.597', 'LastUpdatedAuthor2(prepare-a-case)');
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)
 VALUES (-197, -197, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 16:59:59.000');
 INSERT INTO court_case (id, case_id, case_no, created, source_type)

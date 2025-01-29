@@ -46,11 +46,10 @@ class DefendantCaseCommentsServiceTest {
             null
         )
         assertThat(caseCommentsForDefendant[0].comment).isEqualTo("Some comment")
-        assertThat(caseCommentsForDefendant[0].author).isEqualTo("Some author")
+        assertThat(caseCommentsForDefendant[0].author).isEqualTo("Author")
         assertThat(caseCommentsForDefendant[0].created).isEqualTo("2024-05-22T12:00")
-        assertThat(caseCommentsForDefendant[0].createdBy).isEqualTo("Test User")
         assertThat(caseCommentsForDefendant[0].lastUpdated).isEqualTo("2024-05-22T12:30")
-        assertThat(caseCommentsForDefendant[0].lastUpdatedBy).isEqualTo("Test User")
+        assertThat(caseCommentsForDefendant[0].lastUpdatedBy).isEqualTo("TestUser")
         assertThat(caseCommentsForDefendant[0].caseNumber).isEqualTo("")
     }
 
@@ -69,11 +68,10 @@ class DefendantCaseCommentsServiceTest {
             toDate
         )
         assertThat(caseCommentsForDefendant[0].comment).isEqualTo("Some comment")
-        assertThat(caseCommentsForDefendant[0].author).isEqualTo("Some author")
+        assertThat(caseCommentsForDefendant[0].author).isEqualTo("Author")
         assertThat(caseCommentsForDefendant[0].created).isEqualTo("2024-05-22T12:00")
-        assertThat(caseCommentsForDefendant[0].createdBy).isEqualTo("Test User")
         assertThat(caseCommentsForDefendant[0].lastUpdated).isEqualTo("2024-05-22T12:30")
-        assertThat(caseCommentsForDefendant[0].lastUpdatedBy).isEqualTo("Test User")
+        assertThat(caseCommentsForDefendant[0].lastUpdatedBy).isEqualTo("TestUser")
         assertThat(caseCommentsForDefendant[0].caseNumber).isEqualTo("")
     }
 
@@ -91,11 +89,10 @@ class DefendantCaseCommentsServiceTest {
             null
         )
         assertThat(caseCommentsForDefendant[0].comment).isEqualTo("Some comment")
-        assertThat(caseCommentsForDefendant[0].author).isEqualTo("Some author")
+        assertThat(caseCommentsForDefendant[0].author).isEqualTo("Author")
         assertThat(caseCommentsForDefendant[0].created).isEqualTo("2024-05-22T12:00")
-        assertThat(caseCommentsForDefendant[0].createdBy).isEqualTo("Test User")
         assertThat(caseCommentsForDefendant[0].lastUpdated).isEqualTo("2024-05-22T12:30")
-        assertThat(caseCommentsForDefendant[0].lastUpdatedBy).isEqualTo("Test User")
+        assertThat(caseCommentsForDefendant[0].lastUpdatedBy).isEqualTo("TestUser")
         assertThat(caseCommentsForDefendant[0].caseNumber).isEqualTo("")
     }
 
@@ -113,11 +110,10 @@ class DefendantCaseCommentsServiceTest {
             toDate
         )
         assertThat(caseCommentsForDefendant[0].comment).isEqualTo("Some comment")
-        assertThat(caseCommentsForDefendant[0].author).isEqualTo("Some author")
+        assertThat(caseCommentsForDefendant[0].author).isEqualTo("Author")
         assertThat(caseCommentsForDefendant[0].created).isEqualTo("2024-05-22T12:00")
-        assertThat(caseCommentsForDefendant[0].createdBy).isEqualTo("Test User")
         assertThat(caseCommentsForDefendant[0].lastUpdated).isEqualTo("2024-05-22T12:30")
-        assertThat(caseCommentsForDefendant[0].lastUpdatedBy).isEqualTo("Test User")
+        assertThat(caseCommentsForDefendant[0].lastUpdatedBy).isEqualTo("TestUser")
         assertThat(caseCommentsForDefendant[0].caseNumber).isEqualTo("")
     }
 
@@ -133,11 +129,10 @@ class DefendantCaseCommentsServiceTest {
             null
         )
         assertThat(caseCommentsForDefendant[0].comment).isEqualTo("Some comment")
-        assertThat(caseCommentsForDefendant[0].author).isEqualTo("Some author")
+        assertThat(caseCommentsForDefendant[0].author).isEqualTo("Author")
         assertThat(caseCommentsForDefendant[0].created).isEqualTo("2024-05-22T12:00")
-        assertThat(caseCommentsForDefendant[0].createdBy).isEqualTo("Test User")
         assertThat(caseCommentsForDefendant[0].lastUpdated).isEqualTo("2024-05-22T12:30")
-        assertThat(caseCommentsForDefendant[0].lastUpdatedBy).isEqualTo("Test User")
+        assertThat(caseCommentsForDefendant[0].lastUpdatedBy).isEqualTo("TestUser")
         assertThat(caseCommentsForDefendant[0].caseNumber).isEqualTo("222333")
     }
 

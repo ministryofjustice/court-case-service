@@ -29,14 +29,21 @@ class DefendantCaseCommentsService(
             .map { caseComment ->
                 CaseCommentsSarResponse(
                     caseComment.comment,
-                    caseComment.author,
+                    getSurname(caseComment.author), // author is prepare-a-case username
                     caseComment.created,
-                    caseComment.createdBy,
                     caseComment.lastUpdated,
-                    caseComment.lastUpdatedBy,
+                    getLastUpdatedBy(caseComment.lastUpdatedBy),
                     getCaseNumber(caseComment)
                 )
             }.toList()
+
+    private fun getSurname(name: String): String {
+        return name.split(" ").last()
+    }
+
+    private fun getLastUpdatedBy(name: String): String {
+        return name.split("(").first()
+    }
 
     private fun getCaseNumber(caseComment: CaseCommentEntity): String {
         val findByCaseId: CourtCaseEntity? = immutableCourtCaseService.findByCaseId(caseComment.caseId).orElse(null)

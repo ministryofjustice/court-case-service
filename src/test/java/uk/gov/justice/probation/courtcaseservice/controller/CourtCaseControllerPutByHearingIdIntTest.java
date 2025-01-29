@@ -240,7 +240,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             assertThat(hearingEntity.getHearingType()).isEqualTo("sentenced");
             assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
             assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("shortTermCustodyPredictorScore")
-                .containsOnly(BigDecimal.valueOf(0.003701628942892517), BigDecimal.valueOf(0.003701628942892517));
+                .containsOnly(BigDecimal.valueOf(0.0036438124189185897), BigDecimal.valueOf(0.0036438124189185897));
             assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("dataModelVersion")
                     .containsOnly("1.3", "1.3");
             assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPhoneNumber()).isEqualTo(

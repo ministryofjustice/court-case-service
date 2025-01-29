@@ -49,11 +49,11 @@ class CaseCommentsServiceTest {
     @Test
     void givenValidCaseComment_shouldCreateComment() {
         courtCaseEntity.addHearing(EntityHelper.aHearingEntityWithHearingId(testCaseId, EntityHelper.HEARING_ID, testDefendantId));
-        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
+        given(courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId))
             .willReturn(Optional.of(courtCaseEntity));
         given(caseCommentsRepository.save(caseComment)).willReturn(caseComment);
         caseCommentsService.createCaseComment(caseComment);
-        verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
+        verify(courtCaseRepository).findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId);
         verify(caseCommentsRepository).save(caseComment);
         verify(telemetryService).trackCourtCaseCommentEvent(CASE_COMMENT_ADDED, caseComment);
     }
@@ -63,7 +63,7 @@ class CaseCommentsServiceTest {
         var existingComment = caseComment.withId(1L).withDefendantId(EntityHelper.DEFENDANT_ID).withCaseId(EntityHelper.CASE_ID).withDraft(true);
 
         var courtCase = EntityHelper.aHearingEntity().getCourtCase();
-        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(EntityHelper.CASE_ID)).willReturn(Optional.of(courtCase));
+        given(courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(EntityHelper.CASE_ID)).willReturn(Optional.of(courtCase));
 
         given(caseCommentsRepository.findAllByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrueOrderByCreatedDesc(EntityHelper.CASE_ID, EntityHelper.DEFENDANT_ID, createdByUuid))
             .willReturn(List.of(existingComment));
@@ -79,11 +79,11 @@ class CaseCommentsServiceTest {
     @Test
     void givenNonExistingCaseId_shouldThrowEntityNotFound() {
 
-        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
+        given(courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId))
             .willReturn(Optional.empty());
         Exception e = assertThrows(EntityNotFoundException.class, () -> caseCommentsService.createCaseComment(caseComment));
         assertThat(e.getMessage()).isEqualTo("Court case test-case-id / defendantId test-defendant-id not found");
-        verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
+        verify(courtCaseRepository).findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId);
         verifyNoInteractions(caseCommentsRepository);
     }
 
@@ -127,20 +127,20 @@ class CaseCommentsServiceTest {
 
     @Test
     void givenValidCaseCommentDraft_and_draft_do_not_exist_shouldCreateComment() {
-        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
+        given(courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId))
             .willReturn(Optional.of(courtCaseEntity));
         given(caseCommentsRepository.findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(testCaseId, testDefendantId, createdByUuid))
             .willReturn(Optional.empty());
         given(caseCommentsRepository.save(caseComment.withDraft(true))).willReturn(caseComment);
         caseCommentsService.createUpdateCaseCommentDraft(caseComment);
-        verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
+        verify(courtCaseRepository).findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId);
         verify(caseCommentsRepository).findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(testCaseId, testDefendantId, createdByUuid);
         verify(caseCommentsRepository).save(caseComment.withDraft(true));
     }
 
     @Test
     void givenValidCaseCommentDraft_and_draft_already_exist_shouldCreateComment() {
-        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
+        given(courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId))
             .willReturn(Optional.of(courtCaseEntity));
         var existingComment = CaseCommentEntity.builder().caseId(testCaseId).comment("comment one").id(1L).draft(true).build();
         given(caseCommentsRepository.findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(testCaseId, testDefendantId, createdByUuid))
@@ -150,7 +150,7 @@ class CaseCommentsServiceTest {
 
         caseCommentsService.createUpdateCaseCommentDraft(caseComment.withComment("updated comment"));
 
-        verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
+        verify(courtCaseRepository).findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId);
         verify(caseCommentsRepository).findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(testCaseId, testDefendantId, createdByUuid);
         verify(caseCommentsRepository).save(expectedSavedComment);
     }
@@ -219,7 +219,7 @@ class CaseCommentsServiceTest {
     @Test
     void givenValidCaseCommentDraft_and_multiple_draft_comments_already_exist_shouldCreateCommentAndDeleteOlderDraftComments() {
         var courtCase = EntityHelper.aHearingEntity().getCourtCase();
-        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
+        given(courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId))
                 .willReturn(Optional.of(courtCase));
 
         var existingDraftCommentLatest = CaseCommentEntity.builder().caseId(testCaseId).defendantId(EntityHelper.DEFENDANT_ID).createdByUuid(createdByUuid).comment("comment one").id(1L).draft(true).created(LocalDateTime.now()).build();
@@ -235,7 +235,7 @@ class CaseCommentsServiceTest {
 
         caseCommentsService.createCaseComment(expectedSavedComment);
 
-        verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
+        verify(courtCaseRepository).findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId);
         verify(caseCommentsRepository).findAllByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrueOrderByCreatedDesc(testCaseId, EntityHelper.DEFENDANT_ID, createdByUuid);
         verify(caseCommentsRepository).save(expectedSavedComment);
         verify(caseCommentsRepository).delete(existingDraftCommentOldest);

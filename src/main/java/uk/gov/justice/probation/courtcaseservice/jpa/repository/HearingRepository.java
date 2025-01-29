@@ -16,17 +16,12 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
 
     Optional<HearingEntity> findFirstByHearingIdOrderByCreatedDesc(String hearingId);
 
-    @Query(value = "select * from hearing h where h.hearing_id = :hearingId " +
-            "and fk_court_case_id = (select id from court_case where case_id = :caseId and deleted = false order by created desc limit 1) " +
-            "and deleted = false " +
-            "order by created desc limit 1",
-            nativeQuery = true)
-    Optional<HearingEntity> findByHearingIdAndCaseId(String hearingId, String caseId);
+    Optional<HearingEntity> findByHearingIdAndCourtCaseCaseIdAndDeletedFalse(String hearingId, String courtCaseCaseId);
 
     Optional<HearingEntity> findFirstByHearingDefendantsDefendantId(String defendantId);
 
 
-    Optional<HearingEntity> findByHearingIdAndHearingDefendantsDefendantId(String hearingId, String defendantId);
+    Optional<HearingEntity> findByHearingIdAndHearingDefendantsDefendantIdAndDeletedFalse(String hearingId, String defendantId);
 
     @Query(value = "select h.* from court_case cc " +
         "join hearing h on cc.id = h.fk_court_case_id " +
@@ -91,7 +86,8 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
     @Query(value = "select * from hearing where id in (" +
         "select max(h.id) from hearing h, court_case cc where " +
         "cc.case_id = :caseId " +
-        "and h.fk_court_case_id = cc.id group by h.hearing_id)",
+        "and h.deleted = false " +
+        "and h.fk_court_case_id = cc.id group by h.hearing_id) ",
         nativeQuery = true)
     Optional<List<HearingEntity>> findHearingsByCaseId(String caseId);
 

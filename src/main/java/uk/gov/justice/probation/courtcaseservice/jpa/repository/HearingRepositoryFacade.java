@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,7 +110,6 @@ public class HearingRepositoryFacade {
         return hearingRepository.findLastModifiedByHearingDay(courtCode, hearingDay);
     }
 
-    @Transactional
     public HearingEntity save(HearingEntity hearingEntity) {
 
         updateWithExistingOffenders(hearingEntity);
@@ -156,5 +156,36 @@ public class HearingRepositoryFacade {
                 .stream()
                 .filter(hearingDefendantEntity -> defendantId.equals(hearingDefendantEntity.getDefendantId()))
                 .findFirst();
+    }
+
+
+    public Optional<HearingEntity> findById(Long id) {
+        return hearingEntityInitService.findByIdAndInitHearingDefendants(id);
+    }
+
+    public void setHearingsToDeleted(List<Long> hearingDbIds) {
+        Iterable<HearingEntity> matchingHearings = getHearingEntities(hearingDbIds);
+        matchingHearings.forEach(hearingEntity -> {
+            hearingEntity.setDeleted(true);
+            hearingEntity.getCourtCase().setDeleted(true);
+            hearingEntity.getCourtCase().getCaseMarkers().forEach(caseMarker -> caseMarker.setDeleted(true));
+            hearingEntity.getCourtCase().getCaseDefendants().forEach(caseDefendant -> {
+                caseDefendant.setDeleted(true);
+                caseDefendant.getDocuments().forEach(document -> document.setDeleted(true));
+            });
+            hearingEntity.getHearingDays().forEach(hearingDay -> hearingDay.setDeleted(true));
+            hearingEntity.getHearingDefendants().forEach(hearingDefendant -> {
+                hearingDefendant.setDeleted(true);
+                hearingDefendant.getOffences().forEach(offence -> offence.setDeleted(true));
+                if(hearingDefendant.getHearingOutcome() != null) {
+                    hearingDefendant.getHearingOutcome().setDeleted(true);
+                }
+            });
+        });
+        hearingRepository.saveAll(matchingHearings);
+    }
+
+    private Iterable<HearingEntity> getHearingEntities(List<Long> hearingDbIds) {
+        return hearingRepository.findAllById(hearingDbIds);
     }
 }

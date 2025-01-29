@@ -16,6 +16,9 @@ env:
   - name: FEATURE_FLAGS_ENABLE_CACHEABLE_CASE_LIST
     value: "{{ .Values.env.FEATURE_FLAGS_ENABLE_CACHEABLE_CASE_LIST }}"
 
+  - name: FEATURE_FLAGS_DELETE_HEARING
+    value: "{{ .Values.env.FEATURE_FLAGS_DELETE_HEARING }}"
+
   - name: DATABASE_USERNAME
     valueFrom:
       secretKeyRef:

@@ -29,7 +29,7 @@ class DefendantCaseCommentsService(
             .map { caseComment ->
                 CaseCommentsSarResponse(
                     caseComment.comment,
-                    getSurname(caseComment.author), // author is prepare-a-case username
+                    getSurname(caseComment.author),
                     caseComment.created,
                     caseComment.lastUpdated,
                     getLastUpdatedBy(caseComment.lastUpdatedBy),

@@ -1,5 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model
 
-enum class HearingOutcomeItemState {
-    NEW, IN_PROGRESS, RESULTED
+import com.fasterxml.jackson.annotation.JsonProperty
+
+enum class HearingOutcomeItemState(@JsonProperty("hearingOutcomeState") val value: String) {
+    NEW("New"), IN_PROGRESS("In progress"), RESULTED("Resulted")
 }

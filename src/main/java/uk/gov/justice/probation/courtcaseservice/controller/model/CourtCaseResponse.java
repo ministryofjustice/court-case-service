@@ -53,6 +53,8 @@ public class CourtCaseResponse {
     private final Boolean preSentenceActivity;
     private final List<OffenceResponse> offences;
     private final String defendantName;
+    private final String defendantSurname;
+    private final String defendantForename;
     private final NamePropertiesEntity name;
     private final AddressPropertiesEntity defendantAddress;
     private final LocalDate defendantDob;

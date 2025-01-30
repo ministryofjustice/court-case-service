@@ -1,24 +1,18 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -283,6 +277,16 @@ public class CourtCaseController {
         return ExtendedHearingRequestResponse.of(hearingEntity);
     }
 
+    @Operation(description = "Returns extended court case data, by hearing id and court case id.")
+    @GetMapping(value = "/hearing/{hearingId}/case/{courtCaseId}", produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    ExtendedHearingRequestResponse getHearingByHearingIdAndCourtCaseId(@PathVariable(value = "hearingId") String hearingId,
+                                                                       @PathVariable(value = "courtCaseId") String courtCaseId) {
+        final var hearingEntity = courtCaseService.getHearingByHearingIdAndCourtCaseId(hearingId, courtCaseId);
+        return ExtendedHearingRequestResponse.of(hearingEntity);
+    }
+
     @Operation(description = "Saves and returns the offender details by defendant id.")
     @PutMapping(value = "/defendant/{defendantId}/offender", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
@@ -357,6 +361,16 @@ public class CourtCaseController {
 
         return partialResponse
                 .body(CaseListResponse.builder().cases(courtCaseResponses).build());
+    }
+
+    @Operation(summary = "Gets case data for a court on a date and parameters",
+            description = "Response is filtered by the criteria supplied to the endpoint and sorted by court room, session start time and by defendant surname.")
+    @GetMapping(value = "/court/{courtCode}/cases/matcher", produces = APPLICATION_JSON_VALUE)
+    public CaseListResponse getCaseListForMatcher(
+            @PathVariable String courtCode,
+            @Valid HearingSearchRequest hearingSearchRequest
+    ) {
+        return courtCaseService.filterHearingsForMatcher(courtCode, hearingSearchRequest);
     }
 
     @Operation(summary = "Gets case data for a court on a date with pagination support",

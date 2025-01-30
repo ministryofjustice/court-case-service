@@ -1,5 +1,6 @@
 feature:
   flags:
+    delete-hearing: true
     disable-auth: false
     fetch-sentence-data: true
 

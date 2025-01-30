@@ -107,6 +107,8 @@ spring:
       org:
         hibernate:
           flushMode: COMMIT
+          envers:
+            store_data_at_delete: true
     open-in-view: false
   servlet:
     multipart:
@@ -201,6 +203,7 @@ offender-service:
 feature:
   flags:
     enable-cacheable-case-list: true
+    delete-hearing: false
   event:
     probation-case:
       engagement.created: true

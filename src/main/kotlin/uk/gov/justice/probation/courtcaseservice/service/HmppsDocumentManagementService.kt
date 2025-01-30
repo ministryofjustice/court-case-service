@@ -40,7 +40,7 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
 
     fun deleteDocument(hearingId: String, defendantId: String, documentId: String): Optional<Mono<ResponseEntity<Any>>> {
 
-        return getHearingEntity(hearingId)?.courtCase?.getCaseDefendant(defendantId)?.map { it.getCaseDefendantDocument(documentId) }
+        return getHearingEntity(hearingId, defendantId)?.courtCase?.getCaseDefendant(defendantId)?.map { it.getCaseDefendantDocument(documentId) }
             ?.map {
                 val caseDefendant = it.caseDefendant
                 caseDefendant.deleteCaseDocument(documentId)
@@ -56,7 +56,7 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
         documentId: String
     ): ResponseEntity<Flux<InputStreamResource>>? {
 
-        return getHearingEntity(hearingId)?.courtCase?.getCaseDefendant(defendantId)
+        return getHearingEntity(hearingId, defendantId)?.courtCase?.getCaseDefendant(defendantId)
             ?.map { it.getCaseDefendantDocument(documentId) }
             ?.map {
                 return@map hmppsDocumentManagementApiClient.getDocument(documentId).block()
@@ -97,7 +97,7 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
         originalFilename: String
     ): CaseDocumentResponse {
 
-        var hearing = getHearingEntity(hearingId)
+        var hearing = getHearingEntity(hearingId, defendantId)
 
         var hearingDefendant = hearing?.getHearingDefendant(defendantId)?: throw EntityNotFoundException("Defendant %s not found for hearing %s", defendantId, hearingId)
 
@@ -113,7 +113,7 @@ class HmppsDocumentManagementService (val hmppsDocumentManagementApiClient: Hmpp
         return CaseDocumentResponse(documentUuid, documentEntity.created, CaseDocumentResponse.FileResponse(originalFilename))
     }
 
-    private fun getHearingEntity(hearingId: String): HearingEntity? =
-        hearingRepositoryFacade.findFirstByHearingIdFileUpload(hearingId)
+    private fun getHearingEntity(hearingId: String, defendantId: String): HearingEntity? =
+        hearingRepositoryFacade.findFirstByHearingIdFileUpload(hearingId, defendantId)
             .getOrElse { throw EntityNotFoundException("Hearing %s not found", hearingId) }
 }

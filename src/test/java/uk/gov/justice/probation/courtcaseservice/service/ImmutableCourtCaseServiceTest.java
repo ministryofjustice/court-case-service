@@ -305,7 +305,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenNoExistingCase_whenCreateOrUpdateCaseCalledWithLinkedDefendant_thenLogCreatedAndLinkedEvent() {
-            when(hearingRepositoryFacade.findFirstByHearingIdInitHearing(HEARING_ID)).thenReturn(Optional.empty());
+            when(hearingRepositoryFacade.findFirstByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID)).thenReturn(Optional.empty());
             when(hearingRepositoryFacade.save(hearing)).thenReturn(hearing);
 
             var savedCourtCase = service.createOrUpdateHearingByHearingId(HEARING_ID, hearing).block();
@@ -315,6 +315,7 @@ class ImmutableCourtCaseServiceTest {
             verify(hearingRepositoryFacade).save(hearing);
             assertThat(savedCourtCase).isNotNull();
             assertThat(savedCourtCase.getHearingId()).isEqualTo(HEARING_ID);
+            assertThat(savedCourtCase.getCourtCaseId()).isEqualTo(CASE_ID);
             verifyNoMoreInteractions(hearingRepositoryFacade, telemetryService);
         }
 
@@ -322,7 +323,7 @@ class ImmutableCourtCaseServiceTest {
         void givenNoExistingCase_whenCreateCaseCalledWithoutCrn_thenLogOnlyCreatedEvent() {
 
             hearing = EntityHelper.aHearingEntity(null, CASE_NO);
-            when(hearingRepositoryFacade.findFirstByHearingIdInitHearing(HEARING_ID)).thenReturn(Optional.empty());
+            when(hearingRepositoryFacade.findFirstByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID)).thenReturn(Optional.empty());
             when(hearingRepositoryFacade.save(hearing)).thenReturn(hearing);
 
             var savedCourtCase = service.createOrUpdateHearingByHearingId(HEARING_ID, hearing).block();
@@ -335,7 +336,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenExistingCase_whenCreateOrUpdateCaseCalled_thenLogUpdatedEvent() {
-            when(hearingRepositoryFacade.findFirstByHearingIdInitHearing(HEARING_ID)).thenReturn(Optional.of(hearing));
+            when(hearingRepositoryFacade.findFirstByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID)).thenReturn(Optional.of(hearing));
             when(hearingRepositoryFacade.save(hearing)).thenReturn(hearing);
 
             var savedCourtCase = service.createOrUpdateHearingByHearingId(HEARING_ID, hearing).block();
@@ -349,7 +350,7 @@ class ImmutableCourtCaseServiceTest {
         @Test
         void givenExistingCaseWithNullCrn_whenCreateOrUpdateCaseCalledWithCrn_thenLogLinkedEvent() {
             var existingCase = EntityHelper.aHearingEntity(null, CASE_NO);
-            when(hearingRepositoryFacade.findFirstByHearingIdInitHearing(HEARING_ID)).thenReturn(Optional.of(existingCase));
+            when(hearingRepositoryFacade.findFirstByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID)).thenReturn(Optional.of(existingCase));
             when(hearingRepositoryFacade.save(existingCase)).thenReturn(existingCase);
 
             var savedCourtCase = service.createOrUpdateHearingByHearingId(HEARING_ID, EntityHelper.aHearingEntity(CRN, CASE_NO)).block();
@@ -363,7 +364,7 @@ class ImmutableCourtCaseServiceTest {
 
         @Test
         void givenExistingCaseWithCrn_whenCreateOrUpdateCaseCalledWithNullCrn_thenLogUnLinkedEvent() {
-            when(hearingRepositoryFacade.findFirstByHearingIdInitHearing(HEARING_ID)).thenReturn(Optional.of(hearing));
+            when(hearingRepositoryFacade.findFirstByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID)).thenReturn(Optional.of(hearing));
             when(hearingRepositoryFacade.save(hearing)).thenReturn(hearing);
 
             var updatedCourtCase = EntityHelper.aHearingEntity(null, CASE_NO);
@@ -382,7 +383,7 @@ class ImmutableCourtCaseServiceTest {
             var linkedDefendant = EntityHelper.aHearingDefendantEntity("abc", CRN);
             var unlinkedDefendant = EntityHelper.aHearingDefendantEntity("def", null);
             var newCourtCase = hearing.withHearingDefendants(List.of(linkedDefendant, unlinkedDefendant));
-            when(hearingRepositoryFacade.findFirstByHearingIdInitHearing(HEARING_ID)).thenReturn(Optional.empty());
+            when(hearingRepositoryFacade.findFirstByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID)).thenReturn(Optional.empty());
             when(hearingRepositoryFacade.save(newCourtCase)).thenReturn(newCourtCase);
 
             var savedCourtCase = service.createOrUpdateHearingByHearingId(HEARING_ID, newCourtCase).block();
@@ -413,7 +414,7 @@ class ImmutableCourtCaseServiceTest {
                             .build())
                     .build();
 
-            when(hearingRepositoryFacade.findFirstByHearingIdInitHearing(HEARING_ID)).thenReturn(Optional.empty());
+            when(hearingRepositoryFacade.findFirstByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID)).thenReturn(Optional.empty());
             when(hearingRepositoryFacade.save(hearing)).thenReturn(hearing);
             when(courtRepository.findByCourtCode(COURT_CODE)).thenReturn(Optional.of(courtEntity));
             when(courtRepository.findByCourtCode("XXX")).thenReturn(Optional.empty());
@@ -449,7 +450,7 @@ class ImmutableCourtCaseServiceTest {
         void givenExistingCase_whenCreateOrUpdateCaseCalled_WithResultedHearingEventType_thenEmitSentencedEvent() {
             HearingEntity resultedHearingEntity = EntityHelper.aHearingEntity(CRN, CASE_NO)
                     .withHearingEventType(HearingEventType.RESULTED);
-            when(hearingRepositoryFacade.findFirstByHearingIdInitHearing(HEARING_ID)).thenReturn(Optional.of(resultedHearingEntity));
+            when(hearingRepositoryFacade.findFirstByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID)).thenReturn(Optional.of(resultedHearingEntity));
             when(hearingRepositoryFacade.save(resultedHearingEntity)).thenReturn(resultedHearingEntity);
 
             var savedCourtCase = service.createOrUpdateHearingByHearingId(HEARING_ID, resultedHearingEntity).block();
@@ -846,6 +847,23 @@ class ImmutableCourtCaseServiceTest {
                     .thenReturn(Optional.ofNullable(null));
             final var exception = assertThrows(EntityNotFoundException.class, () -> service.getHearingByHearingId(HEARING_ID));
             assertThat(exception.getMessage()).isEqualTo(String.format("Hearing %s not found", HEARING_ID));
+        }
+
+        @Test
+        void givenHearingExistWithHearingId_whenGetByHearingIdAndCourtCaseId_thenReturnHearingEntity() {
+            when(hearingRepositoryFacade.findFirstByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID))
+                    .thenReturn(Optional.of(HearingEntity.builder().build()));
+            final var actual = service.getHearingByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID);
+            verify(hearingRepositoryFacade).findFirstByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID);
+            assertThat(actual).isEqualTo(HearingEntity.builder().build());
+        }
+
+        @Test
+        void givenHearingDoesNoeExistWithHearingId_whenGetByHearingIdAndCourtCaseId_thenThrowEntityNotFoundException() {
+            when(hearingRepositoryFacade.findFirstByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID))
+                    .thenReturn(Optional.empty());
+            final var exception = assertThrows(EntityNotFoundException.class, () -> service.getHearingByHearingIdAndCourtCaseId(HEARING_ID, CASE_ID));
+            assertThat(exception.getMessage()).isEqualTo(String.format("Hearing %s not found for court case %s", HEARING_ID, CASE_ID));
         }
     }
 

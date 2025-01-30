@@ -126,6 +126,13 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     @Override
+    public HearingEntity getHearingByHearingIdAndCourtCaseId(String hearingId, String courtCaseId) throws EntityNotFoundException {
+        log.info("Court case requested for hearing ID {} and Court Case Id {}", hearingId, courtCaseId);
+        return hearingRepositoryFacade.findFirstByHearingIdAndCourtCaseId(hearingId, courtCaseId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Hearing %s not found for court case %s", hearingId, courtCaseId)));
+    }
+
+    @Override
     public HearingEntity getHearingByHearingIdAndDefendantId(String hearingId, String defendantId) throws EntityNotFoundException {
         log.info("Court case requested for hearing ID {} and defendant ID {}", hearingId, defendantId);
         return hearingRepositoryFacade.findByHearingIdAndDefendantId(hearingId, defendantId)
@@ -155,7 +162,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     @Override
     public Optional<CourtCaseEntity> findByCaseId(String caseId) {
         assert courtCaseRepository != null;
-        return courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId);
+        return courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(caseId);
     }
 
     @Override
@@ -186,18 +193,18 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     private Mono<HearingEntity> createOrUpdateHearing(String hearingId, final HearingEntity updatedHearing) {
-        var hearing = hearingRepositoryFacade.findFirstByHearingIdInitHearing(hearingId)
+        var hearing = hearingRepositoryFacade.findFirstByHearingIdAndCourtCaseId(hearingId, updatedHearing.getCaseId())
             .map(existingHearing -> {
                 trackUpdateEvents(existingHearing, updatedHearing);
                 return existingHearing.update(updatedHearing);
             })
             .orElseGet(() -> {
                 trackCreateEvents(updatedHearing);
-                courtCaseRepository.findFirstByCaseIdOrderByIdDesc(updatedHearing.getCaseId())
+                courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(updatedHearing.getCaseId())
                     .ifPresent(courtCaseEntity -> addHearingToCase(updatedHearing, courtCaseEntity));
                 return updatedHearing;
             });
-        log.debug("Saving hearing with ID {}", hearingId);
+        log.debug("Saving hearing with ID {} and court case id {}", hearingId, updatedHearing.getCaseId());
 
         var savedHearing = hearingRepositoryFacade.save(hearing);
         return Mono.just(savedHearing)

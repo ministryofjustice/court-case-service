@@ -1,6 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository;
 
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -25,6 +24,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -118,7 +118,7 @@ class HearingRepositoryFacadeTest {
         when(hearingEntityInitService.findMostRecentByCourtCodeAndCaseNo(COURT_CODE, CASE_NO)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
 
         final var actual = facade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, LIST_NO);
-        Assertions.assertThat(actual.get().getHearingId()).isNull();
+        assertThat(actual.get().getHearingId()).isNull();
 
         AssertionsForClassTypes.assertThat(actual).get().isEqualTo(HEARING_WITH_MULTIPLE_DEFENDANTS);
         verify(hearingEntityInitService).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, LIST_NO);
@@ -147,7 +147,7 @@ class HearingRepositoryFacadeTest {
     void whenFindByCourtCodeCaseNoAnd_NoListNoProvided_thenReturnDefendants() {
         when(hearingEntityInitService.findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, null)).thenReturn(Optional.of(HEARING_WITH_MULTIPLE_DEFENDANTS));
         final var actual = facade.findByCourtCodeAndCaseNo(COURT_CODE, CASE_NO, null);
-        Assertions.assertThat(actual.get().getHearingId()).isEqualTo(HEARING_ID);
+        assertThat(actual.get().getHearingId()).isEqualTo(HEARING_ID);
 
         AssertionsForClassTypes.assertThat(actual).get().isEqualTo(HEARING_WITH_MULTIPLE_DEFENDANTS);
         verify(hearingEntityInitService).findByCourtCodeCaseNoAndListNo(COURT_CODE, CASE_NO, null);

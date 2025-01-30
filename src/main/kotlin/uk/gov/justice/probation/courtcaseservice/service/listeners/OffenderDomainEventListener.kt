@@ -11,6 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.client.model.listeners.DomainEv
 import uk.gov.justice.probation.courtcaseservice.client.model.listeners.EventFeatureSwitch
 import uk.gov.justice.probation.courtcaseservice.client.model.listeners.SQSMessage
 import uk.gov.justice.probation.courtcaseservice.service.listeners.notifiers.IEventProcessor
+import java.time.LocalDateTime
 
 const val PIC_NEW_OFFENDER_EVENT_QUEUE_CONFIG_KEY = "picnewoffendereventsqueue"
 
@@ -22,6 +23,7 @@ class OffenderDomainEventListener(
 ) {
     private companion object {
         val LOG: Logger = LoggerFactory.getLogger(this::class.java)
+        const val MESSAGE_AGE_THRESHOLD: Long = 2L;
     }
 
     @SqsListener(PIC_NEW_OFFENDER_EVENT_QUEUE_CONFIG_KEY, factory = "hmppsQueueContainerFactoryProxy")
@@ -31,19 +33,22 @@ class OffenderDomainEventListener(
         LOG.debug("Enter onDomainEvent")
         val sqsMessage = objectMapper.readValue<SQSMessage>(rawMessage)
         LOG.debug("Received message: type:${sqsMessage.type} message:${sqsMessage.message}")
-        when (sqsMessage.type) {
-            "Notification" -> {
-                val domainEvent = objectMapper.readValue<DomainEvent>(sqsMessage.message)
-                val enabled = eventFeatureSwitch.isEnabled(domainEvent.eventType)
-                if (enabled) {
-                    try {
-                        getEventProcessor(domainEvent)?.process(domainEvent)
-                    } catch (e: Exception) {
-                        LOG.error("Failed to process know domain event type:${domainEvent.eventType}", e)
-                        throw e
+
+        if (sqsMessage.timeStamp?.isAfter(LocalDateTime.now().minusDays(MESSAGE_AGE_THRESHOLD)) == true){
+            when (sqsMessage.type) {
+                "Notification" -> {
+                    val domainEvent = objectMapper.readValue<DomainEvent>(sqsMessage.message)
+                    val enabled = eventFeatureSwitch.isEnabled(domainEvent.eventType)
+                    if (enabled) {
+                        try {
+                            getEventProcessor(domainEvent)?.process(domainEvent)
+                        } catch (e: Exception) {
+                            LOG.error("Failed to process know domain event type:${domainEvent.eventType}", e)
+                            throw e
+                        }
+                    } else {
+                        LOG.info("Received a message I wasn't expecting Type: ${sqsMessage.type}")
                     }
-                } else {
-                    LOG.info("Received a message I wasn't expecting Type: ${sqsMessage.type}")
                 }
             }
         }

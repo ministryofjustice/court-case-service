@@ -12,7 +12,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CaseCommentsRepo
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,11 +49,11 @@ class CaseCommentsServiceTest {
     @Test
     void givenValidCaseComment_shouldCreateComment() {
         courtCaseEntity.addHearing(EntityHelper.aHearingEntityWithHearingId(testCaseId, EntityHelper.HEARING_ID, testDefendantId));
-        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
+        given(courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId))
             .willReturn(Optional.of(courtCaseEntity));
         given(caseCommentsRepository.save(caseComment)).willReturn(caseComment);
         caseCommentsService.createCaseComment(caseComment);
-        verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
+        verify(courtCaseRepository).findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId);
         verify(caseCommentsRepository).save(caseComment);
         verify(telemetryService).trackCourtCaseCommentEvent(CASE_COMMENT_ADDED, caseComment);
     }
@@ -61,15 +63,15 @@ class CaseCommentsServiceTest {
         var existingComment = caseComment.withId(1L).withDefendantId(EntityHelper.DEFENDANT_ID).withCaseId(EntityHelper.CASE_ID).withDraft(true);
 
         var courtCase = EntityHelper.aHearingEntity().getCourtCase();
-        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(EntityHelper.CASE_ID)).willReturn(Optional.of(courtCase));
+        given(courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(EntityHelper.CASE_ID)).willReturn(Optional.of(courtCase));
 
-        given(caseCommentsRepository.findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(EntityHelper.CASE_ID, EntityHelper.DEFENDANT_ID, createdByUuid))
-            .willReturn(Optional.of(existingComment));
+        given(caseCommentsRepository.findAllByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrueOrderByCreatedDesc(EntityHelper.CASE_ID, EntityHelper.DEFENDANT_ID, createdByUuid))
+            .willReturn(List.of(existingComment));
 
         var expectedComment = existingComment.withComment("updated and finalised comment to save").withDraft(false);
         given(caseCommentsRepository.save(expectedComment)).willReturn(caseComment);
         caseCommentsService.createCaseComment(expectedComment);
-        verify(caseCommentsRepository).findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(EntityHelper.CASE_ID, EntityHelper.DEFENDANT_ID, createdByUuid);
+        verify(caseCommentsRepository).findAllByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrueOrderByCreatedDesc(EntityHelper.CASE_ID, EntityHelper.DEFENDANT_ID, createdByUuid);
         verify(caseCommentsRepository).save(existingComment.withDraft(false).withComment("updated and finalised comment to save"));
         verify(telemetryService).trackCourtCaseCommentEvent(CASE_COMMENT_ADDED, caseComment);
     }
@@ -77,11 +79,11 @@ class CaseCommentsServiceTest {
     @Test
     void givenNonExistingCaseId_shouldThrowEntityNotFound() {
 
-        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
+        given(courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId))
             .willReturn(Optional.empty());
         Exception e = assertThrows(EntityNotFoundException.class, () -> caseCommentsService.createCaseComment(caseComment));
         assertThat(e.getMessage()).isEqualTo("Court case test-case-id / defendantId test-defendant-id not found");
-        verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
+        verify(courtCaseRepository).findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId);
         verifyNoInteractions(caseCommentsRepository);
     }
 
@@ -125,20 +127,20 @@ class CaseCommentsServiceTest {
 
     @Test
     void givenValidCaseCommentDraft_and_draft_do_not_exist_shouldCreateComment() {
-        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
+        given(courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId))
             .willReturn(Optional.of(courtCaseEntity));
         given(caseCommentsRepository.findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(testCaseId, testDefendantId, createdByUuid))
             .willReturn(Optional.empty());
         given(caseCommentsRepository.save(caseComment.withDraft(true))).willReturn(caseComment);
         caseCommentsService.createUpdateCaseCommentDraft(caseComment);
-        verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
+        verify(courtCaseRepository).findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId);
         verify(caseCommentsRepository).findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(testCaseId, testDefendantId, createdByUuid);
         verify(caseCommentsRepository).save(caseComment.withDraft(true));
     }
 
     @Test
     void givenValidCaseCommentDraft_and_draft_already_exist_shouldCreateComment() {
-        given(courtCaseRepository.findFirstByCaseIdOrderByIdDesc(testCaseId))
+        given(courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId))
             .willReturn(Optional.of(courtCaseEntity));
         var existingComment = CaseCommentEntity.builder().caseId(testCaseId).comment("comment one").id(1L).draft(true).build();
         given(caseCommentsRepository.findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(testCaseId, testDefendantId, createdByUuid))
@@ -148,7 +150,7 @@ class CaseCommentsServiceTest {
 
         caseCommentsService.createUpdateCaseCommentDraft(caseComment.withComment("updated comment"));
 
-        verify(courtCaseRepository).findFirstByCaseIdOrderByIdDesc(testCaseId);
+        verify(courtCaseRepository).findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId);
         verify(caseCommentsRepository).findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(testCaseId, testDefendantId, createdByUuid);
         verify(caseCommentsRepository).save(expectedSavedComment);
     }
@@ -212,6 +214,31 @@ class CaseCommentsServiceTest {
         Exception e = assertThrows(EntityNotFoundException.class, () -> caseCommentsService.updateCaseComment(comment, commentId));
         assertThat(e.getMessage()).isEqualTo("Comment 1 not found for caseId test-case-id, defendantId test-defendant-id and user test-defendant-id or user does not have permissions to modify");
         verifyNoMoreInteractions(caseCommentsRepository);
+    }
+
+    @Test
+    void givenValidCaseCommentDraft_and_multiple_draft_comments_already_exist_shouldCreateCommentAndDeleteOlderDraftComments() {
+        var courtCase = EntityHelper.aHearingEntity().getCourtCase();
+        given(courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId))
+                .willReturn(Optional.of(courtCase));
+
+        var existingDraftCommentLatest = CaseCommentEntity.builder().caseId(testCaseId).defendantId(EntityHelper.DEFENDANT_ID).createdByUuid(createdByUuid).comment("comment one").id(1L).draft(true).created(LocalDateTime.now()).build();
+        var existingDraftCommentOldest = CaseCommentEntity.builder().caseId(testCaseId).defendantId(EntityHelper.DEFENDANT_ID).createdByUuid(createdByUuid).comment("comment one").id(2L).draft(true).created(LocalDateTime.now().minusHours(1)).build();
+
+        given(caseCommentsRepository.findAllByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrueOrderByCreatedDesc(testCaseId, EntityHelper.DEFENDANT_ID, createdByUuid))
+                .willReturn(List.of(existingDraftCommentLatest, existingDraftCommentOldest));
+
+        var expectedSavedComment = existingDraftCommentLatest.withComment("updated comment").withDraft(false);
+        expectedSavedComment.setCreated(existingDraftCommentLatest.getCreated());
+
+        given(caseCommentsRepository.save(expectedSavedComment)).willReturn(existingDraftCommentLatest);
+
+        caseCommentsService.createCaseComment(expectedSavedComment);
+
+        verify(courtCaseRepository).findFirstByCaseIdAndDeletedFalseOrderByIdDesc(testCaseId);
+        verify(caseCommentsRepository).findAllByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrueOrderByCreatedDesc(testCaseId, EntityHelper.DEFENDANT_ID, createdByUuid);
+        verify(caseCommentsRepository).save(expectedSavedComment);
+        verify(caseCommentsRepository).delete(existingDraftCommentOldest);
     }
 
 }

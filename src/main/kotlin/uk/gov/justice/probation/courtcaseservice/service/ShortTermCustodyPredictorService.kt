@@ -25,8 +25,9 @@ class ShortTermCustodyPredictorService(
 ) {
     companion object {
         val log: Logger = LoggerFactory.getLogger(this::class.java)
-
         private const val P1_SCORE_INDEX = 1
+
+        private const val DATA_MODEL_VERSION = "1.3"
 
         fun isMagistratesCourtCode(courtCode: String) : Boolean {
             return courtCode.startsWith("B")
@@ -111,6 +112,7 @@ class ShortTermCustodyPredictorService(
             score?.let {
                 log.debug("Updating offence with short term custody predictor score of $score")
                 offence.shortTermCustodyPredictorScore = BigDecimal.valueOf(score)
+                offence.dataModelVersion = DATA_MODEL_VERSION
             }
         }
     }

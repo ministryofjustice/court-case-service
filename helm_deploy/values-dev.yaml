@@ -60,8 +60,9 @@ hearing_outcomes:
 env:
   JAVA_OPTS: "-Xmx512m"
   FEATURE_FLAGS_ENABLE_CACHEABLE_CASE_LIST: false
+  FEATURE_FLAGS_DELETE_HEARING: false
   community_api:
-    base_url: https://community-api-secure.test.delius.probation.hmpps.dsd.io
+    base_url: https://court-case-and-delius-dev.hmpps.service.justice.gov.uk
   nomis_oauth:
     base_url: https://sign-in-dev.hmpps.service.justice.gov.uk
   offender_assessments_api:

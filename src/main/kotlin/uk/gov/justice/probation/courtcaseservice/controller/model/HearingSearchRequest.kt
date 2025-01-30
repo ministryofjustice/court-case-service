@@ -16,5 +16,12 @@ data class HearingSearchRequest(
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     val date: LocalDate = LocalDate.now(),
     val page: Int = 1,
-    val size: Int = 20
+    val size: Int = 20,
+    var numberOfPossibleMatches: Long? = null,
+    var forename: String? = null,
+    var surname: String? = null,
+    var defendantName: String? = null,
+    var caseId: String? = null,
+    var hearingId: String? = null,
+    var defendantId: String? = null,
 )

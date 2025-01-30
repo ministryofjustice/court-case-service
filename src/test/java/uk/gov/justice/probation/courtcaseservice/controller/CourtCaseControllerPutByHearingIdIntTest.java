@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.applicationinsights.boot.dependencies.apachecommons.io.FileUtils;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,11 +12,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import software.amazon.awssdk.services.sqs.model.PurgeQueueRequest;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
@@ -31,7 +35,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -50,7 +53,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static org.springframework.util.StreamUtils.copyToString;
-import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.OFFENDER_PNC;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TestUtils.UUID_REGEX;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
@@ -238,7 +240,9 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             assertThat(hearingEntity.getHearingType()).isEqualTo("sentenced");
             assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
             assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("shortTermCustodyPredictorScore")
-                .containsOnly(BigDecimal.valueOf(0.04714714372754817), BigDecimal.valueOf(0.04714714372754817));
+                .containsOnly(BigDecimal.valueOf(0.0036438124189185897), BigDecimal.valueOf(0.0036438124189185897));
+            assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("dataModelVersion")
+                    .containsOnly("1.3", "1.3");
             assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPhoneNumber()).isEqualTo(
                     PhoneNumberEntity.builder().home("07000000013").mobile("07000000014").work("07000000015").build());
             assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPersonId()).isNotBlank();
@@ -394,7 +398,7 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         // Then
         courtCaseInitService.initializeHearing(hearingId).ifPresentOrElse(hearing ->
             assertThat(hearing.getHearingDefendants().get(0).getOffences())
-                    .anyMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore().compareTo(BigDecimal.valueOf(0.10611282999398507)) == 0),
+                    .anyMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore().compareTo(BigDecimal.valueOf(0.005796787631779769)) == 0),
             () -> fail("Short Term Custody score should be persisted"));
 
     }
@@ -652,12 +656,13 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
 
         courtCaseInitService.initializeHearing(JSON_HEARING_ID)
                 .ifPresentOrElse(theCase -> assertThat(theCase.getHearingEventType()).isEqualTo(HearingEventType.RESULTED), () -> fail("Hearing event type should be Resulted"));
+        assertMessagesOnEmittedEventsQueue();
 
-        await().atLeast(Duration.ofMillis(100));
         assertEmittedEventMessages();
     }
 
     private void assertEmittedEventMessages() throws IOException, ExecutionException, InterruptedException {
+
         // Must use this class when receiving more than one messages from a queue if not we always receive just 1
         var receiveMessageRequest = ReceiveMessageRequest.builder()
                 .queueUrl(getEmittedEventsQueueUrl())

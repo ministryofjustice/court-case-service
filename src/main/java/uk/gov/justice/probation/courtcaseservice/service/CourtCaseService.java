@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.service;
 
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
@@ -18,6 +19,8 @@ public interface CourtCaseService {
     HearingEntity getHearingByCaseNumber(String courtCode, String caseNo, String listNo) throws EntityNotFoundException;
 
     HearingEntity getHearingByHearingId(String hearingId) throws EntityNotFoundException;
+
+    HearingEntity getHearingByHearingIdAndCourtCaseId(String hearingId, String courtCaseId) throws EntityNotFoundException;
 
     HearingEntity getHearingByHearingIdAndDefendantId(String caseId, String defendantId) throws EntityNotFoundException;
 
@@ -37,6 +40,8 @@ public interface CourtCaseService {
     Optional<LocalDateTime> filterHearingsLastModified(String courtCode, LocalDate date);
 
     List<HearingEntity> filterHearings(HearingSearchFilter hearingSearchFilter);
+
+    CaseListResponse filterHearingsForMatcher(String courtCode, HearingSearchRequest hearingSearchFilter);
 
     Optional<CourtCaseEntity> findByCaseId(String caseId);
 

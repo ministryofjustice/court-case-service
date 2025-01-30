@@ -65,6 +65,7 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
 
         HearingEntity savedHearing = courtCaseService.createOrUpdateHearingByHearingId(newHearingEntity.getHearingId(), newHearingEntity).block();
         assertThat(savedHearing.withId(null)).isEqualTo(newHearingEntity.withId(null));
+        assertThat(savedHearing.getCourtCaseId()).isEqualTo(newHearingEntity.getCourtCaseId());
 
         assertThatHearingIsNotImmutable(caseId, hearingId, DEFENDANT_ID_1);
         var hearingAudits = findAllAuditByHearingId(hearingId);
@@ -257,14 +258,21 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
         var req = new HearingSearchRequest(
             List.of(),
             List.of(),
-            List.of(),
-            List.of(),
-            false,
-            false,
-            null,
-            LocalDate.of(2023, 7, 3),
-            1,
-            5
+                List.of(),
+                List.of(),
+                false,
+                false,
+                null,
+                LocalDate.of(2023, 7, 3),
+                1,
+                5,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
         );
         var result = courtCaseService.filterHearings("B14LO", req);
         assertThat(result.getCases().size()).isEqualTo(5);

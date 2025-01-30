@@ -1,0 +1,91 @@
+feature:
+  flags:
+    disable-auth: false
+    fetch-sentence-data: true
+
+community-api:
+  base-url: http://localhost:8096
+
+offender-assessments-api:
+  base-url: http://localhost:8097
+  client-id: sentence-plan-api-client
+  client-secret: clientsecret
+
+nomis-oauth:
+  base-url: https://sign-in-dev.hmpps.service.justice.gov.uk
+
+delius:
+  base-url: https://ndelius.test.probation.service.justice.gov.uk
+
+prison-api:
+  base-url: https://prison-api-dev.prison.service.justice.gov.uk
+
+hmpps-document-management-api-client:
+  base-url: ""
+
+manage-offences-api:
+  base-url: https://manage-offences-api-dev.hmpps.service.justice.gov.uk/
+  client-id: manage-offences-api-client
+  client-secret: clientsecret
+
+court-case-and-delius-api:
+  base-url: https://court-case-service-dev.apps.live-1.cloud-platform.service.justice.gov.uk
+
+domain-event-and-delius-api:
+  base-url: https://domain-events-and-delius-dev.hmpps.service.justice.gov.uk
+
+hearing_outcomes:
+  move_un_resulted_to_outcomes_cutoff_time: "01:30"
+
+hmpps.sqs:
+  provider: localstack
+  localstackUrl: http://awslocal:4566
+  queues:
+    picprobationoffendereventsqueue:
+      queueName: pic_probation_offender_events_queue
+      subscribeTopicId: probationoffenderevents
+      subscribeFilter: '{"eventType":[ "SENTENCE_CHANGED", "CONVICTION_CHANGED"] }'
+    emittedeventsqueue:
+      queueName: emitted_events_queue
+      subscribeTopicId: hmppsdomainevents
+      subscribeFilter: '{"eventType":[ "court.case.sentenced"] }'
+    picnewoffendereventsqueue:
+      queueName: pic_new_offender_events_queue
+      dlqName: pic_new_offender_events_dead_letter_queue
+      subscribeTopicId: domainevents
+      subscribeFilter: '{"eventType":[ "probation-case.engagement.created"] }'
+  topics:
+    hmppsdomainevents:
+      arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
+    probationoffenderevents:
+      arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
+    domainevents:
+      arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
+  flyway:
+    defaultSchema: courtcaseservice
+    locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=courtcaseservice&user=appuser&password=postgres&stringtype=unspecified
+    hikari:
+      pool-name: courtcaseservice
+      connectionTimeout: 1000
+      validationTimeout: 500
+      schema: courtcaseservice
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        integration:
+          envers:
+            enabled: false
+
+hmpps:
+  sar:
+    additionalAccessRole: 'PREPARE_A_CASE'

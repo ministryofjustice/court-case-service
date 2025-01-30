@@ -445,17 +445,6 @@ VALUES (-4000006, 'af9f884d-22ec-4eaa-b420-9619c011afe6', 'f0446982-4b9a-11ed-bd
 INSERT INTO HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID, FK_DEFENDANT_ID)
 VALUES (-4000006, 4000000, 'af9f884d-22ec-4eaa-b420-9619c011afe6', -4000006);
 
-/*INSERT INTO court_case (id, case_id, case_no, source_type, created)
-VALUES (4000001, 'ce84bb2d-e44a-4554-a1a8-795accaac4d8', 4000001, 'COMMON_PLATFORM', NOW() - INTERVAL '1 day');
-INSERT INTO hearing (id, fk_court_case_id, hearing_id, created)
-VALUES (4000001, 4000001, 'ce84bb2d-e44a-4554-a1a8-795accaac4d8', NOW() - INTERVAL '1 day');
-INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
-VALUES (-4000001, 4000001, 'B63AD', 1, '2100-12-15', '13:00');
-INSERT INTO HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
-VALUES (-4000002, 4000001, '27457a3e-fc49-49d3-af22-bf980df4a805');
-INSERT INTO HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID)
-VALUES (-4000003, 4000001, '81adf9ee-76ab-42cc-998d-fb6ae80a4cc9');*/
-
 INSERT INTO court_case (id, case_id, case_no, created, deleted, source_type)
 VALUES (4000011, '1b6cf731-1892-4b9e-abc3-7fab87a39c21', 1111128919, '2020-10-01 16:59:59', false, 'COMMON_PLATFORM');
 INSERT INTO hearing (id, fk_court_case_id, hearing_id, created)

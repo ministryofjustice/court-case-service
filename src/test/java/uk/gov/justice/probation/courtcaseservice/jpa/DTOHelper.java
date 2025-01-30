@@ -39,12 +39,14 @@ public class DTOHelper {
     public static final AddressPropertiesEntity DEFENDANT_ADDRESS = new AddressPropertiesEntity("27", "Elm Place", "AB21 3ES", "Bangor", null, null);
     public static final LocalDate DEFENDANT_DOB = LocalDate.of(1958, 12, 14);
     public static final String DEFENDANT_ID = "d1eefed2-04df-11ec-b2d8-0242ac130002";
+    public static final String DEFENDANT_ID_2 = "a1eefed2-04df-11ec-b2d8-0242ac130002";
 
     public static final String PNC = "PNC";
     public static final String CRO = "CRO/12334";
     public static final String DEFENDANT_SEX = "M";
     public static final PhoneNumberEntity DEFENDANT_PHONE_NUMBER_ENTITY = PhoneNumberEntity.builder().home("07000000013").work("07000000014").mobile("07000000015").build();
     public static final String PROBATION_STATUS = "Previously known";
+    public static final String PROBATION_STATUS_NO_RECORD = "No record";
     public static final String NATIONALITY_1 = "British";
     public static final String NATIONALITY_2 = "Polish";
     public static final SourceType SOURCE = SourceType.COMMON_PLATFORM;
@@ -128,7 +130,7 @@ public class DTOHelper {
         return DefendantDTO.builder()
                 .name(name)
                 .defendantName(name.getFullName())
-                .offender(anOffender(crn))
+                .offender(anOffender(crn, OffenderProbationStatus.of(PROBATION_STATUS)))
                 .crn(crn)
                 .cro(CRO)
                 .pnc(PNC)
@@ -144,7 +146,7 @@ public class DTOHelper {
                 .build();
     }
 
-    public static OffenderDTO anOffender(String crn) {
+    public static OffenderDTO anOffender(String crn, OffenderProbationStatus probationStatus) {
         return Optional.ofNullable(crn)
                 .map(str -> OffenderDTO.builder()
                         .crn(str)
@@ -152,7 +154,7 @@ public class DTOHelper {
                         .breach(BREACH)
                         .preSentenceActivity(PRE_SENTENCE_ACTIVITY)
                         .previouslyKnownTerminationDate(TERMINATION_DATE)
-                        .probationStatus(OffenderProbationStatus.of(PROBATION_STATUS))
+                        .probationStatus(probationStatus)
                         .suspendedSentenceOrder(SUSPENDED_SENTENCE)
                         .build())
                 .orElse(null);
@@ -229,10 +231,18 @@ public class DTOHelper {
     }
 
     public static HearingDefendantDTO aHearingDefendantDTO(long id) {
-        return aHearingDefendant(NAME, anOffender(CRN), id);
+        return aHearingDefendant(NAME, anOffender(CRN, OffenderProbationStatus.of(PROBATION_STATUS)), id);
     }
 
     public static HearingDefendantDTO aHearingDefendantDTO(long id, String defendantId) {
-        return aHearingDefendant(NAME, anOffender(CRN), id, defendantId);
+        return aHearingDefendant(NAME, anOffender(CRN, OffenderProbationStatus.of(PROBATION_STATUS)), id, defendantId);
+    }
+
+    public static HearingDefendantDTO aNoRecordHearingDefendantDTO(long id, String defendantId) {
+        return aHearingDefendant(NAME, anOffender(CRN, null), id, defendantId);
+    }
+
+    public static HearingDefendantDTO aNoRecordHearingDefendantDTO(long id, String defendantId, NamePropertiesEntity name) {
+        return aHearingDefendant(name, anOffender(CRN, null), id, defendantId);
     }
 }

@@ -213,9 +213,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk9")
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.1")
-
-
     implementation 'io.jsonwebtoken:jjwt:0.12.5'
     implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.4'
     implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.4'

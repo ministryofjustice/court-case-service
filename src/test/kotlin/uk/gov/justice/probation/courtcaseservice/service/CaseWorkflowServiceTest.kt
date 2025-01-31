@@ -131,7 +131,7 @@ internal class CaseWorkflowServiceTest {
     }
 
     @Test
-    fun `should throw entity not found exception when hearing does not exsist`() {
+    fun `should throw entity not found exception when hearing does not exist`() {
         // Given
         val hearingId = "hearing-id-one"
         val assignedTo = "John Smith"
@@ -331,6 +331,94 @@ internal class CaseWorkflowServiceTest {
             caseWorkflowService.resultHearingOutcome(hearingId, defendantId, assignedToUuid, userId, userName, authSource)
         }
         verify(hearingEntityInitService).findByHearingIdAndInitHearingDefendants(Companion.hearingId, defendantId)
+        verifyNoMoreInteractions(hearingRepository)
+    }
+
+    @Test
+    fun `should throw entity not found exception when hearing does not match a valid hearing id when attempting to place on hold`() {
+        // Given
+        val hearingId = "hearing-id-one"
+        val defendantId = "defendant-id-one"
+        val assignedToUuid = "test-uuid"
+
+        given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.empty())
+        // When
+        assertThrows(
+            "Hearing not found with id hearing-id-one",
+            EntityNotFoundException::class.java
+        ) {
+            caseWorkflowService.holdHearingOutcome(hearingId, defendantId, assignedToUuid)
+        }
+        // Then
+        verify(hearingRepository).findFirstByHearingId(hearingId)
+        verify(hearingRepository, never()).save(any())
+    }
+    @Test
+    fun `given existing hearing with outcome in IN_PROGRESS and allocated to current user, should mark outcome as ON_HOLD`() {
+        // Given
+        val assignedToUuid = "test-uuid"
+
+        val hearingOutcomeEntity = HearingOutcomeEntity.builder().state(HearingOutcomeItemState.IN_PROGRESS.name)
+            .assignedToUuid(assignedToUuid).build()
+
+        val hearingEntity = aHearingEntity().withHearingDefendants(listOf(aHearingDefendantEntity().withHearingOutcome(hearingOutcomeEntity)))
+
+        given(hearingRepository.findFirstByHearingId(HEARING_ID)).willReturn(Optional.of(hearingEntity))
+
+        // When
+        caseWorkflowService.holdHearingOutcome(HEARING_ID, DEFENDANT_ID, assignedToUuid)
+
+        // Then
+        verify(hearingRepository).findFirstByHearingId(HEARING_ID)
+        verify(hearingRepository).save(hearingEntityCaptor.capture())
+
+        val actual = hearingEntityCaptor.value.hearingDefendants[0].hearingOutcome
+        assertThat(actual.state).isEqualTo(HearingOutcomeItemState.ON_HOLD.name)
+    }
+
+    @Test
+    fun `given existing hearing with outcome in IN_PROGRESS and NOT allocated to current user, should throw forbidden error when attempting to place on hold`() {
+        // Given
+        val hearingId = "hearing-id-one"
+        val assignedToUuid = "test-uuid"
+
+        val hearingEntity = HearingEntity.builder().hearingDefendants(listOf(HearingDefendantEntity.builder()
+            .hearingOutcome(HearingOutcomeEntity.builder().state(HearingOutcomeItemState.IN_PROGRESS.name).assignedToUuid(assignedToUuid).build())
+            .build())).build()
+
+        given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(hearingEntity))
+
+        // When
+        assertThrows(
+            "Outcome not allocated to current user.",
+            EntityNotFoundException::class.java
+        ) {
+            caseWorkflowService.holdHearingOutcome(hearingId, defendantId,"un-allocated-to-user")
+        }
+        verify(hearingRepository).findFirstByHearingId(hearingId)
+        verifyNoMoreInteractions(hearingRepository)
+    }
+
+    @Test
+    fun `given existing hearing with outcome NOT in IN_PROGRESS state, should throw bad request error when attempting to place on hold`() {
+        // Given
+        val hearingId = "hearing-id-one"
+        val assignedToUuid = "test-uuid"
+
+        val hearingEntity = HearingEntity.builder().hearingDefendants(listOf(HearingDefendantEntity.builder()
+            .hearingOutcome(HearingOutcomeEntity.builder().state(HearingOutcomeItemState.NEW.name).assignedToUuid(assignedToUuid).build())
+            .build())).build()
+
+        given(hearingRepository.findFirstByHearingId(hearingId)).willReturn(Optional.of(hearingEntity))
+
+        // When
+        assertThrows(
+            "Invalid state for outcome to be resulted.",
+            EntityNotFoundException::class.java
+        ) {
+            caseWorkflowService.holdHearingOutcome(hearingId, defendantId, assignedToUuid)
+        }
+        verify(hearingRepository).findFirstByHearingId(hearingId)
         verifyNoMoreInteractions(hearingRepository)
     }
 

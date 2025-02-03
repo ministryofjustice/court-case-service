@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.jetbrains.annotations.NotNull;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseDocumentResponse;
@@ -47,7 +48,10 @@ public class CourtCaseResponseMapper {
 
     private static List<CaseDocumentResponse> mapCaseDocuments(HearingEntity hearingEntity, String defendantId) {
         return hearingEntity.getCourtCase().getCaseDefendant(defendantId)
-            .map(CaseDefendantEntity::getDocuments)
+            .map(caseDefendantEntity -> {
+                Hibernate.initialize(caseDefendantEntity.getDocuments());
+                return caseDefendantEntity.getDocuments();
+            })
             .map(caseDefendantDocumentEntities -> caseDefendantDocumentEntities.stream()
                 .map(doc -> new CaseDocumentResponse(doc.getDocumentId(),doc.getCreated(), new CaseDocumentResponse.FileResponse(doc.getDocumentName(), 0)))
                 .collect(Collectors.toList())

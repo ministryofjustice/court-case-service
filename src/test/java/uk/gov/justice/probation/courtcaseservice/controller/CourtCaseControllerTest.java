@@ -10,6 +10,7 @@ import org.mockito.kotlin.MockingKt;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
@@ -83,6 +84,8 @@ class CourtCaseControllerTest {
     private CaseProgressService caseProgressService;
     @Mock
     private HearingNotesService hearingNotesService;
+    @Mock
+    private CourtCaseResponseMapper courtCaseResponseMapper;
 
     private CourtCaseController courtCaseController;
     private final HearingEntity hearingEntity = HearingEntity.builder()
@@ -110,7 +113,7 @@ class CourtCaseControllerTest {
     @BeforeEach
     public void setUp() {
         courtCaseController = new CourtCaseController(courtCaseService, offenderMatchService,
-            offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, true);
+            offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, courtCaseResponseMapper, true);
     }
 
     @Test
@@ -303,7 +306,7 @@ class CourtCaseControllerTest {
     @Test
     void givenCacheableCaseListDisabled_whenListIsNotModified_thenReturnFullList() {
         final var nonCachingController = new CourtCaseController(courtCaseService,
-            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, false);
+            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, courtCaseResponseMapper, false);
 
         final var courtCaseEntity = this.hearingEntity.withHearingDefendants(List.of(EntityHelper.aHearingDefendantEntity()))
                 .withHearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()

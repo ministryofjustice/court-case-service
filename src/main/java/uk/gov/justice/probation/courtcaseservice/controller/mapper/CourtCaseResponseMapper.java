@@ -3,6 +3,8 @@ package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseDocumentResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseMarker;
@@ -12,6 +14,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepSta
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
+import uk.gov.justice.probation.courtcaseservice.service.HearingEntityInitService;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
 import java.time.LocalDate;
@@ -23,9 +26,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Service
 public class CourtCaseResponseMapper {
 
-    public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, String defendantId, int matchCount, List<CaseProgressHearing> caseHearings) {
+    @Autowired
+    public HearingEntityInitService hearingEntityInitService;
+
+    public CourtCaseResponse mapFrom(HearingEntity hearingEntity, String defendantId, int matchCount, List<CaseProgressHearing> caseHearings) {
         // Core case-based
         final var builder = CourtCaseResponse.builder()
                 .hearings(caseHearings);
@@ -46,19 +53,17 @@ public class CourtCaseResponseMapper {
         return builder.build();
     }
 
-    private static List<CaseDocumentResponse> mapCaseDocuments(HearingEntity hearingEntity, String defendantId) {
+    private List<CaseDocumentResponse> mapCaseDocuments(HearingEntity hearingEntity, String defendantId) {
+        hearingEntityInitService.initializeCaseDocuments(hearingEntity);
         return hearingEntity.getCourtCase().getCaseDefendant(defendantId)
-            .map(caseDefendantEntity -> {
-                Hibernate.initialize(caseDefendantEntity.getDocuments());
-                return caseDefendantEntity.getDocuments();
-            })
+            .map(CaseDefendantEntity::getDocuments)
             .map(caseDefendantDocumentEntities -> caseDefendantDocumentEntities.stream()
                 .map(doc -> new CaseDocumentResponse(doc.getDocumentId(),doc.getCreated(), new CaseDocumentResponse.FileResponse(doc.getDocumentName(), 0)))
                 .collect(Collectors.toList())
             ).orElse(Collections.emptyList());
     }
 
-    public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, HearingDefendantEntity defendantEntity, int matchCount, LocalDate hearingDate) {
+    public CourtCaseResponse mapFrom(HearingEntity hearingEntity, HearingDefendantEntity defendantEntity, int matchCount, LocalDate hearingDate) {
         // Core case-based
         final var builder = CourtCaseResponse.builder();
 

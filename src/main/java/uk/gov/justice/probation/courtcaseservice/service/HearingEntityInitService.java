@@ -71,9 +71,10 @@ public class HearingEntityInitService {
     }
 
     @Transactional
-    public void initializeCaseDocuments(HearingEntity hearing) {
+    public HearingEntity initializeCaseDocuments(HearingEntity hearing) {
         Hibernate.initialize(hearing.getCourtCase().getCaseDefendants());
         hearing.getCourtCase().getCaseDefendants().forEach(caseDefendantEntity -> Hibernate.initialize(caseDefendantEntity.getDocuments()));
+        return hearing;
     }
 
     @Transactional

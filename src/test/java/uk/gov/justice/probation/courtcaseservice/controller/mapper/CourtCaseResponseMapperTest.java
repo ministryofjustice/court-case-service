@@ -2,6 +2,10 @@ package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
@@ -29,6 +33,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.PleaEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.VerdictEntity;
+import uk.gov.justice.probation.courtcaseservice.service.HearingEntityInitService;
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 
@@ -43,11 +48,12 @@ import java.util.UUID;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ADDRESS;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.HEARING_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aDefendantOffence;
 
-
+@ExtendWith(MockitoExtension.class)
 class CourtCaseResponseMapperTest {
 
     private static final long ID = 1234L;
@@ -84,6 +90,13 @@ class CourtCaseResponseMapperTest {
     private static String DOCUMENT_ID = "document-id-one";
     private static String DOCUMENT_NAME = "document-name-one.pdf";
     private HearingEntity hearingEntity;
+
+    @Mock
+    private HearingEntityInitService hearingEntityInitService;
+
+    @InjectMocks
+    private CourtCaseResponseMapper courtCaseResponseMapper;
+
     private final AddressPropertiesEntity addressPropertiesEntity = AddressPropertiesEntity.builder()
             .line1("27")
             .line2("Elm Place")
@@ -104,7 +117,6 @@ class CourtCaseResponseMapperTest {
 
     @BeforeEach
     void setUp() {
-
         var hearings = Arrays.asList(
                 HearingDayEntity.builder()
                         .day(HEARING_DATE)
@@ -166,7 +178,7 @@ class CourtCaseResponseMapperTest {
                 .offences(singletonList(defendantOffence))
                 .build();
 
-        var courtCaseResponse = CourtCaseResponseMapper.mapFrom(hearingEntity, defendantEntity, 3, HEARING_DATE);
+        var courtCaseResponse = courtCaseResponseMapper.mapFrom(hearingEntity, defendantEntity, 3, HEARING_DATE);
 
         assertCaseFields(courtCaseResponse, null, SourceType.COMMON_PLATFORM);
         assertHearingFields(courtCaseResponse);
@@ -212,6 +224,7 @@ class CourtCaseResponseMapperTest {
 
     @Test
     void givenMultipleDefendants_whenMapByDefendantId_thenReturnCorrectDefendant() {
+        when(hearingEntityInitService.initializeCaseDocuments(hearingEntity)).thenReturn(hearingEntity);
 
         var newName = NamePropertiesEntity.builder().surname("PRESLEY").forename1("Elvis").build();
         var defendant1 = buildDefendant(newName, OffenderEntity.builder().crn("D99999").build());
@@ -219,8 +232,7 @@ class CourtCaseResponseMapperTest {
 
         var courtCase = hearingEntity.withHearingDefendants(List.of(defendant1, defendant2));
 
-
-        var response = CourtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5, caseProgressHearings);
+        var response = courtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5, caseProgressHearings);
 
         assertCaseFields(response);
         assertThat(response.getNumberOfPossibleMatches()).isEqualTo(5);
@@ -232,6 +244,7 @@ class CourtCaseResponseMapperTest {
 
     @Test
     void givenDefendantWithOffender_whenMapByDefendantId_thenReturnFieldsFromOffender() {
+        when(hearingEntityInitService.initializeCaseDocuments(hearingEntity)).thenReturn(hearingEntity);
 
         final var name = NamePropertiesEntity.builder().surname("TICKELL").forename1("Katherine").build();
         final OffenderEntity offender = OffenderEntity.builder().crn("W99999")
@@ -246,7 +259,7 @@ class CourtCaseResponseMapperTest {
 
         var courtCase = hearingEntity.withHearingDefendants(List.of(defendant));
 
-        var response = CourtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5, caseProgressHearings);
+        var response = courtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5, caseProgressHearings);
 
         assertThat(response.getProbationStatus()).isEqualTo("Previously known");
         assertThat(response.getCrn()).isEqualTo("W99999");
@@ -275,7 +288,7 @@ class CourtCaseResponseMapperTest {
 
         var hearingEntityUpdated = hearingEntity.withHearingDefendants(List.of(defendant));
 
-        var response = CourtCaseResponseMapper.mapFrom(hearingEntityUpdated, "bd1f71e5-939b-4580-8354-7d6061a58032", 5, caseProgressHearings);
+        var response = courtCaseResponseMapper.mapFrom(hearingEntityUpdated, "bd1f71e5-939b-4580-8354-7d6061a58032", 5, caseProgressHearings);
 
         assertThat(response.getHearings().get(0).getHearingOutcome().getHearingOutcomeType()).isEqualTo(HearingOutcomeType.REPORT_REQUESTED);
     }
@@ -290,7 +303,7 @@ class CourtCaseResponseMapperTest {
 
         courtCase.getCaseDefendants().get(0).createDocument(DOCUMENT_ID, DOCUMENT_NAME);
 
-        var response = CourtCaseResponseMapper.mapFrom(hearing, EntityHelper.DEFENDANT_ID, 5, caseProgressHearings);
+        var response = courtCaseResponseMapper.mapFrom(hearing, EntityHelper.DEFENDANT_ID, 5, caseProgressHearings);
 
         var caseDocument = response.getFiles().get(0);
         assertThat(caseDocument.getId()).isEqualTo(DOCUMENT_ID);

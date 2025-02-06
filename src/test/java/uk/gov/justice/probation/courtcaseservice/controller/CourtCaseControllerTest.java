@@ -3,13 +3,14 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.kotlin.MockingKt;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
@@ -19,13 +20,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteReq
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 import uk.gov.justice.probation.courtcaseservice.security.AuthAwareAuthenticationToken;
-import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper;
-import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
-import uk.gov.justice.probation.courtcaseservice.service.CaseProgressService;
-import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
-import uk.gov.justice.probation.courtcaseservice.service.HearingNotesService;
-import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
-import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
+import uk.gov.justice.probation.courtcaseservice.service.*;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
@@ -83,6 +78,10 @@ class CourtCaseControllerTest {
     private CaseProgressService caseProgressService;
     @Mock
     private HearingNotesService hearingNotesService;
+    @Mock
+    private HearingEntityInitService hearingEntityInitService;
+    @InjectMocks
+    private CourtCaseResponseMapper courtCaseResponseMapper;
 
     private CourtCaseController courtCaseController;
     private final HearingEntity hearingEntity = HearingEntity.builder()
@@ -110,7 +109,7 @@ class CourtCaseControllerTest {
     @BeforeEach
     public void setUp() {
         courtCaseController = new CourtCaseController(courtCaseService, offenderMatchService,
-            offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, true);
+            offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, courtCaseResponseMapper, true);
     }
 
     @Test
@@ -303,7 +302,7 @@ class CourtCaseControllerTest {
     @Test
     void givenCacheableCaseListDisabled_whenListIsNotModified_thenReturnFullList() {
         final var nonCachingController = new CourtCaseController(courtCaseService,
-            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, false);
+            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, courtCaseResponseMapper, false);
 
         final var courtCaseEntity = this.hearingEntity.withHearingDefendants(List.of(EntityHelper.aHearingDefendantEntity()))
                 .withHearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()

@@ -52,7 +52,7 @@ public class CaseDefendantEntity extends BaseAuditedEntity implements Serializab
     private DefendantEntity defendant;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "caseDefendant", cascade = CascadeType.ALL, orphanRemoval=true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "caseDefendant", cascade = CascadeType.ALL, orphanRemoval=true, fetch = FetchType.EAGER)
     private List<CaseDefendantDocumentEntity> documents;
 
     public CaseDefendantDocumentEntity getCaseDefendantDocument(String documentId) {

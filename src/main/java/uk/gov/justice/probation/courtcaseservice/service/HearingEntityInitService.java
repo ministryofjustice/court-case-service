@@ -71,13 +71,6 @@ public class HearingEntityInitService {
     }
 
     @Transactional
-    public HearingEntity initializeCaseDocuments(HearingEntity hearing) {
-        Hibernate.initialize(hearing.getCourtCase().getCaseDefendants());
-        hearing.getCourtCase().getCaseDefendants().forEach(caseDefendantEntity -> Hibernate.initialize(caseDefendantEntity.getDocuments()));
-        return hearing;
-    }
-
-    @Transactional
     public Optional<HearingEntity> findByHearingIdAndInitHearingNotes(String hearingId, String defendantId) {
         var hearing = hearingRepository.findByHearingIdAndHearingDefendantsDefendantIdAndDeletedFalse(hearingId, defendantId);
         if(hearing.isPresent()) {

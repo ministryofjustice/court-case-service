@@ -78,10 +78,6 @@ class CourtCaseControllerTest {
     private CaseProgressService caseProgressService;
     @Mock
     private HearingNotesService hearingNotesService;
-    @Mock
-    private HearingEntityInitService hearingEntityInitService;
-    @InjectMocks
-    private CourtCaseResponseMapper courtCaseResponseMapper;
 
     private CourtCaseController courtCaseController;
     private final HearingEntity hearingEntity = HearingEntity.builder()
@@ -109,7 +105,7 @@ class CourtCaseControllerTest {
     @BeforeEach
     public void setUp() {
         courtCaseController = new CourtCaseController(courtCaseService, offenderMatchService,
-            offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, courtCaseResponseMapper, true);
+            offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, true);
     }
 
     @Test
@@ -302,7 +298,7 @@ class CourtCaseControllerTest {
     @Test
     void givenCacheableCaseListDisabled_whenListIsNotModified_thenReturnFullList() {
         final var nonCachingController = new CourtCaseController(courtCaseService,
-            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, courtCaseResponseMapper, false);
+            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, false);
 
         final var courtCaseEntity = this.hearingEntity.withHearingDefendants(List.of(EntityHelper.aHearingDefendantEntity()))
                 .withHearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()

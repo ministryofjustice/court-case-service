@@ -18,12 +18,12 @@ class PingerIntTest extends BaseIntTest {
 
     @Test
     void when200_thenUp() {
-        Pinger pinger = new Pinger();
+        Pinger pinger = new Pinger("/ping");
         WebClient webClient = WebClient.builder()
                 .baseUrl("http://localhost:" + WIREMOCK_PORT)
                 .build();
 
-        Health health = pinger.ping(webClient, "/ping")
+        Health health = pinger.ping(webClient)
                 .block();
 
         assertThat(health.getStatus()).isEqualTo(UP);
@@ -31,12 +31,12 @@ class PingerIntTest extends BaseIntTest {
 
     @Test
     void when500_thenDown() {
-        Pinger pinger = new Pinger();
+        Pinger pinger = new Pinger("/pingbad");
         WebClient webClient = WebClient.builder()
                 .baseUrl("http://localhost:" + WIREMOCK_PORT)
                 .build();
 
-        Health health = pinger.ping(webClient, "/pingbad")
+        Health health = pinger.ping(webClient)
                 .block();
 
         assertThat(health.getStatus()).isEqualTo(DOWN);
@@ -45,12 +45,12 @@ class PingerIntTest extends BaseIntTest {
 
     @Test
     void whenError_thenDown() {
-        Pinger pinger = new Pinger();
+        Pinger pinger = new Pinger("/ping");
         WebClient webClient = WebClient.builder()
                 .baseUrl("http://notarealhost")
                 .build();
 
-        Health health = pinger.ping(webClient, "/ping")
+        Health health = pinger.ping(webClient)
                 .block();
 
         assertThat(health.getStatus()).isEqualTo(DOWN);

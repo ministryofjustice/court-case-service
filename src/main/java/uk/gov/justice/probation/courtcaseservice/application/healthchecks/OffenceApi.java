@@ -19,6 +19,6 @@ public class OffenceApi implements ReactiveHealthIndicator {
 
     @Override
     public Mono<Health> health() {
-        return pinger.ping(manageOffencesApiWebClient, "/health/ping");
+        return pinger.ping(manageOffencesApiWebClient);
     }
 }

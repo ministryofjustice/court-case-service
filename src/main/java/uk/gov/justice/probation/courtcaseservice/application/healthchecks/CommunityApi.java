@@ -18,6 +18,6 @@ public class CommunityApi implements ReactiveHealthIndicator {
 
     @Override
     public Mono<Health> health() {
-        return pinger.ping(communityWebClient, "/health");
+        return pinger.ping(communityWebClient);
     }
 }

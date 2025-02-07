@@ -25,13 +25,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Service
 public class CourtCaseResponseMapper {
 
-    @Autowired
-    public HearingEntityInitService hearingEntityInitService;
-
-    public CourtCaseResponse mapFrom(HearingEntity hearingEntity, String defendantId, int matchCount, List<CaseProgressHearing> caseHearings) {
+    public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, String defendantId, int matchCount, List<CaseProgressHearing> caseHearings) {
         // Core case-based
         final var builder = CourtCaseResponse.builder()
                 .hearings(caseHearings);
@@ -52,8 +48,7 @@ public class CourtCaseResponseMapper {
         return builder.build();
     }
 
-    private List<CaseDocumentResponse> mapCaseDocuments(HearingEntity hearingEntity, String defendantId) {
-        hearingEntityInitService.initializeCaseDocuments(hearingEntity);
+    private static List<CaseDocumentResponse> mapCaseDocuments(HearingEntity hearingEntity, String defendantId) {
         return hearingEntity.getCourtCase().getCaseDefendant(defendantId)
             .map(CaseDefendantEntity::getDocuments)
             .map(caseDefendantDocumentEntities -> caseDefendantDocumentEntities.stream()
@@ -62,7 +57,7 @@ public class CourtCaseResponseMapper {
             ).orElse(Collections.emptyList());
     }
 
-    public CourtCaseResponse mapFrom(HearingEntity hearingEntity, HearingDefendantEntity defendantEntity, int matchCount, LocalDate hearingDate) {
+    public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, HearingDefendantEntity defendantEntity, int matchCount, LocalDate hearingDate) {
         // Core case-based
         final var builder = CourtCaseResponse.builder();
 

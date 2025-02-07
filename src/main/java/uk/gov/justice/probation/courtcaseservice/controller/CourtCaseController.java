@@ -82,7 +82,6 @@ public class CourtCaseController {
     private final AuthenticationHelper authenticationHelper;
     private final CaseProgressService caseProgressService;
     private final HearingNotesService hearingNotesService;
-    private final CourtCaseResponseMapper courtCaseResponseMapper;
 
     @Autowired
     public CourtCaseController(CourtCaseService courtCaseService,
@@ -92,7 +91,6 @@ public class CourtCaseController {
                                AuthenticationHelper authenticationHelper,
                                CaseProgressService caseProgressService,
                                HearingNotesService hearingNotesService,
-                               CourtCaseResponseMapper courtCaseResponseMapper,
                                @Value("${feature.flags.enable-cacheable-case-list:true}") boolean enableCacheableCaseList) {
         this.courtCaseService = courtCaseService;
         this.offenderMatchService = offenderMatchService;
@@ -102,7 +100,6 @@ public class CourtCaseController {
         this.authenticationHelper = authenticationHelper;
         this.caseProgressService = caseProgressService;
         this.hearingNotesService = hearingNotesService;
-        this.courtCaseResponseMapper = courtCaseResponseMapper;
     }
 
     @Operation(description = "Gets the court case data by hearing id and defendant id.")
@@ -389,7 +386,7 @@ public class CourtCaseController {
     private CourtCaseResponse buildCourtCaseResponseForCaseIdAndDefendantId(HearingEntity hearingEntity, String defendantId, List<CaseProgressHearing> caseHearings) {
         final var offenderMatchesCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingEntity.getCaseId(), defendantId)
                 .orElse(0);
-        return courtCaseResponseMapper.mapFrom(hearingEntity, defendantId, offenderMatchesCount, caseHearings);
+        return CourtCaseResponseMapper.mapFrom(hearingEntity, defendantId, offenderMatchesCount, caseHearings);
     }
 
     private CourtCaseResponse buildCourtCaseResponse(HearingEntity hearingEntity) {
@@ -415,6 +412,6 @@ public class CourtCaseController {
     private CourtCaseResponse buildCourtCaseResponse(HearingEntity hearingEntity, LocalDate hearingDate, HearingDefendantEntity hearingDefendantEntity) {
         final var defendant = Optional.ofNullable(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).orElseThrow();
         var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingEntity.getCaseId(), defendant.getDefendantId()).orElse(0);
-        return courtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate);
+        return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate);
     }
 }

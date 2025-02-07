@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/health/ping"
+    "urlPath": "/auth/health/ping"
   },
   "response": {
     "status": 200,

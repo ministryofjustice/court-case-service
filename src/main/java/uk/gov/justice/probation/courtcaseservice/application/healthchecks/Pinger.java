@@ -10,14 +10,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Component
-@AllArgsConstructor
-@NoArgsConstructor
 public class Pinger {
-
-    @Value("${health.default-ping-path}")
-    private String path;
-
-    public Mono<Health> ping(WebClient webClient) {
+    public Mono<Health> ping(WebClient webClient, @Value("${health.default-ping-path}") String path) {
         return webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder

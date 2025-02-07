@@ -18,6 +18,6 @@ public class PrisonApi implements ReactiveHealthIndicator {
 
     @Override
     public Mono<Health> health() {
-        return pinger.ping(prisonApiWebClient);
+        return pinger.ping(prisonApiWebClient, "/health/ping");
     }
 }

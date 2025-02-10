@@ -81,11 +81,11 @@ spring:
             provider: nomis-oauth-service
         provider:
           nomis-oauth-service:
-            token-uri: ${nomis-oauth.base-url}/auth/oauth/token
+            token-uri: ${nomis-oauth.base-url}/oauth/token
       resourceserver:
         jwt:
-          issuer-uri: ${nomis-oauth.issuer-base-url:${nomis-oauth.base-url}}/auth/issuer
-          jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
+          issuer-uri: ${nomis-oauth.issuer-base-url:${nomis-oauth.base-url}}/issuer
+          jwk-set-uri: ${nomis-oauth.base-url}/.well-known/jwks.json
 
   datasource:
     url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=${database.schema.name}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified&sslmode=verify-full

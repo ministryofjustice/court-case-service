@@ -60,6 +60,9 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
     private String courtCaseId;
 
     @ManyToOne(optional = false, cascade = CascadeType.ALL)
+
+    // can a hearing belong to many prosecution cases / court cases ? why?
+    // can I say 1 hearing defendant can only have 1  court case?
     @JoinColumn(name = "FK_COURT_CASE_ID", referencedColumnName = "id", nullable = false)
     @Setter
     private CourtCaseEntity courtCase;

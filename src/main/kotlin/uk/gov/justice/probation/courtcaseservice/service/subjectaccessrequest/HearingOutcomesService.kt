@@ -14,14 +14,11 @@ import java.time.LocalTime
 
 @Service
 class HearingOutcomesService(
-    val hearingDefendantRepository: HearingDefendantRepository,
     val hearingOutcomeRepository: HearingOutcomeRepository
 ) {
 
-    fun getHearingOutcomes(crn: String,fromDate: LocalDate?,toDate: LocalDate?): List<HearingOutcomeSarResponse> {
-        val hearingDefendants: List<HearingDefendantEntity> = hearingDefendantRepository.findAllByDefendantCrn(crn)
-        return hearingOutcomesResponse(hearingDefendants, fromDate, toDate)
-
+    fun getHearingOutcomes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?,toDate: LocalDate?): List<HearingOutcomeSarResponse> {
+        return hearingOutcomesResponse(listOf(hearingDefendant), fromDate, toDate)
     }
 
     private fun hearingOutcomesResponse(hearingDefendants: List<HearingDefendantEntity>, fromDate: LocalDate?, toDate: LocalDate?): List<HearingOutcomeSarResponse> {

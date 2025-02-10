@@ -12,18 +12,13 @@ import java.time.LocalTime
 
 @Service
 class HearingNotesSARService(
-    val hearingDefendantRepository: HearingDefendantRepository,
     val hearingNoteRepository: HearingNoteRepository
 ) {
 
-    fun getHearingNotes(crn: String,fromDate: LocalDate?,toDate: LocalDate?): List<HearingNotesSarResponse> {
-        val hearingNotes = getFilteredHearingNotes(getHearingDefendants(crn), fromDate, toDate)
+    fun getHearingNotes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?,toDate: LocalDate?): List<HearingNotesSarResponse> {
+        val hearingNotes = getFilteredHearingNotes(listOf(hearingDefendant), fromDate, toDate)
 
         return hearingNotesResponse(hearingNotes)
-    }
-
-    private fun getHearingDefendants(crn: String): List<HearingDefendantEntity> {
-        return hearingDefendantRepository.findAllByDefendantCrn(crn)
     }
 
     private fun hearingNotesResponse(hearingNotes: List<HearingNoteEntity>): List<HearingNotesSarResponse> {

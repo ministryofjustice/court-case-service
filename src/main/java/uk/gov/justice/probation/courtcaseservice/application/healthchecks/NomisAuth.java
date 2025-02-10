@@ -20,5 +20,4 @@ public class NomisAuth implements ReactiveHealthIndicator {
     public Mono<Health> health() {
         return pinger.ping(authWebClient);
     }
-
 }

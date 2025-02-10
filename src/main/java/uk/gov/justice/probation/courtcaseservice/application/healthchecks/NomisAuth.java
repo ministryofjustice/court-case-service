@@ -18,7 +18,6 @@ public class NomisAuth implements ReactiveHealthIndicator {
 
     @Override
     public Mono<Health> health() {
-        pinger.setPath("/auth/health/ping");
         return pinger.ping(authWebClient);
     }
 

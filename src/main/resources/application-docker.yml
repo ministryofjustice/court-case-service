@@ -12,7 +12,7 @@ offender-assessments-api:
   client-secret: clientsecret
 
 nomis-oauth:
-  base-url: https://sign-in-dev.hmpps.service.justice.gov.uk
+  base-url: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
 
 delius:
   base-url: https://ndelius.test.probation.service.justice.gov.uk

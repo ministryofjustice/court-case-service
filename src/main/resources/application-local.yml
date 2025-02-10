@@ -13,7 +13,7 @@ offender-assessments-api:
   client-secret: clientsecret
 
 nomis-oauth:
-  base-url: https://sign-in-dev.hmpps.service.justice.gov.uk
+  base-url: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
 
 delius:
   base-url: https://ndelius.test.probation.service.justice.gov.uk
@@ -67,7 +67,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
+          jwk-set-uri: ${nomis-oauth.base-url}/.well-known/jwks.json
   datasource:
     url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=${database.schema.name:courtcaseservice}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
     hikari:

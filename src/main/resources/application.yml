@@ -177,7 +177,7 @@ domain-event-and-delius-api:
   new-offender-detail: /probation-case.engagement.created/%s
 
 health:
-  default-ping-path: /ping
+  default-ping-path: /health/ping
 
 web:
   client:

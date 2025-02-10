@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.application.healthchecks;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.http.MediaType;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono;
 public class Pinger {
 
     @Value("${health.default-ping-path}")
+    @Setter
     private String path;
 
     public Mono<Health> ping(WebClient webClient) {

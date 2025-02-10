@@ -49,11 +49,11 @@ class WebClientFactoryIntTest extends BaseIntTest {
     @Test
     void shouldReturnWorkingCommunityApiWebClient() {
         final var client = webClientFactory.buildCommunityRestClientHelper("username");
-        final var responseString = client.get("/ping")
+        final var responseString = client.get("/health/ping")
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
-        assertThat(responseString).isEqualTo("pong");
+        assertThat(responseString).isEqualTo("{\"status\":\"UP\"}");
     }
 
     @Test

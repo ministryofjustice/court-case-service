@@ -26,7 +26,7 @@ public class Pinger {
                         .path(path)
                         .build()
                 )
-                .accept(MediaType.TEXT_PLAIN)
+                .accept(MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON)
                 .exchange()
                 .map(response -> {
                     if(response.statusCode().is2xxSuccessful()) {

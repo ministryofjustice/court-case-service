@@ -12,7 +12,6 @@ import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlConfig
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 import java.time.LocalDateTime
-import java.util.*
 
 @DataJpaTest
 @ActiveProfiles("test")

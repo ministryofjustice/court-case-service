@@ -456,6 +456,7 @@ public class EntityHelper {
                 .caseId("5678")
                 .sourceType(SourceType.LIBRA)
                 .caseNo("222333")
+                .urn("URN")
                 .created(LocalDateTime.of(2024, 5, 22, 12, 0))
                 .createdBy("Test User")
                 .lastUpdated(LocalDateTime.of(2024, 5, 22, 12, 30))

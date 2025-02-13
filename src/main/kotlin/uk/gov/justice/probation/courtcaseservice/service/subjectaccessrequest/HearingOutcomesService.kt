@@ -5,7 +5,6 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcome
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSarResponse
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingOutcomeEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendantRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepository
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType
 import java.time.LocalDate
@@ -18,11 +17,11 @@ class HearingOutcomesService(
 ) {
 
     fun getHearingOutcomes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?,toDate: LocalDate?): List<HearingOutcomeSarResponse> {
-        return hearingOutcomesResponse(listOf(hearingDefendant), fromDate, toDate)
+        return hearingOutcomesResponse(hearingDefendant, fromDate, toDate)
     }
 
-    private fun hearingOutcomesResponse(hearingDefendants: List<HearingDefendantEntity>, fromDate: LocalDate?, toDate: LocalDate?): List<HearingOutcomeSarResponse> {
-        return getFilteredHearingOutcomes(hearingDefendants, fromDate, toDate).map {
+    private fun hearingOutcomesResponse(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?, toDate: LocalDate?): List<HearingOutcomeSarResponse> {
+        return getFilteredHearingOutcomes(hearingDefendant, fromDate, toDate).map {
                 hearingOutcome ->
             HearingOutcomeSarResponse(
                 HearingOutcomeType.valueOf(hearingOutcome.outcomeType).value,
@@ -34,10 +33,8 @@ class HearingOutcomesService(
             )
         }
     }
-    private fun getFilteredHearingOutcomes(hearingDefendants: List<HearingDefendantEntity>, fromDate: LocalDate?, toDate: LocalDate?): List<HearingOutcomeEntity> {
-        return hearingDefendants.flatMap() {
-            filteredHearingOutcomesByDate(it, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))
-        }.map { it }
+    private fun getFilteredHearingOutcomes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?, toDate: LocalDate?): List<HearingOutcomeEntity> {
+        return filteredHearingOutcomesByDate(hearingDefendant, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))
     }
 
     private fun getSurname(name: String): String {

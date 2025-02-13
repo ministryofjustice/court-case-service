@@ -4,26 +4,25 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNotesSarResponse
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendantRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingNoteRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
 @Service
-class HearingNotesSARService(
+class HearingNotesSarService(
     val hearingNoteRepository: HearingNoteRepository
 ) {
 
     fun getHearingNotes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?,toDate: LocalDate?): List<HearingNotesSarResponse> {
-        val hearingNotes = getFilteredHearingNotes(listOf(hearingDefendant), fromDate, toDate)
+        val hearingNotes = getFilteredHearingNotes(hearingDefendant, fromDate, toDate)
 
         return hearingNotesResponse(hearingNotes)
     }
 
     private fun hearingNotesResponse(hearingNotes: List<HearingNoteEntity>): List<HearingNotesSarResponse> {
         return hearingNotes.filter {
-            note -> !note.isDraft
+            note -> !note.isDraft && !note.isDeleted
         }.map { note -> HearingNotesSarResponse(
             note.hearingId,
             note.note,
@@ -35,10 +34,8 @@ class HearingNotesSARService(
         return name.split(" ").last()
     }
 
-    private fun getFilteredHearingNotes(hearingDefendants: List<HearingDefendantEntity>, fromDate: LocalDate?, toDate: LocalDate?): List<HearingNoteEntity> {
-        return hearingDefendants.map() {
-            filterHearingNotesByDate(it, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))
-        }.flatten()
+    private fun getFilteredHearingNotes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?, toDate: LocalDate?): List<HearingNoteEntity> {
+        return filterHearingNotesByDate(hearingDefendant, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))
     }
 
     private fun filterHearingNotesByDate(hearingDefendant: HearingDefendantEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): List<HearingNoteEntity> {

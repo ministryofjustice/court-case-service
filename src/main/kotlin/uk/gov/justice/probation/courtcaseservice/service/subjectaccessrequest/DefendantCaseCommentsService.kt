@@ -6,7 +6,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepositoryFacade
 import java.time.LocalDate
 import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService
 import uk.gov.justice.probation.courtcaseservice.service.ImmutableCourtCaseService
@@ -24,6 +23,9 @@ class DefendantCaseCommentsService(
         caseCommentEntities
             .stream()
             .map { caseComment ->
+                if (caseComment.isDraft || caseComment.isDeleted || caseComment.isLegacy){
+                    return@map null
+                }
                 CaseCommentsSarResponse(
                     caseComment.comment,
                     getSurname(caseComment.author),

@@ -29,7 +29,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 
-@Sql(scripts = { "classpath:sql/before-common.sql", "classpath:sql/before-new-hearing-search.sql" }, config = @SqlConfig(transactionMode = ISOLATED), executionPhase = BEFORE_TEST_METHOD)
+@Sql(scripts = {"classpath:sql/before-common.sql", "classpath:sql/before-new-hearing-search.sql" }, config = @SqlConfig(transactionMode = ISOLATED), executionPhase = BEFORE_TEST_METHOD)
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
     private static final String CRN = "CRN";

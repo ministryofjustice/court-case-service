@@ -29,19 +29,21 @@ class DefendantCaseCommentsServiceTest {
 
     private lateinit var defendantCaseCommentsService: DefendantCaseCommentsService
 
+    private val defendant = aDefendantEntity("1234", "CRN123")
+
     @BeforeEach
     fun setup() {
-        defendantCaseCommentsService = DefendantCaseCommentsService(caseCommentsService, defendantRepositoryFacade, immutableCourtCaseService)
+        defendantCaseCommentsService = DefendantCaseCommentsService(caseCommentsService, immutableCourtCaseService)
     }
 
     @Test
     fun `given defendants found with case comments should return sars comments response`() {
-        given(defendantRepositoryFacade.findDefendantsByCrn("CRN123")).willReturn(listOf(aDefendantEntity("1234", "CRN123")))
+        given(defendantRepositoryFacade.findDefendantsByCrn("CRN123")).willReturn(listOf(defendant))
         given(caseCommentsService.getCaseCommentsForDefendant("1234")).willReturn(listOf(aCaseCommentEntity()))
         given(immutableCourtCaseService.findByCaseId("5678")).willReturn(Optional.empty())
 
         val caseCommentsForDefendant = defendantCaseCommentsService.getCaseCommentsForDefendant(
-            "CRN123",
+            defendant.hearingDefendants.first(),
             null,
             null
         )
@@ -58,12 +60,12 @@ class DefendantCaseCommentsServiceTest {
         val fromDate = LocalDate.of(2004, 1, 1)
         val toDate = LocalDate.of(2004, 1, 2)
 
-        given(defendantRepositoryFacade.findDefendantsByCrn("CRN123")).willReturn(listOf(aDefendantEntity("1234", "CRN123")))
+        given(defendantRepositoryFacade.findDefendantsByCrn("CRN123")).willReturn(listOf(defendant))
         given(caseCommentsService.getCaseCommentsForDefendantBetween("1234", fromDate, toDate)).willReturn(listOf(aCaseCommentEntity()))
         given(immutableCourtCaseService.findByCaseId("5678")).willReturn(Optional.empty())
 
         val caseCommentsForDefendant = defendantCaseCommentsService.getCaseCommentsForDefendant(
-            "CRN123",
+            defendant.hearingDefendants.first(),
             fromDate,
             toDate
         )
@@ -84,7 +86,7 @@ class DefendantCaseCommentsServiceTest {
         given(immutableCourtCaseService.findByCaseId("5678")).willReturn(Optional.empty())
 
         val caseCommentsForDefendant = defendantCaseCommentsService.getCaseCommentsForDefendant(
-            "CRN123",
+            defendant.hearingDefendants.first(),
             fromDate,
             null
         )
@@ -105,7 +107,7 @@ class DefendantCaseCommentsServiceTest {
         given(immutableCourtCaseService.findByCaseId("5678")).willReturn(Optional.empty())
 
         val caseCommentsForDefendant = defendantCaseCommentsService.getCaseCommentsForDefendant(
-            "CRN123",
+            defendant.hearingDefendants.first(),
             null,
             toDate
         )
@@ -124,7 +126,7 @@ class DefendantCaseCommentsServiceTest {
         given(immutableCourtCaseService.findByCaseId("5678")).willReturn(Optional.of(aCourtCaseEntity()))
 
         val caseCommentsForDefendant = defendantCaseCommentsService.getCaseCommentsForDefendant(
-            "CRN123",
+            defendant.hearingDefendants.first(),
             null,
             null
         )
@@ -137,12 +139,12 @@ class DefendantCaseCommentsServiceTest {
     }
 
     @Test
-    fun `given crn does not exist then no comments are returned`() {
-        given(defendantRepositoryFacade.findDefendantsByCrn("CRN123")).willReturn(Collections.emptyList())
+    fun `given hearing defendant with no comments  then no comments are returned`() {
+        given(caseCommentsService.getCaseCommentsForDefendant(defendant.defendantId)).willReturn(Collections.emptyList())
         verifyNoInteractions(caseCommentsService)
         verifyNoInteractions(immutableCourtCaseService)
         val caseCommentsForDefendant = defendantCaseCommentsService.getCaseCommentsForDefendant(
-            "CRN123",
+            defendant.hearingDefendants.first(),
             null,
             null
         )

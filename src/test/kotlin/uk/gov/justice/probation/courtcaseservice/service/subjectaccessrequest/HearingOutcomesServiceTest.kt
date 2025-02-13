@@ -23,9 +23,6 @@ internal class HearingOutcomesServiceTest {
     }
 
     @Mock
-    lateinit var hearingDefendantRepository: HearingDefendantRepository
-
-    @Mock
     lateinit var hearingOutcomeRepository: HearingOutcomeRepository
 
 
@@ -34,20 +31,18 @@ internal class HearingOutcomesServiceTest {
     @BeforeEach
     fun initTest() {
         hearingOutcomesService = HearingOutcomesService(
-            hearingDefendantRepository,
             hearingOutcomeRepository
         )
     }
 
     @Test
-    fun `given defendant crn it should return hearing outcomes`() {
+    fun `given hearing defendant it should return hearing outcomes`() {
         val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
-        BDDMockito.given(hearingDefendantRepository.findAllByDefendantCrn(crn)).willReturn(listOf(dbHearingDefendantEntity))
 
         BDDMockito.given(hearingOutcomeRepository.findByHearingDefendantId(dbHearingDefendantEntity.id))
             .willReturn(listOf(dbHearingDefendantEntity.hearingOutcome))
 
-        Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(crn, null, null))
+        Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(dbHearingDefendantEntity, null, null))
             .isEqualTo(listOf(HearingOutcomeSarResponse(
                 "Adjourned",
                 LocalDateTime.parse("2020-05-01T00:00"),
@@ -62,7 +57,7 @@ internal class HearingOutcomesServiceTest {
     }
 
     @Test
-    fun `given defendant crn and valid date ranges it should return hearing outcomes`() {
+    fun `given hearing defendant and valid date ranges it should return hearing outcomes`() {
         val hearingOutcomeCreatedDate = LocalDateTime.parse("2024-01-01T00:00")
         val fromDate = hearingOutcomeCreatedDate.toLocalDate()
         val toDate = hearingOutcomeCreatedDate.toLocalDate().plusDays(1)
@@ -74,7 +69,7 @@ internal class HearingOutcomesServiceTest {
         BDDMockito.given(hearingOutcomeRepository.findAllByHearingDefendantIdAndCreatedBetween(dbHearingDefendantEntity.id, fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX)))
             .willReturn(listOf(dbHearingDefendantEntity.hearingOutcome))
 
-        Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(crn, hearingOutcomeCreatedDate.toLocalDate(), toDate))
+        Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(dbHearingDefendantEntity, hearingOutcomeCreatedDate.toLocalDate(), toDate))
             .isEqualTo(listOf(HearingOutcomeSarResponse(
                 "Adjourned",
                 LocalDateTime.parse("2020-05-01T00:00"),
@@ -89,7 +84,7 @@ internal class HearingOutcomesServiceTest {
     }
 
     @Test
-    fun `given defendant crn and valid fromDate it should return filtered hearing outcomes`() {
+    fun `given hearing defendant and valid fromDate it should return filtered hearing outcomes`() {
         val hearingOutcomeCreatedDate = LocalDateTime.parse("2024-01-01T00:00")
         val fromDate = hearingOutcomeCreatedDate.toLocalDate()
 
@@ -99,7 +94,7 @@ internal class HearingOutcomesServiceTest {
         BDDMockito.given(hearingOutcomeRepository.findAllByHearingDefendantIdAndCreatedAfter(dbHearingDefendantEntity.id, fromDate.atStartOfDay()))
             .willReturn(listOf(dbHearingDefendantEntity.hearingOutcome))
 
-        Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(crn, hearingOutcomeCreatedDate.toLocalDate(), null))
+        Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(dbHearingDefendantEntity, hearingOutcomeCreatedDate.toLocalDate(), null))
             .isEqualTo(listOf(HearingOutcomeSarResponse(
                 "Adjourned",
                 LocalDateTime.parse("2020-05-01T00:00"),
@@ -114,7 +109,7 @@ internal class HearingOutcomesServiceTest {
     }
 
     @Test
-    fun `given defendant crn and valid toDate it should return filtered hearing outcomes`() {
+    fun `given hearing defendant and valid toDate it should return filtered hearing outcomes`() {
         val hearingOutcomeCreatedDate = LocalDateTime.parse("2024-01-01T00:00")
         val toDate = hearingOutcomeCreatedDate.toLocalDate().plusDays(1)
 
@@ -124,7 +119,7 @@ internal class HearingOutcomesServiceTest {
         BDDMockito.given(hearingOutcomeRepository.findAllByHearingDefendantIdAndCreatedBefore(dbHearingDefendantEntity.id, toDate.atTime(LocalTime.MAX)))
             .willReturn(listOf(dbHearingDefendantEntity.hearingOutcome))
 
-        Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(crn, null, toDate))
+        Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(dbHearingDefendantEntity, null, toDate))
             .isEqualTo(listOf(HearingOutcomeSarResponse(
                 "Adjourned",
                 LocalDateTime.parse("2020-05-01T00:00"),

@@ -1,41 +1,49 @@
 package uk.gov.justice.probation.courtcaseservice.service.subjectaccessrequest
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.probation.courtcaseservice.controller.model.CasesSarResponse
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity
+import uk.gov.justice.probation.courtcaseservice.controller.model.CaseSarResponse
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSarResponse
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendantRepository
 import java.time.LocalDate
-import java.time.LocalTime
 
 @Service
 class CaseDetailsSarService(val hearingDefendantRepository: HearingDefendantRepository,
                             val hearingOutcomesService: HearingOutcomesService,
-                            val hearingNotesService: HearingNotesSARService,
+                            val hearingNotesService: HearingNotesSarService,
                             val defendantCaseCommentsService: DefendantCaseCommentsService) {
 
-    fun getCaseSARDetails(crn: String, fromDate: LocalDate, toDate: LocalDate): List<CasesSarResponse> {
-        val hearingDefendants: List<HearingDefendantEntity> = getHearingDefendants(crn)
+    fun getCaseSARDetails(crn: String, fromDate: LocalDate?, toDate: LocalDate?): List<CaseSarResponse> {
+        val cases: MutableList<CaseSarResponse> = mutableListOf()
 
-        val cases: List<CourtCaseEntity> = hearingDefendants.stream().map(HearingDefendantEntity::getHearing).map(HearingEntity::getCourtCase).toList()
-//        val hearings: List<HearingEntity> = hearingDefendants.stream().map(HearingDefendantEntity::getHearing).toList()
-
-        // case.hearings could include hearings this person didn't attend
-        // hearing.hearingDefendants is the same issue, may not include him
-
-        hearingDefendants.stream().map {
+        getHearingDefendants(crn).map {
             hearingDefendant ->
+            val hearing = hearingDefendant.hearing
+            val courtCase = hearing.courtCase
             val hearingOutcomes = hearingOutcomesService.getHearingOutcomes(hearingDefendant, fromDate, toDate)
             val hearingNotes = hearingNotesService.getHearingNotes(hearingDefendant, fromDate, toDate)
-            val caseComments = defendantCaseCommentsService.getCaseCommentsForDefendant(hearingDefendant, fromDate, toDate)
+
+            if (getCase(cases, courtCase.urn) != null) {
+                getCase(cases, courtCase.urn)?.hearings?.add(HearingSarResponse(hearing.hearingId, hearingNotes, hearingOutcomes))
+            } else {
+                val caseComments = defendantCaseCommentsService.getCaseCommentsForCaseDefendant(courtCase.urn, hearingDefendant, fromDate, toDate)
+                val case = CaseSarResponse(courtCase.urn, mutableListOf(HearingSarResponse(hearing.hearingId, hearingNotes, hearingOutcomes)), caseComments)
+                cases.add(case)
+            }
         }
+        // TODO: use findByCaseIdAndDefendantIdAndDeletedFalse to get case comments for each case
+        // TODO: test with multiple court_cases
+        // TODO: should we be returning deleted notes?
+        // TODO: should the cases or hearings be sorted by date?
+        // o each hearings have new defendant ids or does it share the same defendant id ?
+        // TODO: if empty return null?
+        // TODO: can case urn be null? As in a case has no urn
+        // TODO: check if fk_hearing_defendant_id is on hearing_notes if not then no notes show up
+        return cases
+    }
 
-        val hearingOutcomes = hearingOutcomesService.getHearingOutcomes(hearingDefendant, fromDate, toDate)
-
-
-
-        return listOf(CasesSarResponse())
+    private fun getCase(cases: List<CaseSarResponse>, caseUrn: String): CaseSarResponse? {
+        return cases.find { it.caseUrn == caseUrn }
     }
 
     private fun getHearingDefendants(crn: String): List<HearingDefendantEntity> {

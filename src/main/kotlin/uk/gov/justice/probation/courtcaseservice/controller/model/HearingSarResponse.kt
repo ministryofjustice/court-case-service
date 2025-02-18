@@ -2,6 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.controller.model
 
 data class HearingSarResponse (
     val hearingId: String,
-    val hearingNotesSarResponse: List<HearingNotesSarResponse>,
-    val hearingOutcomeSarResponse: List<HearingOutcomeSarResponse>
+    val notes: List<HearingNotesSarResponse>,
+    val outcomes: List<HearingOutcomeSarResponse> = emptyList()
 )

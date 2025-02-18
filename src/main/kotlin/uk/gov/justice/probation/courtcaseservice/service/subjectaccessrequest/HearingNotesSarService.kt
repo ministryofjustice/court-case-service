@@ -15,15 +15,13 @@ class HearingNotesSarService(
 ) {
 
     fun getHearingNotes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?,toDate: LocalDate?): List<HearingNotesSarResponse> {
-        val hearingNotes = getFilteredHearingNotes(hearingDefendant, fromDate, toDate)
+        val hearingNotes = filterHearingNotesByDate(hearingDefendant, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))
 
         return hearingNotesResponse(hearingNotes)
     }
 
     private fun hearingNotesResponse(hearingNotes: List<HearingNoteEntity>): List<HearingNotesSarResponse> {
-        return hearingNotes.filter {
-            note -> !note.isDraft && !note.isDeleted
-        }.map { note -> HearingNotesSarResponse(
+        return hearingNotes.map { note -> HearingNotesSarResponse(
             note.note,
             getSurname(note.author)
         ) }
@@ -31,10 +29,6 @@ class HearingNotesSarService(
 
     private fun getSurname(name: String): String {
         return name.split(" ").last()
-    }
-
-    private fun getFilteredHearingNotes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?, toDate: LocalDate?): List<HearingNoteEntity> {
-        return filterHearingNotesByDate(hearingDefendant, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))
     }
 
     private fun filterHearingNotesByDate(hearingDefendant: HearingDefendantEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): List<HearingNoteEntity> {

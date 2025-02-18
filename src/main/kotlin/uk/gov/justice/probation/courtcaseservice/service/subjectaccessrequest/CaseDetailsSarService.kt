@@ -1,8 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service.subjectaccessrequest
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.probation.courtcaseservice.controller.model.CaseSarResponse
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSarResponse
+import uk.gov.justice.probation.courtcaseservice.controller.model.*
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendantRepository
 import java.time.LocalDate
@@ -22,31 +21,42 @@ class CaseDetailsSarService(val hearingDefendantRepository: HearingDefendantRepo
             val courtCase = hearing.courtCase
             val hearingOutcomes = hearingOutcomesService.getHearingOutcomes(hearingDefendant, fromDate, toDate)
             val hearingNotes = hearingNotesService.getHearingNotes(hearingDefendant, fromDate, toDate)
+            val hearingSarResponse = hearingSarResponse(hearing.hearingId, hearingNotes, hearingOutcomes)
+            val caseComments = defendantCaseCommentsService.getCaseCommentsForDefendant(hearingDefendant, fromDate, toDate)
 
-            if (getCase(cases, courtCase.urn) != null) {
-                getCase(cases, courtCase.urn)?.hearings?.add(HearingSarResponse(hearing.hearingId, hearingNotes, hearingOutcomes))
+            val existingCase = getCase(cases, courtCase.urn)
+            if (existingCase != null) {
+                hearingSarResponse?.let { existingCase.hearings.add(it) }
             } else {
-                val caseComments = defendantCaseCommentsService.getCaseCommentsForCaseDefendant(courtCase.urn, hearingDefendant, fromDate, toDate)
-                val case = CaseSarResponse(courtCase.urn, mutableListOf(HearingSarResponse(hearing.hearingId, hearingNotes, hearingOutcomes)), caseComments)
-                cases.add(case)
+                val case = getCaseSarResponse(courtCase.urn, caseComments, hearingSarResponse)
+                case?.let { cases.add(it) }
             }
         }
-        // TODO: use findByCaseIdAndDefendantIdAndDeletedFalse to get case comments for each case
-        // TODO: test with multiple court_cases
-        // TODO: should we be returning deleted notes?
-        // TODO: should the cases or hearings be sorted by date?
-        // o each hearings have new defendant ids or does it share the same defendant id ?
-        // TODO: if empty return null?
-        // TODO: can case urn be null? As in a case has no urn
-        // TODO: check if fk_hearing_defendant_id is on hearing_notes if not then no notes show up
         return cases
     }
 
     private fun getCase(cases: List<CaseSarResponse>, caseUrn: String): CaseSarResponse? {
-        return cases.find { it.caseUrn == caseUrn }
+        return cases.find { it.urn == caseUrn }
     }
 
     private fun getHearingDefendants(crn: String): List<HearingDefendantEntity> {
         return hearingDefendantRepository.findAllByDefendantCrn(crn)
+    }
+
+    private fun getCaseSarResponse(urn: String, caseComments: List<CaseCommentsSarResponse>, hearing: HearingSarResponse?): CaseSarResponse? {
+        if (caseComments.isEmpty() && hearing == null) {
+            return null
+        } else if (hearing == null) {
+            return CaseSarResponse(urn, mutableListOf(), caseComments)
+        }
+        return CaseSarResponse(urn, mutableListOf(hearing), caseComments)
+    }
+
+    private fun hearingSarResponse(hearingId: String, notes: List<HearingNotesSarResponse>, outcomes: List<HearingOutcomeSarResponse>): HearingSarResponse? {
+        return if (notes.isEmpty() && outcomes.isEmpty()) {
+            null
+        } else {
+            HearingSarResponse(hearingId, notes, outcomes)
+        }
     }
 }

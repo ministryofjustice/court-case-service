@@ -24,7 +24,6 @@ class HearingNotesSarService(
         return hearingNotes.filter {
             note -> !note.isDraft && !note.isDeleted
         }.map { note -> HearingNotesSarResponse(
-            note.hearingId,
             note.note,
             getSurname(note.author)
         ) }
@@ -40,18 +39,18 @@ class HearingNotesSarService(
 
     private fun filterHearingNotesByDate(hearingDefendant: HearingDefendantEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): List<HearingNoteEntity> {
         if(fromDate != null && toDate != null) {
-            return hearingNoteRepository.findAllByHearingDefendantIdAndCreatedBetween(
+            return hearingNoteRepository.findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBetween(
                 hearingDefendant.id,
                 fromDate,
                 toDate
             )
         } else if(fromDate != null) {
-            return hearingNoteRepository.findAllByHearingDefendantIdAndCreatedAfter(
+            return hearingNoteRepository.findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedAfter(
                 hearingDefendant.id,
                 fromDate
             )
         } else if(toDate != null) {
-            return hearingNoteRepository.findAllByHearingDefendantIdAndCreatedBefore(
+            return hearingNoteRepository.findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBefore(
                 hearingDefendant.id,
                 toDate
             )

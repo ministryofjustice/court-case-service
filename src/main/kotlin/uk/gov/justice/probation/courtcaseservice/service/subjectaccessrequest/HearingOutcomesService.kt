@@ -5,23 +5,21 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcome
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSarResponse
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingOutcomeEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepository
 import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.chrono.ChronoLocalDateTime
 
 @Service
-class HearingOutcomesService(
-    val hearingOutcomeRepository: HearingOutcomeRepository
-) {
+class HearingOutcomesService {
 
     fun getHearingOutcomes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?,toDate: LocalDate?): List<HearingOutcomeSarResponse> {
         return hearingOutcomesResponse(hearingDefendant, fromDate, toDate)
     }
 
     private fun hearingOutcomesResponse(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?, toDate: LocalDate?): List<HearingOutcomeSarResponse> {
-        return getFilteredHearingOutcomes(hearingDefendant, fromDate, toDate).map {
+        return filteredHearingOutcomesByDate(hearingDefendant, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX)).map {
                 hearingOutcome ->
             HearingOutcomeSarResponse(
                 HearingOutcomeType.valueOf(hearingOutcome.outcomeType).value,
@@ -33,32 +31,44 @@ class HearingOutcomesService(
             )
         }
     }
-    private fun getFilteredHearingOutcomes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?, toDate: LocalDate?): List<HearingOutcomeEntity> {
-        return filteredHearingOutcomesByDate(hearingDefendant, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))
-    }
 
     private fun getSurname(name: String): String {
         return name.split(" ").last()
     }
 
     private fun filteredHearingOutcomesByDate(hearingDefendant: HearingDefendantEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): List<HearingOutcomeEntity> {
-        if(fromDate != null && toDate != null) {
-            return hearingOutcomeRepository.findAllByHearingDefendantIdAndCreatedBetween(
-                hearingDefendant.id,
-                fromDate,
-                toDate
-            )
-        } else if(fromDate != null) {
-            return hearingOutcomeRepository.findAllByHearingDefendantIdAndCreatedAfter(
-                hearingDefendant.id,
-                fromDate
-            )
-        } else if(toDate != null) {
-            return hearingOutcomeRepository.findAllByHearingDefendantIdAndCreatedBefore(
-                hearingDefendant.id,
-                toDate
-            )
+        val outcome = hearingDefendant.hearingOutcome ?: return emptyList()
+        if (outcome.isDeleted || outcome.isLegacy) {
+            return emptyList()
         }
-        return hearingOutcomeRepository.findByHearingDefendantId(hearingDefendant.id)
+        if(fromDate != null && toDate != null) {
+            return outcomes(outcome, fromDate, toDate)
+        } else if(fromDate != null) {
+            return outcomesAfter(outcome, fromDate)
+        } else if(toDate != null) {
+            return outcomesBefore(outcome, toDate)
+        }
+        return listOf(outcome)
+    }
+
+    private fun outcomes(outcome: HearingOutcomeEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): List<HearingOutcomeEntity> {
+        if (outcome.created >= ChronoLocalDateTime.from(fromDate) && outcome.created <= ChronoLocalDateTime.from(toDate)) {
+            return listOf(outcome)
+        }
+        return emptyList()
+    }
+
+    private fun outcomesAfter(outcome: HearingOutcomeEntity, fromDate: LocalDateTime?): List<HearingOutcomeEntity> {
+        if (outcome.created >= ChronoLocalDateTime.from(fromDate)) {
+            return listOf(outcome)
+        }
+        return emptyList()
+    }
+
+    private fun outcomesBefore(outcome: HearingOutcomeEntity, toDate: LocalDateTime?): List<HearingOutcomeEntity>  {
+        if (outcome.created <= ChronoLocalDateTime.from(toDate)){
+            return listOf(outcome)
+        }
+        return emptyList()
     }
 }

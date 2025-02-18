@@ -44,7 +44,6 @@ internal class HearingNotesSarServiceTest {
 
         Assertions.assertThat(hearingNotesService.getHearingNotes(dbHearingDefendantEntity, null, null))
             .isEqualTo(listOf(HearingNotesSarResponse(
-                "UUID",
                 "This is a fake note",
                 authorSurname
             )))
@@ -60,17 +59,16 @@ internal class HearingNotesSarServiceTest {
 
         val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
 
-        BDDMockito.given(hearingNoteRepository.findAllByHearingDefendantIdAndCreatedBetween(dbHearingDefendantEntity.id, fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX)))
+        BDDMockito.given(hearingNoteRepository.findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBetween(dbHearingDefendantEntity.id, fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX)))
             .willReturn(dbHearingDefendantEntity.notes)
 
         Assertions.assertThat(hearingNotesService.getHearingNotes(dbHearingDefendantEntity, hearingNoteCreatedDate.toLocalDate(), toDate))
             .isEqualTo(listOf(HearingNotesSarResponse(
-                "UUID",
                 "This is a fake note",
                 "Taker"
             )))
 
-        Mockito.verify(hearingNoteRepository).findAllByHearingDefendantIdAndCreatedBetween(dbHearingDefendantEntity.id, fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX))
+        Mockito.verify(hearingNoteRepository).findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBetween(dbHearingDefendantEntity.id, fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX))
     }
 
     @Test
@@ -80,17 +78,16 @@ internal class HearingNotesSarServiceTest {
 
         val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
 
-        BDDMockito.given(hearingNoteRepository.findAllByHearingDefendantIdAndCreatedAfter(dbHearingDefendantEntity.id, fromDate.atStartOfDay()))
+        BDDMockito.given(hearingNoteRepository.findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedAfter(dbHearingDefendantEntity.id, fromDate.atStartOfDay()))
             .willReturn(dbHearingDefendantEntity.notes)
 
         Assertions.assertThat(hearingNotesService.getHearingNotes(dbHearingDefendantEntity, hearingNoteCreatedDate.toLocalDate(), null))
             .isEqualTo(listOf(HearingNotesSarResponse(
-                "UUID",
                 "This is a fake note",
                 "Taker"
             )))
 
-        Mockito.verify(hearingNoteRepository).findAllByHearingDefendantIdAndCreatedAfter(dbHearingDefendantEntity.id, fromDate.atStartOfDay())
+        Mockito.verify(hearingNoteRepository).findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedAfter(dbHearingDefendantEntity.id, fromDate.atStartOfDay())
     }
 
     @Test
@@ -100,17 +97,16 @@ internal class HearingNotesSarServiceTest {
 
         val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
 
-        BDDMockito.given(hearingNoteRepository.findAllByHearingDefendantIdAndCreatedBefore(dbHearingDefendantEntity.id, toDate.atTime(LocalTime.MAX)))
+        BDDMockito.given(hearingNoteRepository.findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBefore(dbHearingDefendantEntity.id, toDate.atTime(LocalTime.MAX)))
             .willReturn(dbHearingDefendantEntity.notes)
 
         Assertions.assertThat(hearingNotesService.getHearingNotes(dbHearingDefendantEntity, null, toDate))
             .isEqualTo(listOf(HearingNotesSarResponse(
-                "UUID",
                 "This is a fake note",
                 "Taker"
             )))
 
-        Mockito.verify(hearingNoteRepository).findAllByHearingDefendantIdAndCreatedBefore(dbHearingDefendantEntity.id, toDate.atTime(LocalTime.MAX))
+        Mockito.verify(hearingNoteRepository).findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBefore(dbHearingDefendantEntity.id, toDate.atTime(LocalTime.MAX))
     }
 
     @Test
@@ -121,17 +117,16 @@ internal class HearingNotesSarServiceTest {
 
         val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
 
-        BDDMockito.given(hearingNoteRepository.findAllByHearingDefendantIdAndCreatedBetween(dbHearingDefendantEntity.id, fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX)))
+        BDDMockito.given(hearingNoteRepository.findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBetween(dbHearingDefendantEntity.id, fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX)))
             .willReturn(dbHearingDefendantEntity.notes)
 
         Assertions.assertThat(hearingNotesService.getHearingNotes(dbHearingDefendantEntity, fromDate, toDate))
             .isEqualTo(listOf(HearingNotesSarResponse(
-                "UUID",
                 "This is a fake note",
                 "Taker"
             )))
 
-        Mockito.verify(hearingNoteRepository).findAllByHearingDefendantIdAndCreatedBetween(dbHearingDefendantEntity.id, fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX))
+        Mockito.verify(hearingNoteRepository).findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBetween(dbHearingDefendantEntity.id, fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX))
     }
 
     @Test
@@ -143,7 +138,7 @@ internal class HearingNotesSarServiceTest {
         val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
         dbHearingDefendantEntity.notes.map { it.isDeleted = true }
 
-        BDDMockito.given(hearingNoteRepository.findAllByHearingDefendantIdAndCreatedBetween(dbHearingDefendantEntity.id, fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX)))
+        BDDMockito.given(hearingNoteRepository.findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBetween(dbHearingDefendantEntity.id, fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX)))
             .willReturn(dbHearingDefendantEntity.notes)
 
         Assertions.assertThat(hearingNotesService.getHearingNotes(dbHearingDefendantEntity, fromDate, toDate)).isEmpty()

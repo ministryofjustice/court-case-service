@@ -21,7 +21,6 @@ class DefendantCaseCommentsService(
 
     private fun caseCommentsSarResponses(caseCommentEntities: List<CaseCommentEntity>): List<CaseCommentsSarResponse> =
         caseCommentEntities
-            .stream()
             .map { caseComment ->
                 if (caseComment.isDraft || caseComment.isDeleted || caseComment.isLegacy){
                     return@map null
@@ -34,7 +33,7 @@ class DefendantCaseCommentsService(
                     getLastUpdatedBy(caseComment.lastUpdatedBy),
                     getCaseNumber(caseComment)
                 )
-            }.toList()
+            }.filterNotNull()
 
     private fun getSurname(name: String): String {
         return name.split(" ").last()

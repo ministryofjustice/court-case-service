@@ -16,7 +16,6 @@ import reactor.core.publisher.Mono;
 public class Pinger {
 
     @Value("${health.default-ping-path}")
-    @Setter
     private String path;
 
     public Mono<Health> ping(WebClient webClient) {

@@ -1,69 +1,75 @@
 package uk.gov.justice.probation.courtcaseservice.service.subjectaccessrequest
 
 import org.springframework.stereotype.Service
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSarResponse
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingOutcomeEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendantRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepository
+import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.chrono.ChronoLocalDateTime
 
 @Service
-class HearingOutcomesService(
-    val hearingDefendantRepository: HearingDefendantRepository,
-    val hearingOutcomeRepository: HearingOutcomeRepository
-) {
-
-    fun getHearingOutcomes(crn: String,fromDate: LocalDate?,toDate: LocalDate?): List<HearingOutcomeSarResponse> {
-        val hearingDefendants: List<HearingDefendantEntity> = hearingDefendantRepository.findAllByDefendantCrn(crn)
-        return hearingOutcomesResponse(hearingDefendants, fromDate, toDate)
-
+class HearingOutcomesService {
+    fun getHearingOutcomes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?,toDate: LocalDate?): List<HearingOutcomeSarResponse> {
+        return hearingOutcomesResponse(hearingDefendant, fromDate, toDate)
     }
 
-    private fun getHearingDefendants(crn: String): List<HearingDefendantEntity> {
-        return hearingDefendantRepository.findAllByDefendantCrn(crn)
-    }
-
-
-    private fun hearingOutcomesResponse(hearingDefendants: List<HearingDefendantEntity>, fromDate: LocalDate?, toDate: LocalDate?): List<HearingOutcomeSarResponse> {
-        return getFilteredHearingOutcomes(hearingDefendants, fromDate, toDate).map {
-                hearingOutcome ->
-            HearingOutcomeSarResponse(
-                hearingOutcome.outcomeType,
-                hearingOutcome.outcomeDate,
-                hearingOutcome.resultedDate,
-                hearingOutcome.state,
-                hearingOutcome.assignedTo,
-                hearingOutcome.created
+    private fun hearingOutcomesResponse(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?, toDate: LocalDate?): List<HearingOutcomeSarResponse> {
+        filteredHearingOutcomesByDate(hearingDefendant, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))?.let {
+            return listOf(
+                HearingOutcomeSarResponse(
+                    HearingOutcomeType.valueOf(it.outcomeType).value,
+                    it.outcomeDate,
+                    it.resultedDate,
+                    HearingOutcomeItemState.valueOf(it.state).value,
+                    getSurname(it.assignedTo),
+                    it.created
+                )
             )
         }
-    }
-    private fun getFilteredHearingOutcomes(hearingDefendants: List<HearingDefendantEntity>, fromDate: LocalDate?, toDate: LocalDate?): List<HearingOutcomeEntity> {
-        return hearingDefendants.flatMap() {
-            filteredHearingOutcomesByDate(it, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))
-        }.mapNotNull { it }
+        return emptyList()
     }
 
-    private fun filteredHearingOutcomesByDate(hearingDefendant: HearingDefendantEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): List<HearingOutcomeEntity> {
+    private fun getSurname(name: String): String {
+        return name.split(" ").last()
+    }
+
+    private fun filteredHearingOutcomesByDate(hearingDefendant: HearingDefendantEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): HearingOutcomeEntity? {
+        val outcome = hearingDefendant.hearingOutcome ?: return null
+        if (outcome.isDeleted || outcome.isLegacy) {
+            return null
+        }
         if(fromDate != null && toDate != null) {
-            return hearingOutcomeRepository.findAllByHearingDefendantIdAndCreatedBetween(
-                hearingDefendant.id,
-                fromDate,
-                toDate
-            )
+            return outcomeBetweenDates(outcome, fromDate, toDate)
         } else if(fromDate != null) {
-            return hearingOutcomeRepository.findAllByHearingDefendantIdAndCreatedAfter(
-                hearingDefendant.id,
-                fromDate
-            )
+            return outcomeAfterDate(outcome, fromDate)
         } else if(toDate != null) {
-            return hearingOutcomeRepository.findAllByHearingDefendantIdAndCreatedBefore(
-                hearingDefendant.id,
-                toDate
-            )
+            return outcomeBeforeDate(outcome, toDate)
         }
-        return hearingOutcomeRepository.findByHearingDefendantId(hearingDefendant.id)
+        return outcome
+    }
+
+    private fun outcomeBetweenDates(outcome: HearingOutcomeEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): HearingOutcomeEntity? {
+        if (outcome.created >= ChronoLocalDateTime.from(fromDate) && outcome.created <= ChronoLocalDateTime.from(toDate)) {
+            return outcome
+        }
+        return null
+    }
+
+    private fun outcomeAfterDate(outcome: HearingOutcomeEntity, fromDate: LocalDateTime?): HearingOutcomeEntity? {
+        if (outcome.created >= ChronoLocalDateTime.from(fromDate)) {
+            return outcome
+        }
+        return null
+    }
+
+    private fun outcomeBeforeDate(outcome: HearingOutcomeEntity, toDate: LocalDateTime?): HearingOutcomeEntity?  {
+        if (outcome.created <= ChronoLocalDateTime.from(toDate)){
+            return outcome
+        }
+        return null
     }
 }

@@ -1,5 +1,5 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model
 
-enum class HearingOutcomeItemState {
-    NEW, IN_PROGRESS, RESULTED
+enum class HearingOutcomeItemState(val value: String) {
+    NEW("New"), IN_PROGRESS("In progress"), RESULTED("Resulted")
 }

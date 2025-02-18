@@ -8,7 +8,7 @@ import java.time.LocalDate
 
 @Service
 class SubjectAccessRequestService(
-    private val defendantCaseCommentsService: DefendantCaseCommentsService, val hearingNotesService: HearingNotesSARService, val hearingOutcomesService: HearingOutcomesService
+    private val caseDetailsSarService: CaseDetailsSarService
 ): HmppsProbationSubjectAccessRequestService {
 
     override fun getProbationContentFor(
@@ -16,13 +16,12 @@ class SubjectAccessRequestService(
         fromDate: LocalDate?,
         toDate: LocalDate?
     ): HmppsSubjectAccessRequestContent? {
-        val hearingOutcomes = hearingOutcomesService.getHearingOutcomes(crn, fromDate, toDate)
-        val hearingNotes = hearingNotesService.getHearingNotes(crn, fromDate, toDate)
-        val caseComments = defendantCaseCommentsService.getCaseCommentsForDefendant(crn, fromDate, toDate)
+        val cases = caseDetailsSarService.getCaseSARDetails(crn, fromDate, toDate)
 
-        if(hearingNotes.isEmpty() && hearingOutcomes.isEmpty() && caseComments.isEmpty()) {
+        if(cases.isEmpty()) {
             return null
         }
-        return HmppsSubjectAccessRequestContent(ContentSarResponse(caseComments, hearingOutcomes, hearingNotes))
+
+        return HmppsSubjectAccessRequestContent(ContentSarResponse(cases))
     }
 }

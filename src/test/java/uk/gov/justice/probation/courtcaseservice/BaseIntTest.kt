@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.RegisterExtension
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
@@ -19,6 +18,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import software.amazon.awssdk.services.sqs.SqsAsyncClient
 import software.amazon.awssdk.services.sqs.model.GetQueueAttributesRequest
 import software.amazon.awssdk.services.sqs.model.QueueAttributeName
@@ -48,7 +48,7 @@ abstract class BaseIntTest {
   @Autowired
   protected lateinit var hmppsQueueService: HmppsQueueService
 
-  @SpyBean
+  @MockitoSpyBean
   protected lateinit var inboundMessageServiceSpy: HmppsQueueService
 
   //Topic
@@ -109,11 +109,10 @@ abstract class BaseIntTest {
 
     protected val AWAITILITY_DURATION = Duration.ofSeconds(20)
 
-    public val WIRE_MOCK_SERVER = WiremockMockServer( TestConfig.WIREMOCK_PORT)
+    val WIRE_MOCK_SERVER = WiremockMockServer( TestConfig.WIREMOCK_PORT)
 
     @RegisterExtension
     var wiremockExtension = WiremockExtension(WIRE_MOCK_SERVER)
-
 
       @JvmStatic
       @BeforeAll
@@ -135,6 +134,8 @@ abstract class BaseIntTest {
   class OverrideConfiguration {
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
+      // Usage of securityMatcher to replace the multiTenantHeaderFilterChain bean
+      http.securityMatcher("/**")
       return http.csrf { it.disable() }
         .sessionManagement{ it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)}
         .oauth2Client {}

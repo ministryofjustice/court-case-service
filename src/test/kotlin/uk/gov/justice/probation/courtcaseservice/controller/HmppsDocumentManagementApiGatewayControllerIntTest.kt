@@ -66,6 +66,7 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
                 .willReturn(
                     aResponse().withStatus(201).withBody(DOCUMENT_MANAGEMENT_API_UPLOAD_RESPONSE)
                         .withHeader("Content-type", MediaType.APPLICATION_JSON_VALUE)
+                        .withHeader("Content-Length", DOCUMENT_MANAGEMENT_API_UPLOAD_RESPONSE.length.toString())
                 )
         )
 
@@ -86,7 +87,7 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
             .containsExactlyInAnyOrder("test-upload-file.txt", "test-upload-file-get.txt")
 
         Assertions.assertThat(caseDefendantDocument).extracting("documentId").isNotNull()
-        var expected = caseDefendantDocument.find { 1L == it.id }
+        val expected = caseDefendantDocument.find { 1L == it.id }
         response
             .body("id", equalTo(expected?.documentId))
             .body("file.name", equalTo("test-upload-file.txt"))
@@ -119,6 +120,7 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
                 .willReturn(
                     aResponse().withStatus(200)
                         .withBody("test file upload content")
+                        .withHeader("Content-length", "24")
                         .withHeader("Content-type", MediaType.TEXT_PLAIN_VALUE)
                         .withHeader(
                             HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"test-upload-file.txt\""

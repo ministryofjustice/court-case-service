@@ -77,7 +77,7 @@ spring:
       schema: courtcaseservice
   flyway:
     defaultSchema: courtcaseservice
-    locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local, filesystem:src/test/resources/sql, filesystem:src/test/resources
+    locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local, filesystem:src/test/resources
   jpa:
     show-sql: true
     properties:

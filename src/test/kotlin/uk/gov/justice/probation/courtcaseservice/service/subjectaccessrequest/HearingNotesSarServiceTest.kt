@@ -46,6 +46,9 @@ internal class HearingNotesSarServiceTest {
             .isEqualTo(listOf(HearingNotesSarResponse(
                 "This is a fake note",
                 authorSurname
+            ), HearingNotesSarResponse(
+                "This is a fake note",
+                "Taker"
             )))
 
         Mockito.verify(hearingNoteRepository).findByHearingDefendantId(dbHearingDefendantEntity.id)
@@ -64,6 +67,9 @@ internal class HearingNotesSarServiceTest {
 
         Assertions.assertThat(hearingNotesService.getHearingNotes(dbHearingDefendantEntity, hearingNoteCreatedDate.toLocalDate(), toDate))
             .isEqualTo(listOf(HearingNotesSarResponse(
+                "This is a fake note",
+                "Taker"
+            ), HearingNotesSarResponse(
                 "This is a fake note",
                 "Taker"
             )))
@@ -85,6 +91,9 @@ internal class HearingNotesSarServiceTest {
             .isEqualTo(listOf(HearingNotesSarResponse(
                 "This is a fake note",
                 "Taker"
+            ), HearingNotesSarResponse(
+                "This is a fake note",
+                "Taker"
             )))
 
         Mockito.verify(hearingNoteRepository).findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedAfter(dbHearingDefendantEntity.id, fromDate.atStartOfDay())
@@ -102,6 +111,9 @@ internal class HearingNotesSarServiceTest {
 
         Assertions.assertThat(hearingNotesService.getHearingNotes(dbHearingDefendantEntity, null, toDate))
             .isEqualTo(listOf(HearingNotesSarResponse(
+                "This is a fake note",
+                "Taker"
+            ), HearingNotesSarResponse(
                 "This is a fake note",
                 "Taker"
             )))
@@ -124,6 +136,9 @@ internal class HearingNotesSarServiceTest {
             .isEqualTo(listOf(HearingNotesSarResponse(
                 "This is a fake note",
                 "Taker"
+            ), HearingNotesSarResponse(
+                "This is a fake note",
+                "Taker"
             )))
 
         Mockito.verify(hearingNoteRepository).findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBetween(dbHearingDefendantEntity.id, fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX))
@@ -139,7 +154,7 @@ internal class HearingNotesSarServiceTest {
         dbHearingDefendantEntity.notes.map { it.isDeleted = true }
 
         BDDMockito.given(hearingNoteRepository.findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBetween(dbHearingDefendantEntity.id, fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX)))
-            .willReturn(dbHearingDefendantEntity.notes)
+            .willReturn(listOf())
 
         Assertions.assertThat(hearingNotesService.getHearingNotes(dbHearingDefendantEntity, fromDate, toDate)).isEmpty()
     }

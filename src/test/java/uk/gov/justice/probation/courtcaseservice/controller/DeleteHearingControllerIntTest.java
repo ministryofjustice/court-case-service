@@ -20,7 +20,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TE
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken;
 
-@Sql(scripts = {"classpath:sql/before-common.sql",
+@Sql(scripts = { "classpath:sql/before-common.sql",
         "classpath:sql/before-HearingRepositoryDeleteIntTest.sql" }, config = @SqlConfig(transactionMode = ISOLATED), executionPhase = BEFORE_TEST_METHOD)
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 class DeleteHearingControllerIntTest extends BaseIntTest {

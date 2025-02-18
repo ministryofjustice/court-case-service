@@ -5,12 +5,13 @@ INSERT INTO OFFENDER (id, crn, probation_status, previously_known_termination_da
 VALUES (-99, 'X12345', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test');
 
 INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, created_by, created_by_uuid, last_updated, last_updated_by) VALUES (-1700028900, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '0048297a-fd9c-4c96-8c03-8122b802a54d', 'PSR in progress', 'Author One', '2024-05-21 09:45:55.597', 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', '2024-04-08 09:45:55.597', 'LastUpdatedAuthor(prepare-a-case)');
-INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, created_by, created_by_uuid, last_updated, last_updated_by) VALUES (-1700028903, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '0048297a-fd9c-4c96-8c03-8122b802a54d', 'PSR in progress', 'Author Three', '2024-04-21 09:45:55.597', 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', '2024-03-08 09:45:55.597', 'LastUpdatedAuthor3(prepare-a-case)');
+INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, created_by, created_by_uuid, last_updated, last_updated_by) VALUES (-1700028903, 'fe657c3a-b674-4e17-8772-7281c99e4f9f', 'd665dfc6-f9fc-4d88-b72c-3980b18dc4e7', 'PSR in progress', 'Author Three', '2024-04-21 09:45:55.597', 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', '2024-03-08 09:45:55.597', 'LastUpdatedAuthor3(prepare-a-case)');
+INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, created_by, created_by_uuid, last_updated, last_updated_by, is_draft) VALUES (-1700028904, 'fe657c3a-b674-4e17-8772-7281c99e4f9f', 'd665dfc6-f9fc-4d88-b72c-3980b18dc4e7', 'comment is drafted', 'Author Three', '2024-04-21 09:45:55.597', 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', '2024-03-08 09:45:55.597', 'LastUpdatedAuthor3(prepare-a-case)', true);
 
 -- Ferris Bueller
 INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, deleted, created_by, created_by_uuid) VALUES (-1700028901, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '1148297a-fd9c-4c96-8c03-8122b802a54d', 'PSR completed', 'Author One', now(), true, 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81');
-INSERT INTO court_case (id, case_id, case_no, created, source_type)
-VALUES (-198, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '1600028888', '2022-03-23 17:59:59.000', 'LIBRA');
+INSERT INTO court_case (id, case_id, case_no, created, source_type, urn)
+VALUES (-198, '727af2a3-f9ec-4544-b5ef-2ec3ec0fcf2b', '1600028888', '2022-03-23 17:59:59.000', 'LIBRA', 'URN');
 INSERT INTO hearing (id, fk_court_case_id, hearing_id, created, list_no)
 VALUES (-198, -198, '5564cbfd-3d53-4f36-9508-437416b08738', '2022-03-23 17:59:59.000', '3rd');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
@@ -22,27 +23,29 @@ VALUES (-198, -198, '2022-03-23 16:59:59.000', '0048297a-fd9c-4c96-8c03-8122b802
 INSERT INTO HEARING_OUTCOME (id, outcome_type, outcome_date, state, created, created_by, assigned_to, assigned_to_uuid, resulted_date, fk_hearing_id, fk_hearing_defendant_id)
 VALUES (-198, 'ADJOURNED', '2023-4-24 09:09:09', 'IN_PROGRESS', '2023-04-01 09:09:09', 'before-test', 'John Smith', '8f69def4-3c52-11ee-be56-0242ac120002', '2023-4-25 09:09:09', -198, -198);
 INSERT INTO HEARING_NOTES (id, hearing_id, note, author, created, created_by, created_by_uuid, last_updated, last_updated_by, deleted, version, draft, fk_hearing_defendant_id, legacy)
-VALUES (-198,'fe657c3a-b674-4e17-8772-7281c99e4f9f','This is a test comment by the Prepare a case digital team.','John Doe','2022-10-10 10:17:58.985318','user(prepare-a-case-for-court)','fefac6dc-0533-47e9-bf6a-35b4992d9d85','2022-10-10 10:17:58.985318','user(prepare-a-case-for-court)',false,0,false,-198,false);
+VALUES (-198,'5564cbfd-3d53-4f36-9508-437416b08738','This is a test comment by the Prepare a case digital team.','John Doe','2022-10-10 10:17:58.985318','user(prepare-a-case-for-court)','fefac6dc-0533-47e9-bf6a-35b4992d9d85','2022-10-10 10:17:58.985318','user(prepare-a-case-for-court)',false,0,false,-198,false);
 
 -- For null listNo int test
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)
 VALUES (-198, -198, 'Theft from a garage', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 17:59:59.000');
-INSERT INTO court_case (id, case_id, case_no, created, source_type)
-VALUES (-184, 'fe657c3a-b674-4e17-8772-7281c99e4f9f', '1600028888', '2022-03-23 17:59:59.000', 'COMMON_PLATFORM');
+INSERT INTO court_case (id, case_id, case_no, created, source_type, urn)
+VALUES (-184, 'fe657c3a-b674-4e17-8772-7281c99e4f9f', '1777727777', '2022-03-23 17:59:59.000', 'COMMON_PLATFORM', 'URN2');
 INSERT INTO hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-184, -184, 'fe657c3a-b674-4e17-8772-7281c99e4f9f', '2022-03-23 17:59:59.000');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
 VALUES (-184, -184, 'B33HU', 1, '2022-3-25', '09:00', '2022-03-23 17:59:59.000');
+INSERT INTO DEFENDANT (id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, type, date_of_birth, crn, sex, created, FK_OFFENDER_ID)
+VALUES (-184, 'd665dfc6-f9fc-4d88-b72c-3980b18dc4e7', '732cce04-4b9e-11ed-bdc3-0242ac120002', 'Mr Ferris BUELLER', '{"title": "Mr", "surname": "BUELLER", "forename1": "Ferris", "forename2": "Antimony"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', 'X25829', 'MALE', '2022-03-23 17:59:59.000', -100);
 INSERT INTO HEARING_DEFENDANT (id, fk_hearing_id, created, defendant_id, FK_DEFENDANT_ID)
-VALUES (-184, -184, '2022-03-23 16:59:59.000', '0048297a-fd9c-4c96-8c03-8122b802a54d', -198);
+VALUES (-184, -184, '2022-03-23 16:59:59.000', 'd665dfc6-f9fc-4d88-b72c-3980b18dc4e7', -198);
 INSERT INTO HEARING_NOTES (id, hearing_id, note, author, created, created_by, created_by_uuid, last_updated, last_updated_by, deleted, version, draft, fk_hearing_defendant_id, legacy)
-VALUES (-184,'fe657c3a-b674-4e17-8772-7281c99e4f9f','This is a test comment by the Prepare a case digital team.','John Doe','2022-10-10 10:17:58.985318','user(prepare-a-case-for-court)','fefac6dc-0533-47e9-bf6a-35b4992d9d85','2022-10-10 10:17:58.985318','user(prepare-a-case-for-court)',false,0,false,-184,false);
+VALUES (-184,'fe657c3a-b674-4e17-8772-7281c99e4f9f','This is a test comment by the Prepare a case digital team.','Fake House','2022-10-10 10:17:58.985318','user(prepare-a-case-for-court)','fefac6dc-0533-47e9-bf6a-35b4992d9d85','2022-10-10 10:17:58.985318','user(prepare-a-case-for-court)',false,0,false,-184,false);
 
 -- Initial creation of Royston Vasey - Error case - offender referenced by CRN does not exist
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)
 VALUES (-184, -184, 'Theft from a garage', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 17:59:59.000');
-INSERT INTO court_case (id, case_id, case_no, created, source_type)
-VALUES (-197, '2d85ba01-676e-409f-9336-815c4ce90f04', '1600028913', '2022-03-23 16:59:59.000', 'COMMON_PLATFORM');
+INSERT INTO court_case (id, case_id, case_no, created, source_type, urn)
+VALUES (-197, '2d85ba01-676e-409f-9336-815c4ce90f04', '1600028913', '2022-03-23 16:59:59.000', 'COMMON_PLATFORM', 'URN3');
 INSERT INTO hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-197, -197, 'db63e9b5-6263-4235-9c4e-a99e200ae33e', '2022-03-23 16:59:59.000');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
@@ -54,11 +57,11 @@ VALUES (-197, -197, '2022-03-23 16:59:59.000', 'd1a4f1b7-b153-4740-b68a-2b84feff
 
 
 -- Case list
-INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, deleted, created_by, created_by_uuid, last_updated, last_updated_by) VALUES (-1700028902, '3a3f5334-34c7-4caa-9b7a-9495663ea2da', '62d57ee8-a7a6-4b36-857d-8ced9e2aac9b', 'PSR completed', 'Author Two', '2024-05-22 09:45:55.597', true, 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', '2024-04-09 09:45:55.597', 'LastUpdatedAuthor2(prepare-a-case)');
+INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created, deleted, created_by, created_by_uuid, last_updated, last_updated_by) VALUES (-1700028902, '3a3f5334-34c7-4caa-9b7a-9495663ea2da', '62d57ee8-a7a6-4b36-857d-8ced9e2aac9b', 'PSR completed', 'Author Two', '2024-05-22 09:45:55.597', false, 'before-test.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', '2024-04-09 09:45:55.597', 'LastUpdatedAuthor2(prepare-a-case)');
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)
 VALUES (-197, -197, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 16:59:59.000');
-INSERT INTO court_case (id, case_id, case_no, created, source_type)
-VALUES (-195, '3a3f5334-34c7-4caa-9b7a-9495663ea2da', '1600028913', '2022-03-23 16:59:59.001', 'COMMON_PLATFORM');
+INSERT INTO court_case (id, case_id, case_no, created, source_type, urn)
+VALUES (-195, '3a3f5334-34c7-4caa-9b7a-9495663ea2da', '1600028913', '2022-03-23 16:59:59.001', 'COMMON_PLATFORM', 'URN4');
 INSERT INTO hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-195, -195, '1bfff8b7-fbc6-413f-8545-8299c26f75bd', '2022-03-23 16:59:59.001');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
@@ -70,8 +73,8 @@ VALUES (-195, -195, '2022-03-23 16:59:59.000', '62d57ee8-a7a6-4b36-857d-8ced9e2a
 
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)
 VALUES (-195, -195, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 16:59:59.001');
-INSERT INTO court_case (id, case_id, case_no, created, source_type)
-VALUES (-193, '3d54c880-c44e-4331-b310-02350bebc1bf', '1600028913', '2022-03-23 16:59:59.001', 'COMMON_PLATFORM');
+INSERT INTO court_case (id, case_id, case_no, created, source_type, urn)
+VALUES (-193, '3d54c880-c44e-4331-b310-02350bebc1bf', '1600028913', '2022-03-23 16:59:59.001', 'COMMON_PLATFORM', 'URN5');
 INSERT INTO hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-193, -193, 'e7fa5afa-55ed-4029-9414-614a406d4938', '2022-03-23 16:59:59.001');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
@@ -84,8 +87,8 @@ VALUES (-193, -193, '2022-03-23 16:59:59.000', '58e61be2-d535-4d8c-a121-30e104ff
 -- Update
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)
 VALUES (-193, -193, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 16:59:59.001');
-INSERT INTO court_case (id, case_id, case_no, created, source_type)
-VALUES (-191, '6ce742e2-6539-4380-a9b6-2241a9854ae8', '1600028913', '2022-03-23 16:59:59.001', 'COMMON_PLATFORM');
+INSERT INTO court_case (id, case_id, case_no, created, source_type, urn)
+VALUES (-191, '6ce742e2-6539-4380-a9b6-2241a9854ae8', '1600028913', '2022-03-23 16:59:59.001', 'COMMON_PLATFORM', 'URN5');
 INSERT INTO hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-191, -191, '7c1ccb0e-399a-4a28-a866-f52c139735f6', '2022-03-23 16:59:59.001');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
@@ -98,8 +101,8 @@ VALUES (-191, -191, '2022-03-23 16:59:59.000', 'bfdf6193-61c1-44df-b496-96d2e1c1
 -- Update
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)
 VALUES (-191, -191, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 16:59:59.001');
-INSERT INTO court_case (id, case_id, case_no, created, source_type)
-VALUES (-189, '608c4229-2ca9-4e9c-a18e-62023bd1ef49', '1600028913', '2022-03-23 16:59:59.001', 'COMMON_PLATFORM');
+INSERT INTO court_case (id, case_id, case_no, created, source_type, urn)
+VALUES (-189, '608c4229-2ca9-4e9c-a18e-62023bd1ef49', '1600028913', '2022-03-23 16:59:59.001', 'COMMON_PLATFORM', 'URN6');
 INSERT INTO hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-189, -189, 'c27c0f42-7287-43f7-96dd-47c402358842', '2022-03-23 16:59:59.001');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
@@ -112,8 +115,8 @@ VALUES (-189, -189, '2022-03-23 16:59:59.000', 'bfa32fc4-bba0-4197-b795-3e1a85a8
 -- Update
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)
 VALUES (-189, -189, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 16:59:59.001');
-INSERT INTO court_case (id, case_id, case_no, created, source_type)
-VALUES (-187, 'f56f87c3-de79-4deb-b23d-b99cd91ba21d', '1600028913', '2022-03-23 16:59:59.001', 'COMMON_PLATFORM');
+INSERT INTO court_case (id, case_id, case_no, created, source_type, urn)
+VALUES (-187, 'f56f87c3-de79-4deb-b23d-b99cd91ba21d', '1600028913', '2022-03-23 16:59:59.001', 'COMMON_PLATFORM', 'URN7');
 INSERT INTO hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-187, -187, 'c12be6d5-2d6e-432b-a147-94c49171ef1d', '2022-03-23 16:59:59.001');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
@@ -131,8 +134,8 @@ INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE,
 VALUES (-187, -187, 'Theft from a shop', 'On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1, '2022-03-23 16:59:59.001');
 
 -- Update
-INSERT INTO court_case (id, case_id, case_no, created, source_type)
-VALUES (-185, 'fc696266-3ed9-451a-bc85-e1d27186e649', '1600028913', '2022-03-23 16:59:59.002', 'COMMON_PLATFORM');
+INSERT INTO court_case (id, case_id, case_no, created, source_type, urn)
+VALUES (-185, 'fc696266-3ed9-451a-bc85-e1d27186e649', '1600028913', '2022-03-23 16:59:59.002', 'COMMON_PLATFORM', 'URN8');
 INSERT INTO hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-185, -185, '961f6b9d-ae7e-4998-9d5d-4f56ceadce99', '2022-03-23 16:59:59.002');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)

@@ -449,9 +449,6 @@ class  OffenderServiceTest {
             when(documentRestClient.getDocumentsByCrn(CRN)).thenReturn(Mono.just(groupedDocuments));
             when(assessmentsRestClient.getAssessmentsByCrn(CRN)).thenReturn(Mono.empty());
 
-            // throw ConnectException to simulate server side connection issues
-            when(offenderRestClient.getBreaches(CRN, CONVICTION_ID)).thenReturn(Mono.error(new ConnectException("Connection refused")));
-
             // this actually throws `<reactor.core.Exceptions$ReactiveException: java.net.ConnectException: Connection refused>`
             // but i can't figure out how to test for that
             assertThatExceptionOfType(RuntimeException.class)

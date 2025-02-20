@@ -21,6 +21,7 @@ public class OAuth2SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .securityMatcher("/**")
                 // Can't have CSRF protection as requires session
                 .csrf().disable()
                 .sessionManagement()

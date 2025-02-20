@@ -1,12 +1,12 @@
 package uk.gov.justice.probation.courtcaseservice.application;
 
-import com.google.common.net.HttpHeaders;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.testcontainers.shaded.com.google.common.net.HttpHeaders;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;

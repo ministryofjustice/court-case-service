@@ -11,8 +11,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import reactor.core.publisher.Mono;
@@ -95,20 +95,20 @@ class PrepareACaseConsumerVerificationPactTest extends BaseIntTest {
     private static final String DEFENDANT_ID = "062c670d-fdf6-441f-99e1-d2ce0c3a3846";
     private static final String CASE_ID_2 = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00";
     private static final String DEFENDANT_ID_2 = "40db17d6-04db-11ec-b2d8-0242ac130002";
-    @MockBean
-    private OffenderService offenderService;
-    @MockBean
-    private OffenderMatchService offenderMatchService;
-    @MockBean
-    private CustodyService custodyService;
-    @MockBean(answer = Answers.CALLS_REAL_METHODS)
-    private CourtCaseService courtCaseService;
-    @MockBean
-    private OffenderUpdateService offenderUpdateService;
-    @MockBean
-    private CaseCommentsService caseCommentsService;
-    @MockBean
-    private AuthenticationHelper authenticationHelper;
+    @MockitoBean
+    OffenderService offenderService;
+    @MockitoBean
+    OffenderMatchService offenderMatchService;
+    @MockitoBean
+    CustodyService custodyService;
+    @MockitoBean(answers = Answers.RETURNS_DEEP_STUBS)
+    CourtCaseService courtCaseService;
+    @MockitoBean
+    OffenderUpdateService offenderUpdateService;
+    @MockitoBean
+    CaseCommentsService caseCommentsService;
+    @MockitoBean
+    AuthenticationHelper authenticationHelper;
 
     @BeforeEach
     void setupTestTarget(PactVerificationContext context) {

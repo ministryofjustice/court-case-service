@@ -11,8 +11,8 @@ import au.com.dius.pact.provider.spring.junit5.PactVerificationSpringProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
@@ -55,11 +55,11 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 @ActiveProfiles("unsecured")
 class CourtCaseMatcherVerificationPactTest extends BaseIntTest {
 
-    @MockBean
-    private OffenderMatchService offenderMatchService;
+    @MockitoBean
+    OffenderMatchService offenderMatchService;
 
-    @MockBean
-    private CourtCaseService courtCaseService;
+    @MockitoBean
+    CourtCaseService courtCaseService;
 
     @BeforeEach
     void setupTestTarget(PactVerificationContext context) {

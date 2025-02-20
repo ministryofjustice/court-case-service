@@ -20,9 +20,8 @@ public class CourtCaseInitService {
     @Transactional
     public Optional<HearingEntity> initializeHearing(String hearingId) {
         var hearing = hearingRepositoryFacade.findFirstByHearingId(hearingId);
-        if(hearing.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
-            Hibernate.initialize(hearing.get().getHearingDefendants().getFirst().getNotes());
-        }
+        //Hibernate initialize seems to have issues if mapping over an optional
+        hearing.ifPresent(hearingEntity -> Hibernate.initialize(hearingEntity.getHearingDefendants().getFirst().getNotes()));
         return hearing;
     }
 }

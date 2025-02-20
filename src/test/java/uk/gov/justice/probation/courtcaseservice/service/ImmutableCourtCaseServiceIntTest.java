@@ -5,8 +5,8 @@ import jakarta.persistence.EntityManager;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
@@ -38,7 +38,7 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
     public static final String DEFENDANT_ID_2 = "9b165f40-ecc1-4cf1-bb69-41504de8c0d5";
     @Autowired
     private ImmutableCourtCaseService courtCaseService;
-    @MockBean
+    @MockitoBean
     private CourtRepository courtRepository;
     @Autowired
     OffenderRepository offenderRepository;

@@ -70,7 +70,7 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
                 )
         )
 
-        var response = RestAssured.given()
+        val response = RestAssured.given()
             .multiPart("file", File("./src/test/resources/document-upload/test-upload-file.txt"))
             .auth()
             .oauth2(TokenHelper.getToken())
@@ -87,7 +87,7 @@ internal class HmppsDocumentManagementApiGatewayControllerIntTest: BaseIntTest()
             .containsExactlyInAnyOrder("test-upload-file.txt", "test-upload-file-get.txt")
 
         Assertions.assertThat(caseDefendantDocument).extracting("documentId").isNotNull()
-        val expected = caseDefendantDocument.find { 1L == it.id }
+        val expected = caseDefendantDocument.find { it.documentName == "test-upload-file.txt" }
         response
             .body("id", equalTo(expected?.documentId))
             .body("file.name", equalTo("test-upload-file.txt"))

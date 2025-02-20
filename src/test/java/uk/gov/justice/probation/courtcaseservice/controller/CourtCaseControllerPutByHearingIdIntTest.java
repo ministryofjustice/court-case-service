@@ -21,7 +21,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository;
 import uk.gov.justice.probation.courtcaseservice.listener.EventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.CourtCaseInitService;
@@ -60,9 +59,6 @@ import static uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.get
 @Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
-
-    @Autowired
-    HearingRepositoryFacade courtCaseRepository;
 
     @Autowired
     CourtCaseInitService courtCaseInitService;
@@ -238,14 +234,14 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             assertThat(hearingEntity.getCourtCase().getUrn()).isEqualTo(URN);
             assertThat(hearingEntity.getHearingEventType().getName()).isEqualTo("ConfirmedOrUpdated");
             assertThat(hearingEntity.getHearingType()).isEqualTo("sentenced");
-            assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("listNo").containsOnly(5, 8);
-            assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("shortTermCustodyPredictorScore")
+            assertThat(hearingEntity.getHearingDefendants().getFirst().getOffences()).extracting("listNo").containsOnly(5, 8);
+            assertThat(hearingEntity.getHearingDefendants().getFirst().getOffences()).extracting("shortTermCustodyPredictorScore")
                 .containsOnly(BigDecimal.valueOf(0.0036438124189185897), BigDecimal.valueOf(0.0036438124189185897));
-            assertThat(hearingEntity.getHearingDefendants().get(0).getOffences()).extracting("dataModelVersion")
+            assertThat(hearingEntity.getHearingDefendants().getFirst().getOffences()).extracting("dataModelVersion")
                     .containsOnly("1.3", "1.3");
-            assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPhoneNumber()).isEqualTo(
+            assertThat(hearingEntity.getHearingDefendants().getFirst().getDefendant().getPhoneNumber()).isEqualTo(
                     PhoneNumberEntity.builder().home("07000000013").mobile("07000000014").work("07000000015").build());
-            assertThat(hearingEntity.getHearingDefendants().get(0).getDefendant().getPersonId()).isNotBlank();
+            assertThat(hearingEntity.getHearingDefendants().getFirst().getDefendant().getPersonId()).isNotBlank();
         }, () -> fail("Court case not created as expected"));
 
         offenderRepository.findByCrn(CRN).ifPresentOrElse(off -> {

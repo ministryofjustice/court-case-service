@@ -18,7 +18,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import software.amazon.awssdk.services.sqs.SqsAsyncClient
 import software.amazon.awssdk.services.sqs.model.GetQueueAttributesRequest
 import software.amazon.awssdk.services.sqs.model.QueueAttributeName
@@ -48,13 +47,8 @@ abstract class BaseIntTest {
   @Autowired
   protected lateinit var hmppsQueueService: HmppsQueueService
 
-  @MockitoSpyBean
-  protected lateinit var inboundMessageServiceSpy: HmppsQueueService
-
   //Topic
   protected val offenderEventTopic by lazy { hmppsQueueService.findByTopicId("probationoffenderevents") ?: throw MissingQueueException("probationoffenderevents topic not found") }
-
-  internal val hmppsDomainEvents by lazy { hmppsQueueService.findByTopicId("hmppsdomainevents") as HmppsTopic }
 
   internal val domainEventsTopic by lazy { hmppsQueueService.findByTopicId("domainevents") as HmppsTopic }
   internal val domainEventsTopicArn by lazy { domainEventsTopic.arn }

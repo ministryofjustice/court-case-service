@@ -20,9 +20,8 @@ public class OAuth2SecurityConfig {
     @SuppressWarnings("removal")
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Usage of securityMatcher to replace the multiTenantHeaderFilterChain bean
-        http.securityMatcher("/**");
         http
+                .securityMatcher("/**")
                 // Can't have CSRF protection as requires session
                 .csrf().disable()
                 .sessionManagement()

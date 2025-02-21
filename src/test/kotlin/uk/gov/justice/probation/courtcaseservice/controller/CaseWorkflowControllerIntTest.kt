@@ -179,7 +179,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
     }
 
     @Test
-    fun `given court code and outcome state IN_PROGRESS and assinged to user, should return outcomes corectly`() {
+    fun `given court code and outcome state IN_PROGRESS and assignedto user, should return outcomes correctly`() {
 
         val courtCode = "B10JQ"
 
@@ -299,7 +299,6 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
                 .put("/hearing/{hearingId}/defendant/{defendantId}/outcome/assign", UNKNOWN_HEARING_ID, DEFENDANT_ID)
                 .then()
                 .statusCode(404)
-
     }
 
     @Test
@@ -317,6 +316,60 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .statusCode(200)
 
         val hearing = hearingEntityInitService.findFirstByHearingId(hearingId).get();
+        val hearingOutcome = hearing.hearingDefendants[0].hearingOutcome
+        assertThat(hearingOutcome.state).isEqualTo("RESULTED")
+        assertThat(hearingOutcome.resultedDate).isNotNull()
+    }
+
+    @Test
+    fun `given hearing id with outcome in IN_PROGRESS state, place the case on hold`() {
+
+        val hearingId = "ddfe6b75-c3fc-4ed0-9bf6-21d66b125636"
+
+        given()
+            .auth()
+            .oauth2(TokenHelper.getToken("4b03d065-4c96-4b24-8d6d-75a45d2e3f12"))
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .`when`()
+            .put("/hearing/{hearingId}/defendant/{defendantId}/outcome/hold", hearingId, DEFENDANT_ID)
+            .then()
+            .statusCode(200)
+
+        val hearing = hearingRepository.findFirstByHearingId(hearingId).get()
+        val hearingOutcome = hearing.hearingDefendants[0].hearingOutcome
+        assertThat(hearingOutcome.state).isEqualTo("ON_HOLD")
+    }
+
+    @Test
+    fun `given an unknown hearing id hold should return a 404 response `() {
+        given()
+            .auth()
+            .oauth2(TokenHelper.getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(HEARING_OUTCOME_ASSIGN_REQUEST)
+            .`when`()
+            .put("/hearing/{hearingId}/defendant/{defendantId}/outcome/hold", UNKNOWN_HEARING_ID, DEFENDANT_ID)
+            .then()
+            .statusCode(404)
+    }
+
+    @Test
+    fun `given hearing id with outcome in ON_HOLD state, result the case`() {
+
+        val hearingId = "69c1cd8c-16a0-11ef-9262-0242ac120002"
+        given()
+            .auth()
+            .oauth2(TokenHelper.getToken("4b03d065-4c96-4b24-8d6d-75a45d2e3f12"))
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .`when`()
+            .post("/hearing/{hearingId}/defendant/{defendantId}/outcome/result", hearingId, DEFENDANT_ID)
+            .then()
+            .statusCode(200)
+
+        val hearing = hearingRepository.findFirstByHearingId(hearingId).get()
         val hearingOutcome = hearing.hearingDefendants[0].hearingOutcome
         assertThat(hearingOutcome.state).isEqualTo("RESULTED")
         assertThat(hearingOutcome.resultedDate).isNotNull()

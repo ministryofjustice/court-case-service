@@ -4,6 +4,7 @@ import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingCourtCaseDTO;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -277,6 +278,20 @@ public class TelemetryService {
         properties.put("authSource", String.valueOf(authSource));
 
         telemetryClient.trackEvent(TelemetryEventType.PIC_RESULT_OUTCOME_NOT_ASSIGNED_TO_CURRENT_USER.eventName, properties, Collections.emptyMap());
+    }
+
+    void trackDeleteHearingEvent(TelemetryEventType eventType, HearingCourtCaseDTO hearing, boolean featureFlag) {
+
+        Map<String, String> properties = new HashMap<>();
+
+        ofNullable(hearing.getHearingId())
+                .ifPresent(id -> properties.put("hearingId", id));
+        ofNullable(hearing.getCaseId())
+                .ifPresent(caseId -> properties.put("caseId", caseId));
+        Optional.of(featureFlag)
+                .ifPresent(deleteHearingIsEnabled -> properties.put("deleteHearingIsEnabled", deleteHearingIsEnabled.toString()));
+
+        telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }
 
     private void addRequestProperties(Map<String, String> properties) {

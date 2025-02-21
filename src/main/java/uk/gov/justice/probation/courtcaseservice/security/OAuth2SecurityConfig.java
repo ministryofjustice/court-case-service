@@ -21,6 +21,7 @@ public class OAuth2SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .securityMatcher("/**")
                 // Can't have CSRF protection as requires session
                 .csrf().disable()
                 .sessionManagement()
@@ -37,7 +38,8 @@ public class OAuth2SecurityConfig {
                             "/swagger-ui/**",
                             "/v3/api-docs/**",
                             "/queue-admin/retry-all-dlqs",
-                            "/process-un-resulted-cases"
+                            "/process-un-resulted-cases",
+                            "/hearing/delete-duplicates"
                         ).permitAll()
                         .anyRequest().hasAnyRole("PREPARE_A_CASE", "SAR_DATA_ACCESS")
                     ).oauth2ResourceServer().jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());

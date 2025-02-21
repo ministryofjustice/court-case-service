@@ -121,7 +121,7 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .body("cases[0].hearingDate", equalTo("2019-10-14"))
             .body("cases[0].defendantId", equalTo("40db17d6-04db-11ec-b2d8-0242ac130002"))
             .body("cases[0].defendantName", equalTo("Mr Johnny BALL"))
-            .body("cases[0].offences", equalTo(listOf("Theft from a different shop", "Theft from a shop")))
+            .body("cases[0].offences", equalTo(listOf("Theft from a shop", "Theft from a different shop")))
             .body("cases[0].probationStatus", equalTo("Current"))
             .body("courtRoomFilters", contains("2"))
             .body("countsByState.toResultCount", equalTo(1))
@@ -350,6 +350,8 @@ internal class CaseWorkflowControllerIntTest: BaseIntTest() {
             .body("get(6).label", equalTo("No outcome"))
             .body("get(9).value", equalTo("TRIAL"))
             .body("get(9).label", equalTo("Trial"))
+            .body("get(11).value", equalTo("FINE"))
+            .body("get(11).label", equalTo("Fine"))
     }
 
     @Test

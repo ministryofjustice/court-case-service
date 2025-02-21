@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Bean
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlConfig
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
@@ -33,7 +33,7 @@ internal class CaseWorkflowServiceIntTest {
     lateinit var caseWorkflowService: CaseWorkflowService
     @Autowired
     lateinit var hearingRepository: HearingRepository
-    @MockBean
+    @MockitoBean
     lateinit var telemetryService: TelemetryService
 
     @Test
@@ -43,17 +43,17 @@ internal class CaseWorkflowServiceIntTest {
         caseWorkflowService.processUnResultedCases()
 
         // Then
-        val ho1 = hearingRepository.findFirstByHearingId("2aa6f5e0-f842-4939-bc6a-01346abc09e7").get().hearingDefendants[0].hearingOutcome
+        val ho1 = hearingRepository.findFirstByHearingIdOrderByCreatedDesc("2aa6f5e0-f842-4939-bc6a-01346abc09e7").get().hearingDefendants[0].hearingOutcome
 
         assertThat(ho1.outcomeType).isEqualTo(HearingOutcomeType.ADJOURNED.name)
         assertThat(ho1.state).isEqualTo(HearingOutcomeItemState.RESULTED.name)
 
-        val ho2 = hearingRepository.findFirstByHearingId("1f93aa0a-7e46-4885-a1cb-f25a4be33a00").get().hearingDefendants[0].hearingOutcome
+        val ho2 = hearingRepository.findFirstByHearingIdOrderByCreatedDesc("1f93aa0a-7e46-4885-a1cb-f25a4be33a00").get().hearingDefendants[0].hearingOutcome
 
         assertThat(ho2.outcomeType).isEqualTo(HearingOutcomeType.NO_OUTCOME.name)
         assertThat(ho2.state).isEqualTo(HearingOutcomeItemState.NEW.name)
 
-        val ho3 = hearingRepository.findFirstByHearingId("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636").get().hearingDefendants[0].hearingOutcome
+        val ho3 = hearingRepository.findFirstByHearingIdOrderByCreatedDesc("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636").get().hearingDefendants[0].hearingOutcome
         assertThat(ho3).isNull()
     }
 
@@ -64,12 +64,12 @@ internal class CaseWorkflowServiceIntTest {
         caseWorkflowService.processUnResultedCases()
 
         // Then
-        val ho1 = hearingRepository.findFirstByHearingId("2aa6f5e0-f842-4939-bc6a-01346abc09e7").get().hearingDefendants[0].hearingOutcome
+        val ho1 = hearingRepository.findFirstByHearingIdOrderByCreatedDesc("2aa6f5e0-f842-4939-bc6a-01346abc09e7").get().hearingDefendants[0].hearingOutcome
 
         assertThat(ho1.outcomeType).isEqualTo(HearingOutcomeType.ADJOURNED.name)
         assertThat(ho1.state).isEqualTo(HearingOutcomeItemState.RESULTED.name)
 
-        var hearingEntity = hearingRepository.findFirstByHearingId("1f93aa0a-7e46-4885-a1cb-f25a4be33a00").get()
+        var hearingEntity = hearingRepository.findFirstByHearingIdOrderByCreatedDesc("1f93aa0a-7e46-4885-a1cb-f25a4be33a00").get()
 
         var hearingDefendantEntity = hearingEntity.hearingDefendants
         assertThat(hearingDefendantEntity.size).isEqualTo(1)
@@ -82,7 +82,7 @@ internal class CaseWorkflowServiceIntTest {
         //run the job second time
         caseWorkflowService.processUnResultedCases()
 
-        hearingEntity = hearingRepository.findFirstByHearingId("1f93aa0a-7e46-4885-a1cb-f25a4be33a00").get()
+        hearingEntity = hearingRepository.findFirstByHearingIdOrderByCreatedDesc("1f93aa0a-7e46-4885-a1cb-f25a4be33a00").get()
 
         hearingDefendantEntity = hearingEntity.hearingDefendants
         assertThat(hearingDefendantEntity.size).isEqualTo(1)

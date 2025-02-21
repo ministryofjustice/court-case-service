@@ -490,21 +490,21 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                     .body("createdToday", equalTo(true))
                     .body("numberOfPossibleMatches", equalTo(3))
                     .body("caseComments", hasSize(3))
-                    .body("caseComments[0].commentId", equalTo(-1700028903))
-                    .body("caseComments[0].comment", equalTo("PSR completed"))
-                    .body("caseComments[0].author", equalTo("Author Two"))
+                    .body("caseComments[2].commentId", equalTo(-1700028903))
+                    .body("caseComments[2].comment", equalTo("PSR completed"))
+                    .body("caseComments[2].author", equalTo("Author Two"))
                     .body("caseComments[1].commentId", equalTo(-1700028902))
                     .body("caseComments[1].comment", equalTo("PSR completed"))
                     .body("caseComments[1].author", equalTo("Author Two"))
                     .body("caseComments[1].legacy", equalTo(true))
-                    .body("caseComments[2].commentId", equalTo(-1700028900))
-                    .body("caseComments[2].draft", equalTo(false))
-                    .body("files[0].id", equalTo("042bab62-afa6-4409-9d51-6cdf6d05bd04"))
-                    .body("files[0].file.name", equalTo("test-upload-file-get-two.txt"))
-                    .body("files[0].datetime", equalTo("2024-03-02T16:59:59"))
-                    .body("files[1].id", equalTo("3cfd7d45-6f62-438e-ad64-ef3d911dfe38"))
-                    .body("files[1].file.name", equalTo("test-upload-file-get.txt"))
-                    .body("files[1].datetime", equalTo("2024-03-01T16:59:59"))
+                    .body("caseComments[0].commentId", equalTo(-1700028900))
+                    .body("caseComments[0].draft", equalTo(false))
+                    .body("files[1].id", equalTo("042bab62-afa6-4409-9d51-6cdf6d05bd04"))
+                    .body("files[1].file.name", equalTo("test-upload-file-get-two.txt"))
+                    .body("files[1].datetime", equalTo("2024-03-02T16:59:59"))
+                    .body("files[0].id", equalTo("3cfd7d45-6f62-438e-ad64-ef3d911dfe38"))
+                    .body("files[0].file.name", equalTo("test-upload-file-get.txt"))
+                    .body("files[0].datetime", equalTo("2024-03-01T16:59:59"))
             ;
         }
 
@@ -756,6 +756,52 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                     .body("hearingDays[0].courtRoom", equalTo(COURT_ROOM))
                     .body("hearingDays[0].listNo", equalTo("3rd"))
                     .body("hearingDays[0].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(9, 0)).format(DateTimeFormatter.ISO_DATE_TIME)));
+        }
+
+        @Test
+        void givenExistingHearing_whenGetCaseByHearingIdAndCaseId_thenReturnIntTest() {
+            given()
+                    .auth()
+                    .oauth2(getToken())
+                    .when()
+                    .header("Accept", "application/json")
+                    .get("/hearing/{hearingId}/case/{courtCaseId}", "1f93aa0a-7e46-4885-a1cb-f25a4be33a00", "1f93aa0a-7e46-4885-a1cb-f25a4be33a00")
+                    .then()
+                    .statusCode(200)
+                    .body("source", equalTo("LIBRA"))
+                    .body("caseNo", equalTo("1600028913"))
+                    .body("caseId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
+                    .body("urn", equalTo("URN008"))
+                    .body("hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
+                    .body("defendants", hasSize(1))
+                    .body("defendants[0].type", equalTo("PERSON"))
+                    .body("defendants[0].phoneNumber.mobile", equalTo("07000000007"))
+                    .body("defendants[0].phoneNumber.home", equalTo("07000000013"))
+                    .body("defendants[0].phoneNumber.work", equalTo("07000000015"))
+                    .body("defendants[0].name.title", equalTo("Mr"))
+                    .body("defendants[0].name.forename1", equalTo("Johnny"))
+                    .body("defendants[0].name.surname", equalTo("BALL"))
+                    .body("defendants[0].offences", hasSize(2))
+                    .body("defendants[0].offences[0].offenceTitle", equalTo("Theft from a shop"))
+                    .body("defendants[0].offences[0].listNo", equalTo(10))
+                    .body("defendants[0].offender.pnc", equalTo("PNCINT007"))
+                    .body("hearingDays", hasSize(1))
+                    .body("hearingDays[0].courtCode", equalTo(COURT_CODE))
+                    .body("hearingDays[0].courtRoom", equalTo(COURT_ROOM))
+                    .body("hearingDays[0].listNo", equalTo("3rd"))
+                    .body("hearingDays[0].sessionStartTime", equalTo(LocalDateTime.of(DECEMBER_14, LocalTime.of(9, 0)).format(DateTimeFormatter.ISO_DATE_TIME)));
+        }
+
+        @Test
+        void givenExistingHearing_whenGetCaseByHearingIdAndInvalidCaseId_thenReturn404() {
+            given()
+                    .auth()
+                    .oauth2(getToken())
+                    .when()
+                    .header("Accept", "application/json")
+                    .get("/hearing/{hearingId}/case/{courtCaseId}", "1f93aa0a-7e46-4885-a1cb-f25a4be33a00", "1f93aa0a-7e46-4885-a1cb-f25a4be33a10")
+                    .then()
+                    .statusCode(404);
         }
     }
 }

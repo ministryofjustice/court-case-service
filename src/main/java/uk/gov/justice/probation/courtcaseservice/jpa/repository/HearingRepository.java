@@ -14,9 +14,14 @@ import java.util.Optional;
 @Repository
 public interface HearingRepository extends CrudRepository<HearingEntity, Long>, HearingSearchRepositoryCustom {
 
-    Optional<HearingEntity> findFirstByHearingId(String hearingId);
+    Optional<HearingEntity> findFirstByHearingIdOrderByCreatedDesc(String hearingId);
+
+    Optional<HearingEntity> findByHearingIdAndCourtCaseCaseIdAndDeletedFalse(String hearingId, String courtCaseCaseId);
 
     Optional<HearingEntity> findFirstByHearingDefendantsDefendantId(String defendantId);
+
+
+    Optional<HearingEntity> findByHearingIdAndHearingDefendantsDefendantIdAndDeletedFalse(String hearingId, String defendantId);
 
     @Query(value = "select h.* from court_case cc " +
         "join hearing h on cc.id = h.fk_court_case_id " +
@@ -81,7 +86,8 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
     @Query(value = "select * from hearing where id in (" +
         "select max(h.id) from hearing h, court_case cc where " +
         "cc.case_id = :caseId " +
-        "and h.fk_court_case_id = cc.id group by h.hearing_id)",
+        "and h.deleted = false " +
+        "and h.fk_court_case_id = cc.id group by h.hearing_id) ",
         nativeQuery = true)
     Optional<List<HearingEntity>> findHearingsByCaseId(String caseId);
 

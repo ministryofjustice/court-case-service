@@ -2,6 +2,7 @@ feature:
   flags:
     disable-auth: false
     fetch-sentence-data: true
+    delete-hearing: false
   event:
     probation-case:
       engagement.created: true
@@ -26,7 +27,7 @@ prison-api:
   base-url: http://localhost:8090
 
 nomis-oauth:
-  base-url: http://localhost:8090
+  base-url: http://localhost:8090/auth
 
 manage-offences-api:
   base-url: http://localhost:8090
@@ -54,13 +55,10 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
+          jwk-set-uri: ${nomis-oauth.base-url}/.well-known/jwks.json
 
   datasource:
-    url: jdbc:tc:postgresql:11.1:///courtcaseservicetest?currentSchema=courtcaseservicetest&stringtype=unspecified
-    username: ituser
-    password: itpass
-
+    url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=${database.schema.name}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
 
 delius:
   base-url: https://ndelius.test.probation.service.justice.gov.uk

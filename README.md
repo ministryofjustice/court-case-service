@@ -8,6 +8,10 @@ For more informations, check our [Runbook](https://dsdmoj.atlassian.net/wiki/spa
 
 ---
 
+## Testing
+
+`docker compose up localstack-court-case-service postgres`
+`./gradlew check`
 
 ## Quick Start
 This section contains the bare minimum you need to do to get the app running against the dev environment assuming you've got all the necessary dependencies (see Prerequisites section).

@@ -2,7 +2,7 @@ community-api:
   base-url: https://community-api-secure.test.delius.probation.hmpps.dsd.io
 
 nomis-oauth:
-  base-url: https://sign-in-dev.hmpps.service.justice.gov.uk
+  base-url: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
 
 offender-assessments-api:
   base-url: https://dev.devtest.assessment-api.hmpps.dsd.io
@@ -37,7 +37,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
+          jwk-set-uri: ${nomis-oauth.base-url}/.well-known/jwks.json
 
 azure:
   application-insights:

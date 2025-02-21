@@ -253,6 +253,7 @@ public class ExtendedHearingRequestResponse {
                         .caseMarkers(caseMarkerEntities)
                         .build())
                 .hearingId(Optional.ofNullable(hearingId).orElse(caseId))
+                .courtCaseId(caseId)
                 .hearingEventType(HearingEventType.fromString(hearingEventType))
                 .hearingType(hearingType)
                 .listNo(

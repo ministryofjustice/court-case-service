@@ -38,7 +38,7 @@ public class CaseCommentsService {
     public CaseCommentEntity createCaseComment(CaseCommentEntity caseComment) {
         String caseId = caseComment.getCaseId();
         var defendantId = caseComment.getDefendantId();
-        var courtCase =  courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId);
+        var courtCase =  courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(caseId);
         Hibernate.initialize(courtCase.map(CourtCaseEntity::getCaseDefendants));
         return courtCase.filter(courtCaseEntity -> courtCaseEntity.hasDefendant(defendantId))
             .map(courtCaseEntity -> {
@@ -73,7 +73,7 @@ public class CaseCommentsService {
 
         var caseId = caseComment.getCaseId();
         var defendantId = caseComment.getDefendantId();
-        return courtCaseRepository.findFirstByCaseIdOrderByIdDesc(caseId)
+        return courtCaseRepository.findFirstByCaseIdAndDeletedFalseOrderByIdDesc(caseId)
             .map(courtCaseEntity -> {
                 var commentToSave = caseCommentsRepository
                     .findByCaseIdAndDefendantIdAndCreatedByUuidAndDraftIsTrue(caseId, defendantId, caseComment.getCreatedByUuid())

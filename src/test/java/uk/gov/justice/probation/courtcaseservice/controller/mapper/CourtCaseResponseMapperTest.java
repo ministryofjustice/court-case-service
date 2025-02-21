@@ -2,6 +2,8 @@ package uk.gov.justice.probation.courtcaseservice.controller.mapper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceResponse;
@@ -47,7 +49,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.HEARING_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aDefendantOffence;
 
-
+@ExtendWith(MockitoExtension.class)
 class CourtCaseResponseMapperTest {
 
     private static final long ID = 1234L;
@@ -84,6 +86,7 @@ class CourtCaseResponseMapperTest {
     private static String DOCUMENT_ID = "document-id-one";
     private static String DOCUMENT_NAME = "document-name-one.pdf";
     private HearingEntity hearingEntity;
+
     private final AddressPropertiesEntity addressPropertiesEntity = AddressPropertiesEntity.builder()
             .line1("27")
             .line2("Elm Place")
@@ -104,7 +107,6 @@ class CourtCaseResponseMapperTest {
 
     @BeforeEach
     void setUp() {
-
         var hearings = Arrays.asList(
                 HearingDayEntity.builder()
                         .day(HEARING_DATE)
@@ -212,13 +214,11 @@ class CourtCaseResponseMapperTest {
 
     @Test
     void givenMultipleDefendants_whenMapByDefendantId_thenReturnCorrectDefendant() {
-
         var newName = NamePropertiesEntity.builder().surname("PRESLEY").forename1("Elvis").build();
         var defendant1 = buildDefendant(newName, OffenderEntity.builder().crn("D99999").build());
         var defendant2 = EntityHelper.aHearingDefendantEntity(DEFENDANT_ID);
 
         var courtCase = hearingEntity.withHearingDefendants(List.of(defendant1, defendant2));
-
 
         var response = CourtCaseResponseMapper.mapFrom(courtCase, "bd1f71e5-939b-4580-8354-7d6061a58032", 5, caseProgressHearings);
 
@@ -232,7 +232,6 @@ class CourtCaseResponseMapperTest {
 
     @Test
     void givenDefendantWithOffender_whenMapByDefendantId_thenReturnFieldsFromOffender() {
-
         final var name = NamePropertiesEntity.builder().surname("TICKELL").forename1("Katherine").build();
         final OffenderEntity offender = OffenderEntity.builder().crn("W99999")
                 .probationStatus(OffenderProbationStatus.PREVIOUSLY_KNOWN)

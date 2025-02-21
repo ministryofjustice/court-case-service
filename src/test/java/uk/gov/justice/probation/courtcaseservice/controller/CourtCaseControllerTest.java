@@ -3,12 +3,14 @@ package uk.gov.justice.probation.courtcaseservice.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.context.request.WebRequest;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.probation.courtcaseservice.controller.mapper.CourtCaseResponseMapper;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
@@ -18,13 +20,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteReq
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 import uk.gov.justice.probation.courtcaseservice.security.AuthAwareAuthenticationToken;
-import uk.gov.justice.probation.courtcaseservice.service.AuthenticationHelper;
-import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService;
-import uk.gov.justice.probation.courtcaseservice.service.CaseProgressService;
-import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
-import uk.gov.justice.probation.courtcaseservice.service.HearingNotesService;
-import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
-import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
+import uk.gov.justice.probation.courtcaseservice.service.*;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
@@ -45,10 +41,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
-import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.LIST_NO;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM;
 
 @ExtendWith(MockitoExtension.class)
@@ -100,6 +93,7 @@ class CourtCaseControllerTest {
                     HearingDefendantEntity.builder()
                             .defendant(DefendantEntity.builder()
                                     .defendantId(DEFENDANT_ID)
+                                    .name(NamePropertiesEntity.builder().forename1("Joe").surname("Bloggs").build())
                                     .build())
                             .build()
             ))
@@ -539,7 +533,14 @@ class CourtCaseControllerTest {
             null,
             LocalDate.of(2023, 7, 3),
             1,
-            5
+            5,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
         );
         given(courtCaseService.filterHearings(COURT_CODE, req)).willReturn(CaseListResponse.builder().build());
         var result = courtCaseController.getCaseList(COURT_CODE, req);

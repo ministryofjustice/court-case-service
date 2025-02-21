@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingCourtCaseDTO;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -359,6 +360,24 @@ class TelemetryServiceTest {
         assertThat(properties.get("crn")).isEqualTo(CRN);
         assertThat(properties.get("pnc")).isEqualTo(PNC);
         assertThat(properties.get("defendantId")).isEqualTo(DEFENDANT_ID);
+
+        assertThat(metricsCaptor.getValue()).isEmpty();
+    }
+
+    @Test
+    void giveHearingCourtCaseDTO_whenTrackDeleteHearingEvent_thenEmitTelemetryEvent() {
+
+        var hearingCourtCaseDTO = HearingCourtCaseDTO.builder().hearingId(HEARING_ID).caseId(CASE_ID).build();
+
+        service.trackDeleteHearingEvent(TelemetryEventType.PIC_DELETE_HEARING, hearingCourtCaseDTO, true);
+
+        verify(telemetryClient).trackEvent(eq("PiCDeleteHearing"), properties.capture(), metricsCaptor.capture());
+
+        var properties = this.properties.getValue();
+        assertThat(properties).hasSize(3);
+        assertThat(properties.get("caseId")).isEqualTo(CASE_ID);
+        assertThat(properties.get("hearingId")).isEqualTo(HEARING_ID);
+        assertThat(properties.get("deleteHearingIsEnabled")).isEqualTo("true");
 
         assertThat(metricsCaptor.getValue()).isEmpty();
     }

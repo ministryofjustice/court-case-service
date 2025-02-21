@@ -56,10 +56,14 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
     @Column(name = "HEARING_ID", nullable = false)
     private String hearingId;
 
+    @Column(name = "COURT_CASE_ID")
+    private String courtCaseId;
+
     @ManyToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "FK_COURT_CASE_ID", referencedColumnName = "id", nullable = false)
     @Setter
     private CourtCaseEntity courtCase;
+
 
     // If you have more than one collection with fetch = FetchType.EAGER then there is an exception
     // org.hibernate.loader.MultipleBagFetchException: cannot simultaneously fetch multiple bags

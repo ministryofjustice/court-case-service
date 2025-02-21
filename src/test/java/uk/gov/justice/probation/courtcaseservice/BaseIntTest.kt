@@ -1,44 +1,30 @@
 package uk.gov.justice.probation.courtcaseservice
 
 import org.awaitility.kotlin.*
-import org.junit.ClassRule
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
-import org.springframework.context.annotation.Profile
 import org.springframework.retry.annotation.EnableRetry
 import org.springframework.security.config.Customizer
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.containers.localstack.LocalStackContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.utility.DockerImageName
 import software.amazon.awssdk.services.sqs.SqsAsyncClient
 import software.amazon.awssdk.services.sqs.model.GetQueueAttributesRequest
 import software.amazon.awssdk.services.sqs.model.QueueAttributeName
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.HmppsTopic
 import uk.gov.justice.hmpps.sqs.MissingQueueException
-import uk.gov.justice.probation.courtcaseservice.controller.CCSPostgresqlContainer
 import uk.gov.justice.probation.courtcaseservice.security.AuthAwareTokenConverter
-import uk.gov.justice.probation.courtcaseservice.testcontainers.LocalStackHelper
-import uk.gov.justice.probation.courtcaseservice.testcontainers.LocalStackHelper.setLocalStackProperties
 import uk.gov.justice.probation.courtcaseservice.wiremock.WiremockExtension
 import uk.gov.justice.probation.courtcaseservice.wiremock.WiremockMockServer
 import java.time.Duration
@@ -61,13 +47,8 @@ abstract class BaseIntTest {
   @Autowired
   protected lateinit var hmppsQueueService: HmppsQueueService
 
-  @SpyBean
-  protected lateinit var inboundMessageServiceSpy: HmppsQueueService
-
   //Topic
   protected val offenderEventTopic by lazy { hmppsQueueService.findByTopicId("probationoffenderevents") ?: throw MissingQueueException("probationoffenderevents topic not found") }
-
-  internal val hmppsDomainEvents by lazy { hmppsQueueService.findByTopicId("hmppsdomainevents") as HmppsTopic }
 
   internal val domainEventsTopic by lazy { hmppsQueueService.findByTopicId("domainevents") as HmppsTopic }
   internal val domainEventsTopicArn by lazy { domainEventsTopic.arn }
@@ -100,6 +81,11 @@ abstract class BaseIntTest {
     }
   }
 
+  fun assertMessagesOnEmittedEventsQueue() {
+    await atMost AWAITILITY_DURATION untilCallTo { emittedEventsQueueSqsClient.countMessagesOnQueue(emittedEventsQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES) } matches { it == 2 }
+
+  }
+
   fun assertOffenderEventReceiverQueueHasProcessedMessages() {
     // ApproximateNumberOfMessagesNotVisible represents messages in flight. So for this case if this is 1 means the message has been consumed but still not deleted until then the value will be 1 and ApproximateNumberOfMessages is zero as the message is inflight.
     // We need to ensure the inflight message is processed before checking for ApproximateNumberOfMessages.
@@ -114,44 +100,27 @@ abstract class BaseIntTest {
 
 
   companion object {
-    private val localStackContainer = LocalStackHelper.instance
 
     protected val AWAITILITY_DURATION = Duration.ofSeconds(20)
 
-    @JvmStatic
-    @DynamicPropertySource
-    fun testcontainers(registry: DynamicPropertyRegistry) {
-      localStackContainer?.also { setLocalStackProperties(it, registry) }
-    }
-
-    public val WIRE_MOCK_SERVER = WiremockMockServer( TestConfig.WIREMOCK_PORT)
+    val WIRE_MOCK_SERVER = WiremockMockServer( TestConfig.WIREMOCK_PORT)
 
     @RegisterExtension
     var wiremockExtension = WiremockExtension(WIRE_MOCK_SERVER)
-    var localstackImage = DockerImageName.parse("localstack/localstack:1.17.3")
 
-    @Container
-    var postgresqlContainer: PostgreSQLContainer<*> = CCSPostgresqlContainer.getInstance()
+      @JvmStatic
+      @BeforeAll
+      @Throws(Exception::class)
+      fun setupClass(): Unit {
+          RetryService.tryWireMockStub()
+          WIRE_MOCK_SERVER.start()
+      }
 
-    @JvmField
-    @ClassRule
-    var localstack = LocalStackContainer(localstackImage)
-      .withServices(
-        LocalStackContainer.Service.SNS,
-        LocalStackContainer.EnabledService.named("events")
-      )
-
-    @BeforeAll
-    @Throws(Exception::class)
-    fun setupClass() {
-      RetryService.tryWireMockStub()
-      WIRE_MOCK_SERVER.start()
-    }
-
-    @AfterAll
-    fun afterAll() {
-      WIRE_MOCK_SERVER.stop()
-    }
+      @JvmStatic
+      @AfterAll
+      fun afterAll(): Unit {
+          WIRE_MOCK_SERVER.stop()
+      }
   }
 
   @TestConfiguration
@@ -159,6 +128,8 @@ abstract class BaseIntTest {
   class OverrideConfiguration {
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
+      // Usage of securityMatcher to replace the multiTenantHeaderFilterChain bean
+      http.securityMatcher("/**")
       return http.csrf { it.disable() }
         .sessionManagement{ it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)}
         .oauth2Client {}

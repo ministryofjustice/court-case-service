@@ -73,7 +73,7 @@ internal class HmppsDocumentManagementServiceTest {
             .urn(CASE_URN)
             .hearings(ArrayList<HearingEntity>())
             .build()
-        given(hearingRepositoryFacade.findFirstByHearingIdFileUpload(HEARING_ID)).willReturn(Optional.of(hearing))
+        given(hearingRepositoryFacade.findFirstByHearingIdFileUpload(HEARING_ID, DEFENDANT_ID)).willReturn(Optional.of(hearing))
 
         val courtCaseEntityKArgumentCapture = argumentCaptor<CourtCaseEntity>()
         given(courtCaseRepository.save(courtCaseEntityKArgumentCapture.capture())).willReturn(CourtCaseEntity.builder().build())
@@ -95,7 +95,7 @@ internal class HmppsDocumentManagementServiceTest {
 
             var resp = hmppsDocumentManagementService.uploadDocuments(HEARING_ID, DEFENDANT_ID, multipartFile)
 
-            verify(hearingRepositoryFacade).findFirstByHearingIdFileUpload(HEARING_ID)
+            verify(hearingRepositoryFacade).findFirstByHearingIdFileUpload(HEARING_ID, DEFENDANT_ID)
 
             Assertions.assertThat(resp.file.name).isEqualTo(fileName)
             Assertions.assertThat(resp.id).isEqualTo(defaultUuid.toString())
@@ -116,7 +116,7 @@ internal class HmppsDocumentManagementServiceTest {
     @Test
     fun `given hearing id and defendantId and defendantId not found, when upload document, should throw entity not found exception`() {
 
-        given(hearingRepositoryFacade.findFirstByHearingIdFileUpload(HEARING_ID)).willReturn(Optional.of(aHearingEntity()))
+        given(hearingRepositoryFacade.findFirstByHearingIdFileUpload(HEARING_ID, "invalid-defendant-id")).willReturn(Optional.of(aHearingEntity()))
 
         var e = assertThrows(EntityNotFoundException::class.java) {
             hmppsDocumentManagementService.uploadDocuments(
@@ -137,7 +137,7 @@ internal class HmppsDocumentManagementServiceTest {
         val caseDefendant = courtCaseEntity.addCaseDefendant(aDefendantEntity())
         caseDefendant.createDocument(DOCUMENT_ID, FILE_NAME)
 
-        given(hearingRepositoryFacade.findFirstByHearingIdFileUpload(HEARING_ID)).willReturn(Optional.of(aHearingEntity))
+        given(hearingRepositoryFacade.findFirstByHearingIdFileUpload(HEARING_ID, DEFENDANT_ID)).willReturn(Optional.of(aHearingEntity))
         given(hmppsDocumentManagementApiClient.getDocument(DOCUMENT_ID)).willReturn(
             Mono.just(ResponseEntity.ok().body(Flux.just(InputStreamResource(ByteArrayInputStream("".toByteArray())))))
         )
@@ -154,7 +154,7 @@ internal class HmppsDocumentManagementServiceTest {
         val caseDefendant = courtCaseEntity.addCaseDefendant(aDefendantEntity())
         caseDefendant.createDocument(DOCUMENT_ID, FILE_NAME)
 
-        given(hearingRepositoryFacade.findFirstByHearingIdFileUpload(HEARING_ID)).willReturn(Optional.of(aHearingEntity))
+        given(hearingRepositoryFacade.findFirstByHearingIdFileUpload(HEARING_ID, DEFENDANT_ID)).willReturn(Optional.of(aHearingEntity))
 
         var e = assertThrows(EntityNotFoundException::class.java) {
             hmppsDocumentManagementService.getDocument(HEARING_ID, DEFENDANT_ID, "invalid-document-id")

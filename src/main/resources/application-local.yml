@@ -1,5 +1,6 @@
 feature:
   flags:
+    delete-hearing: true
     disable-auth: false
     fetch-sentence-data: true
 
@@ -12,7 +13,7 @@ offender-assessments-api:
   client-secret: clientsecret
 
 nomis-oauth:
-  base-url: https://sign-in-dev.hmpps.service.justice.gov.uk
+  base-url: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
 
 delius:
   base-url: https://ndelius.test.probation.service.justice.gov.uk
@@ -33,25 +34,6 @@ court-case-and-delius-api:
 
 domain-event-and-delius-api:
   base-url: https://domain-events-and-delius-dev.hmpps.service.justice.gov.uk
-
-
-  flyway:
-    defaultSchema: courtcaseservice
-    locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local, filesystem:src/test/resources
-  datasource:
-    url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=courtcaseservice&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
-    hikari:
-      pool-name: courtcaseservice
-      connectionTimeout: 1000
-      validationTimeout: 500
-      schema: courtcaseservice
-  jpa:
-    show-sql: true
-    properties:
-      hibernate:
-        integration:
-          envers:
-            enabled: false
 
 hearing_outcomes:
   move_un_resulted_to_outcomes_cutoff_time: "01:30"
@@ -85,8 +67,24 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${nomis-oauth.base-url}/auth/.well-known/jwks.json
-
+          jwk-set-uri: ${nomis-oauth.base-url}/.well-known/jwks.json
+  datasource:
+    url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=${database.schema.name:courtcaseservice}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
+    hikari:
+      pool-name: courtcaseservice
+      connectionTimeout: 1000
+      validationTimeout: 500
+      schema: courtcaseservice
+  flyway:
+    defaultSchema: courtcaseservice
+    locations: classpath:db/migration/courtcase, filesystem:src/test/resources/db/migration/local, filesystem:src/test/resources
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        integration:
+          envers:
+            enabled: false
 hmpps:
   sar:
     additionalAccessRole: 'PREPARE_A_CASE'

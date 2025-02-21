@@ -63,7 +63,7 @@ public class OffenceEntity extends BaseAuditedEntity implements Serializable  {
     @Column(name = "OFFENCE_CODE")
     private final String offenceCode;
 
-    @Column(name = "SHORT_TERM_CUSTODY_PREDICTOR_SCORE")
+    @Column(name = "SHORT_TERM_CUSTODY_PREDICTOR_SCORE", scale = 19, precision = 21)
     @Setter
     private BigDecimal shortTermCustodyPredictorScore;
 

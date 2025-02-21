@@ -2,9 +2,12 @@ package uk.gov.justice.probation.courtcaseservice.application;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+@Getter
 @Component
 @ConfigurationProperties(prefix = "feature")
 public class FeatureFlags {
@@ -15,13 +18,11 @@ public class FeatureFlags {
         this.flags = new HashMap<>();
     }
 
-    public Map<String, Boolean> getFlags() {
-        return flags;
-    }
-
     public boolean sentenceData() {
         return flags.getOrDefault("fetch-sentence-data", true);
     }
+
+    public boolean deleteHearing() { return flags.getOrDefault("delete-hearing", false); }
 
     public void setFlagValue(final String flagName, final boolean value) {
         flags.put(flagName, value);

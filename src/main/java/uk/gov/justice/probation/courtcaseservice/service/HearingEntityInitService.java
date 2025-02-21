@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 import org.hibernate.Hibernate;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
@@ -23,36 +24,55 @@ public class HearingEntityInitService {
 
     @Transactional
     public Optional<HearingEntity> findFirstByHearingId(String hearingId) {
-        var hearing = hearingRepository.findFirstByHearingId(hearingId);
+        var hearing = hearingRepository.findFirstByHearingIdOrderByCreatedDesc(hearingId);
+        return getHearingEntity(hearing);
+    }
+
+    @Transactional
+    public Optional<HearingEntity> findFirstByHearingIdCourtCaseId(String hearingId, String courtCaseId) {
+        var hearing = hearingRepository.findByHearingIdAndCourtCaseCaseIdAndDeletedFalse(hearingId, courtCaseId);
+        return getHearingEntity(hearing);
+    }
+
+    @NotNull
+    private Optional<HearingEntity> getHearingEntity(Optional<HearingEntity> hearing) {
         if(hearing.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
             Hibernate.initialize(hearing.get().getHearingDefendants());
             hearing.get().getHearingDefendants().forEach(hearingDefendantEntity -> {
-                hearingDefendantEntity.getOffences().forEach(offence -> Hibernate.initialize(offence.getJudicialResults()));
-                Hibernate.initialize(hearingDefendantEntity.getDefendant().getHearingDefendants());
-                if(hearingDefendantEntity.getDefendant().getOffender() != null) {
-                    Hibernate.initialize(hearingDefendantEntity.getDefendant().getOffender().getDefendants());
-                }
-            }
+                        hearingDefendantEntity.getOffences().forEach(offence -> Hibernate.initialize(offence.getJudicialResults()));
+                        Hibernate.initialize(hearingDefendantEntity.getDefendant().getHearingDefendants());
+                        if(hearingDefendantEntity.getDefendant().getOffender() != null) {
+                            Hibernate.initialize(hearingDefendantEntity.getDefendant().getOffender().getDefendants());
+                        }
+                    }
             );
         }
         return hearing;
     }
 
     @Transactional
-    public Optional<HearingEntity> findFirstByHearingIdInitHearing(String hearingId) {
-        return hearingRepository.findFirstByHearingId(hearingId);
-    }
-
-    @Transactional
-    public Optional<HearingEntity> findFirstByHearingIdAndInitHearingDefendants(String hearingId) {
-        var hearing = hearingRepository.findFirstByHearingId(hearingId);
-        hearing.ifPresent(hearingEntity -> Hibernate.initialize(hearingEntity.getHearingDefendants()));
+    public Optional<HearingEntity> findByHearingIdAndInitHearingDefendants(String hearingId, String defendantId) {
+        var hearing = hearingRepository.findByHearingIdAndHearingDefendantsDefendantIdAndDeletedFalse(hearingId, defendantId);
+        hearing.ifPresent(hearingEntity -> {
+            Hibernate.initialize(hearingEntity.getHearingDefendants());
+            Hibernate.initialize(hearingEntity.getCourtCase().getCaseDefendants());
+        });
         return hearing;
     }
 
     @Transactional
-    public Optional<HearingEntity> findFirstByHearingIdAndInitHearingNotes(String hearingId) {
-        var hearing = hearingRepository.findFirstByHearingId(hearingId);
+    //TODO this is only used in tests - need to revisit this and think of a better way
+    public Optional<HearingEntity> findByIdAndInitHearingDefendants(Long id) {
+        var hearing = hearingRepository.findById(id);
+        hearing.ifPresent(hearingEntity -> Hibernate.initialize(hearingEntity.getHearingDefendants()));
+        Hibernate.initialize(hearing.get().getCourtCase().getCaseDefendants());
+        hearing.get().getCourtCase().getCaseDefendants().forEach(caseDefendantEntity -> Hibernate.initialize(caseDefendantEntity.getDocuments()));
+        return hearing;
+    }
+
+    @Transactional
+    public Optional<HearingEntity> findByHearingIdAndInitHearingNotes(String hearingId, String defendantId) {
+        var hearing = hearingRepository.findByHearingIdAndHearingDefendantsDefendantIdAndDeletedFalse(hearingId, defendantId);
         if(hearing.isPresent()) {
             Hibernate.initialize(hearing.get().getHearingDefendants());
             hearing.get().getHearingDefendants().forEach(hearingDefendantEntity -> Hibernate.initialize(hearingDefendantEntity.getNotes()));
@@ -61,8 +81,8 @@ public class HearingEntityInitService {
     }
 
     @Transactional
-    public Optional<HearingEntity> findFirstByHearingIdFileUpload(String hearingId) {
-        var hearing = hearingRepository.findFirstByHearingId(hearingId);
+    public Optional<HearingEntity> findFirstByHearingIdFileUpload(String hearingId, String defendantId) {
+        var hearing = hearingRepository.findByHearingIdAndHearingDefendantsDefendantIdAndDeletedFalse(hearingId, defendantId);
         if(hearing.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
             Hibernate.initialize(hearing.get().getHearingDefendants());
             Hibernate.initialize(hearing.get().getCourtCase().getCaseDefendants());
@@ -73,7 +93,8 @@ public class HearingEntityInitService {
 
     @Transactional
     public Optional<HearingEntity> findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(String hearingId, String defendantId) {
-        var hearing = hearingRepository.findFirstByHearingId(hearingId);
+        var hearing = hearingRepository.findByHearingIdAndHearingDefendantsDefendantIdAndDeletedFalse(hearingId, defendantId);
+
         if(hearing.isPresent()) {
             HearingEntity hearingEntity = hearing.get();
             Hibernate.initialize(hearingEntity.getCourtCase().getCaseDefendants());
@@ -88,9 +109,12 @@ public class HearingEntityInitService {
     }
 
     @Transactional
-    public Optional<HearingEntity> findFirstByHearingIdAssignState(String hearingId) {
-        var hearing = hearingRepository.findFirstByHearingId(hearingId);
-        hearing.ifPresent(hearingEntity -> Hibernate.initialize(hearingEntity.getHearingDefendants()));
+    public Optional<HearingEntity> findByHearingIdAndDefendantIdAssignState(String hearingId, String defendantId) {
+        var hearing = hearingRepository.findByHearingIdAndHearingDefendantsDefendantIdAndDeletedFalse(hearingId, defendantId);
+        hearing.ifPresent(hearingEntity -> {
+            Hibernate.initialize(hearingEntity.getHearingDefendants());
+            Hibernate.initialize(hearingEntity.getCourtCase().getCaseDefendants());
+        });
         return hearing;
     }
 
@@ -152,7 +176,7 @@ public class HearingEntityInitService {
 
     @Transactional
     public Optional<HearingEntity> findFirstByHearingIdFullyInitialised(String hearingId) {
-        var hearing = hearingRepository.findFirstByHearingId(hearingId);
+        var hearing = hearingRepository.findFirstByHearingIdOrderByCreatedDesc(hearingId);
         if(hearing.isPresent()) { //Hibernate initialize seems to have issues if mapping over an optional
             Hibernate.initialize(hearing.get().getHearingDefendants());
             Hibernate.initialize(hearing.get().getCourtCase().getCaseDefendants());

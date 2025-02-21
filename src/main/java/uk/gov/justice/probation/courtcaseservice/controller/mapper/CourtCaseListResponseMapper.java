@@ -106,6 +106,8 @@ public class CourtCaseListResponseMapper {
         builder
                 .defendantName(defendant.getDefendantName())
                 .name(defendant.getName())
+                .defendantSurname(defendant.getDefendantSurname())
+                .defendantForename(defendant.getName().getForename1())
                 .defendantAddress(defendant.getAddress())
                 .defendantDob(defendant.getDateOfBirth())
                 .defendantSex(defendant.getSex())

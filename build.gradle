@@ -194,7 +194,7 @@ dependencies {
 
     runtimeOnly("org.flywaydb:flyway-database-postgresql:11.3.2")
     runtimeOnly "org.springframework.boot:spring-boot-devtools"
-    runtimeOnly 'org.postgresql:postgresql:42.7.3'
+    runtimeOnly 'org.postgresql:postgresql:42.7.5'
 
     implementation 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 

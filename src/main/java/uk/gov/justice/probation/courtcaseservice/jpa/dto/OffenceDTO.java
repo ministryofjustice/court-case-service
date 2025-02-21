@@ -43,7 +43,7 @@ public class OffenceDTO {
     @Column(name = "OFFENCE_CODE")
     private final String offenceCode;
 
-    @Column(name = "SHORT_TERM_CUSTODY_PREDICTOR_SCORE")
+    @Column(name = "SHORT_TERM_CUSTODY_PREDICTOR_SCORE", precision = 21, scale = 19)
     @Setter
     private BigDecimal shortTermCustodyPredictorScore;
 

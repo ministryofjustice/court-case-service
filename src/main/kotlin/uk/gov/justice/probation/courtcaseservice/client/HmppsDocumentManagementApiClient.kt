@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.http.client.MultipartBodyBuilder
-import org.springframework.http.codec.multipart.DefaultPartHttpMessageReader
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.toEntity
@@ -19,7 +18,6 @@ import reactor.core.publisher.Mono
 import uk.gov.justice.probation.courtcaseservice.client.exception.ExternalService
 import uk.gov.justice.probation.courtcaseservice.client.model.documentmanagement.DocumentUploadResponse
 import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper
-import java.io.ByteArrayInputStream
 
 
 @Component
@@ -62,9 +60,6 @@ class HmppsDocumentManagementApiClient(
 
         val documentPath = "${String.format(hmppsDocumentManagementApiDocumentByUuid, documentUuid)}/file"
         log.debug("Fetching document $documentPath")
-
-        val partReader = DefaultPartHttpMessageReader()
-        partReader.setStreaming(false)
 
         return clientHelper
             .get(documentPath)

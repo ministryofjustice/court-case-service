@@ -3,15 +3,14 @@ package uk.gov.justice.probation.courtcaseservice.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest;
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -26,10 +25,8 @@ import static org.mockito.Mockito.verify;
 public class OffenderMatchServiceIntTest extends BaseIntTest {
     @Autowired
     private OffenderMatchService offenderMatchService;
-    @MockBean
-    private GroupedOffenderMatchRepository offenderMatchRepository;
-    @MockBean
-    private HearingRepository hearingRepository;
+    @MockitoBean
+    HearingRepository hearingRepository;
 
     @BeforeEach
     public void setUp() {

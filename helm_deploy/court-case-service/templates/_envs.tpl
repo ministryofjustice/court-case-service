@@ -160,11 +160,11 @@ env:
         name: court-case-service-secrets
         key: nomis-oauth-client-secret
 
-  - name: APPINSIGHTS_INSTRUMENTATIONKEY
+  - name: APPLICATIONINSIGHTS_CONNECTION_STRING
     valueFrom:
       secretKeyRef:
-        name: court-case-service-secrets
-        key: APPINSIGHTS_INSTRUMENTATIONKEY
+        name: applicationinsights_connection_string
+        key: APPLICATIONINSIGHTS_CONNECTION_STRING
 
   - name: HMPPS_SQS_TOPICS_HMPPSDOMAINEVENTS_ARN
     valueFrom:

@@ -10,6 +10,7 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase
 import org.springframework.test.context.jdbc.SqlConfig
 import org.springframework.test.context.jdbc.SqlConfig.TransactionMode
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSarResponse
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.getToken
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper.roles
@@ -94,7 +95,7 @@ internal class SubjectAccessRequestControllerIntTest: BaseIntTest() {
         }
 
         @Test
-        fun `should return case comments, hearing outcomes and hearing notes if present for defendant`() {
+        fun `should return non-draft and undeleted case comments, hearing outcomes and hearing notes if present for defendant`() {
             RestAssured.given()
                 .auth()
                 .oauth2(getToken())
@@ -104,31 +105,30 @@ internal class SubjectAccessRequestControllerIntTest: BaseIntTest() {
                 .get("/subject-access-request?crn=X25829")
                 .then()
                 .statusCode(200)
-                .body("content.comments[0].comment", Matchers.equalTo("PSR in progress"))
-                .body("content.comments[0].author", Matchers.equalTo("Author One"))
-                .body("content.comments[0].created", Matchers.equalTo("2024-05-21T09:45:55.597"))
-                .body("content.comments[0].createdBy", Matchers.equalTo("before-test.sql"))
-                .body("content.comments[0].lastUpdated", Matchers.equalTo("2024-04-08T09:45:55.597"))
-                .body("content.comments[0].lastUpdatedBy", Matchers.equalTo("Last Updated Author"))
-                .body("content.comments[0].caseNumber", Matchers.equalTo("1600028888"))
-                .body("content.comments[1].comment", Matchers.equalTo("PSR in progress"))
-                .body("content.comments[1].author", Matchers.equalTo("Author Three"))
-                .body("content.comments[1].created", Matchers.equalTo("2024-04-21T09:45:55.597"))
-                .body("content.comments[1].createdBy", Matchers.equalTo("before-test.sql"))
-                .body("content.comments[1].lastUpdated", Matchers.equalTo("2024-03-08T09:45:55.597"))
-                .body("content.comments[1].lastUpdatedBy", Matchers.equalTo("Last Updated Author3"))
-                .body("content.comments[1].caseNumber", Matchers.equalTo("1600028888"))
-                .body("content.hearingOutcomes[0].outcomeType", Matchers.equalTo("ADJOURNED"))
-                .body("content.hearingOutcomes[0].outcomeDate", Matchers.equalTo("2023-04-24T09:09:09"))
-                .body("content.hearingOutcomes[0].resultedDate", Matchers.equalTo("2023-04-25T09:09:09"))
-                .body("content.hearingOutcomes[0].state", Matchers.equalTo("IN_PROGRESS"))
-                .body("content.hearingOutcomes[0].assignedTo", Matchers.equalTo("John Smith"))
-                .body("content.hearingNotes[0].hearingId", Matchers.equalTo("fe657c3a-b674-4e17-8772-7281c99e4f9f"))
-                .body(
-                    "content.hearingNotes[0].note",
-                    Matchers.equalTo("This is a test comment by the Prepare a case digital team.")
-                )
-                .body("content.hearingNotes[0].author", Matchers.equalTo("John Doe"))
+                .body("content.cases[0].urn", Matchers.equalTo("URN"))
+                .body("content.cases[0].comments[0].comment", Matchers.equalTo("PSR in progress"))
+                .body("content.cases[0].comments[0].authorSurname", Matchers.equalTo("One"))
+                .body("content.cases[0].comments[0].caseNumber", Matchers.equalTo("1600028888"))
+                .body("content.cases[0].hearings[0].hearingId", Matchers.equalTo("5564cbfd-3d53-4f36-9508-437416b08738"))
+                .body("content.cases[0].hearings[0].notes", Matchers.hasSize<Int>(1))
+                .body("content.cases[0].hearings[0].notes[0].note", Matchers.equalTo("This is a test comment by the Prepare a case digital team."))
+                .body("content.cases[0].hearings[0].notes[0].authorSurname", Matchers.equalTo("Doe"))
+                .body("content.cases[0].hearings[0].outcomes", Matchers.hasSize<Int>(1))
+                .body("content.cases[0].hearings[0].outcomes[0].outcomeType", Matchers.equalTo("Adjourned"))
+                .body("content.cases[0].hearings[0].outcomes[0].outcomeDate", Matchers.equalTo("2023-04-24T09:09:09"))
+                .body("content.cases[0].hearings[0].outcomes[0].resultedDate", Matchers.equalTo("2023-04-25T09:09:09"))
+                .body("content.cases[0].hearings[0].outcomes[0].state", Matchers.equalTo("In progress"))
+                .body("content.cases[0].hearings[0].outcomes[0].assignedTo", Matchers.equalTo("Smith"))
+                .body("content.cases[0].hearings[0].outcomes[0].createdDate", Matchers.equalTo("2023-04-01T09:09:09"))
+                .body("content.cases[1].urn", Matchers.equalTo("URN2"))
+                .body("content.cases[1].hearings[0].hearingId", Matchers.equalTo("fe657c3a-b674-4e17-8772-7281c99e4f9f"))
+                .body("content.cases[1].hearings[0].notes", Matchers.hasSize<Int>(1))
+                .body("content.cases[1].hearings[0].notes[0].note", Matchers.equalTo("This is a test comment by the Prepare a case digital team."))
+                .body("content.cases[1].hearings[0].notes[0].authorSurname", Matchers.equalTo("House"))
+                .body("content.cases[1].hearings[0].outcomes", Matchers.hasSize<Int>(0))
+                .body("content.cases[1].comments[0].comment", Matchers.equalTo("PSR in progress"))
+                .body("content.cases[1].comments[0].authorSurname", Matchers.equalTo("Three"))
+                .body("content.cases[1].comments[0].caseNumber", Matchers.equalTo("")) // No case number because it's source_type is CommonPlatform
         }
 
         @Test
@@ -144,13 +144,12 @@ internal class SubjectAccessRequestControllerIntTest: BaseIntTest() {
                 .get("/subject-access-request?crn=B25829")
                 .then()
                 .statusCode(200)
-                .body("content.comments[0].comment", Matchers.equalTo("PSR completed"))
-                .body("content.comments[0].author", Matchers.equalTo("Author Two"))
-                .body("content.comments[0].created", Matchers.equalTo("2024-05-22T09:45:55.597"))
-                .body("content.comments[0].createdBy", Matchers.equalTo("before-test.sql"))
-                .body("content.comments[0].lastUpdated", Matchers.equalTo("2024-04-09T09:45:55.597"))
-                .body("content.comments[0].lastUpdatedBy", Matchers.equalTo("Last Updated Author2"))
-                .body("content.comments[0].caseNumber", Matchers.equalTo(""))
+                .body("content.cases[0].comments[0].comment", Matchers.equalTo("PSR completed"))
+                .body("content.cases[0].comments[0].authorSurname", Matchers.equalTo("Two"))
+                .body("content.cases[0].comments[0].caseNumber", Matchers.equalTo(""))
+                .body("content.cases[0].comments[0].created", Matchers.equalTo("2024-05-22T09:45:55.597"))
+                .body("content.cases[0].comments[0].lastUpdated", Matchers.equalTo("2024-04-09T09:45:55.597"))
+                .body("content.cases[0].comments[0].lastUpdatedBy", Matchers.equalTo("LastUpdatedAuthor2"))
         }
 
         @Test
@@ -169,7 +168,7 @@ internal class SubjectAccessRequestControllerIntTest: BaseIntTest() {
         }
 
         @Test
-        fun `should return case comments, hearing notes and hearing outcomes if between valid date ranges `() {
+        fun `should return case comments, hearing notes and hearing outcomes if between valid date ranges` () {
             RestAssured.given()
                 .auth()
                 .oauth2(getToken())
@@ -181,29 +180,42 @@ internal class SubjectAccessRequestControllerIntTest: BaseIntTest() {
                 .get("/subject-access-request?crn=X25829&fromDate=2022-10-10")
                 .then()
                 .statusCode(200)
-                .body("content.comments[0].comment", Matchers.equalTo("PSR in progress"))
-                .body("content.comments[0].author", Matchers.equalTo("Author One"))
-                .body("content.comments[0].created", Matchers.equalTo("2024-05-21T09:45:55.597"))
-                .body("content.comments[0].createdBy", Matchers.equalTo("before-test.sql"))
-                .body("content.comments[0].lastUpdated", Matchers.equalTo("2024-04-08T09:45:55.597"))
-                .body("content.comments[0].lastUpdatedBy", Matchers.equalTo("Last Updated Author"))
-                .body("content.comments[0].caseNumber", Matchers.equalTo("1600028888"))
-                .body("content.hearingOutcomes[0].outcomeType", Matchers.equalTo("ADJOURNED"))
-                .body("content.hearingOutcomes[0].outcomeDate", Matchers.equalTo("2023-04-24T09:09:09"))
-                .body("content.hearingOutcomes[0].resultedDate", Matchers.equalTo("2023-04-25T09:09:09"))
-                .body("content.hearingOutcomes[0].state", Matchers.equalTo("IN_PROGRESS"))
-                .body("content.hearingOutcomes[0].assignedTo", Matchers.equalTo("John Smith"))
-                .body("content.hearingOutcomes[0].createdDate", Matchers.equalTo("2023-04-01T09:09:09"))
-                .body("content.hearingNotes[0].hearingId", Matchers.equalTo("fe657c3a-b674-4e17-8772-7281c99e4f9f"))
-                .body(
-                    "content.hearingNotes[0].note",
-                    Matchers.equalTo("This is a test comment by the Prepare a case digital team.")
-                )
-                .body("content.hearingNotes[0].author", Matchers.equalTo("John Doe"))
+                .body("content.cases[0].urn", Matchers.equalTo("URN"))
+                .body("content.cases[0].hearings[0].hearingId", Matchers.equalTo("5564cbfd-3d53-4f36-9508-437416b08738"))
+                .body("content.cases[0].hearings[0].notes", Matchers.hasSize<Int>(1))
+                .body("content.cases[0].hearings[0].notes[0].note", Matchers.equalTo("This is a test comment by the Prepare a case digital team."))
+                .body("content.cases[0].hearings[0].notes[0].authorSurname", Matchers.equalTo("Doe"))
+                .body("content.cases[0].hearings[0].outcomes[0].outcomeType", Matchers.equalTo("Adjourned"))
+                .body("content.cases[0].hearings[0].outcomes[0].outcomeDate", Matchers.equalTo("2023-04-24T09:09:09"))
+                .body("content.cases[0].hearings[0].outcomes[0].resultedDate", Matchers.equalTo("2023-04-25T09:09:09"))
+                .body("content.cases[0].hearings[0].outcomes[0].state", Matchers.equalTo("In progress"))
+                .body("content.cases[0].hearings[0].outcomes[0].assignedTo", Matchers.equalTo("Smith"))
+                .body("content.cases[0].hearings[0].outcomes[0].createdDate", Matchers.equalTo("2023-04-01T09:09:09"))
+                .body("content.cases[0].comments", Matchers.hasSize<Int>(1))
+                .body("content.cases[0].comments[0].comment", Matchers.equalTo("PSR in progress"))
+                .body("content.cases[0].comments[0].authorSurname", Matchers.equalTo("One"))
+                .body("content.cases[0].comments[0].created", Matchers.equalTo("2024-05-21T09:45:55.597"))
+                .body("content.cases[0].comments[0].lastUpdated", Matchers.equalTo("2024-04-08T09:45:55.597"))
+                .body("content.cases[0].comments[0].lastUpdatedBy", Matchers.equalTo("LastUpdatedAuthor"))
+                .body("content.cases[0].comments[0].caseNumber", Matchers.equalTo("1600028888"))
+                .body("content.cases[1].urn", Matchers.equalTo("URN2"))
+                .body("content.cases[1].hearings", Matchers.hasSize<Int>(1))
+                .body("content.cases[1].hearings[0].hearingId", Matchers.equalTo("fe657c3a-b674-4e17-8772-7281c99e4f9f"))
+                .body("content.cases[1].hearings[0].notes", Matchers.hasSize<Int>(1))
+                .body("content.cases[1].hearings[0].notes[0].note", Matchers.equalTo("This is a test comment by the Prepare a case digital team."))
+                .body("content.cases[1].hearings[0].notes[0].authorSurname", Matchers.equalTo("House"))
+                .body("content.cases[1].hearings[0].outcomes", Matchers.hasSize<Int>(0))
+                .body("content.cases[1].comments", Matchers.hasSize<Int>(1))
+                .body("content.cases[1].comments[0].comment", Matchers.equalTo("PSR in progress"))
+                .body("content.cases[1].comments[0].authorSurname", Matchers.equalTo("Three"))
+                .body("content.cases[1].comments[0].created", Matchers.equalTo("2024-04-21T09:45:55.597"))
+                .body("content.cases[1].comments[0].lastUpdated", Matchers.equalTo("2024-03-08T09:45:55.597"))
+                .body("content.cases[1].comments[0].lastUpdatedBy", Matchers.equalTo("LastUpdatedAuthor3"))
+                .body("content.cases[1].comments[0].caseNumber", Matchers.equalTo(""))
         }
 
         @Test
-        fun `should return case comments if present for defendant from date`() {
+        fun `given case comments present but hearing notes and outcomes not present, should return case comments and no hearings for defendant from date`() {
             RestAssured.given()
                 .auth()
                 .oauth2(getToken())
@@ -215,15 +227,13 @@ internal class SubjectAccessRequestControllerIntTest: BaseIntTest() {
                 .get("/subject-access-request?crn=X25829&fromDate=2024-05-21")
                 .then()
                 .statusCode(200)
-                .body("content.comments[0].comment", Matchers.equalTo("PSR in progress"))
-                .body("content.comments[0].author", Matchers.equalTo("Author One"))
-                .body("content.comments[0].created", Matchers.equalTo("2024-05-21T09:45:55.597"))
-                .body("content.comments[0].createdBy", Matchers.equalTo("before-test.sql"))
-                .body("content.comments[0].lastUpdated", Matchers.equalTo("2024-04-08T09:45:55.597"))
-                .body("content.comments[0].lastUpdatedBy", Matchers.equalTo("Last Updated Author"))
-                .body("content.comments[0].caseNumber", Matchers.equalTo("1600028888"))
-                .body("content.hearingOutcomes", Matchers.empty<Any>())
-                .body("content.hearingNotes", Matchers.empty<Any>())
+                .body("content.cases[0].comments[0].comment", Matchers.equalTo("PSR in progress"))
+                .body("content.cases[0].comments[0].authorSurname", Matchers.equalTo("One"))
+                .body("content.cases[0].comments[0].created", Matchers.equalTo("2024-05-21T09:45:55.597"))
+                .body("content.cases[0].comments[0].lastUpdated", Matchers.equalTo("2024-04-08T09:45:55.597"))
+                .body("content.cases[0].comments[0].lastUpdatedBy", Matchers.equalTo("LastUpdatedAuthor"))
+                .body("content.cases[0].comments[0].caseNumber", Matchers.equalTo("1600028888"))
+                .body("content.cases[0].hearings", Matchers.empty<Any>())
         }
 
         @Test
@@ -239,18 +249,38 @@ internal class SubjectAccessRequestControllerIntTest: BaseIntTest() {
                 .get("/subject-access-request?crn=X25829&fromDate=2022-01-01")
                 .then()
                 .statusCode(200)
-                .body("content.hearingOutcomes[0].outcomeType", Matchers.equalTo("ADJOURNED"))
-                .body("content.hearingOutcomes[0].outcomeDate", Matchers.equalTo("2023-04-24T09:09:09"))
-                .body("content.hearingOutcomes[0].resultedDate", Matchers.equalTo("2023-04-25T09:09:09"))
-                .body("content.hearingOutcomes[0].state", Matchers.equalTo("IN_PROGRESS"))
-                .body("content.hearingOutcomes[0].assignedTo", Matchers.equalTo("John Smith"))
-                .body("content.hearingOutcomes[0].createdDate", Matchers.equalTo("2023-04-01T09:09:09"))
-                .body("content.hearingNotes[0].hearingId", Matchers.equalTo("fe657c3a-b674-4e17-8772-7281c99e4f9f"))
-                .body(
-                    "content.hearingNotes[0].note",
-                    Matchers.equalTo("This is a test comment by the Prepare a case digital team.")
-                )
-                .body("content.hearingNotes[0].author", Matchers.equalTo("John Doe"))
+                .body("content.cases[0].urn", Matchers.equalTo("URN"))
+                .body("content.cases[0].hearings[0].hearingId", Matchers.equalTo("5564cbfd-3d53-4f36-9508-437416b08738"))
+                .body("content.cases[0].hearings[0].notes", Matchers.hasSize<Int>(1))
+                .body("content.cases[0].hearings[0].notes[0].note", Matchers.equalTo("This is a test comment by the Prepare a case digital team."))
+                .body("content.cases[0].hearings[0].notes[0].authorSurname", Matchers.equalTo("Doe"))
+                .body("content.cases[0].hearings[0].outcomes[0].outcomeType", Matchers.equalTo("Adjourned"))
+                .body("content.cases[0].hearings[0].outcomes[0].outcomeDate", Matchers.equalTo("2023-04-24T09:09:09"))
+                .body("content.cases[0].hearings[0].outcomes[0].resultedDate", Matchers.equalTo("2023-04-25T09:09:09"))
+                .body("content.cases[0].hearings[0].outcomes[0].state", Matchers.equalTo("In progress"))
+                .body("content.cases[0].hearings[0].outcomes[0].assignedTo", Matchers.equalTo("Smith"))
+                .body("content.cases[0].hearings[0].outcomes[0].createdDate", Matchers.equalTo("2023-04-01T09:09:09"))
+                .body("content.cases[0].comments", Matchers.hasSize<Int>(1))
+                .body("content.cases[0].comments[0].comment", Matchers.equalTo("PSR in progress"))
+                .body("content.cases[0].comments[0].authorSurname", Matchers.equalTo("One"))
+                .body("content.cases[0].comments[0].created", Matchers.equalTo("2024-05-21T09:45:55.597"))
+                .body("content.cases[0].comments[0].lastUpdated", Matchers.equalTo("2024-04-08T09:45:55.597"))
+                .body("content.cases[0].comments[0].lastUpdatedBy", Matchers.equalTo("LastUpdatedAuthor"))
+                .body("content.cases[0].comments[0].caseNumber", Matchers.equalTo("1600028888"))
+                .body("content.cases[1].urn", Matchers.equalTo("URN2"))
+                .body("content.cases[1].hearings", Matchers.hasSize<Int>(1))
+                .body("content.cases[1].hearings[0].hearingId", Matchers.equalTo("fe657c3a-b674-4e17-8772-7281c99e4f9f"))
+                .body("content.cases[1].hearings[0].notes", Matchers.hasSize<Int>(1))
+                .body("content.cases[1].hearings[0].notes[0].note", Matchers.equalTo("This is a test comment by the Prepare a case digital team."))
+                .body("content.cases[1].hearings[0].notes[0].authorSurname", Matchers.equalTo("House"))
+                .body("content.cases[1].hearings[0].outcomes", Matchers.hasSize<Int>(0))
+                .body("content.cases[1].comments", Matchers.hasSize<Int>(1))
+                .body("content.cases[1].comments[0].comment", Matchers.equalTo("PSR in progress"))
+                .body("content.cases[1].comments[0].authorSurname", Matchers.equalTo("Three"))
+                .body("content.cases[1].comments[0].created", Matchers.equalTo("2024-04-21T09:45:55.597"))
+                .body("content.cases[1].comments[0].lastUpdated", Matchers.equalTo("2024-03-08T09:45:55.597"))
+                .body("content.cases[1].comments[0].lastUpdatedBy", Matchers.equalTo("LastUpdatedAuthor3"))
+                .body("content.cases[1].comments[0].caseNumber", Matchers.equalTo(""))
         }
 
         @Test
@@ -266,25 +296,32 @@ internal class SubjectAccessRequestControllerIntTest: BaseIntTest() {
                 .get("/subject-access-request?crn=X25829&toDate=2024-04-25")
                 .then()
                 .statusCode(200)
-                .body("content.comments[0].comment", Matchers.equalTo("PSR in progress"))
-                .body("content.comments[0].author", Matchers.equalTo("Author Three"))
-                .body("content.comments[0].created", Matchers.equalTo("2024-04-21T09:45:55.597"))
-                .body("content.comments[0].createdBy", Matchers.equalTo("before-test.sql"))
-                .body("content.comments[0].lastUpdated", Matchers.equalTo("2024-03-08T09:45:55.597"))
-                .body("content.comments[0].lastUpdatedBy", Matchers.equalTo("Last Updated Author3"))
-                .body("content.comments[0].caseNumber", Matchers.equalTo("1600028888"))
-                .body("content.hearingOutcomes[0].outcomeType", Matchers.equalTo("ADJOURNED"))
-                .body("content.hearingOutcomes[0].outcomeDate", Matchers.equalTo("2023-04-24T09:09:09"))
-                .body("content.hearingOutcomes[0].resultedDate", Matchers.equalTo("2023-04-25T09:09:09"))
-                .body("content.hearingOutcomes[0].state", Matchers.equalTo("IN_PROGRESS"))
-                .body("content.hearingOutcomes[0].assignedTo", Matchers.equalTo("John Smith"))
-                .body("content.hearingOutcomes[0].createdDate", Matchers.equalTo("2023-04-01T09:09:09"))
-                .body("content.hearingNotes[0].hearingId", Matchers.equalTo("fe657c3a-b674-4e17-8772-7281c99e4f9f"))
-                .body(
-                    "content.hearingNotes[0].note",
-                    Matchers.equalTo("This is a test comment by the Prepare a case digital team.")
-                )
-                .body("content.hearingNotes[0].author", Matchers.equalTo("John Doe"))
+                .body("content.cases[0].urn", Matchers.equalTo("URN"))
+                .body("content.cases[0].hearings[0].hearingId", Matchers.equalTo("5564cbfd-3d53-4f36-9508-437416b08738"))
+                .body("content.cases[0].hearings[0].notes", Matchers.hasSize<Int>(1))
+                .body("content.cases[0].hearings[0].notes[0].note", Matchers.equalTo("This is a test comment by the Prepare a case digital team."))
+                .body("content.cases[0].hearings[0].notes[0].authorSurname", Matchers.equalTo("Doe"))
+                .body("content.cases[0].hearings[0].outcomes[0].outcomeType", Matchers.equalTo("Adjourned"))
+                .body("content.cases[0].hearings[0].outcomes[0].outcomeDate", Matchers.equalTo("2023-04-24T09:09:09"))
+                .body("content.cases[0].hearings[0].outcomes[0].resultedDate", Matchers.equalTo("2023-04-25T09:09:09"))
+                .body("content.cases[0].hearings[0].outcomes[0].state", Matchers.equalTo("In progress"))
+                .body("content.cases[0].hearings[0].outcomes[0].assignedTo", Matchers.equalTo("Smith"))
+                .body("content.cases[0].hearings[0].outcomes[0].createdDate", Matchers.equalTo("2023-04-01T09:09:09"))
+                .body("content.cases[0].comments", Matchers.hasSize<Int>(0)) // deleted comments aren't returned
+                .body("content.cases[1].urn", Matchers.equalTo("URN2"))
+                .body("content.cases[1].hearings", Matchers.hasSize<Int>(1))
+                .body("content.cases[1].hearings[0].hearingId", Matchers.equalTo("fe657c3a-b674-4e17-8772-7281c99e4f9f"))
+                .body("content.cases[1].hearings[0].notes", Matchers.hasSize<Int>(1))
+                .body("content.cases[1].hearings[0].notes[0].note", Matchers.equalTo("This is a test comment by the Prepare a case digital team."))
+                .body("content.cases[1].hearings[0].notes[0].authorSurname", Matchers.equalTo("House"))
+                .body("content.cases[1].hearings[0].outcomes", Matchers.hasSize<Int>(0))
+                .body("content.cases[1].comments", Matchers.hasSize<Int>(1))
+                .body("content.cases[1].comments[0].comment", Matchers.equalTo("PSR in progress"))
+                .body("content.cases[1].comments[0].authorSurname", Matchers.equalTo("Three"))
+                .body("content.cases[1].comments[0].created", Matchers.equalTo("2024-04-21T09:45:55.597"))
+                .body("content.cases[1].comments[0].lastUpdated", Matchers.equalTo("2024-03-08T09:45:55.597"))
+                .body("content.cases[1].comments[0].lastUpdatedBy", Matchers.equalTo("LastUpdatedAuthor3"))
+                .body("content.cases[1].comments[0].caseNumber", Matchers.equalTo(""))
         }
 
         @Test
@@ -297,7 +334,7 @@ internal class SubjectAccessRequestControllerIntTest: BaseIntTest() {
                     "Accept",
                     "application/json"
                 )
-                .get("/subject-access-request?crn=X25829&toDate=2021-04-25")
+                .get("/subject-access-request?crn=X25829&toDate=2022-10-09")
                 .then()
                 .statusCode(204)
         }

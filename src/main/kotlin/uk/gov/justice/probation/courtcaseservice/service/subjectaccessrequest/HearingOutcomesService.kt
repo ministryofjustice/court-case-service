@@ -25,7 +25,7 @@ class HearingOutcomesService {
                     it.outcomeDate,
                     it.resultedDate,
                     HearingOutcomeItemState.valueOf(it.state).value,
-                    getSurname(it.assignedTo),
+                    getAssignedTo(it),
                     it.created
                 )
             )
@@ -33,8 +33,12 @@ class HearingOutcomesService {
         return emptyList()
     }
 
-    private fun getSurname(name: String): String {
-        return name.split(" ").last()
+    private fun getAssignedTo(hearingOutcome: HearingOutcomeEntity): String {
+        return if (hearingOutcome.assignedTo != null) {
+            hearingOutcome.assignedTo.split(" ").last()
+        } else {
+            ""
+        }
     }
 
     private fun filteredHearingOutcomesByDate(hearingDefendant: HearingDefendantEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): HearingOutcomeEntity? {

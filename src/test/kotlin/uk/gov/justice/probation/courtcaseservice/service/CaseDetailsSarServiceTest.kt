@@ -45,7 +45,7 @@ internal class CaseDetailsSarServiceTest {
             .hearingOutcome(aHearingOutcomeEntity())
             .hearing(hearing)
             .build()
-    private val courtCase2: CourtCaseEntity = CourtCaseEntity.builder().id(2).caseId("caseId2").urn("URN2").build()
+    private val courtCase2: CourtCaseEntity = CourtCaseEntity.builder().id(2).caseId("caseId2").caseId("CASEID2").build()
     private val hearing2: HearingEntity = HearingEntity.builder().id(2).hearingId("uuid2").courtCase(courtCase2)
         .build()
     private val hearingDefendant2: HearingDefendantEntity =
@@ -90,7 +90,7 @@ internal class CaseDetailsSarServiceTest {
         val caseSARDetails = caseDetailsSarService.getCaseSARDetails("X340906", null, null)
 
         Assertions.assertThat(caseSARDetails).hasSize(1)
-        Assertions.assertThat(caseSARDetails[0].urn).isEqualTo("URN")
+        Assertions.assertThat(caseSARDetails[0].caseId).isEqualTo("5678")
         Assertions.assertThat(caseSARDetails[0].comments).hasSize(1)
         Assertions.assertThat(caseSARDetails[0].comments[0].comment).isEqualTo("Some comment")
         Assertions.assertThat(caseSARDetails[0].hearings).hasSize(1)
@@ -135,7 +135,7 @@ internal class CaseDetailsSarServiceTest {
         val caseSARDetails = caseDetailsSarService.getCaseSARDetails("X340906", null, null)
 
         Assertions.assertThat(caseSARDetails).hasSize(1)
-        Assertions.assertThat(caseSARDetails[0].urn).isEqualTo("URN")
+        Assertions.assertThat(caseSARDetails[0].caseId).isEqualTo("5678")
         Assertions.assertThat(caseSARDetails[0].hearings).hasSize(2)
         Assertions.assertThat(caseSARDetails[0].hearings[0].hearingId).isEqualTo("uuid")
         Assertions.assertThat(caseSARDetails[0].hearings[0].notes).hasSize(1)
@@ -169,13 +169,13 @@ internal class CaseDetailsSarServiceTest {
         val caseSARDetails = caseDetailsSarService.getCaseSARDetails("X340906", null, null)
 
         Assertions.assertThat(caseSARDetails).hasSize(2)
-        Assertions.assertThat(caseSARDetails[0].urn).isEqualTo("URN")
+        Assertions.assertThat(caseSARDetails[0].caseId).isEqualTo("5678")
         Assertions.assertThat(caseSARDetails[0].hearings).hasSize(1)
         Assertions.assertThat(caseSARDetails[0].hearings[0].hearingId).isEqualTo("uuid")
         Assertions.assertThat(caseSARDetails[0].hearings[0].outcomes).hasSize(0)
         Assertions.assertThat(caseSARDetails[0].hearings[0].notes[0].note).isEqualTo("hearing 1 note")
         Assertions.assertThat(caseSARDetails[0].hearings[0].notes[0].authorSurname).isEqualTo("author1")
-        Assertions.assertThat(caseSARDetails[1].urn).isEqualTo("URN2")
+        Assertions.assertThat(caseSARDetails[1].caseId).isEqualTo("CASEID2")
         Assertions.assertThat(caseSARDetails[1].hearings[0].hearingId).isEqualTo("uuid2")
         Assertions.assertThat(caseSARDetails[1].hearings[0].outcomes).hasSize(0)
         Assertions.assertThat(caseSARDetails[1].hearings[0].notes[0].note).isEqualTo("hearing 2 note")

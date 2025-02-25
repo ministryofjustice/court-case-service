@@ -64,7 +64,7 @@ env:
   community_api:
     base_url: https://court-case-and-delius-dev.hmpps.service.justice.gov.uk
   nomis_oauth:
-    base_url: https://sign-in-dev.hmpps.service.justice.gov.uk
+    base_url: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
   offender_assessments_api:
     base_url: https://assess-risks-and-needs-dev.hmpps.service.justice.gov.uk
   delius:

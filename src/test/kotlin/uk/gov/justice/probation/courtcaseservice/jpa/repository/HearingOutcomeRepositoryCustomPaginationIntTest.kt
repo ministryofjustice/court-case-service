@@ -12,7 +12,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlConfig
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState.IN_PROGRESS
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState.RESULTED
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
 
 @DataJpaTest

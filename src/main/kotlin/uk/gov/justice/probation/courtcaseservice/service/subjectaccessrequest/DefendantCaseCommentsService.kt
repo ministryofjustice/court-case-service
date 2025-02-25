@@ -4,8 +4,8 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentsSarResponse
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepositoryFacade
 import java.time.LocalDate
 import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService
 import uk.gov.justice.probation.courtcaseservice.service.ImmutableCourtCaseService
@@ -13,30 +13,35 @@ import uk.gov.justice.probation.courtcaseservice.service.ImmutableCourtCaseServi
 @Service
 class DefendantCaseCommentsService(
     private val caseCommentsService: CaseCommentsService,
-    private val defendantRepositoryFacade: DefendantRepositoryFacade,
     private val immutableCourtCaseService: ImmutableCourtCaseService
 ) {
-    fun getCaseCommentsForDefendant(crn: String, fromDate: LocalDate?, toDate: LocalDate?): List<CaseCommentsSarResponse> {
-        return defendantRepositoryFacade.findDefendantsByCrn(crn).stream().map {
-            defendant ->
-            caseCommentsSarResponses(findDefendantsByCrnAndDateRange(defendant.defendantId, fromDate, toDate))
-        }.toList().flatten()
+    fun getCaseCommentsForDefendant(hearingDefendantEntity: HearingDefendantEntity, fromDate: LocalDate?, toDate: LocalDate?): List<CaseCommentsSarResponse> {
+        return caseCommentsSarResponses(findDefendantsByCrnAndDateRange(hearingDefendantEntity.defendantId, fromDate, toDate))
     }
 
     private fun caseCommentsSarResponses(caseCommentEntities: List<CaseCommentEntity>): List<CaseCommentsSarResponse> =
         caseCommentEntities
-            .stream()
             .map { caseComment ->
+                if (caseComment.isDraft || caseComment.isDeleted || caseComment.isLegacy){
+                    return@map null
+                }
                 CaseCommentsSarResponse(
                     caseComment.comment,
-                    caseComment.author,
+                    getSurname(caseComment.author),
                     caseComment.created,
-                    caseComment.createdBy,
                     caseComment.lastUpdated,
-                    caseComment.lastUpdatedBy,
+                    getLastUpdatedBy(caseComment.lastUpdatedBy),
                     getCaseNumber(caseComment)
                 )
-            }.toList()
+            }.filterNotNull()
+
+    private fun getSurname(name: String): String {
+        return name.split(" ").last()
+    }
+
+    private fun getLastUpdatedBy(name: String): String {
+        return name.split("(").first()
+    }
 
     private fun getCaseNumber(caseComment: CaseCommentEntity): String {
         val findByCaseId: CourtCaseEntity? = immutableCourtCaseService.findByCaseId(caseComment.caseId).orElse(null)

@@ -6,8 +6,8 @@
 --INSERT INTO court (id, name, court_code) VALUES (1142409, 'Sheffield Magistrates'' Court', 'B14LO');
 
 -- LIBRA case with one hearing and one unlinked defendant
-INSERT INTO court_case (id, case_id, case_no, source_type)
-VALUES (-1, '1a0928fb-55ad-416f-9349-669ccd4c2f1b', 1600028912, 'LIBRA');
+INSERT INTO court_case (id, case_id, case_no, source_type, urn)
+VALUES (-1, '1a0928fb-55ad-416f-9349-669ccd4c2f1b', 1600028912, 'LIBRA', 'NEW123456');
 INSERT INTO HEARING (id, fk_court_case_id, list_no)
 VALUES (-1, -1, '3rd');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
@@ -20,8 +20,8 @@ INSERT INTO OFFENCE (ID, fk_hearing_defendant_id, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-1, -1, 'UNLINKED: Theft from a shop', 'UNLINKED: On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);
 
 -- LIBRA case with one hearing and two defendants - one linked and one unliked.
-INSERT INTO court_case (id, case_id, case_no, source_type)
-VALUES (-2, '1c6bdbfc-5889-4011-94f6-89eb32b2a0b7', 1600028974, 'LIBRA');
+INSERT INTO court_case (id, case_id, case_no, source_type, urn)
+VALUES (-2, '1c6bdbfc-5889-4011-94f6-89eb32b2a0b7', 1600028974, 'LIBRA', 'URN123456');
 INSERT INTO HEARING (id, fk_court_case_id, list_no)
 VALUES (-2, -2, '1st');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
@@ -40,8 +40,8 @@ INSERT INTO OFFENCE (ID, fk_hearing_defendant_id, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-3, -2, 'SINGLE-UNLINKED: Theft from a shop', 'SINGLE-LINKED: On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);
 
 -- Two COMMON_PLATFORM cases follow, each with one hearing and one defendant, both defendants have the same CRN
-INSERT INTO court_case (id, case_id, case_no, source_type)
-VALUES (-5, 'e45b926b-885c-4137-902c-d7dbbfa4cbc0', 1600028956, 'COMMON_PLATFORM');
+INSERT INTO court_case (id, case_id, case_no, source_type, urn)
+VALUES (-5, 'e45b926b-885c-4137-902c-d7dbbfa4cbc0', 1600028956, 'COMMON_PLATFORM', 'URN654321');
 INSERT INTO HEARING (id, fk_court_case_id, list_no)
 VALUES (-5, -5, '1st');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
@@ -53,8 +53,8 @@ VALUES (-5, -5, 'd9532d9f-a7c5-446e-8ef8-fdb8c7bba3c6', -5);
 INSERT INTO OFFENCE (ID, fk_hearing_defendant_id, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-5, -5, 'Theft from a shop', 'SINGLE-LINKED: On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);
 
-INSERT INTO court_case (id, case_id, case_no, source_type)
-VALUES (-6, '40f20b13-a45e-4341-b9b3-e4754479f029', 1600028920, 'COMMON_PLATFORM');
+INSERT INTO court_case (id, case_id, case_no, source_type, urn)
+VALUES (-6, '40f20b13-a45e-4341-b9b3-e4754479f029', 1600028920, 'COMMON_PLATFORM', 'URN654321');
 INSERT INTO HEARING (id, fk_court_case_id, list_no)
 VALUES (-6, -6, '1st');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
@@ -67,8 +67,8 @@ INSERT INTO OFFENCE (ID, fk_hearing_defendant_id, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-6, -6, 'Theft from a shop', 'SINGLE-LINKED: On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);
 
 -- A LIBRA case which is in the past.
-INSERT INTO court_case (id, case_id, case_no, source_type)
-VALUES (-7, '7a794316-0b77-4ac0-8b10-3a1470d9f7a4', 1600029021, 'LIBRA');
+INSERT INTO court_case (id, case_id, case_no, source_type, urn)
+VALUES (-7, '7a794316-0b77-4ac0-8b10-3a1470d9f7a4', 1600029021, 'LIBRA','URN123456');
 INSERT INTO HEARING (id, fk_court_case_id, list_no)
 VALUES (-7, -7, '4th');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
@@ -81,8 +81,8 @@ INSERT INTO OFFENCE (ID, fk_hearing_defendant_id, TITLE, SUMMARY, ACT, SEQUENCE)
 VALUES (-7, -7, 'Theft from a shop', 'HISTORIC: On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person.', 'Contrary to section 1(1) and 7 of the Theft Act 1968.', 1);
 
 -- A COMMON_PLATFORM case which is next week but has some matches
-INSERT INTO court_case (id, case_id, source_type)
-VALUES (-8, '930348c2-e7bf-489e-9d87-f9559b409c43', 'COMMON_PLATFORM');
+INSERT INTO court_case (id, case_id, source_type, urn)
+VALUES (-8, '930348c2-e7bf-489e-9d87-f9559b409c43', 'COMMON_PLATFORM', 'URN123456');
 INSERT INTO HEARING (id, fk_court_case_id, list_no)
 VALUES (-8, -8, '2nd');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
@@ -104,8 +104,8 @@ INSERT INTO offender_match (id, group_id, confirmed, crn, match_type, pnc, creat
 VALUES( -2, -1, false, 'X320811', 'NAME_DOB', 'PNC2', now(), now(), 'R_seed_data', '', false, 0, false);
 
 -- A LIBRA case which has one defendant, matched
-INSERT INTO court_case (id, case_id, case_no, source_type)
-VALUES (-9, 'd0d6d6db-1b52-49d3-bd8a-5f290c2621eb', '9600000000', 'LIBRA');
+INSERT INTO court_case (id, case_id, case_no, source_type, urn)
+VALUES (-9, 'd0d6d6db-1b52-49d3-bd8a-5f290c2621eb', '9600000000', 'LIBRA', 'NEW123456');
 INSERT INTO HEARING (id, fk_court_case_id, list_no)
 VALUES (-9, -9, '1st');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)

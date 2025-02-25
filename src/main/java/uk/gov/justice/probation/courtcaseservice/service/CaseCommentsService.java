@@ -123,14 +123,14 @@ public class CaseCommentsService {
     }
 
     public List<CaseCommentEntity> getCaseCommentsForDefendantBetween(String defendantId, LocalDate fromDate, LocalDate toDate) {
-        return caseCommentsRepository.findByDefendantIdAndCreatedBetween(defendantId, fromDate.atStartOfDay(), toDate.atStartOfDay());
+        return caseCommentsRepository.findByDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBetween(defendantId, fromDate.atStartOfDay(), toDate.atStartOfDay());
     }
 
     public List<CaseCommentEntity> getCaseCommentsForDefendantFrom(String defendantId, LocalDate fromDate) {
-        return caseCommentsRepository.findByDefendantIdAndCreatedAfter(defendantId, fromDate.atStartOfDay());
+        return caseCommentsRepository.findByDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedAfter(defendantId, fromDate.atStartOfDay());
     }
 
     public List<CaseCommentEntity> getCaseCommentsForDefendantTo(String defendantId, LocalDate toDate) {
-        return caseCommentsRepository.findByDefendantIdAndCreatedBefore(defendantId, toDate.atStartOfDay());
+        return caseCommentsRepository.findByDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBefore(defendantId, toDate.atStartOfDay());
     }
 }

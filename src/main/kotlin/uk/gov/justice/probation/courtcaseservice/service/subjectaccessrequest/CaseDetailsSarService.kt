@@ -3,9 +3,9 @@ package uk.gov.justice.probation.courtcaseservice.service.subjectaccessrequest
 import org.springframework.stereotype.Service
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentsSarResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseSarResponse
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNotesSarResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSarResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSarResponse
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNotesSarResponse
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendantRepository
 import java.time.LocalDate

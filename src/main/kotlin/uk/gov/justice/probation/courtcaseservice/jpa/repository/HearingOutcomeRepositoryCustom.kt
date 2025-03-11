@@ -115,8 +115,8 @@ class HearingOutcomeRepositoryCustom(
     jpaQuery.firstResult = pageable.pageNumber * pageable.pageSize
     jpaQuery.maxResults = pageable.pageSize
 
-        val content = jpaQuery.resultList.map { (it as Array<Any>) }.map { Pair(getHearingDefendantDTO(it[0] as HearingDefendantDTO), it[1] as LocalDate) }
-        val count = (countJpaQuery.singleResult as Long)
+    val content = jpaQuery.resultList.map { (it as Array<Any>) }.map { Pair(getHearingDefendantDTO(it[0] as HearingDefendantDTO), it[1] as LocalDate) }
+    val count = (countJpaQuery.singleResult as Long)
 
     return PageImpl(content, pageable, count)
   }

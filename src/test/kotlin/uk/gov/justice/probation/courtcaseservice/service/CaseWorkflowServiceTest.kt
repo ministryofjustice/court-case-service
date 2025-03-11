@@ -49,7 +49,7 @@ import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFou
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.*
+import java.util.Optional
 
 @ExtendWith(MockitoExtension::class)
 internal class CaseWorkflowServiceTest {

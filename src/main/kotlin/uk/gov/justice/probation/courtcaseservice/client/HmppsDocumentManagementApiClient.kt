@@ -19,93 +19,98 @@ import uk.gov.justice.probation.courtcaseservice.client.exception.ExternalServic
 import uk.gov.justice.probation.courtcaseservice.client.model.documentmanagement.DocumentUploadResponse
 import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper
 
-
 @Component
 class HmppsDocumentManagementApiClient(
-    @Qualifier("hmppsDocumentManagementApiRestClient") val clientHelper: RestClientHelper,
-    @Value("\${hmpps-document-management-api.create-document}") val hmppsDocumentManagementApiCreateDocument: String,
-    @Value("\${hmpps-document-management-api.document-by-uuid}") val hmppsDocumentManagementApiDocumentByUuid: String,
-    @Value("\${hmpps-document-management-api.client-service-name}") val clientServiceName: String) {
+  @Qualifier("hmppsDocumentManagementApiRestClient") val clientHelper: RestClientHelper,
+  @Value("\${hmpps-document-management-api.create-document}") val hmppsDocumentManagementApiCreateDocument: String,
+  @Value("\${hmpps-document-management-api.document-by-uuid}") val hmppsDocumentManagementApiDocumentByUuid: String,
+  @Value("\${hmpps-document-management-api.client-service-name}") val clientServiceName: String,
+) {
 
-    companion object {
-        val log: Logger = LoggerFactory.getLogger(this::class.java)
-        val DOCUMENT_MANAGEMENT_API_SERVICE_NAME_HEADER = "Service-Name"
-    }
+  companion object {
+    val log: Logger = LoggerFactory.getLogger(this::class.java)
+    val DOCUMENT_MANAGEMENT_API_SERVICE_NAME_HEADER = "Service-Name"
+  }
 
-    fun createDocument(documentType: String, documentUuid: String, multipartBodyBuilder: MultipartBodyBuilder): Mono<DocumentUploadResponse> {
-        log.debug("Uploading document type $documentType with UUID $documentUuid")
+  fun createDocument(documentType: String, documentUuid: String, multipartBodyBuilder: MultipartBodyBuilder): Mono<DocumentUploadResponse> {
+    log.debug("Uploading document type $documentType with UUID $documentUuid")
 
-        val documentPath = String.format(hmppsDocumentManagementApiCreateDocument, documentType, documentUuid)
-        return clientHelper
-            .post(documentPath)
-            .body(BodyInserters.fromMultipartData(multipartBodyBuilder.build()))
-            .header(DOCUMENT_MANAGEMENT_API_SERVICE_NAME_HEADER, clientServiceName)
-            .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError) {
-                log.error("Document upload failed $documentPath with status ${it.statusCode()}")
-                handle4xxError(it, HttpMethod.POST, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API)
-            }
-            .onStatus(HttpStatusCode::is5xxServerError) {
-                log.error("Document uploaded failed to $documentPath with status ${it.statusCode()}")
-                handle5xxError("${it.statusCode()} error uploading document",
-                    HttpMethod.POST, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API)
-            }
-            .bodyToMono(DocumentUploadResponse::class.java)
-            .doOnSuccess {
-                log.info("Document upload success {}", it)
-            }
-    }
+    val documentPath = String.format(hmppsDocumentManagementApiCreateDocument, documentType, documentUuid)
+    return clientHelper
+      .post(documentPath)
+      .body(BodyInserters.fromMultipartData(multipartBodyBuilder.build()))
+      .header(DOCUMENT_MANAGEMENT_API_SERVICE_NAME_HEADER, clientServiceName)
+      .retrieve()
+      .onStatus(HttpStatusCode::is4xxClientError) {
+        log.error("Document upload failed $documentPath with status ${it.statusCode()}")
+        handle4xxError(it, HttpMethod.POST, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API)
+      }
+      .onStatus(HttpStatusCode::is5xxServerError) {
+        log.error("Document uploaded failed to $documentPath with status ${it.statusCode()}")
+        handle5xxError(
+          "${it.statusCode()} error uploading document",
+          HttpMethod.POST,
+          documentPath,
+          ExternalService.DOCUMENT_MANAGEMENT_API,
+        )
+      }
+      .bodyToMono(DocumentUploadResponse::class.java)
+      .doOnSuccess {
+        log.info("Document upload success {}", it)
+      }
+  }
 
-    fun getDocument(documentUuid: String): Mono<ResponseEntity<Flux<InputStreamResource>>> {
+  fun getDocument(documentUuid: String): Mono<ResponseEntity<Flux<InputStreamResource>>> {
+    val documentPath = "${String.format(hmppsDocumentManagementApiDocumentByUuid, documentUuid)}/file"
+    log.debug("Fetching document $documentPath")
 
-        val documentPath = "${String.format(hmppsDocumentManagementApiDocumentByUuid, documentUuid)}/file"
-        log.debug("Fetching document $documentPath")
+    return clientHelper
+      .get(documentPath)
+      .accept(MediaType.ALL)
+      .header(DOCUMENT_MANAGEMENT_API_SERVICE_NAME_HEADER, clientServiceName)
+      .retrieve()
+      .onStatus(HttpStatusCode::is4xxClientError) {
+        log.error("Document download failed $documentPath with status ${it.statusCode()}")
+        handle4xxError(it, HttpMethod.POST, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API)
+      }
+      .onStatus(HttpStatusCode::is5xxServerError) {
+        log.error("Document download failed $documentPath with status ${it.statusCode()}")
+        handle5xxError(
+          "${it.statusCode()} error downloading document",
+          HttpMethod.POST,
+          documentPath,
+          ExternalService.DOCUMENT_MANAGEMENT_API,
+        )
+      }
+      .toEntityFlux(InputStreamResource::class.java)
+      .doOnSuccess {
+        log.info("Document download success {}", documentPath)
+      }
+  }
 
-        return clientHelper
-            .get(documentPath)
-            .accept(MediaType.ALL)
-            .header(DOCUMENT_MANAGEMENT_API_SERVICE_NAME_HEADER, clientServiceName)
-            .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError) {
-                log.error("Document download failed $documentPath with status ${it.statusCode()}")
-                handle4xxError(it, HttpMethod.POST, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API)
-            }
-            .onStatus(HttpStatusCode::is5xxServerError) {
-                log.error("Document download failed $documentPath with status ${it.statusCode()}")
-                handle5xxError(
-                    "${it.statusCode()} error downloading document",
-                    HttpMethod.POST, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API
-                )
-            }
-            .toEntityFlux(InputStreamResource::class.java)
-            .doOnSuccess {
-                log.info("Document download success {}", documentPath)
-            }
-    }
+  fun deleteDocument(documentUuid: String): Mono<ResponseEntity<Any>> {
+    val documentPath = String.format(hmppsDocumentManagementApiDocumentByUuid, documentUuid)
+    log.debug("Deleting document $documentPath")
 
-    fun deleteDocument(documentUuid: String): Mono<ResponseEntity<Any>> {
-
-        val documentPath = String.format(hmppsDocumentManagementApiDocumentByUuid, documentUuid)
-        log.debug("Deleting document $documentPath")
-
-        return clientHelper
-            .delete(documentPath)
-            .header(DOCUMENT_MANAGEMENT_API_SERVICE_NAME_HEADER, clientServiceName)
-            .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError) {
-                log.error("Document delete failed $documentPath with status ${it.statusCode()}")
-                handle4xxError(it, HttpMethod.DELETE, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API)
-            }
-            .onStatus(HttpStatusCode::is5xxServerError) {
-                log.error("Document delete failed $documentPath with status ${it.statusCode()}")
-                handle5xxError(
-                    "${it.statusCode()} error downloading document",
-                    HttpMethod.DELETE, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API
-                )
-            }.toEntity<Any>()
-            .doOnSuccess {
-                log.info("Document delete success {}", documentPath)
-            }
-    }
-
+    return clientHelper
+      .delete(documentPath)
+      .header(DOCUMENT_MANAGEMENT_API_SERVICE_NAME_HEADER, clientServiceName)
+      .retrieve()
+      .onStatus(HttpStatusCode::is4xxClientError) {
+        log.error("Document delete failed $documentPath with status ${it.statusCode()}")
+        handle4xxError(it, HttpMethod.DELETE, documentPath, ExternalService.DOCUMENT_MANAGEMENT_API)
+      }
+      .onStatus(HttpStatusCode::is5xxServerError) {
+        log.error("Document delete failed $documentPath with status ${it.statusCode()}")
+        handle5xxError(
+          "${it.statusCode()} error downloading document",
+          HttpMethod.DELETE,
+          documentPath,
+          ExternalService.DOCUMENT_MANAGEMENT_API,
+        )
+      }.toEntity<Any>()
+      .doOnSuccess {
+        log.info("Document delete success {}", documentPath)
+      }
+  }
 }

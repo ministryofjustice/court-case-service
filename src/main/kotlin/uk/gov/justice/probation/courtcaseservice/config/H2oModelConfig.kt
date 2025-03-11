@@ -12,13 +12,13 @@ import org.springframework.core.io.Resource
 @Configuration
 class H2oModelConfig(@Value("\${h2o.model-path}") private val h2oResource: Resource) {
 
-    companion object {
-        private val log = LoggerFactory.getLogger(this::class.java)
-    }
+  companion object {
+    private val log = LoggerFactory.getLogger(this::class.java)
+  }
 
-    @Bean
-    fun getModelWrapper(): EasyPredictModelWrapper {
-        log.info("Creating H2O Model runtime from zip file")
-        return EasyPredictModelWrapper(MojoModel.load(MojoReaderBackendFactory.createReaderBackend(h2oResource.inputStream, MojoReaderBackendFactory.CachingStrategy.MEMORY)))
-    }
+  @Bean
+  fun getModelWrapper(): EasyPredictModelWrapper {
+    log.info("Creating H2O Model runtime from zip file")
+    return EasyPredictModelWrapper(MojoModel.load(MojoReaderBackendFactory.createReaderBackend(h2oResource.inputStream, MojoReaderBackendFactory.CachingStrategy.MEMORY)))
+  }
 }

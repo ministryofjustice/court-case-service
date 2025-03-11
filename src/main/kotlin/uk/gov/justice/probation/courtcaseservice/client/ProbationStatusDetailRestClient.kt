@@ -16,32 +16,33 @@ import java.time.Duration
 
 @Component
 class ProbationStatusDetailRestClient(
-    @Qualifier("courtCaseDeliusApiClient") val clientHelper: RestClientHelper,
-    @Value("\${court-case-and-delius-api.probation-status-by-crn}") val probationStatusByCrnPath: String) {
+  @Qualifier("courtCaseDeliusApiClient") val clientHelper: RestClientHelper,
+  @Value("\${court-case-and-delius-api.probation-status-by-crn}") val probationStatusByCrnPath: String,
+) {
 
-    companion object {
-        val log: Logger = LoggerFactory.getLogger(this::class.java)
-    }
+  companion object {
+    val log: Logger = LoggerFactory.getLogger(this::class.java)
+  }
 
-    fun getProbationStatusByCrn(crn : String) : Mono<ProbationStatusDetail> {
-        log.debug("Retrieving Probation Status for crn $crn")
-        return clientHelper.get(String.format(probationStatusByCrnPath, crn))
-            .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError) {
-                log.error("${it.statusCode().value()} Error retrieving Probation Status for crn: $crn")
-                clientHelper.handleOffenderError(crn, it)
-            }
-            .onStatus(HttpStatusCode::is5xxServerError) {
-                log.error("${it.statusCode().value()} Error retrieving Probation Status for crn: $crn")
-                handle5xxError(
-                    "${it.statusCode().value()} Error retrieving Probation Status for crn: $crn",
-                    HttpMethod.GET,
-                    probationStatusByCrnPath,
-                    ExternalService.PROBATION_STATUS_DETAIL)
-            }
-            .bodyToMono(DeliusProbationStatusDetail::class.java)
-            .timeout(Duration.ofMillis(8000))
-            .map { DeliusProbationStatusDetail.from(it) }
-    }
-
+  fun getProbationStatusByCrn(crn: String): Mono<ProbationStatusDetail> {
+    log.debug("Retrieving Probation Status for crn $crn")
+    return clientHelper.get(String.format(probationStatusByCrnPath, crn))
+      .retrieve()
+      .onStatus(HttpStatusCode::is4xxClientError) {
+        log.error("${it.statusCode().value()} Error retrieving Probation Status for crn: $crn")
+        clientHelper.handleOffenderError(crn, it)
+      }
+      .onStatus(HttpStatusCode::is5xxServerError) {
+        log.error("${it.statusCode().value()} Error retrieving Probation Status for crn: $crn")
+        handle5xxError(
+          "${it.statusCode().value()} Error retrieving Probation Status for crn: $crn",
+          HttpMethod.GET,
+          probationStatusByCrnPath,
+          ExternalService.PROBATION_STATUS_DETAIL,
+        )
+      }
+      .bodyToMono(DeliusProbationStatusDetail::class.java)
+      .timeout(Duration.ofMillis(8000))
+      .map { DeliusProbationStatusDetail.from(it) }
+  }
 }

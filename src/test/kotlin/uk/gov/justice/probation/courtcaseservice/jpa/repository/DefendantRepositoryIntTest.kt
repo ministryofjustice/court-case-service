@@ -14,28 +14,28 @@ import java.time.LocalDate
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Sql(
-    scripts = ["classpath:sql/before-common.sql", "classpath:sql/before-new-hearing-search.sql"],
-    config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),
-    executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
+  scripts = ["classpath:sql/before-common.sql", "classpath:sql/before-new-hearing-search.sql"],
+  config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),
+  executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
 )
 class DefendantRepositoryIntTest {
 
-    @Autowired
-    lateinit var defendantRepository: DefendantRepository
+  @Autowired
+  lateinit var defendantRepository: DefendantRepository
 
-    @Test
-    fun shouldFindMatchingDefendants(){
-        val matchingDefendants =
-            defendantRepository.findMatchingDefendants("2004/0046583U", LocalDate.of(1975, 1, 1), "Jeff", "Blogs")
+  @Test
+  fun shouldFindMatchingDefendants() {
+    val matchingDefendants =
+      defendantRepository.findMatchingDefendants("2004/0046583U", LocalDate.of(1975, 1, 1), "Jeff", "Blogs")
 
-        assertThat(matchingDefendants.size).isEqualTo(1)
-    }
+    assertThat(matchingDefendants.size).isEqualTo(1)
+  }
 
-    @Test
-    fun shouldReturnEmptyWhenMatchingDefendantsNotFound(){
-        val matchingDefendants =
-            defendantRepository.findMatchingDefendants("2004/0046583U", LocalDate.of(1975, 1, 1), "J", "Blogs")
+  @Test
+  fun shouldReturnEmptyWhenMatchingDefendantsNotFound() {
+    val matchingDefendants =
+      defendantRepository.findMatchingDefendants("2004/0046583U", LocalDate.of(1975, 1, 1), "J", "Blogs")
 
-        assertThat(matchingDefendants).isEmpty()
-    }
+    assertThat(matchingDefendants).isEmpty()
+  }
 }

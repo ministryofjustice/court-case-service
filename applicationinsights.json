@@ -5,5 +5,30 @@
   },
   "heartbeat": {
     "intervalSeconds": 15
+  },
+  "sampling": {
+    "overrides": [
+      {
+        "attributes": [
+          {
+            "key": "http.url",
+            "value": "https?://[^/]+/health.*",
+            "matchType": "regexp"
+          }
+        ],
+        "percentage": 10
+      },
+      {
+        "telemetryType": "exception",
+        "attributes": [
+          {
+            "key": "exception.type",
+            "value": "java.util.concurrent.CompletionException",
+            "matchType": "strict"
+          }
+        ],
+        "percentage": 10
+      }
+    ]
   }
 }

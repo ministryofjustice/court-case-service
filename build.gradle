@@ -1,20 +1,15 @@
 import java.time.LocalDate
 
 plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.4.3'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.github.ben-manes.versions' version '0.52.0'
     id 'org.flywaydb.flyway' version '11.3.4'
     id "uk.gov.justice.hmpps.gradle-spring-boot" version "6.1.0"
-    id 'io.spring.dependency-management' version '1.1.4'
-    id 'com.github.ben-manes.versions' version '0.51.0'
     id 'jacoco'
     id "au.com.dius.pact" version "4.6.17"
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm' version '2.1.10'
     id 'org.jetbrains.kotlin.plugin.spring' version '2.1.10'
-    id 'org.jetbrains.kotlin.plugin.lombok' version '2.1.10'
     id 'org.jetbrains.kotlin.plugin.lombok' version '2.1.10'
     id "org.jlleitschuh.gradle.ktlint" version "12.1.2"
 }
@@ -35,6 +30,10 @@ group = 'uk.gov.justice.probation'
 ext {
     restAssuredVersion = '5.5.1'
     pactVersion = '4.6.17'
+}
+
+ktlint {
+    version.set("1.4.1")
 }
 
 def todaysDate = LocalDate.now().format('yyyy-MM-dd')

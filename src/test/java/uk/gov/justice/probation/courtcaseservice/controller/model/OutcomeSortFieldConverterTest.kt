@@ -1,7 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller.model
 
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.springframework.web.server.ResponseStatusException
 

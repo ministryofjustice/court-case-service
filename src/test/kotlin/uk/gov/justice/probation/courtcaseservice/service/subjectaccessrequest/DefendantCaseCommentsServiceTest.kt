@@ -8,11 +8,14 @@ import org.mockito.BDDMockito.given
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.verifyNoInteractions
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aCaseCommentEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aCourtCaseEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingDefendantEntity
 import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService
 import uk.gov.justice.probation.courtcaseservice.service.ImmutableCourtCaseService
 import java.time.LocalDate
-import java.util.*
+import java.util.Collections
+import java.util.Optional
 
 @ExtendWith(MockitoExtension::class)
 class DefendantCaseCommentsServiceTest {

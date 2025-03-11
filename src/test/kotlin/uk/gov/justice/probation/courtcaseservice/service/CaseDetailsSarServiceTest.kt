@@ -11,7 +11,9 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentsSa
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNotesSarResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSarResponse
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aCourtCaseEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aDefendantEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingOutcomeEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendantRepository

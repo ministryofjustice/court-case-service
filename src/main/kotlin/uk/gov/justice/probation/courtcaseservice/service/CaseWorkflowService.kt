@@ -7,7 +7,12 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.server.ResponseStatusException
-import uk.gov.justice.probation.courtcaseservice.controller.model.*
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCaseList
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeCountByState
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeResponse
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepStatus
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepositoryCustom

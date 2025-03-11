@@ -12,32 +12,37 @@ import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper
 
 @Component
 class ManageOffencesRestClient(
-    @Qualifier("manageOffencesApiClient") val clientHelper: RestClientHelper,
-    @Value("\${manage-offences-api.get-home-office-offence-code}") val getHomeOfficeOffenceCodePath: String) {
+  @Qualifier("manageOffencesApiClient") val clientHelper: RestClientHelper,
+  @Value("\${manage-offences-api.get-home-office-offence-code}") val getHomeOfficeOffenceCodePath: String,
+) {
 
-    companion object {
-        val log: Logger = LoggerFactory.getLogger(this::class.java)
-    }
+  companion object {
+    val log: Logger = LoggerFactory.getLogger(this::class.java)
+  }
 
-    fun getHomeOfficeOffenceCodeByCJSCode(cjsCode : String) : String? {
-        log.debug("Retrieving home office offence code for CJS code $cjsCode")
-        return clientHelper.get(String.format(getHomeOfficeOffenceCodePath, cjsCode))
-            .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError) {
-                log.error("${it.statusCode().value()} Error retrieving Home Office Offence code for CJS code: $cjsCode")
-                handle4xxError(
-                    it,
-                    HttpMethod.GET,
-                    getHomeOfficeOffenceCodePath,
-                    ExternalService.MANAGE_OFFENCES) }
-            .onStatus(HttpStatusCode::is5xxServerError) {
-                log.error("${it.statusCode().value()} Error retrieving Home Office Offence code for CJS code: $cjsCode")
-                handle5xxError(
-                    "${it.statusCode().value()} Error retrieving Home Office Offence code for CJS code: $cjsCode",
-                    HttpMethod.GET,
-                    getHomeOfficeOffenceCodePath,
-                    ExternalService.MANAGE_OFFENCES) }
-            .bodyToMono(String::class.java)
-            .block()
-    }
+  fun getHomeOfficeOffenceCodeByCJSCode(cjsCode: String): String? {
+    log.debug("Retrieving home office offence code for CJS code $cjsCode")
+    return clientHelper.get(String.format(getHomeOfficeOffenceCodePath, cjsCode))
+      .retrieve()
+      .onStatus(HttpStatusCode::is4xxClientError) {
+        log.error("${it.statusCode().value()} Error retrieving Home Office Offence code for CJS code: $cjsCode")
+        handle4xxError(
+          it,
+          HttpMethod.GET,
+          getHomeOfficeOffenceCodePath,
+          ExternalService.MANAGE_OFFENCES,
+        )
+      }
+      .onStatus(HttpStatusCode::is5xxServerError) {
+        log.error("${it.statusCode().value()} Error retrieving Home Office Offence code for CJS code: $cjsCode")
+        handle5xxError(
+          "${it.statusCode().value()} Error retrieving Home Office Offence code for CJS code: $cjsCode",
+          HttpMethod.GET,
+          getHomeOfficeOffenceCodePath,
+          ExternalService.MANAGE_OFFENCES,
+        )
+      }
+      .bodyToMono(String::class.java)
+      .block()
+  }
 }

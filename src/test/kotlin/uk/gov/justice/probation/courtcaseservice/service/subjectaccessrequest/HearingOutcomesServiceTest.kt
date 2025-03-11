@@ -8,83 +8,99 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper
 import java.time.LocalDateTime
 internal class HearingOutcomesServiceTest {
 
-    companion object {
-        const val crn = "B25829"
-    }
-    private lateinit var hearingOutcomesService: HearingOutcomesService
+  companion object {
+    const val crn = "B25829"
+  }
+  private lateinit var hearingOutcomesService: HearingOutcomesService
 
-    @BeforeEach
-    fun initTest() {
-        hearingOutcomesService = HearingOutcomesService()
-    }
+  @BeforeEach
+  fun initTest() {
+    hearingOutcomesService = HearingOutcomesService()
+  }
 
-    @Test
-    fun `given hearing defendant it should return hearing outcomes`() {
-        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
+  @Test
+  fun `given hearing defendant it should return hearing outcomes`() {
+    val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
 
-        Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(dbHearingDefendantEntity, null, null))
-            .isEqualTo(listOf(HearingOutcomeSarResponse(
-                "Adjourned",
-                LocalDateTime.parse("2020-05-01T00:00"),
-                LocalDateTime.parse("2020-05-01T00:00"),
-                "In progress",
-                "Doe",
-                LocalDateTime.parse("2024-01-01T00:00")
-            )))
-    }
+    Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(dbHearingDefendantEntity, null, null))
+      .isEqualTo(
+        listOf(
+          HearingOutcomeSarResponse(
+            "Adjourned",
+            LocalDateTime.parse("2020-05-01T00:00"),
+            LocalDateTime.parse("2020-05-01T00:00"),
+            "In progress",
+            "Doe",
+            LocalDateTime.parse("2024-01-01T00:00"),
+          ),
+        ),
+      )
+  }
 
-    @Test
-    fun `given hearing defendant and valid date ranges it should return hearing outcomes`() {
-        val hearingOutcomeCreatedDate = LocalDateTime.parse("2024-01-01T00:00")
-        val fromDate = hearingOutcomeCreatedDate.toLocalDate()
-        val toDate = hearingOutcomeCreatedDate.toLocalDate().plusDays(1)
+  @Test
+  fun `given hearing defendant and valid date ranges it should return hearing outcomes`() {
+    val hearingOutcomeCreatedDate = LocalDateTime.parse("2024-01-01T00:00")
+    val fromDate = hearingOutcomeCreatedDate.toLocalDate()
+    val toDate = hearingOutcomeCreatedDate.toLocalDate().plusDays(1)
 
-        var dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
+    var dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
 
-        Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(dbHearingDefendantEntity, hearingOutcomeCreatedDate.toLocalDate(), toDate))
-            .isEqualTo(listOf(HearingOutcomeSarResponse(
-                "Adjourned",
-                LocalDateTime.parse("2020-05-01T00:00"),
-                LocalDateTime.parse("2020-05-01T00:00"),
-                "In progress",
-                "Doe",
-                hearingOutcomeCreatedDate
-            )))
-    }
+    Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(dbHearingDefendantEntity, hearingOutcomeCreatedDate.toLocalDate(), toDate))
+      .isEqualTo(
+        listOf(
+          HearingOutcomeSarResponse(
+            "Adjourned",
+            LocalDateTime.parse("2020-05-01T00:00"),
+            LocalDateTime.parse("2020-05-01T00:00"),
+            "In progress",
+            "Doe",
+            hearingOutcomeCreatedDate,
+          ),
+        ),
+      )
+  }
 
-    @Test
-    fun `given hearing defendant and valid fromDate it should return filtered hearing outcomes`() {
-        val hearingOutcomeCreatedDate = LocalDateTime.parse("2024-01-01T00:00")
-        val fromDate = hearingOutcomeCreatedDate.toLocalDate()
+  @Test
+  fun `given hearing defendant and valid fromDate it should return filtered hearing outcomes`() {
+    val hearingOutcomeCreatedDate = LocalDateTime.parse("2024-01-01T00:00")
+    val fromDate = hearingOutcomeCreatedDate.toLocalDate()
 
-        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
+    val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
 
-        Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(dbHearingDefendantEntity, hearingOutcomeCreatedDate.toLocalDate(), null))
-            .isEqualTo(listOf(HearingOutcomeSarResponse(
-                "Adjourned",
-                LocalDateTime.parse("2020-05-01T00:00"),
-                LocalDateTime.parse("2020-05-01T00:00"),
-                "In progress",
-                "Doe",
-                hearingOutcomeCreatedDate
-            )))
-    }
+    Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(dbHearingDefendantEntity, hearingOutcomeCreatedDate.toLocalDate(), null))
+      .isEqualTo(
+        listOf(
+          HearingOutcomeSarResponse(
+            "Adjourned",
+            LocalDateTime.parse("2020-05-01T00:00"),
+            LocalDateTime.parse("2020-05-01T00:00"),
+            "In progress",
+            "Doe",
+            hearingOutcomeCreatedDate,
+          ),
+        ),
+      )
+  }
 
-    @Test
-    fun `given hearing defendant and valid toDate it should return filtered hearing outcomes`() {
-        val hearingOutcomeCreatedDate = LocalDateTime.parse("2024-01-01T00:00")
-        val toDate = hearingOutcomeCreatedDate.toLocalDate().plusDays(1)
+  @Test
+  fun `given hearing defendant and valid toDate it should return filtered hearing outcomes`() {
+    val hearingOutcomeCreatedDate = LocalDateTime.parse("2024-01-01T00:00")
+    val toDate = hearingOutcomeCreatedDate.toLocalDate().plusDays(1)
 
-        val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
+    val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, crn)
 
-        Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(dbHearingDefendantEntity, null, toDate))
-            .isEqualTo(listOf(HearingOutcomeSarResponse(
-                "Adjourned",
-                LocalDateTime.parse("2020-05-01T00:00"),
-                LocalDateTime.parse("2020-05-01T00:00"),
-                "In progress",
-                "Doe",
-                hearingOutcomeCreatedDate
-            )))
-    }
+    Assertions.assertThat(hearingOutcomesService.getHearingOutcomes(dbHearingDefendantEntity, null, toDate))
+      .isEqualTo(
+        listOf(
+          HearingOutcomeSarResponse(
+            "Adjourned",
+            LocalDateTime.parse("2020-05-01T00:00"),
+            LocalDateTime.parse("2020-05-01T00:00"),
+            "In progress",
+            "Doe",
+            hearingOutcomeCreatedDate,
+          ),
+        ),
+      )
+  }
 }

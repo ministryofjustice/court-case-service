@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.client.model.documentmanagement
 
 import io.swagger.v3.oas.annotations.media.Schema
-import java.time.LocalDateTime
 import java.util.UUID
 
 @Schema(
@@ -17,5 +16,5 @@ data class DocumentUploadResponse(
 
   val fileExtension: String,
 
-  val mimeType: String
+  val mimeType: String,
 )

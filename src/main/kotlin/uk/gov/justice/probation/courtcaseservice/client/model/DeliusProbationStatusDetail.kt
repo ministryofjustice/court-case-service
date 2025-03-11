@@ -4,32 +4,29 @@ import uk.gov.justice.probation.courtcaseservice.service.model.ProbationStatusDe
 import java.time.LocalDate
 
 data class DeliusProbationStatusDetail(
-    val status: ProbationStatus,
-    val terminationDate: LocalDate? = null,
-    val inBreach: Boolean = false,
-    val preSentenceActivity: Boolean = false,
-    val awaitingPsr: Boolean = false
+  val status: ProbationStatus,
+  val terminationDate: LocalDate? = null,
+  val inBreach: Boolean = false,
+  val preSentenceActivity: Boolean = false,
+  val awaitingPsr: Boolean = false,
 ) {
-    companion object {
+  companion object {
 
-        val NO_RECORD = DeliusProbationStatusDetail(ProbationStatus.NO_RECORD)
+    val NO_RECORD = DeliusProbationStatusDetail(ProbationStatus.NO_RECORD)
 
-        fun from(probationStatusDetail: DeliusProbationStatusDetail): ProbationStatusDetail {
-
-            return ProbationStatusDetail.builder()
-                .status(probationStatusDetail.status.name)
-                .awaitingPsr(probationStatusDetail.awaitingPsr)
-                .inBreach(probationStatusDetail.inBreach)
-                .preSentenceActivity(probationStatusDetail.preSentenceActivity)
-                .previouslyKnownTerminationDate(probationStatusDetail.terminationDate)
-                .build()
-        }
-    }
+    fun from(probationStatusDetail: DeliusProbationStatusDetail): ProbationStatusDetail = ProbationStatusDetail.builder()
+      .status(probationStatusDetail.status.name)
+      .awaitingPsr(probationStatusDetail.awaitingPsr)
+      .inBreach(probationStatusDetail.inBreach)
+      .preSentenceActivity(probationStatusDetail.preSentenceActivity)
+      .previouslyKnownTerminationDate(probationStatusDetail.terminationDate)
+      .build()
+  }
 }
 
 enum class ProbationStatus {
-    NO_RECORD,
-    NOT_SENTENCED,
-    PREVIOUSLY_KNOWN,
-    CURRENT
+  NO_RECORD,
+  NOT_SENTENCED,
+  PREVIOUSLY_KNOWN,
+  CURRENT,
 }

@@ -16,49 +16,46 @@ import org.springframework.web.multipart.MultipartFile
 import reactor.core.publisher.Mono
 import uk.gov.justice.probation.courtcaseservice.service.HmppsDocumentManagementService
 import java.util.*
-import java.util.stream.Stream
 
 @RestController
 class HmppsDocumentManagementApiGatewayController(val hmppsDocumentManagementService: HmppsDocumentManagementService) {
 
-    @Operation(description = "Uploads a document to HMPPS document management service")
-    @PostMapping(
-        value = ["/hearing/{hearingId}/defendant/{defendantId}/file"]
-    )
-    @ResponseStatus(CREATED)
-    fun uploadDocument(
-        @PathVariable("hearingId") hearingId: String,
-        @PathVariable("defendantId") defendantId: String,
-        @RequestParam("file") file: MultipartFile
-    ) = hmppsDocumentManagementService.uploadDocuments(hearingId, defendantId, file)
+  @Operation(description = "Uploads a document to HMPPS document management service")
+  @PostMapping(
+    value = ["/hearing/{hearingId}/defendant/{defendantId}/file"],
+  )
+  @ResponseStatus(CREATED)
+  fun uploadDocument(
+    @PathVariable("hearingId") hearingId: String,
+    @PathVariable("defendantId") defendantId: String,
+    @RequestParam("file") file: MultipartFile,
+  ) = hmppsDocumentManagementService.uploadDocuments(hearingId, defendantId, file)
 
-    @Operation(description = "Retrieves a document with given documentId from HMPPS document manages service.")
-    @GetMapping(
-        value = ["/hearing/{hearingId}/defendant/{defendantId}/file/{documentId}/raw"]
-    )
-    fun getDocument(
-        @PathVariable("hearingId") hearingId: String,
-        @PathVariable("defendantId") defendantId: String,
-        @PathVariable("documentId") documentId: String
-    ): ResponseEntity<InputStreamResource> {
-        val documentResponse = hmppsDocumentManagementService.getDocument(hearingId, defendantId, documentId)
-        val fileStream = documentResponse?.body?.blockFirst()
-        return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, documentResponse?.headers?.contentDisposition.toString())
-            .contentType(documentResponse?.headers?.contentType)
-            .contentLength(documentResponse?.headers?.contentLength?:0)
-            .body(fileStream)
-    }
+  @Operation(description = "Retrieves a document with given documentId from HMPPS document manages service.")
+  @GetMapping(
+    value = ["/hearing/{hearingId}/defendant/{defendantId}/file/{documentId}/raw"],
+  )
+  fun getDocument(
+    @PathVariable("hearingId") hearingId: String,
+    @PathVariable("defendantId") defendantId: String,
+    @PathVariable("documentId") documentId: String,
+  ): ResponseEntity<InputStreamResource> {
+    val documentResponse = hmppsDocumentManagementService.getDocument(hearingId, defendantId, documentId)
+    val fileStream = documentResponse?.body?.blockFirst()
+    return ResponseEntity.ok()
+      .header(HttpHeaders.CONTENT_DISPOSITION, documentResponse?.headers?.contentDisposition.toString())
+      .contentType(documentResponse?.headers?.contentType)
+      .contentLength(documentResponse?.headers?.contentLength ?: 0)
+      .body(fileStream)
+  }
 
-    @Operation(description = "Deletes a document with given documentId from HMPPS document manages service.")
-    @DeleteMapping(
-        value = ["/hearing/{hearingId}/defendant/{defendantId}/file/{documentId}"]
-    )
-    fun deleteDocument(
-        @PathVariable("hearingId") hearingId: String,
-        @PathVariable("defendantId") defendantId: String,
-        @PathVariable("documentId") documentId: String
-    ): Mono<ResponseEntity<Any>> {
-        return hmppsDocumentManagementService.deleteDocument(hearingId, defendantId, documentId).get()
-    }
+  @Operation(description = "Deletes a document with given documentId from HMPPS document manages service.")
+  @DeleteMapping(
+    value = ["/hearing/{hearingId}/defendant/{defendantId}/file/{documentId}"],
+  )
+  fun deleteDocument(
+    @PathVariable("hearingId") hearingId: String,
+    @PathVariable("defendantId") defendantId: String,
+    @PathVariable("documentId") documentId: String,
+  ): Mono<ResponseEntity<Any>> = hmppsDocumentManagementService.deleteDocument(hearingId, defendantId, documentId).get()
 }

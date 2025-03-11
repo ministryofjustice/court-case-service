@@ -38,3 +38,8 @@ data_dictionary/schema/**
 
 ### ADR ###
 .adr-dir
+
+/dps-gradle-spring-boot-suppressions.xml
+.editorconfig
+/.trivyignore
+.trivy

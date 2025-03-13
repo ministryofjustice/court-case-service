@@ -10,33 +10,33 @@ import java.time.LocalDate
 
 class OffenderDetailRestClientIntTest : BaseIntTest() {
 
-    @Autowired
-    lateinit var restClient: OffenderDetailRestClient
+  @Autowired
+  lateinit var restClient: OffenderDetailRestClient
 
-    @Test
-    fun `should return delius offender detail for valid CRN`() {
-        // Given
-        val crn = "C1234"
+  @Test
+  fun `should return delius offender detail for valid CRN`() {
+    // Given
+    val crn = "C1234"
 
-        // When
-        val deliusOffenderDetail = restClient.getOffenderDetail("/probation-case.engagement.created/$crn", crn).block()
+    // When
+    val deliusOffenderDetail = restClient.getOffenderDetail("/probation-case.engagement.created/$crn", crn).block()
 
-        // Then
-        assertThat(deliusOffenderDetail?.identifiers?.crn).isEqualTo(crn)
-        assertThat(deliusOffenderDetail?.dateOfBirth).isEqualTo(LocalDate.of(1939, 10, 10))
+    // Then
+    assertThat(deliusOffenderDetail?.identifiers?.crn).isEqualTo(crn)
+    assertThat(deliusOffenderDetail?.dateOfBirth).isEqualTo(LocalDate.of(1939, 10, 10))
+  }
+
+  @Test
+  fun `should throw forbidden exception when not authorised`() {
+    // Given
+    val crn = "AB12345"
+
+    // When
+    val exception = assertThrows(ForbiddenException::class.java) {
+      restClient.getOffenderDetail("/probation-case.engagement.created/$crn", crn).block()
     }
 
-    @Test
-    fun `should throw forbidden exception when not authorised`() {
-        // Given
-        val crn = "AB12345"
-
-        // When
-        val exception = assertThrows(ForbiddenException::class.java) {
-            restClient.getOffenderDetail("/probation-case.engagement.created/$crn", crn).block()
-        }
-
-        // Then
-        assertThat(exception.message).isEqualTo("You are excluded from viewing this offender record. Please contact a system administrator")
-    }
+    // Then
+    assertThat(exception.message).isEqualTo("You are excluded from viewing this offender record. Please contact a system administrator")
+  }
 }

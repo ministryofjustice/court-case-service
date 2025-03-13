@@ -13,67 +13,63 @@ import java.time.chrono.ChronoLocalDateTime
 
 @Service
 class HearingOutcomesService {
-    fun getHearingOutcomes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?,toDate: LocalDate?): List<HearingOutcomeSarResponse> {
-        return hearingOutcomesResponse(hearingDefendant, fromDate, toDate)
-    }
+  fun getHearingOutcomes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?, toDate: LocalDate?): List<HearingOutcomeSarResponse> = hearingOutcomesResponse(hearingDefendant, fromDate, toDate)
 
-    private fun hearingOutcomesResponse(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?, toDate: LocalDate?): List<HearingOutcomeSarResponse> {
-        filteredHearingOutcomesByDate(hearingDefendant, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))?.let {
-            return listOf(
-                HearingOutcomeSarResponse(
-                    HearingOutcomeType.valueOf(it.outcomeType).value,
-                    it.outcomeDate,
-                    it.resultedDate,
-                    HearingOutcomeItemState.valueOf(it.state).value,
-                    getAssignedTo(it),
-                    it.created
-                )
-            )
-        }
-        return emptyList()
+  private fun hearingOutcomesResponse(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?, toDate: LocalDate?): List<HearingOutcomeSarResponse> {
+    filteredHearingOutcomesByDate(hearingDefendant, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))?.let {
+      return listOf(
+        HearingOutcomeSarResponse(
+          HearingOutcomeType.valueOf(it.outcomeType).value,
+          it.outcomeDate,
+          it.resultedDate,
+          HearingOutcomeItemState.valueOf(it.state).value,
+          getAssignedTo(it),
+          it.created,
+        ),
+      )
     }
+    return emptyList()
+  }
 
-    private fun getAssignedTo(hearingOutcome: HearingOutcomeEntity): String {
-        return if (hearingOutcome.assignedTo != null) {
-            hearingOutcome.assignedTo.split(" ").last()
-        } else {
-            ""
-        }
-    }
+  private fun getAssignedTo(hearingOutcome: HearingOutcomeEntity): String = if (hearingOutcome.assignedTo != null) {
+    hearingOutcome.assignedTo.split(" ").last()
+  } else {
+    ""
+  }
 
-    private fun filteredHearingOutcomesByDate(hearingDefendant: HearingDefendantEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): HearingOutcomeEntity? {
-        val outcome = hearingDefendant.hearingOutcome ?: return null
-        if (outcome.isDeleted || outcome.isLegacy) {
-            return null
-        }
-        if(fromDate != null && toDate != null) {
-            return outcomeBetweenDates(outcome, fromDate, toDate)
-        } else if(fromDate != null) {
-            return outcomeAfterDate(outcome, fromDate)
-        } else if(toDate != null) {
-            return outcomeBeforeDate(outcome, toDate)
-        }
-        return outcome
+  private fun filteredHearingOutcomesByDate(hearingDefendant: HearingDefendantEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): HearingOutcomeEntity? {
+    val outcome = hearingDefendant.hearingOutcome ?: return null
+    if (outcome.isDeleted || outcome.isLegacy) {
+      return null
     }
+    if (fromDate != null && toDate != null) {
+      return outcomeBetweenDates(outcome, fromDate, toDate)
+    } else if (fromDate != null) {
+      return outcomeAfterDate(outcome, fromDate)
+    } else if (toDate != null) {
+      return outcomeBeforeDate(outcome, toDate)
+    }
+    return outcome
+  }
 
-    private fun outcomeBetweenDates(outcome: HearingOutcomeEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): HearingOutcomeEntity? {
-        if (outcome.created >= ChronoLocalDateTime.from(fromDate) && outcome.created <= ChronoLocalDateTime.from(toDate)) {
-            return outcome
-        }
-        return null
+  private fun outcomeBetweenDates(outcome: HearingOutcomeEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): HearingOutcomeEntity? {
+    if (outcome.created >= ChronoLocalDateTime.from(fromDate) && outcome.created <= ChronoLocalDateTime.from(toDate)) {
+      return outcome
     }
+    return null
+  }
 
-    private fun outcomeAfterDate(outcome: HearingOutcomeEntity, fromDate: LocalDateTime?): HearingOutcomeEntity? {
-        if (outcome.created >= ChronoLocalDateTime.from(fromDate)) {
-            return outcome
-        }
-        return null
+  private fun outcomeAfterDate(outcome: HearingOutcomeEntity, fromDate: LocalDateTime?): HearingOutcomeEntity? {
+    if (outcome.created >= ChronoLocalDateTime.from(fromDate)) {
+      return outcome
     }
+    return null
+  }
 
-    private fun outcomeBeforeDate(outcome: HearingOutcomeEntity, toDate: LocalDateTime?): HearingOutcomeEntity?  {
-        if (outcome.created <= ChronoLocalDateTime.from(toDate)){
-            return outcome
-        }
-        return null
+  private fun outcomeBeforeDate(outcome: HearingOutcomeEntity, toDate: LocalDateTime?): HearingOutcomeEntity? {
+    if (outcome.created <= ChronoLocalDateTime.from(toDate)) {
+      return outcome
     }
+    return null
+  }
 }

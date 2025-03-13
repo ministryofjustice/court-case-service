@@ -108,6 +108,7 @@ jobs:
       jdk_tag: "21.0"
       localstack_tag: "3.0"
       postgres_tag: "14.12"
+      resource_class: medium+
     steps:
       - checkout
       - restore_cache:

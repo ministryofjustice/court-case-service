@@ -18,7 +18,7 @@ plugins {
 repositories {
     mavenCentral()
     maven {
-        url 'https://s3-us-west-2.amazonaws.com/dynamodb-local/release'
+        url = 'https://s3-us-west-2.amazonaws.com/dynamodb-local/release'
     }
     flatDir {
         dirs 'libs'
@@ -69,7 +69,7 @@ test {
 
     testLogging {
         events "started", "passed", "skipped", "failed", "standardError"
-        exceptionFormat "short"
+        exceptionFormat = "short"
         showStackTraces = true
         showExceptions = true
         showCauses = true
@@ -110,7 +110,7 @@ tasks.register('pactVerifyPublish', Test) {
 
     testLogging {
         events "started", "passed", "skipped", "failed", "standardError"
-        exceptionFormat "short"
+        exceptionFormat = "short"
         showStackTraces = true
         showExceptions = true
         showCauses = true
@@ -238,6 +238,9 @@ dependencies {
     testImplementation("org.apache.httpcomponents:fluent-hc:4.5.14")
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+
+    // Unit and integration test
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     agentDeps 'com.microsoft.azure:applicationinsights-agent:3.7.1'
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.10")

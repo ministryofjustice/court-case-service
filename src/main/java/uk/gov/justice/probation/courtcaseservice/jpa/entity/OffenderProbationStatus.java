@@ -7,7 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 public enum OffenderProbationStatus {
     CURRENT(DefendantProbationStatus.CURRENT.name()),
     PREVIOUSLY_KNOWN(DefendantProbationStatus.PREVIOUSLY_KNOWN.name()),
-    NOT_SENTENCED(DefendantProbationStatus.NOT_SENTENCED.name());
+    NOT_SENTENCED(DefendantProbationStatus.NOT_SENTENCED.name()),
+    UNCONFIRMED_NO_RECORD(DefendantProbationStatus.UNCONFIRMED_NO_RECORD.name()),
+    CONFIRMED_NO_RECORD(DefendantProbationStatus.CONFIRMED_NO_RECORD.name());
 
     private final String name;
 
@@ -32,6 +34,8 @@ public enum OffenderProbationStatus {
             case CURRENT -> DefendantProbationStatus.CURRENT;
             case PREVIOUSLY_KNOWN -> DefendantProbationStatus.PREVIOUSLY_KNOWN;
             case NOT_SENTENCED -> DefendantProbationStatus.NOT_SENTENCED;
+            case UNCONFIRMED_NO_RECORD -> DefendantProbationStatus.UNCONFIRMED_NO_RECORD;
+            case CONFIRMED_NO_RECORD -> DefendantProbationStatus.CONFIRMED_NO_RECORD;
         };
     }
 }

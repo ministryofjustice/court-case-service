@@ -249,7 +249,8 @@ INSERT INTO court (name, court_code, version, created, last_updated, deleted, cr
         ('Maidstone Crown Court', 'C46MA', 0, NOW(), NOW(), false, 'R__add_all_crown_court_names.sql'),
         ('Merthyr Tydfil Crown Court', 'C62MT', 0, NOW(), NOW(), false, 'R__add_all_crown_court_names.sql'),
         ('Weymouth Magistrates'' Court', 'B55OE', 0, NOW(), NOW(), false, 'R__add_all_crown_court_names.sql'),
-        ('Oxford Crown Court', 'C43OX', 0, NOW(), NOW(), false, 'R__add_all_crown_court_names.sql')
+        ('Oxford Crown Court', 'C43OX', 0, NOW(), NOW(), false, 'R__add_all_crown_court_names.sql'),
+        ('Llandrindod Wells Magistrates'' and Family Court', 'B63LW', 0, NOW(), NOW(), false, 'R__add_all_crown_court_names.sql')
     ON CONFLICT (COURT_CODE)
     DO
         UPDATE SET name = EXCLUDED.name,

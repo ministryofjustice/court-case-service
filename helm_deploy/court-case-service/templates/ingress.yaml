@@ -27,7 +27,7 @@ metadata:
       }
       client_max_body_size 50M;
 spec:
-  ingressClassName: modsec
+  ingressClassName: {{ .Values.ingress.class }}
   tls:
   {{- range .Values.ingress.hosts }}
   - hosts:

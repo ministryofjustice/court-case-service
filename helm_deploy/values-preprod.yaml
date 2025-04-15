@@ -13,6 +13,7 @@ image:
   port: 8080
 
 ingress:
+  ingressClassName: modsec-non-prod
   service: court-case-service-proxy
   enabled: true
   enable_whitelist: true

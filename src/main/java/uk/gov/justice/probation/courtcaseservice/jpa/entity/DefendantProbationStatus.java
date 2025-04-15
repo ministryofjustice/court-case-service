@@ -23,7 +23,11 @@ public enum DefendantProbationStatus {
     public static DefendantProbationStatus of(String status) {
         final var probationStatus = status == null ? DEFAULT.name() : status.trim().toUpperCase();
         try {
-            return DefendantProbationStatus.valueOf(probationStatus.replaceAll(" ", "_"));
+            String formattedString = probationStatus.replaceAll(" ", "_");
+            if(formattedString.equals("NO_RECORD")) {
+                return DefendantProbationStatus.UNCONFIRMED_NO_RECORD;
+            }
+            return DefendantProbationStatus.valueOf(formattedString);
         }
         catch (RuntimeException ex) {
             log.error("Unable to map {} to a known ProbationStatus enum value", status, ex);

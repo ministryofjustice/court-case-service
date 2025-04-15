@@ -12,8 +12,6 @@ class OffenderProbationStatusTest {
         assertThat(OffenderProbationStatus.of("CURRENT")).isSameAs(OffenderProbationStatus.CURRENT);
         assertThat(OffenderProbationStatus.of("NOT_SENTENCED")).isSameAs(OffenderProbationStatus.NOT_SENTENCED);
         assertThat(OffenderProbationStatus.of("PREVIOUSLY_KNOWN")).isSameAs(OffenderProbationStatus.PREVIOUSLY_KNOWN);
-        assertThat(OffenderProbationStatus.of("UNCONFIRMED_NO_RECORD")).isSameAs(OffenderProbationStatus.UNCONFIRMED_NO_RECORD);
-        assertThat(OffenderProbationStatus.of("CONFIRMED_NO_RECORD")).isSameAs(OffenderProbationStatus.CONFIRMED_NO_RECORD);
     }
 
     @Test
@@ -40,8 +38,6 @@ class OffenderProbationStatusTest {
         assertThat(OffenderProbationStatus.of("current")).isSameAs(OffenderProbationStatus.CURRENT);
         assertThat(OffenderProbationStatus.of("not sentenced")).isSameAs(OffenderProbationStatus.NOT_SENTENCED);
         assertThat(OffenderProbationStatus.of("previously known")).isSameAs(OffenderProbationStatus.PREVIOUSLY_KNOWN);
-        assertThat(OffenderProbationStatus.of("unconfirmed no record")).isSameAs(OffenderProbationStatus.UNCONFIRMED_NO_RECORD);
-        assertThat(OffenderProbationStatus.of("confirmed no record")).isSameAs(OffenderProbationStatus.CONFIRMED_NO_RECORD);
     }
 
     @Test
@@ -49,8 +45,6 @@ class OffenderProbationStatusTest {
         assertThat(OffenderProbationStatus.CURRENT.asDefendantProbationStatus()).isEqualTo(DefendantProbationStatus.CURRENT);
         assertThat(OffenderProbationStatus.PREVIOUSLY_KNOWN.asDefendantProbationStatus()).isEqualTo(DefendantProbationStatus.PREVIOUSLY_KNOWN);
         assertThat(OffenderProbationStatus.NOT_SENTENCED.asDefendantProbationStatus()).isEqualTo(DefendantProbationStatus.NOT_SENTENCED);
-        assertThat(OffenderProbationStatus.UNCONFIRMED_NO_RECORD.asDefendantProbationStatus()).isEqualTo(DefendantProbationStatus.UNCONFIRMED_NO_RECORD);
-        assertThat(OffenderProbationStatus.CONFIRMED_NO_RECORD.asDefendantProbationStatus()).isEqualTo(DefendantProbationStatus.CONFIRMED_NO_RECORD);
     }
 }
 

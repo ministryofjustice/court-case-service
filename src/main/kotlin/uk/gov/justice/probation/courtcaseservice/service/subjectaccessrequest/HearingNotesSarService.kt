@@ -11,44 +11,42 @@ import java.time.LocalTime
 
 @Service
 class HearingNotesSarService(
-    val hearingNoteRepository: HearingNoteRepository
+  val hearingNoteRepository: HearingNoteRepository,
 ) {
 
-    fun getHearingNotes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?,toDate: LocalDate?): List<HearingNotesSarResponse> {
-        val hearingNotes = filterHearingNotesByDate(hearingDefendant, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))
+  fun getHearingNotes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?, toDate: LocalDate?): List<HearingNotesSarResponse> {
+    val hearingNotes = filterHearingNotesByDate(hearingDefendant, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))
 
-        return hearingNotesResponse(hearingNotes)
-    }
+    return hearingNotesResponse(hearingNotes)
+  }
 
-    private fun hearingNotesResponse(hearingNotes: List<HearingNoteEntity>): List<HearingNotesSarResponse> {
-        return hearingNotes.map { note -> HearingNotesSarResponse(
-            note.note,
-            getSurname(note.author)
-        ) }
-    }
+  private fun hearingNotesResponse(hearingNotes: List<HearingNoteEntity>): List<HearingNotesSarResponse> = hearingNotes.map { note ->
+    HearingNotesSarResponse(
+      note.note,
+      getSurname(note.author),
+    )
+  }
 
-    private fun getSurname(name: String): String {
-        return name.split(" ").last()
-    }
+  private fun getSurname(name: String): String = name.split(" ").last()
 
-    private fun filterHearingNotesByDate(hearingDefendant: HearingDefendantEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): List<HearingNoteEntity> {
-        if(fromDate != null && toDate != null) {
-            return hearingNoteRepository.findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBetween(
-                hearingDefendant.id,
-                fromDate,
-                toDate
-            )
-        } else if(fromDate != null) {
-            return hearingNoteRepository.findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedAfter(
-                hearingDefendant.id,
-                fromDate
-            )
-        } else if(toDate != null) {
-            return hearingNoteRepository.findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBefore(
-                hearingDefendant.id,
-                toDate
-            )
-        }
-        return hearingNoteRepository.findByHearingDefendantId(hearingDefendant.id)
+  private fun filterHearingNotesByDate(hearingDefendant: HearingDefendantEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): List<HearingNoteEntity> {
+    if (fromDate != null && toDate != null) {
+      return hearingNoteRepository.findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBetween(
+        hearingDefendant.id,
+        fromDate,
+        toDate,
+      )
+    } else if (fromDate != null) {
+      return hearingNoteRepository.findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedAfter(
+        hearingDefendant.id,
+        fromDate,
+      )
+    } else if (toDate != null) {
+      return hearingNoteRepository.findAllByHearingDefendantIdAndDeletedFalseAndDraftFalseAndLegacyFalseAndCreatedBefore(
+        hearingDefendant.id,
+        toDate,
+      )
     }
+    return hearingNoteRepository.findByHearingDefendantId(hearingDefendant.id)
+  }
 }

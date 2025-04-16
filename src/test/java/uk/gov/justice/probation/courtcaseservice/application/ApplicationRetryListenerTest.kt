@@ -11,30 +11,29 @@ import uk.gov.justice.probation.courtcaseservice.TestAppender
 @ExtendWith(SpringExtension::class)
 class ApplicationRetryListenerTest {
 
-    @Test
-    fun givenTemplateRetryService_whenCallWithException_thenRetry() {
+  @Test
+  fun givenTemplateRetryService_whenCallWithException_thenRetry() {
+    TestAppender.events.clear()
+    val retryTemplate = RetryTemplate()
+    retryTemplate.registerListener(ApplicationRetryListener())
 
-        TestAppender.events.clear()
-        val retryTemplate = RetryTemplate()
-        retryTemplate.registerListener(ApplicationRetryListener())
+    assertThatExceptionOfType(RuntimeException::class.java)
+      .isThrownBy {
+        retryTemplate.execute<Any?, RuntimeException> {
+          throw RuntimeException("test")
+        }
+      }
+      .withMessage("test")
 
-        assertThatExceptionOfType(RuntimeException::class.java)
-            .isThrownBy {
-                retryTemplate.execute<Any?, RuntimeException> {
-                    throw RuntimeException("test")
-                }
-            }
-            .withMessage("test")
+    val events = TestAppender.events.stream()
+      .map { it.formattedMessage }
 
-        val events = TestAppender.events.stream()
-            .map { it.formattedMessage }
-
-        assertThat(events).contains(
-            "Operation failed with exception. Attempting retry 1",
-            "Retry attempt 1 failed with error",
-            "Retry attempt 2 failed with error",
-            "Retry attempt 3 failed with error",
-            "Retried 3 times"
-        )
-    }
+    assertThat(events).contains(
+      "Operation failed with exception. Attempting retry 1",
+      "Retry attempt 1 failed with error",
+      "Retry attempt 2 failed with error",
+      "Retry attempt 3 failed with error",
+      "Retried 3 times",
+    )
+  }
 }

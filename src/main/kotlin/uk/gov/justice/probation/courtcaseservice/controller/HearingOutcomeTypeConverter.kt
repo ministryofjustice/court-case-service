@@ -8,7 +8,11 @@ import uk.gov.justice.probation.courtcaseservice.service.HearingOutcomeType
 
 @Component
 class HearingOutcomeTypeConverter : Converter<String, HearingOutcomeType> {
-    override fun convert(source: String): HearingOutcomeType? {
-        try { return HearingOutcomeType.valueOf(source) } catch (e: IllegalArgumentException) { throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invalid value $source for hearing outcome type") }
+  override fun convert(source: String): HearingOutcomeType? {
+    try {
+      return HearingOutcomeType.valueOf(source)
+    } catch (e: IllegalArgumentException) {
+      throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invalid value $source for hearing outcome type")
     }
+  }
 }

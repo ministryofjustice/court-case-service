@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.server.ResponseStatusException
 
 @Component
-class OutcomeSortFieldConverter: Converter<String, HearingOutcomeSortFields> {
-    override fun convert(source: String): HearingOutcomeSortFields? = HearingOutcomeSortFields.bySortFieldIgnoreCase(source)
-        ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sort field \"$source\"")
+class OutcomeSortFieldConverter : Converter<String, HearingOutcomeSortFields> {
+  override fun convert(source: String): HearingOutcomeSortFields? = HearingOutcomeSortFields.bySortFieldIgnoreCase(source)
+    ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid sort field \"$source\"")
 }

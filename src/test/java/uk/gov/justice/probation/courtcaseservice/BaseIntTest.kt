@@ -1,6 +1,9 @@
 package uk.gov.justice.probation.courtcaseservice
 
-import org.awaitility.kotlin.*
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.matches
+import org.awaitility.kotlin.untilCallTo
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -47,14 +50,13 @@ abstract class BaseIntTest {
   @Autowired
   protected lateinit var hmppsQueueService: HmppsQueueService
 
-  //Topic
+  // Topic
   protected val offenderEventTopic by lazy { hmppsQueueService.findByTopicId("probationoffenderevents") ?: throw MissingQueueException("probationoffenderevents topic not found") }
 
   internal val domainEventsTopic by lazy { hmppsQueueService.findByTopicId("domainevents") as HmppsTopic }
   internal val domainEventsTopicArn by lazy { domainEventsTopic.arn }
 
-
-  //Queue
+  // Queue
   private val emittedEventsQueue by lazy { hmppsQueueService.findByQueueId("emittedeventsqueue") ?: throw MissingQueueException("HmppsQueue emittedeventsqueue not found") }
 
   protected val emittedEventsQueueSqsClient by lazy { emittedEventsQueue.sqsClient }
@@ -70,11 +72,12 @@ abstract class BaseIntTest {
   protected val newOffenderEventReceiverQueueQueueUrl by lazy { newOffenderEventReceiverQueue.queueUrl }
 
   private fun SqsAsyncClient.countMessagesOnQueue(queueUrl: String, queueAttribute: QueueAttributeName): Int {
-
-    val queueAttributesResult = this.getQueueAttributes(GetQueueAttributesRequest.builder()
-      .queueUrl(queueUrl)
-      .attributeNames(queueAttribute)
-      .build())
+    val queueAttributesResult = this.getQueueAttributes(
+      GetQueueAttributesRequest.builder()
+        .queueUrl(queueUrl)
+        .attributeNames(queueAttribute)
+        .build(),
+    )
 
     return queueAttributesResult.let {
       it.get().attributes()[queueAttribute]?.toInt() ?: 0
@@ -83,7 +86,6 @@ abstract class BaseIntTest {
 
   fun assertMessagesOnEmittedEventsQueue() {
     await atMost AWAITILITY_DURATION untilCallTo { emittedEventsQueueSqsClient.countMessagesOnQueue(emittedEventsQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES) } matches { it == 2 }
-
   }
 
   fun assertOffenderEventReceiverQueueHasProcessedMessages() {
@@ -98,29 +100,28 @@ abstract class BaseIntTest {
     await atMost AWAITILITY_DURATION untilCallTo { newOffenderEventReceiverQueueSqsClient.countMessagesOnQueue(newOffenderEventReceiverQueueQueueUrl, QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES) } matches { it == 0 }
   }
 
-
   companion object {
 
     protected val AWAITILITY_DURATION = Duration.ofSeconds(20)
 
-    val WIRE_MOCK_SERVER = WiremockMockServer( TestConfig.WIREMOCK_PORT)
+    val WIRE_MOCK_SERVER = WiremockMockServer(TestConfig.WIREMOCK_PORT)
 
     @RegisterExtension
     var wiremockExtension = WiremockExtension(WIRE_MOCK_SERVER)
 
-      @JvmStatic
-      @BeforeAll
-      @Throws(Exception::class)
-      fun setupClass(): Unit {
-          RetryService.tryWireMockStub()
-          WIRE_MOCK_SERVER.start()
-      }
+    @JvmStatic
+    @BeforeAll
+    @Throws(Exception::class)
+    fun setupClass() {
+      RetryService.tryWireMockStub()
+      WIRE_MOCK_SERVER.start()
+    }
 
-      @JvmStatic
-      @AfterAll
-      fun afterAll(): Unit {
-          WIRE_MOCK_SERVER.stop()
-      }
+    @JvmStatic
+    @AfterAll
+    fun afterAll() {
+      WIRE_MOCK_SERVER.stop()
+    }
   }
 
   @TestConfiguration
@@ -131,26 +132,27 @@ abstract class BaseIntTest {
       // Usage of securityMatcher to replace the multiTenantHeaderFilterChain bean
       http.securityMatcher("/**")
       return http.csrf { it.disable() }
-        .sessionManagement{ it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)}
+        .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
         .oauth2Client {}
         .authorizeHttpRequests(
           Customizer { auth ->
-          auth
-            .requestMatchers(
-              "/health/**",
-              "/info",
-              "/ping",
-              "/swagger-ui.html",
-              "/swagger-ui/**",
-              "/v3/api-docs/**",
-              "/queue-admin/retry-all-dlqs",
-              "/process-un-resulted-cases"
-            ).permitAll()
-            .anyRequest()
-            .hasAnyRole("PREPARE_A_CASE", "SAR_DATA_ACCESS")
-        })
+            auth
+              .requestMatchers(
+                "/health/**",
+                "/info",
+                "/ping",
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                "/queue-admin/retry-all-dlqs",
+                "/process-un-resulted-cases",
+              ).permitAll()
+              .anyRequest()
+              .hasAnyRole("PREPARE_A_CASE", "SAR_DATA_ACCESS")
+          },
+        )
         .oauth2ResourceServer { it ->
-          it.jwt{
+          it.jwt {
             it.jwtAuthenticationConverter(AuthAwareTokenConverter())
           }
         }.build()

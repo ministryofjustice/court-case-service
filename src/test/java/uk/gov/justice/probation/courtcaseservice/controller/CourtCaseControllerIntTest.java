@@ -740,6 +740,7 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
                     .body("urn", equalTo("URN008"))
                     .body("hearingId", equalTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00"))
                     .body("defendants", hasSize(1))
+                    .body("defendants[0].cprUUID",  equalTo("cd33edce-5948-4592-a4ac-b5eb48d01209"))
                     .body("defendants[0].type", equalTo("PERSON"))
                     .body("defendants[0].phoneNumber.mobile", equalTo("07000000007"))
                     .body("defendants[0].phoneNumber.home", equalTo("07000000013"))

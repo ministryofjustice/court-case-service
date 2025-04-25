@@ -31,6 +31,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CASE_NO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_ROOM;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CPR_UUID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRO;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_DOB;
@@ -564,6 +565,7 @@ class ExtendedHearingRequestResponseTest {
                         .postcode("S3 7DQ")
                         .build())
                 .breach(Boolean.TRUE)
+                .cprUUID(CPR_UUID)
                 .crn(CRN)
                 .cro(CRO)
                 .dateOfBirth(DEFENDANT_DOB)

@@ -112,6 +112,9 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
     @Column(name = "PERSON_ID", nullable = false)
     private String personId;
 
+    @Column(name = "cpr_uuid")
+    private String cprUUID;
+
     public String getCrn() {
         return Optional.ofNullable(offender).map(OffenderEntity::getCrn).orElse(null);
     }

@@ -8,20 +8,20 @@ import java.time.LocalDate
 
 @Service
 class SubjectAccessRequestService(
-    private val caseDetailsSarService: CaseDetailsSarService
-): HmppsProbationSubjectAccessRequestService {
+  private val caseDetailsSarService: CaseDetailsSarService,
+) : HmppsProbationSubjectAccessRequestService {
 
-    override fun getProbationContentFor(
-        crn: String,
-        fromDate: LocalDate?,
-        toDate: LocalDate?
-    ): HmppsSubjectAccessRequestContent? {
-        val cases = caseDetailsSarService.getCaseSARDetails(crn, fromDate, toDate)
+  override fun getProbationContentFor(
+    crn: String,
+    fromDate: LocalDate?,
+    toDate: LocalDate?,
+  ): HmppsSubjectAccessRequestContent? {
+    val cases = caseDetailsSarService.getCaseSARDetails(crn, fromDate, toDate)
 
-        if(cases.isEmpty()) {
-            return null
-        }
-
-        return HmppsSubjectAccessRequestContent(ContentSarResponse(cases))
+    if (cases.isEmpty()) {
+      return null
     }
+
+    return HmppsSubjectAccessRequestContent(ContentSarResponse(cases))
+  }
 }

@@ -1,8 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller
 
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
@@ -22,43 +20,45 @@ import java.util.Optional
 @ExtendWith(MockitoExtension::class)
 internal class HmppsDocumentManagementApiGatewayControllerTest {
 
-    @Mock
-    lateinit var hmppsDocumentManagementService: HmppsDocumentManagementService
+  @Mock
+  lateinit var hmppsDocumentManagementService: HmppsDocumentManagementService
 
-    @InjectMocks
-    lateinit var hmppsDocumentManagementApiGatewayController: HmppsDocumentManagementApiGatewayController
+  @InjectMocks
+  lateinit var hmppsDocumentManagementApiGatewayController: HmppsDocumentManagementApiGatewayController
 
-    @Mock
-    lateinit var multipartFile: MultipartFile
+  @Mock
+  lateinit var multipartFile: MultipartFile
 
-    @Test
-    fun `given hearing id, defendant id and document id to upload document should invoke document management service`() {
+  @Test
+  fun `given hearing id, defendant id and document id to upload document should invoke document management service`() {
+    hmppsDocumentManagementApiGatewayController.uploadDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, multipartFile)
+    verify(hmppsDocumentManagementService).uploadDocuments(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, multipartFile)
+  }
 
-        hmppsDocumentManagementApiGatewayController.uploadDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, multipartFile)
-        verify(hmppsDocumentManagementService).uploadDocuments(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, multipartFile)
-    }
+  @Test
+  fun `given hearing id, defendant id and document id to download document should invoke document management service`() {
+    val documentId = "document-id-one"
+    val from = Flux.just(
+      InputStreamResource
+      (ByteArrayInputStream("asdfd".toByteArray())),
+    )
+    given(hmppsDocumentManagementService.getDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, documentId))
+      .willReturn(ResponseEntity.ok().header("Content-Length", "100").body(from))
 
-    @Test
-    fun `given hearing id, defendant id and document id to download document should invoke document management service`() {
+    hmppsDocumentManagementApiGatewayController.getDocument(
+      EntityHelper.HEARING_ID,
+      EntityHelper.DEFENDANT_ID,
+      documentId,
+    )
+    verify(hmppsDocumentManagementService).getDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, documentId)
+  }
 
-        val documentId = "document-id-one"
-        val from = Flux.just(InputStreamResource
-            (ByteArrayInputStream("asdfd".toByteArray())))
-        given(hmppsDocumentManagementService.getDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, documentId))
-            .willReturn(ResponseEntity.ok().header("Content-Length", "100").body(from))
-
-        hmppsDocumentManagementApiGatewayController.getDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID,
-            documentId
-        )
-        verify(hmppsDocumentManagementService).getDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, documentId)
-    }
-
-    @Test
-    fun `given hearing id, defendant id and document id to delete document should invoke document management service`() {
-        val documentId = "document-id-one"
-        given(hmppsDocumentManagementService.deleteDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, documentId))
-            .willReturn(Optional.of(Mono.just(ResponseEntity.ok().body(""))))
-        hmppsDocumentManagementApiGatewayController.deleteDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, documentId)
-        verify(hmppsDocumentManagementService).deleteDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, documentId)
-    }
+  @Test
+  fun `given hearing id, defendant id and document id to delete document should invoke document management service`() {
+    val documentId = "document-id-one"
+    given(hmppsDocumentManagementService.deleteDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, documentId))
+      .willReturn(Optional.of(Mono.just(ResponseEntity.ok().body(""))))
+    hmppsDocumentManagementApiGatewayController.deleteDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, documentId)
+    verify(hmppsDocumentManagementService).deleteDocument(EntityHelper.HEARING_ID, EntityHelper.DEFENDANT_ID, documentId)
+  }
 }

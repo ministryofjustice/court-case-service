@@ -1,16 +1,12 @@
-import java.time.Instant
 import java.time.LocalDate
 
 plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.4.3'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.github.ben-manes.versions' version '0.52.0'
     id 'org.flywaydb.flyway' version '11.3.4'
+    id "uk.gov.justice.hmpps.gradle-spring-boot" version "6.1.0"
     id 'jacoco'
     id "au.com.dius.pact" version "4.6.17"
-    id 'java-library'
-    id 'org.jetbrains.kotlin.jvm' version '2.1.10'
     id 'org.jetbrains.kotlin.plugin.spring' version '2.1.10'
     id 'org.jetbrains.kotlin.plugin.lombok' version '2.1.10'
 }
@@ -19,7 +15,7 @@ plugins {
 repositories {
     mavenCentral()
     maven {
-        url 'https://s3-us-west-2.amazonaws.com/dynamodb-local/release'
+        url = 'https://s3-us-west-2.amazonaws.com/dynamodb-local/release'
     }
     flatDir {
         dirs 'libs'
@@ -33,7 +29,10 @@ ext {
     pactVersion = '4.6.17'
 }
 
-def today = Instant.now()
+ktlint {
+    version.set("1.4.1")
+}
+
 def todaysDate = LocalDate.now().format('yyyy-MM-dd')
 version = System.getenv('CI') ? "${todaysDate}.${System.getenv('CIRCLE_BUILD_NUM')}" : todaysDate
 
@@ -57,14 +56,6 @@ bootJar {
     manifest = jar.manifest
 }
 
-flyway {
-    url = 'jdbc:postgresql://localhost:5432/postgres?currentSchema=courtcaseservice&user=root&password=dev'
-}
-
-springBoot {
-    buildInfo()
-}
-
 test {
     useJUnitPlatform()
     filter {
@@ -75,7 +66,7 @@ test {
 
     testLogging {
         events "started", "passed", "skipped", "failed", "standardError"
-        exceptionFormat "short"
+        exceptionFormat = "short"
         showStackTraces = true
         showExceptions = true
         showCauses = true
@@ -88,21 +79,21 @@ test {
     }
 }
 
-task integrationTest(type: Test) {
+tasks.register('integrationTest', Test) {
     useJUnitPlatform()
     filter {
         includeTestsMatching '*IntTest*'
     }
 }
 
-task initialiseDatabase(type: Test) {
+tasks.register('initialiseDatabase', Test) {
     useJUnitPlatform()
     filter {
         includeTestsMatching '*PingerIntTest*'
     }
 }
 
-task pactVerifyPublish(type: Test) {
+tasks.register('pactVerifyPublish', Test) {
     useJUnitPlatform()
     filter {
         excludeTestsMatching '*IntTest'
@@ -116,7 +107,7 @@ task pactVerifyPublish(type: Test) {
 
     testLogging {
         events "started", "passed", "skipped", "failed", "standardError"
-        exceptionFormat "short"
+        exceptionFormat = "short"
         showStackTraces = true
         showExceptions = true
         showCauses = true
@@ -131,7 +122,7 @@ task pactVerifyPublish(type: Test) {
 
 task pactTestPublish dependsOn pactVerifyPublish
 
-task unitTest(type: Test) {
+tasks.register('unitTest', Test) {
     useJUnitPlatform()
     filter {
         excludeTestsMatching '*IntTest'
@@ -214,8 +205,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk9")
 
     implementation 'io.jsonwebtoken:jjwt:0.12.6'
-    implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.4'
-    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.4'
     implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.3.2")
@@ -226,7 +215,6 @@ dependencies {
 
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
 
-    testImplementation "org.testcontainers:junit-jupiter:1.20.6"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:4.1.0'
     testImplementation("io.rest-assured:json-path:$restAssuredVersion")
@@ -237,7 +225,6 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.12.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
-// https://mvnrepository.com/artifact/org.wiremock/wiremock-standalone
     testImplementation("org.wiremock:wiremock-standalone:3.12.1") // works with spring boot 3.2.0 > higher
 
     testImplementation("au.com.dius.pact.provider:junit5spring:$pactVersion")
@@ -282,28 +269,21 @@ jacocoTestCoverageVerification {
     }
 }
 
-task copyAgent(type: Copy) {
-    from configurations.agentDeps
-    into "$buildDir/libs"
-}
-
-task copyAgentConfig(type: Copy) {
-    from "applicationinsights.json"
-    into "$buildDir/libs"
-}
-
-task installGitHooks(type: Copy) {
+tasks.register('installGitHooks', Copy) {
     from new File(rootProject.rootDir, 'hooks/')
     into { new File(rootProject.rootDir, '.git/hooks') }
 }
 
-
 compileKotlin {
-    kotlinOptions.jvmTarget = "21"
+    kotlinOptions {
+        jvmTarget = "21"
+    }
 }
 
 compileTestKotlin {
-    kotlinOptions.jvmTarget = "21"
+    kotlinOptions {
+        jvmTarget = "21"
+    }
 }
 
 pact {
@@ -315,8 +295,5 @@ pact {
         consumerVersion = System.getenv("PACTCONSUMER_VERSION")
     }
 }
-
-assemble.dependsOn copyAgent
-assemble.dependsOn copyAgentConfig
 
 

@@ -6,6 +6,14 @@
   "heartbeat": {
     "intervalSeconds": 15
   },
+  "instrumentation": {
+    "logging": {
+      "level": "DEBUG"
+    }
+  },
+  "selfDiagnostics": {
+    "destination": "console"
+  },
   "sampling": {
     "overrides": [
       {

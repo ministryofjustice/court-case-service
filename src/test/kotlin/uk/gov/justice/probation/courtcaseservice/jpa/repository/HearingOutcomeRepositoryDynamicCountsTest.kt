@@ -11,42 +11,40 @@ import org.springframework.context.annotation.Bean
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlConfig
-import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState.RESULTED
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState.IN_PROGRESS
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState.RESULTED
 
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Sql(
-    scripts = ["classpath:sql/before-common.sql", "classpath:sql/hearing-outcomes-dynamic-counts.sql"],
-    config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),
-    executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
+  scripts = ["classpath:sql/before-common.sql", "classpath:sql/hearing-outcomes-dynamic-counts.sql"],
+  config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),
+  executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
 )
 class HearingOutcomeRepositoryDynamicCountsTest {
-    @Autowired
-    lateinit var hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom
+  @Autowired
+  lateinit var hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom
 
-    @Autowired
-    lateinit var entityManager: EntityManager
+  @Autowired
+  lateinit var entityManager: EntityManager
 
-    @Test
-    fun `should return correct count for dynamic outcomes by state`() {
-        // Given
-        var hearingOutcomeRepositoryCustom = HearingOutcomeRepositoryCustom(entityManager, 30)
+  @Test
+  fun `should return correct count for dynamic outcomes by state`() {
+    // Given
+    var hearingOutcomeRepositoryCustom = HearingOutcomeRepositoryCustom(entityManager, 30)
 
-        // When
-        val result = hearingOutcomeRepositoryCustom.getDynamicOutcomeCountsByState("B10JQ")
+    // When
+    val result = hearingOutcomeRepositoryCustom.getDynamicOutcomeCountsByState("B10JQ")
 
-        // Then
-        assertThat(result[RESULTED.name]).isEqualTo(2)
-        assertThat(result[IN_PROGRESS.name]).isEqualTo(1)
-    }
+    // Then
+    assertThat(result[RESULTED.name]).isEqualTo(2)
+    assertThat(result[IN_PROGRESS.name]).isEqualTo(1)
+  }
 
-    @TestConfiguration
-    internal class TestConfig {
-        @Bean
-        fun pagedCaseListRepositoryCustom(entityManager: EntityManager): HearingOutcomeRepositoryCustom {
-            return HearingOutcomeRepositoryCustom(entityManager)
-        }
-    }
+  @TestConfiguration
+  internal class TestConfig {
+    @Bean
+    fun pagedCaseListRepositoryCustom(entityManager: EntityManager): HearingOutcomeRepositoryCustom = HearingOutcomeRepositoryCustom(entityManager)
+  }
 }

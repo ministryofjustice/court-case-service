@@ -6,14 +6,6 @@
 
     <springProperty scope="context" name="app" source="spring.application.name"/>
 
-    <springProfile name="!instrumented">
-        <appender name="aiAppender" class="ch.qos.logback.core.helpers.NOPAppender"/>
-    </springProfile>
-
-    <springProfile name="instrumented">
-        <appender name="aiAppender" class="com.microsoft.applicationinsights.logback.ApplicationInsightsAppender"/>
-    </springProfile>
-
     <springProfile name="!log-json">
         <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
             <layout class="ch.qos.logback.classic.PatternLayout">
@@ -32,12 +24,10 @@
 
     <logger name="uk.gov.justice.probation.courtcaseservice" additivity="false" level="DEBUG">
         <appender-ref ref="consoleAppender"/>
-        <appender-ref ref="aiAppender"/>
     </logger>
 
     <root level="INFO">
         <appender-ref ref="consoleAppender"/>
-        <appender-ref ref="aiAppender"/>
     </root>
 
 </configuration>

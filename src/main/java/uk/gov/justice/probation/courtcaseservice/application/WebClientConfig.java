@@ -131,7 +131,7 @@ public class WebClientConfig {
 
     @Bean
     public WebClient hmppsDocumentManagementApiWebClient(WebClientFactory webClientFactory) {
-        return webClientFactory.buildWebClient(hmppsDocumentManagementApiUrl, 15 * DEFAULT_BYTE_BUFFER_SIZE);
+        return webClientFactory.buildWebClient(hmppsDocumentManagementApiUrl, 17 * DEFAULT_BYTE_BUFFER_SIZE);
     }
 
 }

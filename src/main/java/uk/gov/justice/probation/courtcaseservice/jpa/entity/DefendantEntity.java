@@ -151,6 +151,7 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
         this.nationality2 = defendantUpdate.getNationality2();
         this.phoneNumber = defendantUpdate.getPhoneNumber();
         this.personId = defendantUpdate.getPersonId();
+        this.cprUUID = defendantUpdate.getCprUUID();
         Optional.ofNullable(this.offender).ifPresentOrElse(offenderEntity -> Optional.ofNullable(defendantUpdate.getOffender()).ifPresent(offenderUpdate -> {
             if(StringUtils.equals(this.getOffender().getCrn(), defendantUpdate.getOffender().getCrn())) {
                 this.offender.update(defendantUpdate.getOffender());

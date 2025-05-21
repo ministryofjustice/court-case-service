@@ -1,4 +1,4 @@
-FROM openjdk:21-jdk-slim-buster
+FROM eclipse-temurin:21-jre-jammy
 MAINTAINER HMPPS Digital Studio <info@digital.justice.gov.uk>
 
 ENV TZ=Europe/London

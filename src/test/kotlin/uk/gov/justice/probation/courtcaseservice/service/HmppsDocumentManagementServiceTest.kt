@@ -1,7 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
 import org.assertj.core.api.Assertions
-import org.junit.Assert.assertThrows
+import org.assertj.core.api.AssertionsForClassTypes.assertThat
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -139,8 +140,7 @@ internal class HmppsDocumentManagementServiceTest {
         MockMultipartFile("file", "test-file-name.txt", MediaType.TEXT_PLAIN_VALUE, "test content".toByteArray()),
       )
     }
-
-    Assertions.assertThat(e.message).isEqualTo("Defendant invalid-defendant-id not found for hearing 75e63d6c-5487-4244-a5bc-7cf8a38992db")
+    assertThat(e.message).isEqualTo("Defendant invalid-defendant-id not found for hearing 75e63d6c-5487-4244-a5bc-7cf8a38992db")
   }
 
   @Test

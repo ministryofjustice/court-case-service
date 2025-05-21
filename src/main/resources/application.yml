@@ -3,6 +3,10 @@ info:
     name: HMPPS Court Case Service
     version: 1.0
 
+springdoc:
+  swagger-ui:
+    version: 5.20.0
+
 management:
   endpoints:
     web:

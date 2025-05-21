@@ -27,7 +27,7 @@ import java.time.LocalTime
   config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),
   executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
 )
-internal class CaseWorkflowServiceIntTest {
+internal open class CaseWorkflowServiceIntTest {
 
   @Autowired
   lateinit var caseWorkflowService: CaseWorkflowService
@@ -94,9 +94,9 @@ internal class CaseWorkflowServiceIntTest {
   }
 
   @org.springframework.boot.test.context.TestConfiguration
-  class TestConfiguration {
+  open class TestConfiguration {
     @Bean
-    fun caseWorkflowService(
+    open fun caseWorkflowService(
       @Autowired hearingRepository: HearingRepository,
       @Autowired hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom,
       @Autowired telemetryService: TelemetryService,
@@ -110,9 +110,9 @@ internal class CaseWorkflowServiceIntTest {
     }
 
     @Bean
-    fun pagedCaseListRepositoryCustom(entityManager: EntityManager): HearingOutcomeRepositoryCustom = HearingOutcomeRepositoryCustom(entityManager)
+    open fun pagedCaseListRepositoryCustom(entityManager: EntityManager): HearingOutcomeRepositoryCustom = HearingOutcomeRepositoryCustom(entityManager)
 
     @Bean
-    fun hearingOutcomeRepositoryCustom(entityManager: EntityManager): HearingOutcomeRepositoryCustom = HearingOutcomeRepositoryCustom(entityManager)
+    open fun hearingOutcomeRepositoryCustom(entityManager: EntityManager): HearingOutcomeRepositoryCustom = HearingOutcomeRepositoryCustom(entityManager)
   }
 }

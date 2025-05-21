@@ -88,7 +88,7 @@ internal class CaseWorkflowServiceTest {
 
   @Test
   fun `given hearing outcome and hearing id and defendant id exist should add hearing outcome`() {
-    val dbHearingEntity = _root_ide_package_.uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingEntity()
+    val dbHearingEntity = aHearingEntity()
     given(hearingEntityInitService.findByHearingIdAndInitHearingDefendants(HEARING_ID, DEFENDANT_ID)).willReturn(Optional.of(dbHearingEntity))
     caseWorkflowService.addOrUpdateHearingOutcome(HEARING_ID, DEFENDANT_ID, HearingOutcomeType.REPORT_REQUESTED)
     verify(hearingEntityInitService).findByHearingIdAndInitHearingDefendants(HEARING_ID, DEFENDANT_ID)

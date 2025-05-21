@@ -23,7 +23,7 @@ internal class HearingOutcomeTypeConverterTest {
   @Test
   fun `should throw error on invalid outcome type`() {
     assertThrows<HttpClientErrorException>(
-      "Invalid value INVALID for hearing outcome type"
+      "Invalid value INVALID for hearing outcome type",
     ) { hearingOutcomeTypeConverter.convert("INVALID") }
   }
 }

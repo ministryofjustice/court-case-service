@@ -1,7 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Assert.assertThrows
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -122,7 +122,7 @@ internal class CaseWorkflowServiceTest {
           HearingOutcomeType.REPORT_REQUESTED,
         )
       },
-      "Hearing not found with id hearing-id-one"
+      "Hearing not found with id hearing-id-one",
     )
 
     verify(hearingEntityInitService).findByHearingIdAndInitHearingDefendants(hearingId, defendantId)
@@ -174,7 +174,7 @@ internal class CaseWorkflowServiceTest {
           assignedToUuid,
         )
       },
-      "Hearing not found with id hearing-id-one"
+      "Hearing not found with id hearing-id-one",
     )
     // Then
     verify(hearingEntityInitService).findByHearingIdAndDefendantIdAssignState(Companion.hearingId, defendantId)
@@ -277,7 +277,7 @@ internal class CaseWorkflowServiceTest {
           HearingOutcomeSearchRequest(HearingOutcomeItemState.NEW),
         )
       },
-      "Court B10JQ not found"
+      "Court B10JQ not found",
     )
 
     verifyNoInteractions(hearingRepository)
@@ -335,7 +335,7 @@ internal class CaseWorkflowServiceTest {
       {
         caseWorkflowService.resultHearingOutcome(hearingId, defendantId, "un-allocated-to-user", userId, userName, authSource)
       },
-      "Outcome not allocated to current user."
+      "Outcome not allocated to current user.",
     )
 
     // Then
@@ -368,7 +368,7 @@ internal class CaseWorkflowServiceTest {
       {
         caseWorkflowService.resultHearingOutcome(hearingId, defendantId, assignedToUuid, userId, userName, authSource)
       },
-      "Invalid state for outcome to be resulted."
+      "Invalid state for outcome to be resulted.",
     )
 
     // Then
@@ -464,7 +464,7 @@ internal class CaseWorkflowServiceTest {
           "test-auth-source",
         )
       },
-      "Defendant invalid-defendant-id not found on hearing with id $hearingId"
+      "Defendant invalid-defendant-id not found on hearing with id $hearingId",
     )
 
     verify(hearingEntityInitService).findByHearingIdAndInitHearingDefendants(hearingId, invalidDefendantId)
@@ -484,7 +484,7 @@ internal class CaseWorkflowServiceTest {
           "test-user-uuid",
         )
       },
-      "Defendant invalid-defendant-id not found on hearing with id $HEARING_ID"
+      "Defendant invalid-defendant-id not found on hearing with id $HEARING_ID",
     )
 
     verify(hearingEntityInitService).findByHearingIdAndDefendantIdAssignState(HEARING_ID, invalidDefendantId)
@@ -496,12 +496,14 @@ internal class CaseWorkflowServiceTest {
 
     assertThrows(
       EntityNotFoundException::class.java,
-      { caseWorkflowService.addOrUpdateHearingOutcome(
-        hearingId,
-        "invalid-defendant-id",
-        HearingOutcomeType.REPORT_REQUESTED,
-      ) },
-      "Defendant invalid-defendant-id not found on hearing with id $hearingId"
+      {
+        caseWorkflowService.addOrUpdateHearingOutcome(
+          hearingId,
+          "invalid-defendant-id",
+          HearingOutcomeType.REPORT_REQUESTED,
+        )
+      },
+      "Defendant invalid-defendant-id not found on hearing with id $hearingId",
     )
 
     verify(hearingEntityInitService).findByHearingIdAndInitHearingDefendants(hearingId, invalidDefendantId)
@@ -521,7 +523,7 @@ internal class CaseWorkflowServiceTest {
           HearingPrepStatus.IN_PROGRESS,
         )
       },
-      "Defendant invalid-defendant-id not found on hearing with id $HEARING_ID"
+      "Defendant invalid-defendant-id not found on hearing with id $HEARING_ID",
     )
     verify(hearingEntityInitService).findByHearingIdAndInitHearingDefendants(HEARING_ID, invalidDefendantId)
     verifyNoMoreInteractions(hearingRepository)

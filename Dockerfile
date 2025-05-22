@@ -19,15 +19,11 @@ RUN groupadd --gid 2000 --system appgroup && \
 # Install AWS RDS Root cert into Java truststore
 RUN mkdir -p /home/appuser/.postgresql
 ADD --chown=appuser:appgroup https://truststore.pki.rds.amazonaws.com/eu-west-2/eu-west-2-bundle.pem /home/appuser/.postgresql/root.crt
-#
+
 WORKDIR /app
 
-#COPY --from=builder . /app
-
-RUN #echo ${PWD} && ls -lR
-
-COPY --from=builder --chown=appuser:appgroup app/build/libs/court-case-service*.jar /app/court-case-service.jar
-COPY --from=builder --chown=appuser:appgroup app/build/libs/applicationinsights-agent*.jar /app/agent.jar
+COPY --from=builder --chown=appuser:appgroup /app/build/libs/court-case-service*.jar /app/court-case-service.jar
+COPY --from=builder --chown=appuser:appgroup /app/build/libs/applicationinsights-agent*.jar /app/agent.jar
 COPY --from=builder --chown=appuser:appgroup /app/applicationinsights.json /app
 COPY --from=builder --chown=appuser:appgroup /app/run.sh /app
 

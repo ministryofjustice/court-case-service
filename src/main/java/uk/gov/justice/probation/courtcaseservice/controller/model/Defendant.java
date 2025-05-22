@@ -49,6 +49,7 @@ public class Defendant {
     private final Offender offender;
     private final String personId;
     private final Boolean confirmedOffender;
+    private final String cprUUID;
 
     @JsonProperty
     public String getSex() {

@@ -55,8 +55,8 @@ INSERT INTO case_comments(id, case_id, defendant_id, comment, "author", created,
 
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time)
 VALUES (-1000000, -1700028900, 'B10JQ', 1, '2019-12-14', '09:00');
-INSERT INTO DEFENDANT(id, DEFENDANT_ID,PERSON_ID, defendant_name, name, address, type, date_of_birth, crn, fk_offender_id, pnc, cro, sex, nationality_1, nationality_2, phone_number)
-VALUES (-1000000, '40db17d6-04db-11ec-b2d8-0242ac130002','b875f962-4b95-11ed-bdc3-0242ac120002', 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', 'X320741', -1000001, 'A/1234560BA', '311462/13E', 'MALE', 'British', 'Polish', '{"home": "07000000013", "mobile": "07000000007", "work": "07000000015"}');
+INSERT INTO DEFENDANT(id, DEFENDANT_ID,PERSON_ID, defendant_name, name, address, type, date_of_birth, crn, fk_offender_id, pnc, cro, sex, nationality_1, nationality_2, phone_number, cpr_uuid)
+VALUES (-1000000, '40db17d6-04db-11ec-b2d8-0242ac130002','b875f962-4b95-11ed-bdc3-0242ac120002', 'Mr Johnny BALL', '{"title": "Mr", "surname": "BALL", "forename1": "Johnny", "forename2": "John", "forename3": "Jon"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', 'X320741', -1000001, 'A/1234560BA', '311462/13E', 'MALE', 'British', 'Polish', '{"home": "07000000013", "mobile": "07000000007", "work": "07000000015"}', 'cd33edce-5948-4592-a4ac-b5eb48d01209');
 
 INSERT INTO HEARING_DEFENDANT(id, fk_hearing_id, DEFENDANT_ID, FK_DEFENDANT_ID)
 VALUES (-1000000, -1700028900, '40db17d6-04db-11ec-b2d8-0242ac130002', -1000000);

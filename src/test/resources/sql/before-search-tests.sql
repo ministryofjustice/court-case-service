@@ -10,8 +10,8 @@ INSERT INTO hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-184, -184, 'fe657c3a-b674-4e17-8772-7281c99e4f9f', '2022-03-23 17:59:59.000');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
 VALUES (-184, -184, 'B33HU', 1, NOW()::date - interval '5 days', '13:00', '2022-03-23 17:59:59.000');
-INSERT INTO DEFENDANT (id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, type, date_of_birth, crn, FK_OFFENDER_ID, sex, created)
-VALUES (-184, '0048297a-fd9c-4c96-8c03-8122b802a54d', 'c88fd38c-4b9e-11ed-bdc3-0242ac120002', 'Mr Ferris Middle BUELLER', '{"title": "Mr", "surname": "BUELLER", "forename1": "Ferris", "forename2": "Antimony"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', 'X258291', -100, 'MALE', '2022-03-23 17:59:59.000');
+INSERT INTO DEFENDANT (id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, type, date_of_birth, crn, FK_OFFENDER_ID, sex, created, cpr_uuid)
+VALUES (-184, '0048297a-fd9c-4c96-8c03-8122b802a54d', 'c88fd38c-4b9e-11ed-bdc3-0242ac120002', 'Mr Ferris Middle BUELLER', '{"title": "Mr", "surname": "BUELLER", "forename1": "Ferris", "forename2": "Antimony"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', 'X258291', -100, 'MALE', '2022-03-23 17:59:59.000', 'cd33edce-5948-4592-a4ac-b5eb48d01209');
 INSERT INTO HEARING_DEFENDANT (id, fk_hearing_id, created, defendant_id, FK_DEFENDANT_ID)
 VALUES (-184, -184, '2022-03-23 16:59:59.000', '0048297a-fd9c-4c96-8c03-8122b802a54d', -184);
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)
@@ -27,8 +27,8 @@ INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day,
 VALUES (-155, -154, 'B14LO', 1, NOW()::date - interval '2 days', '09:00', '2022-01-23 17:59:59.000');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
 VALUES (-156, -154, 'B33HU', 1, NOW()::date + interval '10 days', '09:00', '2022-01-23 17:59:59.000');
-INSERT INTO DEFENDANT (id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, type, date_of_birth, crn, FK_OFFENDER_ID, sex, created)
-VALUES (-154, '8acf5a7a-0e0b-49e5-941e-943ab354a15f', '8acf5a7a-0e0b-49e5-941e-943ab354a15f', 'Mr Ferris Middle Biller', '{"title": "Mr", "surname": "Biller", "forename1": "Ferris", "forename2": "Antimony"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', 'X258291', -100, 'MALE', '2022-01-23 17:59:59.000');
+INSERT INTO DEFENDANT (id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, type, date_of_birth, crn, FK_OFFENDER_ID, sex, created, cpr_uuid)
+VALUES (-154, '8acf5a7a-0e0b-49e5-941e-943ab354a15f', '8acf5a7a-0e0b-49e5-941e-943ab354a15f', 'Mr Ferris Middle Biller', '{"title": "Mr", "surname": "Biller", "forename1": "Ferris", "forename2": "Antimony"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', 'X258291', -100, 'MALE', '2022-01-23 17:59:59.000', 'dd33edce-5948-4592-a4ac-b5eb48d01209');
 INSERT INTO HEARING_DEFENDANT (id, fk_hearing_id, created, defendant_id, FK_DEFENDANT_ID)
 VALUES (-154, -154, '2022-01-23 16:59:59.000', '8acf5a7a-0e0b-49e5-941e-943ab354a15f', -154);
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)
@@ -42,8 +42,8 @@ INSERT INTO hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-164, -164, '42936880-43c6-44b3-a009-8c4040ed1832', '2022-02-23 17:59:59.000');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)
 VALUES (-164, -164, 'B63AD', 1, '2022-1-25', '09:00', '2022-02-23 17:59:59.000');
-INSERT INTO DEFENDANT (id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, type, date_of_birth, crn, FK_OFFENDER_ID, sex, created)
-VALUES (-164, '9f8c4a3f-68d1-43a1-b743-163edca3bc68', '9f8c4a3f-68d1-43a1-b743-163edca3bc68', 'Mr John Middle Bloggs', '{"title": "Mr", "surname": "Bloggs", "forename1": "John", "forename2": "Antimony"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', 'X12345', -99, 'MALE', '2022-02-23 17:59:59.000');
+INSERT INTO DEFENDANT (id, DEFENDANT_ID, PERSON_ID, defendant_name, name, address, type, date_of_birth, crn, FK_OFFENDER_ID, sex, created, cpr_uuid)
+VALUES (-164, '9f8c4a3f-68d1-43a1-b743-163edca3bc68', '9f8c4a3f-68d1-43a1-b743-163edca3bc68', 'Mr John Middle Bloggs', '{"title": "Mr", "surname": "Bloggs", "forename1": "John", "forename2": "Antimony"}', '{"line1": "27", "line2": "Elm Place", "postcode": "ad21 5dr", "line3": "Bangor", "line4": null, "line5": null}', 'PERSON', '1958-10-10', 'X12345', -99, 'MALE', '2022-02-23 17:59:59.000', 'ad33edce-5948-4592-a4ac-b5eb48d01209');
 INSERT INTO HEARING_DEFENDANT (id, fk_hearing_id, created, defendant_id, FK_DEFENDANT_ID)
 VALUES (-164, -164, '2022-02-23 16:59:59.000', '9f8c4a3f-68d1-43a1-b743-163edca3bc68', -164);
 INSERT INTO OFFENCE (ID, FK_HEARING_DEFENDANT_ID, TITLE, SUMMARY, ACT, SEQUENCE, CREATED)

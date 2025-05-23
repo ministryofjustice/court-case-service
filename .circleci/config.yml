@@ -256,6 +256,20 @@ workflows:
               ignore: /.*/
       - hmpps/helm_lint:
           name: helm_lint_dev
+      - hmpps/gradle_owasp_dependency_check:
+          slack_channel: << pipeline.parameters.alerts-slack-channel >>
+          jdk_tag: "21.0"
+          context:
+            - hmpps-common-vars
+      - hmpps/trivy_latest_scan:
+          slack_channel: << pipeline.parameters.alerts-slack-channel >>
+          context:
+            - hmpps-common-vars
+      - hmpps/veracode_pipeline_scan:
+          slack_channel: << pipeline.parameters.alerts-slack-channel >>
+          context:
+            - hmpps-common-vars
+            - veracode-credentials
       - hmpps/database_schema_report:
           schema: "courtcaseservicetest"
           initialise_database: "./gradlew initialiseDatabase"

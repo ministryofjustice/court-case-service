@@ -3,12 +3,12 @@ import java.time.LocalDate
 plugins {
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.github.ben-manes.versions' version '0.52.0'
-    id 'org.flywaydb.flyway' version '11.3.4'
+    id 'org.flywaydb.flyway' version '11.8.2'
     id "uk.gov.justice.hmpps.gradle-spring-boot" version "8.2.0"
     id 'jacoco'
     id "au.com.dius.pact" version "4.6.17"
-    id 'org.jetbrains.kotlin.plugin.spring' version '2.1.10'
-    id 'org.jetbrains.kotlin.plugin.lombok' version '2.1.10'
+    id 'org.jetbrains.kotlin.plugin.spring' version '2.1.21'
+    id 'org.jetbrains.kotlin.plugin.lombok' version '2.1.21'
 }
 
 
@@ -25,7 +25,7 @@ repositories {
 group = 'uk.gov.justice.probation'
 
 ext {
-    restAssuredVersion = '5.5.1'
+    restAssuredVersion = '5.5.5'
     pactVersion = '4.6.17'
 }
 
@@ -169,21 +169,21 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
 
     // SAR (Subject Access Request) endpoint is included here
-    implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.0") {
+    implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.5") {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-oauth2-resource-server'
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-oauth2-client'
     }
 
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.3")
-    implementation('com.fasterxml.jackson.module:jackson-module-kotlin:2.18.3')
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0")
+    implementation('com.fasterxml.jackson.module:jackson-module-kotlin:2.19.0')
 
-    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+    annotationProcessor 'org.projectlombok:lombok:1.18.38'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
-    api 'org.projectlombok:lombok:1.18.36'
+    api 'org.projectlombok:lombok:1.18.38'
 
-    runtimeOnly("org.flywaydb:flyway-database-postgresql:11.3.4")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql:11.8.2")
     runtimeOnly "org.springframework.boot:spring-boot-devtools"
     runtimeOnly 'org.postgresql:postgresql:42.7.5'
 
@@ -195,7 +195,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.boot:spring-boot-starter-validation"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
-    implementation("org.springframework.retry:spring-retry:2.0.11")
+    implementation("org.springframework.retry:spring-retry:2.0.12")
     implementation('org.springframework.security:spring-security-oauth2-client')
     implementation 'org.springframework.security:spring-security-oauth2-resource-server'
     implementation 'org.springframework.security:spring-security-oauth2-jose'
@@ -205,27 +205,27 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk9")
 
     implementation 'io.jsonwebtoken:jjwt:0.12.6'
-    implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
+    implementation 'net.logstash.logback:logstash-logback-encoder:8.1'
 
-    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.3.2")
+    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.5")
 
-    implementation group: 'ai.h2o', name: 'h2o-genmodel', version: '3.46.0.6'
+    implementation group: 'ai.h2o', name: 'h2o-genmodel', version: '3.46.0.7'
 
-    implementation 'commons-io:commons-io:2.18.0'
+    implementation 'commons-io:commons-io:2.19.0'
 
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:4.1.0'
+    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:4.1.1'
     testImplementation("io.rest-assured:json-path:$restAssuredVersion")
     testImplementation("io.rest-assured:xml-path:$restAssuredVersion")
     testImplementation("io.rest-assured:rest-assured:$restAssuredVersion")
     testImplementation("io.rest-assured:rest-assured-common:$restAssuredVersion")
 
-    testImplementation(platform("org.junit:junit-bom:5.12.0"))
+    testImplementation(platform("org.junit:junit-bom:5.12.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
-    testImplementation("org.wiremock:wiremock-standalone:3.12.1") // works with spring boot 3.2.0 > higher
+    testImplementation("org.wiremock:wiremock-standalone:3.13.0") // works with spring boot 3.2.0 > higher
 
     testImplementation("au.com.dius.pact.provider:junit5spring:$pactVersion")
     testImplementation("au.com.dius.pact.provider:junit5:$pactVersion")
@@ -236,15 +236,15 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 
-    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.7.1'
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.10")
+    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.7.2'
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.21")
 
     // Spring ignores constructor binding on Kotlin data classes without this which in turn breaks hmpps-sqs-spring-boot-starter autoconfiguration
-    runtimeOnly 'org.jetbrains.kotlin:kotlin-reflect:2.1.10'
+    runtimeOnly 'org.jetbrains.kotlin:kotlin-reflect:2.1.21'
 }
 
 jacoco {
-    toolVersion = '0.8.12'
+    toolVersion = '0.8.13'
 }
 
 jacocoTestCoverageVerification {

@@ -42,8 +42,6 @@ hmpps-document-management-api-client:
   base-url: http://localhost:8090
 
 spring:
-  flyway:
-    clean-on-validation-error: true
   jpa:
     show-sql: false
     properties:

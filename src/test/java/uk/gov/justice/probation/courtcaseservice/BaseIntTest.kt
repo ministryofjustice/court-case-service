@@ -90,7 +90,7 @@ abstract class BaseIntTest {
     await atMost AWAITILITY_DURATION untilCallTo {
       emittedEventsQueueSqsClient.countMessagesOnQueue(
         emittedEventsQueueUrl,
-        QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES
+        QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES,
       )
     } matches { it == 2 }
   }
@@ -101,13 +101,13 @@ abstract class BaseIntTest {
     await atMost AWAITILITY_DURATION untilCallTo {
       offenderEventReceiverQueueSqsClient.countMessagesOnQueue(
         offenderEventReceiverQueueUrl,
-        QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE
+        QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE,
       )
     } matches { it == 0 }
     await atMost AWAITILITY_DURATION untilCallTo {
       offenderEventReceiverQueueSqsClient.countMessagesOnQueue(
         offenderEventReceiverQueueUrl,
-        QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES
+        QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES,
       )
     } matches { it == 0 }
   }
@@ -116,13 +116,13 @@ abstract class BaseIntTest {
     await atMost AWAITILITY_DURATION untilCallTo {
       newOffenderEventReceiverQueueSqsClient.countMessagesOnQueue(
         newOffenderEventReceiverQueueQueueUrl,
-        QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE
+        QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE,
       )
     } matches { it == 0 }
     await atMost AWAITILITY_DURATION untilCallTo {
       newOffenderEventReceiverQueueSqsClient.countMessagesOnQueue(
         newOffenderEventReceiverQueueQueueUrl,
-        QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES
+        QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES,
       )
     } matches { it == 0 }
   }

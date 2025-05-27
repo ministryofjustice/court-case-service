@@ -42,7 +42,7 @@ public class UserAgnosticOffenderService {
     public Optional<OffenderEntity> updateOffenderProbationStatus(String crn) {
         return offenderRepository.findByCrn(crn)
             .map(offenderEntity -> {
-                log.info("Fetching probation status for crn: ", crn);
+                log.info("Fetching probation status for crn: {}", crn);
                 ProbationStatusDetail probationStatusDetailFromCommunityApi = getProbationStatusWithoutRestrictions(crn).block();
                 if (isUpdateProbationStatus(offenderEntity, probationStatusDetailFromCommunityApi)) {
                     updateProbationStatusDetails(probationStatusDetailFromCommunityApi, offenderEntity);

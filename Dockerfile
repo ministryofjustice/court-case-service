@@ -1,4 +1,13 @@
-FROM openjdk:21-jdk-slim-buster
+FROM openjdk:21-slim AS builder
+
+ARG BUILD_NUMBER
+ENV BUILD_NUMBER ${BUILD_NUMBER:-1_0_0}
+
+WORKDIR /app
+ADD . .
+RUN ./gradlew assemble -Dorg.gradle.daemon=false
+
+FROM eclipse-temurin:21-jre-jammy
 MAINTAINER HMPPS Digital Studio <info@digital.justice.gov.uk>
 
 ENV TZ=Europe/London
@@ -13,10 +22,10 @@ ADD --chown=appuser:appgroup https://truststore.pki.rds.amazonaws.com/eu-west-2/
 
 WORKDIR /app
 
-COPY build/libs/court-case-service*.jar /app/court-case-service.jar
-COPY build/libs/applicationinsights-agent*.jar /app/agent.jar
-COPY applicationinsights.json /app
-COPY run.sh /app
+COPY --from=builder --chown=appuser:appgroup /app/build/libs/court-case-service*.jar /app/court-case-service.jar
+COPY --from=builder --chown=appuser:appgroup /app/build/libs/applicationinsights-agent*.jar /app/agent.jar
+COPY --from=builder --chown=appuser:appgroup /app/applicationinsights.json /app
+COPY --from=builder --chown=appuser:appgroup /app/run.sh /app
 
 RUN mkdir -p /app/src/test/resources/db/migration
 COPY src/test/resources/db/migration/local /app/src/test/resources/db/migration/local

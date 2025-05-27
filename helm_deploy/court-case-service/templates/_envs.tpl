@@ -163,8 +163,8 @@ env:
   - name: APPLICATIONINSIGHTS_CONNECTION_STRING
     valueFrom:
       secretKeyRef:
-        name: applicationinsights_connection_string
-        key: APPLICATIONINSIGHTS_CONNECTION_STRING
+        name: applicationinsights-connection-string
+        key: applicationinsights_connection_string
 
   - name: HMPPS_SQS_TOPICS_HMPPSDOMAINEVENTS_ARN
     valueFrom:

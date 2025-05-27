@@ -1,8 +1,8 @@
 package uk.gov.justice.probation.courtcaseservice.controller
 
 import org.assertj.core.api.Assertions
-import org.junit.Assert
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.junit.jupiter.MockitoExtension
@@ -22,11 +22,8 @@ internal class HearingOutcomeTypeConverterTest {
 
   @Test
   fun `should throw error on invalid outcome type`() {
-    Assert.assertThrows(
+    assertThrows<HttpClientErrorException>(
       "Invalid value INVALID for hearing outcome type",
-      HttpClientErrorException::class.java,
-    ) {
-      hearingOutcomeTypeConverter.convert("INVALID")
-    }
+    ) { hearingOutcomeTypeConverter.convert("INVALID") }
   }
 }

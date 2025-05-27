@@ -4,9 +4,10 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 
 @Schema(description = "Case defendant documents object")
-data class CaseDocumentResponse(val id: String,
-                                val datetime: LocalDateTime,
-                                val file: FileResponse
+data class CaseDocumentResponse(
+  val id: String,
+  val datetime: LocalDateTime,
+  val file: FileResponse,
 ) {
-    data class FileResponse(val name: String, val size: Number? = 0)
+  data class FileResponse(val name: String, val size: Number? = 0)
 }

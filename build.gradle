@@ -236,7 +236,7 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 
-    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.7.2'
+    agentDeps 'com.microsoft.azure:applicationinsights-agent:3.7.3'
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.21")
 
     // Spring ignores constructor binding on Kotlin data classes without this which in turn breaks hmpps-sqs-spring-boot-starter autoconfiguration

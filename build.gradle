@@ -183,7 +183,7 @@ dependencies {
 
     api 'org.projectlombok:lombok:1.18.38'
 
-    runtimeOnly("org.flywaydb:flyway-database-postgresql:11.8.2")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql:11.9.0")
     runtimeOnly "org.springframework.boot:spring-boot-devtools"
     runtimeOnly 'org.postgresql:postgresql:42.7.6'
 

@@ -169,7 +169,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
 
     // SAR (Subject Access Request) endpoint is included here
-    implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.5") {
+    implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.6") {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-oauth2-resource-server'
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-oauth2-client'

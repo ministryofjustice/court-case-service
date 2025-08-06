@@ -33,6 +33,8 @@ class OffenderUpdateServiceTest {
     private OffenderRepository offenderRepository;
     @Mock
     private OffenderRepositoryFacade offenderRepositoryFacade;
+    @Mock
+    private DomainEventService domainEventService;
 
     @InjectMocks
     private OffenderUpdateService offenderUpdateService;
@@ -106,6 +108,7 @@ class OffenderUpdateServiceTest {
 
         verify(defendantRepository).findFirstByDefendantId(DEFENDANT_ID);
         verify(defendantRepository).save(defendantEntity.withCrn(null).withManualUpdate(true).withOffenderConfirmed(true));
+        verify(domainEventService).emitUnLinkNDeliusRecordEvent(defendantEntity);
     }
 
     @Test
@@ -135,6 +138,7 @@ class OffenderUpdateServiceTest {
         verify(defendantRepository).findFirstByDefendantId(DEFENDANT_ID);
         verify(offenderRepositoryFacade).save(offenderEntity);
         verify(defendantRepository).save(defendantEntity.withCrn(CRN).withManualUpdate(true).withOffenderConfirmed(true));
+        verify(domainEventService).emitLinkNDeliusRecordEvent(defendantEntity);
     }
 
     @Test
@@ -157,6 +161,7 @@ class OffenderUpdateServiceTest {
         verify(defendantRepository).findFirstByDefendantId(DEFENDANT_ID);
         verify(offenderRepositoryFacade).save(offenderUpdate);
         verify(defendantRepository).save(defendantEntity.withCrn(CRN).withManualUpdate(true).withOffenderConfirmed(true));
+        verify(domainEventService).emitLinkNDeliusRecordEvent(defendantEntity);
     }
 
     @Test
@@ -181,5 +186,6 @@ class OffenderUpdateServiceTest {
         verify(defendantRepository).findFirstByDefendantId(DEFENDANT_ID);
         verify(offenderRepositoryFacade).save(offenderUpdate);
         verify(defendantRepository).save(defendantEntity.withCrn(NEW_CRN).withManualUpdate(true).withOffenderConfirmed(true));
+        verify(domainEventService).emitLinkNDeliusRecordEvent(defendantEntity);
     }
 }

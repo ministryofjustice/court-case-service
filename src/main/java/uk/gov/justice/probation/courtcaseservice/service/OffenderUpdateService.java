@@ -25,12 +25,14 @@ public class OffenderUpdateService {
     private final DefendantRepository defendantRepository;
     private final OffenderRepository offenderRepository;
     private final OffenderRepositoryFacade offenderRepositoryFacade;
+    private final DomainEventService domainEventService;
 
     @Autowired
-    public OffenderUpdateService(DefendantRepository defendantRepository, OffenderRepository offenderRepository, OffenderRepositoryFacade offenderRepositoryFacade) {
+    public OffenderUpdateService(DefendantRepository defendantRepository, OffenderRepository offenderRepository, OffenderRepositoryFacade offenderRepositoryFacade, DomainEventService domainEventService) {
         this.defendantRepository = defendantRepository;
         this.offenderRepository = offenderRepository;
         this.offenderRepositoryFacade = offenderRepositoryFacade;
+        this.domainEventService = domainEventService;
     }
 
     @Transactional
@@ -38,6 +40,8 @@ public class OffenderUpdateService {
         final var defendant = findDefendantOrElseThrow(defendantId);
         defendant.confirmNoMatch();
         defendantRepository.save(defendant);
+        log.debug("Emitting ndelius record unlinked event for defendant with ID {}", defendant.getDefendantId());
+        domainEventService.emitUnLinkNDeliusRecordEvent(defendant);
     }
 
     public Mono<OffenderEntity> getDefendantOffenderByDefendantId(final String defendantId) {
@@ -62,6 +66,9 @@ public class OffenderUpdateService {
         if (!StringUtils.equals(defendant.getCrn(), updatedOffender.getCrn())) {
             defendant.confirmMatch(updatedOffender);
             defendantRepository.save(defendant);
+
+            log.debug("Emitting ndelius record linked event for defendant with ID {}", defendant.getDefendantId());
+            domainEventService.emitLinkNDeliusRecordEvent(defendant);
         }
 
         return Mono.just(updatedOffender);

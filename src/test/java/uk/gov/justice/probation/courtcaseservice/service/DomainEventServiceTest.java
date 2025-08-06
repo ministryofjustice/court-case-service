@@ -90,6 +90,46 @@ public class DomainEventServiceTest {
         assertThat(actualPublishedRequest2.message()).contains("personId2");
     }
 
+    @Test
+    public void shouldEmit_NDeliusRecord_Linked_ForDefendant() throws JsonProcessingException {
+        when(objectMapper.writeValueAsString(any())).thenReturn(String.valueOf(buildNDeliusDomainEventMessage("crn1",  "defendantId")));
+        var defendantEntity = buildDefendantEntity();
+        CompletableFuture<PublishResponse> result = CompletableFuture.completedFuture( PublishResponse.builder().messageId("messageId").build() );
+        when(snsClient.publish(ArgumentMatchers.any(PublishRequest.class))).thenReturn(result);
+
+        domainEventService.emitLinkNDeliusRecordEvent(defendantEntity);
+
+        verify(snsClient, times(1)).publish(publishRequestArgumentCaptor.capture());
+        var actualPublishedRequest = publishRequestArgumentCaptor.getAllValues().getFirst();
+        assertThat(actualPublishedRequest.messageAttributes().get("eventType").dataType()).isEqualTo("String");
+        assertThat(actualPublishedRequest.messageAttributes().get("eventType").stringValue()).isEqualTo("ndelius.record.linked");
+        assertThat(actualPublishedRequest.message()).contains("crn1");
+        assertThat(actualPublishedRequest.message()).contains("defendantId");
+    }
+
+    @Test
+    public void shouldEmit_NDeliusRecord_UnLinked_ForDefendant() throws JsonProcessingException {
+        when(objectMapper.writeValueAsString(any())).thenReturn(String.valueOf(buildNDeliusDomainEventMessage("crn1",  "defendantId")));
+        var defendantEntity = buildDefendantEntity();
+        CompletableFuture<PublishResponse> result = CompletableFuture.completedFuture( PublishResponse.builder().messageId("messageId").build() );
+        when(snsClient.publish(ArgumentMatchers.any(PublishRequest.class))).thenReturn(result);
+
+        domainEventService.emitUnLinkNDeliusRecordEvent(defendantEntity);
+
+        verify(snsClient, times(1)).publish(publishRequestArgumentCaptor.capture());
+        var actualPublishedRequest = publishRequestArgumentCaptor.getAllValues().getFirst();
+        assertThat(actualPublishedRequest.messageAttributes().get("eventType").dataType()).isEqualTo("String");
+        assertThat(actualPublishedRequest.messageAttributes().get("eventType").stringValue()).isEqualTo("ndelius.record.unlinked");
+        assertThat(actualPublishedRequest.message()).contains("crn1");
+        assertThat(actualPublishedRequest.message()).contains("defendantId");
+    }
+
+    private DefendantEntity buildDefendantEntity() {
+        return DefendantEntity.builder()
+            .crn("crn1")
+            .personId("defendantId").build();
+    }
+    
     private HearingEntity buildHearingEntity() {
 
         var defendantEntity1 = HearingDefendantEntity.builder()
@@ -138,6 +178,24 @@ public class DomainEventServiceTest {
                         .identifiers(buildDefendantIdentifiers(crn, cro, pnc,personId))
                         .build())
                 .build();
+    }
+
+    private DomainEventMessage buildNDeliusDomainEventMessage(String crn, String defendantId) {
+        return DomainEventMessage.builder()
+            .eventType(DomainEventType.NDELIUS_RECORD_LINKED_EVENT_TYPE.getEventTypeName())
+            .version(1)
+            .occurredAt(LocalDateTime.now().toString())
+            .personReference(PersonReference.builder()
+                .identifiers(buildBasicDefendantIdentifiers(crn, defendantId))
+                .build())
+            .build();
+    }
+
+    private List<PersonReferenceType> buildBasicDefendantIdentifiers(String crn, String defendantId) {
+        return List.of(
+            PersonReferenceType.builder().type("CRN").value(crn).build(),
+            PersonReferenceType.builder().type("DEFENDANT_ID").value(defendantId).build()
+        );
     }
 
 }

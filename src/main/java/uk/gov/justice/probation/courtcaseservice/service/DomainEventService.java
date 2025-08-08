@@ -75,13 +75,55 @@ public class DomainEventService {
                 });
     }
 
+    void emitLinkNDeliusRecordEvent(DefendantEntity defendant) {
+        var sentencedEventType = DomainEventType.NDELIUS_RECORD_LINKED_EVENT_TYPE;
+        emitNDeliusRecordEvent(defendant, sentencedEventType);
+    }
+
+    void emitUnLinkNDeliusRecordEvent(DefendantEntity defendant) {
+        var sentencedEventType = DomainEventType.NDELIUS_RECORD_UNLINKED_EVENT_TYPE;
+        emitNDeliusRecordEvent(defendant, sentencedEventType);
+    }
+
+    private void emitNDeliusRecordEvent(DefendantEntity defendant, DomainEventType sentencedEventType) {
+        var sentencedEventMessage = DomainEventMessage.builder()
+            .eventType(sentencedEventType.getEventTypeName())
+            .version(1)
+            .occurredAt(LocalDateTime.now().toString())
+            .personReference(PersonReference.builder()
+                .identifiers(buildBasicDefendantIdentifiers(defendant))
+                .build())
+            .build();
+
+        var sentencedEventMessageAttribute = MessageAttributeValue.builder().dataType("String").stringValue(sentencedEventType.getEventTypeName()).build();
+
+        try {
+            PublishRequest publishRequest = PublishRequest.builder()
+                .topicArn(topic.getArn())
+                .message(objectMapper.writeValueAsString(sentencedEventMessage))
+                .messageAttributes(Collections.singletonMap(EVENT_TYPE_KEY, sentencedEventMessageAttribute))
+                .build();
+
+            topic.getSnsClient().publish(publishRequest);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to emit a {} event", sentencedEventType);
+            log.error("JsonProcessingException %s", e);
+        }
+    }
+
     private List<PersonReferenceType> buildDefendantIdentifiers(DefendantEntity defendant) {
         return List.of(
                 PersonReferenceType.builder().type("CRN").value(defendant.getCrn()).build(),
                 PersonReferenceType.builder().type("CRO").value(defendant.getCro()).build(),
                 PersonReferenceType.builder().type("PNC").value(defendant.getPnc()).build(),
                 PersonReferenceType.builder().type("PERSON_ID").value(defendant.getPersonId()).build()
+        );
+    }
 
+    private List<PersonReferenceType> buildBasicDefendantIdentifiers(DefendantEntity defendant) {
+        return List.of(
+            uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType.builder().type("CRN").value(defendant.getCrn()).build(),
+            uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType.builder().type("DEFENDANT_ID").value(defendant.getDefendantId()).build()
         );
     }
 }

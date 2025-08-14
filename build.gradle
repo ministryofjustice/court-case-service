@@ -209,7 +209,9 @@ dependencies {
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.5")
 
-    implementation group: 'ai.h2o', name: 'h2o-genmodel', version: '3.46.0.7'
+    implementation(group: 'ai.h2o', name: 'h2o-genmodel', version: '3.46.0.7') {
+        exclude group: 'commons-lang', module: 'commons-lang'
+    }
 
     implementation 'commons-io:commons-io:2.19.0'
 

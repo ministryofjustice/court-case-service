@@ -19,6 +19,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEventMessage;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.DomainEventType;
 import uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReference;
@@ -38,9 +39,6 @@ public class DomainEventServiceTest {
     private DomainEventService domainEventService;
 
     @Mock
-    private ObjectMapper objectMapper;
-
-    @Mock
     private SnsAsyncClient snsClient;
 
     @Captor
@@ -49,15 +47,11 @@ public class DomainEventServiceTest {
     @BeforeEach
     public void beforeClass() {
         HmppsTopic hmppsTopic = new HmppsTopic("id", "arn", snsClient);
-        domainEventService = new DomainEventService(objectMapper, hmppsTopic);
+        domainEventService = new DomainEventService(new ObjectMapper(), hmppsTopic);
     }
-
 
     @Test
     public void shouldEmit_SentencedEvent_ForEachDefendant() throws JsonProcessingException {
-        when(objectMapper.writeValueAsString(any())).thenReturn
-                        (String.valueOf(buildDomainEventMessage("crn1", "cro1", "pnc1","personId1")))
-                .thenReturn(String.valueOf(buildDomainEventMessage("crn2", "cro2", "pnc2","personId2")));
 
         var hearingEntity = buildHearingEntity();
 
@@ -92,7 +86,6 @@ public class DomainEventServiceTest {
 
     @Test
     public void shouldEmit_NDeliusRecord_Linked_ForDefendant() throws JsonProcessingException {
-        when(objectMapper.writeValueAsString(any())).thenReturn(String.valueOf(buildNDeliusDomainEventMessage("crn1",  "defendantId")));
         var defendantEntity = buildDefendantEntity();
         CompletableFuture<PublishResponse> result = CompletableFuture.completedFuture( PublishResponse.builder().messageId("messageId").build() );
         when(snsClient.publish(ArgumentMatchers.any(PublishRequest.class))).thenReturn(result);
@@ -109,8 +102,8 @@ public class DomainEventServiceTest {
 
     @Test
     public void shouldEmit_NDeliusRecord_UnLinked_ForDefendant() throws JsonProcessingException {
-        when(objectMapper.writeValueAsString(any())).thenReturn(String.valueOf(buildNDeliusDomainEventMessage("crn1",  "defendantId")));
         var defendantEntity = buildDefendantEntity();
+
         CompletableFuture<PublishResponse> result = CompletableFuture.completedFuture( PublishResponse.builder().messageId("messageId").build() );
         when(snsClient.publish(ArgumentMatchers.any(PublishRequest.class))).thenReturn(result);
 
@@ -126,15 +119,15 @@ public class DomainEventServiceTest {
 
     private DefendantEntity buildDefendantEntity() {
         return DefendantEntity.builder()
-            .crn("crn1")
-            .personId("defendantId").build();
+                .offender(OffenderEntity.builder().crn("crn1").build())
+                .defendantId("defendantId").build();
     }
     
     private HearingEntity buildHearingEntity() {
 
         var defendantEntity1 = HearingDefendantEntity.builder()
                 .defendant(DefendantEntity.builder()
-                        .crn("crn1")
+                        .offender(OffenderEntity.builder().crn("crn1").build())
                         .cro("cro1")
                         .pnc("pnc1")
                         .personId("personId1")
@@ -143,7 +136,7 @@ public class DomainEventServiceTest {
 
         var defendantEntity2 = HearingDefendantEntity.builder()
                 .defendant(DefendantEntity.builder()
-                        .crn("crn2")
+                        .offender(OffenderEntity.builder().crn("crn2").build())
                         .cro("cro2")
                         .pnc("pnc2")
                         .personId("personId2")

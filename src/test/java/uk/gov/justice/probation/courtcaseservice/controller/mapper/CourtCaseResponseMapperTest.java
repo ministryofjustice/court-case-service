@@ -166,6 +166,7 @@ class CourtCaseResponseMapperTest {
                         .offenderConfirmed(true)
                         .build())
                 .offences(singletonList(defendantOffence))
+                .outcomeNotRequired(true)
                 .build();
 
         var courtCaseResponse = CourtCaseResponseMapper.mapFrom(hearingEntity, defendantEntity, 3, HEARING_DATE);
@@ -209,6 +210,7 @@ class CourtCaseResponseMapperTest {
         assertThat(courtCaseResponse.getCaseMarkers()).hasSize(1);
         assertThat(courtCaseResponse.getCaseMarkers().get(0).getMarkerTypeDescription()).isEqualTo("description");
 
+        assertThat(courtCaseResponse.isHearingOutcomeNotRequired()).isTrue();
 
     }
 

@@ -167,6 +167,7 @@ public class CourtCaseResponseMapper {
                 .confirmedOffender(defendant.isOffenderConfirmed())
                 .personId(defendant.getPersonId())
                 .hearingPrepStatus(HearingPrepStatus.valueOf(hearingDefendantEntity.getPrepStatus()))
+                .hearingOutcomeNotRequired(hearingDefendantEntity.getOutcomeNotRequired())
         ;
 
         // Offences

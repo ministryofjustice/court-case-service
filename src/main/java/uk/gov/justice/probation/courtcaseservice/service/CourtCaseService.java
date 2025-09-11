@@ -2,7 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.service;
 
 import reactor.core.publisher.Mono;
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseListResponse;
-import uk.gov.justice.probation.courtcaseservice.controller.model.CourtCaseResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
@@ -44,5 +43,7 @@ public interface CourtCaseService {
     CaseListResponse filterHearingsForMatcher(String courtCode, HearingSearchRequest hearingSearchFilter);
 
     Optional<CourtCaseEntity> findByCaseId(String caseId);
+
+    void toggleHearingOutcomeNotRequired(String hearingId, String defendantId, boolean hearingOutcomeRequired);
 
 }

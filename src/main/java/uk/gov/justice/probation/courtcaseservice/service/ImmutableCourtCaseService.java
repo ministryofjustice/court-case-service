@@ -188,6 +188,15 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         return hearingRepository.getRecentlyAddedCasesCount(courtCode, hearingDay).orElse(0);
     }
 
+    @Override
+    public void toggleHearingOutcomeNotRequired(String hearingId, String defendantId, boolean hearingOutcomeRequired) {
+        Optional<HearingEntity> hearing = hearingRepositoryFacade.findByHearingIdAndDefendantId(hearingId, defendantId);
+        hearing.ifPresent(hearingEntity -> {
+            hearingEntity.getHearingDefendant(defendantId).setOutcomeNotRequired(hearingOutcomeRequired);
+            hearingRepository.save(hearingEntity);
+        });
+    }
+
     public Optional<LocalDateTime> filterHearingsLastModified(String courtCode, LocalDate searchDate) {
         return hearingRepositoryFacade.findLastModifiedByHearingDay(courtCode, searchDate);
     }

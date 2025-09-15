@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -607,6 +608,82 @@ public class CourtCaseControllerIntTest extends BaseIntTest {
             assertThat(result.getUserMessage()).contains("Hearing 1b6cf731-1892-4b9e-abc3-7fab87a39c21 not found for defendant 40db17d6-04db-11ec-b2d8-0242ac130002");
             assertThat(result.getStatus()).isEqualTo(404);
         }
+
+    }
+
+    @Test
+    void shouldToggleHearingOutcomeRequiredTrue_whenPutRequest_thenReturn200() {
+        var PATH = "/hearing/{hearingId}/defendant/{defendantId}";
+        var hearingId = "683bcde4-611f-4487-9833-f68090507b74";
+        var defendantId = "005ae89b-46e9-4fa5-bb5e-d117011cab32";
+        var body = "{\"hearingOutcomeNotRequired\":\"true\"}";
+
+        given()
+            .given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(body)
+            .when()
+            .header("Accept", "application/json")
+            .put(PATH, hearingId, defendantId)
+            .then()
+            .statusCode(200);
+
+        //Check results have flag set to true for the defendant which has been toggled
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .when()
+            .get("/court/{courtCode}/cases?date={date}", COURT_CODE, LocalDate.of(2020, Month.FEBRUARY, 29).format(DateTimeFormatter.ISO_DATE))
+            .then()
+            .assertThat()
+            .statusCode(200)
+            .body("cases", hasSize(3))
+            .body("cases[0].courtCode", equalTo(COURT_CODE))
+            .body("cases[0].hearingOutcomeNotRequired", equalTo(true))
+            .body("cases[1].hearingOutcomeNotRequired", equalTo(false))
+            .body("cases[2].hearingOutcomeNotRequired", equalTo(false));
+
+    }
+
+    @Test
+    void shouldToggleHearingOutcomeRequiredFalse_whenPutRequest_thenReturn200() {
+        var PATH = "/hearing/{hearingId}/defendant/{defendantId}";
+        var hearingId = "683bcde4-611f-4487-9833-f68090507b74";
+        var defendantId = "005ae89b-46e9-4fa5-bb5e-d117011cab32";
+        var body = "{\"hearingOutcomeNotRequired\":\"false\"}";
+
+        given()
+            .given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .body(body)
+            .when()
+            .header("Accept", "application/json")
+            .put(PATH, hearingId, defendantId)
+            .then()
+            .statusCode(200);
+
+        //Check results have flag set to false
+
+        given()
+            .auth()
+            .oauth2(getToken())
+            .when()
+            .get("/court/{courtCode}/cases?date={date}", COURT_CODE, LocalDate.of(2020, Month.FEBRUARY, 29).format(DateTimeFormatter.ISO_DATE))
+            .then()
+            .assertThat()
+            .statusCode(200)
+            .body("cases", hasSize(3))
+            .body("cases[0].courtCode", equalTo(COURT_CODE))
+            .body("cases[0].hearingOutcomeNotRequired", equalTo(false))
+            .body("cases[1].hearingOutcomeNotRequired", equalTo(false))
+            .body("cases[2].hearingOutcomeNotRequired", equalTo(false));
 
     }
 

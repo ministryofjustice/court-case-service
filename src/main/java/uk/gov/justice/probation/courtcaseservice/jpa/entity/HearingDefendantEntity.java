@@ -79,6 +79,11 @@ public class HearingDefendantEntity extends BaseAuditedEntity implements Seriali
     @OneToOne(mappedBy = "hearingDefendant", cascade = CascadeType.ALL)
     private HearingOutcomeEntity hearingOutcome;
 
+    @Setter
+    @Builder.Default
+    @Column(name = "OUTCOME_NOT_REQUIRED")
+    private Boolean outcomeNotRequired = false;
+
     public String getDefendantSurname() {
         return Optional.ofNullable(defendant)
                 .map(DefendantEntity::getDefendantSurname)

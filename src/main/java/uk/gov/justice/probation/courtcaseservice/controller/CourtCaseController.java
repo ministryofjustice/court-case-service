@@ -35,6 +35,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.DefendantOffen
 import uk.gov.justice.probation.courtcaseservice.controller.model.ExtendedHearingRequestResponse;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteRequest;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNoteResponse;
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeNotRequired;
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
@@ -381,6 +382,15 @@ public class CourtCaseController {
         @Valid HearingSearchRequest hearingSearchRequest
     ) {
         return courtCaseService.filterHearings(courtCode, hearingSearchRequest);
+    }
+
+    @Operation(description = "Toggle hearing outcome required status")
+    @PutMapping(value = "/hearing/{hearingId}/defendant/{defendantId}", produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public void toggleHearingOutcomeRequired(@PathVariable(value = "hearingId") String hearingId,
+                                             @PathVariable(value = "defendantId") String defendantId,
+                                             @Valid @RequestBody HearingOutcomeNotRequired hearingOutcomeNotRequired) {
+        courtCaseService.toggleHearingOutcomeNotRequired(hearingId, defendantId, hearingOutcomeNotRequired.hearingOutcomeNotRequired());
     }
 
     private CourtCaseResponse buildCourtCaseResponseForCaseIdAndDefendantId(HearingEntity hearingEntity, String defendantId, List<CaseProgressHearing> caseHearings) {

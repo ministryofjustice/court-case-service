@@ -12,6 +12,10 @@ offender-assessments-api:
   client-id: sentence-plan-api-client
   client-secret: clientsecret
 
+flipt:
+  flipt-url: "${FLIPT_URL}"
+  flipt-token: "${FLIPT_API_KEY}"
+
 nomis-oauth:
   base-url: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
 

@@ -84,6 +84,12 @@ env:
   hmpps_document_management_api_client:
     base_url: https://document-api-dev.hmpps.service.justice.gov.uk
 
+namespace_secrets:
+  FLIPT_URL:
+    pic-flipt: "URL"
+  FLIPT_API_KEY:
+    pic-flipt: "API_KEY"
+
 spring:
   profile: dev
 

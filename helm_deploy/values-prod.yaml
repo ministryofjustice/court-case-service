@@ -76,6 +76,12 @@ env:
 spring:
   profile: instrumented
 
+namespace_secrets:
+  FLIPT_URL:
+    pic-flipt: "URL"
+  FLIPT_API_KEY:
+    pic-flipt: "API_KEY"
+
 resources:
   cpu:
     limit: 5000m

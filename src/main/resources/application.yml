@@ -212,6 +212,10 @@ feature:
     probation-case:
       engagement.created: true
 
+flipt:
+  flipt-url: "${FLIPT_URL}"
+  flipt-token: "${FLIPT_API_KEY}"
+
 ingress:
   url: "localhost"
 

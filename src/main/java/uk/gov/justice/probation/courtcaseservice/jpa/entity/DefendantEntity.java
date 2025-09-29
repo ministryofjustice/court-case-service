@@ -115,6 +115,9 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
     @Column(name = "cpr_uuid")
     private String cprUUID;
 
+    @Column(name = "c_id")
+    private String cId;
+
     public String getCrn() {
         return Optional.ofNullable(offender).map(OffenderEntity::getCrn).orElse(null);
     }
@@ -152,6 +155,7 @@ public class DefendantEntity extends BaseAuditedEntity implements Serializable {
         this.phoneNumber = defendantUpdate.getPhoneNumber();
         this.personId = defendantUpdate.getPersonId();
         this.cprUUID = defendantUpdate.getCprUUID();
+        this.cId = defendantUpdate.getCId();
         Optional.ofNullable(this.offender).ifPresentOrElse(offenderEntity -> Optional.ofNullable(defendantUpdate.getOffender()).ifPresent(offenderUpdate -> {
             if(StringUtils.equals(this.getOffender().getCrn(), defendantUpdate.getOffender().getCrn())) {
                 this.offender.update(defendantUpdate.getOffender());

@@ -120,6 +120,7 @@ public class ExtendedHearingRequestResponse {
                                     .offender(Offender.builder().pnc(Optional.ofNullable(defendant.getOffender()).map(OffenderEntity::getPnc).orElse(null)).build())
                                     .confirmedOffender(defendant.isOffenderConfirmed())
                                     .cprUUID(defendant.getCprUUID())
+                                    .cId(defendant.getCId())
                                     .offences(Optional.of(hearingDefendantEntity)
                                             .map(HearingDefendantEntity::getOffences)
                                             .orElse(Collections.emptyList()).stream()
@@ -203,6 +204,7 @@ public class ExtendedHearingRequestResponse {
                         .phoneNumber(Optional.ofNullable(defendant.getPhoneNumber()).map(PhoneNumber::asEntity).orElse(null))
                         .personId(defendant.getPersonId())
                         .cprUUID(defendant.getCprUUID())
+                        .cId(defendant.getCId())
                         .build())
                 .offences(offences)
                 .build();

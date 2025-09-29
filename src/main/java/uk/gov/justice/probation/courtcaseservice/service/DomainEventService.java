@@ -123,7 +123,14 @@ public class DomainEventService {
     private List<PersonReferenceType> buildBasicDefendantIdentifiers(DefendantEntity defendant) {
         return List.of(
             uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType.builder().type("CRN").value(defendant.getCrn()).build(),
-            uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType.builder().type("DEFENDANT_ID").value(defendant.getDefendantId()).build()
+            cIdOrDefendantId(defendant)
         );
+    }
+
+    private PersonReferenceType cIdOrDefendantId(DefendantEntity defendant) {
+        if(defendant.getCId() != null) {
+            return uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType.builder().type("C_ID").value(defendant.getCId()).build();
+        }
+        return uk.gov.justice.probation.courtcaseservice.service.model.event.PersonReferenceType.builder().type("DEFENDANT_ID").value(defendant.getDefendantId()).build();
     }
 }

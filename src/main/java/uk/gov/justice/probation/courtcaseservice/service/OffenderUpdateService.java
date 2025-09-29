@@ -40,7 +40,7 @@ public class OffenderUpdateService {
         final var defendant = findDefendantOrElseThrow(defendantId);
         defendant.confirmNoMatch();
         defendantRepository.save(defendant);
-        log.debug("Emitting ndelius record unlinked event for defendant with ID {}", defendant.getDefendantId());
+        log.debug("Emitting ndelius record unlinked event for defendant with ID {}", defendant.getCId() != null ? defendant.getCId() : defendant.getDefendantId());
         domainEventService.emitUnLinkNDeliusRecordEvent(defendant);
     }
 
@@ -67,7 +67,7 @@ public class OffenderUpdateService {
             defendant.confirmMatch(updatedOffender);
             defendantRepository.save(defendant);
 
-            log.debug("Emitting ndelius record linked event for defendant with ID {}", defendant.getDefendantId());
+            log.debug("Emitting ndelius record linked event for defendant with ID {}", defendant.getCId() != null ? defendant.getCId() : defendant.getDefendantId());
             domainEventService.emitLinkNDeliusRecordEvent(defendant);
         }
 

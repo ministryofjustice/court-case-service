@@ -18,6 +18,7 @@ public class EntityHelper {
     public static final String URN = "URN001";
     public static final String CASE_NO = "1001";
     public static final String CPR_UUID = UUID.randomUUID().toString();
+    public static final String C_ID = "CID123456";
 
     public static final String COURT_ROOM = "1";
     public static final LocalDateTime SESSION_START_TIME = LocalDateTime.of(2020, 2, 26, 9, 0);

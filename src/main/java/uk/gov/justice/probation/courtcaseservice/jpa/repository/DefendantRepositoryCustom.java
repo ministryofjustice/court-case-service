@@ -30,7 +30,7 @@ public class DefendantRepositoryCustom {
     private static final String DEFENDANT_SEARCH_SELECT =
             "select cc.id, cc.case_id, cc.case_no, cc.created AS ccCreated, cc.created_by AS ccCreatedBy, cc.deleted AS ccDeleted, cc.source_type, cc.urn, cc.last_updated AS ccLastUpdated, cc.last_updated_by AS ccLastUpdatedBy, cc.\"version\" AS ccVersion, " +
                   "d.id as defId, d.defendant_name, d.\"type\", d.\"name\", d.address, d.crn, d.pnc, d.cro, d.date_of_birth, d.sex, d.nationality_1, d.nationality_2, d.created, " +
-                  "d.created_by, d.manual_update, d.defendant_id, d.offender_confirmed, d.phone_number, d.person_id, d.fk_offender_id, d.last_updated, d.last_updated_by, d.\"version\", d.deleted, d.tsv_name, d.cpr_uuid ";
+                  "d.created_by, d.manual_update, d.defendant_id, d.offender_confirmed, d.phone_number, d.person_id, d.fk_offender_id, d.last_updated, d.last_updated_by, d.\"version\", d.deleted, d.tsv_name, d.cpr_uuid, d.c_id ";
 
     private static String DEFENDANT_SEARCH_GROUPING = " group by d1.id, cc1.id) grouped_cases on h.id = grouped_cases.max_id and d.id = grouped_cases.did ";
 

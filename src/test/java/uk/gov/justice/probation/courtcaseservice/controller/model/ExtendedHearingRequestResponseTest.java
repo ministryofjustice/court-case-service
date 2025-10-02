@@ -34,6 +34,7 @@ import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CPR_UUID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRN;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.CRO;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.C_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_DOB;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_ID;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.DEFENDANT_PHONE_NUMBER;
@@ -566,6 +567,7 @@ class ExtendedHearingRequestResponseTest {
                         .build())
                 .breach(Boolean.TRUE)
                 .cprUUID(CPR_UUID)
+                .cId(C_ID)
                 .crn(CRN)
                 .cro(CRO)
                 .dateOfBirth(DEFENDANT_DOB)

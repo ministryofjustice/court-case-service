@@ -62,7 +62,7 @@ env:
     base_url: https://domain-events-and-delius-preprod.hmpps.service.justice.gov.uk
   hearing_outcomes:
     move_un_resulted_to_outcomes_cutoff_time: "11:00"
-    move_un_resulted_to_outcomes_courts: "B20EB,B23HS,B43KB"
+    move_un_resulted_to_outcomes_courts: "B20EB,B23HS,B43KB,B21DA"
   hmpps_document_management_api_client:
     base_url: https://document-api-preprod.hmpps.service.justice.gov.uk
 

@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
     - name: postgresql
-      image: bitnami/postgresql
+      image: bitnamilegacy/postgresql
       ports:
         - containerPort: 80
       volumeMounts:

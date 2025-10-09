@@ -233,7 +233,7 @@ INSERT INTO court (name, court_code, version, created, last_updated, deleted, cr
         ('Newton Abbot Magistrates'' Court', 'B50JO', 0, NOW(), NOW(), false, 'R__add_all_crown_court_names.sql'),
         ('Brighton Magistrates'' Court', 'B47CL', 0, NOW(), NOW(), false, 'R__add_all_crown_court_names.sql'),
         ('Margate Magistrates'' Court', 'B46IU', 0, NOW(), NOW(), false, 'R__add_all_crown_court_names.sql'),
-        ('Southampton Magistrates'' Court', 'B44MA', 0, NOW(), NOW(), false, 'R__add_all_crown_court_names.sql'),
+        ('West Hampshire Magistrates'' Court', 'B44MA', 0, NOW(), NOW(), false, 'R__add_all_crown_court_names.sql'),
         ('Portsmouth Magistrates'' Court', 'B44KM', 0, NOW(), NOW(), false, 'R__add_all_crown_court_names.sql'),
         ('Basingstoke Magistrates'' Court', 'B44BA', 0, NOW(), NOW(), false, 'R__add_all_crown_court_names.sql'),
         ('Swindon Crown Court', 'C54SD', 0, NOW(), NOW(), false, 'R__add_all_crown_court_names.sql'),

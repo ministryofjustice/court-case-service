@@ -272,7 +272,8 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
                 null,
                 null,
                 null,
-                null
+                null,
+            null
         );
         var result = courtCaseService.filterHearings("B14LO", req);
         assertThat(result.getCases().size()).isEqualTo(5);

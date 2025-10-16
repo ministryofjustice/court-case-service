@@ -50,6 +50,11 @@ public class HearingDefendantDTO {
     @OneToOne(mappedBy = "hearingDefendant")
     private HearingOutcomeDTO hearingOutcome;
 
+    @Setter
+    @Builder.Default
+    @Column(name = "OUTCOME_NOT_REQUIRED")
+    private Boolean outcomeNotRequired = false;
+
     public String getCrn() {
         return defendant.getCrn();
     }

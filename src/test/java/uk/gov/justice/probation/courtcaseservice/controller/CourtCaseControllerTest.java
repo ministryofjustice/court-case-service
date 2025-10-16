@@ -540,6 +540,7 @@ class CourtCaseControllerTest {
             null,
             null,
             null,
+            null,
             null
         );
         given(courtCaseService.filterHearings(COURT_CODE, req)).willReturn(CaseListResponse.builder().build());

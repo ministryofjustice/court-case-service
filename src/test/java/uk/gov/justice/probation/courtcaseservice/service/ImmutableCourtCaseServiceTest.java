@@ -596,7 +596,8 @@ class ImmutableCourtCaseServiceTest {
                     null,
                     null,
                     null,
-                    null
+                    null,
+                null
             );
 
             when(groupedOffenderMatchRepository.getPossibleMatchesCountByDate(COURT_CODE, hearingDay)).thenReturn(Optional.of(2));
@@ -642,7 +643,7 @@ class ImmutableCourtCaseServiceTest {
 
             var forename = new HearingSearchRequest(List.of(), List.of(), List.of(), List.of(),false,false,
                     null, DTOHelper.SESSION_START_TIME.toLocalDate(),1,5,null,
-                    "Gordon",null,null,null,null,null);
+                    "Gordon",null,null,null,null,null,null);
             when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, forename))
                     .thenReturn(pageImpl);
             var resultForename = service.filterHearingsForMatcher(COURT_CODE,
@@ -652,7 +653,7 @@ class ImmutableCourtCaseServiceTest {
 
             var surname = new HearingSearchRequest(List.of(), List.of(), List.of(), List.of(),false,false,
                     null,DTOHelper.SESSION_START_TIME.toLocalDate(),1,5,null,
-                    null,"bennett",null,null,null,null);
+                    null,"bennett",null,null,null,null,null);
             when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, surname)).thenReturn(pageImpl);
             var resultSurname = service.filterHearingsForMatcher(COURT_CODE, surname);
             assertThat(resultSurname.getCases().size()).isEqualTo(1);
@@ -660,7 +661,7 @@ class ImmutableCourtCaseServiceTest {
 
             var numberOfMatches = new HearingSearchRequest(List.of(), List.of(), List.of(), List.of(),false,false,
                     null,DTOHelper.SESSION_START_TIME.toLocalDate(),1,5,2L,
-                    null,null,null,null,null,null);
+                    null,null,null,null,null,null,null);
             when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, numberOfMatches)).thenReturn(pageImpl);
             var resultNumberOfMatches = service.filterHearingsForMatcher(COURT_CODE, numberOfMatches);
             assertThat(resultNumberOfMatches.getCases().size()).isEqualTo(2);
@@ -668,7 +669,7 @@ class ImmutableCourtCaseServiceTest {
 
             var defendantName = new HearingSearchRequest(List.of(), List.of(), List.of(), List.of(),false,false,
                     null,DTOHelper.SESSION_START_TIME.toLocalDate(),1,5,null,
-                    null,null,"Mr Joe Bloggs",null,null,null);
+                    null,null,"Mr Joe Bloggs",null,null,null,null);
             when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, defendantName)).thenReturn(pageImpl);
             var resultDefendantName = service.filterHearingsForMatcher(COURT_CODE, defendantName);
             assertThat(resultDefendantName.getCases().size()).isEqualTo(1);
@@ -676,7 +677,7 @@ class ImmutableCourtCaseServiceTest {
 
             var caseId = new HearingSearchRequest(List.of(), List.of(), List.of(), List.of(),false,false,
                     null,DTOHelper.SESSION_START_TIME.toLocalDate(),1,5,null,
-                    null,null,null,CASE_ID,null,null);
+                    null,null,null,CASE_ID,null,null,null);
             when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, caseId)).thenReturn(pageImpl);
             var resultCaseId = service.filterHearingsForMatcher(COURT_CODE, caseId);
             assertThat(resultCaseId.getCases().size()).isEqualTo(1);
@@ -685,7 +686,7 @@ class ImmutableCourtCaseServiceTest {
 
             var hearingId = new HearingSearchRequest(List.of(), List.of(), List.of(), List.of(),false,false,
                     null,DTOHelper.SESSION_START_TIME.toLocalDate(),1,5,null,
-                    null,null,null, null, HEARING_ID,null);
+                    null,null,null, null, HEARING_ID,null,null);
             when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, hearingId)).thenReturn(pageImpl);
             var resultHearingId = service.filterHearingsForMatcher(COURT_CODE, hearingId);
             assertThat(resultHearingId.getCases().size()).isEqualTo(2);
@@ -693,11 +694,71 @@ class ImmutableCourtCaseServiceTest {
 
             var defendantId = new HearingSearchRequest(List.of(), List.of(), List.of(), List.of(),false,false,
                     null,DTOHelper.SESSION_START_TIME.toLocalDate(),1,5,null,
-                    null,null,null, null, null, DEFENDANT_ID_2);
+                    null,null,null, null, null, DEFENDANT_ID_2,null);
             when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, defendantId)).thenReturn(pageImpl);
             var resultDefendantId = service.filterHearingsForMatcher(COURT_CODE, defendantId);
             assertThat(resultDefendantId.getCases().size()).isEqualTo(1);
             assertThat(resultDefendantId.getCases().getFirst().getDefendantId()).isEqualTo(DEFENDANT_ID_2);
+        }
+
+        @Test
+        void shouldReturnHearing_OutcomesNotRequired_is_true() {
+            assertCorrectHearingWhenSettingOutcomeNotRequiredParameter(true, true, 5);
+        }
+
+        @Test
+        void shouldReturnHearing_OutcomesNotRequired_is_false() {
+            assertCorrectHearingWhenSettingOutcomeNotRequiredParameter(false, false, 5);
+        }
+
+        @Test
+        void shouldReturnHearing_OutcomesNotRequired_is_null() {
+            assertCorrectHearingWhenSettingOutcomeNotRequiredParameter(null, false, 5);
+
+            //tests that it filters out the hearings with outcome not required from the other tabs
+            assertCorrectHearingWhenSettingOutcomeNotRequiredParameter(null, true, 0);
+        }
+
+        private void assertCorrectHearingWhenSettingOutcomeNotRequiredParameter(Boolean searchParameter, boolean expectedHearingOutcomeNotRequiredValue, int expectedNumberOfMatches) {
+            LocalDate hearingDay = DTOHelper.SESSION_START_TIME.toLocalDate();
+
+            var req = new HearingSearchRequest(
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                false,
+                false,
+                null,
+                hearingDay,
+                1,
+                5,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                searchParameter
+            );
+
+            when(groupedOffenderMatchRepository.getPossibleMatchesCountByDate(COURT_CODE, hearingDay)).thenReturn(Optional.of(2));
+            when(hearingRepository.getRecentlyAddedCasesCount(COURT_CODE, hearingDay)).thenReturn(Optional.of(2));
+            when(hearingRepository.getCourtroomsForCourtAndHearingDay(COURT_CODE, hearingDay)).thenReturn(List.of("01", "03", "04", "05", "1", "Crown Court 5-1"));
+
+            HearingDefendantDTO hearingDefendant = DTOHelper.aHearingDefendantDTO(DTOHelper.DEFENDANT_NAME);
+            hearingDefendant.setPrepStatus(String.valueOf(HearingPrepStatus.IN_PROGRESS));
+            hearingDefendant.setHearing(DTOHelper.aHearingDTO(CASE_ID));
+            hearingDefendant.setOutcomeNotRequired(expectedHearingOutcomeNotRequiredValue);
+
+            Pair pair = new Pair(hearingDefendant, 5);
+            when(pagedCaseListRepositoryCustom.filterHearings(COURT_CODE, req))
+                .thenReturn(new PageImpl<>(List.of(pair, pair, pair, pair, pair), Pageable.ofSize(5).withPage(1), 11));
+
+            var result = service.filterHearings(COURT_CODE, req);
+
+            assertThat(result.getCases().size()).isEqualTo(expectedNumberOfMatches);
         }
     }
 

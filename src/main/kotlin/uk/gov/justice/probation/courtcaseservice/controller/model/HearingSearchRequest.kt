@@ -24,4 +24,5 @@ data class HearingSearchRequest(
   var caseId: String? = null,
   var hearingId: String? = null,
   var defendantId: String? = null,
+  var hearingOutcomeNotRequired: Boolean? = null,
 )

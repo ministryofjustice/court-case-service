@@ -4,5 +4,5 @@ enum class HearingPrepStatus {
   NOT_STARTED,
   IN_PROGRESS,
   COMPLETE,
-  NOT_REQUIRED
+  NOT_REQUIRED,
 }

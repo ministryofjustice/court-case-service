@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.codec.AbstractDataBufferDecoder;
 import org.springframework.web.reactive.function.client.WebClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper;
+import uk.gov.justice.probation.courtcaseservice.client.FeatureFlagClient;
 
 @Configuration
 public class WebClientConfig {
@@ -47,6 +48,11 @@ public class WebClientConfig {
     @Value("${web.client.document-byte-buffer-size}")
     private int documentBufferByteSize;
 
+    @Value("${FLIPT_API_URL:http://someurl:8089}")
+    private String featureFlagApiRootUri;
+
+    @Value("${FLIPT_API_KEY:someTestToken}")
+    private String featureFlagApiKey;
 
     @Bean
     public RestClientHelper documentApiClient(WebClient documentWebClient) {
@@ -134,4 +140,17 @@ public class WebClientConfig {
         return webClientFactory.buildWebClient(hmppsDocumentManagementApiUrl, 190 * DEFAULT_BYTE_BUFFER_SIZE);
     }
 
+
+    @Bean
+    public FeatureFlagClient featureFlagClient(WebClient.Builder builder) {
+        return new FeatureFlagClient(getFliptWebClient(builder));
+    }
+
+    private WebClient getFliptWebClient(WebClient.Builder builder) {
+        return builder
+            .baseUrl(featureFlagApiRootUri)
+            .defaultHeader("Authorization", "Bearer " + featureFlagApiKey)
+            .defaultHeader("Content-Type", "application/json")
+            .build();
+    }
 }

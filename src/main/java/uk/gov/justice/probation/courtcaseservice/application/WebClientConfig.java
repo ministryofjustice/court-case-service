@@ -48,10 +48,10 @@ public class WebClientConfig {
     @Value("${web.client.document-byte-buffer-size}")
     private int documentBufferByteSize;
 
-    @Value("${FLIPT_API_URL:http://someurl:8089}")
+    @Value("${flipt.base-url:http://someurl:8089}")
     private String featureFlagApiRootUri;
 
-    @Value("${FLIPT_API_KEY:someTestToken}")
+    @Value("${flipt.api-key:someTestToken}")
     private String featureFlagApiKey;
 
     @Bean
@@ -139,7 +139,6 @@ public class WebClientConfig {
     public WebClient hmppsDocumentManagementApiWebClient(WebClientFactory webClientFactory) {
         return webClientFactory.buildWebClient(hmppsDocumentManagementApiUrl, 190 * DEFAULT_BYTE_BUFFER_SIZE);
     }
-
 
     @Bean
     public FeatureFlagClient featureFlagClient(WebClient.Builder builder) {

@@ -13,7 +13,3 @@ whitelist:
   cloudplatform-live1-2: "3.8.51.207/32"
   cloudplatform-live1-3: "35.177.252.54/32"
   global-protect: "35.176.93.186/32"
-
-flipt:
-  FLIPT_API_URL: "URL"
-  FLIPT_API_KEY: "API_KEY"

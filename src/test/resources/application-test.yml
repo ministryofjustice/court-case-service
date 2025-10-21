@@ -41,6 +41,10 @@ domain-event-and-delius-api:
 hmpps-document-management-api-client:
   base-url: http://localhost:8090
 
+flipt:
+  base-url: "http://localhost:8083"
+  api-key: "test-api-key"
+
 spring:
   jpa:
     show-sql: false
@@ -101,6 +105,3 @@ hmpps.sqs:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
     domainevents:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
-
-FLIPT_API_KEY: test-api-key
-FLIPT_API_URL: http://localhost:8083

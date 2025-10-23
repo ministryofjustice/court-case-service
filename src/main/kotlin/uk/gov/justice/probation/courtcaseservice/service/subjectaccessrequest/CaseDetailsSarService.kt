@@ -26,7 +26,7 @@ class CaseDetailsSarService(
       val courtCase = hearing.courtCase
       val hearingOutcomes = hearingOutcomesService.getHearingOutcomes(hearingDefendant, fromDate, toDate)
       val hearingNotes = hearingNotesService.getHearingNotes(hearingDefendant, fromDate, toDate)
-      val hearingSarResponse = hearingSarResponse(hearing.hearingId, hearingNotes, hearingOutcomes)
+      val hearingSarResponse = hearingSarResponse(hearing.hearingId, hearing.hearingEventType.name, hearingNotes, hearingOutcomes)
       val caseComments = defendantCaseCommentsService.getCaseCommentsForDefendant(hearingDefendant, fromDate, toDate)
 
       val existingCase = getCase(cases, courtCase.caseId)
@@ -45,17 +45,14 @@ class CaseDetailsSarService(
   private fun getHearingDefendants(crn: String): List<HearingDefendantEntity> = hearingDefendantRepository.findAllByDefendantCrn(crn)
 
   private fun getCaseSarResponse(urn: String, caseComments: List<CaseCommentsSarResponse>, hearing: HearingSarResponse?): CaseSarResponse? {
-    if (caseComments.isEmpty() && hearing == null) {
-      return null
-    } else if (hearing == null) {
+//    if (caseComments.isEmpty() && hearing == null) {
+//      return null
+    if (hearing == null) {
       return CaseSarResponse(urn, mutableListOf(), caseComments)
     }
     return CaseSarResponse(urn, mutableListOf(hearing), caseComments)
   }
 
-  private fun hearingSarResponse(hearingId: String, notes: List<HearingNotesSarResponse>, outcomes: List<HearingOutcomeSarResponse>): HearingSarResponse? = if (notes.isEmpty() && outcomes.isEmpty()) {
-    null
-  } else {
-    HearingSarResponse(hearingId, notes, outcomes)
-  }
+  private fun hearingSarResponse(hearingId: String, hearingEventType: String, notes: List<HearingNotesSarResponse>, outcomes: List<HearingOutcomeSarResponse>): HearingSarResponse =
+    HearingSarResponse(hearingId, hearingEventType,notes, outcomes)
 }

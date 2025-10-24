@@ -31,10 +31,10 @@ class CaseDetailsSarService(
 
       val existingCase = getCase(cases, courtCase.caseId)
       if (existingCase != null) {
-        hearingSarResponse?.let { existingCase.hearings.add(it) }
+        hearingSarResponse.let { existingCase.hearings.add(it) }
       } else {
         val case = getCaseSarResponse(courtCase.caseId, caseComments, hearingSarResponse)
-        case?.let { cases.add(it) }
+        case.let { cases.add(it) }
       }
     }
     return cases
@@ -44,9 +44,7 @@ class CaseDetailsSarService(
 
   private fun getHearingDefendants(crn: String): List<HearingDefendantEntity> = hearingDefendantRepository.findAllByDefendantCrn(crn)
 
-  private fun getCaseSarResponse(urn: String, caseComments: List<CaseCommentsSarResponse>, hearing: HearingSarResponse?): CaseSarResponse? {
-//    if (caseComments.isEmpty() && hearing == null) {
-//      return null
+  private fun getCaseSarResponse(urn: String, caseComments: List<CaseCommentsSarResponse>, hearing: HearingSarResponse?): CaseSarResponse {
     if (hearing == null) {
       return CaseSarResponse(urn, mutableListOf(), caseComments)
     }
@@ -54,5 +52,5 @@ class CaseDetailsSarService(
   }
 
   private fun hearingSarResponse(hearingId: String, hearingEventType: String, notes: List<HearingNotesSarResponse>, outcomes: List<HearingOutcomeSarResponse>): HearingSarResponse =
-    HearingSarResponse(hearingId, hearingEventType,notes, outcomes)
+    HearingSarResponse(hearingId, hearingEventType, notes, outcomes)
 }

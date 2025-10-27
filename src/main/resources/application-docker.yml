@@ -34,6 +34,10 @@ court-case-and-delius-api:
 domain-event-and-delius-api:
   base-url: https://domain-events-and-delius-dev.hmpps.service.justice.gov.uk
 
+flipt:
+  base-url: "URL"
+  api-key: "API_KEY"
+
 hearing_outcomes:
   move_un_resulted_to_outcomes_cutoff_time: "01:30"
 

@@ -41,6 +41,10 @@ domain-event-and-delius-api:
 hmpps-document-management-api-client:
   base-url: http://localhost:8090
 
+flipt:
+  base-url: "http://localhost:8083"
+  api-key: "test-api-key"
+
 spring:
   jpa:
     show-sql: false

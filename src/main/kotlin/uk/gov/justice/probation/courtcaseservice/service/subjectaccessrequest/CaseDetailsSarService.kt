@@ -56,8 +56,7 @@ class CaseDetailsSarService(
     return CaseSarResponse(urn, mutableListOf(hearing), caseComments)
   }
 
-  private fun getDefendantSarResponse(defendant: DefendantEntity): DefendantSarResponse =
-    DefendantSarResponse(
+  private fun getDefendantSarResponse(defendant: DefendantEntity): DefendantSarResponse = DefendantSarResponse(
       defendant.crn,
       defendant.defendantName,
       defendant.type,
@@ -89,7 +88,6 @@ class CaseDetailsSarService(
     hearingEventType: String,
     notes: List<HearingNotesSarResponse>,
     outcomes: List<HearingOutcomeSarResponse>,
-    defendant: DefendantSarResponse
+    defendant: DefendantSarResponse,
   ): HearingSarResponse = HearingSarResponse(hearingId, hearingEventType, notes, outcomes, defendant)
-
 }

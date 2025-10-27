@@ -5,4 +5,5 @@ data class HearingSarResponse(
   val hearingEventType: String,
   val notes: List<HearingNotesSarResponse> = emptyList(),
   val outcomes: List<HearingOutcomeSarResponse> = emptyList(),
+  val defendant: DefendantSarResponse,
 )

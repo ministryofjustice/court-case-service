@@ -218,4 +218,14 @@ internal class CaseDetailsSarServiceTest {
     assertThat(caseSARDetails[0].hearings[0].hearingEventType).isEqualTo(HearingEventType.RESULTED.name)
     assertThat(caseSARDetails[1].hearings[0].outcomes).hasSize(0)
   }
+
+  @Test
+  fun `ensure defendant data is returned as part of the response`() {
+    whenever(hearingDefendantRepository.findAllByDefendantCrn("X340906")).thenReturn(
+      listOf(
+        hearingDefendant
+      ),
+
+    )
+  }
 }

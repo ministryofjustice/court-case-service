@@ -57,31 +57,31 @@ class CaseDetailsSarService(
   }
 
   private fun getDefendantSarResponse(defendant: DefendantEntity): DefendantSarResponse = DefendantSarResponse(
-      defendant.crn,
-      defendant.defendantName,
-      defendant.type,
-      AddressSarResponse(
-        defendant.address.line1,
-        defendant.address.line2,
-        defendant.address.line3,
-        defendant.address.line4,
-        defendant.address.line5,
-        defendant.address.postcode,
-      ),
-      defendant.pnc,
-      defendant.cro,
-      defendant.dateOfBirth,
-      defendant.sex.name,
-      defendant.nationality1,
-      defendant.nationality2,
-      defendant.isManualUpdate,
-      defendant.isOffenderConfirmed,
-      PhoneNumberSarResponse(
-        defendant.phoneNumber?.home,
-        defendant.phoneNumber?.mobile,
-        defendant.phoneNumber?.work,
-      ),
-    )
+    defendant.crn,
+    defendant.defendantName,
+    defendant.type,
+    AddressSarResponse(
+      defendant.address.line1,
+      defendant.address.line2,
+      defendant.address.line3,
+      defendant.address.line4,
+      defendant.address.line5,
+      defendant.address.postcode,
+    ),
+    defendant.pnc,
+    defendant.cro,
+    defendant.dateOfBirth,
+    defendant.sex.name,
+    defendant.nationality1,
+    defendant.nationality2,
+    defendant.isManualUpdate,
+    defendant.isOffenderConfirmed,
+    PhoneNumberSarResponse(
+      defendant.phoneNumber?.home,
+      defendant.phoneNumber?.mobile,
+      defendant.phoneNumber?.work,
+    ),
+  )
 
   private fun hearingSarResponse(
     hearingId: String,

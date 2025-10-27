@@ -56,8 +56,8 @@ class CaseDetailsSarService(
     return CaseSarResponse(urn, mutableListOf(hearing), caseComments)
   }
 
-  private fun getDefendantSarResponse(defendant: DefendantEntity): DefendantSarResponse {
-    return DefendantSarResponse(
+  private fun getDefendantSarResponse(defendant: DefendantEntity): DefendantSarResponse =
+    DefendantSarResponse(
       defendant.crn,
       defendant.defendantName,
       defendant.type,
@@ -67,7 +67,7 @@ class CaseDetailsSarService(
         defendant.address.line3,
         defendant.address.line4,
         defendant.address.line5,
-        defendant.address.postcode
+        defendant.address.postcode,
       ),
       defendant.pnc,
       defendant.cro,
@@ -83,7 +83,6 @@ class CaseDetailsSarService(
         defendant.phoneNumber?.work,
       ),
     )
-  }
 
   private fun hearingSarResponse(
     hearingId: String,
@@ -91,7 +90,6 @@ class CaseDetailsSarService(
     notes: List<HearingNotesSarResponse>,
     outcomes: List<HearingOutcomeSarResponse>,
     defendant: DefendantSarResponse
-  ): HearingSarResponse =
-    HearingSarResponse(hearingId, hearingEventType, notes, outcomes, defendant)
+  ): HearingSarResponse = HearingSarResponse(hearingId, hearingEventType, notes, outcomes, defendant)
 
 }

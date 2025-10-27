@@ -10,16 +10,14 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentsSarResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNotesSarResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSarResponse
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.*
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendantRepository
 import uk.gov.justice.probation.courtcaseservice.service.subjectaccessrequest.CaseDetailsSarService
 import uk.gov.justice.probation.courtcaseservice.service.subjectaccessrequest.DefendantCaseCommentsService
 import uk.gov.justice.probation.courtcaseservice.service.subjectaccessrequest.HearingNotesSarService
 import uk.gov.justice.probation.courtcaseservice.service.subjectaccessrequest.HearingOutcomesService
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @ExtendWith(MockitoExtension::class)
@@ -223,9 +221,46 @@ internal class CaseDetailsSarServiceTest {
   fun `ensure defendant data is returned as part of the response`() {
     whenever(hearingDefendantRepository.findAllByDefendantCrn("X340906")).thenReturn(
       listOf(
-        hearingDefendant
+        hearingDefendant,
       ),
-
     )
+    hearingDefendant.hearingOutcome
+    whenever(hearingNotesService.getHearingNotes(hearingDefendant, null, null)).thenReturn(
+      listOf(
+        HearingNotesSarResponse("hearing 1 note", "author1"),
+      ),
+    )
+
+    val caseSARDetails = caseDetailsSarService.getCaseSARDetails("X340906", null, null)
+
+    assertThat(caseSARDetails).hasSize(1)
+    assertThat(caseSARDetails[0].caseId).isEqualTo("5678")
+    assertThat(caseSARDetails[0].hearings).hasSize(1)
+    assertThat(caseSARDetails[0].hearings[0].hearingEventType).isEqualTo(HearingEventType.RESULTED.name)
+    assertThat(caseSARDetails[0].hearings[0].hearingId).isEqualTo("uuid")
+    assertThat(caseSARDetails[0].hearings[0].outcomes).hasSize(0)
+    assertThat(caseSARDetails[0].hearings[0].notes).hasSize(1)
+    assertThat(caseSARDetails[0].hearings[0].notes[0].note).isEqualTo("hearing 1 note")
+    assertThat(caseSARDetails[0].hearings[0].notes[0].authorSurname).isEqualTo("author1")
+    assertThat(caseSARDetails[0].hearings[0].defendant.defendantName).isEqualTo("Mr Gordon BENNETT")
+    assertThat(caseSARDetails[0].hearings[0].defendant.crn).isEqualTo("X340906")
+    assertThat(caseSARDetails[0].hearings[0].defendant.defendantType).isEqualTo(DefendantType.PERSON)
+    assertThat(caseSARDetails[0].hearings[0].defendant.address.line1).isEqualTo("27")
+    assertThat(caseSARDetails[0].hearings[0].defendant.address.line2).isEqualTo("Elm Place")
+    assertThat(caseSARDetails[0].hearings[0].defendant.address.line3).isEqualTo("AB21 3ES")
+    assertThat(caseSARDetails[0].hearings[0].defendant.address.line4).isEqualTo("Bangor")
+    assertThat(caseSARDetails[0].hearings[0].defendant.address.line5).isNull()
+    assertThat(caseSARDetails[0].hearings[0].defendant.address.postcode).isNull()
+    assertThat(caseSARDetails[0].hearings[0].defendant.pnc).isEqualTo("PNC")
+    assertThat(caseSARDetails[0].hearings[0].defendant.cro).isEqualTo("CRO/12334")
+    assertThat(caseSARDetails[0].hearings[0].defendant.dateOfBirth).isEqualTo(LocalDate.of(1958, 12, 14))
+    assertThat(caseSARDetails[0].hearings[0].defendant.sex).isEqualTo("MALE")
+    assertThat(caseSARDetails[0].hearings[0].defendant.nationality1).isEqualTo("British")
+    assertThat(caseSARDetails[0].hearings[0].defendant.nationality2).isEqualTo("Polish")
+    assertThat(caseSARDetails[0].hearings[0].defendant.manualUpdate).isFalse()
+    assertThat(caseSARDetails[0].hearings[0].defendant.offenderConfirmed).isFalse()
+    assertThat(caseSARDetails[0].hearings[0].defendant.phoneNumber?.home).isEqualTo("07000000013")
+    assertThat(caseSARDetails[0].hearings[0].defendant.phoneNumber?.work).isEqualTo("07000000014")
+    assertThat(caseSARDetails[0].hearings[0].defendant.phoneNumber?.mobile).isEqualTo("07000000015")
   }
 }

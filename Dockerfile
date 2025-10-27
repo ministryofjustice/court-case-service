@@ -7,7 +7,7 @@ WORKDIR /app
 ADD . .
 RUN ./gradlew assemble -Dorg.gradle.daemon=false
 
-FROM eclipse-temurin:21-jre-jammy
+FROM eclipse-temurin:25-jre-jammy
 MAINTAINER HMPPS Digital Studio <info@digital.justice.gov.uk>
 
 ENV TZ=Europe/London

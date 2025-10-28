@@ -165,7 +165,8 @@ internal class SubjectAccessRequestControllerIntTest : BaseIntTest() {
         )
         .get("/subject-access-request?crn=Z258210")
         .then()
-        .statusCode(204)
+        .statusCode(200)
+        .body("content.cases[0].comments", Matchers.hasSize<Int>(0))
     }
 
     @Test
@@ -234,7 +235,9 @@ internal class SubjectAccessRequestControllerIntTest : BaseIntTest() {
         .body("content.cases[0].comments[0].lastUpdated", Matchers.equalTo("2024-04-08T09:45:55.597"))
         .body("content.cases[0].comments[0].lastUpdatedBy", Matchers.equalTo("LastUpdatedAuthor"))
         .body("content.cases[0].comments[0].caseNumber", Matchers.equalTo("1600028888"))
-        .body("content.cases[0].hearings", Matchers.empty<Any>())
+        .body("content.cases[0].hearings[0].outcomes", Matchers.hasSize<Int>(0))
+        .body("content.cases[0].hearings[0].notes", Matchers.hasSize<Int>(0))
+        .body("content.cases[0].hearings[0].defendant.crn", Matchers.equalTo("X25829"))
     }
 
     @Test
@@ -337,7 +340,10 @@ internal class SubjectAccessRequestControllerIntTest : BaseIntTest() {
         )
         .get("/subject-access-request?crn=X25829&toDate=2022-10-09")
         .then()
-        .statusCode(204)
+        .statusCode(200)
+        .body("content.cases[0].comments", Matchers.hasSize<Int>(0))
+        .body("content.cases[0].hearings[0].outcomes", Matchers.hasSize<Int>(0))
+        .body("content.cases[0].hearings[0].notes", Matchers.hasSize<Int>(0))
     }
   }
 }

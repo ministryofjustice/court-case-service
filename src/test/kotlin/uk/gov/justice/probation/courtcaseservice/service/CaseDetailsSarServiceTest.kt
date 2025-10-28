@@ -63,6 +63,7 @@ internal class CaseDetailsSarServiceTest {
     .build()
   private val hearingDefendant2: HearingDefendantEntity =
     HearingDefendantEntity.builder().id(2).defendantId("uuid").defendant(aDefendantEntity("uuid", "X340906"))
+      .offences(listOf(aDefendantOffence()))
       .hearingOutcome(aHearingOutcomeEntity())
       .hearing(hearing2)
       .build()

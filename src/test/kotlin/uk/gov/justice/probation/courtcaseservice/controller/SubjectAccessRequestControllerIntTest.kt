@@ -238,6 +238,18 @@ internal class SubjectAccessRequestControllerIntTest : BaseIntTest() {
         .body("content.cases[0].hearings[0].outcomes", Matchers.hasSize<Int>(0))
         .body("content.cases[0].hearings[0].notes", Matchers.hasSize<Int>(0))
         .body("content.cases[0].hearings[0].defendant.crn", Matchers.equalTo("X25829"))
+        .body("content.cases[0].hearings[0].defendant.defendantName", Matchers.equalTo("Mr Ferris BUELLER"))
+        .body("content.cases[0].hearings[0].defendant.defendantType", Matchers.equalTo("PERSON"))
+        .body("content.cases[0].hearings[0].defendant.address.line1", Matchers.equalTo("27"))
+        .body("content.cases[0].hearings[0].defendant.address.line2", Matchers.equalTo("Elm Place"))
+        .body("content.cases[0].hearings[0].defendant.address.line3", Matchers.equalTo("Bangor"))
+        .body("content.cases[0].hearings[0].defendant.address.postcode", Matchers.equalTo("ad21 5dr"))
+        .body("content.cases[0].hearings[0].defendant.dateOfBirth", Matchers.equalTo("1958-10-10"))
+        .body("content.cases[0].hearings[0].defendant.sex", Matchers.equalTo("MALE"))
+        .body("content.cases[0].hearings[0].offences[0].title", Matchers.equalTo("Theft from a garage"))
+        .body("content.cases[0].hearings[0].offences[0].summary", Matchers.equalTo("On 01/01/2015 at own, stole article, to the value of £987.00, belonging to person."))
+        .body("content.cases[0].hearings[0].offences[0].act", Matchers.equalTo("Contrary to section 1(1) and 7 of the Theft Act 1968."))
+        .body("content.cases[0].hearings[0].offences[0].sequence", Matchers.equalTo(1))
     }
 
     @Test

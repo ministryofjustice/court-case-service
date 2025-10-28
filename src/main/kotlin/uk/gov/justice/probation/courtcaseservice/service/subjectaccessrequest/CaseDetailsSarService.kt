@@ -104,10 +104,11 @@ class CaseDetailsSarService(
     ),
     VerdictSarResponse(
       offence.verdict?.typeDescription,
-      offence.verdict?.date
+      offence.verdict?.date,
     ),
     offence.judicialResults.map {
-      judicialResultEntity -> JudicialResultSarResponse(
+      judicialResultEntity ->
+      JudicialResultSarResponse(
         judicialResultEntity?.label,
         judicialResultEntity?.isConvictedResult,
         judicialResultEntity?.judicialResultTypeId,

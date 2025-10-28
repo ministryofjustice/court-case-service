@@ -57,9 +57,9 @@ internal class CaseDetailsSarServiceTest {
       .build()
   private val courtCase2: CourtCaseEntity = CourtCaseEntity.builder().id(2).caseId("caseId2").caseId("CASEID2").build()
   private val hearing2: HearingEntity = HearingEntity.builder().id(2)
-      .hearingId("uuid2")
-      .hearingEventType(HearingEventType.CONFIRMED_OR_UPDATED)
-      .courtCase(courtCase2)
+    .hearingId("uuid2")
+    .hearingEventType(HearingEventType.CONFIRMED_OR_UPDATED)
+    .courtCase(courtCase2)
     .build()
   private val hearingDefendant2: HearingDefendantEntity =
     HearingDefendantEntity.builder().id(2).defendantId("uuid").defendant(aDefendantEntity("uuid", "X340906"))

@@ -62,11 +62,7 @@ class CaseDetailsSarService(
     return CaseSarResponse(urn, mutableListOf(hearing), caseComments)
   }
 
-  private fun getOffenceSarResponses(offenses: List<OffenceEntity>): List<OffenceSarResponse> {
-    return offenses.map {
-      offenceEntity -> getOffenceSarResponse(offenceEntity)
-    }.toList()
-  }
+  private fun getOffenceSarResponses(offenses: List<OffenceEntity>): List<OffenceSarResponse> = offenses.map { offenceEntity -> getOffenceSarResponse(offenceEntity) }
 
   private fun getDefendantSarResponse(defendant: DefendantEntity): DefendantSarResponse = DefendantSarResponse(
     defendant.crn,

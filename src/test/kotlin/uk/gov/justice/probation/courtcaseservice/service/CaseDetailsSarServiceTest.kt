@@ -10,8 +10,15 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentsSarResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingNotesSarResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSarResponse
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.*
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.*
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aCourtCaseEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aDefendantEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aDefendantOffence
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.aHearingOutcomeEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendantRepository
 import uk.gov.justice.probation.courtcaseservice.service.subjectaccessrequest.CaseDetailsSarService
 import uk.gov.justice.probation.courtcaseservice.service.subjectaccessrequest.DefendantCaseCommentsService
@@ -44,6 +51,7 @@ internal class CaseDetailsSarServiceTest {
     .build()
   private val hearingDefendant: HearingDefendantEntity =
     HearingDefendantEntity.builder().defendantId("uuid").defendant(aDefendantEntity("uuid", "X340906"))
+      .offences(listOf(aDefendantOffence()))
       .hearingOutcome(aHearingOutcomeEntity())
       .hearing(hearing)
       .build()
@@ -262,5 +270,14 @@ internal class CaseDetailsSarServiceTest {
     assertThat(caseSARDetails[0].hearings[0].defendant.phoneNumber?.home).isEqualTo("07000000013")
     assertThat(caseSARDetails[0].hearings[0].defendant.phoneNumber?.work).isEqualTo("07000000014")
     assertThat(caseSARDetails[0].hearings[0].defendant.phoneNumber?.mobile).isEqualTo("07000000015")
+    assertThat(caseSARDetails[0].hearings[0].offences[0].title).isEqualTo("OFFENCE TITLE")
+    assertThat(caseSARDetails[0].hearings[0].offences[0].summary).isEqualTo("OFFENCE SUMMARY")
+    assertThat(caseSARDetails[0].hearings[0].offences[0].act).isEqualTo("OFFENCE ACT")
+    assertThat(caseSARDetails[0].hearings[0].offences[0].offenceCode).isEqualTo("EFG001")
+    assertThat(caseSARDetails[0].hearings[0].offences[0].sequence).isEqualTo(1)
+    assertThat(caseSARDetails[0].hearings[0].offences[0].judicialResults?.get(0)?.label).isEqualTo("label")
+    assertThat(caseSARDetails[0].hearings[0].offences[0].judicialResults?.get(0)?.isConvictedResult).isFalse()
+    assertThat(caseSARDetails[0].hearings[0].offences[0].judicialResults?.get(0)?.judicialResultTypeId).isEqualTo("judicialResultTypeId")
+    assertThat(caseSARDetails[0].hearings[0].offences[0].judicialResults?.get(0)?.resultText).isEqualTo("resultText")
   }
 }

@@ -6,4 +6,5 @@ data class HearingSarResponse(
   val notes: List<HearingNotesSarResponse> = emptyList(),
   val outcomes: List<HearingOutcomeSarResponse> = emptyList(),
   val defendant: DefendantSarResponse,
+  val offences: List<OffenceSarResponse> = emptyList(),
 )

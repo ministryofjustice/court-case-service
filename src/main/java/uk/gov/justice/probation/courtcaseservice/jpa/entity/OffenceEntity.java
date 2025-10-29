@@ -55,7 +55,7 @@ public class OffenceEntity extends BaseAuditedEntity implements Serializable  {
 
     // Order column is managed by hibernate
     @JsonIgnore
-    @OneToMany(mappedBy = "offence", orphanRemoval=true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "offence", orphanRemoval=true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OrderColumn(name = "JUDICIAL_RESULTS_ORDER", nullable = false)
     @ToString.Exclude
     private final List<JudicialResultEntity> judicialResults;

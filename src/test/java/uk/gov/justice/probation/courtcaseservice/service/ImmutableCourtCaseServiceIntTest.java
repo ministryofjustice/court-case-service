@@ -280,7 +280,7 @@ public class ImmutableCourtCaseServiceIntTest extends BaseIntTest {
         assertThat(result.getTotalElements()).isEqualTo(11);
         assertThat(result.getTotalPages()).isEqualTo(3);
         assertThat(result.getPossibleMatchesCount()).isEqualTo(2);
-        assertThat(result.getRecentlyAddedCount()).isEqualTo(2);
+        assertThat(result.getRecentlyAddedCount()).isEqualTo(3);
         assertThat(result.getCourtRoomFilters()).containsAll(List.of("01", "03", "04", "05", "1", "Crown Court 5-1"));
 
         assertThat(result.getCases().stream().map(CourtCaseResponse::getDefendantName).toList().containsAll(List.of("Mr Jeff Blogs", "Miss Esther Egge")));

@@ -714,9 +714,6 @@ class ImmutableCourtCaseServiceTest {
         @Test
         void shouldReturnHearing_OutcomesNotRequired_is_null() {
             assertCorrectHearingWhenSettingOutcomeNotRequiredParameter(null, false, 5);
-
-            //tests that it filters out the hearings with outcome not required from the other tabs
-            assertCorrectHearingWhenSettingOutcomeNotRequiredParameter(null, true, 0);
         }
 
         private void assertCorrectHearingWhenSettingOutcomeNotRequiredParameter(Boolean searchParameter, boolean expectedHearingOutcomeNotRequiredValue, int expectedNumberOfMatches) {

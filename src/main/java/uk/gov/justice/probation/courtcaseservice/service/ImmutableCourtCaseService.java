@@ -179,19 +179,10 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
         final var hearingsPage = pagedCaseListRepositoryCustom.filterHearings(courtCode, hearingSearchRequest);
         var hearings = hearingsPage.getContent().stream()
-            .filter(pair -> isHearingOutcomeRequired(hearingSearchRequest, pair))
             .map(pair -> CourtCaseListResponseMapper.mapFrom(pair.getFirst().getHearing(), pair.getFirst(), Optional.ofNullable(pair.getSecond()).orElse(0), hearingSearchRequest.getDate()))
             .collect(Collectors.toList());
 
         return getCaseListResponse(courtCode, hearingSearchRequest, hearings, hearingsPage);
-    }
-
-    private boolean isHearingOutcomeRequired(HearingSearchRequest hearingSearchRequest, Pair<@NotNull HearingDefendantDTO, @Nullable Integer> pair) {
-        if(hearingSearchRequest.getHearingOutcomeNotRequired() != null) {
-            return pair.getFirst().getOutcomeNotRequired() == hearingSearchRequest.getHearingOutcomeNotRequired();
-        } else {
-            return hearingSearchRequest.getHearingOutcomeNotRequired() != null || pair.getFirst().getOutcomeNotRequired() != true;
-        }
     }
 
     @Override

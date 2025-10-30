@@ -67,7 +67,7 @@ public class CourtCaseControllerPagedCaseListIntTest extends BaseIntTest {
             .assertThat()
             .statusCode(200)
             .body("cases", hasSize(5))
-            .body("recentlyAddedCount", equalTo(2))
+            .body("recentlyAddedCount", equalTo(3))
             .body("possibleMatchesCount", equalTo(2))
             .body("courtRoomFilters", equalTo(List.of("01", "03", "04", "05", "1", "Crown Court 5-1")))
             .body("totalPages", equalTo(1))

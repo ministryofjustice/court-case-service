@@ -243,7 +243,7 @@ class PagedCaseListRepositoryCustomIntTest {
         size = 5,
         page = 1,
         recentlyAdded = true,
-        hearingOutcomeNotRequired = true
+        hearingOutcomeNotRequired = true,
       ),
     )
     assertThat(page1.content.size).isEqualTo(1)
@@ -262,7 +262,7 @@ class PagedCaseListRepositoryCustomIntTest {
         size = 5,
         page = 1,
         recentlyAdded = true,
-        hearingOutcomeNotRequired = false
+        hearingOutcomeNotRequired = false,
       ),
     )
     assertThat(page1.content.size).isEqualTo(2)

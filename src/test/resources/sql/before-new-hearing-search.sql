@@ -9,7 +9,8 @@ VALUES
     (7730, 'a9d0f014-3fde-41a8-a416-2dabc9e21bae','23070328168837648310','2023-07-03 10:29:28.553','(court-case-matcher-7)',false,'LIBRA','12GD3465419','2023-07-03 10:29:28.553','(court-case-matcher-7)',0),
     (7732, '5a173167-5d34-4112-b563-afb1067d229d','23070328168837648312','2023-07-03 10:29:36.850','(court-case-matcher-7)',false,'LIBRA','12GD64319','2023-07-03 10:29:36.850','(court-case-matcher-7)',0),
     (7733, 'eae601d7-3966-494f-a8bb-bb23989cfd6f','23070328168837648313','2023-07-03 10:29:41.651','(court-case-matcher-7)',false,'LIBRA','12GD3634519','2023-07-03 10:29:41.651','(court-case-matcher-7)',0),
-    (7734, '0e6c7d7e-7057-45db-b788-210df7a9a624','23070328168837648314','2023-07-03 10:29:48.692','(court-case-matcher-7)',false,'LIBRA','12GD3434519','2023-07-03 10:29:48.692','(court-case-matcher-7)',0);
+    (7734, '0e6c7d7e-7057-45db-b788-210df7a9a624','23070328168837648314','2023-07-03 10:29:48.692','(court-case-matcher-7)',false,'LIBRA','12GD3434519','2023-07-03 10:29:48.692','(court-case-matcher-7)',0),
+    (7700, '675597e6-b4d0-466d-98ad-3a9e9eb99b87','3306014916856309134','2023-06-05 12:05:23.135','(court-case-matcher-7)',false,'LIBRA','12GL3124119','2023-06-05 12:05:23.135','(court-case-matcher-7)',0);
 
 INSERT INTO hearing (id, hearing_id,created,created_by,deleted,fk_court_case_id_remove,first_created,hearing_event_type,hearing_type,list_no,fk_court_case_id,last_updated,last_updated_by,"version")
 VALUES
@@ -23,7 +24,8 @@ VALUES
     (5092, 'a9d0f014-3fde-41a8-a416-2dabc9e21bae','2023-07-03 10:29:28.553','(court-case-matcher-7)',false,NULL,'2023-07-03 10:29:28.546','UNKNOWN',NULL,'1st',7730,'2023-07-03 10:29:28.553','(court-case-matcher-7)',0),
     (5094, '5a173167-5d34-4112-b563-afb1067d229d','2023-07-03 10:29:36.850','(court-case-matcher-7)',false,NULL,'2023-07-03 10:29:36.843','UNKNOWN',NULL,'1st',7732,'2023-07-03 10:29:36.850','(court-case-matcher-7)',0),
     (5095, 'eae601d7-3966-494f-a8bb-bb23989cfd6f','2023-07-03 10:29:41.651','(court-case-matcher-7)',false,NULL,'2023-07-03 10:29:41.643','UNKNOWN',NULL,'1st',7733,'2023-07-03 10:29:41.651','(court-case-matcher-7)',0),
-    (5096, '0e6c7d7e-7057-45db-b788-210df7a9a624','2023-07-03 10:29:48.692','(court-case-matcher-7)',false,NULL,'2023-07-03 10:29:48.685','UNKNOWN',NULL,'1st',7734,'2023-07-11 16:50:33.444','AUTH_RO_USER(prepare-a-case-for-court)',1);
+    (5096, '0e6c7d7e-7057-45db-b788-210df7a9a624','2023-07-03 10:29:48.692','(court-case-matcher-7)',false,NULL,'2023-07-03 10:29:48.685','UNKNOWN',NULL,'1st',7734,'2023-07-11 16:50:33.444','AUTH_RO_USER(prepare-a-case-for-court)',1),
+    (5060, '4b7220b8-88bc-4417-8ee0-cfc318047b3c','2023-06-07 12:07:40.813','(court-case-matcher-7)',false,NULL,now(),'UNKNOWN',NULL,'',7700,'2023-06-07 12:07:40.813','(court-case-matcher-7)',0);
 
 INSERT INTO hearing_day (id,fk_hearing_id,hearing_day,hearing_time,court_code,court_room,created,created_by,last_updated,last_updated_by,"version",deleted)
 VALUES
@@ -37,7 +39,8 @@ VALUES
     (6567,5096,'2023-07-03','11:30:00','B14LO','03','2023-07-03 10:29:48.696','(court-case-matcher-7)','2023-07-03 10:29:48.696','(court-case-matcher-7)',0,false),
     (6569,5061,'2023-07-03','09:01:00','B14LO','01','2023-07-03 10:30:13.856','(court-case-matcher-7)','2023-07-03 10:30:13.856','(court-case-matcher-7)',0,false),
     (6570,5059,'2023-07-03','09:01:00','B14LO','01','2023-07-03 10:30:58.028','(court-case-matcher-7)','2023-07-03 10:30:58.028','(court-case-matcher-7)',0,false),
-    (6603,5002,'2023-07-03','09:00:00','B14LO','Crown Court 5-1','2023-07-18 16:28:02.824','(court-case-matcher-7)','2023-07-18 16:28:02.824','(court-case-matcher-7)',0,false);
+    (6603,5002,'2023-07-03','09:00:00','B14LO','Crown Court 5-1','2023-07-18 16:28:02.824','(court-case-matcher-7)','2023-07-18 16:28:02.824','(court-case-matcher-7)',0,false),
+    (6571,5060,'2023-07-03','09:01:00','B14LO','01','2023-07-03 10:30:13.856','(court-case-matcher-7)','2023-07-03 10:30:13.856','(court-case-matcher-7)',0,false);
 
 INSERT INTO offender (id, crn,previously_known_termination_date,probation_status,suspended_sentence_order,breach,pre_sentence_activity,awaiting_psr,created,created_by,last_updated,last_updated_by,"version",deleted,pnc,cro)
 VALUES (-19, 'X375482',NULL,'CURRENT',false,false,false,false,'2021-12-21 18:51:07.087','(court-case-matcher)','2021-12-21 18:51:07.087','(court-case-matcher)',0,false,NULL,NULL),
@@ -55,21 +58,23 @@ VALUES
     (5844, 'Mrs Lagertha Lothbrok','PERSON','{"title": "Mrs", "surname": "Lothbrok", "forename1": "Lagertha"}','{"line1": "39 The Street", "line2": "Newtown", "postcode": "NT4 6YH"}',NULL,NULL,NULL,'1986-11-28','FEMALE',NULL,NULL,'2023-07-03 10:29:28.560','(court-case-matcher-7)',false,'7d9d7fe0-6b8c-46a3-98e1-440a494891fe'::uuid,false,NULL,'6a0f51fb-0b0a-40bf-9623-d06462738c65'::uuid,NULL,'2023-07-03 10:29:28.560','(court-case-matcher-7)',0,false,'''lagertha'':2 ''lothbrok'':3 ''mrs'':1'::tsvector),
     (5846, 'Mrs Mary Berry','PERSON','{"title": "Mrs", "surname": "Berry", "forename1": "Mary"}','{"line1": "39 The Street", "line2": "Newtown", "postcode": "NT4 6YH"}',NULL,NULL,NULL,'1986-11-28','FEMALE',NULL,NULL,'2023-07-03 10:29:36.857','(court-case-matcher-7)',false,'5e63423f-2488-41c7-a99a-dc4f02449df1'::uuid,false,NULL,'4da76764-1a67-4a8e-99ef-9c7dcbbab029'::uuid,NULL,'2023-07-03 10:29:36.857','(court-case-matcher-7)',0,false,'''berri'':3 ''mari'':2 ''mrs'':1'::tsvector),
     (5847, 'Block BUSTERS','ORGANISATION','{"surname": "BUSTERS", "forename1": "Block"}','{"line1": "VHS Video Shop", "line2": "Wigan", "postcode": "WN8 0PZ"}',NULL,NULL,NULL,NULL,'NOT_KNOWN',NULL,NULL,'2023-07-03 10:29:41.660','(court-case-matcher-7)',false,'c985bc09-e940-4bd5-8abd-c87ec10940e1'::uuid,false,NULL,'111c27b7-3a1c-4adf-a3e5-6069dc0d81b8'::uuid,NULL,'2023-07-03 10:29:41.660','(court-case-matcher-7)',0,false,'''block'':1 ''buster'':2'::tsvector),
-    (5848, 'Miss. Portia Labiata','PERSON','{"title": "Miss.", "surname": "Labiata", "forename1": "Portia"}','{"line1": "39 The Street", "line2": "Newtown", "postcode": "NT4 6YH"}',NULL,NULL,NULL,'1986-11-28','FEMALE',NULL,NULL,'2023-07-03 10:29:48.699','(court-case-matcher-7)',false,'e4ea7459-2f55-4f06-95fd-9896e6e9f3ce'::uuid,false,NULL,'2c1bf687-df2c-420c-be33-3172aefdc61f'::uuid,NULL,'2023-07-03 10:29:48.699','(court-case-matcher-7)',0,false,'''labiata'':3 ''miss'':1 ''portia'':2'::tsvector);
+    (5848, 'Miss. Portia Labiata','PERSON','{"title": "Miss.", "surname": "Labiata", "forename1": "Portia"}','{"line1": "39 The Street", "line2": "Newtown", "postcode": "NT4 6YH"}',NULL,NULL,NULL,'1986-11-28','FEMALE',NULL,NULL,'2023-07-03 10:29:48.699','(court-case-matcher-7)',false,'e4ea7459-2f55-4f06-95fd-9896e6e9f3ce'::uuid,false,NULL,'2c1bf687-df2c-420c-be33-3172aefdc61f'::uuid,NULL,'2023-07-03 10:29:48.699','(court-case-matcher-7)',0,false,'''labiata'':3 ''miss'':1 ''portia'':2'::tsvector),
+    (5813, 'Mr Kent Adams','PERSON','{"title": "Mr", "surname": "Adams", "forename1": "Kent"}','{"line1": "39 The Street", "line2": "Newtown", "postcode": "NT4 6YH"}',NULL,'2004/0046583U',NULL,'1975-01-01','NOT_KNOWN',NULL,NULL,'2023-06-05 12:05:23.257','(court-case-matcher-7)',false,'8dd4322f-75de-429b-875b-0063b7c0c044'::uuid,false,NULL,'0179f72a-e713-4d4e-9b85-531708dc928b'::uuid,NULL,'2023-06-05 12:05:23.257','(court-case-matcher-7)',0,false,'''mr'':1 ''ravi'':2 ''testtwo'':3'::tsvector);
 
-INSERT INTO hearing_defendant (id, fk_hearing_id,created,created_by,defendant_id,fk_defendant_id,last_updated,last_updated_by,"version",deleted)
+INSERT INTO hearing_defendant (id, fk_hearing_id,created,created_by,defendant_id,fk_defendant_id,last_updated,last_updated_by,"version",deleted, outcome_not_required)
 VALUES
-    (5920, 5059,'2023-06-07 12:06:12.183','(court-case-matcher-7)','8dc4322f-75de-429b-875b-0063b7c0c044'::uuid,5812,'2023-06-07 12:06:12.183','(court-case-matcher-7)',0,false),
-    (5922, 5061,'2023-06-07 12:07:40.816','(court-case-matcher-7)','8dc4322f-75de-429b-875b-0063b7c0c044'::uuid,5812,'2023-06-07 12:07:40.816','(court-case-matcher-7)',0,false),
-    (5947, 5085,'2023-07-03 10:28:20.805','(court-case-matcher-7)','ea0d9887-4957-48d2-8399-67f9ad441130'::uuid,5837,'2023-07-03 10:28:20.805','(court-case-matcher-7)',0,false),
-    (5948, 5086,'2023-07-03 10:28:26.063','(court-case-matcher-7)','04ef0041-75eb-4e91-86ea-51703225c6a0'::uuid,5838,'2023-07-03 10:28:26.063','(court-case-matcher-7)',0,false),
-    (5949, 5087,'2023-07-03 10:28:31.426','(court-case-matcher-7)','f984d5bd-ef64-43be-9c03-cc69f94fa2e8'::uuid,5839,'2023-07-03 10:28:31.426','(court-case-matcher-7)',0,false),
-    (5950, 5088,'2023-07-03 10:28:38.106','(court-case-matcher-7)','1a9ad1a2-43b6-4a15-bc5a-80f053614684'::uuid,5840,'2023-07-03 10:28:38.106','(court-case-matcher-7)',0,false),
-    (5954, 5092,'2023-07-03 10:29:28.560','(court-case-matcher-7)','7d9d7fe0-6b8c-46a3-98e1-440a494891fe'::uuid,5844,'2023-07-03 10:29:28.560','(court-case-matcher-7)',0,false),
-    (5956, 5094,'2023-07-03 10:29:36.857','(court-case-matcher-7)','5e63423f-2488-41c7-a99a-dc4f02449df1'::uuid,5846,'2023-07-03 10:29:36.857','(court-case-matcher-7)',0,false),
-    (5957, 5095,'2023-07-03 10:29:41.660','(court-case-matcher-7)','c985bc09-e940-4bd5-8abd-c87ec10940e1'::uuid,5847,'2023-07-03 10:29:41.660','(court-case-matcher-7)',0,false),
-    (5958, 5096,'2023-07-03 10:29:48.699','(court-case-matcher-7)','e4ea7459-2f55-4f06-95fd-9896e6e9f3ce'::uuid,5848,'2023-07-03 10:29:48.699','(court-case-matcher-7)',0,false),
-    (5980, 5002,'2023-07-18 15:47:08.359','(court-case-matcher-7)','7cece15c-78e8-4be9-a509-35d74eb68839'::uuid,5093,'2023-07-18 15:47:08.369','(court-case-matcher-7)',1,false);
+    (5920, 5059,'2023-06-07 12:06:12.183','(court-case-matcher-7)','8dc4322f-75de-429b-875b-0063b7c0c044'::uuid,5812,'2023-06-07 12:06:12.183','(court-case-matcher-7)',0,false, false),
+    (5922, 5061,'2023-06-07 12:07:40.816','(court-case-matcher-7)','8dc4322f-75de-429b-875b-0063b7c0c044'::uuid,5812,'2023-06-07 12:07:40.816','(court-case-matcher-7)',0,false, false),
+    (5947, 5085,'2023-07-03 10:28:20.805','(court-case-matcher-7)','ea0d9887-4957-48d2-8399-67f9ad441130'::uuid,5837,'2023-07-03 10:28:20.805','(court-case-matcher-7)',0,false, false),
+    (5948, 5086,'2023-07-03 10:28:26.063','(court-case-matcher-7)','04ef0041-75eb-4e91-86ea-51703225c6a0'::uuid,5838,'2023-07-03 10:28:26.063','(court-case-matcher-7)',0,false, false),
+    (5949, 5087,'2023-07-03 10:28:31.426','(court-case-matcher-7)','f984d5bd-ef64-43be-9c03-cc69f94fa2e8'::uuid,5839,'2023-07-03 10:28:31.426','(court-case-matcher-7)',0,false, false),
+    (5950, 5088,'2023-07-03 10:28:38.106','(court-case-matcher-7)','1a9ad1a2-43b6-4a15-bc5a-80f053614684'::uuid,5840,'2023-07-03 10:28:38.106','(court-case-matcher-7)',0,false, false),
+    (5954, 5092,'2023-07-03 10:29:28.560','(court-case-matcher-7)','7d9d7fe0-6b8c-46a3-98e1-440a494891fe'::uuid,5844,'2023-07-03 10:29:28.560','(court-case-matcher-7)',0,false, false),
+    (5956, 5094,'2023-07-03 10:29:36.857','(court-case-matcher-7)','5e63423f-2488-41c7-a99a-dc4f02449df1'::uuid,5846,'2023-07-03 10:29:36.857','(court-case-matcher-7)',0,false, false),
+    (5957, 5095,'2023-07-03 10:29:41.660','(court-case-matcher-7)','c985bc09-e940-4bd5-8abd-c87ec10940e1'::uuid,5847,'2023-07-03 10:29:41.660','(court-case-matcher-7)',0,false, false),
+    (5958, 5096,'2023-07-03 10:29:48.699','(court-case-matcher-7)','e4ea7459-2f55-4f06-95fd-9896e6e9f3ce'::uuid,5848,'2023-07-03 10:29:48.699','(court-case-matcher-7)',0,false, false),
+    (5980, 5002,'2023-07-18 15:47:08.359','(court-case-matcher-7)','7cece15c-78e8-4be9-a509-35d74eb68839'::uuid,5093,'2023-07-18 15:47:08.369','(court-case-matcher-7)',1,false, false),
+    (5930, 5060,'2023-06-07 12:06:12.183','(court-case-matcher-7)','8dd4322f-75de-429b-875b-0063b7c0c044'::uuid,5813,'2023-06-07 12:06:12.183','(court-case-matcher-7)',0,false, true);
 
 INSERT INTO hearing_notes (id, hearing_id, note, "author", created, created_by, created_by_uuid, fk_hearing_defendant_id)
 VALUES (-1700028803, '1eb3a6da-8189-4de2-8377-da5910e486b9', 'Judge requested PSR', 'Author Three', now(), 'before-new-hearing-search.sql', 'fb9a3bbf-360b-48d1-bdd6-b9292f9a0d81', 5920);
@@ -98,7 +103,8 @@ VALUES
     (9809, 5922,'On 01/01/2016 at Town, stole Article, to the value of £100.00, belonging to Person.','Offence 101',1,'Contrary to section 1(1) and 7 of the Theft Act 1968.','2023-07-03 10:30:13.859','(court-case-matcher-7)',NULL,'2023-07-03 10:30:13.864','(court-case-matcher-7)',1,false,'MC80528',NULL,NULL,NULL),
     (9810, 5920,'On 01/01/2016 at Town, stole Article, to the value of £100.00, belonging to Person.','Offence 102',1,'Contrary to section 1(1) and 7 of the Theft Act 1968.','2023-07-03 10:30:58.031','(court-case-matcher-7)',NULL,'2023-07-03 10:30:58.033','(court-case-matcher-7)',1,false,'MC80528',NULL,NULL,NULL),
     (9853, 5980,'on 01/08/2009 at the County public house, unlawfully and maliciously wounded, John Smith','Wound / inflict grievous bodily harm without intent (sole defendant)',1,'Contrary to section 20 of the Offences Against the Person Act 1861.','2023-07-18 16:28:02.826','(court-case-matcher-7)',5,'2023-07-18 16:28:02.829','(court-case-matcher-7)',1,false,'CJO3523',NULL,NULL,NULL),
-    (9854, 5980,'on 01/08/2009 at the County public house, unlawfully and maliciously wounded, Jane Smith','Wound / inflict grievous bodily harm without intent (sole defendant)',2,'Contrary to section 20 of the Offences Against the Person Act 1861.','2023-07-18 16:28:02.827','(court-case-matcher-7)',7,'2023-07-18 16:28:02.829','(court-case-matcher-7)',1,false,'CJO3523',NULL,NULL,NULL);
+    (9854, 5980,'on 01/08/2009 at the County public house, unlawfully and maliciously wounded, Jane Smith','Wound / inflict grievous bodily harm without intent (sole defendant)',2,'Contrary to section 20 of the Offences Against the Person Act 1861.','2023-07-18 16:28:02.827','(court-case-matcher-7)',7,'2023-07-18 16:28:02.829','(court-case-matcher-7)',1,false,'CJO3523',NULL,NULL,NULL),
+    (9819, 5930,'On 01/01/2016 at Town, stole Article, to the value of £100.00, belonging to Person.','Offence 101',1,'Contrary to section 1(1) and 7 of the Theft Act 1968.','2023-07-03 10:30:13.859','(court-case-matcher-7)',NULL,'2023-07-03 10:30:13.864','(court-case-matcher-7)',1,false,'MC80528',NULL,NULL,NULL);
 
 INSERT INTO offender_match_group (id, created,last_updated,created_by,last_updated_by,deleted,"version",case_id,defendant_id)
 VALUES

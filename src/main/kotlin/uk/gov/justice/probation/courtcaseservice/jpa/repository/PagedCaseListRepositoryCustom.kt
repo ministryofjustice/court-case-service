@@ -80,7 +80,7 @@ class PagedCaseListRepositoryCustom(private val entityManager: EntityManager) {
     val hearingOutcomeNotRequired = """
       ${ if (hasHearingOutcomeNotRequiredFilter && hearingSearchRequest.hearingOutcomeNotRequired == true) " and hd.outcome_not_required is true " else ""}
       ${ if (hasHearingOutcomeNotRequiredFilter && hearingSearchRequest.hearingOutcomeNotRequired == false) " and hd.outcome_not_required is false " else ""}
-      ${ if (hasHearingOutcomeNotRequiredFilter == false) " and hd.outcome_not_required is false " else ""}
+      ${ if (!hasHearingOutcomeNotRequiredFilter) " and hd.outcome_not_required is false " else ""}
     """.trimIndent()
 
     val joins = """

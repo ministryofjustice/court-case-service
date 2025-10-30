@@ -234,6 +234,44 @@ class PagedCaseListRepositoryCustomIntTest {
     )
   }
 
+  @Test
+  fun shouldReturnHearingOutcomesThatAreNotRequired() {
+    val page1 = pagedCaseListRepositoryCustom.filterHearings(
+      "B14LO",
+      HearingSearchRequest(
+        date = LocalDate.of(2023, 7, 3),
+        size = 5,
+        page = 1,
+        recentlyAdded = true,
+        hearingOutcomeNotRequired = true
+      ),
+    )
+    assertThat(page1.content.size).isEqualTo(1)
+    assertThat(page1.totalElements).isEqualTo(1)
+    assertThat(page1.totalPages).isEqualTo(1)
+
+    assertThat(page1.content.map { it.first.defendant.defendantName }).isEqualTo(listOf("Mr Kent Adams"))
+  }
+
+  @Test
+  fun shouldNotReturnHearingOutcomesThatAreNotRequired() {
+    val page1 = pagedCaseListRepositoryCustom.filterHearings(
+      "B14LO",
+      HearingSearchRequest(
+        date = LocalDate.of(2023, 7, 3),
+        size = 5,
+        page = 1,
+        recentlyAdded = true,
+        hearingOutcomeNotRequired = false
+      ),
+    )
+    assertThat(page1.content.size).isEqualTo(2)
+    assertThat(page1.totalElements).isEqualTo(2)
+    assertThat(page1.totalPages).isEqualTo(1)
+
+    assertThat(page1.content.map { it.first.defendant.defendantName }).isEqualTo(listOf("Mr Jeff Blogs", "Miss Esther Egge"))
+  }
+
   @TestConfiguration
   internal class TestConfig {
     @Bean

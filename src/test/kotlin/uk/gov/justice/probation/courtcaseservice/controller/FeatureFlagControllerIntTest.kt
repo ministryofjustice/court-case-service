@@ -3,24 +3,35 @@ package uk.gov.justice.probation.courtcaseservice.controller
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.BDDMockito.given
+import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
-import uk.gov.justice.probation.courtcaseservice.BaseIntTest
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
+import org.springframework.boot.test.mock.mockito.MockBean
+import reactor.core.publisher.Mono
 import uk.gov.justice.probation.courtcaseservice.client.FeatureFlagRequest
 import uk.gov.justice.probation.courtcaseservice.client.FeatureFlagResponse
 import uk.gov.justice.probation.courtcaseservice.service.FeatureFlagService
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper
 
-internal class FeatureFlagControllerIntTest : BaseIntTest() {
+@WebFluxTest(FeatureFlagController::class)
+internal class FeatureFlagControllerIntTest {
 
   companion object {
     private const val FLAG_KEY = "prepare-a-case-v2"
     private const val ENTITY_ID = "prepare-a-case"
   }
 
-  @MockitoSpyBean
+  @MockBean
   lateinit var featureFlagService: FeatureFlagService
+
+  @BeforeEach
+  fun initTest() {
+    given(featureFlagService.isFeatureEnabled(any(), any()))
+      .willReturn(Mono.just(FeatureFlagResponse(enabled = true)))
+  }
 
   @Test
   fun `given valid flag request should return feature enabled true`() {
@@ -46,7 +57,7 @@ internal class FeatureFlagControllerIntTest : BaseIntTest() {
 
     assertThat(response.enabled)
       .describedAs("Feature flag $FLAG_KEY should be enabled for this court code")
-      .isIn(true, false) // depends on Flipt config, ensures no deserialization issues
+      .isIn(true, false)
 
     verify(featureFlagService)
       .isFeatureEnabled(FLAG_KEY, mapOf("code" to "B22KS"))

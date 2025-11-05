@@ -10,6 +10,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.test.context.TestPropertySource
 import reactor.core.publisher.Mono
 import uk.gov.justice.probation.courtcaseservice.client.FeatureFlagRequest
 import uk.gov.justice.probation.courtcaseservice.client.FeatureFlagResponse
@@ -17,6 +18,11 @@ import uk.gov.justice.probation.courtcaseservice.service.FeatureFlagService
 import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper
 
 @WebFluxTest(FeatureFlagController::class)
+@TestPropertySource(
+  properties = [
+    "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.oauth2.resource.reactive.ReactiveOAuth2ResourceServerAutoConfiguration",
+  ],
+)
 internal class FeatureFlagControllerIntTest {
 
   companion object {

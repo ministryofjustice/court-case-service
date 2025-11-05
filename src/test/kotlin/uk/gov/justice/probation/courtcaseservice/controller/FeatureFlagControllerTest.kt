@@ -1,14 +1,13 @@
 package uk.gov.justice.probation.courtcaseservice.controller
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mockito.mock
+import org.mockito.BDDMockito.given
+import org.mockito.InjectMocks
+import org.mockito.Mock
 import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
-import org.mockito.kotlin.eq
-import org.springframework.http.MediaType
-import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.Mono
 import uk.gov.justice.probation.courtcaseservice.client.FeatureFlagRequest
 import uk.gov.justice.probation.courtcaseservice.client.FeatureFlagResponse
@@ -17,37 +16,63 @@ import uk.gov.justice.probation.courtcaseservice.service.FeatureFlagService
 @ExtendWith(MockitoExtension::class)
 internal class FeatureFlagControllerTest {
 
-  private val featureFlagService = mock(FeatureFlagService::class.java)
-  private val controller = FeatureFlagController(featureFlagService)
-  private val webTestClient = WebTestClient.bindToController(controller).build()
+  companion object {
+    private const val FLAG_KEY = "prepare-a-case-v2"
+    private const val ENTITY_ID = "prepare-a-case"
+    private val CONTEXT = mapOf("code" to "B22KS")
+  }
+
+  @Mock
+  lateinit var featureFlagService: FeatureFlagService
+
+  @InjectMocks
+  lateinit var featureFlagController: FeatureFlagController
 
   @Test
-  fun `should return enabled true when service returns true`() {
-    // Given
+  fun `should call service and return feature enabled true`() {
     val request = FeatureFlagRequest(
-      entityId = "prepare-a-case",
-      flagKey = "prepare-a-case-v2",
-      context = mapOf("code" to "B22KS"),
+      flagKey = FLAG_KEY,
+      entityId = ENTITY_ID,
+      context = CONTEXT,
     )
+    given(featureFlagService.isFeatureEnabled(FLAG_KEY, CONTEXT))
+      .willReturn(Mono.just(FeatureFlagResponse(enabled = true)))
 
-    val expectedResponse = FeatureFlagResponse(enabled = true)
-    `when`(
-      featureFlagService.isFeatureEnabled(
-        eq(request.flagKey),
-        eq(request.context),
-      ),
-    ).thenReturn(Mono.just(expectedResponse))
+    val response = featureFlagController.evaluateFeatureFlag(request).block()
 
-    // When + Then
-    webTestClient.post()
-      .uri("/feature-flags/evaluate")
-      .contentType(MediaType.APPLICATION_JSON)
-      .bodyValue(request)
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .jsonPath("$.enabled").isEqualTo(true)
+    verify(featureFlagService).isFeatureEnabled(FLAG_KEY, CONTEXT)
+    assertThat(response!!.enabled).isTrue()
+  }
 
-    verify(featureFlagService).isFeatureEnabled(request.flagKey, request.context)
+  @Test
+  fun `should call service and return feature disabled`() {
+    val request = FeatureFlagRequest(
+      flagKey = FLAG_KEY,
+      entityId = ENTITY_ID,
+      context = CONTEXT,
+    )
+    given(featureFlagService.isFeatureEnabled(FLAG_KEY, CONTEXT))
+      .willReturn(Mono.just(FeatureFlagResponse(enabled = false)))
+
+    val response = featureFlagController.evaluateFeatureFlag(request).block()
+
+    verify(featureFlagService).isFeatureEnabled(FLAG_KEY, CONTEXT)
+    assertThat(response!!.enabled).isFalse()
+  }
+
+  @Test
+  fun `should handle null context gracefully`() {
+    val request = FeatureFlagRequest(
+      flagKey = FLAG_KEY,
+      entityId = ENTITY_ID,
+      context = null,
+    )
+    given(featureFlagService.isFeatureEnabled(FLAG_KEY, null))
+      .willReturn(Mono.just(FeatureFlagResponse(enabled = true)))
+
+    val response = featureFlagController.evaluateFeatureFlag(request).block()
+
+    verify(featureFlagService).isFeatureEnabled(FLAG_KEY, null)
+    assertThat(response!!.enabled).isTrue()
   }
 }

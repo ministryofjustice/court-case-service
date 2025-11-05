@@ -32,7 +32,7 @@ internal class FeatureFlagServiceTest {
     val context = mapOf("user" to "test-user")
     val expectedResponse = FeatureFlagResponse(enabled = true)
     val request = FeatureFlagRequest(
-      namespace = "ProbationInCourt",
+      namespaceKey = "ProbationInCourt",
       entityId = flagKey,
       flagKey = flagKey,
       context = context,
@@ -50,7 +50,7 @@ internal class FeatureFlagServiceTest {
     val flagKey = "test-flag"
     val expectedResponse = FeatureFlagResponse(enabled = false)
     val request = FeatureFlagRequest(
-      namespace = "ProbationInCourt",
+      namespaceKey = "ProbationInCourt",
       entityId = flagKey,
       flagKey = flagKey,
       context = null,

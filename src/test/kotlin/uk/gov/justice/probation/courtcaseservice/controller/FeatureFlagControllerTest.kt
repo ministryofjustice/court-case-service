@@ -2,10 +2,10 @@ package uk.gov.justice.probation.courtcaseservice.controller
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mockito.verify
-import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
+import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.eq
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -27,15 +27,15 @@ internal class FeatureFlagControllerTest {
     val request = FeatureFlagRequest(
       entityId = "prepare-a-case",
       flagKey = "prepare-a-case-v2",
-      context = mapOf("code" to "B22KS")
+      context = mapOf("code" to "B22KS"),
     )
 
     val expectedResponse = FeatureFlagResponse(enabled = true)
     `when`(
       featureFlagService.isFeatureEnabled(
         eq(request.flagKey),
-        eq(request.context)
-      )
+        eq(request.context),
+      ),
     ).thenReturn(Mono.just(expectedResponse))
 
     // When + Then

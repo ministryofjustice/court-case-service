@@ -83,7 +83,7 @@ class OffenderControllerConvictionIntTest extends BaseIntTest {
                         .build());
 
         assertThat(response.getLinks().getDeliusContactList())
-                .isEqualTo("https://ndelius.test.probation.service.justice.gov.uk/NDelius-war/delius/JSP/deeplink.jsp?component=ContactList&offenderId=2500343964&eventId=2500295343");
+                .isEqualTo("https://ndelius.test.probation.service.justice.gov.uk/NDelius-war/delius/JSP/deeplink.xhtml?component=ContactList&offenderId=2500343964&eventId=2500295343");
     }
 
     @Test

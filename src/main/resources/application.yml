@@ -162,7 +162,7 @@ prison-api:
   sentences-template: /api/offenders/%s/sentences
 
 delius:
-  contact-list-url-template: ${delius.base-url}/NDelius-war/delius/JSP/deeplink.jsp?component=ContactList&offenderId=%s&eventId=%s
+  contact-list-url-template: ${delius.base-url}/NDelius-war/delius/JSP/deeplink.xhtml?component=ContactList&offenderId=%s&eventId=%s
 
 manage-offences-api:
   get-home-office-offence-code: /offences/ho-code/%s

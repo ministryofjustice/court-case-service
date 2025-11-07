@@ -81,6 +81,10 @@ public class HearingRepositoryFacade {
             });
     }
 
+    public Optional<HearingEntity> findByHearingIdAndDefendantIdForOutcomeToggle(String hearingId, String defendantId) {
+        return hearingEntityInitService.findByHearingIdAndInitHearingDefendants(hearingId, defendantId);
+    }
+
     public Optional<HearingEntity> findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(String hearingId, String defendantId) {
         return hearingEntityInitService.findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(hearingId, defendantId)
             .map(hearingEntity -> Objects.nonNull(hearingEntity.getHearingDefendant(defendantId)) ? hearingEntity : null)

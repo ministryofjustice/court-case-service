@@ -192,7 +192,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     @Override
     public void toggleHearingOutcomeNotRequired(String hearingId, String defendantId, boolean hearingOutcomeRequired) {
-        Optional<HearingEntity> hearing = hearingRepositoryFacade.findByHearingIdAndDefendantId(hearingId, defendantId);
+        Optional<HearingEntity> hearing = hearingRepositoryFacade.findByHearingIdAndDefendantIdForOutcomeToggle(hearingId, defendantId);
         hearing.ifPresent(hearingEntity -> {
             hearingEntity.getHearingDefendant(defendantId).setOutcomeNotRequired(hearingOutcomeRequired);
             hearingRepository.save(hearingEntity);

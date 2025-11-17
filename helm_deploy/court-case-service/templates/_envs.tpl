@@ -88,6 +88,18 @@ env:
         name: court-case-service-secrets
         key: nomis-oauth-client-secret
 
+  - name: FLIPT_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: pic-flipt
+        key: API_KEY
+
+  - name: FLIPT_API_URL
+    valueFrom:
+      secretKeyRef:
+        name: pic-flipt
+        key: URL
+
   - name: COMMUNITY_API_CLIENT_ID
     valueFrom:
       secretKeyRef:

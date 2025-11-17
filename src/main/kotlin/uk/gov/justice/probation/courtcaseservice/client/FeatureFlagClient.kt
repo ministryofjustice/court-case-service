@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono
 class FeatureFlagClient(private val webClient: WebClient) {
 
   fun getFeatureFlags(request: FeatureFlagRequest): Mono<FeatureFlagResponse> {
-    val evaluationPath = "/ap1/v1/evaluate"
+    val evaluationPath = "/evaluate/v1/boolean"
     return webClient.post()
       .uri(evaluationPath)
       .bodyValue(request)
@@ -18,7 +18,7 @@ class FeatureFlagClient(private val webClient: WebClient) {
 }
 
 data class FeatureFlagRequest(
-  val namespace: String = "ProbationInCourt",
+  val namespaceKey: String = "ProbationInCourt",
   val entityId: String,
   val flagKey: String,
   val context: Map<String, String>? = null,

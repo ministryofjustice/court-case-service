@@ -69,6 +69,9 @@ spring:
             client-authentication-method: client_secret_basic
             authorization-grant-type: client_credentials
             provider: nomis-oauth-service
+          flipt:
+            base-url: ${flipt-api-url:url}
+            api-key: ${flipt-api-key:api-key}
           domain-event-and-delius-api-client:
             client-name: domain-event-and-delius-api-client
             client-id: ${domain-event-and-delius-api-client-id:domain-event-and-delius-api-client}

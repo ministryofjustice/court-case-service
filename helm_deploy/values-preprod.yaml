@@ -78,3 +78,6 @@ resources:
   memory:
     limit: 4Gi
     request: 2Gi
+
+generic-prometheus-alerts:
+  alertSeverity: probation_in_court_alerts_preprod

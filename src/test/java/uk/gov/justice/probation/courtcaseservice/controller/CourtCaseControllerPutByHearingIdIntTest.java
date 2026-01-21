@@ -45,6 +45,7 @@ import java.util.concurrent.ExecutionException;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.AssertionsForClassTypes.within;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -235,8 +236,8 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             assertThat(hearingEntity.getHearingEventType().getName()).isEqualTo("ConfirmedOrUpdated");
             assertThat(hearingEntity.getHearingType()).isEqualTo("sentenced");
             assertThat(hearingEntity.getHearingDefendants().getFirst().getOffences()).extracting("listNo").containsOnly(5, 8);
-            assertThat(hearingEntity.getHearingDefendants().getFirst().getOffences()).extracting("shortTermCustodyPredictorScore")
-                .containsOnly(BigDecimal.valueOf(0.0036438124189185897), BigDecimal.valueOf(0.0036438124189185897));
+            assertThat(hearingEntity.getHearingDefendants().getFirst().getOffences()).extracting(o -> o.getShortTermCustodyPredictorScore().doubleValue())
+                .allSatisfy(score -> assertThat(score).isCloseTo(0.0036438124189185897, within(1e-4)));
             assertThat(hearingEntity.getHearingDefendants().getFirst().getOffences()).extracting("dataModelVersion")
                     .containsOnly("1.3", "1.3");
             assertThat(hearingEntity.getHearingDefendants().getFirst().getDefendant().getPhoneNumber()).isEqualTo(

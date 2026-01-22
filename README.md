@@ -4,7 +4,7 @@
 
 ### Service to access court cases imported from HMCTS Libra and Common Platform court lists
 
-For more informations, check our [Runbook](https://dsdmoj.atlassian.net/wiki/spaces/NDSS/pages/2548662614/Prepare+a+Case+for+Sentence+RUNBOOK)
+For more information, check our [Runbook](https://dsdmoj.atlassian.net/wiki/spaces/NDSS/pages/2548662614/Prepare+a+Case+for+Sentence+RUNBOOK)
 
 ---
 
@@ -83,9 +83,14 @@ The following actuator endpoints are available:
 ---
 
 ## Database
-The application uses a Postgres 11 database which is managed by Flyway. The SpringBoot integration will automatically manage migrations, so we only need these commands for debugging or if the local database has become corrupted. 
+The application uses a Postgres 14 database which is managed by Flyway. The SpringBoot integration will automatically manage migrations, so we only need these commands for debugging or if the local database has become corrupted. 
 * *Clean schema* : `$ ./gradlew flywayClean`
 * *View details and status information about all migrations* : `$ ./gradlew flywayInfo`
+
+> **Flyway clean safety**
+>
+> - `flywayClean` is guarded by the `cleanDisabled` flag in `build.gradle`. The task is disabled by default; you must explicitly set `FLYWAY_CLEAN_DISABLED=false` (or pass a `-P` flag that flips the property) before Gradle will execute it. This mirrors the application’s production stance where schema wipes are never allowed.
+> - Only run this command against disposable local databases. **Never execute `./gradlew flywayClean` in production or any shared environment**; it drops every schema listed in the Flyway configuration and will permanently delete live data.
 
 ### Known issues
 `ERROR: function uuid_generate_v4() does not exist`

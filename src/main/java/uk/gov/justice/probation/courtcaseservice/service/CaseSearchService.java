@@ -41,7 +41,8 @@ public class CaseSearchService {
             case CRN -> defendantRepositoryCustom.findDefendantsByCrn(searchTerm, pageable);
             case NAME ->
                 defendantRepositoryCustom.findDefendantsByName(Arrays.stream(searchTerm.split(" "))
-                    .map(String::trim).collect(Collectors.joining(" & ")), searchTerm.trim(), pageable);
+                    // Remove unicode aware leading and trailing whitespaces
+                    .map(String::strip).collect(Collectors.joining(" & ")), searchTerm.strip(), pageable);
         };
 
         if(caseSearchRequest.getPage() > resultsPage.getTotalPages()) {

@@ -43,3 +43,6 @@ data_dictionary/schema/**
 .editorconfig
 /.trivyignore
 .trivy
+
+helm_deploy/court-case-service/charts
+helm_deploy/court-case-service/Chart.lock

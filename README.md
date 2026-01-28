@@ -44,7 +44,13 @@ Start the service ensuring the local spring boot profile is set:
 
 `$ ./gradlew bootRun --args='--spring.profiles.active=local'`
 
+Check the API is running by going to: [http://localhost:8080/health](http://localhost:8080/health)
+
 NB. All REST endpoints are secured with the role `PREPARE_A_CASE` which will need to be passed to the endpoint as an OAuth token.
+
+> Note: the offender-assessment-api is prone to crashing, we have not noticed any impact when running locally so far 
+> besides the health check endpoint reporting DOWN. It can be maunally restarted using docker. 
+> There is a ticket to investigate this further - PIC-5124.
 
 ### Running on Apple Silicon 
 When running the service through IntelliJ you may see the following error in the server logs:

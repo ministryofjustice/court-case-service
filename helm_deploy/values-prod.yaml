@@ -45,7 +45,7 @@ analytics_data_extractor:
       request: 2Gi
 
 hearing_outcomes:
-  process_un_resulted_cases_cron: "30 18-20 * * *"
+  process_un_resulted_cases_cron: "0,30 22-23 * * *"
 
 env:
   JAVA_OPTS: "-Xmx2048m"

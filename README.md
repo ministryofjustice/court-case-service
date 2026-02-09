@@ -42,7 +42,7 @@ Which should start the following containers: (verify with `$ docker ps` if neces
 
 Start the service ensuring the local spring boot profile is set:
 
-`$ ./gradlew bootRun --args='--spring.profiles.active=local'`
+`./gradlew bootRun --args='--spring.profiles.active=local'`
 
 NB. All REST endpoints are secured with the role `PREPARE_A_CASE` which will need to be passed to the endpoint as an OAuth token.
 

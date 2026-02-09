@@ -1,6 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.database.factories
 
 import uk.gov.justice.probation.courtcaseservice.database.factories.framework.Factory
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseMarkerEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository
@@ -8,19 +9,18 @@ import java.util.UUID
 
 class CourtCaseFactory(
   private val repository: CourtCaseRepository,
-  private var caseId: String = UUID.randomUUID().toString(),
-  private var caseNo: String = UUID.randomUUID().toString().take(10),
-  private var urn: String = "URN-${UUID.randomUUID()}",
-  private var sourceType: SourceType = SourceType.LIBRA,
+  var caseId: String = UUID.randomUUID().toString(),
+  var caseNo: String = UUID.randomUUID().toString().take(10),
+  var urn: String = "URN-${UUID.randomUUID()}",
+  var sourceType: SourceType = SourceType.LIBRA,
+  var caseMarkers: List<String> = emptyList(),
 ) {
-
-  fun withCaseId(value: String) = apply { this.caseId = value }
-  fun withCaseNo(value: String) = apply { this.caseNo = value }
-  fun withUrn(value: String) = apply { this.urn = value }
-  fun withSourceType(value: SourceType) = apply { this.sourceType = value }
+  fun withCaseMarkers(vararg markers: String) = apply { this.caseMarkers = markers.toList() }
+  fun withCaseMarkers(markers: List<String>) = apply { this.caseMarkers = markers }
 
   fun count(count: Int = 1) = Factory(
     newModel = {
+      val markerEntities = caseMarkers.map { CaseMarkerEntity.builder().typeDescription(it).build() }
       CourtCaseEntity.builder()
         .id(null)
         .caseId(caseId)
@@ -32,6 +32,7 @@ class CourtCaseFactory(
         .caseMarkers(mutableListOf())
         .caseDefendants(mutableListOf())
         .build()
+        .apply { addCaseMarkers(markerEntities) }
     },
     repository = repository,
     count = count,

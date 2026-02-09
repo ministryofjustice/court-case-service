@@ -59,7 +59,7 @@ public class HearingEntity extends BaseAuditedEntity implements Serializable {
     @Column(name = "COURT_CASE_ID")
     private String courtCaseId;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "FK_COURT_CASE_ID", referencedColumnName = "id", nullable = false)
     @Setter
     private CourtCaseEntity courtCase;

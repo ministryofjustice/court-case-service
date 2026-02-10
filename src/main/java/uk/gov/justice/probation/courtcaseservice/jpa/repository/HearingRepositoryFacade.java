@@ -138,6 +138,15 @@ public class HearingRepositoryFacade {
             hearingEntity.getHearingDefendants().forEach(hd -> {
                 hd.setHearing(hearingEntity);
 
+                var defendant = hd.getDefendant();
+                if (defendant != null) {
+                    var offender = defendant.getOffender();
+                    if (offender != null && offender.getId() == null) {
+                        var managedOffender = offenderRepositoryFacade.upsertOffender(offender);
+                        defendant.setOffender(managedOffender);
+                    }
+                }
+
                 if (hd.getOffences() != null) {
                     hd.getOffences().forEach(offence -> {
                         offence.setHearingDefendant(hd);

@@ -48,8 +48,8 @@ public class HearingDefendantEntity extends BaseAuditedEntity implements Seriali
     private final Long id;
 
     @ToString.Exclude
-    @ManyToOne()
-    @JoinColumn(name = "FK_HEARING_ID", referencedColumnName = "id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "FK_HEARING_ID", referencedColumnName = "id", nullable = false)
     @Setter
     private HearingEntity hearing;
 
@@ -111,7 +111,13 @@ public class HearingDefendantEntity extends BaseAuditedEntity implements Seriali
         this.offences.clear();
 
         this.offences.addAll(hearingDefendant.getOffences());
-        this.offences.forEach(offenceEntity -> offenceEntity.setHearingDefendant(this));
+        this.offences.forEach(offenceEntity -> {
+            offenceEntity.setHearingDefendant(this);
+
+            if (offenceEntity.getJudicialResults() != null) {
+                offenceEntity.getJudicialResults().forEach(jr -> jr.setOffence(offenceEntity));
+            }
+        });
 
         this.defendant.update(hearingDefendant.getDefendant());
     }

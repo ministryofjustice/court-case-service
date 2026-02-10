@@ -25,7 +25,7 @@ class DefendantFactory(
 
   fun count(count: Int = 1): List<DefendantEntity> {
     if (address == null) {
-      //todo: set the data dynamically using faker and random
+      // todo: set the data dynamically using faker and random
       this.address = AddressPropertiesEntity.builder()
         .line1("1 High Street")
         .line2("Flat 2")

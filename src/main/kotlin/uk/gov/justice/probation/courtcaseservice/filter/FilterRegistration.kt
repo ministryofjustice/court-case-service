@@ -6,8 +6,7 @@ import org.springframework.core.Ordered
 import org.springframework.core.env.Environment
 
 @Bean
-fun routeAccessFilter(environment: Environment): FilterRegistrationBean<RouteAccessFilter> =
-  FilterRegistrationBean(RouteAccessFilter(environment)).apply {
-    addUrlPatterns("/db-seed")           // restrict specific endpoint
-    order = Ordered.HIGHEST_PRECEDENCE   // ensure it runs early
-  }
+fun routeAccessFilter(environment: Environment): FilterRegistrationBean<RouteAccessFilter> = FilterRegistrationBean(RouteAccessFilter(environment)).apply {
+  addUrlPatterns("/db-seed") // restrict specific endpoint
+  order = Ordered.HIGHEST_PRECEDENCE // ensure it runs early
+}

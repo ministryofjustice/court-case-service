@@ -8,7 +8,7 @@ import org.springframework.core.env.getProperty
 import org.springframework.web.filter.OncePerRequestFilter
 
 class RouteAccessFilter(
-  private val environment: Environment
+  private val environment: Environment,
 ) : OncePerRequestFilter() {
 
   private val seedEndpoint = "/db-seed"
@@ -25,11 +25,7 @@ class RouteAccessFilter(
     chain.doFilter(req, res)
   }
 
-  private fun dbSeederEnabled(): Boolean {
-    return environment.getProperty<Boolean>(seedConfigKey, false)
-  }
+  private fun dbSeederEnabled(): Boolean = environment.getProperty<Boolean>(seedConfigKey, false)
 
-  private fun dbSeederAllowed(): Boolean {
-    return environment.activeProfiles.any { it in allowedSeedingProfiles }
-  }
+  private fun dbSeederAllowed(): Boolean = environment.activeProfiles.any { it in allowedSeedingProfiles }
 }

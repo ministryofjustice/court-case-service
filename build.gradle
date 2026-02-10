@@ -103,13 +103,13 @@ tasks.register('initialiseDatabase', Test) {
     }
 }
 
-flyway {
-    url = System.getenv("POSTGRES_URL") ?: 'jdbc:postgresql://localhost:5432/postgres'
-    user = System.getenv("POSTGRES_USER") ?: 'root'
-    password = System.getenv("POSTGRES_PASSWORD") ?: 'dev'
-    cleanDisabled = !project.findProperty('flyway.clean.enabled') ?: System.getenv("FLYWAY_CLEAN_DISABLED")?.toBoolean()
-    schemas = ['courtcaseservice', 'courtcaseservicetest']
-}
+// flyway {
+//    url = System.getenv("POSTGRES_URL") ?: 'jdbc:postgresql://localhost:5432/postgres'
+//    user = System.getenv("POSTGRES_USER") ?: 'root'
+//    password = System.getenv("POSTGRES_PASSWORD") ?: 'dev'
+//    cleanDisabled = !project.findProperty('flyway.clean.enabled') ?: System.getenv("FLYWAY_CLEAN_DISABLED")?.toBoolean()
+//    schemas = ['courtcaseservice', 'courtcaseservicetest']
+// }
 
 tasks.register('pactVerifyPublish', Test) {
     useJUnitPlatform()

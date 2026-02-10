@@ -8,11 +8,6 @@ For more information, check our [Runbook](https://dsdmoj.atlassian.net/wiki/spac
 
 ---
 
-## Testing
-
-`docker compose up localstack-court-case-service postgres`
-`./gradlew check`
-
 ## Quick Start
 This section contains the bare minimum you need to do to get the app running against the dev environment assuming you've got all the necessary dependencies (see Prerequisites section).
 - Run `docker-compose up postgres` to start the postgres database Docker container
@@ -96,6 +91,26 @@ The application uses a Postgres 14 database which is managed by Flyway. The Spri
 `ERROR: function uuid_generate_v4() does not exist`
 
 Run `DROP EXTENSION "uuid-ossp";` in the database. This shouldn't happen given the `IF NOT EXISTS` in the offending migration but unfortunately there appears to be an issue with Postgres. It seems to be that this issue only occurs when the migration is run against a Postgres instance against which the migration has already been run at some point in the past - even if the schema has been subsequently deleted or if it was created under a different schema name. This is why it only usually happens in transient environments where schemas are often set up and torn down without destroying the underlying database.
+
+---
+
+## Testing
+
+`docker compose up localstack-court-case-service postgres`
+`./gradlew check`
+
+### Linting
+Run ktlint checks or auto-format:
+```
+./gradlew ktlintCheck
+./gradlew ktlintFormat
+```
+
+### Git hooks
+Install repo-provided hooks (includes pre-commit) into `.git/hooks`:
+```
+./gradlew installGitHooks
+```
 
 ---
 

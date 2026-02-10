@@ -35,17 +35,19 @@ public class HearingRepositoryFacade {
     private final HearingEntityInitService hearingEntityInitService;
     private final DefendantRepository defendantRepository;
     private final CaseCommentsRepository caseCommentsRepository;
+    private final CourtCaseRepository courtCaseRepository;
 
     @Autowired
     public HearingRepositoryFacade(OffenderRepository offenderRepository, OffenderRepositoryFacade offenderRepositoryFacade,
                                    HearingRepository hearingRepository, HearingEntityInitService hearingEntityInitService, DefendantRepository defendantRepository,
-                                   CaseCommentsRepository caseCommentsRepository) {
+                                   CaseCommentsRepository caseCommentsRepository, CourtCaseRepository courtCaseRepository) {
         this.offenderRepository = offenderRepository;
         this.offenderRepositoryFacade = offenderRepositoryFacade;
         this.hearingRepository = hearingRepository;
         this.hearingEntityInitService = hearingEntityInitService;
         this.defendantRepository = defendantRepository;
         this.caseCommentsRepository = caseCommentsRepository;
+        this.courtCaseRepository = courtCaseRepository;
     }
 
     public Optional<HearingEntity> findFirstByHearingId(String hearingId) {
@@ -115,6 +117,18 @@ public class HearingRepositoryFacade {
     }
 
     public HearingEntity save(HearingEntity hearingEntity) {
+
+        var courtCase = hearingEntity.getCourtCase();
+        if (courtCase != null) {
+            if (courtCase.getId() == null) {
+                courtCase = courtCaseRepository.save(courtCase);
+            } else {
+                final Long ccId = courtCase.getId();
+                courtCase = courtCaseRepository.findById(ccId)
+                    .orElseThrow(() -> new IllegalStateException("CourtCase not found: " + ccId));
+            }
+            hearingEntity.setCourtCase(courtCase);
+        }
 
         updateWithExistingOffenders(hearingEntity);
 

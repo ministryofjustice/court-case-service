@@ -125,7 +125,13 @@ public class HearingRepositoryFacade {
                 hd.setHearing(hearingEntity);
 
                 if (hd.getOffences() != null) {
-                    hd.getOffences().forEach(offence -> offence.setHearingDefendant(hd));
+                    hd.getOffences().forEach(offence -> {
+                        offence.setHearingDefendant(hd);
+
+                        if (offence.getJudicialResults() != null) {
+                            offence.getJudicialResults().forEach(jr -> jr.setOffence(offence));
+                        }
+                    });
                 }
             });
         }
@@ -133,16 +139,6 @@ public class HearingRepositoryFacade {
         if (hearingEntity.getHearingDays() != null) {
             hearingEntity.getHearingDays().forEach(day -> day.setHearing(hearingEntity));
         }
-
-        hearingEntity.getHearingDefendants().forEach(hd -> {
-            if (hd.getOffences() != null) {
-                hd.getOffences().forEach(o -> {
-                    if (o.getHearingDefendant() == null) {
-                        throw new IllegalStateException("Offence missing hearingDefendant backref");
-                    }
-                });
-            }
-        });
 
         return hearingRepository.save(hearingEntity);
     }

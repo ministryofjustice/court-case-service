@@ -48,8 +48,8 @@ public class HearingDefendantEntity extends BaseAuditedEntity implements Seriali
     private final Long id;
 
     @ToString.Exclude
-    @ManyToOne()
-    @JoinColumn(name = "FK_HEARING_ID", referencedColumnName = "id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "FK_HEARING_ID", referencedColumnName = "id", nullable = false)
     @Setter
     private HearingEntity hearing;
 

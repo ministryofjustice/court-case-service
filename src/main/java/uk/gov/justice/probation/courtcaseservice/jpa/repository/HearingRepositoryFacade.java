@@ -120,6 +120,13 @@ public class HearingRepositoryFacade {
 
         updatedWithExistingDefendantsFromDb(hearingEntity);
 
+        if (hearingEntity.getHearingDefendants() != null) {
+            hearingEntity.getHearingDefendants().forEach(hd -> hd.setHearing(hearingEntity));
+        }
+        if (hearingEntity.getHearingDays() != null) {
+            hearingEntity.getHearingDays().forEach(day -> day.setHearing(hearingEntity));
+        }
+
         return hearingRepository.save(hearingEntity);
     }
 

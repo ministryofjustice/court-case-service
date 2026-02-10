@@ -63,6 +63,8 @@ commands:
       - deploy:
           name: Deploy to << parameters.env >>
           command: |
+            cd ~/git/helm_deploy/court-case-service
+            helm dependency build .
             helm upgrade court-case-service ~/git/helm_deploy/court-case-service/. \
               --install --wait --reset-values --timeout 360s \
               --namespace=${KUBE_ENV_NAMESPACE} \

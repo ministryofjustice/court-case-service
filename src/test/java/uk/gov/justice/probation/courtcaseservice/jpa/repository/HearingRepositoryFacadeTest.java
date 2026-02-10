@@ -95,6 +95,8 @@ class HearingRepositoryFacadeTest {
     @Mock
     private CaseCommentsRepository caseCommentsRepository;
     @Mock
+    private CourtCaseRepository courtCaseRepository;
+    @Mock
     private HearingEntityInitService hearingEntityInitService;
 
     @Captor
@@ -240,6 +242,8 @@ class HearingRepositoryFacadeTest {
     @Test
     void whenSave_thenSaveHearing_Offender_AndDefendant() {
         when(offenderRepositoryFacade.upsertOffender(OFFENDER)).thenReturn(OFFENDER);
+        when(courtCaseRepository.save(any(CourtCaseEntity.class)))
+            .thenReturn(CourtCaseEntity.builder().build());
         when(hearingRepository.save(any(HearingEntity.class))).thenReturn(HearingEntity.builder().build());
         facade.save(HEARING);
 
@@ -286,6 +290,8 @@ class HearingRepositoryFacadeTest {
 
         when(defendantRepository.findFirstByDefendantId(DEFENDANT_ID)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
         when(defendantRepository.findFirstByDefendantId(DEFENDANT_ID_2)).thenReturn(Optional.of(DEFENDANT.withDefendantName("Charlemagne")));
+        when(courtCaseRepository.save(any(CourtCaseEntity.class)))
+            .thenReturn(CourtCaseEntity.builder().build());
         when(hearingRepository.save(any(HearingEntity.class))).thenReturn(HearingEntity.builder().build());
 
         facade.save(HEARING_WITH_MULTIPLE_DEFENDANTS);
@@ -310,6 +316,8 @@ class HearingRepositoryFacadeTest {
             .withPreSentenceActivity(true);
 
         when(offenderRepositoryFacade.upsertOffender(updatedOffender)).thenReturn(updatedOffender.withId(1L));
+        when(courtCaseRepository.save(any(CourtCaseEntity.class)))
+            .thenReturn(CourtCaseEntity.builder().build());
         when(hearingRepository.save(any(HearingEntity.class))).thenReturn(HearingEntity.builder().build());
 
         final var updatedHearing = HEARING.withHearingDefendants(List.of(HearingDefendantEntity.builder()
@@ -337,6 +345,8 @@ class HearingRepositoryFacadeTest {
         when(offenderRepositoryFacade.upsertOffender(OFFENDER)).thenReturn(OFFENDER);
         var existingDefendant = DEFENDANT.withId(10L).withDefendantName("Mr. Existing Name");
         when(defendantRepository.findFirstByDefendantId(DEFENDANT_ID)).thenReturn(Optional.ofNullable(existingDefendant));
+        when(courtCaseRepository.save(any(CourtCaseEntity.class)))
+            .thenReturn(CourtCaseEntity.builder().build());
         when(hearingRepository.save(any(HearingEntity.class))).thenReturn(HearingEntity.builder().build());
         facade.save(HEARING);
 

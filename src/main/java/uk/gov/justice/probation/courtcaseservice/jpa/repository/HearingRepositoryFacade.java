@@ -134,6 +134,16 @@ public class HearingRepositoryFacade {
             hearingEntity.getHearingDays().forEach(day -> day.setHearing(hearingEntity));
         }
 
+        hearingEntity.getHearingDefendants().forEach(hd -> {
+            if (hd.getOffences() != null) {
+                hd.getOffences().forEach(o -> {
+                    if (o.getHearingDefendant() == null) {
+                        throw new IllegalStateException("Offence missing hearingDefendant backref");
+                    }
+                });
+            }
+        });
+
         return hearingRepository.save(hearingEntity);
     }
 

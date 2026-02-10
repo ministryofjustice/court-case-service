@@ -29,8 +29,8 @@ public class OffenceEntity extends BaseAuditedEntity implements Serializable  {
     @JsonIgnore
     private final Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "FK_HEARING_DEFENDANT_ID", referencedColumnName = "id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "FK_HEARING_DEFENDANT_ID", referencedColumnName = "id", nullable = false)
     @Setter
     @JsonIgnore
     @ToString.Exclude

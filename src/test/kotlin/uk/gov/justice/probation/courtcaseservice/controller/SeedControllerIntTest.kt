@@ -17,7 +17,7 @@ import uk.gov.justice.probation.courtcaseservice.testUtil.TokenHelper
  * Stub integration test for /db-seed and assert a case is created.
  */
 @Sql(
-  scripts = ["classpath:sql/before-seedController.sql"],
+  scripts = ["classpath:sql/before-common.sql"],
   config = SqlConfig(transactionMode = TransactionMode.ISOLATED),
   executionPhase = ExecutionPhase.BEFORE_TEST_CLASS,
 )

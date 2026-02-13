@@ -1,11 +1,11 @@
 package uk.gov.justice.probation.courtcaseservice.database.seeders
 
+import jakarta.persistence.EntityManager
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import uk.gov.justice.probation.courtcaseservice.database.seeders.framework.ISeeder
 import uk.gov.justice.probation.courtcaseservice.database.seeders.framework.Seeder
-import jakarta.persistence.EntityManager
 
 class SeederTest {
   private class TestSeeder(
@@ -15,9 +15,15 @@ class SeederTest {
     val calls = mutableListOf<String>()
 
     override fun shouldClean(): Boolean = cleanFlag
-    override fun clean() { calls.add("clean") }
-    override fun beforeSeed() { calls.add("beforeSeed") }
-    override fun seed() { calls.add("seed") }
+    override fun clean() {
+      calls.add("clean")
+    }
+    override fun beforeSeed() {
+      calls.add("beforeSeed")
+    }
+    override fun seed() {
+      calls.add("seed")
+    }
   }
 
   @Test

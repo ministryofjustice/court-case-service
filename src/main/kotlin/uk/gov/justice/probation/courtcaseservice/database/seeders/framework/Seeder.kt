@@ -39,7 +39,7 @@ abstract class Seeder(
         "TRUNCATE courtcaseservicetest.hearing_defendant_aud CASCADE;\n" +
         "TRUNCATE courtcaseservicetest.defendant_aud CASCADE;\n" +
         "TRUNCATE courtcaseservicetest.hearing_aud CASCADE;\n" +
-        "TRUNCATE courtcaseservicetest.court_case_aud CASCADE;"
+        "TRUNCATE courtcaseservicetest.court_case_aud CASCADE;",
     ).executeUpdate()
   }
 }

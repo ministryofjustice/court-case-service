@@ -2,10 +2,31 @@ package uk.gov.justice.probation.courtcaseservice.database.seeders
 
 import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Component
-import uk.gov.justice.probation.courtcaseservice.database.factories.*
+import uk.gov.justice.probation.courtcaseservice.database.factories.CaseCommentsFactory
+import uk.gov.justice.probation.courtcaseservice.database.factories.CourtCaseFactory
+import uk.gov.justice.probation.courtcaseservice.database.factories.HearingDayFactory
+import uk.gov.justice.probation.courtcaseservice.database.factories.HearingDefendantFactory
+import uk.gov.justice.probation.courtcaseservice.database.factories.HearingFactory
+import uk.gov.justice.probation.courtcaseservice.database.factories.HearingNoteFactory
+import uk.gov.justice.probation.courtcaseservice.database.factories.HearingOutcomeFactory
+import uk.gov.justice.probation.courtcaseservice.database.factories.JudicialResultFactory
+import uk.gov.justice.probation.courtcaseservice.database.factories.OffenceFactory
+import uk.gov.justice.probation.courtcaseservice.database.factories.PleaFactory
+import uk.gov.justice.probation.courtcaseservice.database.factories.VerdictFactory
 import uk.gov.justice.probation.courtcaseservice.database.factories.framework.DefendantFactory
 import uk.gov.justice.probation.courtcaseservice.database.seeders.framework.Seeder
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.*
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.CaseCommentsRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDayRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendantRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingNoteRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.JudicialResultRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenceRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.PleaRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.VerdictRepository
 import java.time.LocalDate
 
 @Component
@@ -33,7 +54,7 @@ class CourtCaseSeeder(
   override fun shouldClean(): Boolean = shouldCleanDatabase
 
   override fun seed() {
-    //todo: set the days to cover, backwards, and forwards X working days.
+    // todo: set the days to cover, backwards, and forwards X working days.
     CourtCaseFactory(courtCaseRepository)
       .withCaseMarkers("High profile", "Sensitive")
       .count(count)

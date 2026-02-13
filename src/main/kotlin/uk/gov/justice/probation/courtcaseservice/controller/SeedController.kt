@@ -30,19 +30,22 @@ class SeedController(
     @RequestParam start: Optional<String>,
     @RequestParam days: Optional<Int>,
     @RequestParam court: Optional<String>,
+    @RequestParam clean: Optional<String>,
   ): SeedResponse {
     val c = if (count.isPresent) count.get().coerceIn(1, 500) else 1
     val d = if (days.isPresent) days.get().coerceIn(1, 30) else 1
     val s = if (start.isPresent) LocalDate.parse(start.get()) else LocalDate.now()
+    val courtCode = if (court.isPresent) court.get() else "B10JQ"
+    val shouldClean = clean.isPresent && clean.get().toBoolean()
 
     // todo: allow the seeder to be run from a scheduled job
-    courtCaseSeeder.options(count = c, start = s, days = d, court = court).run()
+    courtCaseSeeder.options(count = c, start = s, days = d, court = courtCode, shouldClean = shouldClean).run()
     log.info(
       "Seeded database via /db-seed with count={}, start={}, days={}, court={}",
       c,
       s,
       d,
-      court.orElse("unspecified"),
+      courtCode,
     )
 
     return SeedResponse(message = "Success.")

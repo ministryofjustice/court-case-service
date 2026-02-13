@@ -1,33 +1,12 @@
 package uk.gov.justice.probation.courtcaseservice.database.seeders
 
+import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Component
-import uk.gov.justice.probation.courtcaseservice.database.factories.CaseCommentsFactory
-import uk.gov.justice.probation.courtcaseservice.database.factories.CourtCaseFactory
-import uk.gov.justice.probation.courtcaseservice.database.factories.HearingDayFactory
-import uk.gov.justice.probation.courtcaseservice.database.factories.HearingDefendantFactory
-import uk.gov.justice.probation.courtcaseservice.database.factories.HearingFactory
-import uk.gov.justice.probation.courtcaseservice.database.factories.HearingNoteFactory
-import uk.gov.justice.probation.courtcaseservice.database.factories.HearingOutcomeFactory
-import uk.gov.justice.probation.courtcaseservice.database.factories.JudicialResultFactory
-import uk.gov.justice.probation.courtcaseservice.database.factories.OffenceFactory
-import uk.gov.justice.probation.courtcaseservice.database.factories.PleaFactory
-import uk.gov.justice.probation.courtcaseservice.database.factories.VerdictFactory
+import uk.gov.justice.probation.courtcaseservice.database.factories.*
 import uk.gov.justice.probation.courtcaseservice.database.factories.framework.DefendantFactory
 import uk.gov.justice.probation.courtcaseservice.database.seeders.framework.Seeder
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.CaseCommentsRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDayRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendantRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingNoteRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.JudicialResultRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenceRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.PleaRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.VerdictRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.*
 import java.time.LocalDate
-import java.util.Optional
 
 @Component
 class CourtCaseSeeder(
@@ -43,13 +22,18 @@ class CourtCaseSeeder(
   private val verdictRepository: VerdictRepository,
   private val offenceRepository: OffenceRepository,
   private val judicialResultRepository: JudicialResultRepository,
-) : Seeder {
+  entityManager: EntityManager,
+) : Seeder(entityManager) {
   private var count: Int = 1
   private var start: LocalDate = LocalDate.now()
   private var days: Int = 1
-  private var court: Optional<String> = Optional.empty()
+  private var court: String = "B10JQ"
+  private var shouldCleanDatabase: Boolean = false
 
-  override fun run() {
+  override fun shouldClean(): Boolean = shouldCleanDatabase
+
+  override fun seed() {
+    //todo: set the days to cover, backwards, and forwards X working days.
     CourtCaseFactory(courtCaseRepository)
       .withCaseMarkers("High profile", "Sensitive")
       .count(count)
@@ -58,7 +42,7 @@ class CourtCaseSeeder(
         val defendant = DefendantFactory(defendantRepository).count(1).first()
         case.addCaseDefendant(defendant)
         val hearing = HearingFactory(hearingRepository, case).count(1).first()
-        HearingDayFactory(headingDayRepository, hearing = hearing).count(1).forEach { day ->
+        HearingDayFactory(headingDayRepository, hearing = hearing, courtCode = court).count(1).forEach { day ->
           hearing.hearingDays.add(day)
         }
         val hearingDefendant = HearingDefendantFactory(hearingDefendantRepository, hearing, defendant).count(1).first()
@@ -71,16 +55,19 @@ class CourtCaseSeeder(
         JudicialResultFactory(judicialResultRepository, offence).count(1)
       }
   }
+
   fun options(
     count: Int = 1,
     start: LocalDate = LocalDate.now(),
     days: Int = 1,
-    court: Optional<String>,
+    court: String,
+    shouldClean: Boolean = false,
   ): CourtCaseSeeder {
     this.count = count
     this.start = start
     this.days = days
     this.court = court
+    this.shouldCleanDatabase = shouldClean
     return this
   }
 }

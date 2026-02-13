@@ -40,13 +40,7 @@ class SeedController(
 
     // todo: allow the seeder to be run from a scheduled job
     courtCaseSeeder.options(count = c, start = s, days = d, court = courtCode, shouldClean = shouldClean).run()
-    log.info(
-      "Seeded database via /db-seed with count={}, start={}, days={}, court={}",
-      c,
-      s,
-      d,
-      courtCode,
-    )
+    log.info("Seeded database with count={}, start={}, days={}, court={}", c, s, d, courtCode)
 
     return SeedResponse(message = "Success.")
   }

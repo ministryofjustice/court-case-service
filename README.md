@@ -150,3 +150,38 @@ docker run -p 8080:8080 --env SERVICE_HOST=http://host.docker.internal:8090 cour
 ```
 
 This will act as a simple reverse proxy with caching. It is configured to return an `X-Cache-Status` header which indicates whether the response was retrieved from the cache.
+
+---
+
+## Database Seeding
+
+To populate test data locally, enable `db-seed` (config key `db-seed.enabled=true`).
+
+Ensure your active Spring profile is one of `local`, `dev`, or `test` (guarded by `RouteAccessFilter`). 
+
+Then call the REST endpoint:
+
+```bash
+curl -X POST "http://localhost:8080/db-seed" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+  -d '' \
+  --get \
+  --data-urlencode "count=10" \
+  --data-urlencode "start=2026-02-13" \
+  --data-urlencode "days=5" \
+  --data-urlencode "court=B10JQ" \
+  --data-urlencode "clean=true"
+```
+
+Parameters (all optional unless noted):
+- `count` (int, default 1, min 1, max 500): number of cases to seed
+- `start` (ISO date, default today): anchor date for hearing generation
+- `days` (int, default 1, min 1, max 30): number of working days forward/backward
+- `court` (string, default `B10JQ`): court code applied to generated hearings
+- `clean` (boolean, default false): truncate seed-related tables before seeding
+
+Notes:
+- Endpoint is transactional; seeding and optional clean happen in one request.
+- Clean is guarded by the `clean` flag on the request; the tables truncated are defined in `Seeder.clean()`.
+- Only available when the feature flag and allowed profile conditions are met.

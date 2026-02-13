@@ -9,7 +9,7 @@ import java.time.LocalTime
 
 class HearingDayFactory(
   private val repository: HearingDayRepository,
-  private var day: LocalDate = LocalDate.now(),
+  private var date: LocalDate = LocalDate.now(),
   private var time: LocalTime = LocalTime.now(),
   private var courtCode: String = "B10JQ",
   private var courtRoom: String = "1",
@@ -20,7 +20,7 @@ class HearingDayFactory(
     newModel = {
       HearingDayEntity.builder()
         .id(null)
-        .day(day)
+        .day(date)
         .time(time)
         .courtCode(courtCode)
         .courtRoom(courtRoom)

@@ -27,6 +27,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.JudicialResultRe
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenceRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.PleaRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.VerdictRepository
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 @Component
@@ -50,11 +51,11 @@ class CourtCaseSeeder(
   private var days: Int = 1
   private var court: String = "B10JQ"
   private var shouldCleanDatabase: Boolean = false
+  private val hearingDates = getHearingDates(start, days)
 
   override fun shouldClean(): Boolean = shouldCleanDatabase
 
   override fun seed() {
-    // todo: set the days to cover, backwards, and forwards X working days.
     CourtCaseFactory(courtCaseRepository)
       .withCaseMarkers("High profile", "Sensitive")
       .count(count)
@@ -63,8 +64,15 @@ class CourtCaseSeeder(
         val defendant = DefendantFactory(defendantRepository).count(1).first()
         case.addCaseDefendant(defendant)
         val hearing = HearingFactory(hearingRepository, case).count(1).first()
-        HearingDayFactory(headingDayRepository, hearing = hearing, courtCode = court).count(1).forEach { day ->
-          hearing.hearingDays.add(day)
+        hearingDates.forEach { hearingDate ->
+          HearingDayFactory(
+            headingDayRepository,
+            hearing = hearing,
+            courtCode = court,
+            date = hearingDate,
+          ).count(1).forEach { day ->
+            hearing.hearingDays.add(day)
+          }
         }
         val hearingDefendant = HearingDefendantFactory(hearingDefendantRepository, hearing, defendant).count(1).first()
         val hearingNote = HearingNoteFactory(hearingNoteRepository, hearing).count(1).first()
@@ -90,5 +98,42 @@ class CourtCaseSeeder(
     this.court = court
     this.shouldCleanDatabase = shouldClean
     return this
+  }
+
+  // Creates a list of dates of working day starting from the current date,
+  // going back X number of working days, and then forward X number of working days.
+  private fun getHearingDates(start: LocalDate, days: Int): List<LocalDate> {
+    var dayFwd: LocalDate = LocalDate.parse(start.toString())
+    var dayRev: LocalDate = LocalDate.parse(start.toString())
+    var daysElapsed: Long = 0
+    var i: Long = 0
+    val dates: MutableList<LocalDate> = mutableListOf()
+    var direction = 1
+
+    while (daysElapsed < days) {
+      if (direction == 1) {
+        dayFwd.plusDays(i)
+        if (dayFwd.dayOfWeek !in setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)) {
+          daysElapsed += 1
+          dates.add(dayFwd)
+        }
+      }
+      if (daysElapsed == days.toLong()) {
+        daysElapsed += 0
+        i = 1
+        direction = -1
+      }
+      if (direction == -1) {
+        dayRev.minusDays(i)
+        if (dayRev.dayOfWeek !in setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)) {
+          daysElapsed += 1
+          dates.add(dayRev)
+        }
+      }
+      i += 1
+      dayFwd = LocalDate.now()
+      dayRev = LocalDate.now()
+    }
+    return dates
   }
 }

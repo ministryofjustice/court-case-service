@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.database.factories.framework
 
+import uk.gov.justice.probation.courtcaseservice.database.data.Faker
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType
@@ -12,56 +13,78 @@ import java.util.UUID
 
 class DefendantFactory(
   private val repository: DefendantRepository,
-  private var defendantId: String = UUID.randomUUID().toString(),
-  private var defendantName: String = "Mr Test Defendant",
-  private var personId: String = UUID.randomUUID().toString(),
+  private var defendantId: String? = null,
+  private var defendantName: String? = null,
+  private var personId: String? = null,
   private var type: DefendantType = DefendantType.PERSON,
-  private var sex: Sex = Sex.NOT_KNOWN,
-  private var name: NamePropertiesEntity = NamePropertiesEntity.builder().title("Mr").forename1("Test").surname("Defendant").build(),
+  private var sex: Sex? = null,
+  private var name: NamePropertiesEntity? = null,
   private var address: AddressPropertiesEntity? = null,
   private var phoneNumber: PhoneNumberEntity? = null,
-  private var dateOfBirth: LocalDate = LocalDate.parse("1970-01-01"),
+  private var dateOfBirth: LocalDate? = null,
 ) {
+  private val faker = Faker()
 
-  fun count(count: Int = 1): List<DefendantEntity> {
-    if (address == null) {
-      // todo: set the data dynamically using faker and random
-      this.address = AddressPropertiesEntity.builder()
-        .line1("1 High Street")
-        .line2("Flat 2")
-        .line3("Sheffield")
-        .postcode("S1 1AA")
+  fun count(count: Int = 1): List<DefendantEntity> = Factory(
+    newModel = {
+      val generatedName = name ?: randomName()
+      val generatedAddress = address ?: randomAddress()
+      val generatedPhone = phoneNumber ?: randomPhoneNumber()
+      val generatedDob = dateOfBirth ?: randomBirthday()
+      val generatedSex = sex ?: randomSex()
+      val generatedNationality = randomNationality()
+      val generatedNationality2 = randomSecondNationality()
+
+      DefendantEntity.builder()
+        .defendantId(defendantId ?: UUID.randomUUID().toString())
+        .defendantName(defendantName ?: faker.name().fullName())
+        .name(generatedName)
+        .type(type)
+        .sex(generatedSex)
+        .personId(personId ?: UUID.randomUUID().toString())
+        .dateOfBirth(generatedDob)
+        .address(generatedAddress)
+        .nationality1(generatedNationality)
+        .nationality2(generatedNationality2)
+        .phoneNumber(generatedPhone)
+        // Double-check the format specifications of these example identifiers:
+        // CRO = 12345ABCDEF, CRN = X123456, PCN = 2004/0046583U
+        .cro(faker.idNumber().valid())
+        .crn("X${faker.number().digits(6)}")
+        .pnc("${faker.number().numberBetween(1990, 2025)}/${faker.number().digits(7)}U")
         .build()
-    }
-    if (phoneNumber == null) {
-      this.phoneNumber = PhoneNumberEntity.builder()
-        .home("01234567890")
-        .work("01234567890")
-        .mobile("07123456789")
-        .build()
-    }
-    return Factory(
-      newModel = {
-        DefendantEntity.builder()
-          .defendantId(defendantId)
-          .defendantName(defendantName)
-          .name(name)
-          .type(type)
-          .sex(sex)
-          .personId(personId)
-          .dateOfBirth(dateOfBirth)
-          .address(address)
-          .nationality1("British")
-          .nationality2("Irish")
-          .phoneNumber(phoneNumber)
-          // TODO: Double check the format specifications:
-          .cro("12345ABCDEF")
-          .crn("X123456")
-          .pnc("2004/0046583U")
-          .build()
-      },
-      repository = repository,
-      count = count,
-    ).create()
+    },
+    repository = repository,
+    count = count,
+  ).create()
+
+  private fun randomName(): NamePropertiesEntity {
+    val fakerName = faker.name()
+    return NamePropertiesEntity.builder()
+      .title(fakerName.prefix())
+      .forename1(fakerName.firstName())
+      .surname(fakerName.lastName())
+      .build()
   }
+
+  private fun randomAddress(): AddressPropertiesEntity = AddressPropertiesEntity.builder()
+    .line1(faker.address().streetAddress())
+    .line2(faker.address().secondaryAddress())
+    .line3(faker.address().city())
+    .postcode(faker.address().postcode())
+    .build()
+
+  private fun randomPhoneNumber(): PhoneNumberEntity = PhoneNumberEntity.builder()
+    .home(faker.phoneNumber().phoneNumber())
+    .work(faker.phoneNumber().phoneNumber())
+    .mobile(faker.phoneNumber().cellPhone())
+    .build()
+
+  private fun randomBirthday(): LocalDate = LocalDate.parse(faker.timeAndDate().birthday(18, 85).toString())
+
+  private fun randomSex(): Sex = faker.options().option(Sex.MALE, Sex.FEMALE, Sex.NOT_SPECIFIED, Sex.NOT_KNOWN)
+
+  private fun randomNationality(): String = faker.options().option("British", "Irish", faker.nation().nationality())
+
+  private fun randomSecondNationality(): String = faker.options().option("", randomNationality())
 }

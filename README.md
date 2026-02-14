@@ -55,7 +55,7 @@ The service will still run in spite of this, and if need be this error can be mi
     }
 ```
 ## Prerequisites
-- Java 14
+- Java 21
 - Docker
 
 We also use:

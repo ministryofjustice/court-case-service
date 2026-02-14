@@ -193,6 +193,9 @@ dependencies {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-oauth2-client'
     }
 
+    // Used for testing to generate synthetic data for court cases and offenders
+    implementation "net.datafaker:datafaker:2.4.2"
+
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0")
     implementation('com.fasterxml.jackson.module:jackson-module-kotlin:2.19.0')
 

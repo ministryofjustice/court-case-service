@@ -100,40 +100,35 @@ class CourtCaseSeeder(
     return this
   }
 
-  // Creates a list of dates of working day starting from the current date,
-  // going back X number of working days, and then forward X number of working days.
-  private fun getHearingDates(start: LocalDate, days: Int): List<LocalDate> {
-    var dayFwd: LocalDate = LocalDate.parse(start.toString())
-    var dayRev: LocalDate = LocalDate.parse(start.toString())
-    var daysElapsed: Long = 0
-    var i: Long = 0
-    val dates: MutableList<LocalDate> = mutableListOf()
-    var direction = 1
+  /**
+   * Returns list of working-day dates around `start`:
+   * - the previous `days` working days (oldest -> newest),
+   * - then `start` if it is a working day,
+   * - then the next `days` working days (newest at end).
+   *
+   * Working days are Mon–Fri.
+   */
+  fun getHearingDates(start: LocalDate, days: Int): List<LocalDate> {
+    val weekend = setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
+    fun LocalDate.isWorkingDay() = dayOfWeek !in weekend
+    val center = if (start.isWorkingDay()) listOf(start) else emptyList()
 
-    while (daysElapsed < days) {
-      if (direction == 1) {
-        dayFwd.plusDays(i)
-        if (dayFwd.dayOfWeek !in setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)) {
-          daysElapsed += 1
-          dates.add(dayFwd)
-        }
+    val previous = buildList {
+      var d = start
+      while (size < days) {
+        d = d.minusDays(1)
+        if (d.isWorkingDay()) add(d)
       }
-      if (daysElapsed == days.toLong()) {
-        daysElapsed += 0
-        i = 1
-        direction = -1
+    }.asReversed() // oldest -> newest
+
+    val next = buildList {
+      var d = start
+      while (size < days) {
+        d = d.plusDays(1)
+        if (d.isWorkingDay()) add(d)
       }
-      if (direction == -1) {
-        dayRev.minusDays(i)
-        if (dayRev.dayOfWeek !in setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)) {
-          daysElapsed += 1
-          dates.add(dayRev)
-        }
-      }
-      i += 1
-      dayFwd = LocalDate.now()
-      dayRev = LocalDate.now()
     }
-    return dates
+
+    return previous + center + next
   }
 }

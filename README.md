@@ -26,7 +26,9 @@ This section contains the bare minimum you need to do to get the app running aga
 ## Running Service Locally
 Ensure all docker containers are up and running:
 
-`$ docker compose up -d`
+```bash
+docker compose up -d
+```
 
 Which should start the following containers: (verify with `$ docker ps` if necessary)
 - oauth

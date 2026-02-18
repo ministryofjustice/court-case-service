@@ -4,13 +4,14 @@ import uk.gov.justice.probation.courtcaseservice.database.factories.framework.Fa
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingNoteRepository
+import java.util.UUID
 
 class HearingNoteFactory(
   private val repository: HearingNoteRepository,
   val hearing: HearingEntity,
   val note: String = "An example note for the hearing",
   val authorName: String = "Test User",
-  val authorId: String = "user_id",
+  val authorId: String = UUID.randomUUID().toString(),
   val isDraft: Boolean = false,
   val isLegacy: Boolean = false,
 ) {

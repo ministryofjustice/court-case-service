@@ -23,7 +23,7 @@ abstract class Seeder(
     // truncate DB tables in the correct order to avoid FK issues
     // Omitting the schema prefix, so this will run against the current database (dev/test).
     entityManager.createNativeQuery(
-        "TRUNCATE offender CASCADE;\n" +
+      "TRUNCATE offender CASCADE;\n" +
         "TRUNCATE offender_match_group CASCADE;\n" +
         "TRUNCATE offender_match CASCADE;\n" +
         "TRUNCATE hearing_day CASCADE;\n" +

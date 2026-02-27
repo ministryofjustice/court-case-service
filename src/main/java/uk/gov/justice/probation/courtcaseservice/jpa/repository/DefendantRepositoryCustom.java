@@ -57,14 +57,12 @@ public class DefendantRepositoryCustom {
 
         String NAME_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where d1.tsv_name @@ to_tsquery('simple', :tsQueryString) " + DEFENDANT_SEARCH_GROUPING;
 
-        // Originally used the Postgres `similarity` function, but it was breaking in tests,
-        // this method provides more or less the same functionality and is more efficient.
-        String NAME_SEARCH_QUERY = DEFENDANT_SEARCH_SELECT + NAME_SEARCH_FROM +
-            " order by ts_rank(to_tsvector('simple', d.defendant_name), to_tsquery('simple', :tsQueryString)) desc ";
+        String NAME_SEARCH_QUERY = DEFENDANT_SEARCH_SELECT + NAME_SEARCH_FROM + " order by similarity (d.defendant_name, :name) desc ";
 
         var query = entityManager.createNativeQuery(NAME_SEARCH_QUERY, "search_defendants_result_mapping");
 
         query.setParameter("tsQueryString", tsQueryString);
+        query.setParameter("name", name);
 
         var countQuery = entityManager.createNativeQuery("select count(*) " + NAME_SEARCH_FROM );
 

@@ -48,3 +48,6 @@ azure:
 hmpps:
   sar:
     additionalAccessRole: 'PREPARE_A_CASE'
+
+db-seed:
+  enabled: true

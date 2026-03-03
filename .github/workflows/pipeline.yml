@@ -43,6 +43,7 @@ jobs:
     name: Validate the kotlin
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/gradle_verify.yml@v2 # WORKFLOW_VERSION
     with:
+      postgres-tag: '14.9'
       postgres-db: 'court_case_test'
     secrets: inherit
   build:

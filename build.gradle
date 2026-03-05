@@ -218,7 +218,7 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:4.1.1'
+    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:5.1.0'
     testImplementation("io.rest-assured:json-path:$restAssuredVersion")
     testImplementation("io.rest-assured:xml-path:$restAssuredVersion")
     testImplementation("io.rest-assured:rest-assured:$restAssuredVersion")

@@ -9,4 +9,7 @@ data class HearingOutcomeSarResponse(
   val state: String,
   val assignedTo: String?,
   val createdDate: LocalDateTime,
+  val createdBy: String? = "",
+  val lastUpdated: LocalDateTime? = null,
+  val lastUpdatedBy: String? = "",
 )

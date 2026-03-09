@@ -9,4 +9,6 @@ data class CaseCommentsSarResponse(
   val lastUpdated: LocalDateTime,
   val lastUpdatedBy: String,
   val caseNumber: String,
+  val createdBy: String? = null,
+  val caseId: String? = null,
 )

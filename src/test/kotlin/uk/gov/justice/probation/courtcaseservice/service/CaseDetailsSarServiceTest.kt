@@ -81,11 +81,29 @@ internal class CaseDetailsSarServiceTest {
     whenever(hearingDefendantRepository.findAllByDefendantCrn("X340906")).thenReturn(listOf(hearingDefendant))
     whenever(hearingNotesService.getHearingNotes(hearingDefendant, null, null)).thenReturn(
       listOf(
-        HearingNotesSarResponse("hearing note", "author"),
+        HearingNotesSarResponse(
+          "hearing note",
+          "author",
+          created = LocalDateTime.parse("2024-05-01T10:00"),
+          createdBy = "Note Author",
+          lastUpdated = LocalDateTime.parse("2024-05-01T11:00"),
+          lastUpdatedBy = "Note Updater",
+        ),
       ),
     )
     whenever(defendantCaseCommentsService.getCaseCommentsForDefendant(hearingDefendant, null, null)).thenReturn(
-      listOf(CaseCommentsSarResponse("Some comment", "Author", LocalDateTime.parse("2024-05-22T12:00"), LocalDateTime.parse("2024-05-22T12:30"), "TestUser", "")),
+      listOf(
+        CaseCommentsSarResponse(
+          comment = "Some comment",
+          authorSurname = "Author",
+          created = LocalDateTime.parse("2024-05-22T12:00"),
+          lastUpdated = LocalDateTime.parse("2024-05-22T12:30"),
+          lastUpdatedBy = "TestUser",
+          caseNumber = "222333",
+          createdBy = "TestUser",
+          caseId = "5678",
+        ),
+      ),
     )
     whenever(hearingOutcomesService.getHearingOutcomes(hearingDefendant, null, null)).thenReturn(
       listOf(
@@ -96,6 +114,9 @@ internal class CaseDetailsSarServiceTest {
           "In progress",
           "Doe",
           LocalDateTime.parse("2024-01-01T00:00"),
+          createdBy = "Outcome Creator",
+          lastUpdated = LocalDateTime.parse("2024-01-02T00:00"),
+          lastUpdatedBy = "Outcome Updater",
         ),
       ),
     )
@@ -103,16 +124,38 @@ internal class CaseDetailsSarServiceTest {
 
     assertThat(caseSARDetails).hasSize(1)
     assertThat(caseSARDetails[0].caseId).isEqualTo("5678")
+    assertThat(caseSARDetails[0].caseNo).isEqualTo("222333")
+    assertThat(caseSARDetails[0].created).isEqualTo(LocalDateTime.parse("2024-05-22T12:00"))
+    assertThat(caseSARDetails[0].lastUpdated).isEqualTo(LocalDateTime.parse("2024-05-22T12:30"))
+    assertThat(caseSARDetails[0].createdBy).isEqualTo("Test User")
+    assertThat(caseSARDetails[0].lastUpdatedBy).isEqualTo("Test User")
     assertThat(caseSARDetails[0].comments).hasSize(1)
     assertThat(caseSARDetails[0].comments[0].comment).isEqualTo("Some comment")
+    assertThat(caseSARDetails[0].comments[0].authorSurname).isEqualTo("Author")
+    assertThat(caseSARDetails[0].comments[0].created).isEqualTo(LocalDateTime.parse("2024-05-22T12:00"))
+    assertThat(caseSARDetails[0].comments[0].lastUpdated).isEqualTo(LocalDateTime.parse("2024-05-22T12:30"))
+    assertThat(caseSARDetails[0].comments[0].createdBy).isEqualTo("TestUser")
+    assertThat(caseSARDetails[0].comments[0].lastUpdatedBy).isEqualTo("TestUser")
+    assertThat(caseSARDetails[0].comments[0].caseNumber).isEqualTo("222333")
+    assertThat(caseSARDetails[0].comments[0].caseId).isEqualTo("5678")
     assertThat(caseSARDetails[0].hearings).hasSize(1)
     assertThat(caseSARDetails[0].hearings[0].hearingId).isEqualTo("uuid")
     assertThat(caseSARDetails[0].hearings[0].notes).hasSize(1)
     assertThat(caseSARDetails[0].hearings[0].notes[0].note).isEqualTo("hearing note")
     assertThat(caseSARDetails[0].hearings[0].notes[0].authorSurname).isEqualTo("author")
+    assertThat(caseSARDetails[0].hearings[0].notes[0].created).isEqualTo(LocalDateTime.parse("2024-05-01T10:00"))
+    assertThat(caseSARDetails[0].hearings[0].notes[0].lastUpdated).isEqualTo(LocalDateTime.parse("2024-05-01T11:00"))
+    assertThat(caseSARDetails[0].hearings[0].notes[0].createdBy).isEqualTo("Note Author")
+    assertThat(caseSARDetails[0].hearings[0].notes[0].lastUpdatedBy).isEqualTo("Note Updater")
     assertThat(caseSARDetails[0].hearings[0].outcomes).hasSize(1)
     assertThat(caseSARDetails[0].hearings[0].outcomes[0].outcomeType).isEqualTo("Adjourned")
     assertThat(caseSARDetails[0].hearings[0].outcomes[0].outcomeDate).isEqualTo(LocalDateTime.parse("2020-05-01T00:00"))
+    assertThat(caseSARDetails[0].hearings[0].outcomes[0].state).isEqualTo("In progress")
+    assertThat(caseSARDetails[0].hearings[0].outcomes[0].assignedTo).isEqualTo("Doe")
+    assertThat(caseSARDetails[0].hearings[0].outcomes[0].createdDate).isEqualTo(LocalDateTime.parse("2024-01-01T00:00"))
+    assertThat(caseSARDetails[0].hearings[0].outcomes[0].createdBy).isEqualTo("Outcome Creator")
+    assertThat(caseSARDetails[0].hearings[0].outcomes[0].lastUpdated).isEqualTo(LocalDateTime.parse("2024-01-02T00:00"))
+    assertThat(caseSARDetails[0].hearings[0].outcomes[0].lastUpdatedBy).isEqualTo("Outcome Updater")
   }
 
   @Test

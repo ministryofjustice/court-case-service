@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 
 data class CaseSarResponse(
   val caseId: String,
-  val caseNo: String? = "",
+  val caseNo: String = "",
   val created: LocalDateTime? = null,
   val lastUpdated: LocalDateTime? = null,
   val createdBy: String = "",

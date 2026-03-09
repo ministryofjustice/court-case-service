@@ -27,7 +27,7 @@ class DefendantCaseCommentsService(
         return@map null
       }
       CaseCommentsSarResponse(
-        caseId = caseComment.comment,
+        caseId = caseComment.caseId,
         caseNumber = getCaseNumber(caseComment),
         comment = caseComment.comment,
         authorSurname = getSurname(caseComment.author),

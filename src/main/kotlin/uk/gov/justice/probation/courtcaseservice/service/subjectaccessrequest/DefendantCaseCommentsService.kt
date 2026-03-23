@@ -14,12 +14,8 @@ import java.time.LocalDate
 class DefendantCaseCommentsService(
   private val caseCommentsService: CaseCommentsService,
   private val immutableCourtCaseService: ImmutableCourtCaseService,
-) : ISarFormatter {
-  fun getCaseCommentsForDefendant(
-    hearingDefendantEntity: HearingDefendantEntity,
-    fromDate: LocalDate?,
-    toDate: LocalDate?,
-  ): List<CaseCommentsSarResponse> = caseCommentsSarResponses(findDefendantsByCrnAndDateRange(hearingDefendantEntity.defendantId, fromDate, toDate))
+) {
+  fun getCaseCommentsForDefendant(hearingDefendantEntity: HearingDefendantEntity, fromDate: LocalDate?, toDate: LocalDate?): List<CaseCommentsSarResponse> = caseCommentsSarResponses(findDefendantsByCrnAndDateRange(hearingDefendantEntity.defendantId, fromDate, toDate))
 
   private fun caseCommentsSarResponses(caseCommentEntities: List<CaseCommentEntity>): List<CaseCommentsSarResponse> = caseCommentEntities
     .map { caseComment ->
@@ -27,16 +23,18 @@ class DefendantCaseCommentsService(
         return@map null
       }
       CaseCommentsSarResponse(
-        caseId = caseComment.caseId,
-        caseNumber = getCaseNumber(caseComment),
-        comment = caseComment.comment,
-        authorSurname = getSurname(caseComment.author),
-        created = caseComment.created,
-        createdBy = getCreatedBy(caseComment.createdBy),
-        lastUpdated = caseComment.lastUpdated,
-        lastUpdatedBy = getLastUpdatedBy(caseComment.lastUpdatedBy),
+        caseComment.comment,
+        getSurname(caseComment.author),
+        caseComment.created,
+        caseComment.lastUpdated,
+        getLastUpdatedBy(caseComment.lastUpdatedBy),
+        getCaseNumber(caseComment),
       )
     }.filterNotNull()
+
+  private fun getSurname(name: String): String = name.split(" ").last()
+
+  private fun getLastUpdatedBy(name: String): String = name.split("(").first()
 
   private fun getCaseNumber(caseComment: CaseCommentEntity): String {
     val findByCaseId: CourtCaseEntity? = immutableCourtCaseService.findByCaseId(caseComment.caseId).orElse(null)

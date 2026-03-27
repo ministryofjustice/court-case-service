@@ -1,1 +1,1 @@
-CREATE INDEX hearing_day_court_code_fk_hearing_id_idx ON courtcaseservice.hearing_day (court_code, fk_hearing_id);
+CREATE INDEX hearing_day_court_code_fk_hearing_id_idx ON hearing_day (court_code, fk_hearing_id);

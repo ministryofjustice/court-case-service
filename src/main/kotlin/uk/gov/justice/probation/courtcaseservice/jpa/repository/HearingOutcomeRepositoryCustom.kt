@@ -154,14 +154,14 @@ class HearingOutcomeRepositoryCustom(
     val query = """
             WITH filtered_day AS (
                 SELECT fk_hearing_id
-                FROM courtcaseservice.hearing_day
+                FROM hearing_day
                 WHERE court_code = :courtCode
                 GROUP BY fk_hearing_id
             )
-            SELECT ho.state, COUNT(ho.id)
-            FROM courtcaseservice.hearing_defendant hd
+            SELECT ho.state, COUNT(ho.id) as count
+            FROM hearing_defendant hd
             JOIN filtered_day fd ON fd.fk_hearing_id = hd.fk_hearing_id
-            JOIN courtcaseservice.hearing_outcome ho ON ho.fk_hearing_defendant_id = hd.id
+            JOIN hearing_outcome ho ON ho.fk_hearing_defendant_id = hd.id
             GROUP BY ho.state
     """.trimIndent()
 

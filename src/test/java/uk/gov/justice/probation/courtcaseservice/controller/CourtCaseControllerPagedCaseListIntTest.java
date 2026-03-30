@@ -73,7 +73,6 @@ public class CourtCaseControllerPagedCaseListIntTest extends BaseIntTest {
             .body("totalPages", equalTo(1))
             .body("totalElements", equalTo(5))
 
-            // Avoid relying on list ordering for these two cases - assert by hearingId instead
             .body("cases.find { it.hearingId == '4a7220b8-88bc-4417-8ee0-cfc318047b3c' }.courtCode", equalTo(courtCode))
             .body("cases.find { it.hearingId == '4a7220b8-88bc-4417-8ee0-cfc318047b3c' }.caseNo", equalTo("3306014916856309133"))
             .body("cases.find { it.hearingId == '4a7220b8-88bc-4417-8ee0-cfc318047b3c' }.source", equalTo("LIBRA"))

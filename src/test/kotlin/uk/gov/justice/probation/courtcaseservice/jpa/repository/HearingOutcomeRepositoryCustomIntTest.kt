@@ -86,6 +86,12 @@ internal class HearingOutcomeRepositoryCustomIntTest {
     assertThat(result.hearingOutcome).isEqualTo(hearingDefendantDTO.hearingOutcome)
   }
 
+  @Test
+  fun `get Dynamic Outcome Counts By State returns expected counts`() {
+    val counts = hearingOutcomeRepositoryCustom.getDynamicOutcomeCountsByState("B10JQ")
+    assertThat(counts).containsEntry("RESULTED", 2)
+  }
+
   @TestConfiguration
   internal class TestConfig {
     @Bean

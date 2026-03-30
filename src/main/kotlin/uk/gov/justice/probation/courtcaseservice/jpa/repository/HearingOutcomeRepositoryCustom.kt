@@ -152,15 +152,17 @@ class HearingOutcomeRepositoryCustom(
 
   fun getDynamicOutcomeCountsByState(courtCode: String): Map<String, Int> {
     val query = """
-          select
-            ho.state, count(ho.id) as count
-            from hearing h 
-            inner join hearing_defendant hd on hd.fk_hearing_id = h.id
-            inner join hearing_outcome ho on ho.fk_hearing_defendant_id = hd.id 
-            inner join
-                (select fk_hearing_id as hday_hearing_id, min(hearing_day) as hearing_day from hearing_day where hearing_day.court_code = :courtCode group by fk_hearing_id) hday2
-                on hday2.hday_hearing_id = h.id	    
-            group by ho.state
+            WITH filtered_day AS (
+                SELECT fk_hearing_id
+                FROM hearing_day
+                WHERE court_code = :courtCode
+                GROUP BY fk_hearing_id
+            )
+            SELECT ho.state, COUNT(ho.id) as count
+            FROM hearing_defendant hd
+            JOIN filtered_day fd ON fd.fk_hearing_id = hd.fk_hearing_id
+            JOIN hearing_outcome ho ON ho.fk_hearing_defendant_id = hd.id
+            GROUP BY ho.state
     """.trimIndent()
 
     val jpaQuery = entityManager.createNativeQuery(query, "hearing_outcomes_by_state_count_custom")

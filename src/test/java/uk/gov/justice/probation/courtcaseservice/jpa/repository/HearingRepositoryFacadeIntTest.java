@@ -53,6 +53,8 @@ public class HearingRepositoryFacadeIntTest extends BaseIntTest {
     @Autowired
     private CaseCommentsRepository caseCommentsRepository;
     @Autowired
+    private CourtCaseRepository courtCaseRepository;
+    @Autowired
     private HearingEntityInitService hearingEntityInitService;
 
     private HearingRepositoryFacade hearingRepositoryFacade;
@@ -61,7 +63,7 @@ public class HearingRepositoryFacadeIntTest extends BaseIntTest {
     public void setUp() {
         offenderRepositoryFacade = new OffenderRepositoryFacade(offenderRepository, offenderEntityInitService);
         hearingRepositoryFacade = new HearingRepositoryFacade(offenderRepository, offenderRepositoryFacade, hearingRepository,
-                hearingEntityInitService, defendantRepository, caseCommentsRepository);
+                hearingEntityInitService, defendantRepository, caseCommentsRepository, courtCaseRepository);
     }
 
     @Test

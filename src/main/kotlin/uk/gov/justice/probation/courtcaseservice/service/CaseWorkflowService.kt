@@ -37,15 +37,17 @@ class CaseWorkflowService(
   val cutOffTime: LocalTime = LocalTime.of(18, 30),
 ) {
 
-  fun addOrUpdateHearingOutcome(hearingId: String, defendantId: String, hearingOutcomeType: HearingOutcomeType) {
+  fun addOrUpdateHearingOutcome(hearingId: String, defendantId: String, hearingOutcomeType: HearingOutcomeType, userUuid: String, userId: String, userName: String, authSource: String) {
     hearingEntityInitService.findByHearingIdAndInitHearingDefendants(hearingId, defendantId).ifPresentOrElse(
       { hearingEntity: HearingEntity ->
         val hearingDefendant = hearingEntity.getHearingDefendant(defendantId)
           ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
         if (hearingDefendant.hearingOutcome == null) {
           hearingDefendant.addHearingOutcome(hearingOutcomeType)
+          telemetryService.trackCreateHearingOutcomeEvent(hearingEntity, defendantId, hearingOutcomeType, userUuid, userId, userName, authSource)
         } else {
           hearingDefendant.hearingOutcome.update(hearingOutcomeType)
+          telemetryService.trackUpdateHearingOutcomeEvent(hearingEntity, defendantId, hearingOutcomeType, userUuid, userId, userName, authSource)
         }
         hearingRepository.save(hearingEntity)
       },
@@ -83,6 +85,12 @@ class CaseWorkflowService(
         }
         if (hearingOutcome.state != HearingOutcomeItemState.IN_PROGRESS.name) {
           throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid state for outcome to be resulted.")
+        }
+        when (hearingOutcome.state) {
+          HearingOutcomeItemState.RESULTED.name ->
+            telemetryService.trackUpdateCaseResultEvent(hearingId, defendantId, userUuid, hearingOutcome.assignedToUuid, userId, userName, authSource)
+          else ->
+            telemetryService.trackCreateCaseResultEvent(hearingId, defendantId, userUuid, hearingOutcome.assignedToUuid, userId, userName, authSource)
         }
         hearingOutcome.state = HearingOutcomeItemState.RESULTED.name
         hearingOutcome.resultedDate = LocalDateTime.now()

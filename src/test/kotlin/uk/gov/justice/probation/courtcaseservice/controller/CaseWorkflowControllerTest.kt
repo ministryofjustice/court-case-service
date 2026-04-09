@@ -46,8 +46,8 @@ internal class CaseWorkflowControllerTest {
 
   @Test
   fun `should invoke service with hearing id and outcome type`() {
-    caseWorkflowController.addOrUpdateHearingOutcome(hearingId, defendantId, HearingOutcome(ADJOURNED))
-    verify(caseWorkflowService).addOrUpdateHearingOutcome(hearingId, defendantId, ADJOURNED)
+    caseWorkflowController.addOrUpdateHearingOutcome(hearingId, defendantId, HearingOutcome(ADJOURNED), principal)
+    verify(caseWorkflowService).addOrUpdateHearingOutcome(hearingId, defendantId, ADJOURNED, "test-uuid", "test-user-id", "test-user-name", "test-source")
   }
 
   @Test

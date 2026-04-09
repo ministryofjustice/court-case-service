@@ -294,6 +294,49 @@ public class TelemetryService {
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }
 
+    void trackCreateHearingOutcomeEvent(HearingEntity hearingEntity, String defendantId, HearingOutcomeType hearingOutcomeType, String userUuid, String userId, String userName, String authSource) {
+        trackHearingOutcomeEvent(TelemetryEventType.HEARING_OUTCOME_CREATED, hearingEntity, defendantId, hearingOutcomeType,  userUuid, userId, userName, authSource);
+    }
+
+    void trackUpdateHearingOutcomeEvent(HearingEntity hearingEntity, String defendantId, HearingOutcomeType hearingOutcomeType, String userUuid, String userId, String userName, String authSource) {
+        trackHearingOutcomeEvent(TelemetryEventType.HEARING_OUTCOME_UPDATED, hearingEntity, defendantId, hearingOutcomeType, userUuid, userId, userName, authSource);
+    }
+
+    private void trackHearingOutcomeEvent(TelemetryEventType eventType, HearingEntity hearingEntity, String defendantId, HearingOutcomeType hearingOutcomeType, String userUuid, String userId, String userName, String authSource) {
+        Map<String, String> properties = new HashMap<>();
+        properties.put("hearingId", hearingEntity.getHearingId());
+        properties.put("defendantId", defendantId);
+        properties.put("hearingOutcomeType", hearingOutcomeType.name());
+        properties.put("createdDateTime", hearingEntity.getCreated().toString());
+        properties.put("userUuid", String.valueOf(userUuid));
+        properties.put("userId", String.valueOf(userId));
+        properties.put("userName", String.valueOf(userName));
+        properties.put("authSource", String.valueOf(authSource));
+        addRequestProperties(properties);
+        telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
+    }
+
+    void trackCreateCaseResultEvent(String hearingId, String defendantId, String userUuid, String assignedUuid, String userId, String userName, String authSource) {
+        trackCaseResultEvent(TelemetryEventType.CASE_RESULT_CREATED, hearingId, defendantId, userUuid, assignedUuid, userId, userName, authSource);
+    }
+
+    void trackUpdateCaseResultEvent(String hearingId, String defendantId, String userUuid, String assignedUuid, String userId, String userName, String authSource) {
+        trackCaseResultEvent(TelemetryEventType.CASE_RESULT_UPDATED, hearingId,  defendantId, userUuid, assignedUuid, userId, userName, authSource);
+    }
+
+    private void trackCaseResultEvent(TelemetryEventType eventType, String hearingId, String defendantId, String userUuid, String assignedUuid, String userId, String userName, String authSource) {
+        Map<String, String> properties = new HashMap<>();
+        properties.put("hearingId", String.valueOf(hearingId));
+        properties.put("defendantId", String.valueOf(defendantId));
+        properties.put("userUuid", String.valueOf(userUuid));
+        properties.put("assignedUuid", String.valueOf(assignedUuid));
+        properties.put("userId", String.valueOf(userId));
+        properties.put("userName", String.valueOf(userName));
+        properties.put("authSource", String.valueOf(authSource));
+
+        telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
+    }
+
     private void addRequestProperties(Map<String, String> properties) {
         Optional.ofNullable(clientDetails.getUsername())
                 .ifPresent((caseNo) -> properties.put("username", caseNo));

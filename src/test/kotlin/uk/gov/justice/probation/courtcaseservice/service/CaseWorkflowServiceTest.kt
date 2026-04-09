@@ -88,7 +88,6 @@ internal class CaseWorkflowServiceTest {
 
   @Test
   fun `given hearing outcome and hearing id and defendant id exist should add hearing outcome`() {
-
     val assignedToUuid = "test-uuid"
     val userId = "test-user-id"
     val userName = "test-user-name"
@@ -103,13 +102,16 @@ internal class CaseWorkflowServiceTest {
     verify(telemetryService).trackCreateHearingOutcomeEvent(
       dbHearingEntity,
       defendantId,
-      HearingOutcomeType.REPORT_REQUESTED, assignedToUuid, userId, userName, authSource
+      HearingOutcomeType.REPORT_REQUESTED,
+      assignedToUuid,
+      userId,
+      userName,
+      authSource,
     )
   }
 
   @Test
   fun `given hearing outcome and hearing outcome exists, should update hearing outcome`() {
-
     val assignedToUuid = "test-uuid"
     val userId = "test-user-id"
     val userName = "test-user-name"
@@ -131,13 +133,12 @@ internal class CaseWorkflowServiceTest {
       assignedToUuid,
       userId,
       userName,
-      authSource
+      authSource,
     )
   }
 
   @Test
   fun `given hearing outcome and hearing id does not exist should throw entity not found exception`() {
-
     val assignedToUuid = "test-uuid"
     val userId = "test-user-id"
     val userName = "test-user-name"
@@ -155,7 +156,7 @@ internal class CaseWorkflowServiceTest {
           assignedToUuid,
           userId,
           userName,
-          authSource
+          authSource,
         )
       },
       "Hearing not found with id hearing-id-one",
@@ -540,7 +541,7 @@ internal class CaseWorkflowServiceTest {
           "test-user-uuid",
           "test-user-id",
           "test-user-name",
-          "test-auth-source"
+          "test-auth-source",
         )
       },
       "Defendant invalid-defendant-id not found on hearing with id $hearingId",

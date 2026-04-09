@@ -46,6 +46,10 @@ internal class CaseWorkflowControllerTest {
 
   @Test
   fun `should invoke service with hearing id and outcome type`() {
+    given(authenticationHelper.getAuthUserUuid(any(Principal::class.java))).willReturn("test-uuid")
+    given(authenticationHelper.getAuthUserName(any(Principal::class.java))).willReturn("test-user-name")
+    given(authenticationHelper.getAuthUserId(any(Principal::class.java))).willReturn("test-user-id")
+    given(authenticationHelper.getAuthSource(any(Principal::class.java))).willReturn("test-source")
     caseWorkflowController.addOrUpdateHearingOutcome(hearingId, defendantId, HearingOutcome(ADJOURNED), principal)
     verify(caseWorkflowService).addOrUpdateHearingOutcome(hearingId, defendantId, ADJOURNED, "test-uuid", "test-user-id", "test-user-name", "test-source")
   }

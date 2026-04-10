@@ -308,10 +308,10 @@ public class TelemetryService {
         properties.put("defendantId", defendantId);
         properties.put("hearingOutcomeType", hearingOutcomeType.name());
         properties.put("createdDateTime", hearingEntity.getCreated().toString());
-        properties.put("userUuid", String.valueOf(userUuid));
-        properties.put("userId", String.valueOf(userId));
-        properties.put("userName", String.valueOf(userName));
-        properties.put("authSource", String.valueOf(authSource));
+        properties.put("userUuid", userUuid);
+        properties.put("userId", userId);
+        properties.put("userName", userName);
+        properties.put("authSource", authSource);
         addRequestProperties(properties);
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }
@@ -326,13 +326,13 @@ public class TelemetryService {
 
     private void trackCaseResultEvent(TelemetryEventType eventType, String hearingId, String defendantId, String userUuid, String assignedUuid, String userId, String userName, String authSource) {
         Map<String, String> properties = new HashMap<>();
-        properties.put("hearingId", String.valueOf(hearingId));
-        properties.put("defendantId", String.valueOf(defendantId));
-        properties.put("userUuid", String.valueOf(userUuid));
-        properties.put("assignedUuid", String.valueOf(assignedUuid));
-        properties.put("userId", String.valueOf(userId));
-        properties.put("userName", String.valueOf(userName));
-        properties.put("authSource", String.valueOf(authSource));
+        properties.put("hearingId", hearingId);
+        properties.put("defendantId", defendantId);
+        properties.put("userUuid", userUuid);
+        properties.put("assignedUuid", assignedUuid);
+        properties.put("userId", userId);
+        properties.put("userName", userName);
+        properties.put("authSource", authSource);
 
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }

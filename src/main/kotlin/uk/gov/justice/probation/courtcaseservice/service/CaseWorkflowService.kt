@@ -86,11 +86,10 @@ class CaseWorkflowService(
         if (hearingOutcome.state != HearingOutcomeItemState.IN_PROGRESS.name) {
           throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid state for outcome to be resulted.")
         }
-        when (hearingOutcome.state) {
-          HearingOutcomeItemState.RESULTED.name ->
-            telemetryService.trackUpdateCaseResultEvent(hearingId, defendantId, userUuid, hearingOutcome.assignedToUuid, userId, userName, authSource)
-          else ->
-            telemetryService.trackCreateCaseResultEvent(hearingId, defendantId, userUuid, hearingOutcome.assignedToUuid, userId, userName, authSource)
+        if (HearingOutcomeItemState.RESULTED.name.equals(hearingOutcome.state, ignoreCase = true)) {
+          telemetryService.trackUpdateCaseResultEvent(hearingId, defendantId, userUuid, hearingOutcome.assignedToUuid, userId, userName, authSource)
+        } else {
+          telemetryService.trackCreateCaseResultEvent(hearingId, defendantId, userUuid, hearingOutcome.assignedToUuid, userId, userName, authSource)
         }
         hearingOutcome.state = HearingOutcomeItemState.RESULTED.name
         hearingOutcome.resultedDate = LocalDateTime.now()

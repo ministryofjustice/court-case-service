@@ -382,9 +382,157 @@ class TelemetryServiceTest {
         assertThat(metricsCaptor.getValue()).isEmpty();
     }
 
+    @Test
+    void givenUserDetailsAvailable_whenTrackCreateHearingOutcomeEvent_thenEmitTelemetryEventWithAllProperties() {
+        when(clientDetails.getUsername()).thenReturn("Arthur");
+        when(clientDetails.getClientId()).thenReturn("Van der Linde");
+
+        var hearingEntity = buildHearing();
+        var hearingOutcomeType = HearingOutcomeType.ADJOURNED;
+        var userUuid = "user-uuid";
+        var userId = "user-id";
+        var userName = "user-name";
+        var authSource = "auth-source";
+
+        service.trackCreateHearingOutcomeEvent(hearingEntity, DEFENDANT_ID, hearingOutcomeType, userUuid, userId, userName, authSource);
+
+        verify(telemetryClient).trackEvent(eq("PicHearingOutcomeCreated"), properties.capture(), metricsCaptor.capture());
+
+        var properties = this.properties.getValue();
+        assertThat(properties).hasSize(10);
+        assertThat(properties.get("hearingId")).isEqualTo(HEARING_ID);
+        assertThat(properties.get("defendantId")).isEqualTo(DEFENDANT_ID);
+        assertThat(properties.get("hearingOutcomeType")).isEqualTo("ADJOURNED");
+        assertThat(properties.get("createdDateTime")).isEqualTo("2023-01-01T12:00");
+        assertThat(properties.get("userUuid")).isEqualTo(userUuid);
+        assertThat(properties.get("userId")).isEqualTo(userId);
+        assertThat(properties.get("userName")).isEqualTo(userName);
+        assertThat(properties.get("authSource")).isEqualTo(authSource);
+        assertThat(properties.get("username")).isEqualTo("Arthur");
+        assertThat(properties.get("clientId")).isEqualTo("Van der Linde");
+
+        assertThat(metricsCaptor.getValue()).isEmpty();
+    }
+
+    @Test
+    void givenUserDetailsAvailable_whenTrackUpdateHearingOutcomeEvent_thenEmitTelemetryEventWithAllProperties() {
+        when(clientDetails.getUsername()).thenReturn("Arthur");
+        when(clientDetails.getClientId()).thenReturn("Van der Linde");
+
+        var hearingEntity = buildHearing();
+        var hearingOutcomeType = HearingOutcomeType.REPORT_REQUESTED;
+        var userUuid = "user-uuid";
+        var userId = "user-id";
+        var userName = "user-name";
+        var authSource = "auth-source";
+
+        service.trackUpdateHearingOutcomeEvent(hearingEntity, DEFENDANT_ID, hearingOutcomeType, userUuid, userId, userName, authSource);
+
+        verify(telemetryClient).trackEvent(eq("PicHearingOutcomeUpdated"), properties.capture(), metricsCaptor.capture());
+
+        var properties = this.properties.getValue();
+        assertThat(properties).hasSize(10);
+        assertThat(properties.get("hearingId")).isEqualTo(HEARING_ID);
+        assertThat(properties.get("defendantId")).isEqualTo(DEFENDANT_ID);
+        assertThat(properties.get("hearingOutcomeType")).isEqualTo("REPORT_REQUESTED");
+        assertThat(properties.get("createdDateTime")).isEqualTo("2023-01-01T12:00");
+        assertThat(properties.get("userUuid")).isEqualTo(userUuid);
+        assertThat(properties.get("userId")).isEqualTo(userId);
+        assertThat(properties.get("userName")).isEqualTo(userName);
+        assertThat(properties.get("authSource")).isEqualTo(authSource);
+        assertThat(properties.get("username")).isEqualTo("Arthur");
+        assertThat(properties.get("clientId")).isEqualTo("Van der Linde");
+
+        assertThat(metricsCaptor.getValue()).isEmpty();
+    }
+
+    @Test
+    void givenNullUserDetails_whenTrackCreateHearingOutcomeEvent_thenEmitTelemetryEventWithoutUserProperties() {
+        var hearingEntity = buildHearing();
+        var hearingOutcomeType = HearingOutcomeType.ADJOURNED;
+        var userUuid = "user-uuid";
+        var userId = "user-id";
+        var userName = "user-name";
+        var authSource = "auth-source";
+
+        service.trackCreateHearingOutcomeEvent(hearingEntity, DEFENDANT_ID, hearingOutcomeType, userUuid, userId, userName, authSource);
+
+        verify(telemetryClient).trackEvent(eq("PicHearingOutcomeCreated"), properties.capture(), metricsCaptor.capture());
+
+        var properties = this.properties.getValue();
+        assertThat(properties).hasSize(8);
+        assertThat(properties.get("hearingId")).isEqualTo(HEARING_ID);
+        assertThat(properties.get("defendantId")).isEqualTo(DEFENDANT_ID);
+        assertThat(properties.get("hearingOutcomeType")).isEqualTo("ADJOURNED");
+        assertThat(properties.get("createdDateTime")).isEqualTo("2023-01-01T12:00");
+        assertThat(properties.get("userUuid")).isEqualTo(userUuid);
+        assertThat(properties.get("userId")).isEqualTo(userId);
+        assertThat(properties.get("userName")).isEqualTo(userName);
+        assertThat(properties.get("authSource")).isEqualTo(authSource);
+        assertThat(properties).doesNotContainKey("username");
+        assertThat(properties).doesNotContainKey("clientId");
+
+        assertThat(metricsCaptor.getValue()).isEmpty();
+    }
+
+    @Test
+    void whenTrackCreateCaseResultEvent_thenEmitTelemetryEventWithAllProperties() {
+        var hearingId = "hearing-id";
+        var defendantId = "defendant-id";
+        var userUuid = "user-uuid";
+        var assignedUuid = "assigned-uuid";
+        var userId = "user-id";
+        var userName = "user-name";
+        var authSource = "auth-source";
+
+        service.trackCreateCaseResultEvent(hearingId, defendantId, userUuid, assignedUuid, userId, userName, authSource);
+
+        verify(telemetryClient).trackEvent(eq("PicCaseResultCreated"), properties.capture(), metricsCaptor.capture());
+
+        var properties = this.properties.getValue();
+        assertThat(properties).hasSize(7);
+        assertThat(properties.get("hearingId")).isEqualTo(hearingId);
+        assertThat(properties.get("defendantId")).isEqualTo(defendantId);
+        assertThat(properties.get("userUuid")).isEqualTo(userUuid);
+        assertThat(properties.get("assignedUuid")).isEqualTo(assignedUuid);
+        assertThat(properties.get("userId")).isEqualTo(userId);
+        assertThat(properties.get("userName")).isEqualTo(userName);
+        assertThat(properties.get("authSource")).isEqualTo(authSource);
+
+        assertThat(metricsCaptor.getValue()).isEmpty();
+    }
+
+    @Test
+    void whenTrackUpdateCaseResultEvent_thenEmitTelemetryEventWithAllProperties() {
+        var hearingId = "hearing-id";
+        var defendantId = "defendant-id";
+        var userUuid = "user-uuid";
+        var assignedUuid = "assigned-uuid";
+        var userId = "user-id";
+        var userName = "user-name";
+        var authSource = "auth-source";
+
+        service.trackUpdateCaseResultEvent(hearingId, defendantId, userUuid, assignedUuid, userId, userName, authSource);
+
+        verify(telemetryClient).trackEvent(eq("PicCaseResultUpdated"), properties.capture(), metricsCaptor.capture());
+
+        var properties = this.properties.getValue();
+        assertThat(properties).hasSize(7);
+        assertThat(properties.get("hearingId")).isEqualTo(hearingId);
+        assertThat(properties.get("defendantId")).isEqualTo(defendantId);
+        assertThat(properties.get("userUuid")).isEqualTo(userUuid);
+        assertThat(properties.get("assignedUuid")).isEqualTo(assignedUuid);
+        assertThat(properties.get("userId")).isEqualTo(userId);
+        assertThat(properties.get("userName")).isEqualTo(userName);
+        assertThat(properties.get("authSource")).isEqualTo(authSource);
+
+        assertThat(metricsCaptor.getValue()).isEmpty();
+    }
+
     private HearingEntity buildHearing() {
         return HearingEntity.builder()
                 .hearingId(HEARING_ID)
+                .created(LocalDateTime.of(2023, 1, 1, 12, 0))
                 .courtCase(CourtCaseEntity.builder()
                         .caseId(CASE_ID)
                         .sourceType(LIBRA)

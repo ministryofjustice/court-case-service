@@ -101,7 +101,6 @@ spring:
     schemas: ${database.schema.name}
     locations: classpath:db/migration/courtcase
     enabled: true
-    repair: true
 
 
   jpa:

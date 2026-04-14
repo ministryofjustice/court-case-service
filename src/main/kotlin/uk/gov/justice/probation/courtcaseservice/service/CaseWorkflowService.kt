@@ -37,7 +37,7 @@ class CaseWorkflowService(
   val cutOffTime: LocalTime = LocalTime.of(18, 30),
 ) {
 
-  fun addOrUpdateHearingOutcome(courtCode: String, hearingId: String, defendantId: String, hearingOutcomeType: HearingOutcomeType, userUuid: String, userId: String, userName: String, authSource: String) {
+  fun addOrUpdateHearingOutcome(courtCode: String?, hearingId: String, defendantId: String, hearingOutcomeType: HearingOutcomeType, userUuid: String, userId: String, userName: String, authSource: String) {
     hearingEntityInitService.findByHearingIdAndInitHearingDefendants(hearingId, defendantId).ifPresentOrElse(
       { hearingEntity: HearingEntity ->
         val hearingDefendant = hearingEntity.getHearingDefendant(defendantId)
@@ -72,7 +72,7 @@ class CaseWorkflowService(
     )
   }
 
-  fun resultHearingOutcome(courtCode: String, hearingId: String, defendantId: String, userUuid: String, userId: String, userName: String, authSource: String) {
+  fun resultHearingOutcome(courtCode: String?, hearingId: String, defendantId: String, userUuid: String, userId: String, userName: String, authSource: String) {
     hearingEntityInitService.findByHearingIdAndInitHearingDefendants(hearingId, defendantId).ifPresentOrElse(
       {
         val hearingDefendant = it.getHearingDefendant(defendantId)

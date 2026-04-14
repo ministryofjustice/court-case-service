@@ -35,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.COURT_CODE;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper.anOffender;
 import static uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.LIBRA;
 
@@ -394,12 +395,13 @@ class TelemetryServiceTest {
         var userName = "user-name";
         var authSource = "auth-source";
 
-        service.trackCreateHearingOutcomeEvent(hearingEntity, DEFENDANT_ID, hearingOutcomeType, userUuid, userId, userName, authSource);
+        service.trackCreateHearingOutcomeEvent(hearingEntity, COURT_CODE, DEFENDANT_ID, hearingOutcomeType, userUuid, userId, userName, authSource);
 
         verify(telemetryClient).trackEvent(eq("PicHearingOutcomeCreated"), properties.capture(), metricsCaptor.capture());
 
         var properties = this.properties.getValue();
-        assertThat(properties).hasSize(10);
+        assertThat(properties).hasSize(11);
+        assertThat(properties.get("courtCode")).isEqualTo(COURT_CODE);
         assertThat(properties.get("hearingId")).isEqualTo(HEARING_ID);
         assertThat(properties.get("defendantId")).isEqualTo(DEFENDANT_ID);
         assertThat(properties.get("hearingOutcomeType")).isEqualTo("ADJOURNED");
@@ -426,12 +428,13 @@ class TelemetryServiceTest {
         var userName = "user-name";
         var authSource = "auth-source";
 
-        service.trackUpdateHearingOutcomeEvent(hearingEntity, DEFENDANT_ID, hearingOutcomeType, userUuid, userId, userName, authSource);
+        service.trackUpdateHearingOutcomeEvent(hearingEntity, COURT_CODE, DEFENDANT_ID, hearingOutcomeType, userUuid, userId, userName, authSource);
 
         verify(telemetryClient).trackEvent(eq("PicHearingOutcomeUpdated"), properties.capture(), metricsCaptor.capture());
 
         var properties = this.properties.getValue();
-        assertThat(properties).hasSize(10);
+        assertThat(properties).hasSize(11);
+        assertThat(properties.get("courtCode")).isEqualTo(COURT_CODE);
         assertThat(properties.get("hearingId")).isEqualTo(HEARING_ID);
         assertThat(properties.get("defendantId")).isEqualTo(DEFENDANT_ID);
         assertThat(properties.get("hearingOutcomeType")).isEqualTo("REPORT_REQUESTED");
@@ -455,12 +458,13 @@ class TelemetryServiceTest {
         var userName = "user-name";
         var authSource = "auth-source";
 
-        service.trackCreateHearingOutcomeEvent(hearingEntity, DEFENDANT_ID, hearingOutcomeType, userUuid, userId, userName, authSource);
+        service.trackCreateHearingOutcomeEvent(hearingEntity, COURT_CODE, DEFENDANT_ID, hearingOutcomeType, userUuid, userId, userName, authSource);
 
         verify(telemetryClient).trackEvent(eq("PicHearingOutcomeCreated"), properties.capture(), metricsCaptor.capture());
 
         var properties = this.properties.getValue();
-        assertThat(properties).hasSize(8);
+        assertThat(properties).hasSize(9);
+        assertThat(properties.get("courtCode")).isEqualTo(COURT_CODE);
         assertThat(properties.get("hearingId")).isEqualTo(HEARING_ID);
         assertThat(properties.get("defendantId")).isEqualTo(DEFENDANT_ID);
         assertThat(properties.get("hearingOutcomeType")).isEqualTo("ADJOURNED");
@@ -477,6 +481,7 @@ class TelemetryServiceTest {
 
     @Test
     void whenTrackCreateCaseResultEvent_thenEmitTelemetryEventWithAllProperties() {
+        var courtCode = "court-code";
         var hearingId = "hearing-id";
         var defendantId = "defendant-id";
         var userUuid = "user-uuid";
@@ -485,39 +490,13 @@ class TelemetryServiceTest {
         var userName = "user-name";
         var authSource = "auth-source";
 
-        service.trackCreateCaseResultEvent(hearingId, defendantId, userUuid, assignedUuid, userId, userName, authSource);
+        service.trackCreateCaseResultEvent(courtCode, hearingId, defendantId, userUuid, assignedUuid, userId, userName, authSource);
 
         verify(telemetryClient).trackEvent(eq("PicCaseResultCreated"), properties.capture(), metricsCaptor.capture());
 
         var properties = this.properties.getValue();
-        assertThat(properties).hasSize(7);
-        assertThat(properties.get("hearingId")).isEqualTo(hearingId);
-        assertThat(properties.get("defendantId")).isEqualTo(defendantId);
-        assertThat(properties.get("userUuid")).isEqualTo(userUuid);
-        assertThat(properties.get("assignedUuid")).isEqualTo(assignedUuid);
-        assertThat(properties.get("userId")).isEqualTo(userId);
-        assertThat(properties.get("userName")).isEqualTo(userName);
-        assertThat(properties.get("authSource")).isEqualTo(authSource);
-
-        assertThat(metricsCaptor.getValue()).isEmpty();
-    }
-
-    @Test
-    void whenTrackUpdateCaseResultEvent_thenEmitTelemetryEventWithAllProperties() {
-        var hearingId = "hearing-id";
-        var defendantId = "defendant-id";
-        var userUuid = "user-uuid";
-        var assignedUuid = "assigned-uuid";
-        var userId = "user-id";
-        var userName = "user-name";
-        var authSource = "auth-source";
-
-        service.trackUpdateCaseResultEvent(hearingId, defendantId, userUuid, assignedUuid, userId, userName, authSource);
-
-        verify(telemetryClient).trackEvent(eq("PicCaseResultUpdated"), properties.capture(), metricsCaptor.capture());
-
-        var properties = this.properties.getValue();
-        assertThat(properties).hasSize(7);
+        assertThat(properties).hasSize(8);
+        assertThat(properties.get("courtCode")).isEqualTo(courtCode);
         assertThat(properties.get("hearingId")).isEqualTo(hearingId);
         assertThat(properties.get("defendantId")).isEqualTo(defendantId);
         assertThat(properties.get("userUuid")).isEqualTo(userUuid);

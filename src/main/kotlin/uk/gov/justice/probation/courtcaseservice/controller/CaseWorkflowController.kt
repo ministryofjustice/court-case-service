@@ -28,16 +28,16 @@ import java.security.Principal
 class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val authenticationHelper: AuthenticationHelper) {
 
   @Operation(description = "Adds or updates hearing outcome for a hearing.")
-  @PutMapping(value = ["/hearing/{hearingId}/defendant/{defendantId}/outcome"], produces = [APPLICATION_JSON_VALUE], consumes = [APPLICATION_JSON_VALUE])
-  fun addOrUpdateHearingOutcome(@PathVariable("hearingId") hearingId: String, @PathVariable("defendantId") defendantId: String, @RequestBody hearingOutcome: HearingOutcome, principal: Principal) = caseWorkflowService.addOrUpdateHearingOutcome(hearingId, defendantId, hearingOutcome.hearingOutcomeType, authenticationHelper.getAuthUserUuid(principal), authenticationHelper.getAuthUserId(principal), authenticationHelper.getAuthUserName(principal), authenticationHelper.getAuthSource(principal))
+  @PutMapping(value = ["/courts/{courtCode}/hearing/{hearingId}/defendant/{defendantId}/outcome"], produces = [APPLICATION_JSON_VALUE], consumes = [APPLICATION_JSON_VALUE])
+  fun addOrUpdateHearingOutcome(@PathVariable("courtCode") courtCode: String, @PathVariable("hearingId") hearingId: String, @PathVariable("defendantId") defendantId: String, @RequestBody hearingOutcome: HearingOutcome, principal: Principal) = caseWorkflowService.addOrUpdateHearingOutcome(courtCode, hearingId, defendantId, hearingOutcome.hearingOutcomeType, authenticationHelper.getAuthUserUuid(principal), authenticationHelper.getAuthUserId(principal), authenticationHelper.getAuthUserName(principal), authenticationHelper.getAuthSource(principal))
 
   @Operation(description = "Assigns a hearing outcome to the current user")
   @PutMapping(value = ["/hearing/{hearingId}/defendant/{defendantId}/outcome/assign"], produces = [APPLICATION_JSON_VALUE], consumes = [APPLICATION_JSON_VALUE])
   fun assignUserToHearingOutcome(@PathVariable("hearingId") hearingId: String, @PathVariable("defendantId") defendantId: String, @RequestBody hearingOutcomeAssignToRequest: HearingOutcomeAssignToRequest, principal: Principal) = caseWorkflowService.assignAndUpdateStateToInProgress(hearingId, defendantId, hearingOutcomeAssignToRequest.assignedTo, authenticationHelper.getAuthUserUuid(principal))
 
   @Operation(description = "Processes a hearing outcome for resulted for the given hearing Id.")
-  @PostMapping(value = ["/hearing/{hearingId}/defendant/{defendantId}/outcome/result"], produces = [APPLICATION_JSON_VALUE])
-  fun resultHearingOutcome(@PathVariable("hearingId") hearingId: String, @PathVariable("defendantId") defendantId: String, principal: Principal) = caseWorkflowService.resultHearingOutcome(hearingId, defendantId, authenticationHelper.getAuthUserUuid(principal), authenticationHelper.getAuthUserId(principal), authenticationHelper.getAuthUserName(principal), authenticationHelper.getAuthSource(principal))
+  @PostMapping(value = ["/courts/{courtCode}/hearing/{hearingId}/defendant/{defendantId}/outcome/result"], produces = [APPLICATION_JSON_VALUE])
+  fun resultHearingOutcome(@PathVariable("courtCode") courtCode: String, @PathVariable("hearingId") hearingId: String, @PathVariable("defendantId") defendantId: String, principal: Principal) = caseWorkflowService.resultHearingOutcome(courtCode, hearingId, defendantId, authenticationHelper.getAuthUserUuid(principal), authenticationHelper.getAuthUserId(principal), authenticationHelper.getAuthUserName(principal), authenticationHelper.getAuthSource(principal))
 
   @Operation(description = "Fetch hearing outcomes")
   @GetMapping(value = ["/courts/{courtCode}/hearing-outcomes"], produces = [APPLICATION_JSON_VALUE])

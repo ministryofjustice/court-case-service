@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSortFields.HEARING_DATE
+import uk.gov.justice.probation.courtcaseservice.controller.model.SortOrder
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO
 import java.time.LocalDate
 
@@ -55,16 +56,17 @@ class HearingOutcomeRepositoryCustom(
       }
     }
 
+    // include sort by id to ensure consistency throughout pagination
     val orderByBuilder = StringBuilder(" order by ")
     if (hearingOutcomeSearchRequest.sortBy == null) {
-      orderByBuilder.append("hday2.hearing_day")
+      orderByBuilder.append("hday2.hearing_day, hd.id")
     } else {
       // only sort by hearing date supported at the moment
       if (hearingOutcomeSearchRequest.sortBy == HEARING_DATE) {
-        orderByBuilder.append("hday2.hearing_day ")
-        hearingOutcomeSearchRequest.order?.let { orderByBuilder.append(it.name) }
+        val direction = hearingOutcomeSearchRequest.order?.name ?: SortOrder.ASC.name
+        orderByBuilder.append("hday2.hearing_day $direction, hd.id $direction")
       } else {
-        orderByBuilder.append("hday2.hearing_day")
+        orderByBuilder.append("hday2.hearing_day, hd.id")
       }
     }
 

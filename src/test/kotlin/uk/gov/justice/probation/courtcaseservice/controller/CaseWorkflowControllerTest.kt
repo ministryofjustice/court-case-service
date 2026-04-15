@@ -28,6 +28,7 @@ internal class CaseWorkflowControllerTest {
 
   companion object {
     val TEST_COURT_ROOMS = listOf("01", "Court room - 2")
+    private val courtCode = "test-court-code"
     private val hearingId = "test-hearing-id"
     private val defendantId = "test-defendant-id"
   }
@@ -50,8 +51,8 @@ internal class CaseWorkflowControllerTest {
     given(authenticationHelper.getAuthUserName(any(Principal::class.java))).willReturn("test-user-name")
     given(authenticationHelper.getAuthUserId(any(Principal::class.java))).willReturn("test-user-id")
     given(authenticationHelper.getAuthSource(any(Principal::class.java))).willReturn("test-source")
-    caseWorkflowController.addOrUpdateHearingOutcome(hearingId, defendantId, HearingOutcome(ADJOURNED), principal)
-    verify(caseWorkflowService).addOrUpdateHearingOutcome(hearingId, defendantId, ADJOURNED, "test-uuid", "test-user-id", "test-user-name", "test-source")
+    caseWorkflowController.addOrUpdateHearingOutcome(courtCode, hearingId, defendantId, HearingOutcome(ADJOURNED), principal)
+    verify(caseWorkflowService).addOrUpdateHearingOutcome(courtCode, hearingId, defendantId, ADJOURNED, "test-uuid", "test-user-id", "test-user-name", "test-source")
   }
 
   @Test
@@ -88,10 +89,10 @@ internal class CaseWorkflowControllerTest {
     given(authenticationHelper.getAuthSource(any(Principal::class.java))).willReturn("test-source")
 
     // When
-    caseWorkflowController.resultHearingOutcome(hearingId, defendantId, principal)
+    caseWorkflowController.resultHearingOutcome(courtCode, hearingId, defendantId, principal)
 
     // Then
-    verify(caseWorkflowService).resultHearingOutcome(hearingId, defendantId, "test-uuid", "test-user-id", "test-user-name", "test-source")
+    verify(caseWorkflowService).resultHearingOutcome(courtCode, hearingId, defendantId, "test-uuid", "test-user-id", "test-user-name", "test-source")
   }
 
   @Test

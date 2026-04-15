@@ -294,16 +294,17 @@ public class TelemetryService {
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }
 
-    void trackCreateHearingOutcomeEvent(HearingEntity hearingEntity, String defendantId, HearingOutcomeType hearingOutcomeType, String userUuid, String userId, String userName, String authSource) {
-        trackHearingOutcomeEvent(TelemetryEventType.HEARING_OUTCOME_CREATED, hearingEntity, defendantId, hearingOutcomeType,  userUuid, userId, userName, authSource);
+    void trackCreateHearingOutcomeEvent(HearingEntity hearingEntity, String courtCode, String defendantId, HearingOutcomeType hearingOutcomeType, String userUuid, String userId, String userName, String authSource) {
+        trackHearingOutcomeEvent(TelemetryEventType.HEARING_OUTCOME_CREATED, hearingEntity, courtCode, defendantId, hearingOutcomeType,  userUuid, userId, userName, authSource);
     }
 
-    void trackUpdateHearingOutcomeEvent(HearingEntity hearingEntity, String defendantId, HearingOutcomeType hearingOutcomeType, String userUuid, String userId, String userName, String authSource) {
-        trackHearingOutcomeEvent(TelemetryEventType.HEARING_OUTCOME_UPDATED, hearingEntity, defendantId, hearingOutcomeType, userUuid, userId, userName, authSource);
+    void trackUpdateHearingOutcomeEvent(HearingEntity hearingEntity, String courtCode, String defendantId, HearingOutcomeType hearingOutcomeType, String userUuid, String userId, String userName, String authSource) {
+        trackHearingOutcomeEvent(TelemetryEventType.HEARING_OUTCOME_UPDATED, hearingEntity, courtCode, defendantId, hearingOutcomeType, userUuid, userId, userName, authSource);
     }
 
-    private void trackHearingOutcomeEvent(TelemetryEventType eventType, HearingEntity hearingEntity, String defendantId, HearingOutcomeType hearingOutcomeType, String userUuid, String userId, String userName, String authSource) {
+    private void trackHearingOutcomeEvent(TelemetryEventType eventType, HearingEntity hearingEntity, String courtCode, String defendantId, HearingOutcomeType hearingOutcomeType, String userUuid, String userId, String userName, String authSource) {
         Map<String, String> properties = new HashMap<>();
+        properties.put("courtCode", courtCode);
         properties.put("hearingId", hearingEntity.getHearingId());
         properties.put("defendantId", defendantId);
         properties.put("hearingOutcomeType", hearingOutcomeType.name());
@@ -316,16 +317,13 @@ public class TelemetryService {
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
     }
 
-    void trackCreateCaseResultEvent(String hearingId, String defendantId, String userUuid, String assignedUuid, String userId, String userName, String authSource) {
-        trackCaseResultEvent(TelemetryEventType.CASE_RESULT_CREATED, hearingId, defendantId, userUuid, assignedUuid, userId, userName, authSource);
+    void trackCreateCaseResultEvent(String courtCode, String hearingId, String defendantId, String userUuid, String assignedUuid, String userId, String userName, String authSource) {
+        trackCaseResultEvent(TelemetryEventType.CASE_RESULT_CREATED, courtCode, hearingId, defendantId, userUuid, assignedUuid, userId, userName, authSource);
     }
 
-    void trackUpdateCaseResultEvent(String hearingId, String defendantId, String userUuid, String assignedUuid, String userId, String userName, String authSource) {
-        trackCaseResultEvent(TelemetryEventType.CASE_RESULT_UPDATED, hearingId,  defendantId, userUuid, assignedUuid, userId, userName, authSource);
-    }
-
-    private void trackCaseResultEvent(TelemetryEventType eventType, String hearingId, String defendantId, String userUuid, String assignedUuid, String userId, String userName, String authSource) {
+    private void trackCaseResultEvent(TelemetryEventType eventType, String courtCode, String hearingId, String defendantId, String userUuid, String assignedUuid, String userId, String userName, String authSource) {
         Map<String, String> properties = new HashMap<>();
+        properties.put("courtCode", courtCode);
         properties.put("hearingId", hearingId);
         properties.put("defendantId", defendantId);
         properties.put("userUuid", userUuid);

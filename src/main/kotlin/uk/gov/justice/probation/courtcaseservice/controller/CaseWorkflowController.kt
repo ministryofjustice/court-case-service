@@ -29,7 +29,11 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
 
   @Operation(description = "Adds or updates hearing outcome for a hearing.")
   @PutMapping(value = ["/hearing/{hearingId}/defendant/{defendantId}/outcome"], produces = [APPLICATION_JSON_VALUE], consumes = [APPLICATION_JSON_VALUE])
-  fun addOrUpdateHearingOutcome(@PathVariable("hearingId") hearingId: String, @PathVariable("defendantId") defendantId: String, @RequestBody hearingOutcome: HearingOutcome, principal: Principal) = caseWorkflowService.addOrUpdateHearingOutcome(hearingId, defendantId, hearingOutcome.hearingOutcomeType, authenticationHelper.getAuthUserUuid(principal), authenticationHelper.getAuthUserId(principal), authenticationHelper.getAuthUserName(principal), authenticationHelper.getAuthSource(principal))
+  fun addOrUpdateHearingOutcome(@PathVariable("hearingId") hearingId: String, @PathVariable("defendantId") defendantId: String, @RequestBody hearingOutcome: HearingOutcome, principal: Principal) = caseWorkflowService.addOrUpdateHearingOutcome(null, hearingId, defendantId, hearingOutcome.hearingOutcomeType, authenticationHelper.getAuthUserUuid(principal), authenticationHelper.getAuthUserId(principal), authenticationHelper.getAuthUserName(principal), authenticationHelper.getAuthSource(principal))
+
+  @Operation(description = "V2 - Adds or updates hearing outcome for a hearing.")
+  @PutMapping(value = ["/courts/{courtCode}/hearing/{hearingId}/defendant/{defendantId}/outcome"], produces = [APPLICATION_JSON_VALUE], consumes = [APPLICATION_JSON_VALUE])
+  fun addOrUpdateHearingOutcome(@PathVariable("courtCode") courtCode: String, @PathVariable("hearingId") hearingId: String, @PathVariable("defendantId") defendantId: String, @RequestBody hearingOutcome: HearingOutcome, principal: Principal) = caseWorkflowService.addOrUpdateHearingOutcome(courtCode, hearingId, defendantId, hearingOutcome.hearingOutcomeType, authenticationHelper.getAuthUserUuid(principal), authenticationHelper.getAuthUserId(principal), authenticationHelper.getAuthUserName(principal), authenticationHelper.getAuthSource(principal))
 
   @Operation(description = "Assigns a hearing outcome to the current user")
   @PutMapping(value = ["/hearing/{hearingId}/defendant/{defendantId}/outcome/assign"], produces = [APPLICATION_JSON_VALUE], consumes = [APPLICATION_JSON_VALUE])
@@ -37,7 +41,11 @@ class CaseWorkflowController(val caseWorkflowService: CaseWorkflowService, val a
 
   @Operation(description = "Processes a hearing outcome for resulted for the given hearing Id.")
   @PostMapping(value = ["/hearing/{hearingId}/defendant/{defendantId}/outcome/result"], produces = [APPLICATION_JSON_VALUE])
-  fun resultHearingOutcome(@PathVariable("hearingId") hearingId: String, @PathVariable("defendantId") defendantId: String, principal: Principal) = caseWorkflowService.resultHearingOutcome(hearingId, defendantId, authenticationHelper.getAuthUserUuid(principal), authenticationHelper.getAuthUserId(principal), authenticationHelper.getAuthUserName(principal), authenticationHelper.getAuthSource(principal))
+  fun resultHearingOutcome(@PathVariable("hearingId") hearingId: String, @PathVariable("defendantId") defendantId: String, principal: Principal) = caseWorkflowService.resultHearingOutcome(null, hearingId, defendantId, authenticationHelper.getAuthUserUuid(principal), authenticationHelper.getAuthUserId(principal), authenticationHelper.getAuthUserName(principal), authenticationHelper.getAuthSource(principal))
+
+  @Operation(description = "V2 - Processes a hearing outcome for resulted for the given hearing Id.")
+  @PostMapping(value = ["/courts/{courtCode}/hearing/{hearingId}/defendant/{defendantId}/outcome/result"], produces = [APPLICATION_JSON_VALUE])
+  fun resultHearingOutcome(@PathVariable("courtCode") courtCode: String, @PathVariable("hearingId") hearingId: String, @PathVariable("defendantId") defendantId: String, principal: Principal) = caseWorkflowService.resultHearingOutcome(courtCode, hearingId, defendantId, authenticationHelper.getAuthUserUuid(principal), authenticationHelper.getAuthUserId(principal), authenticationHelper.getAuthUserName(principal), authenticationHelper.getAuthSource(principal))
 
   @Operation(description = "Fetch hearing outcomes")
   @GetMapping(value = ["/courts/{courtCode}/hearing-outcomes"], produces = [APPLICATION_JSON_VALUE])

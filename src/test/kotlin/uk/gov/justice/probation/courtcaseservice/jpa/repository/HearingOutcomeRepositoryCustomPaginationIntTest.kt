@@ -33,6 +33,7 @@ internal class HearingOutcomeRepositoryCustomPaginationIntTest {
     assertThat(result.content.size).isEqualTo(2)
     assertThat(result.content[0].first.hearing.hearingId).isEqualTo("2aa6f5e0-f842-4939-bc6a-01346abc09e7")
     assertThat(result.content[1].first.hearing.hearingId).isEqualTo("1f93aa0a-7e46-4885-a1cb-f25a4be33a00")
+    assertThat(result.content[0].first.id).isLessThan(result.content[1].first.id)
     assertThat(result.size).isEqualTo(2)
     assertThat(result.totalPages).isEqualTo(2)
     assertThat(result.totalElements).isEqualTo(3)

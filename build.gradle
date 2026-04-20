@@ -1,5 +1,15 @@
 import java.time.LocalDate
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.flywaydb:flyway-database-postgresql:11.9.1"
+        classpath "org.postgresql:postgresql:42.7.7"
+    }
+}
+
 plugins {
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.github.ben-manes.versions' version '0.52.0'
@@ -93,6 +103,14 @@ tasks.register('initialiseDatabase', Test) {
     }
 }
 
+flyway {
+    url = System.getenv("POSTGRES_URL") ?: 'jdbc:postgresql://localhost:5432/postgres'
+    user = System.getenv("POSTGRES_USER") ?: 'root'
+    password = System.getenv("POSTGRES_PASSWORD") ?: 'dev'
+    cleanDisabled = !project.findProperty('flyway.clean.enabled') ?: System.getenv("FLYWAY_CLEAN_DISABLED")?.toBoolean()
+    schemas = ['courtcaseservice', 'courtcaseservicetest']
+}
+
 tasks.register('pactVerifyPublish', Test) {
     useJUnitPlatform()
     filter {
@@ -174,6 +192,9 @@ dependencies {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-oauth2-client'
     }
+
+    // Used for testing to generate synthetic data for court cases and offenders
+    implementation "net.datafaker:datafaker:2.4.2"
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0")
     implementation('com.fasterxml.jackson.module:jackson-module-kotlin:2.19.0')

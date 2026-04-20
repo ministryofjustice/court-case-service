@@ -4,14 +4,9 @@
 
 ### Service to access court cases imported from HMCTS Libra and Common Platform court lists
 
-For more informations, check our [Runbook](https://dsdmoj.atlassian.net/wiki/spaces/NDSS/pages/2548662614/Prepare+a+Case+for+Sentence+RUNBOOK)
+For more information, check our [Runbook](https://dsdmoj.atlassian.net/wiki/spaces/NDSS/pages/2548662614/Prepare+a+Case+for+Sentence+RUNBOOK)
 
 ---
-
-## Testing
-
-`docker compose up localstack-court-case-service postgres`
-`./gradlew check`
 
 ## Quick Start
 This section contains the bare minimum you need to do to get the app running against the dev environment assuming you've got all the necessary dependencies (see Prerequisites section).
@@ -31,7 +26,9 @@ This section contains the bare minimum you need to do to get the app running aga
 ## Running Service Locally
 Ensure all docker containers are up and running:
 
-`$ docker compose up -d`
+```bash
+docker compose up -d
+```
 
 Which should start the following containers: (verify with `$ docker ps` if necessary)
 - oauth
@@ -42,7 +39,7 @@ Which should start the following containers: (verify with `$ docker ps` if neces
 
 Start the service ensuring the local spring boot profile is set:
 
-`$ ./gradlew bootRun --args='--spring.profiles.active=local'`
+`./gradlew bootRun --args='--spring.profiles.active=local'`
 
 NB. All REST endpoints are secured with the role `PREPARE_A_CASE` which will need to be passed to the endpoint as an OAuth token.
 
@@ -60,7 +57,7 @@ The service will still run in spite of this, and if need be this error can be mi
     }
 ```
 ## Prerequisites
-- Java 14
+- Java 21
 - Docker
 
 We also use:
@@ -83,14 +80,39 @@ The following actuator endpoints are available:
 ---
 
 ## Database
-The application uses a Postgres 11 database which is managed by Flyway. The SpringBoot integration will automatically manage migrations, so we only need these commands for debugging or if the local database has become corrupted. 
+The application uses a Postgres 14 database which is managed by Flyway. The SpringBoot integration will automatically manage migrations, so we only need these commands for debugging or if the local database has become corrupted. 
 * *Clean schema* : `$ ./gradlew flywayClean`
 * *View details and status information about all migrations* : `$ ./gradlew flywayInfo`
+
+> **Flyway clean safety**
+>
+> - `flywayClean` is guarded by the `cleanDisabled` flag in `build.gradle`. The task is disabled by default; you must explicitly set `FLYWAY_CLEAN_DISABLED=false` (or pass a `-P` flag that flips the property) before Gradle will execute it. This mirrors the application’s production stance where schema wipes are never allowed.
+> - Only run this command against disposable local databases. **Never execute `./gradlew flywayClean` in production or any shared environment**; it drops every schema listed in the Flyway configuration and will permanently delete live data.
 
 ### Known issues
 `ERROR: function uuid_generate_v4() does not exist`
 
 Run `DROP EXTENSION "uuid-ossp";` in the database. This shouldn't happen given the `IF NOT EXISTS` in the offending migration but unfortunately there appears to be an issue with Postgres. It seems to be that this issue only occurs when the migration is run against a Postgres instance against which the migration has already been run at some point in the past - even if the schema has been subsequently deleted or if it was created under a different schema name. This is why it only usually happens in transient environments where schemas are often set up and torn down without destroying the underlying database.
+
+---
+
+## Testing
+
+`docker compose up localstack-court-case-service postgres`
+`./gradlew check`
+
+### Linting
+Run ktlint checks or auto-format:
+```
+./gradlew ktlintCheck
+./gradlew ktlintFormat
+```
+
+### Git hooks
+Install repo-provided hooks (includes pre-commit) into `.git/hooks`:
+```
+./gradlew installGitHooks
+```
 
 ---
 
@@ -130,3 +152,38 @@ docker run -p 8080:8080 --env SERVICE_HOST=http://host.docker.internal:8090 cour
 ```
 
 This will act as a simple reverse proxy with caching. It is configured to return an `X-Cache-Status` header which indicates whether the response was retrieved from the cache.
+
+---
+
+## Database Seeding
+
+To populate test data locally, enable `db-seed` (config key `db-seed.enabled=true`).
+
+Ensure your active Spring profile is one of `local`, `dev`, or `test` (guarded by `RouteAccessFilter`). 
+
+Then call the REST endpoint:
+
+```bash
+curl -X POST "http://localhost:8080/db-seed" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+  -d '' \
+  --get \
+  --data-urlencode "count=10" \
+  --data-urlencode "start=2026-02-13" \
+  --data-urlencode "days=5" \
+  --data-urlencode "court=B10JQ" \
+  --data-urlencode "clean=true"
+```
+
+Parameters (all optional unless noted):
+- `count` (int, default 1, min 1, max 500): number of cases to seed
+- `start` (ISO date, default today): anchor date for hearing generation
+- `days` (int, default 1, min 1, max 30): number of working days forward/backward
+- `court` (string, default `B10JQ`): court code applied to generated hearings
+- `clean` (boolean, default false): truncate seed-related tables before seeding
+
+Notes:
+- Endpoint is transactional; seeding and optional clean happen in one request.
+- Clean is guarded by the `clean` flag on the request; the tables truncated are defined in `Seeder.clean()`.
+- Only available when the feature flag and allowed profile conditions are met.

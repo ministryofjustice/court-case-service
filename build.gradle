@@ -41,6 +41,15 @@ configurations {
         extendsFrom annotationProcessor
     }
     agentDeps.transitive = false
+
+    all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'org.springdoc') {
+                details.useVersion '2.8.9'
+                details.because 'Force consistent SpringDoc version across all transitive dependencies'
+            }
+        }
+    }
 }
 
 jar {
@@ -165,11 +174,11 @@ dependencies {
         because("SNYK scan reported secuity vulnerability in the bundled net.minidev:json-smart:2.4.8")
     }
 
-    // Open API Documentation
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
+    // Open API Documentation - version managed by hmpps-kotlin-spring-boot-starter
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
 
     // SAR (Subject Access Request) endpoint is included here
-    implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.5") {
+    implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.8.0") {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-oauth2-resource-server'
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-oauth2-client'

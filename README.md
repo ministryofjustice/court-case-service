@@ -44,7 +44,13 @@ Start the service ensuring the local spring boot profile is set:
 
 `$ ./gradlew bootRun --args='--spring.profiles.active=local'`
 
+Check the API is running by going to: [http://localhost:8080/health](http://localhost:8080/health)
+
 NB. All REST endpoints are secured with the role `PREPARE_A_CASE` which will need to be passed to the endpoint as an OAuth token.
+
+> Note: the offender-assessment-api is prone to crashing, we have not noticed any impact when running locally so far 
+> besides the health check endpoint reporting DOWN. It can be maunally restarted using docker. 
+> There is a ticket to investigate this further - PIC-5124.
 
 ### Running on Apple Silicon 
 When running the service through IntelliJ you may see the following error in the server logs:
@@ -59,6 +65,23 @@ The service will still run in spite of this, and if need be this error can be mi
         }
     }
 ```
+### Testing The API Locally
+We use [Bruno](https://www.usebruno.com/), for testing APIs because all data is stored locally, 
+which is the key security advantage over solutions like Postman.
+
+To make a call to our endpoints, you will first need to generate a JWT token. 
+To do this, call the development oauth endpoint, passing the service ID and secret as Basic Auth credentials:
+
+`https://sign-in-dev.hmpps.service.justice.gov.uk/auth/oauth/token?grant_type=client_credentials`
+
+This will return a JWT token which can be used to make calls to our endpoints.
+Copy the token and add it to Bruno as a Bearer token in the Authorization header.
+You can now call our endpoints, for example:
+`GET http://localhost:8080/courts`
+Further API documentation can be found at: `http://localhost:8080/swagger-ui/index.html`
+
+> Note: If you are missing the service ID and secret, please ask a maintainer for these.
+
 ## Prerequisites
 - Java 14
 - Docker

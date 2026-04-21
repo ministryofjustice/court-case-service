@@ -71,7 +71,7 @@ public class TokenHelper {
                 .claim(USER_ID_CLAIM_NAME, "test-user-id")
                 .claim(USER_NAME_CLAIM_NAME, "test-user-name")
                 .claim(AUTH_SOURCE_CLAIM_NAME, "test-auth-source")
-                .expirationTime(new Date(new Date().getTime() + 60 * 1000))
+                .expirationTime(new Date(new Date().getTime() + 3600 * 1000))
                 .build();
 
         SignedJWT signedJWT = new SignedJWT(

@@ -227,3 +227,9 @@ hmpps.sqs:
 hearing_outcomes:
   resultedCasesDaysOffset: 14
   move_un_resulted_to_outcomes_cutoff_time: "18:30"
+
+hmpps:
+  sar:
+    template:
+      path: /templates/template_court-case-service.mustache
+      enabled: true

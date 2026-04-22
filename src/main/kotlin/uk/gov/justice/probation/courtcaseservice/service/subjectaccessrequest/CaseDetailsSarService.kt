@@ -9,6 +9,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.HearingSarResp
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendantRepository
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Service
 class CaseDetailsSarService(
@@ -16,7 +17,7 @@ class CaseDetailsSarService(
   val hearingOutcomesService: HearingOutcomesService,
   val hearingNotesService: HearingNotesSarService,
   val defendantCaseCommentsService: DefendantCaseCommentsService,
-) {
+) : ISarFormatter {
 
   fun getCaseSARDetails(crn: String, fromDate: LocalDate?, toDate: LocalDate?): List<CaseSarResponse> {
     val cases: MutableList<CaseSarResponse> = mutableListOf()
@@ -33,7 +34,16 @@ class CaseDetailsSarService(
       if (existingCase != null) {
         hearingSarResponse.let { existingCase.hearings.add(it) }
       } else {
-        val case = getCaseSarResponse(courtCase.caseId, caseComments, hearingSarResponse)
+        val case = getCaseSarResponse(
+          urn = courtCase.caseId,
+          caseNo = courtCase.caseNo ?: "",
+          created = courtCase.created,
+          lastUpdated = courtCase.lastUpdated ?: courtCase.created,
+          createdBy = getCreatedBy(courtCase.createdBy),
+          lastUpdatedBy = getLastUpdatedBy(courtCase.lastUpdatedBy),
+          caseComments = caseComments,
+          hearing = hearingSarResponse,
+        )
         case.let { cases.add(it) }
       }
     }
@@ -44,11 +54,38 @@ class CaseDetailsSarService(
 
   private fun getHearingDefendants(crn: String): List<HearingDefendantEntity> = hearingDefendantRepository.findAllByDefendantCrn(crn)
 
-  private fun getCaseSarResponse(urn: String, caseComments: List<CaseCommentsSarResponse>, hearing: HearingSarResponse?): CaseSarResponse {
+  private fun getCaseSarResponse(
+    urn: String,
+    caseNo: String,
+    created: LocalDateTime?,
+    lastUpdated: LocalDateTime?,
+    createdBy: String?,
+    lastUpdatedBy: String?,
+    caseComments: List<CaseCommentsSarResponse>,
+    hearing: HearingSarResponse?,
+  ): CaseSarResponse {
     if (hearing == null) {
-      return CaseSarResponse(urn, mutableListOf(), caseComments)
+      return CaseSarResponse(
+        caseId = urn,
+        caseNo,
+        created,
+        lastUpdated,
+        createdBy = createdBy ?: "",
+        lastUpdatedBy = lastUpdatedBy ?: "",
+        hearings = mutableListOf(),
+        comments = caseComments,
+      )
     }
-    return CaseSarResponse(urn, mutableListOf(hearing), caseComments)
+    return CaseSarResponse(
+      caseId = urn,
+      caseNo,
+      created,
+      lastUpdated = lastUpdated ?: created,
+      createdBy = createdBy ?: "",
+      lastUpdatedBy = lastUpdatedBy ?: "",
+      hearings = mutableListOf(hearing),
+      comments = caseComments,
+    )
   }
 
   private fun hearingSarResponse(

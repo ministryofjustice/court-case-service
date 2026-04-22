@@ -15,14 +15,14 @@ import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2A
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
-import org.springframework.security.oauth2.client.endpoint.DefaultClientCredentialsTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.RestClientClientCredentialsTokenResponseClient;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 import uk.gov.justice.probation.courtcaseservice.restclient.RestClientHelper;
-import uk.gov.justice.probation.courtcaseservice.security.UserAwareEntityConverter;
 
 import java.util.concurrent.TimeUnit;
 
@@ -90,16 +90,17 @@ public class WebClientFactory {
 
     private OAuth2AuthorizedClientManager buildAuthorizedClientManager(@Nullable String username) {
 
-        var converter = new UserAwareEntityConverter();
-
-        var clientCredentialsTokenResponseClient = new DefaultClientCredentialsTokenResponseClient();
-        clientCredentialsTokenResponseClient.setRequestEntityConverter(
-                grantRequest -> converter.enhanceWithUsername(grantRequest, username)
-        );
+        var tokenResponseClient = new RestClientClientCredentialsTokenResponseClient();
+        tokenResponseClient.addParametersConverter(grantRequest -> {
+            if (username == null) return new LinkedMultiValueMap<>();
+            var params = new LinkedMultiValueMap<String, String>();
+            params.add("username", username);
+            return params;
+        });
 
         var authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
                 .clientCredentials(builder ->
-                        builder.accessTokenResponseClient(clientCredentialsTokenResponseClient))
+                        builder.accessTokenResponseClient(tokenResponseClient))
                 .build();
 
         var authorizedClientManager = new AuthorizedClientServiceOAuth2AuthorizedClientManager(

@@ -12,29 +12,30 @@ import java.time.LocalTime
 import java.time.chrono.ChronoLocalDateTime
 
 @Service
-class HearingOutcomesService {
-  fun getHearingOutcomes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?, toDate: LocalDate?): List<HearingOutcomeSarResponse> = hearingOutcomesResponse(hearingDefendant, fromDate, toDate)
+class HearingOutcomesService : ISarFormatter {
+  fun getHearingOutcomes(
+    hearingDefendant: HearingDefendantEntity,
+    fromDate: LocalDate?,
+    toDate: LocalDate?,
+  ): List<HearingOutcomeSarResponse> = hearingOutcomesResponse(hearingDefendant, fromDate, toDate)
 
   private fun hearingOutcomesResponse(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?, toDate: LocalDate?): List<HearingOutcomeSarResponse> {
     filteredHearingOutcomesByDate(hearingDefendant, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))?.let {
       return listOf(
         HearingOutcomeSarResponse(
-          HearingOutcomeType.valueOf(it.outcomeType).value,
-          it.outcomeDate,
-          it.resultedDate,
-          HearingOutcomeItemState.valueOf(it.state).value,
-          getAssignedTo(it),
-          it.created,
+          outcomeType = HearingOutcomeType.valueOf(it.outcomeType).value,
+          outcomeDate = it.outcomeDate,
+          resultedDate = it.resultedDate,
+          state = HearingOutcomeItemState.valueOf(it.state).value,
+          assignedTo = getAssignedTo(it.assignedTo),
+          createdDate = it.created,
+          createdBy = getCreatedBy(it.createdBy),
+          lastUpdated = it.lastUpdated,
+          lastUpdatedBy = getLastUpdatedBy(it.lastUpdatedBy),
         ),
       )
     }
     return emptyList()
-  }
-
-  private fun getAssignedTo(hearingOutcome: HearingOutcomeEntity): String = if (hearingOutcome.assignedTo != null) {
-    hearingOutcome.assignedTo.split(" ").last()
-  } else {
-    ""
   }
 
   private fun filteredHearingOutcomesByDate(hearingDefendant: HearingDefendantEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): HearingOutcomeEntity? {

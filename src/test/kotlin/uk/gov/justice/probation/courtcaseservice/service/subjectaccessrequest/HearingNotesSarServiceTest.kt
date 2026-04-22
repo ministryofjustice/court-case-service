@@ -35,6 +35,7 @@ internal class HearingNotesSarServiceTest {
 
   @Test
   fun `given hearing defendant it should return hearing notes`() {
+    val hearingNoteCreatedDate = LocalDateTime.parse("2024-01-01T00:00")
     val dbHearingDefendantEntity = EntityHelper.aHearingDefendantEntityWithCrn(1, CRN)
 
     BDDMockito.given(hearingNoteRepository.findByHearingDefendantId(dbHearingDefendantEntity.id))
@@ -48,10 +49,18 @@ internal class HearingNotesSarServiceTest {
           HearingNotesSarResponse(
             "This is a fake note",
             authorSurname,
+            hearingNoteCreatedDate,
+            "",
+            null,
+            "",
           ),
           HearingNotesSarResponse(
             "This is a fake note",
             "Taker",
+            hearingNoteCreatedDate,
+            "",
+            null,
+            "",
           ),
         ),
       )
@@ -76,10 +85,18 @@ internal class HearingNotesSarServiceTest {
           HearingNotesSarResponse(
             "This is a fake note",
             "Taker",
+            hearingNoteCreatedDate,
+            "",
+            null,
+            "",
           ),
           HearingNotesSarResponse(
             "This is a fake note",
             "Taker",
+            hearingNoteCreatedDate,
+            "",
+            null,
+            "",
           ),
         ),
       )
@@ -103,10 +120,18 @@ internal class HearingNotesSarServiceTest {
           HearingNotesSarResponse(
             "This is a fake note",
             "Taker",
+            hearingNoteCreatedDate,
+            "",
+            null,
+            "",
           ),
           HearingNotesSarResponse(
             "This is a fake note",
             "Taker",
+            hearingNoteCreatedDate,
+            "",
+            null,
+            "",
           ),
         ),
       )
@@ -130,10 +155,18 @@ internal class HearingNotesSarServiceTest {
           HearingNotesSarResponse(
             "This is a fake note",
             "Taker",
+            hearingNoteCreatedDate,
+            "",
+            null,
+            "",
           ),
           HearingNotesSarResponse(
             "This is a fake note",
             "Taker",
+            hearingNoteCreatedDate,
+            "",
+            null,
+            "",
           ),
         ),
       )
@@ -158,10 +191,18 @@ internal class HearingNotesSarServiceTest {
           HearingNotesSarResponse(
             "This is a fake note",
             "Taker",
+            hearingNoteCreatedDate,
+            "",
+            null,
+            "",
           ),
           HearingNotesSarResponse(
             "This is a fake note",
             "Taker",
+            hearingNoteCreatedDate,
+            "",
+            null,
+            "",
           ),
         ),
       )

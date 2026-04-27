@@ -28,6 +28,9 @@ public class SeriousFurtherOffenceFlagResolver {
         var allOffenceCodes = results.stream()
             .flatMap(pair -> offenceCodesForDefendant(pair.getFirst(), pair.getSecond().getDefendantId()).stream())
             .collect(Collectors.toSet());
+        if (allOffenceCodes.isEmpty()) {
+            return Map.of();
+        }
         return offenceSfoMappingRepository.findByOffenceCodeIn(allOffenceCodes).stream()
             .collect(Collectors.toMap(OffenceSfoMappingEntity::getOffenceCode, OffenceSfoMappingEntity::isSfoFlag));
     }

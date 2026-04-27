@@ -13,7 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "offence_sfo_mapping", schema = "courtcaseservice")
+@Table(name = "offence_sfo_mapping")
 @Getter
 @Builder
 @AllArgsConstructor

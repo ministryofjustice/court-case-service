@@ -22,14 +22,16 @@ import java.util.stream.Collectors;
 public class CaseSearchService {
 
     private final CaseSearchResultItemMapper caseSearchResultItemMapper;
-
     private final DefendantRepositoryCustom defendantRepositoryCustom;
+    private final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
 
     @Autowired
     public CaseSearchService(final DefendantRepositoryCustom defendantRepositoryCustom,
-                             final CaseSearchResultItemMapper caseSearchResultItemMapper) {
+                             final CaseSearchResultItemMapper caseSearchResultItemMapper,
+                             final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver) {
         this.caseSearchResultItemMapper = caseSearchResultItemMapper;
         this.defendantRepositoryCustom = defendantRepositoryCustom;
+        this.seriousFurtherOffenceFlagResolver = seriousFurtherOffenceFlagResolver;
     }
 
     @Transactional(readOnly = true)
@@ -53,11 +55,13 @@ public class CaseSearchService {
                 .build();
         }
 
+        var seriousFurtherOffenceFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(resultsPage.getContent());
+
         return CaseSearchResult.builder()
             .totalElements(resultsPage.getTotalElements())
             .totalPages(resultsPage.getTotalPages())
             .items(resultsPage.getContent().stream()
-            .map(courtCaseEntity -> caseSearchResultItemMapper.from(courtCaseEntity.getFirst(), courtCaseEntity.getSecond()))
-            .collect(Collectors.toList())).build();
+                .map(pair -> caseSearchResultItemMapper.from(pair.getFirst(), pair.getSecond(), seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(pair.getFirst(), pair.getSecond(), seriousFurtherOffenceFlagsByCode)))
+                .collect(Collectors.toList())).build();
     }
 }

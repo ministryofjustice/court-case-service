@@ -22,14 +22,16 @@ import java.util.stream.Collectors;
 public class CaseSearchService {
 
     private final CaseSearchResultItemMapper caseSearchResultItemMapper;
-
     private final DefendantRepositoryCustom defendantRepositoryCustom;
+    private final SfoFlagResolver sfoFlagResolver;
 
     @Autowired
     public CaseSearchService(final DefendantRepositoryCustom defendantRepositoryCustom,
-                             final CaseSearchResultItemMapper caseSearchResultItemMapper) {
+                             final CaseSearchResultItemMapper caseSearchResultItemMapper,
+                             final SfoFlagResolver sfoFlagResolver) {
         this.caseSearchResultItemMapper = caseSearchResultItemMapper;
         this.defendantRepositoryCustom = defendantRepositoryCustom;
+        this.sfoFlagResolver = sfoFlagResolver;
     }
 
     @Transactional(readOnly = true)
@@ -53,11 +55,13 @@ public class CaseSearchService {
                 .build();
         }
 
+        var sfoFlagsByCode = sfoFlagResolver.buildSfoFlagsMap(resultsPage.getContent());
+
         return CaseSearchResult.builder()
             .totalElements(resultsPage.getTotalElements())
             .totalPages(resultsPage.getTotalPages())
             .items(resultsPage.getContent().stream()
-            .map(courtCaseEntity -> caseSearchResultItemMapper.from(courtCaseEntity.getFirst(), courtCaseEntity.getSecond()))
-            .collect(Collectors.toList())).build();
+                .map(pair -> caseSearchResultItemMapper.from(pair.getFirst(), pair.getSecond(), sfoFlagResolver.resolveSfoFlag(pair.getFirst(), pair.getSecond(), sfoFlagsByCode)))
+                .collect(Collectors.toList())).build();
     }
 }

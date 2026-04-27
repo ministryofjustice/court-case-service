@@ -5,5 +5,3 @@ CREATE TABLE offence_sfo_mapping (
 
                                                       CONSTRAINT offence_sfo_mapping_pkey PRIMARY KEY (id)
 );
-
-CREATE INDEX idx_offence_sfo_mapping_offence_code ON offence_sfo_mapping (offence_code);

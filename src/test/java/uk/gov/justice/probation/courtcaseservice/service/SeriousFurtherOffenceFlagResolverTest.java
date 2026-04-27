@@ -24,16 +24,16 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class SfoFlagResolverTest {
+class SeriousFurtherOffenceFlagResolverTest {
 
     @Mock
     private OffenceSfoMappingRepository offenceSfoMappingRepository;
 
     @InjectMocks
-    private SfoFlagResolver sfoFlagResolver;
+    private SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
 
     @Test
-    void buildSfoFlagsMap_queriesRepositoryWithAllOffenceCodesAcrossAllResults() {
+    void buildSeriousFurtherOffenceFlagsMap_queriesRepositoryWithAllOffenceCodesAcrossAllResults() {
         HearingEntity hearing1 = hearingWithOffenceCodes("defendant-id-1", "AB001");
         HearingEntity hearing2 = hearingWithOffenceCodes("defendant-id-2", "CD002");
         CourtCaseEntity case1 = hearing1.getCourtCase();
@@ -45,7 +45,7 @@ class SfoFlagResolverTest {
                 OffenceSfoMappingEntity.builder().offenceCode("CD002").sfoFlag(false).build()
             ));
 
-        var result = sfoFlagResolver.buildSfoFlagsMap(List.of(
+        var result = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(List.of(
             new Pair<>(case1, hearing1.getHearingDefendants().get(0).getDefendant()),
             new Pair<>(case2, hearing2.getHearingDefendants().get(0).getDefendant())
         ));
@@ -55,12 +55,12 @@ class SfoFlagResolverTest {
     }
 
     @Test
-    void buildSfoFlagsMap_returnsEmptyMapWhenNoOffenceCodes() {
+    void buildSeriousFurtherOffenceFlagsMap_returnsEmptyMapWhenNoOffenceCodes() {
         HearingEntity hearing = hearingWithNoOffenceCodes("defendant-id-1");
 
         given(offenceSfoMappingRepository.findByOffenceCodeIn(anyCollection())).willReturn(List.of());
 
-        var result = sfoFlagResolver.buildSfoFlagsMap(List.of(
+        var result = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(List.of(
             new Pair<>(hearing.getCourtCase(), hearing.getHearingDefendants().get(0).getDefendant())
         ));
 
@@ -72,7 +72,7 @@ class SfoFlagResolverTest {
         HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
         DefendantEntity defendant = confirmedDefendant(hearing);
 
-        var result = sfoFlagResolver.resolveSfoFlag(hearing.getCourtCase(), defendant, Map.of("AB001", true));
+        var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), defendant, Map.of("AB001", true));
 
         assertThat(result).isTrue();
     }
@@ -82,7 +82,7 @@ class SfoFlagResolverTest {
         HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
         DefendantEntity defendant = confirmedDefendant(hearing);
 
-        var result = sfoFlagResolver.resolveSfoFlag(hearing.getCourtCase(), defendant, Map.of("AB001", false));
+        var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), defendant, Map.of("AB001", false));
 
         assertThat(result).isFalse();
     }
@@ -92,7 +92,7 @@ class SfoFlagResolverTest {
         HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
         DefendantEntity defendant = confirmedDefendant(hearing);
 
-        var result = sfoFlagResolver.resolveSfoFlag(hearing.getCourtCase(), defendant, Map.of());
+        var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), defendant, Map.of());
 
         assertThat(result).isFalse();
     }
@@ -102,7 +102,7 @@ class SfoFlagResolverTest {
         HearingEntity hearing = hearingWithNoOffenceCodes("defendant-id-1");
         DefendantEntity defendant = confirmedDefendant(hearing);
 
-        var result = sfoFlagResolver.resolveSfoFlag(hearing.getCourtCase(), defendant, Map.of());
+        var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), defendant, Map.of());
 
         assertThat(result).isNull();
     }
@@ -112,7 +112,7 @@ class SfoFlagResolverTest {
         HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001", "CD002");
         DefendantEntity defendant = confirmedDefendant(hearing);
 
-        var result = sfoFlagResolver.resolveSfoFlag(hearing.getCourtCase(), defendant, Map.of("AB001", false, "CD002", true));
+        var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), defendant, Map.of("AB001", false, "CD002", true));
 
         assertThat(result).isTrue();
     }
@@ -122,7 +122,7 @@ class SfoFlagResolverTest {
         HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
         DefendantEntity unconfirmedDefendant = hearing.getHearingDefendants().get(0).getDefendant();
 
-        var result = sfoFlagResolver.resolveSfoFlag(hearing.getCourtCase(), unconfirmedDefendant, Map.of("AB001", true));
+        var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), unconfirmedDefendant, Map.of("AB001", true));
 
         assertThat(result).isNull();
     }

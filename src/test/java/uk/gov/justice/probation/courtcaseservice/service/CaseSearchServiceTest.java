@@ -40,7 +40,7 @@ class CaseSearchServiceTest {
     @Mock
     private DefendantRepositoryCustom defendantRepositoryCustom;
     @Mock
-    private SfoFlagResolver sfoFlagResolver;
+    private SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
 
     @InjectMocks
     private CaseSearchService caseSearchService;
@@ -62,9 +62,9 @@ class CaseSearchServiceTest {
 
         given(defendantRepositoryCustom.findDefendantsByCrn(TEST_CRN, pageable))
             .willReturn(new PageImpl<>(List.of(new Pair<>(hearingEntity1.getCourtCase(), defendantEntity1), new Pair<>(hearingEntity2.getCourtCase(), defendantEntity2)), pageable, 2));
-        given(sfoFlagResolver.buildSfoFlagsMap(anyList())).willReturn(Map.of());
-        given(sfoFlagResolver.resolveSfoFlag(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), any())).willReturn(null);
-        given(sfoFlagResolver.resolveSfoFlag(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), any())).willReturn(null);
+        given(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(anyList())).willReturn(Map.of());
+        given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), any())).willReturn(null);
+        given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), any())).willReturn(null);
         CaseSearchResultItem result1 = CaseSearchResultItem.builder().defendantName("X").defendantId("defendant-id-1").build();
         CaseSearchResultItem result2 = CaseSearchResultItem.builder().defendantName("Y").defendantId("defendant-id-2").build();
         given(caseSearchResultItemMapper.from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull())).willReturn(result1);
@@ -91,9 +91,9 @@ class CaseSearchServiceTest {
 
         given(defendantRepositoryCustom.findDefendantsByName(name, name, pageable))
             .willReturn(new PageImpl<>(List.of(new Pair<>(hearingEntity1.getCourtCase(), defendantEntity1), new Pair<>(hearingEntity2.getCourtCase(), defendantEntity2)), pageable, 2));
-        given(sfoFlagResolver.buildSfoFlagsMap(anyList())).willReturn(Map.of());
-        given(sfoFlagResolver.resolveSfoFlag(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), any())).willReturn(null);
-        given(sfoFlagResolver.resolveSfoFlag(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), any())).willReturn(null);
+        given(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(anyList())).willReturn(Map.of());
+        given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), any())).willReturn(null);
+        given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), any())).willReturn(null);
         CaseSearchResultItem result1 = CaseSearchResultItem.builder().defendantName("X").defendantId("defendant-id-1").build();
         CaseSearchResultItem result2 = CaseSearchResultItem.builder().defendantName("Y").defendantId("defendant-id-2").build();
         given(caseSearchResultItemMapper.from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull())).willReturn(result1);
@@ -147,9 +147,9 @@ class CaseSearchServiceTest {
 
         given(defendantRepositoryCustom.findDefendantsByName(searchTermCaptor.capture(), any(), any(Pageable.class)))
             .willReturn(new PageImpl<>(List.of(new Pair<>(hearingEntity1.getCourtCase(), defendantEntity1), new Pair<>(hearingEntity2.getCourtCase(), defendantEntity2)), pageable, 2));
-        given(sfoFlagResolver.buildSfoFlagsMap(anyList())).willReturn(Map.of());
-        given(sfoFlagResolver.resolveSfoFlag(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), any())).willReturn(null);
-        given(sfoFlagResolver.resolveSfoFlag(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), any())).willReturn(null);
+        given(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(anyList())).willReturn(Map.of());
+        given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), any())).willReturn(null);
+        given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), any())).willReturn(null);
         CaseSearchResultItem result1 = CaseSearchResultItem.builder().defendantName("X").defendantId("defendant-id-1").build();
         CaseSearchResultItem result2 = CaseSearchResultItem.builder().defendantName("Y").defendantId("defendant-id-2").build();
         given(caseSearchResultItemMapper.from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull())).willReturn(result1);

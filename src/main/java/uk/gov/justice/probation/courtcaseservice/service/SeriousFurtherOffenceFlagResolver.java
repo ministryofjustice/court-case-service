@@ -16,15 +16,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
-public class SfoFlagResolver {
+public class SeriousFurtherOffenceFlagResolver {
 
     private final OffenceSfoMappingRepository offenceSfoMappingRepository;
 
-    public SfoFlagResolver(final OffenceSfoMappingRepository offenceSfoMappingRepository) {
+    public SeriousFurtherOffenceFlagResolver(final OffenceSfoMappingRepository offenceSfoMappingRepository) {
         this.offenceSfoMappingRepository = offenceSfoMappingRepository;
     }
 
-    public Map<String, Boolean> buildSfoFlagsMap(List<Pair<CourtCaseEntity, DefendantEntity>> results) {
+    public Map<String, Boolean> buildSeriousFurtherOffenceFlagsMap(List<Pair<CourtCaseEntity, DefendantEntity>> results) {
         var allOffenceCodes = results.stream()
             .flatMap(pair -> offenceCodesForDefendant(pair.getFirst(), pair.getSecond().getDefendantId()).stream())
             .collect(Collectors.toSet());
@@ -32,13 +32,13 @@ public class SfoFlagResolver {
             .collect(Collectors.toMap(OffenceSfoMappingEntity::getOffenceCode, OffenceSfoMappingEntity::isSfoFlag));
     }
 
-    public Boolean resolveSfoFlag(CourtCaseEntity courtCase, DefendantEntity defendant, Map<String, Boolean> sfoFlagsByCode) {
+    public Boolean resolveSeriousFurtherOffenceFlag(CourtCaseEntity courtCase, DefendantEntity defendant, Map<String, Boolean> seriousFurtherOffenceFlagsByCode) {
         if (!defendant.isOffenderConfirmed()) {
             return null;
         }
         var offenceCodes = offenceCodesForDefendant(courtCase, defendant.getDefendantId());
         return offenceCodes.isEmpty() ? null
-            : offenceCodes.stream().anyMatch(code -> Boolean.TRUE.equals(sfoFlagsByCode.get(code)));
+            : offenceCodes.stream().anyMatch(code -> Boolean.TRUE.equals(seriousFurtherOffenceFlagsByCode.get(code)));
     }
 
     private Set<String> offenceCodesForDefendant(CourtCaseEntity courtCase, String defendantId) {

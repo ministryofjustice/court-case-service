@@ -23,15 +23,15 @@ public class CaseSearchService {
 
     private final CaseSearchResultItemMapper caseSearchResultItemMapper;
     private final DefendantRepositoryCustom defendantRepositoryCustom;
-    private final SfoFlagResolver sfoFlagResolver;
+    private final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
 
     @Autowired
     public CaseSearchService(final DefendantRepositoryCustom defendantRepositoryCustom,
                              final CaseSearchResultItemMapper caseSearchResultItemMapper,
-                             final SfoFlagResolver sfoFlagResolver) {
+                             final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver) {
         this.caseSearchResultItemMapper = caseSearchResultItemMapper;
         this.defendantRepositoryCustom = defendantRepositoryCustom;
-        this.sfoFlagResolver = sfoFlagResolver;
+        this.seriousFurtherOffenceFlagResolver = seriousFurtherOffenceFlagResolver;
     }
 
     @Transactional(readOnly = true)
@@ -55,13 +55,13 @@ public class CaseSearchService {
                 .build();
         }
 
-        var sfoFlagsByCode = sfoFlagResolver.buildSfoFlagsMap(resultsPage.getContent());
+        var seriousFurtherOffenceFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(resultsPage.getContent());
 
         return CaseSearchResult.builder()
             .totalElements(resultsPage.getTotalElements())
             .totalPages(resultsPage.getTotalPages())
             .items(resultsPage.getContent().stream()
-                .map(pair -> caseSearchResultItemMapper.from(pair.getFirst(), pair.getSecond(), sfoFlagResolver.resolveSfoFlag(pair.getFirst(), pair.getSecond(), sfoFlagsByCode)))
+                .map(pair -> caseSearchResultItemMapper.from(pair.getFirst(), pair.getSecond(), seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(pair.getFirst(), pair.getSecond(), seriousFurtherOffenceFlagsByCode)))
                 .collect(Collectors.toList())).build();
     }
 }

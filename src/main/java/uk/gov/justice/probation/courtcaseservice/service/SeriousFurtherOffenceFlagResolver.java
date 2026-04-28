@@ -46,7 +46,7 @@ public class SeriousFurtherOffenceFlagResolver {
         return courtCase.getHearings().stream()
             .map(HearingEntity::getHearingDefendants)
             .flatMap(Collection::stream)
-            .filter(hearingDefendantEntity -> hearingDefendantEntity.getDefendantId().equalsIgnoreCase(defendantId))
+            .filter(hd -> hd.getDefendant() != null && hd.getDefendant().getDefendantId().equalsIgnoreCase(defendantId))
             .flatMap(hearingDefendantEntity -> hearingDefendantEntity.getOffences().stream())
             .map(OffenceEntity::getOffenceCode)
             .filter(offenceCode -> offenceCode != null && !offenceCode.isBlank())

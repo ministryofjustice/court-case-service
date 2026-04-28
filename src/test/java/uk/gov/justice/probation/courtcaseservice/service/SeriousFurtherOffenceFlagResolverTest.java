@@ -12,6 +12,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceSfoMappingEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenceSfoMappingRepository;
 
 import java.util.List;
@@ -118,18 +120,29 @@ class SeriousFurtherOffenceFlagResolverTest {
     }
 
     @Test
-    void resolveSfoFlag_returnsTrueForUnconfirmedDefendantWhenOffenceCodeMatchesSfoFlag() {
+    void resolveSfoFlag_returnsNullForUnconfirmedDefendantEvenWhenOffenceCodeMatchesSfoFlag() {
         HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
         DefendantEntity unconfirmedDefendant = hearing.getHearingDefendants().get(0).getDefendant();
 
         var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), unconfirmedDefendant, Map.of("AB001", true));
 
-        assertThat(result).isTrue();
+        assertThat(result).isNull();
+    }
+
+    @Test
+    void resolveSfoFlag_returnsNullForPreviouslyKnownDefendant() {
+        HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
+        DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
+        defendant.confirmMatch(OffenderEntity.builder().crn("X123").probationStatus(OffenderProbationStatus.PREVIOUSLY_KNOWN).build());
+
+        var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), defendant, Map.of("AB001", true));
+
+        assertThat(result).isNull();
     }
 
     private DefendantEntity confirmedDefendant(HearingEntity hearing) {
         DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
-        defendant.confirmMatch(defendant.getOffender());
+        defendant.confirmMatch(OffenderEntity.builder().crn("X123").probationStatus(OffenderProbationStatus.CURRENT).build());
         return defendant;
     }
 

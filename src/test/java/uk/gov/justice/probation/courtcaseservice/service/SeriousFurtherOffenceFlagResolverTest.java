@@ -118,13 +118,13 @@ class SeriousFurtherOffenceFlagResolverTest {
     }
 
     @Test
-    void resolveSfoFlag_returnsNullWhenDefendantIsNotConfirmed() {
+    void resolveSfoFlag_returnsTrueForUnconfirmedDefendantWhenOffenceCodeMatchesSfoFlag() {
         HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
         DefendantEntity unconfirmedDefendant = hearing.getHearingDefendants().get(0).getDefendant();
 
         var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), unconfirmedDefendant, Map.of("AB001", true));
 
-        assertThat(result).isNull();
+        assertThat(result).isTrue();
     }
 
     private DefendantEntity confirmedDefendant(HearingEntity hearing) {

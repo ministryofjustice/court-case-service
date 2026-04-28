@@ -33,9 +33,6 @@ public class SeriousFurtherOffenceFlagResolver {
     }
 
     public Boolean resolveSeriousFurtherOffenceFlag(CourtCaseEntity courtCase, DefendantEntity defendant, Map<String, Boolean> seriousFurtherOffenceFlagsByCode) {
-        if (!defendant.isOffenderConfirmed()) {
-            return null;
-        }
         var offenceCodes = offenceCodesForDefendant(courtCase, defendant.getDefendantId());
         return offenceCodes.isEmpty() ? null
             : offenceCodes.stream().anyMatch(code -> Boolean.TRUE.equals(seriousFurtherOffenceFlagsByCode.get(code)));

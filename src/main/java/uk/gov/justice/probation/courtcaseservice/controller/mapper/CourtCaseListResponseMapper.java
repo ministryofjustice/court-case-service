@@ -32,6 +32,19 @@ public class CourtCaseListResponseMapper {
         return builder.build();
     }
 
+    public static CourtCaseResponse mapFrom(HearingDTO hearingDTO, HearingDefendantDTO defendantEntity, int matchCount, LocalDate hearingDate, Boolean sfoFlag) {
+        final var builder = CourtCaseResponse.builder();
+
+        buildCaseFields(builder, hearingDTO, defendantEntity.getDefendantId());
+        buildHearings(builder, hearingDTO, hearingDate);
+
+        addDefendantFields(builder, defendantEntity);
+        builder.numberOfPossibleMatches(matchCount);
+        builder.seriousFurtherOffence(Boolean.TRUE.equals(sfoFlag));
+
+        return builder.build();
+    }
+
     private static void buildCaseFields(CourtCaseResponseBuilder builder, HearingDTO hearingDTO, String defendantId) {
         // Case-based fields
         builder.caseId(hearingDTO.getCaseId())

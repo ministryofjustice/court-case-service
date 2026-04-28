@@ -4,6 +4,7 @@ import kotlin.Pair;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceSfoMappingEntity;
@@ -33,6 +34,9 @@ public class SeriousFurtherOffenceFlagResolver {
     }
 
     public Boolean resolveSeriousFurtherOffenceFlag(CourtCaseEntity courtCase, DefendantEntity defendant, Map<String, Boolean> seriousFurtherOffenceFlagsByCode) {
+        if (defendant.getProbationStatusForDisplay() != DefendantProbationStatus.CURRENT) {
+            return null;
+        }
         var offenceCodes = offenceCodesForDefendant(courtCase, defendant.getDefendantId());
         return offenceCodes.isEmpty() ? null
             : offenceCodes.stream().anyMatch(code -> Boolean.TRUE.equals(seriousFurtherOffenceFlagsByCode.get(code)));

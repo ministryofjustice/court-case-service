@@ -38,6 +38,33 @@ public class SeriousFurtherOffenceFlagResolver {
             .collect(Collectors.toMap(OffenceSfoMappingEntity::getOffenceCode, OffenceSfoMappingEntity::isSfoFlag));
     }
 
+    public Map<String, Boolean> buildSeriousFurtherOffenceFlagsMapFromHearing(HearingEntity hearingEntity) {
+        var allOffenceCodes = Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(List.of()).stream()
+            .flatMap(hd -> Optional.ofNullable(hd.getOffences()).orElse(List.of()).stream())
+            .map(OffenceEntity::getOffenceCode)
+            .filter(code -> code != null && !code.isBlank())
+            .collect(Collectors.toSet());
+        return offenceSfoMappingRepository.findByOffenceCodeIn(allOffenceCodes).stream()
+            .collect(Collectors.toMap(OffenceSfoMappingEntity::getOffenceCode, OffenceSfoMappingEntity::isSfoFlag));
+    }
+
+    public Boolean resolveSeriousFurtherOffenceFlagFromHearing(HearingEntity hearingEntity, DefendantEntity defendant, Map<String, Boolean> sfoFlagsByCode) {
+        LocalDate terminationDate = Optional.ofNullable(defendant.getOffender())
+            .map(o -> o.getPreviouslyKnownTerminationDate())
+            .orElse(null);
+        if (!isEligibleForSfoResolution(defendant.getProbationStatusForDisplay(), terminationDate)) {
+            return null;
+        }
+        var offenceCodes = Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(List.of()).stream()
+            .filter(hd -> hd.getDefendant() != null && hd.getDefendant().getDefendantId().equalsIgnoreCase(defendant.getDefendantId()))
+            .flatMap(hd -> Optional.ofNullable(hd.getOffences()).orElse(List.of()).stream())
+            .map(OffenceEntity::getOffenceCode)
+            .filter(code -> code != null && !code.isBlank())
+            .collect(Collectors.toSet());
+        return offenceCodes.isEmpty() ? null
+            : offenceCodes.stream().anyMatch(code -> Boolean.TRUE.equals(sfoFlagsByCode.get(code)));
+    }
+
     public Map<String, Boolean> buildSeriousFurtherOffenceFlagsMapFromDTOs(List<HearingDefendantDTO> defendants) {
         var allOffenceCodes = defendants.stream()
             .flatMap(dto -> offenceCodesForDefendantDTO(dto).stream())

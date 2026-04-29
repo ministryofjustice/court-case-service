@@ -106,7 +106,7 @@ class CourtCaseControllerTest {
 
     @BeforeEach
     public void setUp() {
-        Mockito.when(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(any())).thenReturn(java.util.Collections.emptyMap());
+        Mockito.lenient().when(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMapFromHearing(any())).thenReturn(java.util.Collections.emptyMap());
         courtCaseController = new CourtCaseController(courtCaseService, offenderMatchService,
             offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, seriousFurtherOffenceFlagResolver, true);
     }

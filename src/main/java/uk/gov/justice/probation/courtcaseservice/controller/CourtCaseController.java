@@ -417,12 +417,8 @@ public class CourtCaseController {
 
         var defendantEntities = new ArrayList<>(Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(Collections.emptyList()));
 
-        // Build SFO flags map once per hearing across all defendants
-        var courtCase = hearingEntity.getCourtCase();
-        var allDefendants = defendantEntities.stream().map(HearingDefendantEntity::getDefendant).collect(Collectors.toList());
-        var sfoFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(
-            allDefendants.stream().map(d -> new kotlin.Pair<>(courtCase, d)).collect(Collectors.toList())
-        );
+        // Build SFO flags map once per hearing across all defendants (using hearing directly to avoid unloaded courtCase.hearings)
+        var sfoFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMapFromHearing(hearingEntity);
 
         return defendantEntities.stream()
                 .sorted(Comparator.comparing(HearingDefendantEntity::getDefendantSurname))
@@ -433,7 +429,7 @@ public class CourtCaseController {
     private CourtCaseResponse buildCourtCaseResponse(HearingEntity hearingEntity, LocalDate hearingDate, HearingDefendantEntity hearingDefendantEntity, java.util.Map<String, Boolean> sfoFlagsByCode) {
         final var defendant = Optional.ofNullable(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).orElseThrow();
         var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingEntity.getCaseId(), defendant.getDefendantId()).orElse(0);
-        Boolean sfoFlag = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearingEntity.getCourtCase(), defendant, sfoFlagsByCode);
+        Boolean sfoFlag = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlagFromHearing(hearingEntity, defendant, sfoFlagsByCode);
         return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate, sfoFlag);
     }
 }

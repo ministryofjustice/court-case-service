@@ -32,7 +32,7 @@ public class CourtCaseListResponseMapper {
         return builder.build();
     }
 
-    public static CourtCaseResponse mapFrom(HearingDTO hearingDTO, HearingDefendantDTO defendantEntity, int matchCount, LocalDate hearingDate, Boolean sfoFlag) {
+    public static CourtCaseResponse mapFrom(HearingDTO hearingDTO, HearingDefendantDTO defendantEntity, int matchCount, LocalDate hearingDate, Boolean seriousFurtherOffenceFlag) {
         final var builder = CourtCaseResponse.builder();
 
         buildCaseFields(builder, hearingDTO, defendantEntity.getDefendantId());
@@ -40,8 +40,7 @@ public class CourtCaseListResponseMapper {
 
         addDefendantFields(builder, defendantEntity);
         builder.numberOfPossibleMatches(matchCount);
-        builder.seriousFurtherOffence(Boolean.TRUE.equals(sfoFlag));
-
+        builder.seriousFurtherOffence(Boolean.TRUE.equals(seriousFurtherOffenceFlag));
         return builder.build();
     }
 

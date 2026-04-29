@@ -16,6 +16,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenceSfoMappingRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -120,9 +121,11 @@ class SeriousFurtherOffenceFlagResolverTest {
     }
 
     @Test
-    void resolveSfoFlag_returnsNullForUnconfirmedDefendantEvenWhenOffenceCodeMatchesSfoFlag() {
+    void resolveSfoFlag_returnsNullForUnconfirmedNoRecordDefendantEvenWhenOffenceCodeMatchesSfoFlag() {
         HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
         DefendantEntity unconfirmedDefendant = hearing.getHearingDefendants().get(0).getDefendant();
+        // Remove offender so status resolves to UNCONFIRMED_NO_RECORD
+        unconfirmedDefendant.confirmNoMatch();
 
         var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), unconfirmedDefendant, Map.of("AB001", true));
 
@@ -130,10 +133,93 @@ class SeriousFurtherOffenceFlagResolverTest {
     }
 
     @Test
-    void resolveSfoFlag_returnsNullForPreviouslyKnownDefendant() {
+    void resolveSfoFlag_returnsTrueForPreviouslyKnownDefendantWhenOffenceCodeMatchesSfoFlag() {
         HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
         DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
-        defendant.confirmMatch(OffenderEntity.builder().crn("X123").probationStatus(OffenderProbationStatus.PREVIOUSLY_KNOWN).build());
+        defendant.confirmMatch(OffenderEntity.builder().crn("X123")
+            .probationStatus(OffenderProbationStatus.PREVIOUSLY_KNOWN)
+            .previouslyKnownTerminationDate(LocalDate.now().plusDays(1))
+            .build());
+
+        var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), defendant, Map.of("AB001", true));
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void resolveSfoFlag_returnsFalseForPreviouslyKnownDefendantWhenOffenceCodeDoesNotMatchSfoFlag() {
+        HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
+        DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
+        defendant.confirmMatch(OffenderEntity.builder().crn("X123")
+            .probationStatus(OffenderProbationStatus.PREVIOUSLY_KNOWN)
+            .previouslyKnownTerminationDate(LocalDate.now().plusDays(1))
+            .build());
+
+        var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), defendant, Map.of("AB001", false));
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void resolveSfoFlag_returnsNullForPreviouslyKnownDefendantWithNullTerminationDate() {
+        HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
+        DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
+        defendant.confirmMatch(OffenderEntity.builder().crn("X123")
+            .probationStatus(OffenderProbationStatus.PREVIOUSLY_KNOWN)
+            .build());
+
+        var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), defendant, Map.of("AB001", true));
+
+        assertThat(result).isNull();
+    }
+
+    @Test
+    void resolveSfoFlag_returnsTrueForPreviouslyKnownDefendantWithFutureTerminationDate() {
+        HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
+        DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
+        defendant.confirmMatch(OffenderEntity.builder().crn("X123")
+            .probationStatus(OffenderProbationStatus.PREVIOUSLY_KNOWN)
+            .previouslyKnownTerminationDate(LocalDate.now().plusDays(1))
+            .build());
+
+        var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), defendant, Map.of("AB001", true));
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void resolveSfoFlag_returnsTrueForPreviouslyKnownDefendantWithTerminationDateWithin28Days() {
+        HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
+        DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
+        defendant.confirmMatch(OffenderEntity.builder().crn("X123")
+            .probationStatus(OffenderProbationStatus.PREVIOUSLY_KNOWN)
+            .previouslyKnownTerminationDate(LocalDate.now().minusDays(27))
+            .build());
+
+        var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), defendant, Map.of("AB001", true));
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void resolveSfoFlag_returnsNullForPreviouslyKnownDefendantWithTerminationDateOlderThan28Days() {
+        HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
+        DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
+        defendant.confirmMatch(OffenderEntity.builder().crn("X123")
+            .probationStatus(OffenderProbationStatus.PREVIOUSLY_KNOWN)
+            .previouslyKnownTerminationDate(LocalDate.now().minusDays(29))
+            .build());
+
+        var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), defendant, Map.of("AB001", true));
+
+        assertThat(result).isNull();
+    }
+
+    @Test
+    void resolveSfoFlag_returnsNullForNotSentencedDefendantEvenWhenOffenceCodeMatchesSfoFlag() {
+        HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
+        DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
+        defendant.confirmMatch(OffenderEntity.builder().crn("X123").probationStatus(OffenderProbationStatus.NOT_SENTENCED).build());
 
         var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), defendant, Map.of("AB001", true));
 

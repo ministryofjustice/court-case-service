@@ -22,7 +22,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
 
   postgres:
-    image: postgres:11.15-alpine
+    image: postgres:11.22-alpine
     ports:
       - 5432:5432
     networks:

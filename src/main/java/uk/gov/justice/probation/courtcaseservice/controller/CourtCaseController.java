@@ -49,6 +49,7 @@ import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.HearingNotesService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
+import uk.gov.justice.probation.courtcaseservice.service.SeriousFurtherOffenceFlagResolver;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
@@ -83,6 +84,7 @@ public class CourtCaseController {
     private final AuthenticationHelper authenticationHelper;
     private final CaseProgressService caseProgressService;
     private final HearingNotesService hearingNotesService;
+    private final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
 
     @Autowired
     public CourtCaseController(CourtCaseService courtCaseService,
@@ -92,6 +94,7 @@ public class CourtCaseController {
                                AuthenticationHelper authenticationHelper,
                                CaseProgressService caseProgressService,
                                HearingNotesService hearingNotesService,
+                               SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver,
                                @Value("${feature.flags.enable-cacheable-case-list:true}") boolean enableCacheableCaseList) {
         this.courtCaseService = courtCaseService;
         this.offenderMatchService = offenderMatchService;
@@ -101,6 +104,7 @@ public class CourtCaseController {
         this.authenticationHelper = authenticationHelper;
         this.caseProgressService = caseProgressService;
         this.hearingNotesService = hearingNotesService;
+        this.seriousFurtherOffenceFlagResolver = seriousFurtherOffenceFlagResolver;
     }
 
     @Operation(description = "Gets the court case data by hearing id and defendant id.")
@@ -413,15 +417,23 @@ public class CourtCaseController {
 
         var defendantEntities = new ArrayList<>(Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(Collections.emptyList()));
 
+        // Build SFO flags map once per hearing across all defendants
+        var courtCase = hearingEntity.getCourtCase();
+        var allDefendants = defendantEntities.stream().map(HearingDefendantEntity::getDefendant).collect(Collectors.toList());
+        var sfoFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(
+            allDefendants.stream().map(d -> new kotlin.Pair<>(courtCase, d)).collect(Collectors.toList())
+        );
+
         return defendantEntities.stream()
                 .sorted(Comparator.comparing(HearingDefendantEntity::getDefendantSurname))
-                .map(hearingDefendantEntity -> buildCourtCaseResponse(hearingEntity, hearingDate, hearingDefendantEntity))
+                .map(hearingDefendantEntity -> buildCourtCaseResponse(hearingEntity, hearingDate, hearingDefendantEntity, sfoFlagsByCode))
                 .toList();
     }
 
-    private CourtCaseResponse buildCourtCaseResponse(HearingEntity hearingEntity, LocalDate hearingDate, HearingDefendantEntity hearingDefendantEntity) {
+    private CourtCaseResponse buildCourtCaseResponse(HearingEntity hearingEntity, LocalDate hearingDate, HearingDefendantEntity hearingDefendantEntity, java.util.Map<String, Boolean> sfoFlagsByCode) {
         final var defendant = Optional.ofNullable(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).orElseThrow();
         var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingEntity.getCaseId(), defendant.getDefendantId()).orElse(0);
-        return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate);
+        Boolean sfoFlag = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearingEntity.getCourtCase(), defendant, sfoFlagsByCode);
+        return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate, sfoFlag);
     }
 }

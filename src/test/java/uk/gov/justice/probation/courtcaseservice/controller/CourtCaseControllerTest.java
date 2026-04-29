@@ -78,6 +78,8 @@ class CourtCaseControllerTest {
     private CaseProgressService caseProgressService;
     @Mock
     private HearingNotesService hearingNotesService;
+    @Mock
+    private SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
 
     private CourtCaseController courtCaseController;
     private final HearingEntity hearingEntity = HearingEntity.builder()
@@ -104,8 +106,9 @@ class CourtCaseControllerTest {
 
     @BeforeEach
     public void setUp() {
+        Mockito.when(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(any())).thenReturn(java.util.Collections.emptyMap());
         courtCaseController = new CourtCaseController(courtCaseService, offenderMatchService,
-            offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, true);
+            offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, seriousFurtherOffenceFlagResolver, true);
     }
 
     @Test
@@ -298,7 +301,7 @@ class CourtCaseControllerTest {
     @Test
     void givenCacheableCaseListDisabled_whenListIsNotModified_thenReturnFullList() {
         final var nonCachingController = new CourtCaseController(courtCaseService,
-            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, false);
+            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, seriousFurtherOffenceFlagResolver, false);
 
         final var courtCaseEntity = this.hearingEntity.withHearingDefendants(List.of(EntityHelper.aHearingDefendantEntity()))
                 .withHearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()

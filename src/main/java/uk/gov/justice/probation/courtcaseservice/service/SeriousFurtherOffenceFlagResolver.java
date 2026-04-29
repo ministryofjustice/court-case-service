@@ -3,6 +3,8 @@ package uk.gov.justice.probation.courtcaseservice.service;
 import kotlin.Pair;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO;
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.OffenceDTO;
+import uk.gov.justice.probation.courtcaseservice.jpa.dto.OffenderDTO;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantProbationStatus;
@@ -58,7 +60,7 @@ public class SeriousFurtherOffenceFlagResolver {
 
     public Boolean resolveSeriousFurtherOffenceFlagFromDTO(HearingDefendantDTO defendant, Map<String, Boolean> seriousFurtherOffenceFlagsByCode) {
         LocalDate terminationDate = Optional.ofNullable(defendant.getDefendant().getOffender())
-            .map(o -> o.getPreviouslyKnownTerminationDate())
+            .map(OffenderDTO::getPreviouslyKnownTerminationDate)
             .orElse(null);
         if (!isEligibleForSfoResolution(defendant.getProbationStatusForDisplay(), terminationDate)) {
             return null;
@@ -100,8 +102,8 @@ public class SeriousFurtherOffenceFlagResolver {
 
     private Set<String> offenceCodesForDefendantDTO(HearingDefendantDTO defendant) {
         return Optional.ofNullable(defendant.getOffences()).orElse(List.of()).stream()
-            .map(o -> o.getOffenceCode())
-            .filter(code -> code != null && !code.isBlank())
+            .map(OffenceDTO::getOffenceCode)
+            .filter(offenceCode -> offenceCode != null && !offenceCode.isBlank())
             .collect(Collectors.toSet());
     }
 }

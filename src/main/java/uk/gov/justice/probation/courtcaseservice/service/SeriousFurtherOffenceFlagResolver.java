@@ -11,6 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceSfoMappingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenceSfoMappingRepository;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,10 @@ public class SeriousFurtherOffenceFlagResolver {
     }
 
     public Boolean resolveSeriousFurtherOffenceFlag(CourtCaseEntity courtCase, DefendantEntity defendant, Map<String, Boolean> seriousFurtherOffenceFlagsByCode) {
-        if (defendant.getProbationStatusForDisplay() != DefendantProbationStatus.CURRENT) {
+        LocalDate terminationDate = Optional.ofNullable(defendant.getOffender())
+            .map(o -> o.getPreviouslyKnownTerminationDate())
+            .orElse(null);
+        if (!isEligibleForSfoResolution(defendant.getProbationStatusForDisplay(), terminationDate)) {
             return null;
         }
         var offenceCodes = offenceCodesForDefendant(courtCase, defendant.getDefendantId());
@@ -53,12 +57,34 @@ public class SeriousFurtherOffenceFlagResolver {
     }
 
     public Boolean resolveSeriousFurtherOffenceFlagFromDTO(HearingDefendantDTO defendant, Map<String, Boolean> seriousFurtherOffenceFlagsByCode) {
-        if (defendant.getProbationStatusForDisplay() != DefendantProbationStatus.CURRENT) {
+        LocalDate terminationDate = Optional.ofNullable(defendant.getDefendant().getOffender())
+            .map(o -> o.getPreviouslyKnownTerminationDate())
+            .orElse(null);
+        if (!isEligibleForSfoResolution(defendant.getProbationStatusForDisplay(), terminationDate)) {
             return null;
         }
         var offenceCodes = offenceCodesForDefendantDTO(defendant);
         return offenceCodes.isEmpty() ? null
             : offenceCodes.stream().anyMatch(code -> Boolean.TRUE.equals(seriousFurtherOffenceFlagsByCode.get(code)));
+    }
+
+    /**
+     * Returns true if the defendant's probation status warrants SFO resolution:
+     * - CURRENT: always eligible
+     * - PREVIOUSLY_KNOWN: eligible if terminationDate is in the future, or within the past 28 days
+     */
+    private boolean isEligibleForSfoResolution(DefendantProbationStatus status, LocalDate terminationDate) {
+        if (status == DefendantProbationStatus.CURRENT) {
+            return true;
+        }
+        if (status == DefendantProbationStatus.PREVIOUSLY_KNOWN) {
+            if (terminationDate == null) {
+                return false;
+            }
+            LocalDate today = LocalDate.now();
+            return !terminationDate.isBefore(today) || !terminationDate.plusDays(28).isBefore(today);
+        }
+        return false;
     }
 
     private Set<String> offenceCodesForDefendant(CourtCaseEntity courtCase, String defendantId) {

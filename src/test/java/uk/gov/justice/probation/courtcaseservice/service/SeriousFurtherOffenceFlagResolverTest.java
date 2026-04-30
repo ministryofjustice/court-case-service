@@ -161,7 +161,7 @@ class SeriousFurtherOffenceFlagResolverTest {
     }
 
     @Test
-    void resolveSfoFlag_returnsNullForPreviouslyKnownDefendantWithNullTerminationDate() {
+    void resolveSfoFlag_returnsTrueForPreviouslyKnownDefendantWithNullTerminationDate() {
         HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
         DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
         defendant.confirmMatch(OffenderEntity.builder().crn("X123")
@@ -170,7 +170,7 @@ class SeriousFurtherOffenceFlagResolverTest {
 
         var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), defendant, Map.of("AB001", true));
 
-        assertThat(result).isNull();
+        assertThat(result).isTrue();
     }
 
     @Test

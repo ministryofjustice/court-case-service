@@ -100,7 +100,7 @@ public class SeriousFurtherOffenceFlagResolver {
     /**
      * Returns true if the defendant's probation status warrants SFO resolution:
      * - CURRENT: always eligible
-     * - PREVIOUSLY_KNOWN: eligible if terminationDate is in the future, or within the past 28 days
+     * - PREVIOUSLY_KNOWN: eligible if terminationDate is null, in the future, or within the past 28 days
      */
     private boolean isEligibleForSfoResolution(DefendantProbationStatus status, LocalDate terminationDate) {
         if (status == DefendantProbationStatus.CURRENT) {
@@ -108,7 +108,7 @@ public class SeriousFurtherOffenceFlagResolver {
         }
         if (status == DefendantProbationStatus.PREVIOUSLY_KNOWN) {
             if (terminationDate == null) {
-                return false;
+                return true;
             }
             LocalDate today = LocalDate.now();
             return !terminationDate.isBefore(today) || !terminationDate.plusDays(28).isBefore(today);

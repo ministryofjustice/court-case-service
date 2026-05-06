@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.service;
 
 import kotlin.Pair;
 import org.springframework.stereotype.Component;
+import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO;
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.OffenceDTO;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
@@ -22,9 +23,12 @@ import java.util.stream.Collectors;
 public class SeriousFurtherOffenceFlagResolver {
 
     private final OffenceSfoMappingRepository offenceSfoMappingRepository;
+    private final FeatureFlags featureFlags;
 
-    public SeriousFurtherOffenceFlagResolver(final OffenceSfoMappingRepository offenceSfoMappingRepository) {
+    public SeriousFurtherOffenceFlagResolver(final OffenceSfoMappingRepository offenceSfoMappingRepository,
+                                             final FeatureFlags featureFlags) {
         this.offenceSfoMappingRepository = offenceSfoMappingRepository;
+        this.featureFlags = featureFlags;
     }
 
     public Map<String, Boolean> buildSeriousFurtherOffenceFlagsMap(List<Pair<CourtCaseEntity, DefendantEntity>> results) {
@@ -32,7 +36,7 @@ public class SeriousFurtherOffenceFlagResolver {
             .flatMap(pair -> offenceCodesForDefendant(pair.getFirst(), pair.getSecond().getDefendantId()).stream())
             .collect(Collectors.toSet());
         return offenceSfoMappingRepository.findByOffenceCodeIn(allOffenceCodes).stream()
-            .collect(Collectors.toMap(OffenceSfoMappingEntity::getOffenceCode, OffenceSfoMappingEntity::isSfoFlag));
+            .collect(Collectors.toMap(OffenceSfoMappingEntity::getOffenceCode, OffenceSfoMappingEntity::isSeriousFurtherOffenceFlag));
     }
 
     public Map<String, Boolean> buildSeriousFurtherOffenceFlagsMapFromHearing(HearingEntity hearingEntity) {
@@ -42,10 +46,11 @@ public class SeriousFurtherOffenceFlagResolver {
             .filter(code -> code != null && !code.isBlank())
             .collect(Collectors.toSet());
         return offenceSfoMappingRepository.findByOffenceCodeIn(allOffenceCodes).stream()
-            .collect(Collectors.toMap(OffenceSfoMappingEntity::getOffenceCode, OffenceSfoMappingEntity::isSfoFlag));
+            .collect(Collectors.toMap(OffenceSfoMappingEntity::getOffenceCode, OffenceSfoMappingEntity::isSeriousFurtherOffenceFlag));
     }
 
     public Boolean resolveSeriousFurtherOffenceFlagFromHearing(HearingEntity hearingEntity, DefendantEntity defendant, Map<String, Boolean> sfoFlagsByCode) {
+        if (!featureFlags.enableSeriousFurtherOffence()) return false;
         var offenceCodes = Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(List.of()).stream()
             .filter(hd -> hd.getDefendant() != null && hd.getDefendant().getDefendantId().equalsIgnoreCase(defendant.getDefendantId()))
             .flatMap(hd -> Optional.ofNullable(hd.getOffences()).orElse(List.of()).stream())
@@ -61,16 +66,18 @@ public class SeriousFurtherOffenceFlagResolver {
             .flatMap(dto -> offenceCodesForDefendantDTO(dto).stream())
             .collect(Collectors.toSet());
         return offenceSfoMappingRepository.findByOffenceCodeIn(allOffenceCodes).stream()
-            .collect(Collectors.toMap(OffenceSfoMappingEntity::getOffenceCode, OffenceSfoMappingEntity::isSfoFlag));
+            .collect(Collectors.toMap(OffenceSfoMappingEntity::getOffenceCode, OffenceSfoMappingEntity::isSeriousFurtherOffenceFlag));
     }
 
     public Boolean resolveSeriousFurtherOffenceFlag(CourtCaseEntity courtCase, DefendantEntity defendant, Map<String, Boolean> seriousFurtherOffenceFlagsByCode) {
+        if (!featureFlags.enableSeriousFurtherOffence()) return false;
         var offenceCodes = offenceCodesForDefendant(courtCase, defendant.getDefendantId());
         return offenceCodes.isEmpty() ? null
             : offenceCodes.stream().anyMatch(code -> Boolean.TRUE.equals(seriousFurtherOffenceFlagsByCode.get(code)));
     }
 
     public Boolean resolveSeriousFurtherOffenceFlagFromDTO(HearingDefendantDTO defendant, Map<String, Boolean> seriousFurtherOffenceFlagsByCode) {
+        if (!featureFlags.enableSeriousFurtherOffence()) return false;
         var offenceCodes = offenceCodesForDefendantDTO(defendant);
         return offenceCodes.isEmpty() ? null
             : offenceCodes.stream().anyMatch(code -> Boolean.TRUE.equals(seriousFurtherOffenceFlagsByCode.get(code)));

@@ -29,6 +29,6 @@ public class OffenceSfoMappingEntity {
     private final String offenceCode;
 
     @Column(name = "sfo_flag", nullable = false)
-    private final boolean sfoFlag;
+    private final boolean seriousFurtherOffenceFlag;
 }
 

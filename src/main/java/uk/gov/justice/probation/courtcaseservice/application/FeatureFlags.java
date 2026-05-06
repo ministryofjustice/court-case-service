@@ -24,6 +24,8 @@ public class FeatureFlags {
 
     public boolean deleteHearing() { return flags.getOrDefault("delete-hearing", false); }
 
+    public boolean enableSeriousFurtherOffence() { return flags.getOrDefault("enable-serious-further-offence", false); }
+
     public void setFlagValue(final String flagName, final boolean value) {
         flags.put(flagName, value);
     }

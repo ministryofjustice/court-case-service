@@ -417,19 +417,19 @@ public class CourtCaseController {
 
         var defendantEntities = new ArrayList<>(Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(Collections.emptyList()));
 
-        // Build SFO flags map once per hearing across all defendants (using hearing directly to avoid unloaded courtCase.hearings)
-        var sfoFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMapFromHearing(hearingEntity);
+        // Build serious further offence flags map once per hearing across all defendants (using hearing directly to avoid unloaded courtCase.hearings)
+        var seriousFurtherOffenceFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMapFromHearing(hearingEntity);
 
         return defendantEntities.stream()
                 .sorted(Comparator.comparing(HearingDefendantEntity::getDefendantSurname))
-                .map(hearingDefendantEntity -> buildCourtCaseResponse(hearingEntity, hearingDate, hearingDefendantEntity, sfoFlagsByCode))
+                .map(hearingDefendantEntity -> buildCourtCaseResponse(hearingEntity, hearingDate, hearingDefendantEntity, seriousFurtherOffenceFlagsByCode))
                 .toList();
     }
 
-    private CourtCaseResponse buildCourtCaseResponse(HearingEntity hearingEntity, LocalDate hearingDate, HearingDefendantEntity hearingDefendantEntity, java.util.Map<String, Boolean> sfoFlagsByCode) {
+    private CourtCaseResponse buildCourtCaseResponse(HearingEntity hearingEntity, LocalDate hearingDate, HearingDefendantEntity hearingDefendantEntity, java.util.Map<String, Boolean> seriousFurtherOffenceFlagsByCode) {
         final var defendant = Optional.ofNullable(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).orElseThrow();
         var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingEntity.getCaseId(), defendant.getDefendantId()).orElse(0);
-        Boolean sfoFlag = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlagFromHearing(hearingEntity, defendant, sfoFlagsByCode);
-        return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate, sfoFlag);
+        Boolean seriousFurtherOffenceFlag = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlagFromHearing(hearingEntity, defendant, seriousFurtherOffenceFlagsByCode);
+        return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate, seriousFurtherOffenceFlag);
     }
 }

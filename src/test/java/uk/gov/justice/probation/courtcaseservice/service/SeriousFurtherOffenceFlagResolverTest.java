@@ -1,11 +1,13 @@
 package uk.gov.justice.probation.courtcaseservice.service;
 
 import kotlin.Pair;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
@@ -21,6 +23,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,8 +32,16 @@ class SeriousFurtherOffenceFlagResolverTest {
     @Mock
     private OffenceSfoMappingRepository offenceSfoMappingRepository;
 
+    @Mock
+    private FeatureFlags featureFlags;
+
     @InjectMocks
     private SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
+
+    @BeforeEach
+    void enableSeriousFurtherOffence() {
+        lenient().when(featureFlags.enableSeriousFurtherOffence()).thenReturn(true);
+    }
 
     @Test
     void buildSeriousFurtherOffenceFlagsMap_queriesRepositoryWithAllOffenceCodesAcrossAllResults() {
@@ -41,8 +52,8 @@ class SeriousFurtherOffenceFlagResolverTest {
 
         given(offenceSfoMappingRepository.findByOffenceCodeIn(anyCollection()))
             .willReturn(List.of(
-                OffenceSfoMappingEntity.builder().offenceCode("AB001").sfoFlag(true).build(),
-                OffenceSfoMappingEntity.builder().offenceCode("CD002").sfoFlag(false).build()
+                OffenceSfoMappingEntity.builder().offenceCode("AB001").seriousFurtherOffenceFlag(true).build(),
+                OffenceSfoMappingEntity.builder().offenceCode("CD002").seriousFurtherOffenceFlag(false).build()
             ));
 
         var result = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(List.of(
@@ -68,7 +79,7 @@ class SeriousFurtherOffenceFlagResolverTest {
     }
 
     @Test
-    void resolveSfoFlag_returnsTrueWhenAnyOffenceCodeMatchesSfoFlag() {
+    void resolveSeriousFurtherOffenceFlag_returnsTrueWhenAnyOffenceCodeMatchesSfoFlag() {
         HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
         DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
 
@@ -78,7 +89,7 @@ class SeriousFurtherOffenceFlagResolverTest {
     }
 
     @Test
-    void resolveSfoFlag_returnsFalseWhenNoOffenceCodesMatchSfoFlag() {
+    void resolveSeriousFurtherOffenceFlag_returnsFalseWhenNoOffenceCodesMatchSfoFlag() {
         HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
         DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
 
@@ -88,7 +99,7 @@ class SeriousFurtherOffenceFlagResolverTest {
     }
 
     @Test
-    void resolveSfoFlag_returnsFalseWhenOffenceCodeNotInMap() {
+    void resolveSeriousFurtherOffenceFlag_returnsFalseWhenOffenceCodeNotInMap() {
         HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
         DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
 
@@ -98,7 +109,7 @@ class SeriousFurtherOffenceFlagResolverTest {
     }
 
     @Test
-    void resolveSfoFlag_returnsNullWhenDefendantHasNoOffenceCodes() {
+    void resolveSeriousFurtherOffenceFlag_returnsNullWhenDefendantHasNoOffenceCodes() {
         HearingEntity hearing = hearingWithNoOffenceCodes("defendant-id-1");
         DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
 
@@ -108,13 +119,24 @@ class SeriousFurtherOffenceFlagResolverTest {
     }
 
     @Test
-    void resolveSfoFlag_returnsTrueWhenAtLeastOneOfMultipleOffenceCodesMatchesSfoFlag() {
+    void resolveSeriousFurtherOffenceFlag_returnsTrueWhenAtLeastOneOfMultipleOffenceCodesMatchesSfoFlag() {
         HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001", "CD002");
         DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
 
         var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), defendant, Map.of("AB001", false, "CD002", true));
 
         assertThat(result).isTrue();
+    }
+
+    @Test
+    void resolveSeriousFurtherOffenceFlag_returnsFalseWhenFeatureFlagDisabled() {
+        given(featureFlags.enableSeriousFurtherOffence()).willReturn(false);
+        HearingEntity hearing = hearingWithOffenceCodes("defendant-id-1", "AB001");
+        DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
+
+        var result = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(hearing.getCourtCase(), defendant, Map.of("AB001", true));
+
+        assertThat(result).isFalse();
     }
 
     private HearingEntity hearingWithNoOffenceCodes(String defendantId) {
@@ -143,4 +165,3 @@ class SeriousFurtherOffenceFlagResolverTest {
         return hearingWithCourtCase;
     }
 }
-

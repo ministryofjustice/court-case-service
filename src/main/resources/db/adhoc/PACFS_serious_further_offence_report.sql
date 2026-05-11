@@ -6,6 +6,8 @@
 --
 -- Run individually in DBeaver by highlighting the desired query and
 -- pressing Ctrl+Enter (or Cmd+Enter on Mac).
+--
+-- Enter the desired hearing date in the WHERE clause to get the report for that day.
 -- =====================================================================
 
 select  o.summary offence_summary,

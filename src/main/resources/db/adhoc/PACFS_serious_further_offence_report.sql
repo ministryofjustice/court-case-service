@@ -7,7 +7,7 @@
 -- Run individually in DBeaver by highlighting the desired query and
 -- pressing Ctrl+Enter (or Cmd+Enter on Mac).
 --
--- Enter the desired hearing date in the WHERE clause to get the report for that day.
+-- Enter the desired hearing dates in the WHERE clause to get the report for that period.
 -- =====================================================================
 
 select  o.summary offence_summary,
@@ -31,7 +31,7 @@ JOIN courtcaseservice.offender off            ON off.id = d.fk_offender_id
 JOIN courtcaseservice.court_case cc           ON h.fk_court_case_id = cc.id
 JOIN courtcaseservice.offence o               ON hdef.id = o.fk_hearing_defendant_id
 JOIN courtcaseservice.offence_sfo_mapping osm ON o.offence_code = osm.offence_code
-where hd.hearing_day = '2026-05-08'
+where hd.hearing_day between '2026-05-18' and '2026-05-24'
 AND osm.sfo_flag IS true
 AND lower(c.name) LIKE '%magistrates%'
-order by c.name
+order by c.name, hd.hearing_day

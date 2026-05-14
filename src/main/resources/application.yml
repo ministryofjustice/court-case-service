@@ -211,7 +211,7 @@ feature:
   flags:
     enable-cacheable-case-list: true
     delete-hearing: false
-    enable-serious-further-offence: false
+    enable-serious-further-offence: true
   event:
     probation-case:
       engagement.created: true

@@ -175,7 +175,7 @@ dependencies {
     }
 
     // Open API Documentation - version managed by hmpps-kotlin-spring-boot-starter
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
 
     // SAR (Subject Access Request) endpoint is included here
     implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.8.0") {

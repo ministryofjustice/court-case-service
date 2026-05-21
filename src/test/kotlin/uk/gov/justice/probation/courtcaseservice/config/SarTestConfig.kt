@@ -9,6 +9,8 @@ import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 @TestConfiguration
 open class SarTestConfig {
 
+  private val jwtAuthorisationHelper = JwtAuthorisationHelper()
+
   @Bean
   open fun sarIntegrationTestHelper(
     @Value("\${hmpps.sar.tests.expected-api-response.path:}") expectedApiResponsePath: String,
@@ -17,7 +19,7 @@ open class SarTestConfig {
     @Value("\${hmpps.sar.tests.expected-flyway-schema-version:0}") expectedFlywaySchemaVersion: String,
     @Value("\${hmpps.sar.tests.expected-jpa-entity-schema.path:}") expectedJpaEntitySchemaPath: String,
   ): SarIntegrationTestHelper = SarIntegrationTestHelper(
-    jwtAuthHelper = JwtAuthorisationHelper(),
+    jwtAuthHelper = jwtAuthorisationHelper,
     expectedApiResponsePath = expectedApiResponsePath,
     expectedRenderResultPath = expectedRenderResultPath,
     attachmentsExpected = attachmentsExpected,

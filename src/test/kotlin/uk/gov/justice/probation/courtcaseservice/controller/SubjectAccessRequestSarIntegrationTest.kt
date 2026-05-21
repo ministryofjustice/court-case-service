@@ -10,14 +10,14 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.subjectaccessrequest.SarApiDataTest
 import uk.gov.justice.digital.hmpps.subjectaccessrequest.SarFlywaySchemaTest
 import uk.gov.justice.digital.hmpps.subjectaccessrequest.SarIntegrationTestHelper
+import uk.gov.justice.digital.hmpps.subjectaccessrequest.SarIntegrationTestHelperConfig
 import uk.gov.justice.digital.hmpps.subjectaccessrequest.SarJpaEntitiesTest
 import uk.gov.justice.digital.hmpps.subjectaccessrequest.SarReportTest
 import uk.gov.justice.probation.courtcaseservice.BaseIntTest
-import uk.gov.justice.probation.courtcaseservice.config.SarTestConfig
 import javax.sql.DataSource
 
 @AutoConfigureWebTestClient(timeout = "30000")
-@Import(SarTestConfig::class)
+@Import(SarIntegrationTestHelperConfig::class)
 @Sql(
   scripts = ["classpath:sql/before-common.sql", "classpath:sql/before-SubjectAccessRequestIntTest.sql"],
   config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),

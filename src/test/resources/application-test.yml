@@ -46,6 +46,9 @@ flipt:
   api-key: "test-api-key"
 
 spring:
+  autoconfigure:
+    exclude:
+      - uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
   jpa:
     show-sql: false
     properties:
@@ -61,6 +64,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?currentSchema=${database.schema.name}&user=${database.username:root}&password=${database.password:dev}&stringtype=unspecified
+    hikari:
+      maximum-pool-size: 5
 
 delius:
   base-url: https://ndelius.test.probation.service.justice.gov.uk
@@ -105,3 +110,15 @@ hmpps.sqs:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
     domainevents:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
+
+hmpps:
+  sar:
+    tests:
+      expected-api-response:
+        path: /sar/court-case-service-sar-api-response.json
+      expected-render-result:
+        path: /sar/court-case-service-sar-expected.html
+      attachments-expected: false
+      expected-flyway-schema-version: 2204
+      expected-jpa-entity-schema:
+        path: /sar/entity-schema-snapshot.json

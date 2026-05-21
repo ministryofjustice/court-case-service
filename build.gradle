@@ -226,7 +226,6 @@ dependencies {
 
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:4.1.1'
     testImplementation("io.rest-assured:json-path:$restAssuredVersion")
     testImplementation("io.rest-assured:xml-path:$restAssuredVersion")
@@ -246,6 +245,9 @@ dependencies {
     testImplementation("org.apache.httpcomponents:fluent-hc:4.5.14")
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+
+    testImplementation("uk.gov.justice.service.hmpps:hmpps-subject-access-request-test-support:1.7.1")
+    testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.8.0")
 
     agentDeps 'com.microsoft.azure:applicationinsights-agent:3.7.3'
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.21")

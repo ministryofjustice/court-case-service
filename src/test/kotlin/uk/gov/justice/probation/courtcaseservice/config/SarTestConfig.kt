@@ -3,6 +3,8 @@ package uk.gov.justice.probation.courtcaseservice.config
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Primary
+import org.springframework.security.oauth2.jwt.JwtDecoder
 import uk.gov.justice.digital.hmpps.subjectaccessrequest.SarIntegrationTestHelper
 import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 
@@ -10,6 +12,10 @@ import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 open class SarTestConfig {
 
   private val jwtAuthorisationHelper = JwtAuthorisationHelper()
+
+  @Bean
+  @Primary
+  open fun sarJwtDecoder(): JwtDecoder = jwtAuthorisationHelper.jwtDecoder()
 
   @Bean
   open fun sarIntegrationTestHelper(

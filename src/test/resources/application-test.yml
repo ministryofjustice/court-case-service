@@ -46,6 +46,9 @@ flipt:
   api-key: "test-api-key"
 
 spring:
+  autoconfigure:
+    exclude:
+      - uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
   jpa:
     show-sql: false
     properties:

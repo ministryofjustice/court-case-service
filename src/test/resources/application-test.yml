@@ -119,6 +119,6 @@ hmpps:
       expected-render-result:
         path: /sar/court-case-service-sar-expected.html
       attachments-expected: false
-      expected-flyway-schema-version: 2206
+      expected-flyway-schema-version: 2207
       expected-jpa-entity-schema:
         path: /sar/entity-schema-snapshot.json

@@ -41,6 +41,7 @@ public class CaseSearchService {
         final String searchTerm = caseSearchRequest.getTerm();
         var resultsPage = switch (caseSearchRequest.getType()) {
             case CRN -> defendantRepositoryCustom.findDefendantsByCrn(searchTerm, pageable);
+            case URN -> defendantRepositoryCustom.findDefendantsByUrn(searchTerm, pageable);
             case NAME ->
                 defendantRepositoryCustom.findDefendantsByName(Arrays.stream(searchTerm.trim().replaceAll("\\s+", " ").split(" "))
                     // Remove leading and trailing whitespaces

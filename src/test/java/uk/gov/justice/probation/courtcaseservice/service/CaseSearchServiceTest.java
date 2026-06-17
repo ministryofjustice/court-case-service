@@ -175,7 +175,7 @@ class CaseSearchServiceTest {
         EntityHelper.refreshMappings(hearingEntity2);
         final Pageable pageable = Pageable.ofSize(10).withPage(0);
 
-        given(defendantRepositoryCustom.findDefendantsByName(searchTermCaptor.capture(), any(), any(Pageable.class), BLANK_COURT_CODE))
+        given(defendantRepositoryCustom.findDefendantsByName(searchTermCaptor.capture(), any(), any(Pageable.class), any()))
             .willReturn(new PageImpl<>(List.of(new Pair<>(hearingEntity1.getCourtCase(), defendantEntity1), new Pair<>(hearingEntity2.getCourtCase(), defendantEntity2)), pageable, 2));
         given(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(anyList())).willReturn(Map.of());
         given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), any())).willReturn(null);
@@ -187,7 +187,7 @@ class CaseSearchServiceTest {
 
         caseSearchService.searchCases(CaseSearchRequest.builder().term(expectedSearchTerm).type(CaseSearchType.NAME).build());
 
-        verify(defendantRepositoryCustom).findDefendantsByName(searchTermCaptor.capture(), any(), any(Pageable.class), BLANK_COURT_CODE);
+        verify(defendantRepositoryCustom).findDefendantsByName(searchTermCaptor.capture(), any(), any(Pageable.class), any());
         assertEquals("TEST & TEST", searchTermCaptor.getValue());
     }
 }

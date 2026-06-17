@@ -22,15 +22,14 @@ public class DefendantRepositoryCustom {
         "        join hearing h on cc.id = h.fk_court_case_id " +
         "        join hearing_defendant hd on h.id = hd.fk_hearing_id " +
         "        join defendant d on d.id = hd.fk_defendant_id " +
-        "        join hearing_day hday on hday.fk_hearing_id = h.id " +
         "  inner join (select max(h1.id) as max_id, d1.id as did from hearing h1 " +
         "         join court_case cc1 on cc1.id = h1.fk_court_case_id " +
         "         join hearing_defendant hd1  on h1.id = hd1.fk_hearing_id " +
         "         join defendant d1 on d1.id = hd1.fk_defendant_id " +
-        "         inner join courtcaseservice.hearing_day hday1 on hday1.fk_hearing_id = h1.id";
+        "         inner join hearing_day hday1 on hday1.fk_hearing_id = h1.id";
 
     private static final String DEFENDANT_SEARCH_SELECT =
-            "select hday.court_code, cc.id, cc.case_id, cc.case_no, cc.created AS ccCreated, cc.created_by AS ccCreatedBy, cc.deleted AS ccDeleted, cc.source_type, cc.urn, cc.last_updated AS ccLastUpdated, cc.last_updated_by AS ccLastUpdatedBy, cc.\"version\" AS ccVersion, " +
+            "select cc.id, cc.case_id, cc.case_no, cc.created AS ccCreated, cc.created_by AS ccCreatedBy, cc.deleted AS ccDeleted, cc.source_type, cc.urn, cc.last_updated AS ccLastUpdated, cc.last_updated_by AS ccLastUpdatedBy, cc.\"version\" AS ccVersion, " +
                   "d.id as defId, d.defendant_name, d.\"type\", d.\"name\", d.address, d.crn, d.pnc, d.cro, d.date_of_birth, d.sex, d.nationality_1, d.nationality_2, d.created, " +
                   "d.created_by, d.manual_update, d.defendant_id, d.offender_confirmed, d.phone_number, d.person_id, d.fk_offender_id, d.last_updated, d.last_updated_by, d.\"version\", d.deleted, d.tsv_name, d.cpr_uuid, d.c_id ";
 

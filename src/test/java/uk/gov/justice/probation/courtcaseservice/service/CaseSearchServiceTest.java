@@ -145,7 +145,7 @@ class CaseSearchServiceTest {
         final Pageable pageable = Pageable.ofSize(10).withPage(0);
         String urn = "01HV14907540";
 
-        given(defendantRepositoryCustom.findDefendantsByUrn(urn, pageable))
+        given(defendantRepositoryCustom.findDefendantsByUrn(urn, pageable, BLANK_COURT_CODE))
             .willReturn(new PageImpl<>(List.of(new Pair<>(hearingEntity1.getCourtCase(), defendantEntity1), new Pair<>(hearingEntity2.getCourtCase(), defendantEntity2)), pageable, 2));
         given(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(anyList())).willReturn(Map.of());
         given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), any())).willReturn(null);
@@ -157,7 +157,7 @@ class CaseSearchServiceTest {
 
         var actual = caseSearchService.searchCases(CaseSearchRequest.builder().term(urn).type(CaseSearchType.URN).build());
 
-        verify(defendantRepositoryCustom).findDefendantsByUrn(urn, pageable);
+        verify(defendantRepositoryCustom).findDefendantsByUrn(urn, pageable, BLANK_COURT_CODE);
         verify(caseSearchResultItemMapper).from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull());
         verify(caseSearchResultItemMapper).from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull());
         assertThat(actual).isEqualTo(CaseSearchResult.builder().totalElements(2).totalPages(1).items(List.of(result1, result2)).build());

@@ -76,9 +76,11 @@ public class DefendantRepositoryCustom {
         return getPagedResult(pageable, query, countQuery);
     }
 
-    public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByUrn(String urn, Pageable pageable) {
+    public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByUrn(String urn, Pageable pageable, String courtCode) {
 
-        String URN_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where cc1.urn = :urn " + DEFENDANT_SEARCH_GROUPING;
+        String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " where hday1.court_code = :courtCode" : "";
+
+        String URN_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where cc1.urn = :urn " + COURT_FILTER_FROM  + DEFENDANT_SEARCH_GROUPING;
 
         var query = entityManager.createNativeQuery(
             DEFENDANT_SEARCH_SELECT + URN_SEARCH_FROM + " order by cc.id desc ",

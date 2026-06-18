@@ -42,7 +42,7 @@ public class CaseSearchService {
         final String courtCode = caseSearchRequest.getCourtCode();
         var resultsPage = switch (caseSearchRequest.getType()) {
             case CRN -> defendantRepositoryCustom.findDefendantsByCrn(searchTerm, pageable, courtCode);
-            case URN -> defendantRepositoryCustom.findDefendantsByUrn(searchTerm, pageable);
+            case URN -> defendantRepositoryCustom.findDefendantsByUrn(searchTerm, pageable, courtCode);
             case NAME ->
                 defendantRepositoryCustom.findDefendantsByName(Arrays.stream(searchTerm.trim().replaceAll("\\s+", " ").split(" "))
                     // Remove leading and trailing whitespaces

@@ -39,13 +39,14 @@ public class CaseSearchService {
         Pageable pageable = Pageable.ofSize(caseSearchRequest.getSize()).withPage(caseSearchRequest.getPage() - 1);
 
         final String searchTerm = caseSearchRequest.getTerm();
+        final String courtCode = caseSearchRequest.getCourtCode();
         var resultsPage = switch (caseSearchRequest.getType()) {
-            case CRN -> defendantRepositoryCustom.findDefendantsByCrn(searchTerm, pageable);
-            case URN -> defendantRepositoryCustom.findDefendantsByUrn(searchTerm, pageable);
+            case CRN -> defendantRepositoryCustom.findDefendantsByCrn(searchTerm, pageable, courtCode);
+            case URN -> defendantRepositoryCustom.findDefendantsByUrn(searchTerm, pageable, courtCode);
             case NAME ->
                 defendantRepositoryCustom.findDefendantsByName(Arrays.stream(searchTerm.trim().replaceAll("\\s+", " ").split(" "))
                     // Remove leading and trailing whitespaces
-                    .map(String::trim).collect(Collectors.joining(" & ")), searchTerm.strip(), pageable);
+                    .map(String::trim).collect(Collectors.joining(" & ")), searchTerm.strip(), pageable, courtCode);
         };
 
         if(caseSearchRequest.getPage() > resultsPage.getTotalPages()) {

@@ -39,7 +39,7 @@ public class DefendantRepositoryCustom {
     private EntityManager entityManager;
     public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByCrn(String crn, Pageable pageable, String courtCode) {
 
-        String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " where hday1.court_code = :courtCode" : "";
+        String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " and hday1.court_code = :courtCode" : "";
 
         String CRN_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " join offender off on off.id = d1.fk_offender_id " + " where off.crn = :crn " + COURT_FILTER_FROM + DEFENDANT_SEARCH_GROUPING;
 
@@ -52,13 +52,16 @@ public class DefendantRepositoryCustom {
         var countQuery = entityManager.createNativeQuery("select count(*) " + CRN_SEARCH_FROM);
 
         countQuery.setParameter("crn", crn);
+        if (!courtCode.isBlank()) {
+            query.setParameter("courtCode", courtCode);
+        }
 
         return getPagedResult(pageable, query, countQuery);
     }
 
     public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByName(String tsQueryString, String name, Pageable pageable, String courtCode) {
 
-        String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " where hday1.court_code = :courtCode" : "";
+        String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " and hday1.court_code = :courtCode" : "";
 
         String NAME_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where d1.tsv_name @@ to_tsquery('simple', :tsQueryString) " + COURT_FILTER_FROM + DEFENDANT_SEARCH_GROUPING;
 
@@ -69,6 +72,10 @@ public class DefendantRepositoryCustom {
         query.setParameter("tsQueryString", tsQueryString);
         query.setParameter("name", name);
 
+        if (!courtCode.isBlank()) {
+            query.setParameter("courtCode", courtCode);
+        }
+
         var countQuery = entityManager.createNativeQuery("select count(*) " + NAME_SEARCH_FROM );
 
         countQuery.setParameter("tsQueryString", tsQueryString);
@@ -78,7 +85,7 @@ public class DefendantRepositoryCustom {
 
     public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByUrn(String urn, Pageable pageable, String courtCode) {
 
-        String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " where hday1.court_code = :courtCode" : "";
+        String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " and hday1.court_code = :courtCode" : "";
 
         String URN_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where cc1.urn = :urn " + COURT_FILTER_FROM  + DEFENDANT_SEARCH_GROUPING;
 
@@ -89,6 +96,11 @@ public class DefendantRepositoryCustom {
         query.setParameter("urn", urn);
 
         var countQuery = entityManager.createNativeQuery("select count(*) " + URN_SEARCH_FROM);
+
+        if (!courtCode.isBlank()) {
+            query.setParameter("courtCode", courtCode);
+            countQuery.setParameter("courtCode", courtCode);
+        }
 
         countQuery.setParameter("urn", urn);
 

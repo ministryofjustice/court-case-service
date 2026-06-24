@@ -54,6 +54,7 @@ public class DefendantRepositoryCustom {
         countQuery.setParameter("crn", crn);
         if (!courtCode.isBlank()) {
             query.setParameter("courtCode", courtCode);
+            countQuery.setParameter("courtCode", courtCode);
         }
 
         return getPagedResult(pageable, query, countQuery);
@@ -72,11 +73,12 @@ public class DefendantRepositoryCustom {
         query.setParameter("tsQueryString", tsQueryString);
         query.setParameter("name", name);
 
+        var countQuery = entityManager.createNativeQuery("select count(*) " + NAME_SEARCH_FROM );
+
         if (!courtCode.isBlank()) {
             query.setParameter("courtCode", courtCode);
+            countQuery.setParameter("courtCode", courtCode);
         }
-
-        var countQuery = entityManager.createNativeQuery("select count(*) " + NAME_SEARCH_FROM );
 
         countQuery.setParameter("tsQueryString", tsQueryString);
 

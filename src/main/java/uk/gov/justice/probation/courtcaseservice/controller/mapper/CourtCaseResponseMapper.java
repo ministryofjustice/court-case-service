@@ -122,7 +122,7 @@ public class CourtCaseResponseMapper {
     }
 
     private static String getNormalisedCourtRoom(String courtRoom) {
-        return courtRoom.contains("Courtroom") ? courtRoom.replaceAll("[a-zA-Z 0]", "") : courtRoom.replace("([0]*)?", "");
+        return courtRoom.contains("Courtroom") ? courtRoom.replaceAll("[a-zA-Z ]", "").replaceFirst("^0+(?=\\d)", "") : courtRoom.replaceFirst("^0+(?=\\d)", "");
     }
 
     private static List<OffenceResponse> mapOffencesFromDefendantOffences(List<OffenceEntity> offenceEntities) {

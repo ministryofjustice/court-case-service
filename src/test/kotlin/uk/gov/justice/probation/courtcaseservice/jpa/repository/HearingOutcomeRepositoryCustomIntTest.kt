@@ -11,8 +11,13 @@ import org.springframework.context.annotation.Bean
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlConfig
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState.NEW
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState.RESULTED
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSortFields.DEFENDANT_NAME
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSortFields.PROBATION_STATUS
+import uk.gov.justice.probation.courtcaseservice.controller.model.SortOrder.ASC
+import uk.gov.justice.probation.courtcaseservice.controller.model.SortOrder.DESC
 import uk.gov.justice.probation.courtcaseservice.jpa.DTOHelper.aHearingDefendantDTO
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO
 
@@ -53,6 +58,36 @@ internal class HearingOutcomeRepositoryCustomIntTest {
     // Then
     assertThat(result.content.size).isEqualTo(2)
     assertThat(result.content).extracting("first.hearing.hearingId").containsExactlyInAnyOrder("ddfe6b75-c3fc-4ed0-9bf6-21d66b125636", "1f93aa0a-7e46-4885-a1cb-f25a4be33a00")
+  }
+
+  @Test
+  fun `should sort outcomes by defendant name ascending and descending`() {
+    val ascResult = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(
+      "B14LO",
+      HearingOutcomeSearchRequest(state = NEW, sortBy = DEFENDANT_NAME, order = ASC),
+    )
+    val descResult = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(
+      "B14LO",
+      HearingOutcomeSearchRequest(state = NEW, sortBy = DEFENDANT_NAME, order = DESC),
+    )
+
+    assertThat(ascResult.content).extracting("first.defendant.defendantName").containsExactly("Mr Arthur Morgan", "Mr Jeff Blogs")
+    assertThat(descResult.content).extracting("first.defendant.defendantName").containsExactly("Mr Jeff Blogs", "Mr Arthur Morgan")
+  }
+
+  @Test
+  fun `should sort outcomes by probation status ascending and descending`() {
+    val ascResult = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(
+      "B14LO",
+      HearingOutcomeSearchRequest(state = NEW, sortBy = PROBATION_STATUS, order = ASC),
+    )
+    val descResult = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(
+      "B14LO",
+      HearingOutcomeSearchRequest(state = NEW, sortBy = PROBATION_STATUS, order = DESC),
+    )
+
+    assertThat(ascResult.content).extracting("first.defendant.defendantName").containsExactly("Mr Arthur Morgan", "Mr Jeff Blogs")
+    assertThat(descResult.content).extracting("first.defendant.defendantName").containsExactly("Mr Jeff Blogs", "Mr Arthur Morgan")
   }
 
   @Test

@@ -67,7 +67,14 @@ class HearingOutcomeRepositoryCustom(
       when (hearingOutcomeSearchRequest.sortBy) {
         HEARING_DATE -> orderByBuilder.append("hday2.hearing_day $direction, hd.id $direction")
         DEFENDANT_NAME -> orderByBuilder.append("lower(d.defendant_name) $direction, hd.id $direction")
-        PROBATION_STATUS -> orderByBuilder.append("lower(coalesce(o.probation_status, 'NO_RECORD')) $direction, hd.id $direction")
+        PROBATION_STATUS -> orderByBuilder.append(
+          """CASE
+            WHEN o.probation_status = 'CURRENT' THEN 4
+            WHEN o.probation_status = 'NOT_SENTENCED' THEN 3
+            WHEN o.probation_status = 'PREVIOUSLY_KNOWN' THEN 2
+            ELSE 1
+          END $direction, hd.id $direction""",
+        )
       }
     }
 

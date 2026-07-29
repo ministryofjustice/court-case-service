@@ -86,8 +86,8 @@ internal class HearingOutcomeRepositoryCustomIntTest {
       HearingOutcomeSearchRequest(state = NEW, sortBy = PROBATION_STATUS, order = DESC),
     )
 
-    assertThat(ascResult.content).extracting("first.defendant.defendantName").containsExactly("Mr Arthur Morgan", "Mr Jeff Blogs")
-    assertThat(descResult.content).extracting("first.defendant.defendantName").containsExactly("Mr Jeff Blogs", "Mr Arthur Morgan")
+    assertThat(ascResult.content).extracting("first.defendant.defendantName").containsExactly("Mr Jeff Blogs", "Mr Arthur Morgan")
+    assertThat(descResult.content).extracting("first.defendant.defendantName").containsExactly("Mr Arthur Morgan", "Mr Jeff Blogs")
   }
 
   @Test

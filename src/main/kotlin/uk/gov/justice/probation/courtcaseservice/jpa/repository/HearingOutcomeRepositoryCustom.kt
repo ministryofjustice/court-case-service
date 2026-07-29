@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSortFields.DEFENDANT_NAME
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSortFields.HEARING_DATE
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSortFields.PROBATION_STATUS
 import uk.gov.justice.probation.courtcaseservice.controller.model.SortOrder
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO
 import java.time.LocalDate
@@ -61,12 +63,18 @@ class HearingOutcomeRepositoryCustom(
     if (hearingOutcomeSearchRequest.sortBy == null) {
       orderByBuilder.append("hday2.hearing_day, hd.id")
     } else {
-      // only sort by hearing date supported at the moment
-      if (hearingOutcomeSearchRequest.sortBy == HEARING_DATE) {
-        val direction = hearingOutcomeSearchRequest.order?.name ?: SortOrder.ASC.name
-        orderByBuilder.append("hday2.hearing_day $direction, hd.id $direction")
-      } else {
-        orderByBuilder.append("hday2.hearing_day, hd.id")
+      val direction = hearingOutcomeSearchRequest.order?.name ?: SortOrder.ASC.name
+      when (hearingOutcomeSearchRequest.sortBy) {
+        HEARING_DATE -> orderByBuilder.append("hday2.hearing_day $direction, hd.id $direction")
+        DEFENDANT_NAME -> orderByBuilder.append("lower(d.defendant_name) $direction, hd.id $direction")
+        PROBATION_STATUS -> orderByBuilder.append(
+          """CASE
+            WHEN o.probation_status = 'CURRENT' THEN 4
+            WHEN o.probation_status = 'NOT_SENTENCED' THEN 3
+            WHEN o.probation_status = 'PREVIOUSLY_KNOWN' THEN 2
+            ELSE 1
+          END $direction, hd.id $direction""",
+        )
       }
     }
 
@@ -79,6 +87,8 @@ class HearingOutcomeRepositoryCustom(
 
     val coreQuery = """
             from hearing_defendant hd
+            left join defendant d on d.id = hd.fk_defendant_id
+            left join offender o on o.id = d.fk_offender_id
             inner join hearing_outcome ho on ho.fk_hearing_defendant_id = hd.id
             $filterBuilder
             inner join

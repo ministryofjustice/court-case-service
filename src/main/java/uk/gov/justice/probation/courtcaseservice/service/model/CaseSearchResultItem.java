@@ -43,6 +43,8 @@ public class CaseSearchResultItem {
 
     private final Boolean seriousFurtherOffence;
 
+    private final Boolean multiAgencyPublicProtectionArrangementsOffence;
+
     private final Boolean breach;
 
     private final HearingOutcome hearingOutcome;

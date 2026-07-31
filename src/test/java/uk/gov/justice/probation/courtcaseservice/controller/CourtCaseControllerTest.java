@@ -80,6 +80,8 @@ class CourtCaseControllerTest {
     private HearingNotesService hearingNotesService;
     @Mock
     private SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
+    @Mock
+    private MultiAgencyPublicProtectionArrangementsFlagResolver multiAgencyPublicProtectionArrangementsFlagResolver;
 
     private CourtCaseController courtCaseController;
     private final HearingEntity hearingEntity = HearingEntity.builder()
@@ -107,8 +109,9 @@ class CourtCaseControllerTest {
     @BeforeEach
     public void setUp() {
         Mockito.lenient().when(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMapFromHearing(any())).thenReturn(java.util.Collections.emptyMap());
+        Mockito.lenient().when(multiAgencyPublicProtectionArrangementsFlagResolver.buildMultiAgencyPublicProtectionArrangementsFlagsMapFromHearing(any())).thenReturn(java.util.Collections.emptyMap());
         courtCaseController = new CourtCaseController(courtCaseService, offenderMatchService,
-            offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, seriousFurtherOffenceFlagResolver, true);
+            offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, seriousFurtherOffenceFlagResolver, multiAgencyPublicProtectionArrangementsFlagResolver, true);
     }
 
     @Test
@@ -301,7 +304,7 @@ class CourtCaseControllerTest {
     @Test
     void givenCacheableCaseListDisabled_whenListIsNotModified_thenReturnFullList() {
         final var nonCachingController = new CourtCaseController(courtCaseService,
-            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, seriousFurtherOffenceFlagResolver, false);
+            offenderMatchService, offenderUpdateService, caseCommentsService, authenticationHelper, caseProgressService, hearingNotesService, seriousFurtherOffenceFlagResolver, multiAgencyPublicProtectionArrangementsFlagResolver, false);
 
         final var courtCaseEntity = this.hearingEntity.withHearingDefendants(List.of(EntityHelper.aHearingDefendantEntity()))
                 .withHearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()

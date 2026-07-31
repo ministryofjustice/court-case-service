@@ -55,10 +55,14 @@ public class CourtCaseResponseMapper {
     }
 
     public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, HearingDefendantEntity defendantEntity, int matchCount, LocalDate hearingDate) {
-        return mapFrom(hearingEntity, defendantEntity, matchCount, hearingDate, null);
+        return mapFrom(hearingEntity, defendantEntity, matchCount, hearingDate, null, null);
     }
 
     public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, HearingDefendantEntity defendantEntity, int matchCount, LocalDate hearingDate, Boolean seriousFurtherOffence) {
+        return mapFrom(hearingEntity, defendantEntity, matchCount, hearingDate, seriousFurtherOffence, null);
+    }
+
+    public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, HearingDefendantEntity defendantEntity, int matchCount, LocalDate hearingDate, Boolean seriousFurtherOffence, Boolean multiAgencyPublicProtectionArrangementsOffence) {
         // Core case-based
         final var builder = CourtCaseResponse.builder();
 
@@ -69,6 +73,7 @@ public class CourtCaseResponseMapper {
         addDefendantFields(builder, defendantEntity);
         builder.numberOfPossibleMatches(matchCount);
         builder.seriousFurtherOffence(seriousFurtherOffence != null && seriousFurtherOffence);
+        builder.multiAgencyPublicProtectionArrangementsOffence(Boolean.TRUE.equals(multiAgencyPublicProtectionArrangementsOffence));
 
         return builder.build();
     }

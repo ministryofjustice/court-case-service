@@ -49,6 +49,7 @@ import uk.gov.justice.probation.courtcaseservice.service.CourtCaseService;
 import uk.gov.justice.probation.courtcaseservice.service.HearingNotesService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderMatchService;
 import uk.gov.justice.probation.courtcaseservice.service.OffenderUpdateService;
+import uk.gov.justice.probation.courtcaseservice.service.MultiAgencyPublicProtectionArrangementsFlagResolver;
 import uk.gov.justice.probation.courtcaseservice.service.SeriousFurtherOffenceFlagResolver;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
 import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
@@ -85,6 +86,7 @@ public class CourtCaseController {
     private final CaseProgressService caseProgressService;
     private final HearingNotesService hearingNotesService;
     private final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
+    private final MultiAgencyPublicProtectionArrangementsFlagResolver multiAgencyPublicProtectionArrangementsFlagResolver;
 
     @Autowired
     public CourtCaseController(CourtCaseService courtCaseService,
@@ -95,6 +97,7 @@ public class CourtCaseController {
                                CaseProgressService caseProgressService,
                                HearingNotesService hearingNotesService,
                                SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver,
+                               MultiAgencyPublicProtectionArrangementsFlagResolver multiAgencyPublicProtectionArrangementsFlagResolver,
                                @Value("${feature.flags.enable-cacheable-case-list:true}") boolean enableCacheableCaseList) {
         this.courtCaseService = courtCaseService;
         this.offenderMatchService = offenderMatchService;
@@ -105,6 +108,7 @@ public class CourtCaseController {
         this.caseProgressService = caseProgressService;
         this.hearingNotesService = hearingNotesService;
         this.seriousFurtherOffenceFlagResolver = seriousFurtherOffenceFlagResolver;
+        this.multiAgencyPublicProtectionArrangementsFlagResolver = multiAgencyPublicProtectionArrangementsFlagResolver;
     }
 
     @Operation(description = "Gets the court case data by hearing id and defendant id.")
@@ -419,17 +423,19 @@ public class CourtCaseController {
 
         // Build serious further offence flags map once per hearing across all defendants (using hearing directly to avoid unloaded courtCase.hearings)
         var seriousFurtherOffenceFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMapFromHearing(hearingEntity);
+        var multiAgencyPublicProtectionArrangementsFlagsByCode = multiAgencyPublicProtectionArrangementsFlagResolver.buildMultiAgencyPublicProtectionArrangementsFlagsMapFromHearing(hearingEntity);
 
         return defendantEntities.stream()
                 .sorted(Comparator.comparing(HearingDefendantEntity::getDefendantSurname))
-                .map(hearingDefendantEntity -> buildCourtCaseResponse(hearingEntity, hearingDate, hearingDefendantEntity, seriousFurtherOffenceFlagsByCode))
+                .map(hearingDefendantEntity -> buildCourtCaseResponse(hearingEntity, hearingDate, hearingDefendantEntity, seriousFurtherOffenceFlagsByCode, multiAgencyPublicProtectionArrangementsFlagsByCode))
                 .toList();
     }
 
-    private CourtCaseResponse buildCourtCaseResponse(HearingEntity hearingEntity, LocalDate hearingDate, HearingDefendantEntity hearingDefendantEntity, java.util.Map<String, Boolean> seriousFurtherOffenceFlagsByCode) {
+    private CourtCaseResponse buildCourtCaseResponse(HearingEntity hearingEntity, LocalDate hearingDate, HearingDefendantEntity hearingDefendantEntity, java.util.Map<String, Boolean> seriousFurtherOffenceFlagsByCode, java.util.Map<String, Boolean> multiAgencyPublicProtectionArrangementsFlagsByCode) {
         final var defendant = Optional.ofNullable(hearingDefendantEntity).map(HearingDefendantEntity::getDefendant).orElseThrow();
         var matchCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingEntity.getCaseId(), defendant.getDefendantId()).orElse(0);
         Boolean seriousFurtherOffenceFlag = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlagFromHearing(hearingEntity, defendant, seriousFurtherOffenceFlagsByCode);
-        return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate, seriousFurtherOffenceFlag);
+        Boolean multiAgencyPublicProtectionArrangementsFlag = multiAgencyPublicProtectionArrangementsFlagResolver.resolveMultiAgencyPublicProtectionArrangementsFlagFromHearing(hearingEntity, defendant, multiAgencyPublicProtectionArrangementsFlagsByCode);
+        return CourtCaseResponseMapper.mapFrom(hearingEntity, hearingDefendantEntity, matchCount, hearingDate, seriousFurtherOffenceFlag, multiAgencyPublicProtectionArrangementsFlag);
     }
 }

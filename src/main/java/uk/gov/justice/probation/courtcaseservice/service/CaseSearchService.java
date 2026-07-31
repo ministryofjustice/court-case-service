@@ -24,14 +24,17 @@ public class CaseSearchService {
     private final CaseSearchResultItemMapper caseSearchResultItemMapper;
     private final DefendantRepositoryCustom defendantRepositoryCustom;
     private final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
+    private final MultiAgencyPublicProtectionArrangementsFlagResolver multiAgencyPublicProtectionArrangementsFlagResolver;
 
     @Autowired
     public CaseSearchService(final DefendantRepositoryCustom defendantRepositoryCustom,
                              final CaseSearchResultItemMapper caseSearchResultItemMapper,
-                             final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver) {
+                             final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver,
+                             final MultiAgencyPublicProtectionArrangementsFlagResolver multiAgencyPublicProtectionArrangementsFlagResolver) {
         this.caseSearchResultItemMapper = caseSearchResultItemMapper;
         this.defendantRepositoryCustom = defendantRepositoryCustom;
         this.seriousFurtherOffenceFlagResolver = seriousFurtherOffenceFlagResolver;
+        this.multiAgencyPublicProtectionArrangementsFlagResolver = multiAgencyPublicProtectionArrangementsFlagResolver;
     }
 
     @Transactional(readOnly = true)
@@ -58,12 +61,15 @@ public class CaseSearchService {
         }
 
         var seriousFurtherOffenceFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(resultsPage.getContent());
+        var multiAgencyPublicProtectionArrangementsFlagsByCode = multiAgencyPublicProtectionArrangementsFlagResolver.buildMultiAgencyPublicProtectionArrangementsFlagsMap(resultsPage.getContent());
 
         return CaseSearchResult.builder()
             .totalElements(resultsPage.getTotalElements())
             .totalPages(resultsPage.getTotalPages())
             .items(resultsPage.getContent().stream()
-                .map(pair -> caseSearchResultItemMapper.from(pair.getFirst(), pair.getSecond(), seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(pair.getFirst(), pair.getSecond(), seriousFurtherOffenceFlagsByCode)))
+                .map(pair -> caseSearchResultItemMapper.from(pair.getFirst(), pair.getSecond(),
+                    seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(pair.getFirst(), pair.getSecond(), seriousFurtherOffenceFlagsByCode),
+                    multiAgencyPublicProtectionArrangementsFlagResolver.resolveMultiAgencyPublicProtectionArrangementsFlag(pair.getFirst(), pair.getSecond(), multiAgencyPublicProtectionArrangementsFlagsByCode)))
                 .collect(Collectors.toList())).build();
     }
 }

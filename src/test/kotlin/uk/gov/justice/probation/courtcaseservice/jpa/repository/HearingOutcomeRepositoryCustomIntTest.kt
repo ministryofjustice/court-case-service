@@ -71,8 +71,10 @@ internal class HearingOutcomeRepositoryCustomIntTest {
       HearingOutcomeSearchRequest(state = NEW, sortBy = DEFENDANT_NAME, order = DESC),
     )
 
-    assertThat(ascResult.content).extracting("first.defendant.defendantName").containsExactly("Mr Jeff Blogs", "Mr Arthur Morgan")
-    assertThat(descResult.content).extracting("first.defendant.defendantName").containsExactly("Mr Arthur Morgan", "Mr Jeff Blogs")
+    assertThat(ascResult.content).extracting("first.defendant.defendantName")
+      .containsExactly("Mr Jeff Blogs", "Mr Arthur Morgan", "Mr Nick Notsentenced", "Ms Penny Previous")
+    assertThat(descResult.content).extracting("first.defendant.defendantName")
+      .containsExactly("Ms Penny Previous", "Mr Nick Notsentenced", "Mr Arthur Morgan", "Mr Jeff Blogs")
   }
 
   @Test
@@ -86,8 +88,10 @@ internal class HearingOutcomeRepositoryCustomIntTest {
       HearingOutcomeSearchRequest(state = NEW, sortBy = PROBATION_STATUS, order = DESC),
     )
 
-    assertThat(ascResult.content).extracting("first.defendant.defendantName").containsExactly("Mr Arthur Morgan", "Mr Jeff Blogs")
-    assertThat(descResult.content).extracting("first.defendant.defendantName").containsExactly("Mr Jeff Blogs", "Mr Arthur Morgan")
+    assertThat(ascResult.content).extracting("first.defendant.defendantName")
+      .containsExactly("Mr Arthur Morgan", "Ms Penny Previous", "Mr Nick Notsentenced", "Mr Jeff Blogs")
+    assertThat(descResult.content).extracting("first.defendant.defendantName")
+      .containsExactly("Mr Jeff Blogs", "Mr Nick Notsentenced", "Ms Penny Previous", "Mr Arthur Morgan")
   }
 
   @Test

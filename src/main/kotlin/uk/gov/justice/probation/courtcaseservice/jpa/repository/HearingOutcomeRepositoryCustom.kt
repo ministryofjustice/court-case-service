@@ -70,8 +70,8 @@ class HearingOutcomeRepositoryCustom(
         PROBATION_STATUS -> orderByBuilder.append(
           """CASE
             WHEN o.probation_status = 'CURRENT' THEN 1
-            WHEN o.probation_status = 'NOT_SENTENCED' THEN 2
-            WHEN o.probation_status = 'PREVIOUSLY_KNOWN' THEN 3
+            WHEN o.probation_status = 'PREVIOUSLY_KNOWN' THEN 2
+            WHEN o.probation_status = 'NOT_SENTENCED' THEN 3
             ELSE 4
           END $direction, hd.id $direction""",
         )

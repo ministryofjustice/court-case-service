@@ -66,7 +66,9 @@ class HearingOutcomeRepositoryCustom(
       val direction = hearingOutcomeSearchRequest.order?.name ?: SortOrder.ASC.name
       when (hearingOutcomeSearchRequest.sortBy) {
         HEARING_DATE -> orderByBuilder.append("hday2.hearing_day $direction, hd.id $direction")
+
         DEFENDANT_NAME -> orderByBuilder.append("lower(coalesce(text(json(d.\"name\")->'surname'), d.defendant_name)) $direction, hd.id $direction")
+
         PROBATION_STATUS -> orderByBuilder.append(
           """CASE
             WHEN o.probation_status = 'CURRENT' THEN 1
@@ -164,12 +166,21 @@ class HearingOutcomeRepositoryCustom(
 
   fun getDynamicOutcomeCountsByState(courtCode: String): Map<String, Int> {
     val query = """
-            SELECT ho.state, COUNT(*) as count
-            FROM hearing_outcome ho
-            JOIN hearing_defendant hd ON ho.fk_hearing_defendant_id = hd.id
-            JOIN hearing_day hday ON hday.fk_hearing_id = hd.fk_hearing_id
-            WHERE hday.court_code = :courtCode
-            GROUP BY ho.state
+            SELECT
+                state,
+                COUNT(*)
+            FROM (
+                SELECT DISTINCT
+                    ho.id,
+                    ho.state
+                FROM hearing_outcome ho
+                JOIN hearing_defendant hd
+                    ON ho.fk_hearing_defendant_id = hd.id
+                JOIN hearing_day hday
+                    ON hday.fk_hearing_id = hd.fk_hearing_id
+                WHERE hday.court_code = :courtCode
+            ) x
+            GROUP BY state
     """.trimIndent()
 
     val jpaQuery = entityManager.createNativeQuery(query, "hearing_outcomes_by_state_count_custom")

@@ -164,16 +164,11 @@ class HearingOutcomeRepositoryCustom(
 
   fun getDynamicOutcomeCountsByState(courtCode: String): Map<String, Int> {
     val query = """
-            WITH filtered_day AS (
-                SELECT fk_hearing_id
-                FROM hearing_day
-                WHERE court_code = :courtCode
-                GROUP BY fk_hearing_id
-            )
-            SELECT ho.state, COUNT(ho.id) as count
-            FROM hearing_defendant hd
-            JOIN filtered_day fd ON fd.fk_hearing_id = hd.fk_hearing_id
-            JOIN hearing_outcome ho ON ho.fk_hearing_defendant_id = hd.id
+            SELECT ho.state, COUNT(*) as count
+            FROM hearing_outcome ho
+            JOIN hearing_defendant hd ON ho.fk_hearing_defendant_id = hd.id
+            JOIN hearing_day hday ON hday.fk_hearing_id = hd.fk_hearing_id
+            WHERE hday.court_code = :courtCode
             GROUP BY ho.state
     """.trimIndent()
 

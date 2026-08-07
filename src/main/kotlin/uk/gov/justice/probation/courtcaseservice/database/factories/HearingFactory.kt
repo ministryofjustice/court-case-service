@@ -12,7 +12,7 @@ class HearingFactory(
   private var courtCase: CourtCaseEntity,
   private var hearingId: String = UUID.randomUUID().toString(),
   private var caseId: String = UUID.randomUUID().toString(),
-  private var hearingType: HearingEventType = HearingEventType.UNKNOWN,
+  private var hearingType: HearingEventType = HearingEventType.CONFIRMED_OR_UPDATED,
 ) {
 
   fun count(count: Int = 1) = Factory(

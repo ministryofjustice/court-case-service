@@ -9,9 +9,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenceRepositor
 
 class OffenceFactory(
   private val repository: OffenceRepository,
-  val plea: PleaEntity,
-  val verdict: VerdictEntity,
-  val hearingDefendant: HearingDefendantEntity,
+  val plea: PleaEntity ? = null,
+  val verdict: VerdictEntity ? = null,
+  val hearingDefendant: HearingDefendantEntity ? = null,
   val title: String = "Example offence title",
   val summary: String = "Example summary of the offence",
   val sequence: Int = 1,

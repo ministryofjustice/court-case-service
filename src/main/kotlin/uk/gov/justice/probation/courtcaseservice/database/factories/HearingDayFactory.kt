@@ -12,7 +12,7 @@ class HearingDayFactory(
   private var date: LocalDate = LocalDate.now(),
   private var time: LocalTime = LocalTime.now(),
   private var courtCode: String = "B10JQ",
-  private var courtRoom: String = "1",
+  private var courtRoom: String = listOf("1", "2").random(),
   private var hearing: HearingEntity? = null,
 ) {
 

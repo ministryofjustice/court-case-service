@@ -52,7 +52,7 @@ class CourtCaseSeeder(
   private var court: String = "B10JQ"
   private var shouldCleanDatabase: Boolean = false
   private val hearingDates = getHearingDates(start, days)
-  private val createHearingOutcomes = false
+  private val withOutcomes = false
 
   override fun shouldClean(): Boolean = shouldCleanDatabase
 
@@ -79,8 +79,8 @@ class CourtCaseSeeder(
         val hearingNote = HearingNoteFactory(hearingNoteRepository, hearing).count(1).first()
         hearingDefendant.addHearingNote(hearingNote)
 
-        // Disabling hearing outcome allows for testing the full case workflow
-        if (createHearingOutcomes) {
+        // Disabling hearing outcomes allows us to test the full case workflow
+        if (withOutcomes) {
           HearingOutcomeFactory(hearingOutcomeRepository, hearingDefendant).count(1)
           val plea = PleaFactory(pleaRepository).count(1).first()
           val verdict = VerdictFactory(verdictRepository).count(1).first()

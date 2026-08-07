@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepositoryCustom;
+import uk.gov.justice.probation.courtcaseservice.service.flags.MultiAgencyPublicProtectionArrangementsFlagResolver;
+import uk.gov.justice.probation.courtcaseservice.service.flags.SeriousFurtherOffenceFlagResolver;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.CaseSearchResultItemMapper;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResult;
@@ -24,14 +26,17 @@ public class CaseSearchService {
     private final CaseSearchResultItemMapper caseSearchResultItemMapper;
     private final DefendantRepositoryCustom defendantRepositoryCustom;
     private final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
+    private final MultiAgencyPublicProtectionArrangementsFlagResolver multiAgencyPublicProtectionArrangementsFlagResolver;
 
     @Autowired
     public CaseSearchService(final DefendantRepositoryCustom defendantRepositoryCustom,
                              final CaseSearchResultItemMapper caseSearchResultItemMapper,
-                             final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver) {
+                             final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver,
+                             final MultiAgencyPublicProtectionArrangementsFlagResolver multiAgencyPublicProtectionArrangementsFlagResolver) {
         this.caseSearchResultItemMapper = caseSearchResultItemMapper;
         this.defendantRepositoryCustom = defendantRepositoryCustom;
         this.seriousFurtherOffenceFlagResolver = seriousFurtherOffenceFlagResolver;
+        this.multiAgencyPublicProtectionArrangementsFlagResolver = multiAgencyPublicProtectionArrangementsFlagResolver;
     }
 
     @Transactional(readOnly = true)
@@ -58,12 +63,15 @@ public class CaseSearchService {
         }
 
         var seriousFurtherOffenceFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(resultsPage.getContent());
+        var multiAgencyPublicProtectionArrangementsFlagsByCode = multiAgencyPublicProtectionArrangementsFlagResolver.buildMultiAgencyPublicProtectionArrangementsFlagsMap(resultsPage.getContent());
 
         return CaseSearchResult.builder()
             .totalElements(resultsPage.getTotalElements())
             .totalPages(resultsPage.getTotalPages())
             .items(resultsPage.getContent().stream()
-                .map(pair -> caseSearchResultItemMapper.from(pair.getFirst(), pair.getSecond(), seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(pair.getFirst(), pair.getSecond(), seriousFurtherOffenceFlagsByCode)))
+                .map(pair -> caseSearchResultItemMapper.from(pair.getFirst(), pair.getSecond(),
+                    seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(pair.getFirst(), pair.getSecond(), seriousFurtherOffenceFlagsByCode),
+                    multiAgencyPublicProtectionArrangementsFlagResolver.resolveMultiAgencyPublicProtectionArrangementsFlag(pair.getFirst(), pair.getSecond(), multiAgencyPublicProtectionArrangementsFlagsByCode)))
                 .collect(Collectors.toList())).build();
     }
 }

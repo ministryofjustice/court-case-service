@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
@@ -15,6 +16,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceSfoMappingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenceSfoMappingRepository;
+import uk.gov.justice.probation.courtcaseservice.service.flags.OffenceFlagHelper;
+import uk.gov.justice.probation.courtcaseservice.service.flags.SeriousFurtherOffenceFlagResolver;
 
 import java.util.List;
 import java.util.Map;
@@ -34,6 +37,9 @@ class SeriousFurtherOffenceFlagResolverTest {
 
     @Mock
     private FeatureFlags featureFlags;
+
+    @Spy
+    private OffenceFlagHelper offenceFlagHelper;
 
     @InjectMocks
     private SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;

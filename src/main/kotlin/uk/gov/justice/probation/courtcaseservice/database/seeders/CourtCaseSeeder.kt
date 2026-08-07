@@ -87,7 +87,7 @@ class CourtCaseSeeder(
           val offence = OffenceFactory(offenceRepository, plea, verdict, hearingDefendant).count(1).first()
           JudicialResultFactory(judicialResultRepository, offence).count(1)
         } else {
-          OffenceFactory(offenceRepository).count(1).first()
+          OffenceFactory(offenceRepository, hearingDefendant = hearingDefendant).count(1).first()
         }
       }
   }

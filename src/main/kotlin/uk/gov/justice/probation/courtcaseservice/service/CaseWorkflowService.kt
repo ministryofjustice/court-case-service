@@ -37,15 +37,17 @@ class CaseWorkflowService(
   val cutOffTime: LocalTime = LocalTime.of(18, 30),
 ) {
 
-  fun addOrUpdateHearingOutcome(hearingId: String, defendantId: String, hearingOutcomeType: HearingOutcomeType) {
+  fun addOrUpdateHearingOutcome(courtCode: String?, hearingId: String, defendantId: String, hearingOutcomeType: HearingOutcomeType, userUuid: String, userId: String, userName: String, authSource: String) {
     hearingEntityInitService.findByHearingIdAndInitHearingDefendants(hearingId, defendantId).ifPresentOrElse(
       { hearingEntity: HearingEntity ->
         val hearingDefendant = hearingEntity.getHearingDefendant(defendantId)
           ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
         if (hearingDefendant.hearingOutcome == null) {
           hearingDefendant.addHearingOutcome(hearingOutcomeType)
+          telemetryService.trackCreateHearingOutcomeEvent(hearingEntity, courtCode, defendantId, hearingOutcomeType, userUuid, userId, userName, authSource)
         } else {
           hearingDefendant.hearingOutcome.update(hearingOutcomeType)
+          telemetryService.trackUpdateHearingOutcomeEvent(hearingEntity, courtCode, defendantId, hearingOutcomeType, userUuid, userId, userName, authSource)
         }
         hearingRepository.save(hearingEntity)
       },
@@ -70,7 +72,7 @@ class CaseWorkflowService(
     )
   }
 
-  fun resultHearingOutcome(hearingId: String, defendantId: String, userUuid: String, userId: String, userName: String, authSource: String) {
+  fun resultHearingOutcome(courtCode: String?, hearingId: String, defendantId: String, userUuid: String, userId: String, userName: String, authSource: String) {
     hearingEntityInitService.findByHearingIdAndInitHearingDefendants(hearingId, defendantId).ifPresentOrElse(
       {
         val hearingDefendant = it.getHearingDefendant(defendantId)
@@ -86,6 +88,7 @@ class CaseWorkflowService(
         }
         hearingOutcome.state = HearingOutcomeItemState.RESULTED.name
         hearingOutcome.resultedDate = LocalDateTime.now()
+        telemetryService.trackCreateCaseResultEvent(courtCode, hearingId, defendantId, userUuid, hearingOutcome.assignedToUuid, userId, userName, authSource)
         hearingRepository.save(it)
       },
       {

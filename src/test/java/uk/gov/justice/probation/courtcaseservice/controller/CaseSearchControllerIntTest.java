@@ -137,6 +137,27 @@ class CaseSearchControllerIntTest extends BaseIntTest {
         ;
     }
     @Test
+    void givenUrn_shouldReturnCasesHavingDefendantsWithGivenUrn() {
+        var testUrn = "01HV14907540";
+        RestAssured.given()
+            .auth()
+            .oauth2(getToken())
+            .contentType(ContentType.JSON)
+            .when()
+            .get(CASE_SEARCH_ENDPOINT, testUrn, "URN")
+
+            .then()
+            .statusCode(200)
+            .body("totalPages", equalTo(1))
+            .body("totalElements", equalTo(1))
+            .body("items", hasSize(1))
+            .body("items[0].hearingId", equalTo("fe657c3a-b674-4e17-8772-7281c99e4f9f"))
+            .body("items[0].defendantId", equalTo("0048297a-fd9c-4c96-8c03-8122b802a54d"))
+            .body("items[0].defendantName", equalTo("Mr Ferris Middle BUELLER"))
+            .body("items[0].crn", equalTo("X258291"));
+    }
+
+    @Test
     void givenInvalidSearchType_shouldRejectWithBadRequest() {
         var testCrn = "X258291";
         RestAssured.given()

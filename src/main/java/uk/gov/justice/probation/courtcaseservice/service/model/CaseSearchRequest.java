@@ -30,6 +30,9 @@ public class CaseSearchRequest {
     @NotNull
     private CaseSearchType type;
 
+    @Schema(description = "Optional court code to filter results")
+    private String courtCode;
+
     public Integer getPage() {
         return Optional.ofNullable(page).orElse(1);
     }
@@ -37,4 +40,6 @@ public class CaseSearchRequest {
     public Integer getSize() {
         return Optional.ofNullable(size).orElse(10);
     }
+
+    public String getCourtCode() { return Optional.ofNullable(courtCode).orElse(""); }
 }

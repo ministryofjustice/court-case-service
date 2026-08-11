@@ -211,6 +211,7 @@ feature:
   flags:
     enable-cacheable-case-list: true
     delete-hearing: false
+    enable-serious-further-offence: true
   event:
     probation-case:
       engagement.created: true
@@ -230,3 +231,9 @@ hearing_outcomes:
 
 db-seed:
   enabled: false
+
+hmpps:
+  sar:
+    template:
+      path: /templates/template_court-case-service.mustache
+      enabled: true

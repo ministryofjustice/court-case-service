@@ -11,6 +11,8 @@ internal class OutcomeSortFieldConverterTest {
   @Test
   fun `should map string to hearing sort field constant`() {
     Assertions.assertThat(subject.convert("hearingDate") == HearingOutcomeSortFields.HEARING_DATE)
+    Assertions.assertThat(subject.convert("defendantName") == HearingOutcomeSortFields.DEFENDANT_NAME)
+    Assertions.assertThat(subject.convert("probationStatus") == HearingOutcomeSortFields.PROBATION_STATUS)
   }
 
   @Test

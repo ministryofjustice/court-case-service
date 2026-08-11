@@ -8,7 +8,10 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSortFields.DEFENDANT_NAME
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSortFields.HEARING_DATE
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSortFields.PROBATION_STATUS
+import uk.gov.justice.probation.courtcaseservice.controller.model.SortOrder
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO
 import java.time.LocalDate
 
@@ -55,16 +58,25 @@ class HearingOutcomeRepositoryCustom(
       }
     }
 
+    // include sort by id to ensure consistency throughout pagination
     val orderByBuilder = StringBuilder(" order by ")
     if (hearingOutcomeSearchRequest.sortBy == null) {
-      orderByBuilder.append("hday2.hearing_day")
+      orderByBuilder.append("hday2.hearing_day, hd.id")
     } else {
-      // only sort by hearing date supported at the moment
-      if (hearingOutcomeSearchRequest.sortBy == HEARING_DATE) {
-        orderByBuilder.append("hday2.hearing_day ")
-        hearingOutcomeSearchRequest.order?.let { orderByBuilder.append(it.name) }
-      } else {
-        orderByBuilder.append("hday2.hearing_day")
+      val direction = hearingOutcomeSearchRequest.order?.name ?: SortOrder.ASC.name
+      when (hearingOutcomeSearchRequest.sortBy) {
+        HEARING_DATE -> orderByBuilder.append("hday2.hearing_day $direction, hd.id $direction")
+
+        DEFENDANT_NAME -> orderByBuilder.append("lower(coalesce(text(json(d.\"name\")->'surname'), d.defendant_name)) $direction, hd.id $direction")
+
+        PROBATION_STATUS -> orderByBuilder.append(
+          """CASE
+            WHEN o.probation_status = 'CURRENT' THEN 1
+            WHEN o.probation_status = 'PREVIOUSLY_KNOWN' THEN 2
+            WHEN o.probation_status = 'NOT_SENTENCED' THEN 3
+            ELSE 4
+          END $direction, hd.id $direction""",
+        )
       }
     }
 
@@ -77,6 +89,8 @@ class HearingOutcomeRepositoryCustom(
 
     val coreQuery = """
             from hearing_defendant hd
+            left join defendant d on d.id = hd.fk_defendant_id
+            left join offender o on o.id = d.fk_offender_id
             inner join hearing_outcome ho on ho.fk_hearing_defendant_id = hd.id
             $filterBuilder
             inner join
@@ -152,15 +166,21 @@ class HearingOutcomeRepositoryCustom(
 
   fun getDynamicOutcomeCountsByState(courtCode: String): Map<String, Int> {
     val query = """
-          select
-            ho.state, count(ho.id) as count
-            from hearing h 
-            inner join hearing_defendant hd on hd.fk_hearing_id = h.id
-            inner join hearing_outcome ho on ho.fk_hearing_defendant_id = hd.id 
-            inner join
-                (select fk_hearing_id as hday_hearing_id, min(hearing_day) as hearing_day from hearing_day where hearing_day.court_code = :courtCode group by fk_hearing_id) hday2
-                on hday2.hday_hearing_id = h.id	    
-            group by ho.state
+            SELECT
+                state,
+                COUNT(*)
+            FROM (
+                SELECT DISTINCT
+                    ho.id,
+                    ho.state
+                FROM hearing_outcome ho
+                JOIN hearing_defendant hd
+                    ON ho.fk_hearing_defendant_id = hd.id
+                JOIN hearing_day hday
+                    ON hday.fk_hearing_id = hd.fk_hearing_id
+                WHERE hday.court_code = :courtCode
+            ) x
+            GROUP BY state
     """.trimIndent()
 
     val jpaQuery = entityManager.createNativeQuery(query, "hearing_outcomes_by_state_count_custom")

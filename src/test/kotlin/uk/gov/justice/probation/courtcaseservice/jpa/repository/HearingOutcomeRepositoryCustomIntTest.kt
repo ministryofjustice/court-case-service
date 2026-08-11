@@ -11,8 +11,13 @@ import org.springframework.context.annotation.Bean
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlConfig
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState.NEW
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState.RESULTED
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSearchRequest
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSortFields.DEFENDANT_NAME
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeSortFields.PROBATION_STATUS
+import uk.gov.justice.probation.courtcaseservice.controller.model.SortOrder.ASC
+import uk.gov.justice.probation.courtcaseservice.controller.model.SortOrder.DESC
 import uk.gov.justice.probation.courtcaseservice.jpa.DTOHelper.aHearingDefendantDTO
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingDefendantDTO
 
@@ -56,6 +61,40 @@ internal class HearingOutcomeRepositoryCustomIntTest {
   }
 
   @Test
+  fun `should sort outcomes by defendant name ascending and descending`() {
+    val ascResult = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(
+      "B14LO",
+      HearingOutcomeSearchRequest(state = NEW, sortBy = DEFENDANT_NAME, order = ASC),
+    )
+    val descResult = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(
+      "B14LO",
+      HearingOutcomeSearchRequest(state = NEW, sortBy = DEFENDANT_NAME, order = DESC),
+    )
+
+    assertThat(ascResult.content).extracting("first.defendant.defendantName")
+      .containsExactly("Mr Jeff Blogs", "Mr Arthur Morgan", "Mr Nick Notsentenced", "Ms Penny Previous")
+    assertThat(descResult.content).extracting("first.defendant.defendantName")
+      .containsExactly("Ms Penny Previous", "Mr Nick Notsentenced", "Mr Arthur Morgan", "Mr Jeff Blogs")
+  }
+
+  @Test
+  fun `should sort outcomes by probation status ascending and descending`() {
+    val ascResult = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(
+      "B14LO",
+      HearingOutcomeSearchRequest(state = NEW, sortBy = PROBATION_STATUS, order = ASC),
+    )
+    val descResult = hearingOutcomeRepositoryCustom.findByCourtCodeAndHearingOutcome(
+      "B14LO",
+      HearingOutcomeSearchRequest(state = NEW, sortBy = PROBATION_STATUS, order = DESC),
+    )
+
+    assertThat(ascResult.content).extracting("first.defendant.defendantName")
+      .containsExactly("Mr Arthur Morgan", "Ms Penny Previous", "Mr Nick Notsentenced", "Mr Jeff Blogs")
+    assertThat(descResult.content).extracting("first.defendant.defendantName")
+      .containsExactly("Mr Jeff Blogs", "Mr Nick Notsentenced", "Ms Penny Previous", "Mr Arthur Morgan")
+  }
+
+  @Test
   fun `given Defendant and Offences exist, should return hearing defendant details`() {
     var hearingOutcomeRepositoryCustom = HearingOutcomeRepositoryCustom(entityManager, 30)
 
@@ -84,6 +123,12 @@ internal class HearingOutcomeRepositoryCustomIntTest {
     assertThat(result.offences.size).isEqualTo(0)
     assertThat(result).isEqualTo(hearingDefendantDTO)
     assertThat(result.hearingOutcome).isEqualTo(hearingDefendantDTO.hearingOutcome)
+  }
+
+  @Test
+  fun `get Dynamic Outcome Counts By State returns expected counts`() {
+    val counts = hearingOutcomeRepositoryCustom.getDynamicOutcomeCountsByState("B10JQ")
+    assertThat(counts).containsEntry("RESULTED", 2)
   }
 
   @TestConfiguration

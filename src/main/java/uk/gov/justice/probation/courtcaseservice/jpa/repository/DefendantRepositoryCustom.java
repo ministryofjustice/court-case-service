@@ -25,7 +25,8 @@ public class DefendantRepositoryCustom {
         "  inner join (select max(h1.id) as max_id, d1.id as did from hearing h1 " +
         "         join court_case cc1 on cc1.id = h1.fk_court_case_id " +
         "         join hearing_defendant hd1  on h1.id = hd1.fk_hearing_id " +
-        "         join defendant d1 on d1.id = hd1.fk_defendant_id ";
+        "         join defendant d1 on d1.id = hd1.fk_defendant_id " +
+        "         inner join hearing_day hday1 on hday1.fk_hearing_id = h1.id";
 
     private static final String DEFENDANT_SEARCH_SELECT =
             "select cc.id, cc.case_id, cc.case_no, cc.created AS ccCreated, cc.created_by AS ccCreatedBy, cc.deleted AS ccDeleted, cc.source_type, cc.urn, cc.last_updated AS ccLastUpdated, cc.last_updated_by AS ccLastUpdatedBy, cc.\"version\" AS ccVersion, " +
@@ -36,9 +37,11 @@ public class DefendantRepositoryCustom {
 
     @PersistenceContext
     private EntityManager entityManager;
-    public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByCrn(String crn, Pageable pageable) {
+    public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByCrn(String crn, Pageable pageable, String courtCode) {
 
-        String CRN_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " join offender off on off.id = d1.fk_offender_id " + " where off.crn = :crn " + DEFENDANT_SEARCH_GROUPING;
+        String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " and hday1.court_code = :courtCode" : "";
+
+        String CRN_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " join offender off on off.id = d1.fk_offender_id " + " where off.crn = :crn " + COURT_FILTER_FROM + DEFENDANT_SEARCH_GROUPING;
 
         var query = entityManager.createNativeQuery(
             DEFENDANT_SEARCH_SELECT + CRN_SEARCH_FROM + " order by cc.id desc ",
@@ -48,14 +51,21 @@ public class DefendantRepositoryCustom {
 
         var countQuery = entityManager.createNativeQuery("select count(*) " + CRN_SEARCH_FROM);
 
+        if (!courtCode.isBlank()) {
+            query.setParameter("courtCode", courtCode);
+            countQuery.setParameter("courtCode", courtCode);
+        }
+        
         countQuery.setParameter("crn", crn);
 
         return getPagedResult(pageable, query, countQuery);
     }
 
-    public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByName(String tsQueryString, String name, Pageable pageable) {
+    public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByName(String tsQueryString, String name, Pageable pageable, String courtCode) {
 
-        String NAME_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where d1.tsv_name @@ to_tsquery('simple', :tsQueryString) " + DEFENDANT_SEARCH_GROUPING;
+        String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " and hday1.court_code = :courtCode" : "";
+
+        String NAME_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where d1.tsv_name @@ to_tsquery('simple', :tsQueryString) " + COURT_FILTER_FROM + DEFENDANT_SEARCH_GROUPING;
 
         // Originally used the Postgres `similarity` function, but it was breaking in tests,
         // this method provides more or less the same functionality and is more efficient.
@@ -68,7 +78,36 @@ public class DefendantRepositoryCustom {
 
         var countQuery = entityManager.createNativeQuery("select count(*) " + NAME_SEARCH_FROM );
 
+        if (!courtCode.isBlank()) {
+            query.setParameter("courtCode", courtCode);
+            countQuery.setParameter("courtCode", courtCode);
+        }
+
         countQuery.setParameter("tsQueryString", tsQueryString);
+
+        return getPagedResult(pageable, query, countQuery);
+    }
+
+    public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByUrn(String urn, Pageable pageable, String courtCode) {
+
+        String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " and hday1.court_code = :courtCode" : "";
+
+        String URN_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where cc1.urn = :urn " + COURT_FILTER_FROM  + DEFENDANT_SEARCH_GROUPING;
+
+        var query = entityManager.createNativeQuery(
+            DEFENDANT_SEARCH_SELECT + URN_SEARCH_FROM + " order by cc.id desc ",
+            "search_defendants_result_mapping");
+
+        query.setParameter("urn", urn);
+
+        var countQuery = entityManager.createNativeQuery("select count(*) " + URN_SEARCH_FROM);
+
+        if (!courtCode.isBlank()) {
+            query.setParameter("courtCode", courtCode);
+            countQuery.setParameter("courtCode", courtCode);
+        }
+
+        countQuery.setParameter("urn", urn);
 
         return getPagedResult(pageable, query, countQuery);
     }

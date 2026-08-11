@@ -41,6 +41,8 @@ public class CaseSearchResultItem {
 
     private final Boolean awaitingPsr;
 
+    private final Boolean seriousFurtherOffence;
+
     private final Boolean breach;
 
     private final HearingOutcome hearingOutcome;

@@ -46,3 +46,4 @@ data_dictionary/schema/**
 
 helm_deploy/court-case-service/charts
 helm_deploy/court-case-service/Chart.lock
+**/*.log

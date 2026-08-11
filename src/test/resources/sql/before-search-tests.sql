@@ -4,8 +4,8 @@ VALUES (-100, 'X258291', 'CURRENT', '2010-01-01', true, true, true, true, 'befor
 INSERT INTO OFFENDER (id, crn, probation_status, previously_known_termination_date, suspended_sentence_order, breach, pre_sentence_activity, awaiting_psr, created_by)
 VALUES (-99, 'X12345', 'CURRENT', '2010-01-01', true, true, true, true, 'before-test');
 
-INSERT INTO court_case (id, case_id, case_no, created, source_type)
-VALUES (-184, 'fe657c3a-b674-4e17-8772-7281c99e4f9f', '1600028888', '2022-03-23 17:59:59.000', 'COMMON_PLATFORM');
+INSERT INTO court_case (id, case_id, case_no, created, source_type, urn)
+VALUES (-184, 'fe657c3a-b674-4e17-8772-7281c99e4f9f', '1600028888', '2022-03-23 17:59:59.000', 'COMMON_PLATFORM', '01HV14907540');
 INSERT INTO hearing (id, fk_court_case_id, hearing_id, created)
 VALUES (-184, -184, 'fe657c3a-b674-4e17-8772-7281c99e4f9f', '2022-03-23 17:59:59.000');
 INSERT INTO HEARING_DAY (id, fk_hearing_id, court_code, court_room, hearing_day, hearing_time, created)

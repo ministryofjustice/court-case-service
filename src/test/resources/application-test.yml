@@ -46,6 +46,9 @@ flipt:
   api-key: "test-api-key"
 
 spring:
+  autoconfigure:
+    exclude:
+      - uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
   jpa:
     show-sql: false
     properties:
@@ -110,3 +113,15 @@ hmpps.sqs:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
     domainevents:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
+
+hmpps:
+  sar:
+    tests:
+      expected-api-response:
+        path: /sar/court-case-service-sar-api-response.json
+      expected-render-result:
+        path: /sar/court-case-service-sar-expected.html
+      attachments-expected: false
+      expected-flyway-schema-version: 2207
+      expected-jpa-entity-schema:
+        path: /sar/entity-schema-snapshot.json

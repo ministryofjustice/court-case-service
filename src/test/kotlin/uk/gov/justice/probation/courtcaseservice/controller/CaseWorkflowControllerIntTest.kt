@@ -35,6 +35,7 @@ import java.net.URI
 internal class CaseWorkflowControllerIntTest : BaseIntTest() {
 
   companion object {
+    const val COURT_CODE = "B20BL"
     const val HEARING_ID = "1f93aa0a-7e46-4885-a1cb-f25a4be33a00"
     const val DEFENDANT_ID = "40db17d6-04db-11ec-b2d8-0242ac130002"
     const val UNKNOWN_HEARING_ID = "111111-1111-1111-1111-111111111111"
@@ -61,7 +62,7 @@ internal class CaseWorkflowControllerIntTest : BaseIntTest() {
       .accept(ContentType.JSON)
       .body(HEARING_OUTCOME_REQUEST)
       .`when`()
-      .put("/hearing/{hearingId}/defendant/{defendantId}/outcome", HEARING_ID, DEFENDANT_ID)
+      .put("/courts/{courtCode}/hearing/{hearingId}/defendant/{defendantId}/outcome", COURT_CODE, HEARING_ID, DEFENDANT_ID)
       .then()
       .statusCode(200)
 
@@ -74,6 +75,7 @@ internal class CaseWorkflowControllerIntTest : BaseIntTest() {
   @Test
   fun `given hearing id and outcome recorded, should update with new hearing outcome`() {
     val hearingId = "ddfe6b75-c3fc-4ed0-9bf6-21d66b125636"
+    val courtCode = "B20BL"
     given()
       .auth()
       .oauth2(TokenHelper.getToken())
@@ -81,7 +83,7 @@ internal class CaseWorkflowControllerIntTest : BaseIntTest() {
       .accept(ContentType.JSON)
       .body(HEARING_OUTCOME_UPDATE_REQUEST)
       .`when`()
-      .put("/hearing/{hearingId}/defendant/{defendantId}/outcome", hearingId, DEFENDANT_ID)
+      .put("/courts/{courtCode}/hearing/{hearingId}/defendant/{defendantId}/outcome", courtCode, hearingId, DEFENDANT_ID)
       .then()
       .statusCode(200)
 
@@ -297,13 +299,14 @@ internal class CaseWorkflowControllerIntTest : BaseIntTest() {
   @Test
   fun `given hearing id with outcome in IN_PROGRESS state, result the case`() {
     val hearingId = "ddfe6b75-c3fc-4ed0-9bf6-21d66b125636"
+    val courtCode = "B33HU"
     given()
       .auth()
       .oauth2(TokenHelper.getToken("4b03d065-4c96-4b24-8d6d-75a45d2e3f12"))
       .contentType(ContentType.JSON)
       .accept(ContentType.JSON)
       .`when`()
-      .post("/hearing/{hearingId}/defendant/{defendantId}/outcome/result", hearingId, DEFENDANT_ID)
+      .post("/courts/{courtCode}/hearing/{hearingId}/defendant/{defendantId}/outcome/result", courtCode, hearingId, DEFENDANT_ID)
       .then()
       .statusCode(200)
 

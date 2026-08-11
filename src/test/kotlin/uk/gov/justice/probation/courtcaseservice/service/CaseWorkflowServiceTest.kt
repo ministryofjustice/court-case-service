@@ -55,8 +55,9 @@ import java.util.Optional
 internal class CaseWorkflowServiceTest {
   companion object {
     val TEST_COURT_ROOMS = listOf("01", "Court room - 2")
+    val courtCode = "B10JQ"
     val hearingId = "hearing-id-one"
-    val defendantId = "defendant-id-one"
+    val defendantId = "d1eefed2-04df-11ec-b2d8-0242ac130002"
   }
 
   private val invalidDefendantId = "invalid-defendant-id"
@@ -88,38 +89,78 @@ internal class CaseWorkflowServiceTest {
 
   @Test
   fun `given hearing outcome and hearing id and defendant id exist should add hearing outcome`() {
+    val assignedToUuid = "test-uuid"
+    val userId = "test-user-id"
+    val userName = "test-user-name"
+    val authSource = "test-auth-source"
+
     val dbHearingEntity = aHearingEntity()
     given(hearingEntityInitService.findByHearingIdAndInitHearingDefendants(HEARING_ID, DEFENDANT_ID)).willReturn(Optional.of(dbHearingEntity))
-    caseWorkflowService.addOrUpdateHearingOutcome(HEARING_ID, DEFENDANT_ID, HearingOutcomeType.REPORT_REQUESTED)
+    caseWorkflowService.addOrUpdateHearingOutcome(COURT_CODE, HEARING_ID, DEFENDANT_ID, HearingOutcomeType.REPORT_REQUESTED, assignedToUuid, userId, userName, authSource)
     verify(hearingEntityInitService).findByHearingIdAndInitHearingDefendants(HEARING_ID, DEFENDANT_ID)
     assertThat(dbHearingEntity.hearingDefendants[0].hearingOutcome)
       .isEqualTo(HearingOutcomeEntity.builder().outcomeType("REPORT_REQUESTED").build())
+    verify(telemetryService).trackCreateHearingOutcomeEvent(
+      dbHearingEntity,
+      courtCode,
+      defendantId,
+      HearingOutcomeType.REPORT_REQUESTED,
+      assignedToUuid,
+      userId,
+      userName,
+      authSource,
+    )
   }
 
   @Test
   fun `given hearing outcome and hearing outcome exists, should update hearing outcome`() {
+    val assignedToUuid = "test-uuid"
+    val userId = "test-user-id"
+    val userName = "test-user-name"
+    val authSource = "test-auth-source"
+
     val hearingOutcome = HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.ADJOURNED.name).build()
     val dbHearingEntity: HearingEntity = aHearingEntity()
       .withHearingDefendants(listOf(HearingDefendantEntity.builder().defendantId(DEFENDANT_ID).hearingOutcome(hearingOutcome).build()))
     given(hearingEntityInitService.findByHearingIdAndInitHearingDefendants(HEARING_ID, DEFENDANT_ID)).willReturn(Optional.of(dbHearingEntity))
     given(hearingEntityInitService.findByHearingIdAndInitHearingDefendants(HEARING_ID, DEFENDANT_ID)).willReturn(Optional.of(dbHearingEntity))
-    caseWorkflowService.addOrUpdateHearingOutcome(HEARING_ID, DEFENDANT_ID, HearingOutcomeType.REPORT_REQUESTED)
+    caseWorkflowService.addOrUpdateHearingOutcome(COURT_CODE, HEARING_ID, DEFENDANT_ID, HearingOutcomeType.REPORT_REQUESTED, assignedToUuid, userId, userName, authSource)
     verify(hearingEntityInitService).findByHearingIdAndInitHearingDefendants(HEARING_ID, DEFENDANT_ID)
     assertThat(dbHearingEntity.hearingDefendants[0].hearingOutcome)
       .isEqualTo(HearingOutcomeEntity.builder().outcomeType("REPORT_REQUESTED").build())
+    verify(telemetryService).trackUpdateHearingOutcomeEvent(
+      dbHearingEntity,
+      courtCode,
+      defendantId,
+      HearingOutcomeType.REPORT_REQUESTED,
+      assignedToUuid,
+      userId,
+      userName,
+      authSource,
+    )
   }
 
   @Test
   fun `given hearing outcome and hearing id does not exist should throw entity not found exception`() {
+    val assignedToUuid = "test-uuid"
+    val userId = "test-user-id"
+    val userName = "test-user-name"
+    val authSource = "test-auth-source"
+
     given(hearingEntityInitService.findByHearingIdAndInitHearingDefendants(hearingId, defendantId)).willReturn(Optional.empty())
 
     assertThrows(
       EntityNotFoundException::class.java,
       {
         caseWorkflowService.addOrUpdateHearingOutcome(
+          courtCode,
           hearingId,
           defendantId,
           HearingOutcomeType.REPORT_REQUESTED,
+          assignedToUuid,
+          userId,
+          userName,
+          authSource,
         )
       },
       "Hearing not found with id hearing-id-one",
@@ -299,7 +340,7 @@ internal class CaseWorkflowServiceTest {
     given(hearingEntityInitService.findByHearingIdAndInitHearingDefendants(HEARING_ID, DEFENDANT_ID)).willReturn(Optional.of(hearingEntity))
 
     // When
-    caseWorkflowService.resultHearingOutcome(HEARING_ID, DEFENDANT_ID, assignedToUuid, userId, userName, authSource)
+    caseWorkflowService.resultHearingOutcome(COURT_CODE, HEARING_ID, DEFENDANT_ID, assignedToUuid, userId, userName, authSource)
 
     // Then
     verify(hearingEntityInitService).findByHearingIdAndInitHearingDefendants(HEARING_ID, DEFENDANT_ID)
@@ -333,7 +374,7 @@ internal class CaseWorkflowServiceTest {
     assertThrows(
       EntityNotFoundException::class.java,
       {
-        caseWorkflowService.resultHearingOutcome(hearingId, defendantId, "un-allocated-to-user", userId, userName, authSource)
+        caseWorkflowService.resultHearingOutcome(courtCode, hearingId, defendantId, "un-allocated-to-user", userId, userName, authSource)
       },
       "Outcome not allocated to current user.",
     )
@@ -366,7 +407,7 @@ internal class CaseWorkflowServiceTest {
     assertThrows(
       EntityNotFoundException::class.java,
       {
-        caseWorkflowService.resultHearingOutcome(hearingId, defendantId, assignedToUuid, userId, userName, authSource)
+        caseWorkflowService.resultHearingOutcome(courtCode, hearingId, defendantId, assignedToUuid, userId, userName, authSource)
       },
       "Invalid state for outcome to be resulted.",
     )
@@ -456,6 +497,7 @@ internal class CaseWorkflowServiceTest {
       EntityNotFoundException::class.java,
       {
         caseWorkflowService.resultHearingOutcome(
+          courtCode,
           hearingId,
           "invalid-defendant-id",
           "test-user-uuid",
@@ -498,9 +540,14 @@ internal class CaseWorkflowServiceTest {
       EntityNotFoundException::class.java,
       {
         caseWorkflowService.addOrUpdateHearingOutcome(
+          courtCode,
           hearingId,
           "invalid-defendant-id",
           HearingOutcomeType.REPORT_REQUESTED,
+          "test-user-uuid",
+          "test-user-id",
+          "test-user-name",
+          "test-auth-source",
         )
       },
       "Defendant invalid-defendant-id not found on hearing with id $hearingId",

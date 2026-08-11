@@ -55,6 +55,10 @@ public class CourtCaseResponseMapper {
     }
 
     public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, HearingDefendantEntity defendantEntity, int matchCount, LocalDate hearingDate) {
+        return mapFrom(hearingEntity, defendantEntity, matchCount, hearingDate, null);
+    }
+
+    public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, HearingDefendantEntity defendantEntity, int matchCount, LocalDate hearingDate, Boolean seriousFurtherOffence) {
         // Core case-based
         final var builder = CourtCaseResponse.builder();
 
@@ -64,6 +68,7 @@ public class CourtCaseResponseMapper {
         // Defendant-based fields
         addDefendantFields(builder, defendantEntity);
         builder.numberOfPossibleMatches(matchCount);
+        builder.seriousFurtherOffence(seriousFurtherOffence != null && seriousFurtherOffence);
 
         return builder.build();
     }
@@ -117,7 +122,7 @@ public class CourtCaseResponseMapper {
     }
 
     private static String getNormalisedCourtRoom(String courtRoom) {
-        return courtRoom.contains("Courtroom") ? courtRoom.replaceAll("[a-zA-Z 0]", "") : courtRoom.replace("([0]*)?", "");
+        return courtRoom.contains("Courtroom") ? courtRoom.replaceAll("[a-zA-Z ]", "").replaceFirst("^0+(?=\\d)", "") : courtRoom.replaceFirst("^0+(?=\\d)", "");
     }
 
     private static List<OffenceResponse> mapOffencesFromDefendantOffences(List<OffenceEntity> offenceEntities) {

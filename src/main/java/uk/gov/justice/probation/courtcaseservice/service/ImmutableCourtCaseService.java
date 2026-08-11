@@ -46,6 +46,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -67,6 +68,8 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     private final PagedCaseListRepositoryCustom pagedCaseListRepositoryCustom;
 
+    private final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
+
     @Autowired
     public ImmutableCourtCaseService(CourtRepository courtRepository,
                                      HearingRepositoryFacade hearingRepositoryFacade,
@@ -76,7 +79,8 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                                      CourtCaseRepository courtCaseRepository,
                                      ShortTermCustodyPredictorService shortTermCustodyPredictorService,
                                      HearingRepository hearingRepository,
-                                     PagedCaseListRepositoryCustom pagedCaseListRepositoryCustom) {
+                                     PagedCaseListRepositoryCustom pagedCaseListRepositoryCustom,
+                                     SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver) {
         this.courtRepository = courtRepository;
         this.hearingRepositoryFacade = hearingRepositoryFacade;
         this.telemetryService = telemetryService;
@@ -86,6 +90,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         this.shortTermCustodyPredictorService = shortTermCustodyPredictorService;
         this.hearingRepository = hearingRepository;
         this.pagedCaseListRepositoryCustom = pagedCaseListRepositoryCustom;
+        this.seriousFurtherOffenceFlagResolver = seriousFurtherOffenceFlagResolver;
     }
 
     @Override
@@ -170,16 +175,23 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     @Override
     public CaseListResponse filterHearingsForMatcher(String courtCode, HearingSearchRequest hearingSearchRequest) {
         final var hearingsPage = pagedCaseListRepositoryCustom.filterHearings(courtCode, hearingSearchRequest);
-        var hearings = filterCourtCaseResponses(hearingSearchRequest, hearingsPage);
+        var sfoFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMapFromDTOs(
+            hearingsPage.getContent().stream().map(pair -> pair.getFirst()).collect(Collectors.toList()));
+        var hearings = filterCourtCaseResponses(hearingSearchRequest, hearingsPage, sfoFlagsByCode);
         return getCaseListResponse(courtCode, hearingSearchRequest, hearings, hearingsPage);
     }
 
     @Override
     public CaseListResponse filterHearings(String courtCode, HearingSearchRequest hearingSearchRequest) {
-
         final var hearingsPage = pagedCaseListRepositoryCustom.filterHearings(courtCode, hearingSearchRequest);
+        var sfoFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMapFromDTOs(
+            hearingsPage.getContent().stream().map(pair -> pair.getFirst()).collect(Collectors.toList()));
         var hearings = hearingsPage.getContent().stream()
-            .map(pair -> CourtCaseListResponseMapper.mapFrom(pair.getFirst().getHearing(), pair.getFirst(), Optional.ofNullable(pair.getSecond()).orElse(0), hearingSearchRequest.getDate()))
+            .map(pair -> CourtCaseListResponseMapper.mapFrom(
+                pair.getFirst().getHearing(), pair.getFirst(),
+                Optional.ofNullable(pair.getSecond()).orElse(0),
+                hearingSearchRequest.getDate(),
+                seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlagFromDTO(pair.getFirst(), sfoFlagsByCode)))
             .collect(Collectors.toList());
 
         return getCaseListResponse(courtCode, hearingSearchRequest, hearings, hearingsPage);
@@ -360,9 +372,13 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         }
     }
 
-    private List<CourtCaseResponse> filterCourtCaseResponses(HearingSearchRequest hearingSearchRequest, PageImpl<Pair<HearingDefendantDTO, Integer>> hearingsPage) {
+    private List<CourtCaseResponse> filterCourtCaseResponses(HearingSearchRequest hearingSearchRequest, PageImpl<Pair<HearingDefendantDTO, Integer>> hearingsPage, java.util.Map<String, Boolean> sfoFlagsByCode) {
         return hearingsPage.getContent().stream()
-                .map(pair -> CourtCaseListResponseMapper.mapFrom(pair.getFirst().getHearing(), pair.getFirst(), Optional.ofNullable(pair.getSecond()).orElse(0), hearingSearchRequest.getDate()))
+                .map(pair -> CourtCaseListResponseMapper.mapFrom(
+                    pair.getFirst().getHearing(), pair.getFirst(),
+                    Optional.ofNullable(pair.getSecond()).orElse(0),
+                    hearingSearchRequest.getDate(),
+                    seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlagFromDTO(pair.getFirst(), sfoFlagsByCode)))
                 .filter(courtCaseResponse -> courtCaseResponse.getProbationStatus().equalsIgnoreCase(CourtCaseResponse.POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS))
                 .filter(courtCaseResponse -> hearingSearchRequest.getNumberOfPossibleMatches() == null || courtCaseResponse.getNumberOfPossibleMatches() ==  hearingSearchRequest.getNumberOfPossibleMatches())
                 .filter(courtCaseResponse -> hearingSearchRequest.getDefendantName() == null || courtCaseResponse.getDefendantName().equalsIgnoreCase(hearingSearchRequest.getDefendantName()))

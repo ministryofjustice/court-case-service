@@ -22,14 +22,16 @@ import java.util.stream.Collectors;
 public class CaseSearchService {
 
     private final CaseSearchResultItemMapper caseSearchResultItemMapper;
-
     private final DefendantRepositoryCustom defendantRepositoryCustom;
+    private final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
 
     @Autowired
     public CaseSearchService(final DefendantRepositoryCustom defendantRepositoryCustom,
-                             final CaseSearchResultItemMapper caseSearchResultItemMapper) {
+                             final CaseSearchResultItemMapper caseSearchResultItemMapper,
+                             final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver) {
         this.caseSearchResultItemMapper = caseSearchResultItemMapper;
         this.defendantRepositoryCustom = defendantRepositoryCustom;
+        this.seriousFurtherOffenceFlagResolver = seriousFurtherOffenceFlagResolver;
     }
 
     @Transactional(readOnly = true)
@@ -37,12 +39,14 @@ public class CaseSearchService {
         Pageable pageable = Pageable.ofSize(caseSearchRequest.getSize()).withPage(caseSearchRequest.getPage() - 1);
 
         final String searchTerm = caseSearchRequest.getTerm();
+        final String courtCode = caseSearchRequest.getCourtCode();
         var resultsPage = switch (caseSearchRequest.getType()) {
-            case CRN -> defendantRepositoryCustom.findDefendantsByCrn(searchTerm, pageable);
+            case CRN -> defendantRepositoryCustom.findDefendantsByCrn(searchTerm, pageable, courtCode);
+            case URN -> defendantRepositoryCustom.findDefendantsByUrn(searchTerm, pageable, courtCode);
             case NAME ->
                 defendantRepositoryCustom.findDefendantsByName(Arrays.stream(searchTerm.trim().replaceAll("\\s+", " ").split(" "))
                     // Remove leading and trailing whitespaces
-                    .map(String::trim).collect(Collectors.joining(" & ")), searchTerm.strip(), pageable);
+                    .map(String::trim).collect(Collectors.joining(" & ")), searchTerm.strip(), pageable, courtCode);
         };
 
         if(caseSearchRequest.getPage() > resultsPage.getTotalPages()) {
@@ -53,11 +57,13 @@ public class CaseSearchService {
                 .build();
         }
 
+        var seriousFurtherOffenceFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(resultsPage.getContent());
+
         return CaseSearchResult.builder()
             .totalElements(resultsPage.getTotalElements())
             .totalPages(resultsPage.getTotalPages())
             .items(resultsPage.getContent().stream()
-            .map(courtCaseEntity -> caseSearchResultItemMapper.from(courtCaseEntity.getFirst(), courtCaseEntity.getSecond()))
-            .collect(Collectors.toList())).build();
+                .map(pair -> caseSearchResultItemMapper.from(pair.getFirst(), pair.getSecond(), seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(pair.getFirst(), pair.getSecond(), seriousFurtherOffenceFlagsByCode)))
+                .collect(Collectors.toList())).build();
     }
 }

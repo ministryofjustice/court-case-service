@@ -12,7 +12,7 @@ import java.time.LocalTime
 @Service
 class HearingNotesSarService(
   val hearingNoteRepository: HearingNoteRepository,
-) {
+) : ISarFormatter {
 
   fun getHearingNotes(hearingDefendant: HearingDefendantEntity, fromDate: LocalDate?, toDate: LocalDate?): List<HearingNotesSarResponse> {
     val hearingNotes = filterHearingNotesByDate(hearingDefendant, fromDate?.atStartOfDay(), toDate?.atTime(LocalTime.MAX))
@@ -23,11 +23,13 @@ class HearingNotesSarService(
   private fun hearingNotesResponse(hearingNotes: List<HearingNoteEntity>): List<HearingNotesSarResponse> = hearingNotes.map { note ->
     HearingNotesSarResponse(
       note.note,
-      getSurname(note.author),
+      authorSurname = getSurname(note.author),
+      created = note.created,
+      createdBy = getCreatedBy(note.createdBy),
+      lastUpdated = note.lastUpdated,
+      lastUpdatedBy = getLastUpdatedBy(note.lastUpdatedBy),
     )
   }
-
-  private fun getSurname(name: String): String = name.split(" ").last()
 
   private fun filterHearingNotesByDate(hearingDefendant: HearingDefendantEntity, fromDate: LocalDateTime?, toDate: LocalDateTime?): List<HearingNoteEntity> {
     if (fromDate != null && toDate != null) {

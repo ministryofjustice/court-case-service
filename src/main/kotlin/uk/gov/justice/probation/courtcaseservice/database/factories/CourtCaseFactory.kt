@@ -23,12 +23,12 @@ class CourtCaseFactory(
 
   fun count(count: Int = 1) : List<CourtCaseEntity> {
     sourceType = sourceType ?: randomSource()
-    caseNo.ifEmpty { faker.number().numberBetween(1000000000, 9999999999).toString() }
+    caseNo = caseNo.ifEmpty { faker.number().numberBetween(1000000000, 9999999999).toString() }
 
     // When you have a Libra record case, you shouldn't have a URN available
     // URN is 11 characters, two numbers, two capital letters, six numbers
     if (sourceType != SourceType.LIBRA) {
-      urn.ifEmpty { faker.regexify("URN-[0-9]{2}[A-Z]{2}[0-9]{6}") }
+      urn = urn.ifEmpty { faker.regexify("URN-[0-9]{2}[A-Z]{2}[0-9]{6}") }
     } else {
       urn = ""
     }

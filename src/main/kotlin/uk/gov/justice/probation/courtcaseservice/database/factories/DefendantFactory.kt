@@ -83,7 +83,7 @@ class DefendantFactory(
 
   private fun randomBirthday(): LocalDate = LocalDate.parse(faker.timeAndDate().birthday(18, 85).toString())
 
-  private fun randomSex(): Sex = faker.options().option(Sex.MALE, Sex.FEMALE, Sex.NOT_SPECIFIED, Sex.NOT_KNOWN)
+  private fun randomSex(): Sex = faker.options().option(Sex.MALE, Sex.FEMALE)
 
   private fun randomNationality(): String = faker.options().option("British", "Irish", faker.nation().nationality())
 

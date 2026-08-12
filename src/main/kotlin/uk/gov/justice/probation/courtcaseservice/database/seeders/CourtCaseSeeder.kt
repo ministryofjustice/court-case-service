@@ -13,7 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.database.factories.JudicialResu
 import uk.gov.justice.probation.courtcaseservice.database.factories.OffenceFactory
 import uk.gov.justice.probation.courtcaseservice.database.factories.PleaFactory
 import uk.gov.justice.probation.courtcaseservice.database.factories.VerdictFactory
-import uk.gov.justice.probation.courtcaseservice.database.factories.framework.DefendantFactory
+import uk.gov.justice.probation.courtcaseservice.database.factories.DefendantFactory
 import uk.gov.justice.probation.courtcaseservice.database.seeders.framework.Seeder
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CaseCommentsRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository

@@ -2,6 +2,13 @@ package uk.gov.justice.probation.courtcaseservice.database.data.offence
 
 
 val offenceArchetypes = listOf(
+  // Note: for offenceCode in PAC, we use CJS codes, not the Home Office Offence codes
+  OffenceArchetype(
+    title = "Robbery",
+    summary = "On or in 4 April 2026 at Sunderland robbed person of alcohol, a till and contents of a value unknown.",
+    act = "Contrary to section 8(1) of the Theft Act 1968.",
+    offenceCode = "TH68023" // Will flag an SFO, as in the lookup table
+  ),
   OffenceArchetype(
     title = "Robbery",
     summary = "Acquisition, use or possession of criminal property",
@@ -16,7 +23,7 @@ val offenceArchetypes = listOf(
   ),
   OffenceArchetype(
     title = "Fraud offences",
-    summary = "Refusal or failure to produce book makers permit on reques by a Constable.",
+    summary = "Refusal or failure to produce book makers permit on request by a Constable.",
     act = "Section 2(3) of the Betting, Gaming and Lotteries Act 1963",
     offenceCode = "10629"
   ),
@@ -28,8 +35,8 @@ val offenceArchetypes = listOf(
   ),
   OffenceArchetype(
     title = "Criminal damage and arson",
-    summary = "Arson endangering life",
-    act = "Section 1(2) of the Criminal Damage Act 1971",
-    offenceCode = "05601"
+    summary = "On 01 July 2026 at Sunderland committed arson in that without lawful excuse destroyed by fire Flat 12, Willow Place, South High Road of a value unknown belonging to North Tyneside Council intending to destroy or damage property or being reckless as to whether property would be destroyed or damaged and being reckless as to whether the life of another would be thereby endangered",
+    act = "Contrary to sections 1(2), 1(3) and 4 of the Criminal Damage Act 1971",
+    offenceCode = "CD71050" // Will flag an SFO, as in the lookup table
   ),
 )

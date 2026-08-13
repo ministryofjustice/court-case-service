@@ -10,9 +10,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenceRepositor
 
 class OffenceFactory(
   private val repository: OffenceRepository,
-  val plea: PleaEntity ? = null,
-  val verdict: VerdictEntity ? = null,
-  val hearingDefendant: HearingDefendantEntity ? = null,
+  val plea: PleaEntity? = null,
+  val verdict: VerdictEntity? = null,
+  val hearingDefendant: HearingDefendantEntity? = null,
   val title: String = "",
   val summary: String = "",
   val act: String = "",
@@ -21,24 +21,22 @@ class OffenceFactory(
 ) {
   private val faker = Faker()
 
-  fun count(count: Int = 1): List<OffenceEntity> {
-    return Factory(
-      newModel = {
-        val archetype = faker.offence().archetype()
-        OffenceEntity.builder()
-          .id(null)
-          .plea(plea)
-          .verdict(verdict)
-          .hearingDefendant(hearingDefendant)
-          .title(title.ifEmpty { archetype.title })
-          .summary(summary.ifEmpty { archetype.summary })
-          .act(act.ifEmpty { archetype.act })
-          .offenceCode(offenceCode.ifEmpty { archetype.offenceCode })
-          .sequence(sequence)
-          .build()
-      },
-      repository = repository,
-      count = count,
-    ).create()
-  }
+  fun count(count: Int = 1): List<OffenceEntity> = Factory(
+    newModel = {
+      val archetype = faker.offence().archetype()
+      OffenceEntity.builder()
+        .id(null)
+        .plea(plea)
+        .verdict(verdict)
+        .hearingDefendant(hearingDefendant)
+        .title(title.ifEmpty { archetype.title })
+        .summary(summary.ifEmpty { archetype.summary })
+        .act(act.ifEmpty { archetype.act })
+        .offenceCode(offenceCode.ifEmpty { archetype.offenceCode })
+        .sequence(sequence)
+        .build()
+    },
+    repository = repository,
+    count = count,
+  ).create()
 }

@@ -10,7 +10,7 @@ class Faker : net.datafaker.Faker(Locale.of("en", "GB")) {
   fun offence() = OffenceProvider()
 
   // Formats: CRO = 12345ABCDEF, CRN = X123456, PNC = 2004/0046583U
-  fun cro() : String = this.idNumber().valid()
-  fun crn() : String = "X${this.number().digits(6)}"
-  fun pnc() : String = "${this.number().numberBetween(1990, 2025)}/${this.number().digits(7)}U"
+  fun cro(): String = this.idNumber().valid()
+  fun crn(): String = "X${this.number().digits(6)}"
+  fun pnc(): String = "${this.number().numberBetween(1990, 2025)}/${this.number().digits(7)}U"
 }

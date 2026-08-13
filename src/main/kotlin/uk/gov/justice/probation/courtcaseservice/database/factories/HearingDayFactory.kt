@@ -16,7 +16,7 @@ class HearingDayFactory(
   private var hearing: HearingEntity? = null,
 ) {
 
-  fun count(count: Int = 1) : List<HearingDayEntity> {
+  fun count(count: Int = 1): List<HearingDayEntity> {
     courtRoom.ifEmpty { courtRoom = listOf("1", "2").random() }
     if (time == null) {
       time = LocalTime.of(listOf(9, 13).random(), 0)

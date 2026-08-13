@@ -21,20 +21,20 @@ import java.time.LocalDate
 
 class CourtCaseSeederTest {
   private fun seeder(): CourtCaseSeeder = CourtCaseSeeder(
-      courtCaseRepository = mock(CourtCaseRepository::class.java),
-      hearingRepository = mock(HearingRepository::class.java),
-      caseCommentsRepository = mock(CaseCommentsRepository::class.java),
-      defendantRepository = mock(DefendantRepository::class.java),
-      headingDayRepository = mock(HearingDayRepository::class.java),
-      hearingDefendantRepository = mock(HearingDefendantRepository::class.java),
-      hearingNoteRepository = mock(HearingNoteRepository::class.java),
-      hearingOutcomeRepository = mock(HearingOutcomeRepository::class.java),
-      pleaRepository = mock(PleaRepository::class.java),
-      verdictRepository = mock(VerdictRepository::class.java),
-      offenceRepository = mock(OffenceRepository::class.java),
-      judicialResultRepository = mock(JudicialResultRepository::class.java),
-      entityManager = mock(EntityManager::class.java),
-      offenderRepository = mock(OffenderRepository::class.java),
+    courtCaseRepository = mock(CourtCaseRepository::class.java),
+    hearingRepository = mock(HearingRepository::class.java),
+    caseCommentsRepository = mock(CaseCommentsRepository::class.java),
+    defendantRepository = mock(DefendantRepository::class.java),
+    headingDayRepository = mock(HearingDayRepository::class.java),
+    hearingDefendantRepository = mock(HearingDefendantRepository::class.java),
+    hearingNoteRepository = mock(HearingNoteRepository::class.java),
+    hearingOutcomeRepository = mock(HearingOutcomeRepository::class.java),
+    pleaRepository = mock(PleaRepository::class.java),
+    verdictRepository = mock(VerdictRepository::class.java),
+    offenceRepository = mock(OffenceRepository::class.java),
+    judicialResultRepository = mock(JudicialResultRepository::class.java),
+    entityManager = mock(EntityManager::class.java),
+    offenderRepository = mock(OffenderRepository::class.java),
   )
 
   @Test

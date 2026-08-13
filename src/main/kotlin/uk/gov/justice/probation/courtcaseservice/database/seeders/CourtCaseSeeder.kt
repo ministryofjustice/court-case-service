@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component
 import uk.gov.justice.probation.courtcaseservice.database.data.Faker
 import uk.gov.justice.probation.courtcaseservice.database.factories.CaseCommentsFactory
 import uk.gov.justice.probation.courtcaseservice.database.factories.CourtCaseFactory
+import uk.gov.justice.probation.courtcaseservice.database.factories.DefendantFactory
 import uk.gov.justice.probation.courtcaseservice.database.factories.HearingDayFactory
 import uk.gov.justice.probation.courtcaseservice.database.factories.HearingDefendantFactory
 import uk.gov.justice.probation.courtcaseservice.database.factories.HearingFactory
@@ -12,10 +13,9 @@ import uk.gov.justice.probation.courtcaseservice.database.factories.HearingNoteF
 import uk.gov.justice.probation.courtcaseservice.database.factories.HearingOutcomeFactory
 import uk.gov.justice.probation.courtcaseservice.database.factories.JudicialResultFactory
 import uk.gov.justice.probation.courtcaseservice.database.factories.OffenceFactory
+import uk.gov.justice.probation.courtcaseservice.database.factories.OffenderFactory
 import uk.gov.justice.probation.courtcaseservice.database.factories.PleaFactory
 import uk.gov.justice.probation.courtcaseservice.database.factories.VerdictFactory
-import uk.gov.justice.probation.courtcaseservice.database.factories.DefendantFactory
-import uk.gov.justice.probation.courtcaseservice.database.factories.OffenderFactory
 import uk.gov.justice.probation.courtcaseservice.database.seeders.framework.Seeder
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CaseCommentsRepository
@@ -75,7 +75,7 @@ class CourtCaseSeeder(
           // 30% of the time create an offender record
           offender = OffenderFactory(offenderRepository, crn, pnc, cro).count(1).first()
         }
-        val defendant = DefendantFactory(defendantRepository, crn=crn, pnc=pnc, cro=cro, offender=offender).count(1).first()
+        val defendant = DefendantFactory(defendantRepository, crn = crn, pnc = pnc, cro = cro, offender = offender).count(1).first()
         case.addCaseDefendant(defendant)
         val hearing = HearingFactory(hearingRepository, case).count(1).first()
         hearingDates.forEach { hearingDate ->

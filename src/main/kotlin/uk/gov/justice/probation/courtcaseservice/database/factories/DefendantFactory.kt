@@ -14,20 +14,20 @@ import java.time.LocalDate
 import java.util.UUID
 
 class DefendantFactory(
-    private val repository: DefendantRepository,
-    private var defendantId: String? = null,
-    private var defendantName: String? = null,
-    private var personId: String? = null,
-    private var type: DefendantType = DefendantType.PERSON,
-    private var sex: Sex? = null,
-    private var name: NamePropertiesEntity? = null,
-    private var address: AddressPropertiesEntity? = null,
-    private var phoneNumber: PhoneNumberEntity? = null,
-    private var dateOfBirth: LocalDate? = null,
-    private val cro: String = "",
-    private val crn: String = "",
-    private val pnc: String = "",
-    private val offender: OffenderEntity? = null
+  private val repository: DefendantRepository,
+  private var defendantId: String? = null,
+  private var defendantName: String? = null,
+  private var personId: String? = null,
+  private var type: DefendantType = DefendantType.PERSON,
+  private var sex: Sex? = null,
+  private var name: NamePropertiesEntity? = null,
+  private var address: AddressPropertiesEntity? = null,
+  private var phoneNumber: PhoneNumberEntity? = null,
+  private var dateOfBirth: LocalDate? = null,
+  private val cro: String = "",
+  private val crn: String = "",
+  private val pnc: String = "",
+  private val offender: OffenderEntity? = null,
 ) {
   private val faker = Faker()
 

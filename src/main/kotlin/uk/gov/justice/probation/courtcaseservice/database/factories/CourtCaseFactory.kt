@@ -21,7 +21,7 @@ class CourtCaseFactory(
   fun withCaseMarkers(vararg markers: String) = apply { this.caseMarkers = markers.toList() }
   fun withCaseMarkers(markers: List<String>) = apply { this.caseMarkers = markers }
 
-  fun count(count: Int = 1) : List<CourtCaseEntity> {
+  fun count(count: Int = 1): List<CourtCaseEntity> {
     sourceType = sourceType ?: randomSource()
     caseNo = caseNo.ifEmpty { faker.number().numberBetween(1000000000, 9999999999).toString() }
 

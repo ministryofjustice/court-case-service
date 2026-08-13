@@ -14,25 +14,27 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRe
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.JudicialResultRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenceRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.PleaRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.VerdictRepository
 import java.time.LocalDate
 
 class CourtCaseSeederTest {
   private fun seeder(): CourtCaseSeeder = CourtCaseSeeder(
-    courtCaseRepository = mock(CourtCaseRepository::class.java),
-    hearingRepository = mock(HearingRepository::class.java),
-    caseCommentsRepository = mock(CaseCommentsRepository::class.java),
-    defendantRepository = mock(DefendantRepository::class.java),
-    headingDayRepository = mock(HearingDayRepository::class.java),
-    hearingDefendantRepository = mock(HearingDefendantRepository::class.java),
-    hearingNoteRepository = mock(HearingNoteRepository::class.java),
-    hearingOutcomeRepository = mock(HearingOutcomeRepository::class.java),
-    pleaRepository = mock(PleaRepository::class.java),
-    verdictRepository = mock(VerdictRepository::class.java),
-    offenceRepository = mock(OffenceRepository::class.java),
-    judicialResultRepository = mock(JudicialResultRepository::class.java),
-    entityManager = mock(EntityManager::class.java),
+      courtCaseRepository = mock(CourtCaseRepository::class.java),
+      hearingRepository = mock(HearingRepository::class.java),
+      caseCommentsRepository = mock(CaseCommentsRepository::class.java),
+      defendantRepository = mock(DefendantRepository::class.java),
+      headingDayRepository = mock(HearingDayRepository::class.java),
+      hearingDefendantRepository = mock(HearingDefendantRepository::class.java),
+      hearingNoteRepository = mock(HearingNoteRepository::class.java),
+      hearingOutcomeRepository = mock(HearingOutcomeRepository::class.java),
+      pleaRepository = mock(PleaRepository::class.java),
+      verdictRepository = mock(VerdictRepository::class.java),
+      offenceRepository = mock(OffenceRepository::class.java),
+      judicialResultRepository = mock(JudicialResultRepository::class.java),
+      entityManager = mock(EntityManager::class.java),
+      offenderRepository = mock(OffenderRepository::class.java),
   )
 
   @Test

@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.database.seeders
 
 import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Component
+import uk.gov.justice.probation.courtcaseservice.database.data.Faker
 import uk.gov.justice.probation.courtcaseservice.database.factories.CaseCommentsFactory
 import uk.gov.justice.probation.courtcaseservice.database.factories.CourtCaseFactory
 import uk.gov.justice.probation.courtcaseservice.database.factories.HearingDayFactory
@@ -14,7 +15,9 @@ import uk.gov.justice.probation.courtcaseservice.database.factories.OffenceFacto
 import uk.gov.justice.probation.courtcaseservice.database.factories.PleaFactory
 import uk.gov.justice.probation.courtcaseservice.database.factories.VerdictFactory
 import uk.gov.justice.probation.courtcaseservice.database.factories.DefendantFactory
+import uk.gov.justice.probation.courtcaseservice.database.factories.OffenderFactory
 import uk.gov.justice.probation.courtcaseservice.database.seeders.framework.Seeder
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CaseCommentsRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository
@@ -25,6 +28,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRe
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.JudicialResultRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenceRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.PleaRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.VerdictRepository
 import java.time.DayOfWeek
@@ -45,6 +49,7 @@ class CourtCaseSeeder(
   private val offenceRepository: OffenceRepository,
   private val judicialResultRepository: JudicialResultRepository,
   entityManager: EntityManager,
+  private val offenderRepository: OffenderRepository,
 ) : Seeder(entityManager) {
   private var count: Int = 1
   private var start: LocalDate = LocalDate.now()
@@ -53,7 +58,7 @@ class CourtCaseSeeder(
   private var shouldCleanDatabase: Boolean = false
   private val hearingDates = getHearingDates(start, days)
   private val withOutcomes = false
-
+  private val faker = Faker()
   override fun shouldClean(): Boolean = shouldCleanDatabase
 
   override fun seed() {
@@ -62,7 +67,15 @@ class CourtCaseSeeder(
       .count(count)
       .forEach { case ->
         CaseCommentsFactory(caseCommentsRepository, caseId = case.caseId).count(1)
-        val defendant = DefendantFactory(defendantRepository).count(1).first()
+        val cro = faker.cro()
+        val crn = faker.crn()
+        val pnc = faker.pnc()
+        var offender: OffenderEntity? = null
+        if ((1..100).random() < 30) {
+          // 30% of the time create an offender record
+          offender = OffenderFactory(offenderRepository, crn, pnc, cro).count(1).first()
+        }
+        val defendant = DefendantFactory(defendantRepository, crn=crn, pnc=pnc, cro=cro, offender=offender).count(1).first()
         case.addCaseDefendant(defendant)
         val hearing = HearingFactory(hearingRepository, case).count(1).first()
         hearingDates.forEach { hearingDate ->

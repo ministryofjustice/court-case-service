@@ -9,6 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchSortFields;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,6 +18,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.startsWith;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -52,7 +55,7 @@ public class DefendantRepositoryCustomTest {
         when(countQuery.setParameter(anyString(), any())).thenReturn(countQuery);
         when(countQuery.getSingleResult()).thenReturn(1L);
 
-        defendantRepositoryCustom.findDefendantsByCrn(testCrn, pageable, courtCode);
+        defendantRepositoryCustom.findDefendantsByCrn(testCrn, pageable, courtCode, null, null);
 
         ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -77,7 +80,7 @@ public class DefendantRepositoryCustomTest {
         when(countQuery.setParameter(anyString(), any())).thenReturn(countQuery);
         when(countQuery.getSingleResult()).thenReturn(1L);
 
-        defendantRepositoryCustom.findDefendantsByCrn(testCrn, pageable, "");
+        defendantRepositoryCustom.findDefendantsByCrn(testCrn, pageable, "", null, null);
 
         ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -104,7 +107,7 @@ public class DefendantRepositoryCustomTest {
         when(countQuery.setParameter(anyString(), any())).thenReturn(countQuery);
         when(countQuery.getSingleResult()).thenReturn(1L);
 
-        defendantRepositoryCustom.findDefendantsByName(testTsQueryString, testName, pageable, courtCode);
+        defendantRepositoryCustom.findDefendantsByName(testTsQueryString, testName, pageable, courtCode, null, null);
 
         ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -129,7 +132,7 @@ public class DefendantRepositoryCustomTest {
         when(countQuery.setParameter(anyString(), any())).thenReturn(countQuery);
         when(countQuery.getSingleResult()).thenReturn(1L);
 
-        defendantRepositoryCustom.findDefendantsByName(testTsQueryString, testName, pageable, "");
+        defendantRepositoryCustom.findDefendantsByName(testTsQueryString, testName, pageable, "", null, null);
 
         ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -156,7 +159,7 @@ public class DefendantRepositoryCustomTest {
         when(countQuery.setParameter(anyString(), any())).thenReturn(countQuery);
         when(countQuery.getSingleResult()).thenReturn(1L);
 
-        defendantRepositoryCustom.findDefendantsByUrn(testUrn, pageable, courtCode);
+        defendantRepositoryCustom.findDefendantsByUrn(testUrn, pageable, courtCode, null, null);
 
         ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -181,7 +184,7 @@ public class DefendantRepositoryCustomTest {
         when(countQuery.setParameter(anyString(), any())).thenReturn(countQuery);
         when(countQuery.getSingleResult()).thenReturn(1L);
 
-        defendantRepositoryCustom.findDefendantsByUrn(testUrn, pageable, "");
+        defendantRepositoryCustom.findDefendantsByUrn(testUrn, pageable, "", null, null);
 
         ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -195,5 +198,62 @@ public class DefendantRepositoryCustomTest {
         assertTrue(actualSql.contains("cc1.urn = :urn "));
         assertFalse(actualSql.contains("hday1.court_code = :courtCode"));
         assertTrue(actualSql.contains("order by cc.id desc"));
+    }
+
+    @Test
+    void whenFindDefendantsByCrnGivenNextHearingDateSort_thenQueryBuiltCorrectly() {
+        when(entityManager.createNativeQuery(anyString(), anyString()))
+            .thenReturn(query);
+        when(entityManager.createNativeQuery(startsWith("select count(*)")))
+            .thenReturn(countQuery);
+
+        when(query.setParameter(anyString(), any())).thenReturn(query);
+        when(countQuery.setParameter(anyString(), any())).thenReturn(countQuery);
+        when(countQuery.getSingleResult()).thenReturn(1L);
+
+        defendantRepositoryCustom.findDefendantsByCrn(
+            testCrn,
+            pageable,
+            "",
+            CaseSearchSortFields.NEXT_HEARING_DATE,
+            Direction.DESC
+        );
+
+        ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
+
+        verify(entityManager).createNativeQuery(
+            sqlCaptor.capture(),
+            eq("search_defendants_result_mapping")
+        );
+
+        String actualSql = sqlCaptor.getValue();
+
+        assertTrue(actualSql.contains("select min(hday2.hearing_day)"));
+        assertTrue(actualSql.contains("hday2.hearing_time > localtime"));
+        assertTrue(actualSql.contains("DESC nulls last, cc.id DESC"));
+    }
+
+    @Test
+    void whenFindDefendantsByNameGivenNextHearingDateSort_thenDoNotBindMissingNameParameter() {
+        when(entityManager.createNativeQuery(anyString(), anyString()))
+            .thenReturn(query);
+        when(entityManager.createNativeQuery(startsWith("select count(*)")))
+            .thenReturn(countQuery);
+
+        when(query.setParameter(anyString(), any())).thenReturn(query);
+        when(countQuery.setParameter(anyString(), any())).thenReturn(countQuery);
+        when(countQuery.getSingleResult()).thenReturn(1L);
+
+        defendantRepositoryCustom.findDefendantsByName(
+            testTsQueryString,
+            testName,
+            pageable,
+            "",
+            CaseSearchSortFields.NEXT_HEARING_DATE,
+            Direction.DESC
+        );
+
+        verify(query).setParameter("tsQueryString", testTsQueryString);
+        verify(query, never()).setParameter("name", testName);
     }
 }

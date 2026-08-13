@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
@@ -18,6 +19,7 @@ import uk.gov.justice.probation.courtcaseservice.service.mapper.CaseSearchResult
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResult;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResultItem;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchSortFields;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchType;
 
 import java.util.List;
@@ -61,7 +63,7 @@ class CaseSearchServiceTest {
         EntityHelper.refreshMappings(hearingEntity2);
         final Pageable pageable = Pageable.ofSize(10).withPage(0);
 
-        given(defendantRepositoryCustom.findDefendantsByCrn(TEST_CRN, pageable, BLANK_COURT_CODE))
+        given(defendantRepositoryCustom.findDefendantsByCrn(TEST_CRN, pageable, BLANK_COURT_CODE, null, null))
             .willReturn(new PageImpl<>(List.of(new Pair<>(hearingEntity1.getCourtCase(), defendantEntity1), new Pair<>(hearingEntity2.getCourtCase(), defendantEntity2)), pageable, 2));
         given(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(anyList())).willReturn(Map.of());
         given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), any())).willReturn(null);
@@ -73,7 +75,7 @@ class CaseSearchServiceTest {
 
         var actual = caseSearchService.searchCases(CaseSearchRequest.builder().term(TEST_CRN).type(CaseSearchType.CRN).build());
 
-        verify(defendantRepositoryCustom).findDefendantsByCrn(TEST_CRN, pageable, BLANK_COURT_CODE);
+        verify(defendantRepositoryCustom).findDefendantsByCrn(TEST_CRN, pageable, BLANK_COURT_CODE, null, null);
         verify(caseSearchResultItemMapper).from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull());
         verify(caseSearchResultItemMapper).from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull());
         assertThat(actual).isEqualTo(CaseSearchResult.builder().totalElements(2).totalPages(1).items(List.of(result1, result2)).build());
@@ -90,7 +92,7 @@ class CaseSearchServiceTest {
         final Pageable pageable = Pageable.ofSize(10).withPage(0);
         String name = "Jeff";
 
-        given(defendantRepositoryCustom.findDefendantsByName(name, name, pageable, BLANK_COURT_CODE))
+        given(defendantRepositoryCustom.findDefendantsByName(name, name, pageable, BLANK_COURT_CODE, null, null))
             .willReturn(new PageImpl<>(List.of(new Pair<>(hearingEntity1.getCourtCase(), defendantEntity1), new Pair<>(hearingEntity2.getCourtCase(), defendantEntity2)), pageable, 2));
         given(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(anyList())).willReturn(Map.of());
         given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), any())).willReturn(null);
@@ -102,7 +104,7 @@ class CaseSearchServiceTest {
 
         var actual = caseSearchService.searchCases(CaseSearchRequest.builder().term(name).type(CaseSearchType.NAME).build());
 
-        verify(defendantRepositoryCustom).findDefendantsByName(name, name, pageable, BLANK_COURT_CODE);
+        verify(defendantRepositoryCustom).findDefendantsByName(name, name, pageable, BLANK_COURT_CODE, null, null);
         verify(caseSearchResultItemMapper).from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull());
         verify(caseSearchResultItemMapper).from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull());
         assertThat(actual).isEqualTo(CaseSearchResult.builder().totalElements(2).totalPages(1).items(List.of(result1, result2)).build());
@@ -112,11 +114,11 @@ class CaseSearchServiceTest {
     void shouldMapAndReturnTheResultsRetrievedByTheRepository() {
         final Pageable pageable = Pageable.ofSize(10).withPage(0);
 
-        given(defendantRepositoryCustom.findDefendantsByCrn(TEST_CRN, pageable, BLANK_COURT_CODE)).willReturn(new PageImpl<>(List.of(), pageable, 0));
+        given(defendantRepositoryCustom.findDefendantsByCrn(TEST_CRN, pageable, BLANK_COURT_CODE, null, null)).willReturn(new PageImpl<>(List.of(), pageable, 0));
 
         var actual = caseSearchService.searchCases(CaseSearchRequest.builder().term(TEST_CRN).type(CaseSearchType.CRN).build());
 
-        verify(defendantRepositoryCustom).findDefendantsByCrn(TEST_CRN, pageable, BLANK_COURT_CODE);
+        verify(defendantRepositoryCustom).findDefendantsByCrn(TEST_CRN, pageable, BLANK_COURT_CODE, null, null);
         verifyNoInteractions(caseSearchResultItemMapper);
         assertThat(actual).isEqualTo(CaseSearchResult.builder().totalPages(0).totalElements(0).items(List.of()).build());
     }
@@ -125,11 +127,11 @@ class CaseSearchServiceTest {
     void shouldReturnEmptyDataWhenRequestedPageNotAvailable() {
         final Pageable pageable = Pageable.ofSize(10).withPage(2);
 
-        given(defendantRepositoryCustom.findDefendantsByCrn(TEST_CRN, pageable, BLANK_COURT_CODE)).willReturn(new PageImpl<>(List.of(), pageable, 0));
+        given(defendantRepositoryCustom.findDefendantsByCrn(TEST_CRN, pageable, BLANK_COURT_CODE, null, null)).willReturn(new PageImpl<>(List.of(), pageable, 0));
 
         var actual = caseSearchService.searchCases(CaseSearchRequest.builder().page(3).term(TEST_CRN).type(CaseSearchType.CRN).build());
 
-        verify(defendantRepositoryCustom).findDefendantsByCrn(TEST_CRN, pageable, BLANK_COURT_CODE);
+        verify(defendantRepositoryCustom).findDefendantsByCrn(TEST_CRN, pageable, BLANK_COURT_CODE, null, null);
         verifyNoInteractions(caseSearchResultItemMapper);
         assertThat(actual).isEqualTo(CaseSearchResult.builder().totalPages(0).totalElements(0).items(List.of()).build());
     }
@@ -145,7 +147,7 @@ class CaseSearchServiceTest {
         final Pageable pageable = Pageable.ofSize(10).withPage(0);
         String urn = "01HV14907540";
 
-        given(defendantRepositoryCustom.findDefendantsByUrn(urn, pageable, BLANK_COURT_CODE))
+        given(defendantRepositoryCustom.findDefendantsByUrn(urn, pageable, BLANK_COURT_CODE, null, null))
             .willReturn(new PageImpl<>(List.of(new Pair<>(hearingEntity1.getCourtCase(), defendantEntity1), new Pair<>(hearingEntity2.getCourtCase(), defendantEntity2)), pageable, 2));
         given(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(anyList())).willReturn(Map.of());
         given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), any())).willReturn(null);
@@ -157,7 +159,7 @@ class CaseSearchServiceTest {
 
         var actual = caseSearchService.searchCases(CaseSearchRequest.builder().term(urn).type(CaseSearchType.URN).build());
 
-        verify(defendantRepositoryCustom).findDefendantsByUrn(urn, pageable, BLANK_COURT_CODE);
+        verify(defendantRepositoryCustom).findDefendantsByUrn(urn, pageable, BLANK_COURT_CODE, null, null);
         verify(caseSearchResultItemMapper).from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull());
         verify(caseSearchResultItemMapper).from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull());
         assertThat(actual).isEqualTo(CaseSearchResult.builder().totalElements(2).totalPages(1).items(List.of(result1, result2)).build());
@@ -175,7 +177,7 @@ class CaseSearchServiceTest {
         EntityHelper.refreshMappings(hearingEntity2);
         final Pageable pageable = Pageable.ofSize(10).withPage(0);
 
-        given(defendantRepositoryCustom.findDefendantsByName(searchTermCaptor.capture(), any(), any(Pageable.class), any()))
+        given(defendantRepositoryCustom.findDefendantsByName(searchTermCaptor.capture(), any(), any(Pageable.class), any(), any(), any()))
             .willReturn(new PageImpl<>(List.of(new Pair<>(hearingEntity1.getCourtCase(), defendantEntity1), new Pair<>(hearingEntity2.getCourtCase(), defendantEntity2)), pageable, 2));
         given(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(anyList())).willReturn(Map.of());
         given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), any())).willReturn(null);
@@ -187,7 +189,35 @@ class CaseSearchServiceTest {
 
         caseSearchService.searchCases(CaseSearchRequest.builder().term(expectedSearchTerm).type(CaseSearchType.NAME).build());
 
-        verify(defendantRepositoryCustom).findDefendantsByName(searchTermCaptor.capture(), any(), any(Pageable.class), any());
+        verify(defendantRepositoryCustom).findDefendantsByName(searchTermCaptor.capture(), any(), any(Pageable.class), any(), any(), any());
         assertEquals("TEST & TEST", searchTermCaptor.getValue());
+    }
+
+    @Test
+    void shouldPassNextHearingDateSortToTheRepo() {
+        final Pageable pageable = Pageable.ofSize(10).withPage(0);
+
+        given(defendantRepositoryCustom.findDefendantsByCrn(
+            TEST_CRN,
+            pageable,
+            BLANK_COURT_CODE,
+            CaseSearchSortFields.NEXT_HEARING_DATE,
+            Direction.DESC
+        )).willReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        caseSearchService.searchCases(CaseSearchRequest.builder()
+            .term(TEST_CRN)
+            .type(CaseSearchType.CRN)
+            .sortBy(CaseSearchSortFields.NEXT_HEARING_DATE)
+            .order(Direction.DESC)
+            .build());
+
+        verify(defendantRepositoryCustom).findDefendantsByCrn(
+            TEST_CRN,
+            pageable,
+            BLANK_COURT_CODE,
+            CaseSearchSortFields.NEXT_HEARING_DATE,
+            Direction.DESC
+        );
     }
 }

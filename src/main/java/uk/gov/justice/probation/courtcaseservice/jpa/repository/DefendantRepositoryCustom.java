@@ -5,9 +5,11 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity;
+import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchSortFields;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -18,6 +20,19 @@ import java.util.stream.Collectors;
 
 @Component
 public class DefendantRepositoryCustom {
+    private static final String DEFAULT_CASE_ORDER_BY = " order by cc.id desc ";
+    private static final String DEFAULT_NAME_ORDER_BY = " order by similarity (d.defendant_name, :name) desc ";
+    private static final String NEXT_HEARING_DATE_ORDER_BY = """
+         order by (
+             select min(hday2.hearing_day)
+             from hearing h2
+             join hearing_defendant hd2 on h2.id = hd2.fk_hearing_id
+             join hearing_day hday2 on hday2.fk_hearing_id = h2.id
+             where h2.fk_court_case_id = cc.id
+               and hd2.fk_defendant_id = d.id
+               and (hday2.hearing_day > current_date or (hday2.hearing_day = current_date and hday2.hearing_time > localtime))
+         ) %s nulls last, cc.id %s
+        """;
     private static final String DEFENDANT_SEARCH_FROM_CLAUSE = " from court_case cc " +
         "        join hearing h on cc.id = h.fk_court_case_id " +
         "        join hearing_defendant hd on h.id = hd.fk_hearing_id " +
@@ -37,14 +52,15 @@ public class DefendantRepositoryCustom {
 
     @PersistenceContext
     private EntityManager entityManager;
-    public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByCrn(String crn, Pageable pageable, String courtCode) {
+    public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByCrn(String crn, Pageable pageable, String courtCode,
+                                                                            CaseSearchSortFields sortBy, Direction order) {
 
         String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " and hday1.court_code = :courtCode" : "";
 
         String CRN_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " join offender off on off.id = d1.fk_offender_id " + " where off.crn = :crn " + COURT_FILTER_FROM + DEFENDANT_SEARCH_GROUPING;
 
         var query = entityManager.createNativeQuery(
-            DEFENDANT_SEARCH_SELECT + CRN_SEARCH_FROM + " order by cc.id desc ",
+            DEFENDANT_SEARCH_SELECT + CRN_SEARCH_FROM + getOrderByClause(sortBy, order, DEFAULT_CASE_ORDER_BY),
             "search_defendants_result_mapping");
 
         query.setParameter("crn", crn);
@@ -61,20 +77,19 @@ public class DefendantRepositoryCustom {
         return getPagedResult(pageable, query, countQuery);
     }
 
-    public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByName(String tsQueryString, String name, Pageable pageable, String courtCode) {
+    public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByName(String tsQueryString, String name, Pageable pageable, String courtCode,
+                                                                             CaseSearchSortFields sortBy, Direction order) {
 
         String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " and hday1.court_code = :courtCode" : "";
 
         String NAME_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where d1.tsv_name @@ to_tsquery('simple', :tsQueryString) " + COURT_FILTER_FROM + DEFENDANT_SEARCH_GROUPING;
 
-        // Originally used the Postgres `similarity` function, but it was breaking in tests,
-        // this method provides more or less the same functionality and is more efficient.
-        String NAME_SEARCH_QUERY = DEFENDANT_SEARCH_SELECT + NAME_SEARCH_FROM +
-            " order by ts_rank(to_tsvector('simple', d.defendant_name), to_tsquery('simple', :tsQueryString)) desc ";
+        String NAME_SEARCH_QUERY = DEFENDANT_SEARCH_SELECT + NAME_SEARCH_FROM + getOrderByClause(sortBy, order, DEFAULT_NAME_ORDER_BY);
 
         var query = entityManager.createNativeQuery(NAME_SEARCH_QUERY, "search_defendants_result_mapping");
 
         query.setParameter("tsQueryString", tsQueryString);
+        setParameterIfPresent(query, NAME_SEARCH_QUERY, "name", name);
 
         var countQuery = entityManager.createNativeQuery("select count(*) " + NAME_SEARCH_FROM );
 
@@ -88,14 +103,15 @@ public class DefendantRepositoryCustom {
         return getPagedResult(pageable, query, countQuery);
     }
 
-    public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByUrn(String urn, Pageable pageable, String courtCode) {
+    public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByUrn(String urn, Pageable pageable, String courtCode,
+                                                                            CaseSearchSortFields sortBy, Direction order) {
 
         String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " and hday1.court_code = :courtCode" : "";
 
         String URN_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where cc1.urn = :urn " + COURT_FILTER_FROM  + DEFENDANT_SEARCH_GROUPING;
 
         var query = entityManager.createNativeQuery(
-            DEFENDANT_SEARCH_SELECT + URN_SEARCH_FROM + " order by cc.id desc ",
+            DEFENDANT_SEARCH_SELECT + URN_SEARCH_FROM + getOrderByClause(sortBy, order, DEFAULT_CASE_ORDER_BY),
             "search_defendants_result_mapping");
 
         query.setParameter("urn", urn);
@@ -125,5 +141,23 @@ public class DefendantRepositoryCustom {
         int count = ((Long) countQuery.getSingleResult()).intValue();
 
         return new PageImpl<>(courtCases, pageable, count);
+    }
+
+    private static String getOrderByClause(CaseSearchSortFields sortBy, Direction order, String defaultOrderBy) {
+        if (sortBy == null) {
+            return defaultOrderBy;
+        }
+
+        var direction = order == null ? Direction.ASC.name() : order.name();
+
+        return switch (sortBy) {
+            case NEXT_HEARING_DATE -> NEXT_HEARING_DATE_ORDER_BY.formatted(direction, direction);
+        };
+    }
+
+    private static void setParameterIfPresent(Query query, String sql, String parameterName, Object value) {
+        if (sql.contains(":" + parameterName)) {
+            query.setParameter(parameterName, value);
+        }
     }
 }

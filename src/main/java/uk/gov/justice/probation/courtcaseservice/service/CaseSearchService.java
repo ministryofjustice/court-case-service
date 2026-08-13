@@ -40,13 +40,15 @@ public class CaseSearchService {
 
         final String searchTerm = caseSearchRequest.getTerm();
         final String courtCode = caseSearchRequest.getCourtCode();
+        final var sortBy = caseSearchRequest.getSortBy();
+        final var order = sortBy == null ? null : caseSearchRequest.getOrder();
         var resultsPage = switch (caseSearchRequest.getType()) {
-            case CRN -> defendantRepositoryCustom.findDefendantsByCrn(searchTerm, pageable, courtCode);
-            case URN -> defendantRepositoryCustom.findDefendantsByUrn(searchTerm, pageable, courtCode);
+            case CRN -> defendantRepositoryCustom.findDefendantsByCrn(searchTerm, pageable, courtCode, sortBy, order);
+            case URN -> defendantRepositoryCustom.findDefendantsByUrn(searchTerm, pageable, courtCode, sortBy, order);
             case NAME ->
                 defendantRepositoryCustom.findDefendantsByName(Arrays.stream(searchTerm.trim().replaceAll("\\s+", " ").split(" "))
                     // Remove leading and trailing whitespaces
-                    .map(String::trim).collect(Collectors.joining(" & ")), searchTerm.strip(), pageable, courtCode);
+                    .map(String::trim).collect(Collectors.joining(" & ")), searchTerm.strip(), pageable, courtCode, sortBy, order);
         };
 
         if(caseSearchRequest.getPage() > resultsPage.getTotalPages()) {

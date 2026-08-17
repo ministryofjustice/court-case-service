@@ -145,7 +145,6 @@ public class DefendantRepositoryCustomTest {
 
         assertTrue(actualSql.contains("where d1.tsv_name @@ to_tsquery('simple', :tsQueryString)"));
         assertFalse(actualSql.contains("hday1.court_code = :courtCode"));
-        //assertTrue(actualSql.contains("order by similarity (d.defendant_name, :name) desc "));
     }
 
     @Test

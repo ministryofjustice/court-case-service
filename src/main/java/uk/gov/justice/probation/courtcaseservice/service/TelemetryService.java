@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.probation.courtcaseservice.application.ClientDetails;
 import uk.gov.justice.probation.courtcaseservice.jpa.dto.HearingCourtCaseDTO;
@@ -27,6 +28,7 @@ import static java.util.Optional.ofNullable;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class TelemetryService {
     private final TelemetryClient telemetryClient;
 
@@ -314,7 +316,11 @@ public class TelemetryService {
         properties.put("userName", userName);
         properties.put("authSource", authSource);
         addRequestProperties(properties);
+        log.info("Submitting telemetry event={} hearingId={} defendantId={} courtCode={} hearingOutcomeType={} userUuid={}",
+            eventType.eventName, hearingEntity.getHearingId(), defendantId, courtCode, hearingOutcomeType.name(), userUuid);
         telemetryClient.trackEvent(eventType.eventName, properties, Collections.emptyMap());
+        log.info("Submitted telemetry event={} hearingId={} defendantId={} courtCode={}",
+            eventType.eventName, hearingEntity.getHearingId(), defendantId, courtCode);
     }
 
     void trackCreateCaseResultEvent(String courtCode, String hearingId, String defendantId, String userUuid, String assignedUuid, String userId, String userName, String authSource) {

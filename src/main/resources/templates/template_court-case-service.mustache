@@ -1,16 +1,12 @@
 <h1 class="title">Prepare a Case for Sentence</h1>
 {{#.}}
 {{#cases}}
-    <h2>Case</h2>
-    <table class="summary-list">
-        <tr><td>Case ID</td><td>{{ optionalValue caseId }}</td></tr>
-    </table>
-
     <h3>Hearings</h3>
     {{#hearings}}
         <h4>Hearing</h4>
         <table class="summary-list">
-            <tr><td>Hearing ID</td><td>{{ optionalValue hearingId }}</td></tr>
+            <tr><td>Court name</td><td>{{ optionalValue courtName }}</td></tr>
+            <tr><td>Hearing date and time</td><td>{{ optionalValue (formatDate hearingDateTime) }}</td></tr>
         </table>
 
         <h5>Notes</h5>

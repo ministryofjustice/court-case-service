@@ -1,8 +1,10 @@
 version: 2.1
+
 parameters:
   alerts-slack-channel:
     type: string
     default: probation_in_court_alerts_dev
+
 commands:
   setup-live:
     description: "Install tools and configure kubectl"
@@ -27,6 +29,7 @@ commands:
             # confirm setup is ok
             kubectl config use-context circleci
             kubectl -n "${KUBE_ENV_NAMESPACE}" get pods
+
   set_app_version:
     description: "Set app version string"
     steps:
@@ -90,6 +93,7 @@ executors:
           POSTGRES_DB: court_case_test
           POSTGRES_PASSWORD: dev
     working_directory: ~/app
+
 orbs:
   aws-cli: circleci/aws-cli@0.1.13
   hmpps: ministryofjustice/hmpps@10.1.1
@@ -97,6 +101,7 @@ orbs:
   helm: circleci/helm@2.0.1
   mem: circleci/rememborb@0.0.1
   jira: circleci/jira@1.2.2
+
 jobs:
   build:
     executor:
@@ -129,6 +134,7 @@ jobs:
             - app_version.txt
       - jira/notify:
           job_type: build
+
   build_docker:
     executor: deployer
     parameters:
@@ -173,6 +179,7 @@ jobs:
                   docker push quay.io/hmpps/<<parameters.app_name>>:latest
       - jira/notify:
           job_type: build
+
   deploy_dev:
     executor: deployer
     steps:
@@ -200,6 +207,7 @@ jobs:
           environment: prod
           environment_type: production
           job_type: deployment
+
 workflows:
   version: 2
   security:
@@ -239,3 +247,67 @@ workflows:
           context:
             - veracode-credentials
             - hmpps-common-vars
+
+  build-test-and-deploy:
+    jobs:
+      - build:
+          context: [hmpps-common-vars]
+          filters:
+            tags:
+              ignore: /.*/
+      - hmpps/helm_lint:
+          name: helm_lint_dev
+      - hmpps/database_schema_report:
+          schema: "courtcaseservicetest"
+          initialise_database: "./gradlew initialiseDatabase"
+          filters:
+            branches:
+              only: main
+      - build_docker:
+          name: build_docker
+          context: [ hmpps-common-vars ]
+          app_name: court-case-service
+          requires:
+            - build
+          main: true
+      - build_docker:
+          name: build_docker_nginx
+          app_name: court-case-service-nginx
+          dockerfile_path: ./nginx
+          context:
+            - hmpps-common-vars
+          requires:
+            - build
+          main: true
+      - deploy_dev:
+          context:
+            - hmpps-common-vars
+          requires:
+            - helm_lint_dev
+            - build_docker
+            - build_docker_nginx
+          filters:
+            branches:
+              only:
+                - main
+                - /.*workflow_test_branch.*/
+      - request_preprod_approval:
+          type: approval
+          requires:
+            - deploy_dev
+      - deploy_preprod:
+          context:
+            - court-probation-live-preprod
+            - hmpps-common-vars
+          requires:
+            - request_preprod_approval
+      - request_prod_approval:
+          type: approval
+          requires:
+            - deploy_preprod
+      - deploy_prod:
+          context:
+            - court-probation-live-prod
+            - hmpps-common-vars
+          requires:
+            - request_prod_approval

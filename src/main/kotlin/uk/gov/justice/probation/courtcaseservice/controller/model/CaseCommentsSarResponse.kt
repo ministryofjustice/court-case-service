@@ -8,7 +8,6 @@ data class CaseCommentsSarResponse(
   val created: LocalDateTime? = null,
   val lastUpdated: LocalDateTime? = null,
   val lastUpdatedBy: String = "",
-  val caseNumber: String = "",
   val createdBy: String = "",
   val caseId: String = "",
 )

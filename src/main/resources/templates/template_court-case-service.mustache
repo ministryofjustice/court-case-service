@@ -18,12 +18,10 @@
             </table>
             <table class="data-table">
                 <tr>
-                    <td class="data-column-30">Author surname</td>
-                    <td class="data-column-30">Created</td>
-                    <td class="data-column-30">Created by</td>
+                    <td class="data-column-50">Created</td>
+                    <td class="data-column-50">Created by</td>
                 </tr>
                 <tr>
-                    <td>{{ optionalValue authorSurname }}</td>
                     <td>{{ optionalValue (formatDate created) }}</td>
                     <td>{{ getUserLastName createdBy }}</td>
                 </tr>
@@ -95,32 +93,31 @@
     <h3>Comments</h3>
     {{#comments}}
         <br/>
+        <table class="summary-list">
+            <tr><td>Author surname</td><td>{{ optionalValue authorSurname }}</td></tr>
+        </table>
         <table class="data-table">
             <tr><td>Comment</td></tr>
             <tr><td>{{ optionalValue comment }}</td></tr>
         </table>
         <table class="data-table">
             <tr>
-                <td class="data-column-30">Author surname</td>
-                <td class="data-column-30">Created</td>
-                <td class="data-column-30">Created by</td>
+                <td class="data-column-50">Created</td>
+                <td class="data-column-50">Created by</td>
             </tr>
             <tr>
-                <td>{{ getUserLastName authorSurname }}</td>
                 <td>{{ optionalValue (formatDate created) }}</td>
                 <td>{{ getUserLastName createdBy }}</td>
             </tr>
         </table>
         <table class="data-table">
             <tr>
-                <td class="data-column-30">Last updated</td>
-                <td class="data-column-30">Last updated by</td>
-                <td class="data-column-30">Case number</td>
+                <td class="data-column-50">Last updated</td>
+                <td class="data-column-50">Last updated by</td>
             </tr>
             <tr>
                 <td>{{ optionalValue (formatDate lastUpdated) }}</td>
                 <td>{{ getUserLastName lastUpdatedBy }}</td>
-                <td>{{ optionalValue caseNumber }}</td>
             </tr>
         </table>
     {{/comments}}

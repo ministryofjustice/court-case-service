@@ -3,17 +3,13 @@ package uk.gov.justice.probation.courtcaseservice.service.subjectaccessrequest
 import org.springframework.stereotype.Service
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseCommentsSarResponse
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType
 import uk.gov.justice.probation.courtcaseservice.service.CaseCommentsService
-import uk.gov.justice.probation.courtcaseservice.service.ImmutableCourtCaseService
 import java.time.LocalDate
 
 @Service
 class DefendantCaseCommentsService(
   private val caseCommentsService: CaseCommentsService,
-  private val immutableCourtCaseService: ImmutableCourtCaseService,
 ) : ISarFormatter {
 
   fun getCaseCommentsForDefendant(
@@ -29,7 +25,6 @@ class DefendantCaseCommentsService(
       }
       CaseCommentsSarResponse(
         caseId = caseComment.caseId,
-        caseNumber = getCaseNumber(caseComment),
         comment = caseComment.comment,
         authorSurname = getSurname(caseComment.author),
         created = caseComment.created,
@@ -38,11 +33,6 @@ class DefendantCaseCommentsService(
         lastUpdatedBy = getLastUpdatedBy(caseComment.lastUpdatedBy),
       )
     }.filterNotNull()
-
-  private fun getCaseNumber(caseComment: CaseCommentEntity): String {
-    val findByCaseId: CourtCaseEntity? = immutableCourtCaseService.findByCaseId(caseComment.caseId).orElse(null)
-    return if (findByCaseId?.sourceType == SourceType.LIBRA) findByCaseId.caseNo else ""
-  }
 
   private fun findDefendantsByCrnAndDateRange(defendantId: String, fromDate: LocalDate?, toDate: LocalDate?): List<CaseCommentEntity> {
     if (fromDate != null && toDate != null) {

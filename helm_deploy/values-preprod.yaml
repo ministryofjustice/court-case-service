@@ -7,7 +7,7 @@ maxSurge: 1
 takeDatabaseSnapshots: false
 
 image:
-  repository: quay.io/hmpps/court-case-service
+  repository: ghcr.io/ministryofjustice/court-case-service
   tag: latest
   pullPolicy: Always
   port: 8080
@@ -32,7 +32,7 @@ nginx_proxy:
 
   deployment:
     image:
-      repository: quay.io/hmpps/court-case-service-nginx
+      repository: ghcr.io/ministryofjustice/court-case-service-nginx
       tag: latest
       pullPolicy: Always
     port: 8080

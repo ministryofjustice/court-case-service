@@ -19,4 +19,4 @@ if [[ "$namespace" = *-prod ]]; then
 fi
 
 cd ../
-helm upgrade court-case-service ./helm_deploy/court-case-service --values ./helm_deploy/${values}.yaml --values ./helm_deploy/court-case-service/values-live.yaml --install --namespace $namespace
+helm upgrade court-case-service ./helm_deploy/court-case-service --values ./helm_deploy/${values}.yaml --install --namespace $namespace

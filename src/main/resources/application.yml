@@ -1,3 +1,12 @@
+bail-information-analytics-sharepoint:
+  tenant-id: ${bail-information-analytics-sharepoint-tenant-id:}
+  client-id: ${bail-information-analytics-sharepoint-client-id:}
+  client-secret: ${bail-information-analytics-sharepoint-client-secret:}
+  user-id: ${bail-information-analytics-sharepoint-user-id:}
+  site-host: ${bail-information-analytics-sharepoint-site-host:}
+  site-path: ${bail-information-analytics-sharepoint-site-path:}
+  upload-folder-path: ${bail-information-analytics-sharepoint-upload-folder-path:Shared Documents/General/CP CSV/New CSV/DEV}
+
 info:
   app:
     name: HMPPS Court Case Service

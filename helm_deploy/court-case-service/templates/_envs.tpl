@@ -172,6 +172,35 @@ env:
         name: court-case-service-secrets
         key: nomis-oauth-client-secret
 
+  - name: BAIL_INFORMATION_ANALYTICS_SHAREPOINT_TENANT_ID
+    valueFrom:
+      secretKeyRef:
+        name: bail-information-analytics-sharepoint-credentials
+        key: tenant_id
+
+  - name: BAIL_INFORMATION_ANALYTICS_SHAREPOINT_CLIENT_ID
+    valueFrom:
+      secretKeyRef:
+        name: bail-information-analytics-sharepoint-credentials
+        key: client_id
+
+  - name: BAIL_INFORMATION_ANALYTICS_SHAREPOINT_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: bail-information-analytics-sharepoint-credentials
+        key: client_secret
+
+  {{- with .Values.env.sharepoint }}
+  - name: BAIL_INFORMATION_ANALYTICS_SHAREPOINT_SITE_HOST
+    value: "{{ .site_host }}"
+
+  - name: BAIL_INFORMATION_ANALYTICS_SHAREPOINT_SITE_PATH
+    value: "{{ .site_path }}"
+
+  - name: BAIL_INFORMATION_ANALYTICS_SHAREPOINT_UPLOAD_FOLDER_PATH
+    value: "{{ .upload_folder_path }}"
+  {{- end }}
+
   - name: APPLICATIONINSIGHTS_CONNECTION_STRING
     valueFrom:
       secretKeyRef:

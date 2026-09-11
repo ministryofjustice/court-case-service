@@ -58,6 +58,9 @@ nginx_proxy:
 hearing_outcomes:
   process_un_resulted_cases_cron: "30 12-20 * * *"
 
+bail_information_service_export:
+  cron_schedule: "0 6 * * *"
+
 env:
   JAVA_OPTS: "-Xmx512m"
   FEATURE_FLAGS_ENABLE_CACHEABLE_CASE_LIST: false
@@ -83,6 +86,10 @@ env:
     move_un_resulted_to_outcomes_courts: "B20EB,B23HS,B21DA,B45MH,B45GC,B13CC,B12LK,B12LT,B12GH,B16GB"
   hmpps_document_management_api_client:
     base_url: https://document-api-dev.hmpps.service.justice.gov.uk
+  bail_information_analytics_sharepoint:
+    site_host: justiceuk.sharepoint.com
+    site_path: /sites/BISAnalystsTeam
+    upload_folder_path: Shared Documents/General/CP CSV/New CSV/DEV
 
 spring:
   profile: dev

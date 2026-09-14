@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Sort.Direction;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -33,12 +34,22 @@ public class CaseSearchRequest {
     @Schema(description = "Optional court code to filter results")
     private String courtCode;
 
+    @Schema(description = "Optional field to sort by")
+    private CaseSearchSortFields sortBy;
+
+    @Schema(description = "Optional sort order")
+    private Direction order;
+
     public Integer getPage() {
         return Optional.ofNullable(page).orElse(1);
     }
 
     public Integer getSize() {
         return Optional.ofNullable(size).orElse(10);
+    }
+
+    public Direction getOrder() {
+        return Optional.ofNullable(order).orElse(Direction.ASC);
     }
 
     public String getCourtCode() { return Optional.ofNullable(courtCode).orElse(""); }

@@ -1,16 +1,12 @@
 <h1 class="title">Prepare a Case for Sentence</h1>
 {{#.}}
 {{#cases}}
-    <h2>Case</h2>
-    <table class="summary-list">
-        <tr><td>Case ID</td><td>{{ optionalValue caseId }}</td></tr>
-    </table>
-
     <h3>Hearings</h3>
     {{#hearings}}
         <h4>Hearing</h4>
         <table class="summary-list">
-            <tr><td>Hearing ID</td><td>{{ optionalValue hearingId }}</td></tr>
+            <tr><td>Court name</td><td>{{ optionalValue courtName }}</td></tr>
+            <tr><td>Hearing date and time</td><td>{{ optionalValue (formatDate hearingDateTime) }}</td></tr>
         </table>
 
         <h5>Notes</h5>
@@ -19,6 +15,26 @@
             <table class="summary-list">
                 <tr><td>Note</td><td>{{ optionalValue note }}</td></tr>
                 <tr><td>Author surname</td><td>{{ optionalValue authorSurname }}</td></tr>
+            </table>
+            <table class="data-table">
+                <tr>
+                    <td class="data-column-50">Created</td>
+                    <td class="data-column-50">Created by</td>
+                </tr>
+                <tr>
+                    <td>{{ optionalValue (formatDate created) }}</td>
+                    <td>{{ getUserLastName createdBy }}</td>
+                </tr>
+            </table>
+            <table class="data-table">
+                <tr>
+                    <td class="data-column-50">Last updated</td>
+                    <td class="data-column-50">Last updated by</td>
+                </tr>
+                <tr>
+                    <td>{{ optionalValue (formatDate lastUpdated) }}</td>
+                    <td>{{ getUserLastName lastUpdatedBy }}</td>
+                </tr>
             </table>
         {{/notes}}
         {{^notes}}
@@ -52,6 +68,18 @@
                     <td>{{ optionalValue (formatDate createdDate) }}</td>
                 </tr>
             </table>
+            <table class="data-table">
+                <tr>
+                    <td class="data-column-30">Created by</td>
+                    <td class="data-column-30">Last updated</td>
+                    <td class="data-column-30">Last updated by</td>
+                </tr>
+                <tr>
+                    <td>{{ getUserLastName createdBy }}</td>
+                    <td>{{ optionalValue (formatDate lastUpdated) }}</td>
+                    <td>{{ getUserLastName lastUpdatedBy }}</td>
+                </tr>
+            </table>
         {{/outcomes}}
         {{^outcomes}}
             <p>No Data Held</p>
@@ -65,32 +93,28 @@
     <h3>Comments</h3>
     {{#comments}}
         <br/>
-        <table class="data-table">
-            <tr><td>Comment</td></tr>
-            <tr><td>{{ optionalValue comment }}</td></tr>
+        <table class="summary-list">
+            <tr><td>Comment</td><td>{{ optionalValue comment }}</td></tr>
+            <tr><td>Author surname</td><td>{{ optionalValue authorSurname }}</td></tr>
         </table>
         <table class="data-table">
             <tr>
-                <td class="data-column-30">Author surname</td>
-                <td class="data-column-30">Created</td>
-                <td class="data-column-30">Created by</td>
+                <td class="data-column-50">Created</td>
+                <td class="data-column-50">Created by</td>
             </tr>
             <tr>
-                <td>{{ getUserLastName authorSurname }}</td>
                 <td>{{ optionalValue (formatDate created) }}</td>
                 <td>{{ getUserLastName createdBy }}</td>
             </tr>
         </table>
         <table class="data-table">
             <tr>
-                <td class="data-column-30">Last updated</td>
-                <td class="data-column-30">Last updated by</td>
-                <td class="data-column-30">Case number</td>
+                <td class="data-column-50">Last updated</td>
+                <td class="data-column-50">Last updated by</td>
             </tr>
             <tr>
                 <td>{{ optionalValue (formatDate lastUpdated) }}</td>
                 <td>{{ getUserLastName lastUpdatedBy }}</td>
-                <td>{{ optionalValue caseNumber }}</td>
             </tr>
         </table>
     {{/comments}}

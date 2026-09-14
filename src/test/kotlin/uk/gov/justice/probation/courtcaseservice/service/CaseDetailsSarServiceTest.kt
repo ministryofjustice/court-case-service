@@ -99,7 +99,6 @@ internal class CaseDetailsSarServiceTest {
           created = LocalDateTime.parse("2024-05-22T12:00"),
           lastUpdated = LocalDateTime.parse("2024-05-22T12:30"),
           lastUpdatedBy = "TestUser",
-          caseNumber = "222333",
           createdBy = "TestUser",
           caseId = "5678",
         ),
@@ -127,8 +126,8 @@ internal class CaseDetailsSarServiceTest {
     assertThat(caseSARDetails[0].caseNo).isEqualTo("222333")
     assertThat(caseSARDetails[0].created).isEqualTo(LocalDateTime.parse("2024-05-22T12:00"))
     assertThat(caseSARDetails[0].lastUpdated).isEqualTo(LocalDateTime.parse("2024-05-22T12:30"))
-    assertThat(caseSARDetails[0].createdBy).isEqualTo("Test User")
-    assertThat(caseSARDetails[0].lastUpdatedBy).isEqualTo("Test User")
+    assertThat(caseSARDetails[0].createdBy).isEqualTo("User")
+    assertThat(caseSARDetails[0].lastUpdatedBy).isEqualTo("User")
     assertThat(caseSARDetails[0].comments).hasSize(1)
     assertThat(caseSARDetails[0].comments[0].comment).isEqualTo("Some comment")
     assertThat(caseSARDetails[0].comments[0].authorSurname).isEqualTo("Author")
@@ -136,7 +135,6 @@ internal class CaseDetailsSarServiceTest {
     assertThat(caseSARDetails[0].comments[0].lastUpdated).isEqualTo(LocalDateTime.parse("2024-05-22T12:30"))
     assertThat(caseSARDetails[0].comments[0].createdBy).isEqualTo("TestUser")
     assertThat(caseSARDetails[0].comments[0].lastUpdatedBy).isEqualTo("TestUser")
-    assertThat(caseSARDetails[0].comments[0].caseNumber).isEqualTo("222333")
     assertThat(caseSARDetails[0].comments[0].caseId).isEqualTo("5678")
     assertThat(caseSARDetails[0].hearings).hasSize(1)
     assertThat(caseSARDetails[0].hearings[0].hearingId).isEqualTo("uuid")

@@ -27,7 +27,15 @@ class CaseDetailsSarService(
       val courtCase = hearing.courtCase
       val hearingOutcomes = hearingOutcomesService.getHearingOutcomes(hearingDefendant, fromDate, toDate)
       val hearingNotes = hearingNotesService.getHearingNotes(hearingDefendant, fromDate, toDate)
-      val hearingSarResponse = hearingSarResponse(hearing.hearingId, hearing.hearingEventType?.name, hearingNotes, hearingOutcomes)
+      val firstHearingDay = hearing.hearingDays?.firstOrNull()
+      val hearingSarResponse = hearingSarResponse(
+        hearing.hearingId,
+        firstHearingDay?.court?.name,
+        firstHearingDay?.sessionStartTime,
+        hearing.hearingEventType?.name,
+        hearingNotes,
+        hearingOutcomes,
+      )
       val caseComments = defendantCaseCommentsService.getCaseCommentsForDefendant(hearingDefendant, fromDate, toDate)
 
       val existingCase = getCase(cases, courtCase.caseId)
@@ -90,8 +98,10 @@ class CaseDetailsSarService(
 
   private fun hearingSarResponse(
     hearingId: String,
+    courtName: String?,
+    hearingDateTime: LocalDateTime?,
     hearingEventType: String?,
     notes: List<HearingNotesSarResponse>,
     outcomes: List<HearingOutcomeSarResponse>,
-  ): HearingSarResponse = HearingSarResponse(hearingId, notes, outcomes)
+  ): HearingSarResponse = HearingSarResponse(hearingId, courtName, hearingDateTime, notes, outcomes)
 }

@@ -23,6 +23,8 @@ data class HearingOutcomeResponse(
   val assignedTo: String? = null,
   val assignedToUuid: String? = null,
   val state: HearingOutcomeItemState? = null,
+  val seriousFurtherOffence: Boolean? = null,
+  val multiAgencyPublicProtectionArrangementsOffence: Boolean? = null,
   val legacy: Boolean? = false,
 ) {
   companion object {
@@ -35,7 +37,13 @@ data class HearingOutcomeResponse(
       )
     } ?: null
 
-    fun of(defendantEntity: HearingDefendantEntity, hearingDate: LocalDate): HearingOutcomeResponse {
+    @JvmOverloads
+    fun of(
+      defendantEntity: HearingDefendantEntity,
+      hearingDate: LocalDate,
+      seriousFurtherOffence: Boolean? = null,
+      multiAgencyPublicProtectionArrangementsOffence: Boolean? = null,
+    ): HearingOutcomeResponse {
       val hearingOutcomeEntity = defendantEntity.hearingOutcome
       return HearingOutcomeResponse(
         hearingOutcomeType = HearingOutcomeType.valueOf(hearingOutcomeEntity.outcomeType),
@@ -51,11 +59,19 @@ data class HearingOutcomeResponse(
         assignedTo = hearingOutcomeEntity.assignedTo,
         assignedToUuid = hearingOutcomeEntity.assignedToUuid,
         state = HearingOutcomeItemState.valueOf(hearingOutcomeEntity.state),
+        seriousFurtherOffence = seriousFurtherOffence,
+        multiAgencyPublicProtectionArrangementsOffence = multiAgencyPublicProtectionArrangementsOffence,
         legacy = hearingOutcomeEntity.isLegacy,
       )
     }
 
-    fun of(hearingDefendantDTO: HearingDefendantDTO, hearingDate: LocalDate): HearingOutcomeResponse {
+    @JvmOverloads
+    fun of(
+      hearingDefendantDTO: HearingDefendantDTO,
+      hearingDate: LocalDate,
+      seriousFurtherOffence: Boolean? = null,
+      multiAgencyPublicProtectionArrangementsOffence: Boolean? = null,
+    ): HearingOutcomeResponse {
       val hearingOutcomeEntity = hearingDefendantDTO.hearingOutcome
       return HearingOutcomeResponse(
         hearingOutcomeType = HearingOutcomeType.valueOf(hearingOutcomeEntity.outcomeType),
@@ -71,6 +87,8 @@ data class HearingOutcomeResponse(
         assignedTo = hearingOutcomeEntity.assignedTo,
         assignedToUuid = hearingOutcomeEntity.assignedToUuid,
         state = HearingOutcomeItemState.valueOf(hearingOutcomeEntity.state),
+        seriousFurtherOffence = seriousFurtherOffence,
+        multiAgencyPublicProtectionArrangementsOffence = multiAgencyPublicProtectionArrangementsOffence,
         legacy = hearingOutcomeEntity.isLegacy,
       )
     }

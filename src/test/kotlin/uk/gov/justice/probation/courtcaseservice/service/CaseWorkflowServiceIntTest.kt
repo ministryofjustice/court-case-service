@@ -13,10 +13,16 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlConfig
+import uk.gov.justice.probation.courtcaseservice.application.FeatureFlags
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingOutcomeItemState
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenceMappaMappingRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenceSfoMappingRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepositoryCustom
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
+import uk.gov.justice.probation.courtcaseservice.service.flags.MultiAgencyPublicProtectionArrangementsFlagResolver
+import uk.gov.justice.probation.courtcaseservice.service.flags.OffenceFlagHelper
+import uk.gov.justice.probation.courtcaseservice.service.flags.SeriousFurtherOffenceFlagResolver
 import java.time.LocalTime
 
 @DataJpaTest
@@ -101,12 +107,24 @@ internal open class CaseWorkflowServiceIntTest {
       @Autowired hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom,
       @Autowired telemetryService: TelemetryService,
       @Autowired courtRepository: CourtRepository,
+      @Autowired seriousFurtherOffenceFlagResolver: SeriousFurtherOffenceFlagResolver,
+      @Autowired multiAgencyPublicProtectionArrangementsFlagResolver: MultiAgencyPublicProtectionArrangementsFlagResolver,
       @Value("\${hearing_outcomes.move_un_resulted_to_outcomes_cutoff_time}")
       @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
       cutOffTime: LocalTime,
     ): CaseWorkflowService {
       var hearingEntityInitService = HearingEntityInitService(hearingRepository)
-      return CaseWorkflowService(hearingRepository, hearingEntityInitService, courtRepository, hearingOutcomeRepositoryCustom, telemetryService, listOf(), cutOffTime)
+      return CaseWorkflowService(
+        hearingRepository,
+        hearingEntityInitService,
+        courtRepository,
+        hearingOutcomeRepositoryCustom,
+        telemetryService,
+        seriousFurtherOffenceFlagResolver,
+        multiAgencyPublicProtectionArrangementsFlagResolver,
+        listOf(),
+        cutOffTime,
+      )
     }
 
     @Bean
@@ -114,5 +132,26 @@ internal open class CaseWorkflowServiceIntTest {
 
     @Bean
     open fun hearingOutcomeRepositoryCustom(entityManager: EntityManager): HearingOutcomeRepositoryCustom = HearingOutcomeRepositoryCustom(entityManager)
+
+    @Bean
+    open fun featureFlags(): FeatureFlags = FeatureFlags()
+
+    @Bean
+    open fun offenceFlagHelper(): OffenceFlagHelper = OffenceFlagHelper()
+
+    @Bean
+    open fun seriousFurtherOffenceFlagResolver(
+      offenceSfoMappingRepository: OffenceSfoMappingRepository,
+      featureFlags: FeatureFlags,
+      offenceFlagHelper: OffenceFlagHelper,
+    ): SeriousFurtherOffenceFlagResolver = SeriousFurtherOffenceFlagResolver(offenceSfoMappingRepository, featureFlags, offenceFlagHelper)
+
+    @Bean
+    open fun multiAgencyPublicProtectionArrangementsFlagResolver(
+      offenceMappaMappingRepository: OffenceMappaMappingRepository,
+      featureFlags: FeatureFlags,
+      offenceFlagHelper: OffenceFlagHelper,
+    ): MultiAgencyPublicProtectionArrangementsFlagResolver =
+      MultiAgencyPublicProtectionArrangementsFlagResolver(offenceMappaMappingRepository, featureFlags, offenceFlagHelper)
   }
 }

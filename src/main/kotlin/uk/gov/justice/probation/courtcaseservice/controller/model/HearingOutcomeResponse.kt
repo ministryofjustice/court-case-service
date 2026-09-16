@@ -23,7 +23,6 @@ data class HearingOutcomeResponse(
   val assignedTo: String? = null,
   val assignedToUuid: String? = null,
   val state: HearingOutcomeItemState? = null,
-  val seriousFurtherOffence: Boolean? = null,
   val multiAgencyPublicProtectionArrangementsOffence: Boolean? = null,
   val legacy: Boolean? = false,
 ) {
@@ -41,7 +40,6 @@ data class HearingOutcomeResponse(
     fun of(
       defendantEntity: HearingDefendantEntity,
       hearingDate: LocalDate,
-      seriousFurtherOffence: Boolean? = null,
       multiAgencyPublicProtectionArrangementsOffence: Boolean? = null,
     ): HearingOutcomeResponse {
       val hearingOutcomeEntity = defendantEntity.hearingOutcome
@@ -59,7 +57,6 @@ data class HearingOutcomeResponse(
         assignedTo = hearingOutcomeEntity.assignedTo,
         assignedToUuid = hearingOutcomeEntity.assignedToUuid,
         state = HearingOutcomeItemState.valueOf(hearingOutcomeEntity.state),
-        seriousFurtherOffence = seriousFurtherOffence,
         multiAgencyPublicProtectionArrangementsOffence = multiAgencyPublicProtectionArrangementsOffence,
         legacy = hearingOutcomeEntity.isLegacy,
       )
@@ -69,7 +66,6 @@ data class HearingOutcomeResponse(
     fun of(
       hearingDefendantDTO: HearingDefendantDTO,
       hearingDate: LocalDate,
-      seriousFurtherOffence: Boolean? = null,
       multiAgencyPublicProtectionArrangementsOffence: Boolean? = null,
     ): HearingOutcomeResponse {
       val hearingOutcomeEntity = hearingDefendantDTO.hearingOutcome
@@ -87,7 +83,6 @@ data class HearingOutcomeResponse(
         assignedTo = hearingOutcomeEntity.assignedTo,
         assignedToUuid = hearingOutcomeEntity.assignedToUuid,
         state = HearingOutcomeItemState.valueOf(hearingOutcomeEntity.state),
-        seriousFurtherOffence = seriousFurtherOffence,
         multiAgencyPublicProtectionArrangementsOffence = multiAgencyPublicProtectionArrangementsOffence,
         legacy = hearingOutcomeEntity.isLegacy,
       )

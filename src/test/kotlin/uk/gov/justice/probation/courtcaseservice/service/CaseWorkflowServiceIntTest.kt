@@ -19,10 +19,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepositoryCustom
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenceMappaMappingRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenceSfoMappingRepository
 import uk.gov.justice.probation.courtcaseservice.service.flags.MultiAgencyPublicProtectionArrangementsFlagResolver
 import uk.gov.justice.probation.courtcaseservice.service.flags.OffenceFlagHelper
-import uk.gov.justice.probation.courtcaseservice.service.flags.SeriousFurtherOffenceFlagResolver
 import java.time.LocalTime
 
 @DataJpaTest
@@ -107,7 +105,6 @@ internal class CaseWorkflowServiceIntTest {
       @Autowired hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom,
       @Autowired telemetryService: TelemetryService,
       @Autowired courtRepository: CourtRepository,
-      @Autowired seriousFurtherOffenceFlagResolver: SeriousFurtherOffenceFlagResolver,
       @Autowired multiAgencyPublicProtectionArrangementsFlagResolver: MultiAgencyPublicProtectionArrangementsFlagResolver,
       @Value("\${hearing_outcomes.move_un_resulted_to_outcomes_cutoff_time}")
       @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
@@ -120,7 +117,6 @@ internal class CaseWorkflowServiceIntTest {
         courtRepository,
         hearingOutcomeRepositoryCustom,
         telemetryService,
-        seriousFurtherOffenceFlagResolver,
         multiAgencyPublicProtectionArrangementsFlagResolver,
         listOf(),
         cutOffTime,
@@ -138,13 +134,6 @@ internal class CaseWorkflowServiceIntTest {
 
     @Bean
     fun offenceFlagHelper(): OffenceFlagHelper = OffenceFlagHelper()
-
-    @Bean
-    fun seriousFurtherOffenceFlagResolver(
-      offenceSfoMappingRepository: OffenceSfoMappingRepository,
-      featureFlags: FeatureFlags,
-      offenceFlagHelper: OffenceFlagHelper,
-    ): SeriousFurtherOffenceFlagResolver = SeriousFurtherOffenceFlagResolver(offenceSfoMappingRepository, featureFlags, offenceFlagHelper)
 
     @Bean
     fun multiAgencyPublicProtectionArrangementsFlagResolver(

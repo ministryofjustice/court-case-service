@@ -404,7 +404,14 @@ public class CourtCaseController {
     private CourtCaseResponse buildCourtCaseResponseForCaseIdAndDefendantId(HearingEntity hearingEntity, String defendantId, List<CaseProgressHearing> caseHearings) {
         final var offenderMatchesCount = offenderMatchService.getMatchCountByCaseIdAndDefendant(hearingEntity.getCaseId(), defendantId)
                 .orElse(0);
-        return CourtCaseResponseMapper.mapFrom(hearingEntity, defendantId, offenderMatchesCount, caseHearings);
+        var seriousFurtherOffenceFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMapFromHearing(hearingEntity);
+        var multiAgencyPublicProtectionArrangementsFlagsByCode = multiAgencyPublicProtectionArrangementsFlagResolver.buildMultiAgencyPublicProtectionArrangementsFlagsMapFromHearing(hearingEntity);
+        var defendant = Optional.ofNullable(hearingEntity.getHearingDefendants())
+                .flatMap(defs -> defs.stream().filter(def -> defendantId.equalsIgnoreCase(def.getDefendantId())).findFirst())
+                .orElseThrow(() -> new IllegalStateException(String.format("Court case with id %s does not have defendant %s.", hearingEntity.getCaseId(), defendantId)));
+        Boolean seriousFurtherOffenceFlag = seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlagFromHearing(hearingEntity, defendant.getDefendant(), seriousFurtherOffenceFlagsByCode);
+        Boolean multiAgencyPublicProtectionArrangementsFlag = multiAgencyPublicProtectionArrangementsFlagResolver.resolveMultiAgencyPublicProtectionArrangementsFlagFromHearing(hearingEntity, defendant.getDefendant(), multiAgencyPublicProtectionArrangementsFlagsByCode);
+        return CourtCaseResponseMapper.mapFrom(hearingEntity, defendantId, offenderMatchesCount, caseHearings, seriousFurtherOffenceFlag, multiAgencyPublicProtectionArrangementsFlag);
     }
 
     private CourtCaseResponse buildCourtCaseResponse(HearingEntity hearingEntity) {

@@ -12,6 +12,8 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.OffenceRespons
 import uk.gov.justice.probation.courtcaseservice.controller.model.PhoneNumber;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.*;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseProgressHearing;
+import uk.gov.justice.probation.courtcaseservice.service.flags.MultiAgencyPublicProtectionArrangementsFlagResolver;
+import uk.gov.justice.probation.courtcaseservice.service.flags.SeriousFurtherOffenceFlagResolver;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +27,10 @@ import java.util.stream.Collectors;
 public class CourtCaseResponseMapper {
 
     public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, String defendantId, int matchCount, List<CaseProgressHearing> caseHearings) {
+        return mapFrom(hearingEntity, defendantId, matchCount, caseHearings, null, null);
+    }
+
+    public static CourtCaseResponse mapFrom(HearingEntity hearingEntity, String defendantId, int matchCount, List<CaseProgressHearing> caseHearings, Boolean seriousFurtherOffence, Boolean multiAgencyPublicProtectionArrangementsOffence) {
         // Core case-based
         final var builder = CourtCaseResponse.builder()
                 .hearings(caseHearings);
@@ -32,6 +38,8 @@ public class CourtCaseResponseMapper {
         buildCaseFields(builder, hearingEntity, defendantId);
         buildHearings(builder, hearingEntity, null);
         builder.files(mapCaseDocuments(hearingEntity, defendantId));
+        builder.seriousFurtherOffence(Boolean.TRUE.equals(seriousFurtherOffence));
+        builder.multiAgencyPublicProtectionArrangementsOffence(Boolean.TRUE.equals(multiAgencyPublicProtectionArrangementsOffence));
 
         Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(Collections.emptyList())
                 .stream()

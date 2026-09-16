@@ -22,7 +22,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositor
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
 import uk.gov.justice.probation.courtcaseservice.service.flags.MultiAgencyPublicProtectionArrangementsFlagResolver
-import uk.gov.justice.probation.courtcaseservice.service.flags.SeriousFurtherOffenceFlagResolver
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.Optional
@@ -34,7 +33,6 @@ class CaseWorkflowService(
   val courtRepository: CourtRepository,
   val hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom,
   val telemetryService: TelemetryService,
-  val seriousFurtherOffenceFlagResolver: SeriousFurtherOffenceFlagResolver,
   val multiAgencyPublicProtectionArrangementsFlagResolver: MultiAgencyPublicProtectionArrangementsFlagResolver,
   @Value("\${hearing_outcomes.move_un_resulted_to_outcomes_courts:}")
   val courtCodes: List<String> = listOf(),
@@ -143,19 +141,18 @@ class CaseWorkflowService(
       hearingOutcomeSearchRequest,
     )
     val hearingDefendants = outcomesPage.content.map { it.first }
-    val sfoFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMapFromDTOs(hearingDefendants)
     val mappaFlagsByCode = multiAgencyPublicProtectionArrangementsFlagResolver.buildMultiAgencyPublicProtectionArrangementsFlagsMapFromDTOs(hearingDefendants)
     val outcomes = outcomesPage.content.map {
       HearingOutcomeResponse.of(
         it.first,
         it.second,
-        seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlagFromDTO(it.first, sfoFlagsByCode),
         multiAgencyPublicProtectionArrangementsFlagResolver.resolveMultiAgencyPublicProtectionArrangementsFlagFromDTO(it.first, mappaFlagsByCode),
       )
     }
     return HearingOutcomeCaseList(
       outcomes,
       getOutcomeCountsByState(courtCode),
+      mappaFlagsByCode,
       hearingRepository.getCourtroomsForCourt(courtCode),
       outcomesPage.totalPages,
       hearingOutcomeSearchRequest.page,

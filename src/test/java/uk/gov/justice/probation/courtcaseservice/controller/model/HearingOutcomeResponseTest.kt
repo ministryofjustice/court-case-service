@@ -69,7 +69,7 @@ internal class HearingOutcomeResponseTest {
   }
 
   @Test
-  fun `given hearing entity with flags should map flags to hearing outcome response`() {
+  fun `given hearing entity with mappa flag should map flag to hearing outcome response`() {
     val hearingOutcomeEntity =
       HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.REPORT_REQUESTED.name).outcomeDate(
         LocalDateTime.of(2023, 6, 6, 19, 9, 1),
@@ -89,11 +89,9 @@ internal class HearingOutcomeResponseTest {
       HearingOutcomeResponse.of(
         hearingDefendantEntity,
         EntityHelper.SESSION_START_TIME.toLocalDate(),
-        true,
         false,
       )
 
-    Assertions.assertThat(response.seriousFurtherOffence).isTrue()
     Assertions.assertThat(response.multiAgencyPublicProtectionArrangementsOffence).isFalse()
   }
 }

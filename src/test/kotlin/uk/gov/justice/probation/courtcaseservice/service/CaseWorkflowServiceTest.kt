@@ -47,7 +47,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRe
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
 import uk.gov.justice.probation.courtcaseservice.service.flags.MultiAgencyPublicProtectionArrangementsFlagResolver
-import uk.gov.justice.probation.courtcaseservice.service.flags.SeriousFurtherOffenceFlagResolver
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -80,9 +79,6 @@ internal class CaseWorkflowServiceTest {
   lateinit var telemetryService: TelemetryService
 
   @Mock
-  lateinit var seriousFurtherOffenceFlagResolver: SeriousFurtherOffenceFlagResolver
-
-  @Mock
   lateinit var multiAgencyPublicProtectionArrangementsFlagResolver: MultiAgencyPublicProtectionArrangementsFlagResolver
 
   lateinit var caseWorkflowService: CaseWorkflowService
@@ -99,7 +95,6 @@ internal class CaseWorkflowServiceTest {
         courtRepository,
         hearingOutcomeRepositoryCustom,
         telemetryService,
-        seriousFurtherOffenceFlagResolver,
         multiAgencyPublicProtectionArrangementsFlagResolver,
       )
   }
@@ -283,14 +278,11 @@ internal class CaseWorkflowServiceTest {
     )
 
     given(hearingRepository.getCourtroomsForCourt(COURT_CODE)).willReturn(TEST_COURT_ROOMS)
-    given(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMapFromDTOs(listOf(hearingDefendant1, hearingDefendant2))).willReturn(mapOf("code" to true))
     given(
       multiAgencyPublicProtectionArrangementsFlagResolver.buildMultiAgencyPublicProtectionArrangementsFlagsMapFromDTOs(
         listOf(hearingDefendant1, hearingDefendant2),
       ),
     ).willReturn(mapOf("code" to true))
-    given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlagFromDTO(hearingDefendant1, mapOf("code" to true))).willReturn(true)
-    given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlagFromDTO(hearingDefendant2, mapOf("code" to true))).willReturn(false)
     given(
       multiAgencyPublicProtectionArrangementsFlagResolver.resolveMultiAgencyPublicProtectionArrangementsFlagFromDTO(
         hearingDefendant1,
@@ -320,7 +312,6 @@ internal class CaseWorkflowServiceTest {
             defendantName = DEFENDANT_NAME,
             crn = "X340906",
             state = HearingOutcomeItemState.NEW,
-            seriousFurtherOffence = true,
             multiAgencyPublicProtectionArrangementsOffence = false,
           ),
           HearingOutcomeResponse(
@@ -334,18 +325,17 @@ internal class CaseWorkflowServiceTest {
             defendantName = DEFENDANT_NAME,
             crn = "X340906",
             state = HearingOutcomeItemState.NEW,
-            seriousFurtherOffence = false,
             multiAgencyPublicProtectionArrangementsOffence = true,
           ),
         ),
         hearingOutcomes.countsByState,
+        mapOf("code" to true),
         TEST_COURT_ROOMS,
         5,
         1,
         9,
       ),
     )
-    verify(seriousFurtherOffenceFlagResolver).buildSeriousFurtherOffenceFlagsMapFromDTOs(listOf(hearingDefendant1, hearingDefendant2))
     verify(multiAgencyPublicProtectionArrangementsFlagResolver).buildMultiAgencyPublicProtectionArrangementsFlagsMapFromDTOs(listOf(hearingDefendant1, hearingDefendant2))
   }
 
@@ -477,7 +467,6 @@ internal class CaseWorkflowServiceTest {
       courtRepository,
       hearingOutcomeRepositoryCustom,
       telemetryService,
-      seriousFurtherOffenceFlagResolver,
       multiAgencyPublicProtectionArrangementsFlagResolver,
       listOf(),
       LocalTime.now().minusHours(1),
@@ -501,7 +490,6 @@ internal class CaseWorkflowServiceTest {
       courtRepository,
       hearingOutcomeRepositoryCustom,
       telemetryService,
-      seriousFurtherOffenceFlagResolver,
       multiAgencyPublicProtectionArrangementsFlagResolver,
       courtCodes,
       LocalTime.now().minusHours(1),
@@ -525,7 +513,6 @@ internal class CaseWorkflowServiceTest {
       courtRepository,
       hearingOutcomeRepositoryCustom,
       telemetryService,
-      seriousFurtherOffenceFlagResolver,
       multiAgencyPublicProtectionArrangementsFlagResolver,
       listOf(),
       cutOffTime,

@@ -1,41 +1,45 @@
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+generic-service:
+  autoscaling:
+    minReplicas: 1
+    maxReplicas: 2
 
-minReplicaCount: 1
-maxReplicaCount: 2
-maxSurge: 1
-takeDatabaseSnapshots: false
+  env:
+    JAVA_OPTS: "-Xmx512m"
+    SPRING_PROFILES_ACTIVE: dev
+    COMMUNITY_API_BASE_URL: https://court-case-and-delius-dev.hmpps.service.justice.gov.uk
+    NOMIS_OAUTH_BASE_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
+    OFFENDER_ASSESSMENTS_API_BASE_URL: "https://assess-risks-and-needs-dev.hmpps.service.justice.gov.uk"
+    DELIUS_BASE_URL: "https://ndelius.test.probation.service.justice.gov.uk"
+    PRISON_API_BASE_URL: "https://prison-api-dev.prison.service.justice.gov.uk/"
+    MANAGE_OFFENCES_API_BASE_URL: "https://manage-offences-api-dev.hmpps.service.justice.gov.uk"
+    COURT_CASE_AND_DELIUS_API_BASE_URL: "https://court-case-and-delius-dev.hmpps.service.justice.gov.uk"
+    DOMAIN_EVENT_AND_DELIUS_API_BASE_URL: "https://domain-events-and-delius-dev.hmpps.service.justice.gov.uk"
+    HMPPS_DOCUMENT_MANAGEMENT_API_CLIENT_BASE_URL: "https://document-api-dev.hmpps.service.justice.gov.uk"
+    HEARING_OUTCOMES_MOVE_UN_RESULTED_TO_OUTCOMES_CUTOFF_TIME: "12:00"
+    INGRESS_URL: "court-case-service-dev.apps.live-1.cloud-platform.service.justice.gov.uk"
 
-image:
-  repository: quay.io/hmpps/court-case-service
-  tag: latest
-  pullPolicy: Always
-  port: 8080
+  resources:
+    limits:
+      cpu: 5000m
+      memory: 1200Mi
+    requests:
+      cpu: 250m
+      memory: 350Mi
 
 ingress:
   class: modsec
-  service: court-case-service-proxy
-  enabled: true
-  enable_whitelist: true
   hosts:
     - host: court-case-service-dev.apps.live-1.cloud-platform.service.justice.gov.uk
-  path: /
 
 nginx_proxy:
-  name: court-case-service-proxy
   service_host: http://court-case-service.court-probation-dev
   replicaCount: 1
 
-  service:
-    port:
-      http: 80
+hearing_outcomes:
+  process_un_resulted_cases_cron: "30 12-20 * * *"
 
-  deployment:
-    image:
-      repository: quay.io/hmpps/court-case-service-nginx
-      tag: latest
-      pullPolicy: Always
-    port: 8080
+generic-prometheus-alerts:
+  alertSeverity: probation_in_court_alerts_dev
 
 # TODO - data-dictionary nginx fails currently blocking deployment of court-case-service too.
 #  Fix this issue and uncomment below entries for data-dictionary to deploy.
@@ -54,46 +58,3 @@ nginx_proxy:
 #      tag: latest
 #      pullPolicy: Always
 #    port: 80
-
-hearing_outcomes:
-  process_un_resulted_cases_cron: "30 12-20 * * *"
-
-env:
-  JAVA_OPTS: "-Xmx512m"
-  FEATURE_FLAGS_ENABLE_CACHEABLE_CASE_LIST: false
-  FEATURE_FLAGS_DELETE_HEARING: false
-  community_api:
-    base_url: https://court-case-and-delius-dev.hmpps.service.justice.gov.uk
-  nomis_oauth:
-    base_url: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
-  offender_assessments_api:
-    base_url: https://assess-risks-and-needs-dev.hmpps.service.justice.gov.uk
-  delius:
-    base_url: https://ndelius.test.probation.service.justice.gov.uk
-  prison_api:
-    base_url: https://prison-api-dev.prison.service.justice.gov.uk/
-  manage_offences_api:
-    base_url: https://manage-offences-api-dev.hmpps.service.justice.gov.uk
-  court_case_and_delius_api:
-    base_url: https://court-case-and-delius-dev.hmpps.service.justice.gov.uk
-  domain_event_and_delius_api:
-    base_url: https://domain-events-and-delius-dev.hmpps.service.justice.gov.uk
-  hearing_outcomes:
-    move_un_resulted_to_outcomes_cutoff_time: "12:00"
-    move_un_resulted_to_outcomes_courts: "B20EB,B23HS,B21DA,B45MH,B45GC,B13CC,B12LK,B12LT,B12GH,B16GB"
-  hmpps_document_management_api_client:
-    base_url: https://document-api-dev.hmpps.service.justice.gov.uk
-
-spring:
-  profile: dev
-
-resources:
-  cpu:
-    limit: 5000m
-    request: 250m
-  memory:
-    limit: 1200Mi
-    request: 350Mi
-
-generic-prometheus-alerts:
-  alertSeverity: probation_in_court_alerts_dev

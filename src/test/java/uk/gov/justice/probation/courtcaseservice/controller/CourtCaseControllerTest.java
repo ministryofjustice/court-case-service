@@ -88,21 +88,30 @@ class CourtCaseControllerTest {
     private CourtCaseController courtCaseController;
     private final HearingEntity hearingEntity = HearingEntity.builder()
             .hearingId(HEARING_ID)
-            .courtCase(CourtCaseEntity.builder()
-                    .caseNo(CASE_NO)
-                    .caseId(CASE_ID)
-                    .sourceType(COMMON_PLATFORM)
-                    .build())
             .hearingDays(Collections.singletonList(EntityHelper.aHearingDayEntity()
                     .withCourtCode(COURT_CODE)))
             .hearingDefendants(Collections.singletonList(
                     HearingDefendantEntity.builder()
+                            .defendantId(DEFENDANT_ID)
                             .defendant(DefendantEntity.builder()
                                     .defendantId(DEFENDANT_ID)
                                     .name(NamePropertiesEntity.builder().forename1("Joe").surname("Bloggs").build())
                                     .build())
                             .build()
             ))
+            .courtCase(CourtCaseEntity.builder()
+                    .caseId(CASE_ID)
+                    .caseNo(CASE_NO)
+                    .sourceType(COMMON_PLATFORM)
+                    .caseDefendants(Collections.singletonList(
+                            CaseDefendantEntity.builder()
+                                    .defendant(DefendantEntity.builder()
+                                            .defendantId(DEFENDANT_ID)
+                                            .name(NamePropertiesEntity.builder().forename1("Joe").surname("Bloggs").build())
+                                            .build())
+                                    .build()
+                    ))
+                    .build())
 
             .build();
 

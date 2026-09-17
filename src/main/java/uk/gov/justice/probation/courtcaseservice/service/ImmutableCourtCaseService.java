@@ -39,6 +39,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositor
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.PagedCaseListRepositoryCustom;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
+import uk.gov.justice.probation.courtcaseservice.service.flags.MultiAgencyPublicProtectionArrangementsFlagResolver;
+import uk.gov.justice.probation.courtcaseservice.service.flags.SeriousFurtherOffenceFlagResolver;
 import uk.gov.justice.probation.courtcaseservice.service.model.HearingSearchFilter;
 
 import java.time.LocalDate;
@@ -69,6 +71,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private final PagedCaseListRepositoryCustom pagedCaseListRepositoryCustom;
 
     private final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
+    private final MultiAgencyPublicProtectionArrangementsFlagResolver multiAgencyPublicProtectionArrangementsFlagResolver;
 
     @Autowired
     public ImmutableCourtCaseService(CourtRepository courtRepository,
@@ -80,7 +83,8 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                                      ShortTermCustodyPredictorService shortTermCustodyPredictorService,
                                      HearingRepository hearingRepository,
                                      PagedCaseListRepositoryCustom pagedCaseListRepositoryCustom,
-                                     SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver) {
+                                     SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver,
+                                     MultiAgencyPublicProtectionArrangementsFlagResolver multiAgencyPublicProtectionArrangementsFlagResolver) {
         this.courtRepository = courtRepository;
         this.hearingRepositoryFacade = hearingRepositoryFacade;
         this.telemetryService = telemetryService;
@@ -91,6 +95,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         this.hearingRepository = hearingRepository;
         this.pagedCaseListRepositoryCustom = pagedCaseListRepositoryCustom;
         this.seriousFurtherOffenceFlagResolver = seriousFurtherOffenceFlagResolver;
+        this.multiAgencyPublicProtectionArrangementsFlagResolver = multiAgencyPublicProtectionArrangementsFlagResolver;
     }
 
     @Override
@@ -177,7 +182,9 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         final var hearingsPage = pagedCaseListRepositoryCustom.filterHearings(courtCode, hearingSearchRequest);
         var sfoFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMapFromDTOs(
             hearingsPage.getContent().stream().map(pair -> pair.getFirst()).collect(Collectors.toList()));
-        var hearings = filterCourtCaseResponses(hearingSearchRequest, hearingsPage, sfoFlagsByCode);
+        var multiAgencyPublicProtectionArrangementsFlagsByCode = multiAgencyPublicProtectionArrangementsFlagResolver.buildMultiAgencyPublicProtectionArrangementsFlagsMapFromDTOs(
+            hearingsPage.getContent().stream().map(pair -> pair.getFirst()).collect(Collectors.toList()));
+        var hearings = filterCourtCaseResponses(hearingSearchRequest, hearingsPage, sfoFlagsByCode, multiAgencyPublicProtectionArrangementsFlagsByCode);
         return getCaseListResponse(courtCode, hearingSearchRequest, hearings, hearingsPage);
     }
 
@@ -186,12 +193,15 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         final var hearingsPage = pagedCaseListRepositoryCustom.filterHearings(courtCode, hearingSearchRequest);
         var sfoFlagsByCode = seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMapFromDTOs(
             hearingsPage.getContent().stream().map(pair -> pair.getFirst()).collect(Collectors.toList()));
+        var multiAgencyPublicProtectionArrangementsFlagsByCode = multiAgencyPublicProtectionArrangementsFlagResolver.buildMultiAgencyPublicProtectionArrangementsFlagsMapFromDTOs(
+            hearingsPage.getContent().stream().map(pair -> pair.getFirst()).collect(Collectors.toList()));
         var hearings = hearingsPage.getContent().stream()
             .map(pair -> CourtCaseListResponseMapper.mapFrom(
                 pair.getFirst().getHearing(), pair.getFirst(),
                 Optional.ofNullable(pair.getSecond()).orElse(0),
                 hearingSearchRequest.getDate(),
-                seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlagFromDTO(pair.getFirst(), sfoFlagsByCode)))
+                seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlagFromDTO(pair.getFirst(), sfoFlagsByCode),
+                multiAgencyPublicProtectionArrangementsFlagResolver.resolveMultiAgencyPublicProtectionArrangementsFlagFromDTO(pair.getFirst(), multiAgencyPublicProtectionArrangementsFlagsByCode)))
             .collect(Collectors.toList());
 
         return getCaseListResponse(courtCode, hearingSearchRequest, hearings, hearingsPage);
@@ -372,13 +382,14 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         }
     }
 
-    private List<CourtCaseResponse> filterCourtCaseResponses(HearingSearchRequest hearingSearchRequest, PageImpl<Pair<HearingDefendantDTO, Integer>> hearingsPage, java.util.Map<String, Boolean> sfoFlagsByCode) {
+    private List<CourtCaseResponse> filterCourtCaseResponses(HearingSearchRequest hearingSearchRequest, PageImpl<Pair<HearingDefendantDTO, Integer>> hearingsPage, java.util.Map<String, Boolean> sfoFlagsByCode, java.util.Map<String, Boolean> multiAgencyPublicProtectionArrangementsFlagsByCode) {
         return hearingsPage.getContent().stream()
                 .map(pair -> CourtCaseListResponseMapper.mapFrom(
                     pair.getFirst().getHearing(), pair.getFirst(),
                     Optional.ofNullable(pair.getSecond()).orElse(0),
                     hearingSearchRequest.getDate(),
-                    seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlagFromDTO(pair.getFirst(), sfoFlagsByCode)))
+                    seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlagFromDTO(pair.getFirst(), sfoFlagsByCode),
+                    multiAgencyPublicProtectionArrangementsFlagResolver.resolveMultiAgencyPublicProtectionArrangementsFlagFromDTO(pair.getFirst(), multiAgencyPublicProtectionArrangementsFlagsByCode)))
                 .filter(courtCaseResponse -> courtCaseResponse.getProbationStatus().equalsIgnoreCase(CourtCaseResponse.POSSIBLE_NDELIUS_RECORD_PROBATION_STATUS))
                 .filter(courtCaseResponse -> hearingSearchRequest.getNumberOfPossibleMatches() == null || courtCaseResponse.getNumberOfPossibleMatches() ==  hearingSearchRequest.getNumberOfPossibleMatches())
                 .filter(courtCaseResponse -> hearingSearchRequest.getDefendantName() == null || courtCaseResponse.getDefendantName().equalsIgnoreCase(hearingSearchRequest.getDefendantName()))

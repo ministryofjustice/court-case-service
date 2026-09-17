@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 data class HearingOutcomeCaseList(
   val cases: List<HearingOutcomeResponse>,
   val countsByState: HearingOutcomeCountByState,
+  val multiAgencyPublicProtectionArrangementsFlagsByCode: Map<String, Boolean> = mapOf(),
   val courtRoomFilters: List<String> = listOf(),
   val totalPages: Int = 0,
   val page: Int = 0,

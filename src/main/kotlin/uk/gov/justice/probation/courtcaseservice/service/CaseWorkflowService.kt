@@ -21,6 +21,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRe
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
 import uk.gov.justice.probation.courtcaseservice.restclient.exception.ForbiddenException
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
+import uk.gov.justice.probation.courtcaseservice.service.flags.MultiAgencyPublicProtectionArrangementsFlagResolver
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.Optional
@@ -32,6 +33,7 @@ class CaseWorkflowService(
   val courtRepository: CourtRepository,
   val hearingOutcomeRepositoryCustom: HearingOutcomeRepositoryCustom,
   val telemetryService: TelemetryService,
+  val multiAgencyPublicProtectionArrangementsFlagResolver: MultiAgencyPublicProtectionArrangementsFlagResolver,
   @Value("\${hearing_outcomes.move_un_resulted_to_outcomes_courts:}")
   val courtCodes: List<String> = listOf(),
   @Value("\${hearing_outcomes.move_un_resulted_to_outcomes_cutoff_time:18:30}")
@@ -138,10 +140,19 @@ class CaseWorkflowService(
       courtCode,
       hearingOutcomeSearchRequest,
     )
-    val outcomes = outcomesPage.content.map { HearingOutcomeResponse.of(it.first, it.second) }
+    val hearingDefendants = outcomesPage.content.map { it.first }
+    val mappaFlagsByCode = multiAgencyPublicProtectionArrangementsFlagResolver.buildMultiAgencyPublicProtectionArrangementsFlagsMapFromDTOs(hearingDefendants)
+    val outcomes = outcomesPage.content.map {
+      HearingOutcomeResponse.of(
+        it.first,
+        it.second,
+        multiAgencyPublicProtectionArrangementsFlagResolver.resolveMultiAgencyPublicProtectionArrangementsFlagFromDTO(it.first, mappaFlagsByCode),
+      )
+    }
     return HearingOutcomeCaseList(
       outcomes,
       getOutcomeCountsByState(courtCode),
+      mappaFlagsByCode,
       hearingRepository.getCourtroomsForCourt(courtCode),
       outcomesPage.totalPages,
       hearingOutcomeSearchRequest.page,

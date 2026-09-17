@@ -16,6 +16,8 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.EntityHelper;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepositoryCustom;
 import uk.gov.justice.probation.courtcaseservice.service.mapper.CaseSearchResultItemMapper;
+import uk.gov.justice.probation.courtcaseservice.service.flags.SeriousFurtherOffenceFlagResolver;
+import uk.gov.justice.probation.courtcaseservice.service.flags.MultiAgencyPublicProtectionArrangementsFlagResolver;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchRequest;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResult;
 import uk.gov.justice.probation.courtcaseservice.service.model.CaseSearchResultItem;
@@ -43,6 +45,8 @@ class CaseSearchServiceTest {
     private DefendantRepositoryCustom defendantRepositoryCustom;
     @Mock
     private SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
+    @Mock
+    private MultiAgencyPublicProtectionArrangementsFlagResolver multiAgencyPublicProtectionArrangementsFlagResolver;
 
     @InjectMocks
     private CaseSearchService caseSearchService;
@@ -66,18 +70,19 @@ class CaseSearchServiceTest {
         given(defendantRepositoryCustom.findDefendantsByCrn(TEST_CRN, pageable, BLANK_COURT_CODE, null, null))
             .willReturn(new PageImpl<>(List.of(new Pair<>(hearingEntity1.getCourtCase(), defendantEntity1), new Pair<>(hearingEntity2.getCourtCase(), defendantEntity2)), pageable, 2));
         given(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(anyList())).willReturn(Map.of());
+        given(multiAgencyPublicProtectionArrangementsFlagResolver.buildMultiAgencyPublicProtectionArrangementsFlagsMap(anyList())).willReturn(Map.of());
         given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), any())).willReturn(null);
         given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), any())).willReturn(null);
         CaseSearchResultItem result1 = CaseSearchResultItem.builder().defendantName("X").defendantId("defendant-id-1").build();
         CaseSearchResultItem result2 = CaseSearchResultItem.builder().defendantName("Y").defendantId("defendant-id-2").build();
-        given(caseSearchResultItemMapper.from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull())).willReturn(result1);
-        given(caseSearchResultItemMapper.from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull())).willReturn(result2);
+        given(caseSearchResultItemMapper.from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull(), eq(false))).willReturn(result1);
+        given(caseSearchResultItemMapper.from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull(), eq(false))).willReturn(result2);
 
         var actual = caseSearchService.searchCases(CaseSearchRequest.builder().term(TEST_CRN).type(CaseSearchType.CRN).build());
 
         verify(defendantRepositoryCustom).findDefendantsByCrn(TEST_CRN, pageable, BLANK_COURT_CODE, null, null);
-        verify(caseSearchResultItemMapper).from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull());
-        verify(caseSearchResultItemMapper).from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull());
+        verify(caseSearchResultItemMapper).from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull(), eq(false));
+        verify(caseSearchResultItemMapper).from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull(), eq(false));
         assertThat(actual).isEqualTo(CaseSearchResult.builder().totalElements(2).totalPages(1).items(List.of(result1, result2)).build());
     }
 
@@ -99,14 +104,14 @@ class CaseSearchServiceTest {
         given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), any())).willReturn(null);
         CaseSearchResultItem result1 = CaseSearchResultItem.builder().defendantName("X").defendantId("defendant-id-1").build();
         CaseSearchResultItem result2 = CaseSearchResultItem.builder().defendantName("Y").defendantId("defendant-id-2").build();
-        given(caseSearchResultItemMapper.from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull())).willReturn(result1);
-        given(caseSearchResultItemMapper.from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull())).willReturn(result2);
+        given(caseSearchResultItemMapper.from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull(), eq(false))).willReturn(result1);
+        given(caseSearchResultItemMapper.from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull(), eq(false))).willReturn(result2);
 
         var actual = caseSearchService.searchCases(CaseSearchRequest.builder().term(name).type(CaseSearchType.NAME).build());
 
         verify(defendantRepositoryCustom).findDefendantsByName(name, name, pageable, BLANK_COURT_CODE, null, null);
-        verify(caseSearchResultItemMapper).from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull());
-        verify(caseSearchResultItemMapper).from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull());
+        verify(caseSearchResultItemMapper).from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull(), eq(false));
+        verify(caseSearchResultItemMapper).from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull(), eq(false));
         assertThat(actual).isEqualTo(CaseSearchResult.builder().totalElements(2).totalPages(1).items(List.of(result1, result2)).build());
     }
 
@@ -150,18 +155,19 @@ class CaseSearchServiceTest {
         given(defendantRepositoryCustom.findDefendantsByUrn(urn, pageable, BLANK_COURT_CODE, null, null))
             .willReturn(new PageImpl<>(List.of(new Pair<>(hearingEntity1.getCourtCase(), defendantEntity1), new Pair<>(hearingEntity2.getCourtCase(), defendantEntity2)), pageable, 2));
         given(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(anyList())).willReturn(Map.of());
+        given(multiAgencyPublicProtectionArrangementsFlagResolver.buildMultiAgencyPublicProtectionArrangementsFlagsMap(anyList())).willReturn(Map.of());
         given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), any())).willReturn(null);
         given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), any())).willReturn(null);
         CaseSearchResultItem result1 = CaseSearchResultItem.builder().defendantName("X").defendantId("defendant-id-1").build();
         CaseSearchResultItem result2 = CaseSearchResultItem.builder().defendantName("Y").defendantId("defendant-id-2").build();
-        given(caseSearchResultItemMapper.from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull())).willReturn(result1);
-        given(caseSearchResultItemMapper.from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull())).willReturn(result2);
+        given(caseSearchResultItemMapper.from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull(), eq(false))).willReturn(result1);
+        given(caseSearchResultItemMapper.from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull(), eq(false))).willReturn(result2);
 
         var actual = caseSearchService.searchCases(CaseSearchRequest.builder().term(urn).type(CaseSearchType.URN).build());
 
         verify(defendantRepositoryCustom).findDefendantsByUrn(urn, pageable, BLANK_COURT_CODE, null, null);
-        verify(caseSearchResultItemMapper).from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull());
-        verify(caseSearchResultItemMapper).from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull());
+        verify(caseSearchResultItemMapper).from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull(), eq(false));
+        verify(caseSearchResultItemMapper).from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull(), eq(false));
         assertThat(actual).isEqualTo(CaseSearchResult.builder().totalElements(2).totalPages(1).items(List.of(result1, result2)).build());
     }
 
@@ -180,12 +186,13 @@ class CaseSearchServiceTest {
         given(defendantRepositoryCustom.findDefendantsByName(searchTermCaptor.capture(), any(), any(Pageable.class), any(), any(), any()))
             .willReturn(new PageImpl<>(List.of(new Pair<>(hearingEntity1.getCourtCase(), defendantEntity1), new Pair<>(hearingEntity2.getCourtCase(), defendantEntity2)), pageable, 2));
         given(seriousFurtherOffenceFlagResolver.buildSeriousFurtherOffenceFlagsMap(anyList())).willReturn(Map.of());
+        given(multiAgencyPublicProtectionArrangementsFlagResolver.buildMultiAgencyPublicProtectionArrangementsFlagsMap(anyList())).willReturn(Map.of());
         given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), any())).willReturn(null);
         given(seriousFurtherOffenceFlagResolver.resolveSeriousFurtherOffenceFlag(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), any())).willReturn(null);
         CaseSearchResultItem result1 = CaseSearchResultItem.builder().defendantName("X").defendantId("defendant-id-1").build();
         CaseSearchResultItem result2 = CaseSearchResultItem.builder().defendantName("Y").defendantId("defendant-id-2").build();
-        given(caseSearchResultItemMapper.from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull())).willReturn(result1);
-        given(caseSearchResultItemMapper.from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull())).willReturn(result2);
+        given(caseSearchResultItemMapper.from(eq(hearingEntity1.getCourtCase()), eq(defendantEntity1), isNull(), eq(false))).willReturn(result1);
+        given(caseSearchResultItemMapper.from(eq(hearingEntity2.getCourtCase()), eq(defendantEntity2), isNull(), eq(false))).willReturn(result2);
 
         caseSearchService.searchCases(CaseSearchRequest.builder().term(expectedSearchTerm).type(CaseSearchType.NAME).build());
 

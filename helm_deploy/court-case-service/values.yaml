@@ -1,3 +1,140 @@
+generic-service:
+  nameOverride: court-case-service
+  fullnameOverride: court-case-service
+  serviceAccountName: court-case-service
+
+  image:
+    repository: quay.io/hmpps/court-case-service
+    tag: latest
+    pullPolicy: Always
+    port: 8080
+
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 80
+
+  # Keep the existing custom ingress initially because it routes via nginx.
+  ingress:
+    enabled: false
+
+  autoscaling:
+    enabled: true
+    targetCPUUtilizationPercentage: 100
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+  startupProbe:
+    httpGet:
+      path: /ping
+      port: http
+    initialDelaySeconds: 60
+    failureThreshold: 360
+    periodSeconds: 10
+
+  livenessProbe:
+    httpGet:
+      path: /ping
+      port: http
+    periodSeconds: 30
+    initialDelaySeconds: 90
+    timeoutSeconds: 20
+    failureThreshold: 10
+
+  readinessProbe:
+    httpGet:
+      path: /ping
+      port: http
+    periodSeconds: 20
+    initialDelaySeconds: 60
+    timeoutSeconds: 30
+    failureThreshold: 15
+  
+  env:
+    SERVER_PORT: "8080"
+    FEATURE_FLAGS_ENABLE_CACHEABLE_CASE_LIST: false
+    FEATURE_FLAGS_DELETE_HEARING: false
+    HEARING_OUTCOMES_MOVE_UN_RESULTED_TO_OUTCOMES_COURTS: "B20EB,B23HS,B43KB,B21DA,B45MH,B45GC,B13CC,B12LK,B12LT,B12GH,B16GB"
+  
+  namespace_secrets:
+    court-case-service-rds-instance-output:
+      DATABASE_USERNAME: database_username
+      DATABASE_PASSWORD: database_password
+      DATABASE_NAME: database_name
+      DATABASE_ENDPOINT: rds_instance_endpoint
+
+    court-case-service-secrets:
+      COURT_CASE_AND_DELIUS_API_CLIENT_ID: nomis-oauth-client-id
+      COURT_CASE_AND_DELIUS_API_CLIENT_SECRET: nomis-oauth-client-secret
+      COMMUNITY_API_CLIENT_ID: nomis-oauth-client-id
+      COMMUNITY_API_CLIENT_SECRET: nomis-oauth-client-secret
+      OFFENDER_ASSESSMENTS_API_CLIENT_ID: nomis-oauth-client-id
+      OFFENDER_ASSESSMENTS_API_CLIENT_SECRET: nomis-oauth-client-secret
+      PRISON_API_CLIENT_ID: nomis-oauth-client-id
+      PRISON_API_CLIENT_SECRET: nomis-oauth-client-secret
+      MANAGE_OFFENCES_API_CLIENT_ID: nomis-oauth-client-id
+      MANAGE_OFFENCES_API_CLIENT_SECRET: nomis-oauth-client-secret
+      DOMAIN_EVENT_AND_DELIUS_API_CLIENT_ID: nomis-oauth-client-id
+      DOMAIN_EVENT_AND_DELIUS_API_CLIENT_SECRET: nomis-oauth-client-secret
+      HMPPS_DOCUMENT_MANAGEMENT_API_CLIENT: nomis-oauth-client-id
+      HMPPS_DOCUMENT_MANAGEMENT_API_CLIENT_SECRET: nomis-oauth-client-secret
+
+    pic-flipt:
+      FLIPT_API_KEY: API_KEY
+      FLIPT_API_URL: URL
+
+    applicationinsights-connection-string:
+      APPLICATIONINSIGHTS_CONNECTION_STRING: applicationinsights_connection_string
+
+    hmpps-domain-events-topic:
+      HMPPS_SQS_TOPICS_HMPPSDOMAINEVENTS_ARN: topic_arn
+
+    probation-offender-events-court-case-service-main-queue:
+      HMPPS_SQS_QUEUES_PICPROBATIONOFFENDEREVENTSQUEUE_QUEUE_NAME: sqs_queue_name
+
+    probation-offender-events-court-case-service-dead-letter-queue:
+      HMPPS_SQS_QUEUES_PICPROBATIONOFFENDEREVENTSQUEUE_DLQ_NAME: sqs_queue_name
+
+    sqs-pic-new-offender-events-secret:
+      HMPPS_SQS_QUEUES_PICNEWOFFENDEREVENTSQUEUE_QUEUE_NAME: sqs_queue_name
+
+    sqs-pic-new-offender-events-dlq-secret:
+      HMPPS_SQS_QUEUES_PICNEWOFFENDEREVENTSQUEUE_DLQ_NAME: sqs_queue_name
+
+  retryDlqCronjob:
+    enabled: true
+    retryDlqSchedule: "*/10 * * * *"
+
+# Existing custom ingress retained because it routes through nginx and blocks sensitive internal endpoints.
+ingress:
+  enabled: true
+  service: court-case-service-proxy
+  enable_whitelist: true
+  path: /
+  contextColour: green
+  annotations:
+    external-dns.alpha.kubernetes.io/aws-weight: "100"
+
+nginx_proxy:
+  name: court-case-service-proxy
+
+  service:
+    port:
+      http: 80
+
+  deployment:
+    image:
+      repository: quay.io/hmpps/court-case-service-nginx
+      tag: latest
+      pullPolicy: Always
+    port: 8080
+
+takeDatabaseSnapshots: false
+
 analytics_data_extractor:
   name: analytics-data-extractor
   cron_schedule: "0 1 * * *"

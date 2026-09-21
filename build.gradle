@@ -44,7 +44,9 @@ ktlint {
 }
 
 def todaysDate = LocalDate.now().format('yyyy-MM-dd')
-version = System.getenv('CI') ? "${todaysDate}.${System.getenv('CIRCLE_BUILD_NUM')}" : todaysDate
+version = System.getenv('CI') ?
+        "${todaysDate}.${System.getenv('BUILD_NUMBER') ?: System.getenv('GITHUB_RUN_NUMBER')}" :
+        todaysDate
 
 configurations {
     compileOnly {

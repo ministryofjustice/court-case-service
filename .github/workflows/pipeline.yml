@@ -1,4 +1,5 @@
 name: Pipeline [test -> build -> deploy]
+
 on:
   push:
     branches:
@@ -15,14 +16,14 @@ on:
         required: true
         default: false
         type: boolean
+
 permissions:
   contents: read
-  packages: write
-  id-token: write
-  attestations: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.sha || github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   helm_lint:
     strategy:
@@ -54,13 +55,19 @@ jobs:
   build:
     name: Build docker image from hmpps-github-actions
     if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
     needs:
+      - app_version
       - gradle_verify
     with:
       docker_registry: 'ghcr.io'
       registry_org: 'ministryofjustice'
-      additional_docker_tag: ""
+      additional_docker_tag: ${{ inputs.additional_docker_tag }}
       push: ${{ inputs.push || inputs.push == null }}
       docker_multiplatform: false
       download_build_artifacts: true
@@ -68,3 +75,58 @@ jobs:
       attach_sbom_to_registry: true
       sign_image: true
       additional_docker_build_args: ""
+  build_nginx:
+    name: Build nginx image
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2
+    needs:
+      - app_version
+      - gradle_verify
+      - helm_lint
+    with:
+      docker_registry: 'ghcr.io'
+      registry_org: 'ministryofjustice'
+      image_name: 'court-case-service-nginx'
+      image_version: ${{ needs.app_version.outputs.version }}
+      file: nginx/Dockerfile
+      additional_docker_tag: ${{ inputs.additional_docker_tag }}
+      push: ${{ inputs.push || inputs.push == null }}
+      docker_multiplatform: false
+      generate_sbom: true
+      attach_sbom_to_registry: true
+      sign_image: true
+  deploy_dev:
+    name: Deploy to development
+    needs: [build, build_nginx, helm_lint]
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2
+    secrets: inherit
+    with:
+      environment: 'dev'
+      app_version: ${{ needs.build.outputs.app_version }}
+      helm_additional_args: >-
+        --set-string nginx_proxy.deployment.image.tag=${{ needs.build.outputs.app_version }}
+  deploy_preprod:
+    name: Deploy to preprod
+    needs: [build, build_nginx, deploy_dev]
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2
+    secrets: inherit
+    with:
+      environment: 'preprod'
+      app_version: ${{ needs.build.outputs.app_version }}
+      helm_additional_args: >-
+        --set-string nginx_proxy.deployment.image.tag=${{ needs.build.outputs.app_version }}
+  deploy_prod:
+    name: Deploy to production
+    needs: [build, build_nginx, deploy_preprod]
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2
+    secrets: inherit
+    with:
+      environment: 'prod'
+      app_version: ${{ needs.build.outputs.app_version }}
+      helm_additional_args: >-
+        --set-string nginx_proxy.deployment.image.tag=${{ needs.build.outputs.app_version }}

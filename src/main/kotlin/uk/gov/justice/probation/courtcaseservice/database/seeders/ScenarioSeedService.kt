@@ -73,8 +73,8 @@ class ScenarioSeedService(
   private fun defendantName(defendant: ScenarioDefendant): String = defendant.defendantName
     ?: defendant.name?.let {
       listOfNotNull(it.forename1, it.forename2, it.forename3, it.surname)
-       .joinToString(" ")
-       .trim()
+        .joinToString(" ")
+        .trim()
     }
     ?: "QA Defendant"
 

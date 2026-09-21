@@ -47,11 +47,91 @@ jobs:
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/gradle_verify.yml@v2 # WORKFLOW_VERSION
     secrets: inherit
     with:
-      gradle-command: 'BUILD_NUMBER=${{ needs.app_version.outputs.version}} ./gradlew assemble check'
+      gradle-command: 'BUILD_NUMBER=${{ needs.app_version.outputs.version }} ./gradlew build jacocoTestReport'
       upload-build-artifacts: ${{ github.ref == 'refs/heads/main' }}
-      java-version: "25"
+      java-version: "21"
+      localstack-tag: '3.0'
+      postgres-tag: '14.12'
+      postgres-db: 'postgres'
+      postgres-username: 'root'
+      postgres-password: 'dev'
     needs:
       - app_version
+  database_schema_report:
+    name: Database schema report
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    services:
+      postgres:
+        image: postgres:14.12
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      localstack:
+        image: localstack/localstack:3.0
+        env:
+          SERVICES: sqs,sns
+          AWS_EXECUTION_ENV: "True"
+        ports:
+          - 4566:4566
+        options: >-
+          --health-cmd "curl -sS http://localhost:4566/_localstack/health || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      SPRING_PROFILES_ACTIVE: test
+      DATABASE_ENDPOINT: localhost:5432
+      DATABASE_NAME: postgres
+      DATABASE_USERNAME: root
+      DATABASE_PASSWORD: dev
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_DEFAULT_REGION: eu-west-2
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Java
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_CACHE_ENCRYPTION_KEY }}
+
+      - name: Initialise database
+        run: ./gradlew initialiseDatabase
+
+      - name: Generate database schema report
+        uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/database_schema_report@accf37e936517ed39e7a888cf74f0277dab3310e # v1.1.4
+        with:
+          jdk_tag: '21'
+          database_name: postgres
+          schema: courtcaseservicetest
+          host: localhost
+          port: '5432'
+          user: root
+          password: dev
   build:
     name: Build docker image from hmpps-github-actions
     if: github.ref == 'refs/heads/main'
@@ -67,6 +147,7 @@ jobs:
     with:
       docker_registry: 'ghcr.io'
       registry_org: 'ministryofjustice'
+      image_version: ${{ needs.app_version.outputs.version }}
       additional_docker_tag: ${{ inputs.additional_docker_tag }}
       push: ${{ inputs.push || inputs.push == null }}
       docker_multiplatform: false

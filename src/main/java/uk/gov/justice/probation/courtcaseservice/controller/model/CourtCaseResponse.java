@@ -78,6 +78,7 @@ public class CourtCaseResponse {
     private final HearingPrepStatus hearingPrepStatus;
     private final boolean hearingOutcomeNotRequired;
     private final boolean seriousFurtherOffence;
+    private final boolean multiAgencyPublicProtectionArrangementsOffence;
 
     @JsonProperty
     public String getProbationStatus() {

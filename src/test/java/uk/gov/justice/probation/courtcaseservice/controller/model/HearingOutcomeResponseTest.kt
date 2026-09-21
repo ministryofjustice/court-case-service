@@ -67,4 +67,31 @@ internal class HearingOutcomeResponseTest {
       ),
     )
   }
+
+  @Test
+  fun `given hearing entity with mappa flag should map flag to hearing outcome response`() {
+    val hearingOutcomeEntity =
+      HearingOutcomeEntity.builder().outcomeType(HearingOutcomeType.REPORT_REQUESTED.name).outcomeDate(
+        LocalDateTime.of(2023, 6, 6, 19, 9, 1),
+      ).state("IN_PROGRESS").build()
+
+    val hearingDefendantEntity =
+      EntityHelper.aHearingDefendantEntity("defendant-id-2", null).withHearingOutcome(hearingOutcomeEntity)
+    val hearing = EntityHelper.aHearingEntity(
+      "CRN123",
+      "case-no-1",
+      listOf(hearingDefendantEntity),
+    )
+
+    EntityHelper.refreshMappings(hearing)
+
+    val response =
+      HearingOutcomeResponse.of(
+        hearingDefendantEntity,
+        EntityHelper.SESSION_START_TIME.toLocalDate(),
+        false,
+      )
+
+    Assertions.assertThat(response.multiAgencyPublicProtectionArrangementsOffence).isFalse()
+  }
 }

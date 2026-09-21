@@ -26,6 +26,8 @@ public class FeatureFlags {
 
     public boolean enableSeriousFurtherOffence() { return flags.getOrDefault("enable-serious-further-offence", false); }
 
+    public boolean enableMultiAgencyPublicProtectionArrangements() { return flags.getOrDefault("enable-multi-agency-public-protection-arrangements", false); }
+
     public void setFlagValue(final String flagName, final boolean value) {
         flags.put(flagName, value);
     }

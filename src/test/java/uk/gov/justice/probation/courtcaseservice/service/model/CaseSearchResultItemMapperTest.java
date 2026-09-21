@@ -84,7 +84,7 @@ class CaseSearchResultItemMapperTest {
         CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().hearings(hearings).build();
         EntityHelper.refreshMappings(courtCaseEntity);
         DefendantEntity defendant = hearingDefendant1.getDefendant();
-        var actual = subject.from(courtCaseEntity, defendant, true);
+        var actual = subject.from(courtCaseEntity, defendant, true, null);
 
         var result1 = CaseSearchResultItem.builder()
             .hearingId("hearing-id-1")
@@ -94,6 +94,7 @@ class CaseSearchResultItemMapperTest {
             .breach(true)
             .crn(testCrn)
             .seriousFurtherOffence(true)
+            .multiAgencyPublicProtectionArrangementsOffence(null)
             .offenceTitles(List.of("offence title 1", "offence title 2", "offence title 3"))
             .lastHearingDate(LocalDate.of(2022, 12, 10))
             .lastHearingCourt("Sheffield Mags")
@@ -111,7 +112,7 @@ class CaseSearchResultItemMapperTest {
 
         CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().hearings(hearings).build();
         EntityHelper.refreshMappings(courtCaseEntity);
-        var actual = subject.from(courtCaseEntity, hearingDefendant3.getDefendant(), null);
+        var actual = subject.from(courtCaseEntity, hearingDefendant3.getDefendant(), null, null);
 
         var result = CaseSearchResultItem.builder()
             .hearingId("hearing-id-3")
@@ -136,7 +137,7 @@ class CaseSearchResultItemMapperTest {
         CourtCaseEntity courtCaseEntity = CourtCaseEntity.builder().hearings(hearings).build();
         EntityHelper.refreshMappings(courtCaseEntity);
         DefendantEntity defendant = hearingDefendant1.getDefendant();
-        var actual = subject.from(courtCaseEntity, defendant, null);
+        var actual = subject.from(courtCaseEntity, defendant, null, null);
 
         var result = CaseSearchResultItem.builder()
             .hearingId("hearing-id-1")

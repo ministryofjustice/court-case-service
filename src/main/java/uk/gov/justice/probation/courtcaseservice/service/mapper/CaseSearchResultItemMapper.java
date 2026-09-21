@@ -29,7 +29,7 @@ public class CaseSearchResultItemMapper {
         this.clock = clock;
     }
 
-    public CaseSearchResultItem from(CourtCaseEntity courtCaseEntity, final DefendantEntity defendant, final Boolean seriousFurtherOffence) {
+    public CaseSearchResultItem from(CourtCaseEntity courtCaseEntity, final DefendantEntity defendant, final Boolean seriousFurtherOffence, final Boolean multiAgencyPublicProtectionArrangementsOffence) {
 
         // filter out hearing defendants that does not match the CRN as the case may have multiple defendants with different CRNs
         var hearingDefendants = courtCaseEntity.getHearings().stream().map(HearingEntity::getHearingDefendants)
@@ -56,6 +56,7 @@ public class CaseSearchResultItemMapper {
             .offenceTitles(offenceTitles.stream().toList())
             .probationStatus(defendant.getProbationStatusForDisplay())
             .seriousFurtherOffence(seriousFurtherOffence)
+            .multiAgencyPublicProtectionArrangementsOffence(multiAgencyPublicProtectionArrangementsOffence)
             .lastHearingDate(lastHearing.map(HearingDayEntity::getDay).orElse(null))
             .lastHearingCourt(lastHearing.map(HearingDayEntity::getCourt).map(CourtEntity::getName).orElse(null))
             .nextHearingDate(nextHearing.map(HearingDayEntity::getDay).orElse(null))

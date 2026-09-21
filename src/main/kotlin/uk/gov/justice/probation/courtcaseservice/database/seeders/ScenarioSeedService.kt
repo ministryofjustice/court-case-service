@@ -3,9 +3,54 @@ package uk.gov.justice.probation.courtcaseservice.database.seeders
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
-import uk.gov.justice.probation.courtcaseservice.controller.model.*
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.*
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.*
+import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioAddress
+import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioCase
+import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioDefendant
+import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioHearing
+import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioHearingDay
+import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioHearingDefendant
+import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioHearingNote
+import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioJudicialResult
+import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioName
+import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioOffence
+import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioOffender
+import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioPhoneNumber
+import uk.gov.justice.probation.courtcaseservice.controller.model.SeedScenarioDocument
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseMarkerEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CourtCaseEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantType
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingPrepStatus
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.PleaEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.VerdictEntity
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.CaseCommentsRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDayRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingDefendantRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingNoteRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingOutcomeRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.JudicialResultRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenceRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.PleaRepository
+import uk.gov.justice.probation.courtcaseservice.jpa.repository.VerdictRepository
 import java.time.LocalDate
 import java.time.LocalTime
 import java.util.UUID
@@ -35,16 +80,13 @@ class ScenarioSeedService(
     courtRoom = day.courtRoom ?: "1",
   )
 
-  private fun defendantName(defendant: ScenarioDefendant): String =
-    defendant.defendantName
+  private fun defendantName(defendant: ScenarioDefendant): String = defendant.defendantName
       ?: defendant.name?.let { listOfNotNull(it.forename1, it.forename2, it.forename3, it.surname).joinToString(" ").trim() }
       ?: "QA Defendant"
 
-  private fun assignedUuid(value: String?, fallback: () -> String = { UUID.randomUUID().toString() }): String =
-    value?.takeIf { it.isNotBlank() } ?: fallback()
+  private fun assignedUuid(value: String?, fallback: () -> String = { UUID.randomUUID().toString() }): String = value?.takeIf { it.isNotBlank() } ?: fallback()
 
-  private fun assignedUuidStateful(state: MutableMap<String, String>, key: String): String =
-    state.getOrPut(key) { UUID.randomUUID().toString() }
+  private fun assignedUuidStateful(state: MutableMap<String, String>, key: String): String = state.getOrPut(key) { UUID.randomUUID().toString() }
 
   private fun defendantType(type: String?): DefendantType = runCatching {
     DefendantType.valueOf(type ?: "PERSON")
@@ -340,44 +382,59 @@ class ScenarioSeedService(
         val offenderEntity = scenarioDefendant.offender?.let { offenderInput ->
           offenderRepository.save(
             OffenderEntity.builder()
-            .crn(offenderInput.crn ?: scenarioDefendant.crn ?: "SCENARIO")
-            .pnc(offenderInput.pnc ?: scenarioDefendant.pnc)
-            .cro(offenderInput.cro ?: scenarioDefendant.cro)
-            .probationStatus(offenderInput.probationStatus?.let { OffenderProbationStatus.of(it) })
-            .awaitingPsr(offenderInput.awaitingPsr)
-            .breach(offenderInput.breach)
-            .preSentenceActivity(offenderInput.preSentenceActivity)
-            .suspendedSentenceOrder(offenderInput.suspendedSentenceOrder)
-            .previouslyKnownTerminationDate(offenderInput.previouslyKnownTerminationDate)
-            .build(),
+              .crn(offenderInput.crn ?: scenarioDefendant.crn ?: "SCENARIO")
+              .pnc(offenderInput.pnc ?: scenarioDefendant.pnc)
+              .cro(offenderInput.cro ?: scenarioDefendant.cro)
+              .probationStatus(offenderInput.probationStatus?.let { OffenderProbationStatus.of(it) })
+              .awaitingPsr(offenderInput.awaitingPsr)
+              .breach(offenderInput.breach)
+              .preSentenceActivity(offenderInput.preSentenceActivity)
+              .suspendedSentenceOrder(offenderInput.suspendedSentenceOrder)
+              .previouslyKnownTerminationDate(offenderInput.previouslyKnownTerminationDate)
+              .build(),
           )
         }
 
         val defendantEntity = DefendantEntity.builder()
           .defendantId(defendantId)
           .defendantName(defendantName(scenarioDefendant))
-          .name(scenarioDefendant.name?.let { NamePropertiesEntity.builder()
-            .title(it.title)
-            .forename1(it.forename1)
-            .forename2(it.forename2)
-            .forename3(it.forename3)
-            .surname(it.surname)
-            .build() } ?: NamePropertiesEntity.builder().forename1("QA").surname("User").build())
+          .name(
+            scenarioDefendant.name?.let {
+              NamePropertiesEntity.builder()
+                .title(it.title)
+                .forename1(it.forename1)
+                .forename2(it.forename2)
+                .forename3(it.forename3)
+                .surname(it.surname)
+                .build()
+            } ?: NamePropertiesEntity.builder()
+              .forename1("QA")
+              .surname("User")
+              .build(),
+          )
           .type(defendantType(scenarioDefendant.type))
           .sex(sex(scenarioDefendant.sex))
-          .address(scenarioDefendant.address?.let { AddressPropertiesEntity.builder()
-            .line1(it.line1)
-            .line2(it.line2)
-            .line3(it.line3)
-            .line4(it.line4)
-            .line5(it.line5)
-            .postcode(it.postcode)
-            .build() })
-          .phoneNumber(scenarioDefendant.phoneNumber?.let { PhoneNumberEntity.builder()
-            .home(it.home)
-            .mobile(it.mobile)
-            .work(it.work)
-            .build() })
+          .address(
+            scenarioDefendant.address?.let {
+              AddressPropertiesEntity.builder()
+                .line1(it.line1)
+                .line2(it.line2)
+                .line3(it.line3)
+                .line4(it.line4)
+                .line5(it.line5)
+                .postcode(it.postcode)
+                .build()
+            },
+          )
+          .phoneNumber(
+            scenarioDefendant.phoneNumber?.let {
+              PhoneNumberEntity.builder()
+                .home(it.home)
+                .mobile(it.mobile)
+                .work(it.work)
+                .build()
+            },
+          )
           .dateOfBirth(scenarioDefendant.dateOfBirth)
           .cro(scenarioDefendant.cro ?: offenderEntity?.cro)
           .crn(scenarioDefendant.crn ?: offenderEntity?.crn)

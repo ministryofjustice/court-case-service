@@ -1,7 +1,7 @@
 package uk.gov.justice.probation.courtcaseservice.controller
 
-import io.swagger.v3.oas.annotations.Operation
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.swagger.v3.oas.annotations.Operation
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.probation.courtcaseservice.controller.model.SeedResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.SeedScenarioDocument
-import uk.gov.justice.probation.courtcaseservice.controller.model.SeedScenarioRequest
 import uk.gov.justice.probation.courtcaseservice.database.seeders.CourtCaseSeeder
 import uk.gov.justice.probation.courtcaseservice.database.seeders.ScenarioSeedService
 import java.time.LocalDate
@@ -60,7 +59,7 @@ class SeedController(
   @PostMapping(value = ["/db-seed/scenario"], produces = [APPLICATION_JSON_VALUE])
   @Transactional
   fun seedScenario(@RequestBody(required = false) body: String?): ResponseEntity<SeedResponse> {
-    val json = body?.takeIf { it.isNotBlank() } ?: return ResponseEntity.badRequest().body(
+    val json = body?.takeIf(String::isNotBlank) ?: return ResponseEntity.badRequest().body(
       SeedResponse(
         message = "Invalid scenario payload.",
         details = "Request body must be valid JSON.",

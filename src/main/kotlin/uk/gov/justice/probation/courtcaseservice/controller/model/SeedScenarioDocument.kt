@@ -2,7 +2,6 @@ package uk.gov.justice.probation.courtcaseservice.controller.model
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 
 @JsonIgnoreProperties(ignoreUnknown = true)

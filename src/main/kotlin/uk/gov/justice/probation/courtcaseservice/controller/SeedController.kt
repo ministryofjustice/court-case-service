@@ -51,7 +51,7 @@ class SeedController(
 
     return SeedResponse(
       message = "Success.",
-      details = "Generated ${c} case(s).",
+      details = "Generated $c case(s).",
     )
   }
 

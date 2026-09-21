@@ -3,20 +3,10 @@ package uk.gov.justice.probation.courtcaseservice.database.seeders
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
-import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioAddress
-import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioCase
-import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioDefendant
-import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioHearing
-import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioHearingDay
-import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioHearingDefendant
-import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioHearingNote
-import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioJudicialResult
-import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioName
-import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioOffence
-import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioOffender
-import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioPhoneNumber
-import uk.gov.justice.probation.courtcaseservice.controller.model.SeedScenarioDocument
 import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepStatus
+import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioDefendant
+import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioHearingDay
+import uk.gov.justice.probation.courtcaseservice.controller.model.SeedScenarioDocument
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseMarkerEntity
@@ -81,10 +71,17 @@ class ScenarioSeedService(
   )
 
   private fun defendantName(defendant: ScenarioDefendant): String = defendant.defendantName
-      ?: defendant.name?.let { listOfNotNull(it.forename1, it.forename2, it.forename3, it.surname).joinToString(" ").trim() }
-      ?: "QA Defendant"
+    ?: defendant.name?.let {
+      listOfNotNull(it.forename1, it.forename2, it.forename3, it.surname)
+       .joinToString(" ")
+       .trim()
+    }
+    ?: "QA Defendant"
 
-  private fun assignedUuid(value: String?, fallback: () -> String = { UUID.randomUUID().toString() }): String = value?.takeIf { it.isNotBlank() } ?: fallback()
+  private fun assignedUuid(
+    value: String?,
+    fallback: () -> String = { UUID.randomUUID().toString() },
+  ): String = value?.takeIf { it.isNotBlank() } ?: fallback()
 
   private fun assignedUuidStateful(state: MutableMap<String, String>, key: String): String = state.getOrPut(key) { UUID.randomUUID().toString() }
 

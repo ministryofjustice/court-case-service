@@ -16,6 +16,7 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioOffenc
 import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioOffender
 import uk.gov.justice.probation.courtcaseservice.controller.model.ScenarioPhoneNumber
 import uk.gov.justice.probation.courtcaseservice.controller.model.SeedScenarioDocument
+import uk.gov.justice.probation.courtcaseservice.controller.model.HearingPrepStatus
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseCommentEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseMarkerEntity
@@ -26,7 +27,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDayEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingPrepStatus
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingNoteEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.JudicialResultEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity

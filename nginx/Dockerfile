@@ -7,7 +7,7 @@ RUN touch /var/run/nginx.pid && chown -R nginx:nginx /var/run/nginx.pid
 
 RUN apk upgrade --no-cache
 
-COPY /nginx.conf /etc/nginx/
-COPY /default.conf.template /etc/nginx/templates/
+COPY nginx/nginx.conf /etc/nginx/
+COPY nginx/default.conf.template /etc/nginx/templates/
 
 EXPOSE 8080

@@ -54,7 +54,7 @@ generic-prometheus-alerts:
 #
 #  deployment:
 #    image:
-#      repository: quay.io/hmpps/pic-data-dictionary
+#      repository: ghcr.io/ministryofjustice/pic-data-dictionary
 #      tag: latest
 #      pullPolicy: Always
 #    port: 80

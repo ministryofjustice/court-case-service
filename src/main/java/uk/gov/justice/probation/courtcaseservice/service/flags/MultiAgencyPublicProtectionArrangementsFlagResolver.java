@@ -30,38 +30,38 @@ public class MultiAgencyPublicProtectionArrangementsFlagResolver {
     }
 
     public Map<String, Boolean> buildMultiAgencyPublicProtectionArrangementsFlagsMap(List<Pair<CourtCaseEntity, DefendantEntity>> results) {
-        var allOffenceCodes = offenceFlagHelper.offenceCodesForResults(results, hearing -> true);
+        var allOffenceCodes = offenceFlagHelper.offenceCodesForResults(results);
         return offenceMappaMappingRepository.findByOffenceCodeIn(allOffenceCodes).stream()
             .collect(Collectors.toMap(OffenceMappaMappingEntity::getOffenceCode, OffenceMappaMappingEntity::isMultiAgencyPublicProtectionArrangementsFlag));
     }
 
     public Map<String, Boolean> buildMultiAgencyPublicProtectionArrangementsFlagsMapFromHearing(HearingEntity hearingEntity) {
-        var allOffenceCodes = offenceFlagHelper.offenceCodesForHearing(hearingEntity, hearing -> true);
+        var allOffenceCodes = offenceFlagHelper.offenceCodesForHearing(hearingEntity);
         return offenceMappaMappingRepository.findByOffenceCodeIn(allOffenceCodes).stream()
             .collect(Collectors.toMap(OffenceMappaMappingEntity::getOffenceCode, OffenceMappaMappingEntity::isMultiAgencyPublicProtectionArrangementsFlag));
     }
 
     public Boolean resolveMultiAgencyPublicProtectionArrangementsFlagFromHearing(HearingEntity hearingEntity, DefendantEntity defendant, Map<String, Boolean> multiAgencyPublicProtectionArrangementsFlagsByCode) {
         if (!featureFlags.enableMultiAgencyPublicProtectionArrangements()) return false;
-        var offenceCodes = offenceFlagHelper.offenceCodesForDefendant(hearingEntity, defendant.getDefendantId(), hearing -> true);
+        var offenceCodes = offenceFlagHelper.offenceCodesForDefendant(hearingEntity, defendant.getDefendantId());
         return offenceFlagHelper.resolveFlag(offenceCodes, multiAgencyPublicProtectionArrangementsFlagsByCode);
     }
 
     public Map<String, Boolean> buildMultiAgencyPublicProtectionArrangementsFlagsMapFromDTOs(List<HearingDefendantDTO> defendants) {
-        var allOffenceCodes = offenceFlagHelper.offenceCodesForDTOs(defendants, defendant -> true);
+        var allOffenceCodes = offenceFlagHelper.offenceCodesForDTOs(defendants);
         return offenceMappaMappingRepository.findByOffenceCodeIn(allOffenceCodes).stream()
             .collect(Collectors.toMap(OffenceMappaMappingEntity::getOffenceCode, OffenceMappaMappingEntity::isMultiAgencyPublicProtectionArrangementsFlag));
     }
 
     public Boolean resolveMultiAgencyPublicProtectionArrangementsFlag(CourtCaseEntity courtCase, DefendantEntity defendant, Map<String, Boolean> multiAgencyPublicProtectionArrangementsFlagsByCode) {
         if (!featureFlags.enableMultiAgencyPublicProtectionArrangements()) return false;
-        var offenceCodes = offenceFlagHelper.offenceCodesForDefendant(courtCase, defendant.getDefendantId(), hearing -> true);
+        var offenceCodes = offenceFlagHelper.offenceCodesForDefendant(courtCase, defendant.getDefendantId());
         return offenceFlagHelper.resolveFlag(offenceCodes, multiAgencyPublicProtectionArrangementsFlagsByCode);
     }
 
     public Boolean resolveMultiAgencyPublicProtectionArrangementsFlagFromDTO(HearingDefendantDTO defendant, Map<String, Boolean> multiAgencyPublicProtectionArrangementsFlagsByCode) {
         if (!featureFlags.enableMultiAgencyPublicProtectionArrangements()) return false;
-        var offenceCodes = offenceFlagHelper.offenceCodesForDTOs(List.of(defendant), dto -> true);
+        var offenceCodes = offenceFlagHelper.offenceCodesForDTOs(List.of(defendant));
         return offenceFlagHelper.resolveFlag(offenceCodes, multiAgencyPublicProtectionArrangementsFlagsByCode);
     }
 }

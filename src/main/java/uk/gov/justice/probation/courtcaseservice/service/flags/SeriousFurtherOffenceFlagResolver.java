@@ -30,32 +30,32 @@ public class SeriousFurtherOffenceFlagResolver {
     }
 
     public Map<String, Boolean> buildSeriousFurtherOffenceFlagsMap(List<Pair<CourtCaseEntity, DefendantEntity>> results) {
-        var allOffenceCodes = offenceFlagHelper.offenceCodesForResults(results, hearing -> true);
+        var allOffenceCodes = offenceFlagHelper.offenceCodesForResults(results);
         return offenceSfoMappingRepository.findByOffenceCodeIn(allOffenceCodes).stream()
             .collect(Collectors.toMap(OffenceSfoMappingEntity::getOffenceCode, OffenceSfoMappingEntity::isSeriousFurtherOffenceFlag));
     }
 
     public Map<String, Boolean> buildSeriousFurtherOffenceFlagsMapFromHearing(HearingEntity hearingEntity) {
-        var allOffenceCodes = offenceFlagHelper.offenceCodesForHearing(hearingEntity, hearing -> true);
+        var allOffenceCodes = offenceFlagHelper.offenceCodesForHearing(hearingEntity);
         return offenceSfoMappingRepository.findByOffenceCodeIn(allOffenceCodes).stream()
             .collect(Collectors.toMap(OffenceSfoMappingEntity::getOffenceCode, OffenceSfoMappingEntity::isSeriousFurtherOffenceFlag));
     }
 
     public Boolean resolveSeriousFurtherOffenceFlagFromHearing(HearingEntity hearingEntity, DefendantEntity defendant, Map<String, Boolean> sfoFlagsByCode) {
         if (!featureFlags.enableSeriousFurtherOffence()) return false;
-        var offenceCodes = offenceFlagHelper.offenceCodesForDefendant(hearingEntity, defendant.getDefendantId(), hearing -> true);
+        var offenceCodes = offenceFlagHelper.offenceCodesForDefendant(hearingEntity, defendant.getDefendantId());
         return offenceFlagHelper.resolveFlag(offenceCodes, sfoFlagsByCode);
     }
 
     public Map<String, Boolean> buildSeriousFurtherOffenceFlagsMapFromDTOs(List<HearingDefendantDTO> defendants) {
-        var allOffenceCodes = offenceFlagHelper.offenceCodesForDTOs(defendants, defendant -> true);
+        var allOffenceCodes = offenceFlagHelper.offenceCodesForDTOs(defendants);
         return offenceSfoMappingRepository.findByOffenceCodeIn(allOffenceCodes).stream()
             .collect(Collectors.toMap(OffenceSfoMappingEntity::getOffenceCode, OffenceSfoMappingEntity::isSeriousFurtherOffenceFlag));
     }
 
     public Boolean resolveSeriousFurtherOffenceFlag(CourtCaseEntity courtCase, DefendantEntity defendant, Map<String, Boolean> seriousFurtherOffenceFlagsByCode) {
         if (!featureFlags.enableSeriousFurtherOffence()) return false;
-        var offenceCodes = offenceFlagHelper.offenceCodesForDefendant(courtCase, defendant.getDefendantId(), hearing -> true);
+        var offenceCodes = offenceFlagHelper.offenceCodesForDefendant(courtCase, defendant.getDefendantId());
         return offenceFlagHelper.resolveFlag(offenceCodes, seriousFurtherOffenceFlagsByCode);
     }
 

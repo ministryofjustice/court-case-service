@@ -14,23 +14,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Component
 public class OffenceFlagHelper {
 
-    public Set<String> offenceCodesForResults(List<Pair<CourtCaseEntity, DefendantEntity>> results,
-                                              Predicate<HearingEntity> hearingFilter) {
+    public Set<String> offenceCodesForResults(List<Pair<CourtCaseEntity, DefendantEntity>> results) {
         return results.stream()
-            .flatMap(pair -> offenceCodesForDefendant(pair.getFirst(), pair.getSecond().getDefendantId(), hearingFilter).stream())
+            .flatMap(pair -> offenceCodesForDefendant(pair.getFirst(), pair.getSecond().getDefendantId()).stream())
             .collect(Collectors.toSet());
     }
 
-    public Set<String> offenceCodesForHearing(HearingEntity hearingEntity, Predicate<HearingEntity> hearingFilter) {
-        if (!hearingFilter.test(hearingEntity)) {
-            return Set.of();
-        }
+    public Set<String> offenceCodesForHearing(HearingEntity hearingEntity) {
         return Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(List.of()).stream()
             .flatMap(hd -> Optional.ofNullable(hd.getOffences()).orElse(List.of()).stream())
             .map(OffenceEntity::getOffenceCode)
@@ -39,11 +34,7 @@ public class OffenceFlagHelper {
     }
 
     public Set<String> offenceCodesForDefendant(HearingEntity hearingEntity,
-                                                String defendantId,
-                                                Predicate<HearingEntity> hearingFilter) {
-        if (!hearingFilter.test(hearingEntity)) {
-            return Set.of();
-        }
+                                                String defendantId) {
         return Optional.ofNullable(hearingEntity.getHearingDefendants()).orElse(List.of()).stream()
             .filter(hd -> hd.getDefendant() != null && hd.getDefendant().getDefendantId().equalsIgnoreCase(defendantId))
             .flatMap(hd -> Optional.ofNullable(hd.getOffences()).orElse(List.of()).stream())
@@ -52,19 +43,15 @@ public class OffenceFlagHelper {
             .collect(Collectors.toSet());
     }
 
-    public Set<String> offenceCodesForDTOs(List<HearingDefendantDTO> defendants,
-                                           Predicate<HearingDefendantDTO> defendantFilter) {
+    public Set<String> offenceCodesForDTOs(List<HearingDefendantDTO> defendants) {
         return defendants.stream()
-            .filter(defendantFilter)
             .flatMap(dto -> offenceCodesForDefendantDTO(dto).stream())
             .collect(Collectors.toSet());
     }
 
     public Set<String> offenceCodesForDefendant(CourtCaseEntity courtCaseEntity,
-                                                String defendantId,
-                                                Predicate<HearingEntity> hearingFilter) {
+                                                String defendantId) {
         return courtCaseEntity.getHearings().stream()
-            .filter(hearingFilter)
             .map(HearingEntity::getHearingDefendants)
             .flatMap(Collection::stream)
             .filter(hd -> hd.getDefendant() != null && hd.getDefendant().getDefendantId().equalsIgnoreCase(defendantId))

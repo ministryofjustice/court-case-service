@@ -98,6 +98,7 @@ class HmppsDocumentManagementService(
     originalFilename: String,
   ): CaseDocumentResponse {
     var hearing = getHearingEntity(hearingId, defendantId) ?: throw EntityNotFoundException("Hearing %s not found", hearingId)
+    hearing.getHearingDefendant(defendantId) ?: throw EntityNotFoundException("Defendant %s not found for hearing %s", defendantId, hearingId)
 
     filePart.part("metadata", HmppsDocumentApiMetadata(hearing.courtCase.urn, defendantId))
 

@@ -6,6 +6,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.InputStreamResource
+import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.http.client.MultipartBodyBuilder
@@ -16,6 +18,7 @@ import reactor.core.publisher.Mono
 import uk.gov.justice.probation.courtcaseservice.client.HmppsDocumentManagementApiClient
 import uk.gov.justice.probation.courtcaseservice.controller.model.CaseDocumentResponse
 import uk.gov.justice.probation.courtcaseservice.controller.model.HmppsDocumentApiMetadata
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.CaseDefendantDocumentEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.CourtCaseRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade
@@ -94,9 +97,8 @@ class HmppsDocumentManagementService(
     filePart: MultipartBodyBuilder,
     originalFilename: String,
   ): CaseDocumentResponse {
-    var hearing = getHearingEntity(hearingId, defendantId)
-
-    var hearingDefendant = hearing?.getHearingDefendant(defendantId) ?: throw EntityNotFoundException("Defendant %s not found for hearing %s", defendantId, hearingId)
+    var hearing = getHearingEntity(hearingId, defendantId) ?: throw EntityNotFoundException("Hearing %s not found", hearingId)
+    hearing.getHearingDefendant(defendantId) ?: throw EntityNotFoundException("Defendant %s not found for hearing %s", defendantId, hearingId)
 
     filePart.part("metadata", HmppsDocumentApiMetadata(hearing.courtCase.urn, defendantId))
 
@@ -104,10 +106,46 @@ class HmppsDocumentManagementService(
     var response = hmppsDocumentManagementApiClient.createDocument(picDocumentType, documentUuid, filePart).block()
     log.debug("Response from document management API /documents/$picDocumentType/$documentUuid : $response")
 
+    var documentEntity = saveCaseDefendantDocumentWithRetry(hearingId, defendantId, documentUuid, originalFilename, hearing)
+    return CaseDocumentResponse(documentUuid, documentEntity.created, CaseDocumentResponse.FileResponse(originalFilename))
+  }
+
+  private fun saveCaseDefendantDocumentWithRetry(
+    hearingId: String,
+    defendantId: String,
+    documentUuid: String,
+    originalFilename: String,
+    initialHearing: HearingEntity,
+    maxAttempts: Int = 3,
+  ): CaseDefendantDocumentEntity {
+    var attempt = 0
+    var hearing = initialHearing
+    while (true) {
+      try {
+        return saveCaseDefendantDocument(hearing, defendantId, documentUuid, originalFilename)
+      } catch (e: Exception) {
+        if ((e is DataIntegrityViolationException || e is OptimisticLockingFailureException) && ++attempt < maxAttempts) {
+          log.warn("Retrying case defendant document save for hearing $hearingId defendant $defendantId after conflict (attempt $attempt)", e)
+          hearing = getHearingEntity(hearingId, defendantId) ?: throw EntityNotFoundException("Hearing %s not found", hearingId)
+        } else {
+          throw e
+        }
+      }
+    }
+  }
+
+  private fun saveCaseDefendantDocument(
+    hearing: HearingEntity,
+    defendantId: String,
+    documentUuid: String,
+    originalFilename: String,
+  ): CaseDefendantDocumentEntity {
+    var hearingDefendant = hearing.getHearingDefendant(defendantId) ?: throw EntityNotFoundException("Defendant %s not found for hearing %s", defendantId, hearing.hearingId)
+
     var courtCase = hearing.courtCase
     var documentEntity = courtCase.getOrCreateCaseDefendant(hearingDefendant.defendant).createDocument(documentUuid, originalFilename)
     courtCaseRepository.save(courtCase)
-    return CaseDocumentResponse(documentUuid, documentEntity.created, CaseDocumentResponse.FileResponse(originalFilename))
+    return documentEntity
   }
 
   private fun getHearingEntity(hearingId: String, defendantId: String): HearingEntity? = hearingRepositoryFacade.findFirstByHearingIdFileUpload(hearingId, defendantId)

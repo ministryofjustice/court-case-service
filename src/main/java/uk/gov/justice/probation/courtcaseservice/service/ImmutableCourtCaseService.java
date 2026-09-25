@@ -38,6 +38,9 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderM
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepository;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.PagedCaseListRepositoryCustom;
+import uk.gov.justice.probation.courtcaseservice.service.cpr.CprEnrichmentService;
+import uk.gov.justice.probation.courtcaseservice.service.cpr.CprRefreshSource;
+import uk.gov.justice.probation.courtcaseservice.service.cpr.CprRefreshTarget;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.flags.MultiAgencyPublicProtectionArrangementsFlagResolver;
 import uk.gov.justice.probation.courtcaseservice.service.flags.SeriousFurtherOffenceFlagResolver;
@@ -72,6 +75,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     private final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
     private final MultiAgencyPublicProtectionArrangementsFlagResolver multiAgencyPublicProtectionArrangementsFlagResolver;
+    private final CprEnrichmentService cprEnrichmentService;
 
     @Autowired
     public ImmutableCourtCaseService(CourtRepository courtRepository,
@@ -84,7 +88,8 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                                      HearingRepository hearingRepository,
                                      PagedCaseListRepositoryCustom pagedCaseListRepositoryCustom,
                                      SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver,
-                                     MultiAgencyPublicProtectionArrangementsFlagResolver multiAgencyPublicProtectionArrangementsFlagResolver) {
+                                     MultiAgencyPublicProtectionArrangementsFlagResolver multiAgencyPublicProtectionArrangementsFlagResolver,
+                                     CprEnrichmentService cprEnrichmentService) {
         this.courtRepository = courtRepository;
         this.hearingRepositoryFacade = hearingRepositoryFacade;
         this.telemetryService = telemetryService;
@@ -96,6 +101,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         this.pagedCaseListRepositoryCustom = pagedCaseListRepositoryCustom;
         this.seriousFurtherOffenceFlagResolver = seriousFurtherOffenceFlagResolver;
         this.multiAgencyPublicProtectionArrangementsFlagResolver = multiAgencyPublicProtectionArrangementsFlagResolver;
+        this.cprEnrichmentService = cprEnrichmentService;
     }
 
     @Override
@@ -237,6 +243,23 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                     .ifPresent(courtCaseEntity -> addHearingToCase(updatedHearing, courtCaseEntity));
                 return updatedHearing;
             });
+
+        List<HearingDefendantEntity> hearingDefendants =
+            Optional.ofNullable(updatedHearing.getHearingDefendants())
+                .orElse(Collections.emptyList());
+
+        hearingDefendants.forEach(hearingDefendant -> {
+            DefendantEntity defendant = hearingDefendant.getDefendant();
+
+            CprRefreshTarget target = new CprRefreshTarget(
+                defendant.getDefendantId(),
+                defendant.getCId(),
+                CprRefreshSource.HEARING_UPSERT
+            );
+
+            cprEnrichmentService.enrich(defendant, target);
+        });
+
         log.debug("Saving hearing with ID {} and court case id {}", hearingId, updatedHearing.getCaseId());
 
         var savedHearing = hearingRepositoryFacade.save(hearing);

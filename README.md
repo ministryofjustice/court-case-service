@@ -24,7 +24,7 @@ This section contains the bare minimum you need to do to get the app running aga
 - Optionally: Run `./gradlew installGitHooks` to install Git hooks from `./hooks` directory. Note these require postgres to be running to pass.     
 ---
 ## Running Service Locally
-Ensure all docker containers are up and running:
+Ensure  all docker containers are up and running:
 
 ```bash
 docker compose up -d

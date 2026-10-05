@@ -459,6 +459,7 @@ class CourtCaseControllerTest {
             .hearingId(testHearingId)
             .author("Author One")
             .note("Note one")
+            .created(LocalDateTime.now())
             .createdByUuid(testUuid).build();
 
         var hearingNoteRequest = HearingNoteRequest.builder().hearingId(testHearingId).note("Note one").author("Author One").build();
@@ -480,6 +481,7 @@ class CourtCaseControllerTest {
             .hearingId(testHearingId)
             .author("Author One")
             .note("Note one")
+            .created(LocalDateTime.now())
             .createdByUuid(testUuid).build();
 
         var hearingNoteRequest = HearingNoteRequest.builder().hearingId(testHearingId).note("Note one").author("Author One").build();

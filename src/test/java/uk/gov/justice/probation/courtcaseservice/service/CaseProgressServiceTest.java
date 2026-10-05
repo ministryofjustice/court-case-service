@@ -51,15 +51,16 @@ class CaseProgressServiceTest {
         var courtCase = CourtCaseEntity.builder().sourceType(SourceType.COMMON_PLATFORM).build();
         var courtName = "Sheffield mags";
         var court = CourtEntity.builder().name(courtName).build();
+        var createdDateTime = LocalDateTime.now();
         String hearingIdOne = "hearing-id-one";
 
-        List<HearingNoteEntity> hearing1DefendantOneNotes = List.of(HearingNoteEntity.builder().hearingId(hearingIdOne).note("Hearing id one defendant 1 note one").build(),
-            HearingNoteEntity.builder().hearingId(hearingIdOne).note("Hearing id one defendant 1 note two").build());
+        List<HearingNoteEntity> hearing1DefendantOneNotes = List.of(HearingNoteEntity.builder().hearingId(hearingIdOne).note("Hearing id one defendant 1 note one").created(createdDateTime).build(),
+            HearingNoteEntity.builder().hearingId(hearingIdOne).note("Hearing id one defendant 1 note two").created(createdDateTime).build());
 
-        List<HearingNoteEntity> hearing1DefendantTwoNotes = List.of(HearingNoteEntity.builder().hearingId(hearingIdOne).note("Hearing id defendant 2 note one").build(),
-            HearingNoteEntity.builder().hearingId(hearingIdOne).note("Hearing id one defendant 2 note two").build());
+        List<HearingNoteEntity> hearing1DefendantTwoNotes = List.of(HearingNoteEntity.builder().hearingId(hearingIdOne).note("Hearing id defendant 2 note one").created(createdDateTime).build(),
+            HearingNoteEntity.builder().hearingId(hearingIdOne).note("Hearing id one defendant 2 note two").created(createdDateTime).build());
 
-        List<HearingDayEntity> hearingDays = List.of(HearingDayEntity.builder().court(court).day(dateNow).time(timeNow).build());
+        List<HearingDayEntity> hearingDays = List.of(HearingDayEntity.builder().court(court).day(dateNow).time(timeNow).created(createdDateTime).build());
 
         HearingDefendantEntity hearing1HearingDefendant1 = HearingDefendantEntity.builder().notes(new ArrayList<>()).defendantId(DEFENDANT_ID).build();
         hearing1HearingDefendant1.getNotes().addAll(hearing1DefendantOneNotes);
@@ -88,8 +89,8 @@ class CaseProgressServiceTest {
             CaseProgressHearing.builder().hearingId("hearing-id-one").hearingDateTime(LocalDateTime.of(dateNow, timeNow)).court(courtName).session(MORNING.name())
                 .hearingTypeLabel("Hearing type unknown")
                 .notes(List.of(
-                    HearingNoteResponse.builder().hearingId(hearingIdOne).note("Hearing id one defendant 1 note one").build(),
-                    HearingNoteResponse.builder().hearingId(hearingIdOne).note("Hearing id one defendant 1 note two").build())
+                    HearingNoteResponse.builder().hearingId(hearingIdOne).note("Hearing id one defendant 1 note one").created(createdDateTime).build(),
+                    HearingNoteResponse.builder().hearingId(hearingIdOne).note("Hearing id one defendant 1 note two").created(createdDateTime).build())
                 )
                 .build(),
             CaseProgressHearing.builder().hearingId("hearing-id-two").hearingDateTime(LocalDateTime.of(dateNow, timeNow)).court(courtName).session(MORNING.name())

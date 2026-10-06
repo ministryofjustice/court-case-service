@@ -59,6 +59,6 @@ spec:
       volumes:
       - name: rds-snapshot-script-adhoc
         configMap:
-          name: rds-snapshot-script-adhoc
+          name: {{ .Release.Name }}-rds-snapshot-script-adhoc
           defaultMode: 0755
 {{ end }}

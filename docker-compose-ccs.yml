@@ -3,7 +3,7 @@ version: '3.3'
 services:
 
   court-case-service:
-    image: quay.io/hmpps/court-case-service:latest
+    image: ghcr.io/ministryofjustice/court-case-service:latest
     container_name: court-case-service
     networks:
       - hmpps

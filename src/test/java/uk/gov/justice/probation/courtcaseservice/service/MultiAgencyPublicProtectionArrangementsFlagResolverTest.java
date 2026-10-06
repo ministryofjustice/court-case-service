@@ -146,13 +146,13 @@ class MultiAgencyPublicProtectionArrangementsFlagResolverTest {
     }
 
     @Test
-    void resolveMultiAgencyPublicProtectionArrangementsFlag_returnsNullWhenHearingTypeIsNotEligible() {
+    void resolveMultiAgencyPublicProtectionArrangementsFlag_returnsTrueRegardlessOfHearingType() {
         HearingEntity hearing = hearingWithOffenceCodesAndHearingType("defendant-id-1", "Unknown", "AB001");
         DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
 
         var result = resolver.resolveMultiAgencyPublicProtectionArrangementsFlag(hearing.getCourtCase(), defendant, Map.of("AB001", true));
 
-        assertThat(result).isNull();
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -176,22 +176,27 @@ class MultiAgencyPublicProtectionArrangementsFlagResolverTest {
     }
 
     @Test
-    void resolveMultiAgencyPublicProtectionArrangementsFlagFromHearing_returnsNullWhenHearingTypeIsNotEligible() {
+    void resolveMultiAgencyPublicProtectionArrangementsFlagFromHearing_returnsTrueRegardlessOfHearingType() {
         HearingEntity hearing = hearingWithOffenceCodesAndHearingType("defendant-id-1", "Unknown", "AB001");
         DefendantEntity defendant = hearing.getHearingDefendants().get(0).getDefendant();
 
         var result = resolver.resolveMultiAgencyPublicProtectionArrangementsFlagFromHearing(hearing, defendant, Map.of("AB001", true));
 
-        assertThat(result).isNull();
+        assertThat(result).isTrue();
     }
 
     @Test
-    void buildMultiAgencyPublicProtectionArrangementsFlagsMapFromHearing_returnsEmptyMapWhenHearingTypeIsNotEligible() {
+    void buildMultiAgencyPublicProtectionArrangementsFlagsMapFromHearing_includesOffenceCodesRegardlessOfHearingType() {
         HearingEntity hearing = hearingWithOffenceCodesAndHearingType("defendant-id-1", "Unknown", "AB001");
+        given(offenceMappaMappingRepository.findByOffenceCodeIn(Set.of("AB001")))
+            .willReturn(List.of(OffenceMappaMappingEntity.builder()
+                .offenceCode("AB001")
+                .multiAgencyPublicProtectionArrangementsFlag(true)
+                .build()));
 
         var result = resolver.buildMultiAgencyPublicProtectionArrangementsFlagsMapFromHearing(hearing);
 
-        assertThat(result).isEmpty();
+        assertThat(result).isEqualTo(Map.of("AB001", true));
     }
 
     private HearingEntity hearingWithNoOffenceCodes(String defendantId) {

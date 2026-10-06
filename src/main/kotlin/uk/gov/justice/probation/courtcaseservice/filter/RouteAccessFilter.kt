@@ -11,12 +11,12 @@ class RouteAccessFilter(
   private val environment: Environment,
 ) : OncePerRequestFilter() {
 
-  private val seedEndpoint = "/db-seed"
+  private val seedEndpoints = setOf("/db-seed", "/db-seed/scenario")
   private val seedConfigKey = "db-seed.enabled"
-  private val allowedSeedingProfiles: List<String> = listOf("local", "dev", "test")
+  private val allowedSeedingProfiles: List<String> = listOf("local", "dev")
 
   override fun doFilterInternal(req: HttpServletRequest, res: HttpServletResponse, chain: FilterChain) {
-    if (req.requestURI == seedEndpoint) {
+    if (req.requestURI in seedEndpoints) {
       if (!dbSeederEnabled() || !dbSeederAllowed()) {
         res.sendError(HttpServletResponse.SC_FORBIDDEN)
         return

@@ -1,0 +1,111 @@
+{
+  "clean": true,
+  "cases": [
+    {
+      "caseNo": "1234567890",
+      "urn": "URN-01AB123456",
+      "sourceType": "COMMON_PLATFORM",
+      "caseMarkers": ["High profile", "Sensitive"],
+      "comments": [
+        {
+          "author": "QA Tester",
+          "comment": "Scenario with linked offender.",
+          "draft": false,
+          "legacy": false
+        }
+      ],
+      "defendants": [
+        {
+          "defendantName": "Alex Smith",
+          "type": "PERSON",
+          "sex": "MALE",
+          "name": {
+            "title": "Mr",
+            "forename1": "Alex",
+            "surname": "Smith"
+          },
+          "address": {
+            "line1": "1 Example Street",
+            "line2": "Somewhere",
+            "line3": "Bristol",
+            "postcode": "BS1 1AA"
+          },
+          "phoneNumber": {
+            "home": "01179000000",
+            "mobile": "07700900000"
+          },
+          "dateOfBirth": "1990-05-17",
+          "crn": null,
+          "pnc": "PNC-0001",
+          "cro": "CRO-001",
+          "nationality1": "British",
+          "offender": {
+            "crn": "B123456",
+            "pnc": "PNC-0001",
+            "cro": "CRO-001",
+            "probationStatus": "CURRENT",
+            "awaitingPsr": false,
+            "breach": false,
+            "preSentenceActivity": false,
+            "suspendedSentenceOrder": false,
+            "previouslyKnownTerminationDate": "2026-12-31"
+          }
+        }
+      ],
+      "hearings": [
+        {
+          "hearingType": "sentence",
+          "hearingEventType": "Resulted",
+          "listNo": "1",
+          "hearingDays": [
+            {
+              "day": "2026-09-21",
+              "time": "09:00:00",
+              "courtCode": "B10JL",
+              "courtRoom": "1"
+            }
+          ],
+          "defendants": [
+            {
+              "prepStatus": "NOT_STARTED",
+              "outcomeNotRequired": false,
+              "notes": [
+                {
+                  "author": "Admin User",
+                  "note": "Linked offender scenario.",
+                  "draft": false,
+                  "legacy": false
+                }
+              ],
+              "offences": [
+                {
+                  "title": "Theft from a shop",
+                  "summary": "Stole property valued under £200 from a shop.",
+                  "act": "Theft Act 1968",
+                  "sequence": 1,
+                  "listNo": 1,
+                  "offenceCode": "AT01004",
+                  "plea": {
+                    "value": "GUILTY",
+                    "date": "2026-09-25"
+                  },
+                  "verdict": {
+                    "typeDescription": "Guilty",
+                    "date": "2026-09-25"
+                  },
+                  "judicialResults": [
+                    {
+                      "label": "Community Order",
+                      "resultText": "12 month community order with 20 hours unpaid work.",
+                      "isConvictedResult": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

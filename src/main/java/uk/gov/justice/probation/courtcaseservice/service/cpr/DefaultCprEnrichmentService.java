@@ -44,6 +44,14 @@ public class DefaultCprEnrichmentService implements CprEnrichmentService {
             DefendantEntity defendant,
             CprRefreshTarget target
     ) {
+        return enrich(defendant, target, target.source() != CprRefreshSource.HEARING_UPSERT);
+    }
+
+    private CprEnrichmentResult enrich(
+            DefendantEntity defendant,
+            CprRefreshTarget target,
+            boolean persistDefendant
+    ) {
         if (defendant == null) {
             return CprEnrichmentResult.failure(
                     target,
@@ -72,7 +80,9 @@ public class DefaultCprEnrichmentService implements CprEnrichmentService {
                     cprRecord.get()
             );
 
-            defendantRepository.save(defendant);
+            if (persistDefendant) {
+                defendantRepository.save(defendant);
+            }
 
             return CprEnrichmentResult.success(target);
         } catch (Exception exception) {
@@ -105,7 +115,8 @@ public class DefaultCprEnrichmentService implements CprEnrichmentService {
                                 defendant.getDefendantId(),
                                 defendant.getCId(),
                                 source
-                        )
+                        ),
+                        true
                 ))
                 .toList();
     }
@@ -238,17 +249,17 @@ public class DefaultCprEnrichmentService implements CprEnrichmentService {
     }
 
     private Optional<CprDefendant> findCprDefendant(
-            CprRefreshTarget target
+            CprRefreshTarget cprRefreshTarget
     ) {
-        if (target.cId() != null) {
+        if (cprRefreshTarget.cId() != null) {
             return cprRestClient
-                    .getByLibraId(target.cId())
+                    .getByLibraId(cprRefreshTarget.cId())
                     .blockOptional();
         }
 
-        if (target.defendantId() != null) {
+        if (cprRefreshTarget.defendantId() != null) {
             return cprRestClient
-                    .getByCommonPlatformId(target.defendantId())
+                    .getByCommonPlatformId(cprRefreshTarget.defendantId())
                     .blockOptional();
         }
 

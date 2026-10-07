@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.retry.annotation.Retryable;
@@ -39,8 +40,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositor
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.HearingRepositoryFacade;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.PagedCaseListRepositoryCustom;
 import uk.gov.justice.probation.courtcaseservice.service.cpr.CprEnrichmentService;
-import uk.gov.justice.probation.courtcaseservice.service.cpr.CprRefreshSource;
-import uk.gov.justice.probation.courtcaseservice.service.cpr.CprRefreshTarget;
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException;
 import uk.gov.justice.probation.courtcaseservice.service.flags.MultiAgencyPublicProtectionArrangementsFlagResolver;
 import uk.gov.justice.probation.courtcaseservice.service.flags.SeriousFurtherOffenceFlagResolver;
@@ -76,6 +75,9 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     private final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
     private final MultiAgencyPublicProtectionArrangementsFlagResolver multiAgencyPublicProtectionArrangementsFlagResolver;
     private final CprEnrichmentService cprEnrichmentService;
+
+    @Value("${feature.flags.enable-cpr-hearing-enrichment:false}")
+    private boolean enableCprHearingEnrichment;
 
     @Autowired
     public ImmutableCourtCaseService(CourtRepository courtRepository,
@@ -244,21 +246,9 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                 return updatedHearing;
             });
 
-        List<HearingDefendantEntity> hearingDefendants =
-            Optional.ofNullable(updatedHearing.getHearingDefendants())
-                .orElse(Collections.emptyList());
-
-        hearingDefendants.forEach(hearingDefendant -> {
-            DefendantEntity defendant = hearingDefendant.getDefendant();
-
-            CprRefreshTarget target = new CprRefreshTarget(
-                defendant.getDefendantId(),
-                defendant.getCId(),
-                CprRefreshSource.HEARING_UPSERT
-            );
-
-            cprEnrichmentService.enrich(defendant, target);
-        });
+        if (enableCprHearingEnrichment) {
+            cprEnrichmentService.enrichHearingDefendants(hearing);
+        }
 
         log.debug("Saving hearing with ID {} and court case id {}", hearingId, updatedHearing.getCaseId());
 

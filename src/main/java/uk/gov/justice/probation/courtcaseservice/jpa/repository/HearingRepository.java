@@ -128,7 +128,8 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
         " from hearing_day hday join hearing h on hday.fk_hearing_id  = h.id and hday.hearing_day = CURRENT_DATE " +
         " join hearing_defendant hd on hd.fk_hearing_id = h.id " +
         " left join hearing_outcome ho on ho.fk_hearing_defendant_id = hd.id  " +
-        " where ho.fk_hearing_defendant_id is null and hd.outcome_not_required is not true",
+        " where ho.fk_hearing_defendant_id is null and hd.outcome_not_required is not true " +
+        " ON CONFLICT (fk_hearing_defendant_id) DO NOTHING",
         nativeQuery = true)
     Optional<Integer> moveUnResultedCasesToOutcomesWorkflow();
 
@@ -139,7 +140,8 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
         " from hearing_day hday join hearing h on hday.fk_hearing_id  = h.id and hday.hearing_day = CURRENT_DATE AND hday.court_code in (:courtCodes) " +
         " join hearing_defendant hd on hd.fk_hearing_id = h.id " +
         " left join hearing_outcome ho on ho.fk_hearing_defendant_id = hd.id   " +
-        " where ho.fk_hearing_defendant_id is null and hd.outcome_not_required is not true",
+        " where ho.fk_hearing_defendant_id is null and hd.outcome_not_required is not true " +
+        " ON CONFLICT (fk_hearing_defendant_id) DO NOTHING",
         nativeQuery = true)
     Optional<Integer> moveUnResultedCasesToOutcomesWorkflow(List<String> courtCodes);
 }

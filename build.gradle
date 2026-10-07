@@ -249,7 +249,7 @@ dependencies {
 
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
 
-    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:4.1.1'
+    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:6.3.0'
     testImplementation("io.rest-assured:json-path:$restAssuredVersion")
     testImplementation("io.rest-assured:xml-path:$restAssuredVersion")
     testImplementation("io.rest-assured:rest-assured:$restAssuredVersion")

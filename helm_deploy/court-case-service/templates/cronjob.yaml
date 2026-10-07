@@ -49,6 +49,6 @@ spec:
           volumes:
           - name: rds-snapshot-script
             configMap:
-              name: rds-snapshot-script
+              name: {{ .Release.Name }}-rds-snapshot-script
               defaultMode: 0755
 {{ end }}

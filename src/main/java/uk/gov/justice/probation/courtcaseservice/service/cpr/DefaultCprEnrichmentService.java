@@ -13,6 +13,7 @@ import uk.gov.justice.probation.courtcaseservice.restclient.cpr.CprRestClient;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -33,7 +34,7 @@ public class DefaultCprEnrichmentService implements CprEnrichmentService {
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(hearingDefendant -> hearingDefendant.getDefendant())
-                .filter(defendant -> defendant != null)
+                .filter(Objects::nonNull)
                 .map(this::enrichIncomingDefendant)
                 .toList();
     }

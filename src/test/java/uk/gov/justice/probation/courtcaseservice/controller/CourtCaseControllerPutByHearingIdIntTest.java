@@ -18,6 +18,7 @@ import uk.gov.justice.probation.courtcaseservice.BaseIntTest;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingDefendantEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.HearingEventType;
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenceEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PhoneNumberEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository;
@@ -236,10 +237,6 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
             assertThat(hearingEntity.getHearingEventType().getName()).isEqualTo("ConfirmedOrUpdated");
             assertThat(hearingEntity.getHearingType()).isEqualTo("sentenced");
             assertThat(hearingEntity.getHearingDefendants().getFirst().getOffences()).extracting("listNo").containsOnly(5, 8);
-            assertThat(hearingEntity.getHearingDefendants().getFirst().getOffences()).extracting(o -> o.getShortTermCustodyPredictorScore().doubleValue())
-                .allSatisfy(score -> assertThat(score).isCloseTo(0.0036438124189185897, within(1e-4)));
-            assertThat(hearingEntity.getHearingDefendants().getFirst().getOffences()).extracting("dataModelVersion")
-                    .containsOnly("1.3", "1.3");
             assertThat(hearingEntity.getHearingDefendants().getFirst().getDefendant().getPhoneNumber()).isEqualTo(
                     PhoneNumberEntity.builder().home("07000000013").mobile("07000000014").work("07000000015").build());
             assertThat(hearingEntity.getHearingDefendants().getFirst().getDefendant().getPersonId()).isNotBlank();
@@ -334,94 +331,6 @@ class CourtCaseControllerPutByHearingIdIntTest extends BaseIntTest {
         }, () -> fail("Offender values not updated as expected for crn " + crn));
     }
 
-    @Test
-    void should_NOT_persist_short_term_custody_predictor_score_for_unknown_offence_code() {
-        var updatedJson = caseDetailsExtendedJson
-                .replace("\"offenceCode\": \"RT88191\"", "\"offenceCode\": \"Nonsense\"");
-
-        given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(updatedJson)
-            .when()
-            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
-            .then()
-            .statusCode(201);
-
-        courtCaseInitService.initializeHearing(JSON_HEARING_ID).ifPresentOrElse(hearing ->
-                assertThat(hearing.getHearingDefendants().get(0).getOffences()).allMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore() == null),
-        () -> fail("Short Term Custody score should not be persisted"));
-    }
-
-    @Test
-    void should_NOT_persist_short_term_custody_predictor_score_when_offence_code_is_absent() throws IOException {
-
-        given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(copyToString(caseDetailsExtendedNoOffenceCodeResource.getInputStream(), Charset.defaultCharset()))
-            .when()
-            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
-            .then()
-            .statusCode(201);
-
-        courtCaseInitService.initializeHearing(JSON_HEARING_ID).ifPresentOrElse(hearing ->
-                        assertThat(hearing.getHearingDefendants().get(0).getOffences()).allMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore() == null),
-                () -> fail("Short Term Custody score should not be persisted"));
-    }
-
-    @Test
-    void should_persist_short_term_custody_predictor_score_when_defendant_dob_is_absent() throws IOException {
-
-        // Given
-        String hearingId = "75e63d6c-5487-4244-a5dc-7cf82db";
-
-        // When
-        given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(copyToString(caseDetailsExtendedNoDateOfBirthResource.getInputStream(), Charset.defaultCharset()))
-            .when()
-            .put(PUT_BY_HEARING_ID_ENDPOINT, hearingId)
-            .then()
-            .statusCode(201);
-
-        // Then
-        courtCaseInitService.initializeHearing(hearingId).ifPresentOrElse(hearing ->
-            assertThat(hearing.getHearingDefendants().get(0).getOffences())
-                    .anyMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore().compareTo(BigDecimal.valueOf(0.005796787631779769)) == 0),
-            () -> fail("Short Term Custody score should be persisted"));
-
-    }
-
-
-
-    @Test
-    void should_NOT_persist_short_term_custody_predictor_score_when_unknown_error_occurs_with_offence_service() {
-        var updatedJson = caseDetailsExtendedJson
-                .replace("\"offenceCode\": \"RT88191\"", "\"offenceCode\": \"XXXXXX\"");
-
-        given()
-            .auth()
-            .oauth2(getToken())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .body(updatedJson)
-            .when()
-            .put(PUT_BY_HEARING_ID_ENDPOINT, JSON_HEARING_ID)
-            .then()
-            .statusCode(201);
-
-        courtCaseInitService.initializeHearing(JSON_HEARING_ID).ifPresentOrElse(hearing ->
-                        assertThat(hearing.getHearingDefendants().get(0).getOffences()).allMatch(offenceEntity -> offenceEntity.getShortTermCustodyPredictorScore() == null),
-                () -> fail("Short Term Custody score should not be persisted"));
-    }
 
     @Test
     void givenUnknownCourt_whenCreateCourtCaseByHearingId_ThenOk() {

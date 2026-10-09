@@ -41,7 +41,7 @@ jobs:
     steps:
       - id: app_version
         name: Application version creators
-        uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/build-test-and-deploy/create_app_version@c241b9febb7a4fc11e88d0e781cbdfcf8abd84a5 # v1.0.17
+        uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/build-test-and-deploy/create_app_version@2848496f6e2f4144b17fd3f23519c851789e4b87 # v1.1.7
   gradle_verify:
     name: Validate the kotlin
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/gradle_verify.yml@v2 # WORKFLOW_VERSION
@@ -66,7 +66,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:14.12
+        image: postgres:14.24
         env:
           POSTGRES_DB: postgres
           POSTGRES_USER: root
@@ -80,7 +80,7 @@ jobs:
           --health-retries 5
 
       localstack:
-        image: localstack/localstack:3.0
+        image: localstack/localstack:3.8
         env:
           SERVICES: sqs,sns
           AWS_EXECUTION_ENV: "True"
@@ -115,7 +115,7 @@ jobs:
           java-version: '21'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
         with:
           cache-encryption-key: ${{ secrets.GRADLE_CACHE_ENCRYPTION_KEY }}
 
@@ -123,7 +123,7 @@ jobs:
         run: ./gradlew initialiseDatabase
 
       - name: Generate database schema report
-        uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/database_schema_report@accf37e936517ed39e7a888cf74f0277dab3310e # v1.1.4
+        uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/database_schema_report@2848496f6e2f4144b17fd3f23519c851789e4b87 # v1.1.7
         with:
           jdk_tag: '21'
           database_name: postgres

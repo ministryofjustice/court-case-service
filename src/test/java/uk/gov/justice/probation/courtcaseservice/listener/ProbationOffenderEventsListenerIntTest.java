@@ -48,7 +48,6 @@ public class ProbationOffenderEventsListenerIntTest extends BaseIntTest {
     }
 
     @Test
-    @Disabled
     public void shouldProcess_OffenderEventChangedMessage_AndUpdateOffenderProbationStatus() throws JsonProcessingException, ExecutionException, InterruptedException {
         String crnForTest = "X781345";
 

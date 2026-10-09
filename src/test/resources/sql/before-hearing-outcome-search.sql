@@ -33,8 +33,8 @@ VALUES
     (6001, 5127,'2023-07-18 15:47:08.359','(court-case-matcher-7)','8dc4322f-75de-429b-875b-0063b7c0c145'::uuid,6022,'2023-07-18 15:47:08.369','(court-case-matcher-7)',1,false),
     (6002, 6092,'2023-07-18 15:47:08.359','(court-case-matcher-7)','8dc4322f-75de-429b-875b-0063b7c0c146'::uuid,6023,'2023-07-18 15:47:08.369','(court-case-matcher-7)',1,false);
 
-INSERT INTO offence (id, fk_hearing_defendant_id,summary,title,"sequence",act,created,created_by,list_no,last_updated,last_updated_by,"version",deleted,offence_code,short_term_custody_predictor_score,plea_id,verdict_id)
-VALUES (9812, 5944,'On 01/01/2016 at Town, stole Article, to the value of £100.00, belonging to Person.','Offence 102',1,'Contrary to section 1(1) and 7 of the Theft Act 1968.','2023-07-03 10:30:58.031','(court-case-matcher-7)',NULL,'2023-07-03 10:30:58.033','(court-case-matcher-7)',1,false,'MC80528',NULL,NULL,NULL);
+INSERT INTO offence (id, fk_hearing_defendant_id,summary,title,"sequence",act,created,created_by,list_no,last_updated,last_updated_by,"version",deleted,offence_code,plea_id,verdict_id)
+VALUES (9812, 5944,'On 01/01/2016 at Town, stole Article, to the value of £100.00, belonging to Person.','Offence 102',1,'Contrary to section 1(1) and 7 of the Theft Act 1968.','2023-07-03 10:30:58.031','(court-case-matcher-7)',NULL,'2023-07-03 10:30:58.033','(court-case-matcher-7)',1,false,'MC80528',NULL,NULL);
 
 INSERT INTO offender_match_group (id, created,last_updated,created_by,last_updated_by,deleted,"version",case_id,defendant_id)
 VALUES

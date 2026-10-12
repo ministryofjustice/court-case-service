@@ -107,10 +107,9 @@ class DefendantEnrichmentControllerTest {
     private val FROM_DATE = LocalDate.of(2026, 10, 9)
     private val TO_DATE = LocalDate.of(2026, 10, 23)
 
-    private fun validRequest(endpoint: String): MockHttpServletRequestBuilder =
-      get("/enrichment-targets/$endpoint")
-        .param("fromDate", FROM_DATE.toString()).param("toDate", TO_DATE.toString())
-        .param("page", "0").param("size", "200")
+    private fun validRequest(endpoint: String): MockHttpServletRequestBuilder = get("/enrichment-targets/$endpoint")
+      .param("fromDate", FROM_DATE.toString()).param("toDate", TO_DATE.toString())
+      .param("page", "0").param("size", "200")
 
     @JvmStatic
     fun invalidRequests(): List<MockHttpServletRequestBuilder> {

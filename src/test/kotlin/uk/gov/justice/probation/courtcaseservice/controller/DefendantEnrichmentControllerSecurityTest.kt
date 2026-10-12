@@ -106,10 +106,9 @@ class DefendantEnrichmentControllerSecurityTest {
       .andExpect(content().string(""))
   }
 
-  private fun request(endpoint: String): MockHttpServletRequestBuilder =
-    get("/enrichment-targets/$endpoint")
-      .param("fromDate", "2026-10-09").param("toDate", "2026-10-23")
-      .param("page", "0").param("size", "200")
+  private fun request(endpoint: String): MockHttpServletRequestBuilder = get("/enrichment-targets/$endpoint")
+    .param("fromDate", "2026-10-09").param("toDate", "2026-10-23")
+    .param("page", "0").param("size", "200")
 
   private fun serviceToken(authorities: List<String>): Jwt = Jwt.withTokenValue("worker-token")
     .header("alg", "RS256")

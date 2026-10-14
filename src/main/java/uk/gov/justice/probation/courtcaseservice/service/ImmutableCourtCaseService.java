@@ -66,6 +66,8 @@ public class ImmutableCourtCaseService implements CourtCaseService {
 
     private HearingRepository hearingRepository;
 
+    private final ShortTermCustodyPredictorService shortTermCustodyPredictorService;
+
     private final PagedCaseListRepositoryCustom pagedCaseListRepositoryCustom;
 
     private final SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver;
@@ -78,6 +80,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
                                      GroupedOffenderMatchRepository matchRepository,
                                      DomainEventService domainEventService,
                                      CourtCaseRepository courtCaseRepository,
+                                     ShortTermCustodyPredictorService shortTermCustodyPredictorService,
                                      HearingRepository hearingRepository,
                                      PagedCaseListRepositoryCustom pagedCaseListRepositoryCustom,
                                      SeriousFurtherOffenceFlagResolver seriousFurtherOffenceFlagResolver,
@@ -88,6 +91,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
         this.matchRepository = matchRepository;
         this.domainEventService = domainEventService;
         this.courtCaseRepository = courtCaseRepository;
+        this.shortTermCustodyPredictorService = shortTermCustodyPredictorService;
         this.hearingRepository = hearingRepository;
         this.pagedCaseListRepositoryCustom = pagedCaseListRepositoryCustom;
         this.seriousFurtherOffenceFlagResolver = seriousFurtherOffenceFlagResolver;
@@ -113,6 +117,7 @@ public class ImmutableCourtCaseService implements CourtCaseService {
             throw new ConflictingInputException(String.format("Hearing Id %s does not match with value from body %s",
                     hearingId, updatedHearing.getHearingId()));
         }
+        shortTermCustodyPredictorService.addPredictorScoresToHearing(updatedHearing);
 
         return createOrUpdateHearing(hearingId, updatedHearing);
     }

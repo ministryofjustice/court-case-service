@@ -8,8 +8,6 @@ import lombok.experimental.SuperBuilder;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.PleaEntity;
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.VerdictEntity;
 
-import java.math.BigDecimal;
-
 @Entity
 @Table(name = "OFFENCE")
 @AllArgsConstructor
@@ -42,10 +40,6 @@ public class OffenceDTO {
 
     @Column(name = "OFFENCE_CODE")
     private final String offenceCode;
-
-    @Column(name = "SHORT_TERM_CUSTODY_PREDICTOR_SCORE", precision = 21, scale = 19)
-    @Setter
-    private BigDecimal shortTermCustodyPredictorScore;
 
     @OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "plea_id", referencedColumnName = "id")

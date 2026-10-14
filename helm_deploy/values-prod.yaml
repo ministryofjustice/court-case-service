@@ -26,6 +26,8 @@ generic-service:
       cpu: 500m
       memory: 2Gi
 
+takeDatabaseSnapshots: false
+
 ingress:
   class: modsec
   hosts:

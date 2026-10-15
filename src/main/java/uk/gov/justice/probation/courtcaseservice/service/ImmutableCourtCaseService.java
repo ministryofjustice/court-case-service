@@ -154,6 +154,13 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     }
 
     @Override
+    public HearingEntity getHearingByHearingIdAndDefendantIdAndCaseIdInitialiseCaseDefendants(String hearingId, String defendantId, String caseId) throws EntityNotFoundException {
+        log.info("Court case requested for hearing ID {} and defendant ID {} and case ID {}", hearingId, defendantId, caseId);
+        return hearingRepositoryFacade.findHearingByHearingIdAndDefendantIdAndCaseIdInitialiseCaseDefendants(hearingId, defendantId, caseId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Hearing %s not found for defendant %s and case %s", hearingId, defendantId, caseId)));
+    }
+
+    @Override
     public List<HearingEntity> filterHearings(String courtCode, LocalDate hearingDay, LocalDateTime createdAfter, LocalDateTime createdBefore) {
         final var court = courtRepository.findByCourtCode(courtCode)
                 .orElseThrow(() -> new EntityNotFoundException("Court %s not found", courtCode));
@@ -210,6 +217,15 @@ public class ImmutableCourtCaseService implements CourtCaseService {
     @Override
     public void toggleHearingOutcomeNotRequired(String hearingId, String defendantId, boolean hearingOutcomeRequired) {
         Optional<HearingEntity> hearing = hearingRepositoryFacade.findByHearingIdAndDefendantIdForOutcomeToggle(hearingId, defendantId);
+        hearing.ifPresent(hearingEntity -> {
+            hearingEntity.getHearingDefendant(defendantId).setOutcomeNotRequired(hearingOutcomeRequired);
+            hearingRepository.save(hearingEntity);
+        });
+    }
+
+    @Override
+    public void toggleHearingOutcomeNotRequired(String hearingId, String defendantId, String caseId, boolean hearingOutcomeRequired) {
+        Optional<HearingEntity> hearing = hearingRepositoryFacade.findByHearingIdAndDefendantIdAndCaseIdForOutcomeToggle(hearingId, defendantId, caseId);
         hearing.ifPresent(hearingEntity -> {
             hearingEntity.getHearingDefendant(defendantId).setOutcomeNotRequired(hearingOutcomeRequired);
             hearingRepository.save(hearingEntity);

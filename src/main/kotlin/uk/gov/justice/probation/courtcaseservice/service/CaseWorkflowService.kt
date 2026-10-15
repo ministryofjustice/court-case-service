@@ -88,8 +88,69 @@ class CaseWorkflowService(
     )
   }
 
+  @Transactional
+  fun addOrUpdateHearingOutcome(courtCode: String?, hearingId: String, defendantId: String, caseId: String, hearingOutcomeType: HearingOutcomeType, userUuid: String, userId: String, userName: String, authSource: String) {
+    hearingEntityInitService.findByHearingIdAndDefendantIdAndCaseIdInitHearingDefendants(hearingId, defendantId, caseId).ifPresentOrElse(
+      { hearingEntity: HearingEntity ->
+        val hearingDefendant = hearingEntity.getHearingDefendant(defendantId)
+          ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
+        val isNew = hearingDefendant.hearingOutcome == null
+        val workflowAction = if (isNew) "create" else "update"
+        log.info(
+          "Handling hearing outcome request action={} hearingId={} defendantId={} caseId={} courtCode={} existingOutcomeId={} requestedOutcomeType={} userUuid={}",
+          workflowAction,
+          hearingId,
+          defendantId,
+          caseId,
+          courtCode,
+          hearingDefendant.hearingOutcome?.id,
+          hearingOutcomeType.name,
+          userUuid,
+        )
+        if (isNew) {
+          hearingDefendant.addHearingOutcome(hearingOutcomeType)
+        } else {
+          hearingDefendant.hearingOutcome.update(hearingOutcomeType)
+        }
+        hearingRepository.save(hearingEntity)
+        log.info(
+          "Persisted hearing outcome action={} hearingId={} defendantId={} caseId={} courtCode={} outcomeId={}",
+          workflowAction,
+          hearingId,
+          defendantId,
+          caseId,
+          courtCode,
+          hearingDefendant.hearingOutcome?.id,
+        )
+        if (isNew) {
+          telemetryService.trackCreateHearingOutcomeEvent(hearingEntity, courtCode, defendantId, caseId, hearingOutcomeType, userUuid, userId, userName, authSource)
+        } else {
+          telemetryService.trackUpdateHearingOutcomeEvent(hearingEntity, courtCode, defendantId, caseId, hearingOutcomeType, userUuid, userId, userName, authSource)
+        }
+      },
+      {
+        throw EntityNotFoundException("Hearing not found with id $hearingId")
+      },
+    )
+  }
+
   fun assignAndUpdateStateToInProgress(hearingId: String, defendantId: String, assignedTo: String, assignedToUuid: String) {
     hearingEntityInitService.findByHearingIdAndDefendantIdAssignState(hearingId, defendantId).ifPresentOrElse(
+      {
+        val hearingDefendant = it.getHearingDefendant(defendantId)
+          ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
+
+        hearingDefendant.hearingOutcome.assignTo(assignedTo, assignedToUuid)
+        hearingRepository.save(it)
+      },
+      {
+        throw EntityNotFoundException("Hearing not found with id $hearingId")
+      },
+    )
+  }
+
+  fun assignAndUpdateStateToInProgress(hearingId: String, defendantId: String, caseId: String, assignedTo: String, assignedToUuid: String) {
+    hearingEntityInitService.findByHearingIdAndDefendantIdAndCaseIdAssignState(hearingId, defendantId, caseId).ifPresentOrElse(
       {
         val hearingDefendant = it.getHearingDefendant(defendantId)
           ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
@@ -120,6 +181,32 @@ class CaseWorkflowService(
         hearingOutcome.state = HearingOutcomeItemState.RESULTED.name
         hearingOutcome.resultedDate = LocalDateTime.now()
         telemetryService.trackCreateCaseResultEvent(courtCode, hearingId, defendantId, userUuid, hearingOutcome.assignedToUuid, userId, userName, authSource)
+        hearingRepository.save(it)
+      },
+      {
+        throw EntityNotFoundException("Hearing not found with id $hearingId")
+      },
+    )
+  }
+
+
+  fun resultHearingOutcome(courtCode: String?, hearingId: String, defendantId: String, caseId: String, userUuid: String, userId: String, userName: String, authSource: String) {
+    hearingEntityInitService.findByHearingIdAndDefendantIdAndCaseIdInitHearingDefendants(hearingId, defendantId, caseId).ifPresentOrElse(
+      {
+        val hearingDefendant = it.getHearingDefendant(defendantId)
+          ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
+
+        val hearingOutcome = hearingDefendant.hearingOutcome
+        if (hearingOutcome.assignedToUuid != userUuid) {
+          telemetryService.trackMoveToResultedUnAuthorisedEvent(hearingId, defendantId, caseId, userUuid, hearingOutcome.assignedToUuid, userId, userName, authSource)
+          throw ForbiddenException("Outcome (Hearing ID $hearingId and Defendant ID $defendantId) not allocated to current user.")
+        }
+        if (hearingOutcome.state != HearingOutcomeItemState.IN_PROGRESS.name) {
+          throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid state for outcome to be resulted.")
+        }
+        hearingOutcome.state = HearingOutcomeItemState.RESULTED.name
+        hearingOutcome.resultedDate = LocalDateTime.now()
+        telemetryService.trackCreateCaseResultEvent(courtCode, hearingId, defendantId, caseId, userUuid, hearingOutcome.assignedToUuid, userId, userName, authSource)
         hearingRepository.save(it)
       },
       {
@@ -193,6 +280,20 @@ class CaseWorkflowService(
 
   fun updatePrepStatus(hearingId: String, defendantId: String, prepStatus: HearingPrepStatus) {
     hearingEntityInitService.findByHearingIdAndInitHearingDefendants(hearingId, defendantId).ifPresentOrElse(
+      {
+        val hearingDefendant = it.getHearingDefendant(defendantId)
+          ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")
+        hearingDefendant.prepStatus = prepStatus.name
+        hearingRepository.save(it)
+      },
+      {
+        throw EntityNotFoundException("Hearing not found with id $hearingId")
+      },
+    )
+  }
+
+  fun updatePrepStatus(hearingId: String, defendantId: String, caseId: String, prepStatus: HearingPrepStatus) {
+    hearingEntityInitService.findByHearingIdAndDefendantIdAndCaseIdInitHearingDefendants(hearingId, defendantId, caseId).ifPresentOrElse(
       {
         val hearingDefendant = it.getHearingDefendant(defendantId)
           ?: throw EntityNotFoundException("Defendant $defendantId not found on hearing with id $hearingId")

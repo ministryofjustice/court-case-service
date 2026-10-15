@@ -111,13 +111,30 @@ public class CourtCaseController {
         this.multiAgencyPublicProtectionArrangementsFlagResolver = multiAgencyPublicProtectionArrangementsFlagResolver;
     }
 
-    @Operation(description = "Gets the court case data by hearing id and defendant id.")
+    /**
+     * @deprecated This endpoint can select an ambiguous hearing.
+     * Use the case-aware endpoint that includes caseId.
+     */
+    @Deprecated
+    @Operation(
+        description = "Legacy endpoint; use the case-aware endpoint that includes caseId.",
+        deprecated = true
+    )
     @GetMapping(value = "/hearing/{hearingId}/defendant/{defendantId}", produces = APPLICATION_JSON_VALUE)
     public @ResponseBody
     CourtCaseResponse getCourtCaseByHearingIdAndDefendantId(@PathVariable String hearingId, @PathVariable String defendantId) {
         HearingEntity hearingByHearingIdAndDefendantId = courtCaseService.getHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(hearingId, defendantId);
         List<CaseProgressHearing> caseHearingProgress = caseProgressService.getCaseHearingProgress(hearingByHearingIdAndDefendantId.getCaseId(), defendantId);
         return this.buildCourtCaseResponseForCaseIdAndDefendantId(hearingByHearingIdAndDefendantId, defendantId, caseHearingProgress);
+    }
+
+    @Operation(description = "Gets the court case data by hearing id, defendant id and case id.")
+    @GetMapping(value = "/hearing/{hearingId}/defendant/{defendantId}/case/{caseId}", produces = APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    CourtCaseResponse getCourtCaseByHearingIdAndDefendantIdAndCaseId(@PathVariable String hearingId, @PathVariable String defendantId, @PathVariable String caseId) {
+        HearingEntity hearingByHearingIdAndDefendantIdAndCaseId = courtCaseService.getHearingByHearingIdAndDefendantIdAndCaseIdInitialiseCaseDefendants(hearingId, defendantId, caseId);
+        List<CaseProgressHearing> caseHearingProgress = caseProgressService.getCaseHearingProgress(hearingByHearingIdAndDefendantIdAndCaseId.getCaseId(), defendantId);
+        return this.buildCourtCaseResponseForCaseIdAndDefendantId(hearingByHearingIdAndDefendantIdAndCaseId, defendantId, caseHearingProgress);
     }
 
     @Operation(description = "Gets the court case and hearing data by Libra caseNo. As Libra cases have no hearingId, the listNo of the Libra case is used to differentiate between hearings.")
@@ -141,7 +158,15 @@ public class CourtCaseController {
                 .map(ExtendedHearingRequestResponse::of);
     }
 
-    @Operation(description = "Creates a hearing note for a given hearing and defendant ID")
+    /**
+     * @deprecated This endpoint can select an ambiguous hearing.
+     * Use the case-aware endpoint that includes caseId.
+     */
+    @Deprecated
+    @Operation(
+        description = "Legacy endpoint; use the case-aware endpoint that includes caseId.",
+        deprecated = true
+    )
     @PostMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
@@ -154,7 +179,29 @@ public class CourtCaseController {
         return HearingNoteResponse.of(hearingNote);
     }
 
-    @Operation(description = "Creates/updates a draft hearing note for a given hearing and defendant ID")
+    @Operation(description = "Creates a hearing note for a given hearing, defendant and case ID")
+    @PostMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/case/{caseId}/notes", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public @ResponseBody
+    HearingNoteResponse createHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                          @PathVariable(value = "defendantId") String defendantId,
+                                          @PathVariable(value = "caseId") String caseId,
+                                          @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
+                                          Principal principal) {
+
+        HearingNoteEntity hearingNote = hearingNotesService.createHearingNote(hearingId, defendantId, caseId, hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
+        return HearingNoteResponse.of(hearingNote);
+    }
+
+    /**
+     * @deprecated This endpoint can select an ambiguous hearing.
+     * Use the case-aware endpoint that includes caseId.
+     */
+    @Deprecated
+    @Operation(
+        description = "Legacy endpoint; use the case-aware endpoint that includes caseId.",
+        deprecated = true
+    )
     @PutMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
@@ -168,7 +215,30 @@ public class CourtCaseController {
         return HearingNoteResponse.of(hearingNote);
     }
 
-    @Operation(description = "Deletes the draft hearing note for a given hearing")
+    @Operation(description = "Creates/updates a draft hearing note for a given hearing, defendant and case ID")
+    @PutMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/case/{caseId}/notes/draft", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    HearingNoteResponse createUpdateDraftHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                                     @PathVariable(value = "defendantId") String defendantId,
+                                                     @PathVariable(value = "caseId") String caseId,
+                                          @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
+                                          Principal principal) {
+
+        HearingNoteEntity hearingNote = hearingNotesService
+            .createOrUpdateHearingNoteDraft(hearingId, defendantId, caseId, hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)));
+        return HearingNoteResponse.of(hearingNote);
+    }
+
+    /**
+     * @deprecated This endpoint can select an ambiguous hearing.
+     * Use the case-aware endpoint that includes caseId.
+     */
+    @Deprecated
+    @Operation(
+        description = "Legacy endpoint; use the case-aware endpoint that includes caseId.",
+        deprecated = true
+    )
     @DeleteMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes/draft")
     @ResponseStatus(HttpStatus.OK)
     public void deleteDraftHearingNote(@PathVariable(value = "hearingId") String hearingId,
@@ -179,7 +249,28 @@ public class CourtCaseController {
             .deleteHearingNoteDraft(hearingId, defendantId, authenticationHelper.getAuthUserUuid(principal));
     }
 
-    @Operation(description = "Updates a hearing note for a given hearing, defendant and noteId")
+
+    @Operation(description = "Deletes the draft hearing note for a given hearing")
+    @DeleteMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/case/{caseId}/notes/draft")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteDraftHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                       @PathVariable(value = "defendantId") String defendantId,
+                                       @PathVariable(value = "caseId") String caseId,
+                                               Principal principal) {
+
+        hearingNotesService
+            .deleteHearingNoteDraft(hearingId, defendantId, caseId, authenticationHelper.getAuthUserUuid(principal));
+    }
+
+    /**
+     * @deprecated This endpoint can select an ambiguous hearing.
+     * Use the case-aware endpoint that includes caseId.
+     */
+    @Deprecated
+    @Operation(
+        description = "Legacy endpoint; use the case-aware endpoint that includes caseId.",
+        deprecated = true
+    )
     @PutMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes/{noteId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public void updateHearingNote(@PathVariable(value = "hearingId") String hearingId,
@@ -191,7 +282,29 @@ public class CourtCaseController {
         hearingNotesService.updateHearingNote(hearingId, defendantId, hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)), noteId);
     }
 
-    @Operation(description = "Delete a hearing note for a given hearing and note id")
+
+    @Operation(description = "Updates a hearing note for a given hearing, defendant, case and noteId")
+    @PutMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/case/{caseId}/notes/{noteId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public void updateHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                  @PathVariable(value = "defendantId") String defendantId,
+                                  @PathVariable(value = "caseId") String caseId,
+                                  @PathVariable(value = "noteId") Long noteId,
+                                  @Valid @RequestBody HearingNoteRequest hearingNoteRequest,
+                                          Principal principal) {
+
+        hearingNotesService.updateHearingNote(hearingId, defendantId, caseId, hearingNoteRequest.asEntity(authenticationHelper.getAuthUserUuid(principal)), noteId);
+    }
+
+    /**
+     * @deprecated This endpoint can select an ambiguous hearing.
+     * Use the case-aware endpoint that includes caseId.
+     */
+    @Deprecated
+    @Operation(
+        description = "Legacy endpoint; use the case-aware endpoint that includes caseId.",
+        deprecated = true
+    )
     @DeleteMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/notes/{noteId}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteHearingNote(@PathVariable(value = "hearingId") String hearingId,
@@ -200,6 +313,18 @@ public class CourtCaseController {
                                   Principal principal) {
 
         hearingNotesService.deleteHearingNote(hearingId, defendantId, noteId, authenticationHelper.getAuthUserUuid(principal));
+    }
+
+    @Operation(description = "Delete a hearing note for a given hearing, defendant, case and note id")
+    @DeleteMapping(value = "/hearing/{hearingId}/defendants/{defendantId}/case/{caseId}/notes/{noteId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteHearingNote(@PathVariable(value = "hearingId") String hearingId,
+                                  @PathVariable(value = "defendantId") String defendantId,
+                                  @PathVariable(value = "caseId") String caseId,
+                                  @PathVariable(value = "noteId") Long noteId,
+                                  Principal principal) {
+
+        hearingNotesService.deleteHearingNote(hearingId, defendantId, caseId, noteId, authenticationHelper.getAuthUserUuid(principal));
     }
 
 
@@ -392,13 +517,31 @@ public class CourtCaseController {
         return courtCaseService.filterHearings(courtCode, hearingSearchRequest);
     }
 
-    @Operation(description = "Toggle hearing outcome required status")
+    /**
+     * @deprecated This endpoint can select an ambiguous hearing.
+     * Use the case-aware endpoint that includes caseId.
+     */
+    @Deprecated
+    @Operation(
+        description = "Legacy endpoint; use the case-aware endpoint that includes caseId.",
+        deprecated = true
+    )
     @PutMapping(value = "/hearing/{hearingId}/defendant/{defendantId}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public void toggleHearingOutcomeRequired(@PathVariable(value = "hearingId") String hearingId,
                                              @PathVariable(value = "defendantId") String defendantId,
                                              @Valid @RequestBody HearingOutcomeNotRequired hearingOutcomeNotRequired) {
         courtCaseService.toggleHearingOutcomeNotRequired(hearingId, defendantId, hearingOutcomeNotRequired.hearingOutcomeNotRequired());
+    }
+
+    @Operation(description = "Toggle hearing outcome required status")
+    @PutMapping(value = "/hearing/{hearingId}/defendant/{defendantId}/case/{caseId}", produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public void toggleHearingOutcomeRequired(@PathVariable(value = "hearingId") String hearingId,
+                                             @PathVariable(value = "defendantId") String defendantId,
+                                             @PathVariable(value = "caseId") String caseId,
+                                             @Valid @RequestBody HearingOutcomeNotRequired hearingOutcomeNotRequired) {
+        courtCaseService.toggleHearingOutcomeNotRequired(hearingId, defendantId, caseId, hearingOutcomeNotRequired.hearingOutcomeNotRequired());
     }
 
     private CourtCaseResponse buildCourtCaseResponseForCaseIdAndDefendantId(HearingEntity hearingEntity, String defendantId, List<CaseProgressHearing> caseHearings) {

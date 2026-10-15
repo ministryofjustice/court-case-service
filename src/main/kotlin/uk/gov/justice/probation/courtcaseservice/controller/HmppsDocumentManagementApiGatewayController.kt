@@ -20,7 +20,14 @@ import java.util.*
 @RestController
 class HmppsDocumentManagementApiGatewayController(val hmppsDocumentManagementService: HmppsDocumentManagementService) {
 
-  @Operation(description = "Uploads a document to HMPPS document management service")
+  @Deprecated(
+    message = "This endpoint can select an ambiguous hearing. Use the case-aware endpoint that includes caseId.",
+    level = DeprecationLevel.WARNING,
+  )
+  @Operation(
+    description = "Legacy endpoint; use the case-aware endpoint that includes caseId.",
+    deprecated = true,
+  )
   @PostMapping(
     value = ["/hearing/{hearingId}/defendant/{defendantId}/file"],
   )
@@ -31,7 +38,26 @@ class HmppsDocumentManagementApiGatewayController(val hmppsDocumentManagementSer
     @RequestParam("file") file: MultipartFile,
   ) = hmppsDocumentManagementService.uploadDocuments(hearingId, defendantId, file)
 
-  @Operation(description = "Retrieves a document with given documentId from HMPPS document manages service.")
+  @Operation(description = "Uploads a document to HMPPS document management service")
+  @PostMapping(
+    value = ["/hearing/{hearingId}/defendant/{defendantId}/case/{caseId}/file"],
+  )
+  @ResponseStatus(CREATED)
+  fun uploadDocument(
+    @PathVariable("hearingId") hearingId: String,
+    @PathVariable("defendantId") defendantId: String,
+    @PathVariable("caseId") caseId: String,
+    @RequestParam("file") file: MultipartFile,
+  ) = hmppsDocumentManagementService.uploadDocuments(hearingId, defendantId, caseId, file)
+
+  @Deprecated(
+    message = "This endpoint can select an ambiguous hearing. Use the case-aware endpoint that includes caseId.",
+    level = DeprecationLevel.WARNING,
+  )
+  @Operation(
+    description = "Legacy endpoint; use the case-aware endpoint that includes caseId.",
+    deprecated = true,
+  )
   @GetMapping(
     value = ["/hearing/{hearingId}/defendant/{defendantId}/file/{documentId}/raw"],
   )
@@ -49,7 +75,33 @@ class HmppsDocumentManagementApiGatewayController(val hmppsDocumentManagementSer
       .body(fileStream)
   }
 
-  @Operation(description = "Deletes a document with given documentId from HMPPS document manages service.")
+  @Operation(description = "Retrieves a document with given documentId from HMPPS document manages service.")
+  @GetMapping(
+    value = ["/hearing/{hearingId}/defendant/{defendantId}/case/{caseId}/file/{documentId}/raw"],
+  )
+  fun getDocument(
+    @PathVariable("hearingId") hearingId: String,
+    @PathVariable("defendantId") defendantId: String,
+    @PathVariable("caseId") caseId: String,
+    @PathVariable("documentId") documentId: String,
+  ): ResponseEntity<InputStreamResource> {
+    val documentResponse = hmppsDocumentManagementService.getDocument(hearingId, defendantId, caseId, documentId)
+    val fileStream = documentResponse?.body?.blockFirst()
+    return ResponseEntity.ok()
+      .header(HttpHeaders.CONTENT_DISPOSITION, documentResponse?.headers?.contentDisposition.toString())
+      .contentType(documentResponse?.headers?.contentType)
+      .contentLength(documentResponse?.headers?.contentLength ?: 0)
+      .body(fileStream)
+  }
+
+  @Deprecated(
+    message = "This endpoint can select an ambiguous hearing. Use the case-aware endpoint that includes caseId.",
+    level = DeprecationLevel.WARNING,
+  )
+  @Operation(
+    description = "Legacy endpoint; use the case-aware endpoint that includes caseId.",
+    deprecated = true,
+  )
   @DeleteMapping(
     value = ["/hearing/{hearingId}/defendant/{defendantId}/file/{documentId}"],
   )
@@ -58,4 +110,15 @@ class HmppsDocumentManagementApiGatewayController(val hmppsDocumentManagementSer
     @PathVariable("defendantId") defendantId: String,
     @PathVariable("documentId") documentId: String,
   ): Mono<ResponseEntity<Any>> = hmppsDocumentManagementService.deleteDocument(hearingId, defendantId, documentId).get()
+
+  @Operation(description = "Deletes a document with given documentId from HMPPS document manages service.")
+  @DeleteMapping(
+    value = ["/hearing/{hearingId}/defendant/{defendantId}/case/{caseId}/file/{documentId}"],
+  )
+  fun deleteDocument(
+    @PathVariable("hearingId") hearingId: String,
+    @PathVariable("defendantId") defendantId: String,
+    @PathVariable("caseId") caseId: String,
+    @PathVariable("documentId") documentId: String,
+  ): Mono<ResponseEntity<Any>> = hmppsDocumentManagementService.deleteDocument(hearingId, defendantId, caseId, documentId).get()
 }

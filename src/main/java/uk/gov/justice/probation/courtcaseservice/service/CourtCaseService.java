@@ -25,6 +25,8 @@ public interface CourtCaseService {
 
     HearingEntity getHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(String hearingId, String defendantId) throws EntityNotFoundException;
 
+    HearingEntity getHearingByHearingIdAndDefendantIdAndCaseIdInitialiseCaseDefendants(String hearingId, String defendantId, String caseId) throws EntityNotFoundException;
+
     Mono<HearingEntity> createHearing(String caseId, HearingEntity updatedCase)
         throws EntityNotFoundException, InputMismatchException;
 
@@ -45,5 +47,7 @@ public interface CourtCaseService {
     Optional<CourtCaseEntity> findByCaseId(String caseId);
 
     void toggleHearingOutcomeNotRequired(String hearingId, String defendantId, boolean hearingOutcomeRequired);
+
+    void toggleHearingOutcomeNotRequired(String hearingId, String defendantId, String caseId, boolean hearingOutcomeRequired);
 
 }

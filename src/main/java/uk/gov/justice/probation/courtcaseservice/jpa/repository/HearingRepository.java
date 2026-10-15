@@ -20,8 +20,14 @@ public interface HearingRepository extends CrudRepository<HearingEntity, Long>, 
 
     Optional<HearingEntity> findFirstByHearingDefendantsDefendantId(String defendantId);
 
-
+    /**
+     * @deprecated This lookup can be ambiguous across court cases.
+     * Use the case-aware lookup that includes caseId.
+     */
+    @Deprecated
     Optional<HearingEntity> findByHearingIdAndHearingDefendantsDefendantIdAndDeletedFalse(String hearingId, String defendantId);
+
+    Optional<HearingEntity> findByHearingIdAndHearingDefendantsDefendantIdAndCourtCaseCaseIdAndDeletedFalse(String hearingId, String defendantId, String caseId);
 
     @Query(value = "select h.* from court_case cc " +
         "join hearing h on cc.id = h.fk_court_case_id " +

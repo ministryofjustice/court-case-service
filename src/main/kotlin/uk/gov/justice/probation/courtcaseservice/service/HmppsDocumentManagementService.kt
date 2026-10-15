@@ -51,6 +51,15 @@ class HmppsDocumentManagementService(
     }
     ?: throw EntityNotFoundException("Document not found /hearing/%s/defendant/%s/documents/%s", hearingId, defendantId, documentId)
 
+  fun deleteDocument(hearingId: String, defendantId: String, caseId: String, documentId: String): Optional<Mono<ResponseEntity<Any>>> = getHearingEntity(hearingId, defendantId, caseId)?.courtCase?.getCaseDefendant(defendantId)?.map { it.getCaseDefendantDocument(documentId) }
+    ?.map {
+      val caseDefendant = it.caseDefendant
+      caseDefendant.deleteCaseDocument(documentId)
+      courtCaseRepository.save(caseDefendant.courtCase)
+      hmppsDocumentManagementApiClient.deleteDocument(documentId)
+    }
+    ?: throw EntityNotFoundException("Document not found /hearing/%s/defendant/%s/case/%s/documents/%s", hearingId, defendantId, caseId, documentId)
+
   fun getDocument(
     hearingId: String,
     defendantId: String,
@@ -70,6 +79,27 @@ class HmppsDocumentManagementService(
       }
   }
 
+  fun getDocument(
+    hearingId: String,
+    defendantId: String,
+    caseId: String,
+    documentId: String,
+  ): ResponseEntity<Flux<InputStreamResource>>? {
+    return getHearingEntity(hearingId, defendantId, caseId)?.courtCase?.getCaseDefendant(defendantId)
+      ?.map { it.getCaseDefendantDocument(documentId) }
+      ?.map {
+        return@map hmppsDocumentManagementApiClient.getDocument(documentId).block()
+      }?.orElseThrow {
+        throw EntityNotFoundException(
+          "Document not found /hearing/%s/defendant/%s/case/%s/documents/%s",
+          hearingId,
+          defendantId,
+          caseId,
+          documentId,
+        )
+      }
+  }
+
   fun uploadDocuments(hearingId: String, defendantId: String, multipartFile: MultipartFile): CaseDocumentResponse {
     validateFileExtension(multipartFile)
     val builder = MultipartBodyBuilder()
@@ -78,6 +108,16 @@ class HmppsDocumentManagementService(
       .filename(multipartFile.originalFilename)
 
     return uploadDocument(hearingId, defendantId, builder, multipartFile.originalFilename)
+  }
+
+  fun uploadDocuments(hearingId: String, defendantId: String, caseId: String, multipartFile: MultipartFile): CaseDocumentResponse {
+    validateFileExtension(multipartFile)
+    val builder = MultipartBodyBuilder()
+    builder.part("file", multipartFile.resource)
+      .contentType(MediaType.valueOf(multipartFile.contentType))
+      .filename(multipartFile.originalFilename)
+
+    return uploadDocument(hearingId, defendantId, caseId, builder, multipartFile.originalFilename)
   }
 
   private fun validateFileExtension(multipartFile: MultipartFile) {
@@ -110,6 +150,26 @@ class HmppsDocumentManagementService(
     return CaseDocumentResponse(documentUuid, documentEntity.created, CaseDocumentResponse.FileResponse(originalFilename))
   }
 
+  private fun uploadDocument(
+    hearingId: String,
+    defendantId: String,
+    caseId: String,
+    filePart: MultipartBodyBuilder,
+    originalFilename: String,
+  ): CaseDocumentResponse {
+    var hearing = getHearingEntity(hearingId, defendantId, caseId) ?: throw EntityNotFoundException("Hearing %s not found", hearingId)
+    hearing.getHearingDefendant(defendantId) ?: throw EntityNotFoundException("Defendant %s not found for hearing %s and case %s", defendantId, hearingId, caseId)
+
+    filePart.part("metadata", HmppsDocumentApiMetadata(hearing.courtCase.urn, defendantId))
+
+    var documentUuid = UUID.randomUUID().toString()
+    var response = hmppsDocumentManagementApiClient.createDocument(picDocumentType, documentUuid, filePart).block()
+    log.debug("Response from document management API /documents/$picDocumentType/$documentUuid : $response")
+
+    var documentEntity = saveCaseDefendantDocumentWithRetry(hearingId, defendantId, caseId, documentUuid, originalFilename, hearing)
+    return CaseDocumentResponse(documentUuid, documentEntity.created, CaseDocumentResponse.FileResponse(originalFilename))
+  }
+
   private fun saveCaseDefendantDocumentWithRetry(
     hearingId: String,
     defendantId: String,
@@ -134,6 +194,31 @@ class HmppsDocumentManagementService(
     }
   }
 
+  private fun saveCaseDefendantDocumentWithRetry(
+    hearingId: String,
+    defendantId: String,
+    caseId: String,
+    documentUuid: String,
+    originalFilename: String,
+    initialHearing: HearingEntity,
+    maxAttempts: Int = 3,
+  ): CaseDefendantDocumentEntity {
+    var attempt = 0
+    var hearing = initialHearing
+    while (true) {
+      try {
+        return saveCaseDefendantDocument(hearing, defendantId, documentUuid, originalFilename)
+      } catch (e: Exception) {
+        if ((e is DataIntegrityViolationException || e is OptimisticLockingFailureException) && ++attempt < maxAttempts) {
+          log.warn("Retrying case defendant document save for hearing $hearingId defendant $defendantId after conflict (attempt $attempt)", e)
+          hearing = getHearingEntity(hearingId, defendantId, caseId) ?: throw EntityNotFoundException("Hearing %s not found", hearingId)
+        } else {
+          throw e
+        }
+      }
+    }
+  }
+
   private fun saveCaseDefendantDocument(
     hearing: HearingEntity,
     defendantId: String,
@@ -149,5 +234,8 @@ class HmppsDocumentManagementService(
   }
 
   private fun getHearingEntity(hearingId: String, defendantId: String): HearingEntity? = hearingRepositoryFacade.findFirstByHearingIdFileUpload(hearingId, defendantId)
+    .getOrElse { throw EntityNotFoundException("Hearing %s not found", hearingId) }
+
+  private fun getHearingEntity(hearingId: String, defendantId: String, caseId: String): HearingEntity? = hearingRepositoryFacade.findFirstByHearingIdAndDefendantIdAndCaseIdFileUpload(hearingId, defendantId, caseId)
     .getOrElse { throw EntityNotFoundException("Hearing %s not found", hearingId) }
 }

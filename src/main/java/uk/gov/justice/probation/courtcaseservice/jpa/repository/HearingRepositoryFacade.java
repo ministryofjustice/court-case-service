@@ -60,6 +60,10 @@ public class HearingRepositoryFacade {
         return hearingEntityInitService.findFirstByHearingIdFileUpload(hearingId, defendantId);
     }
 
+    public Optional<HearingEntity> findFirstByHearingIdAndDefendantIdAndCaseIdFileUpload(String hearingId, String defendantId, String caseId) {
+        return hearingEntityInitService.findFirstByHearingIdAndDefendantIdAndCaseIdFileUpload(hearingId, defendantId, caseId);
+    }
+
     public Optional<HearingEntity> findByCourtCodeAndCaseNo(String courtCode, String caseNo, String listNo) {
         Optional<HearingEntity> hearing;
         if(StringUtils.isEmpty(listNo)) {
@@ -85,8 +89,21 @@ public class HearingRepositoryFacade {
         return hearingEntityInitService.findByHearingIdAndInitHearingDefendants(hearingId, defendantId);
     }
 
+    public Optional<HearingEntity> findByHearingIdAndDefendantIdAndCaseIdForOutcomeToggle(String hearingId, String defendantId, String caseId) {
+        return hearingEntityInitService.findByHearingIdAndDefendantIdAndCaseIdInitHearingDefendants(hearingId, defendantId, caseId);
+    }
+
     public Optional<HearingEntity> findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(String hearingId, String defendantId) {
         return hearingEntityInitService.findHearingByHearingIdAndDefendantIdInitialiseCaseDefendants(hearingId, defendantId)
+            .map(hearingEntity -> Objects.nonNull(hearingEntity.getHearingDefendant(defendantId)) ? hearingEntity : null)
+            .map(hearingEntity -> {
+                hearingEntity.getCourtCase().setCaseComments(caseCommentsRepository.findByCaseIdAndDefendantIdAndDeletedFalse(hearingEntity.getCaseId(), defendantId));
+                return hearingEntity;
+            });
+    }
+
+    public Optional<HearingEntity> findHearingByHearingIdAndDefendantIdAndCaseIdInitialiseCaseDefendants(String hearingId, String defendantId, String caseId) {
+        return hearingEntityInitService.findHearingByHearingIdAndDefendantIdAndCaseIdInitialiseCaseDefendants(hearingId, defendantId, caseId)
             .map(hearingEntity -> Objects.nonNull(hearingEntity.getHearingDefendant(defendantId)) ? hearingEntity : null)
             .map(hearingEntity -> {
                 hearingEntity.getCourtCase().setCaseComments(caseCommentsRepository.findByCaseIdAndDefendantIdAndDeletedFalse(hearingEntity.getCaseId(), defendantId));

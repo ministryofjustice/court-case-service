@@ -6,6 +6,7 @@ generic-service:
   env:
     JAVA_OPTS: "-Xmx512m"
     SPRING_PROFILES_ACTIVE: dev
+    FEATURE_FLAGS_ENABLE_CPR_HEARING_ENRICHMENT: "true"
     COMMUNITY_API_BASE_URL: https://court-case-and-delius-dev.hmpps.service.justice.gov.uk
     NOMIS_OAUTH_BASE_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
     OFFENDER_ASSESSMENTS_API_BASE_URL: "https://assess-risks-and-needs-dev.hmpps.service.justice.gov.uk"

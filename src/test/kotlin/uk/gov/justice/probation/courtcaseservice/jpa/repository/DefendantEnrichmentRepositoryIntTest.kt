@@ -68,6 +68,16 @@ class DefendantEnrichmentRepositoryIntTest {
   }
 
   @Test
+  fun `should exclude manually updated common platform defendants from results and totals`() {
+    jdbcTemplate.update("UPDATE defendant SET manual_update = true WHERE defendant_id = ?", "7cece15c-78e8-4be9-a509-35d74eb68839")
+
+    val result = repository.findCommonPlatformEnrichmentCandidates(fromDate, toDate, null, pageable)
+
+    assertThat(result.content).isEmpty()
+    assertThat(result.totalElements).isZero()
+  }
+
+  @Test
   fun `should deduplicate libra CIDs across hearings and defendants and exclude blank CIDs`() {
     val result = repository.findLibraEnrichmentCandidates(fromDate, toDate, null, PageRequest.of(0, 1))
 
@@ -75,6 +85,16 @@ class DefendantEnrichmentRepositoryIntTest {
     assertThat(result.totalElements).isEqualTo(1L)
     assertThat(result.totalPages).isEqualTo(1)
     assertThat(result.hasNext()).isFalse()
+  }
+
+  @Test
+  fun `should exclude manually updated libra defendants from results and totals`() {
+    jdbcTemplate.update("UPDATE defendant SET manual_update = true WHERE c_id = ?", "c12345")
+
+    val result = repository.findLibraEnrichmentCandidates(fromDate, toDate, null, pageable)
+
+    assertThat(result.content).isEmpty()
+    assertThat(result.totalElements).isZero()
   }
 
   @Test

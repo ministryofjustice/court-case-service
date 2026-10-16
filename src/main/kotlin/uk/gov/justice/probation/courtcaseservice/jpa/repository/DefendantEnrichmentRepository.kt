@@ -17,6 +17,7 @@ interface DefendantEnrichmentRepository : Repository<DefendantEntity, Long> {
       JOIN h.courtCase c
       JOIN h.hearingDays day
       WHERE c.sourceType = uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM
+        AND d.manualUpdate = false
         AND day.day >= :fromDate AND day.day < :toDate
         AND (CAST(:courtCode AS string) IS NULL OR day.courtCode = :courtCode)
       ORDER BY d.defendantId
@@ -29,6 +30,7 @@ interface DefendantEnrichmentRepository : Repository<DefendantEntity, Long> {
       JOIN h.courtCase c
       JOIN h.hearingDays day
       WHERE c.sourceType = uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM
+        AND d.manualUpdate = false
         AND day.day >= :fromDate AND day.day < :toDate
         AND (CAST(:courtCode AS string) IS NULL OR day.courtCode = :courtCode)
     """,
@@ -49,6 +51,7 @@ interface DefendantEnrichmentRepository : Repository<DefendantEntity, Long> {
       JOIN h.courtCase c
       JOIN h.hearingDays day
       WHERE c.sourceType = uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.LIBRA
+        AND d.manualUpdate = false
         AND d.cId IS NOT NULL AND FUNCTION('regexp_replace', d.cId, '[[:space:]]', '', 'g') <> ''
         AND day.day >= :fromDate AND day.day < :toDate
         AND (CAST(:courtCode AS string) IS NULL OR day.courtCode = :courtCode)
@@ -62,6 +65,7 @@ interface DefendantEnrichmentRepository : Repository<DefendantEntity, Long> {
       JOIN h.courtCase c
       JOIN h.hearingDays day
       WHERE c.sourceType = uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.LIBRA
+        AND d.manualUpdate = false
         AND d.cId IS NOT NULL AND FUNCTION('regexp_replace', d.cId, '[[:space:]]', '', 'g') <> ''
         AND day.day >= :fromDate AND day.day < :toDate
         AND (CAST(:courtCode AS string) IS NULL OR day.courtCode = :courtCode)

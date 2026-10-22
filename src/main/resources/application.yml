@@ -207,6 +207,11 @@ offender-service:
     included-statuses: "COMPLETE"
   psr-report-codes: "CJF,CJO,CJS,PSR"
 
+cpr-service:
+  base-url: ${CPR_SERVICE_BASE_URL}
+  common-platform-path: /person/commonplatform/%s
+  libra-path: /person/libra/%s
+
 feature:
   flags:
     enable-cacheable-case-list: true

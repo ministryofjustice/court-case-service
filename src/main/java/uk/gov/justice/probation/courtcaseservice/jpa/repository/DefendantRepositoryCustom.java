@@ -128,6 +128,32 @@ public class DefendantRepositoryCustom {
         return getPagedResult(pageable, query, countQuery);
     }
 
+
+    public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByPnc(String pnc, Pageable pageable, String courtCode,
+                                                                            CaseSearchSortFields sortBy, Direction order) {
+
+        String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " and hday1.court_code = :courtCode" : "";
+
+        String PNC_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where d1.pnc = :pnc " + COURT_FILTER_FROM  + DEFENDANT_SEARCH_GROUPING;
+
+        var query = entityManager.createNativeQuery(
+            DEFENDANT_SEARCH_SELECT + PNC_SEARCH_FROM + getOrderByClause(sortBy, order, DEFAULT_CASE_ORDER_BY),
+            "search_defendants_result_mapping");
+
+        query.setParameter("pnc", pnc);
+
+        var countQuery = entityManager.createNativeQuery("select count(*) " + PNC_SEARCH_FROM);
+
+        if (!courtCode.isBlank()) {
+            query.setParameter("courtCode", courtCode);
+            countQuery.setParameter("courtCode", courtCode);
+        }
+
+        countQuery.setParameter("pnc", pnc);
+
+        return getPagedResult(pageable, query, countQuery);
+    }
+
     @NotNull
     private static PageImpl<Pair<CourtCaseEntity, DefendantEntity>> getPagedResult(Pageable pageable, Query query, Query countQuery) {
 

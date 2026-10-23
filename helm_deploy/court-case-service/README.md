@@ -16,7 +16,7 @@ For this job to work the AWS IAM creds, exported by the terraform module, need t
 
 See module outputs:
  - `access_key_id`
- - `secret_access_key` 
+ - `secret_access_key`   
 
 Source code here: <https://github.com/ministryofjustice/cloud-platform-terraform-rds-instance/>
 

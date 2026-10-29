@@ -14,7 +14,7 @@ services:
       - "8080:8080"
     entrypoint: ["/bin/sh", "/app/run.sh"]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/health"]
+      test: ["CMD", "bash", "-ec", 'exec 3<>/dev/tcp/localhost/8080; printf "GET /health HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3; read -r protocol status rest <&3; test "$$status" = 200']
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_USER=appuser

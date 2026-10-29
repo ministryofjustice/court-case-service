@@ -27,7 +27,7 @@ This section contains the bare minimum you need to do to get the app running aga
 Ensure all docker containers are up and running: 
 
 ```bash
-docker compose up -d
+docker compose up -d 
 ```
 
 Which should start the following containers: (verify with `$ docker ps` if necessary)

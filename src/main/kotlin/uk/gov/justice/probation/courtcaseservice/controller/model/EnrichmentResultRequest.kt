@@ -29,7 +29,9 @@ data class EnrichmentResultRequest(
   val status: EnrichmentStatus,
   @field:Valid
   val defendant: EnrichedDefendantDetails? = null,
+  @field:Valid
   val offender: EnrichedOffenderDetails? = null,
+  @field:Valid
   val probation: EnrichedProbationDetails? = null,
   @field:Valid
   val groupedOffenderMatches: EnrichedGroupedOffenderMatches? = null,
@@ -42,12 +44,14 @@ data class EnrichmentResultRequest(
 )
 
 data class EnrichedOffenderDetails(
+  @field:Pattern(regexp = ".*\\S.*", message = "must not be blank when supplied")
   val crn: String? = null,
   val pnc: String? = null,
   val cro: String? = null,
 )
 
 data class EnrichedProbationDetails(
+  @field:Pattern(regexp = "(?i)CURRENT|PREVIOUSLY[ _]KNOWN|NOT[ _]SENTENCED")
   val probationStatus: String? = null,
   val awaitingPsr: Boolean? = null,
   val breach: Boolean? = null,
@@ -59,6 +63,7 @@ data class EnrichedDefendantDetails(
   val cprUUID: String? = null,
   val name: EnrichedName? = null,
   val dateOfBirth: LocalDate? = null,
+  @field:Pattern(regexp = "(?i)MALE|M|FEMALE|F|NOT_KNOWN|N|NOT_SPECIFIED|NS")
   val sex: String? = null,
   val address: EnrichedAddress? = null,
 )

@@ -11,18 +11,23 @@ import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoInteractions
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.whenever
+import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.web.server.ResponseStatusException
 import uk.gov.justice.probation.courtcaseservice.application.ApplicationExceptionHandler
 import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentMatchType
 import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentResultRequest
 import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentSourceType
 import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentStatus
 import uk.gov.justice.probation.courtcaseservice.service.EnrichmentResultService
+import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
 import java.time.LocalDate
 
 @ExtendWith(MockitoExtension::class)
@@ -96,6 +101,22 @@ class EnrichmentResultControllerTest {
     verifyNoInteractions(service)
   }
 
+  @Test
+  fun `should return 404 when the enrichment target does not exist`() {
+    whenever(service.persistEnrichmentResult(any())).thenThrow(EntityNotFoundException("Target not found"))
+
+    mockMvc.perform(post("/enrichment-results").contentType(APPLICATION_JSON).content(FULL_REQUEST))
+      .andExpect(status().isNotFound)
+  }
+
+  @Test
+  fun `should return 409 for a manually updated target`() {
+    whenever(service.persistEnrichmentResult(any())).thenThrow(ResponseStatusException(CONFLICT, "Target manually updated"))
+
+    mockMvc.perform(post("/enrichment-results").contentType(APPLICATION_JSON).content(FULL_REQUEST))
+      .andExpect(status().isConflict)
+  }
+
   companion object {
     private const val VALID_BASE = """"sourceType":"COMMON_PLATFORM","targetId":"defendant-id","enrichedBy":"court-case-enrichment-worker""""
 
@@ -113,6 +134,9 @@ class EnrichmentResultControllerTest {
       """{"sourceType":"LIBRA","targetId":"c1","status":"ENRICHED"}""",
       """{$VALID_BASE,"status":"ENRICHED","jobRunId":" "}""",
       """{$VALID_BASE,"status":"ENRICHED","defendant":{"dateOfBirth":"02/01/1990"}}""",
+      """{$VALID_BASE,"status":"ENRICHED","defendant":{"sex":"INVALID"}}""",
+      """{$VALID_BASE,"status":"ENRICHED","offender":{"crn":" "}}""",
+      """{$VALID_BASE,"status":"ENRICHED","probation":{"probationStatus":"INVALID"}}""",
       """{$VALID_BASE,"status":"ENRICHED","groupedOffenderMatches":{}}""",
       """{$VALID_BASE,"status":"ENRICHED","groupedOffenderMatches":{"matches":[{}]}}""",
       """{$VALID_BASE,"status":"ENRICHED","groupedOffenderMatches":{"matches":[{"matchIdentifiers":{}}]}}""",

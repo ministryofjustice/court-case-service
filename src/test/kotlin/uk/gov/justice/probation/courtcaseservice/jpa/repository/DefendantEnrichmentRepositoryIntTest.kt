@@ -1,21 +1,40 @@
 package uk.gov.justice.probation.courtcaseservice.jpa.repository
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
+import org.springframework.context.annotation.Import
 import org.springframework.data.domain.PageRequest
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlConfig
+import org.springframework.web.server.ResponseStatusException
+import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichedDefendantDetails
+import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichedGroupedOffenderMatches
+import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichedMatchIdentifiers
+import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichedName
+import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichedOffenderDetails
+import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichedOffenderMatch
+import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichedProbationDetails
+import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentResultRequest
+import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentSourceType
+import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentStatus
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus
+import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType
+import uk.gov.justice.probation.courtcaseservice.service.EnrichmentResultService
+import uk.gov.justice.probation.courtcaseservice.service.OffenderEntityInitService
 import java.time.LocalDate
 
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(EnrichmentResultService::class, OffenderRepositoryFacade::class, OffenderEntityInitService::class)
 @Sql(
   scripts = ["classpath:sql/before-common.sql", "classpath:sql/before-new-hearing-search.sql"],
   config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),
@@ -31,6 +50,18 @@ class DefendantEnrichmentRepositoryIntTest {
 
   @Autowired
   lateinit var jdbcTemplate: JdbcTemplate
+
+  @Autowired
+  lateinit var service: EnrichmentResultService
+
+  @Autowired
+  lateinit var entityManager: TestEntityManager
+
+  @Autowired
+  lateinit var defendantRepository: DefendantRepository
+
+  @Autowired
+  lateinit var groupedOffenderMatchRepository: GroupedOffenderMatchRepository
 
   @BeforeEach
   fun setUpTargets() {
@@ -169,5 +200,83 @@ class DefendantEnrichmentRepositoryIntTest {
     assertThat(libra.totalElements).isZero()
     assertThat(libra.totalPages).isZero()
     assertThat(libra.hasNext()).isFalse()
+  }
+
+  @Test
+  fun `should resolve targets by source and include manual updates so stale results can be rejected`() {
+    val defendantId = "7cece15c-78e8-4be9-a509-35d74eb68839"
+    jdbcTemplate.update("UPDATE defendant SET manual_update = true WHERE id = 5093")
+
+    assertThat(repository.findDefendantsForEnrichment(SourceType.COMMON_PLATFORM, defendantId).single().isManualUpdate).isTrue()
+    assertThat(repository.findDefendantsForEnrichment(SourceType.LIBRA, defendantId)).isEmpty()
+    assertThat(repository.findDefendantsForEnrichment(SourceType.COMMON_PLATFORM, "common-platform-cid")).isEmpty()
+    assertThat(repository.findDefendantsForEnrichment(SourceType.LIBRA, "c12345").map { it.id }).containsExactly(5812L, 5837L)
+  }
+
+  @Test
+  fun `should exclude deleted targets and deleted hearing associations`() {
+    jdbcTemplate.update("UPDATE defendant SET deleted = true WHERE id = 5093")
+    jdbcTemplate.update("UPDATE hearing_defendant SET deleted = true WHERE fk_defendant_id = 5812")
+    jdbcTemplate.update("UPDATE court_case SET deleted = true WHERE id = 7723")
+
+    assertThat(repository.findDefendantsForEnrichment(SourceType.COMMON_PLATFORM, "7cece15c-78e8-4be9-a509-35d74eb68839")).isEmpty()
+    assertThat(repository.findDefendantsForEnrichment(SourceType.LIBRA, "c12345")).isEmpty()
+  }
+
+  @Test
+  fun `should persist defendant offender and match data across every libra target and support retries`() {
+    val request = EnrichmentResultRequest(
+      sourceType = EnrichmentSourceType.LIBRA,
+      targetId = "c12345",
+      status = EnrichmentStatus.ENRICHED,
+      defendant = EnrichedDefendantDetails(cprUUID = "cpr-id", name = EnrichedName(forename1 = "Updated")),
+      offender = EnrichedOffenderDetails(crn = "X999999", pnc = "offender-pnc"),
+      probation = EnrichedProbationDetails(probationStatus = "CURRENT", breach = true),
+      groupedOffenderMatches = EnrichedGroupedOffenderMatches(listOf(EnrichedOffenderMatch(EnrichedMatchIdentifiers("X999999")))),
+      enrichedBy = "worker",
+    )
+    service.persistEnrichmentResult(request)
+    entityManager.flush()
+    entityManager.clear()
+    service.persistEnrichmentResult(request)
+    entityManager.flush()
+    entityManager.clear()
+
+    val first = defendantRepository.findById(5812L).orElseThrow()
+    val second = defendantRepository.findById(5837L).orElseThrow()
+    assertThat(first.cprUUID).isEqualTo("cpr-id")
+    assertThat(second.cprUUID).isEqualTo("cpr-id")
+    assertThat(first.defendantName).isEqualTo("Mr Updated Blogs")
+    assertThat(first.pnc).isEqualTo("2004/0046583U")
+    assertThat(first.offender.id).isEqualTo(second.offender.id)
+    assertThat(first.offender.crn).isEqualTo("X999999")
+    assertThat(first.offender.pnc).isEqualTo("offender-pnc")
+    assertThat(first.offender.probationStatus).isEqualTo(OffenderProbationStatus.CURRENT)
+    assertThat(first.offender.isBreach).isTrue()
+    assertThat(first.isManualUpdate).isFalse()
+    assertThat(first.isOffenderConfirmed).isFalse()
+    val matches = groupedOffenderMatchRepository.findByCaseIdAndDefendantId("665597e6-b4d0-466d-98ad-3a9e9eb99b87", first.defendantId).orElseThrow()
+    assertThat(matches.offenderMatches.map { it.crn }).containsExactly("X999999")
+    assertThat(groupedOffenderMatchRepository.findByCaseIdAndDefendantId("85f400a9-82c9-4a9d-93ec-066d55be0c07", second.defendantId)).isPresent()
+    assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM offender WHERE crn = 'X999999'", Long::class.java)).isEqualTo(1L)
+  }
+
+  @Test
+  fun `should leave all targets unchanged when one sharing the CID is manually updated`() {
+    jdbcTemplate.update("UPDATE defendant SET manual_update = true WHERE id = 5837")
+
+    assertThatThrownBy {
+      service.persistEnrichmentResult(
+        EnrichmentResultRequest(
+          sourceType = EnrichmentSourceType.LIBRA,
+          targetId = "c12345",
+          status = EnrichmentStatus.ENRICHED,
+          defendant = EnrichedDefendantDetails(cprUUID = "must-not-save"),
+          enrichedBy = "worker",
+        ),
+      )
+    }.isInstanceOf(ResponseStatusException::class.java)
+
+    assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM defendant WHERE cpr_uuid = 'must-not-save'", Long::class.java)).isZero()
   }
 }

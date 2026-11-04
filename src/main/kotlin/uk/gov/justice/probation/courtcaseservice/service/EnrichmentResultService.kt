@@ -113,10 +113,12 @@ class EnrichmentResultService(
       ?: throw ResponseStatusException(BAD_REQUEST, "A CRN is required for offender or probation data")
     val existing = offenderRepository.findByCrn(crn).orElseGet { OffenderEntity.builder().crn(crn).build() }
     val probation = request.probation
+    val probationStatus = probation?.probationStatus?.let(OffenderProbationStatus::of) ?: existing.probationStatus
+      ?: throw ResponseStatusException(BAD_REQUEST, "A probation status is required when the offender has no existing status")
     val update = existing
       .withPnc(request.offender?.pnc ?: existing.pnc)
       .withCro(request.offender?.cro ?: existing.cro)
-      .withProbationStatus(probation?.probationStatus?.let(OffenderProbationStatus::of) ?: existing.probationStatus)
+      .withProbationStatus(probationStatus)
       .withAwaitingPsr(probation?.awaitingPsr ?: existing.awaitingPsr)
       .withBreach(probation?.breach ?: existing.isBreach)
       .withPreSentenceActivity(probation?.preSentenceActivity ?: existing.isPreSentenceActivity)

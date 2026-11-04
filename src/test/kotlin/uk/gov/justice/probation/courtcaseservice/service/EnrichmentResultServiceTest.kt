@@ -97,6 +97,9 @@ class EnrichmentResultServiceTest {
   @Test
   fun `should log operational metadata and counts without personal data`() {
     givenDefendants(defendant())
+    whenever(offenderRepository.findByCrn("X12345")).thenReturn(
+      Optional.of(OffenderEntity.builder().crn("X12345").probationStatus(OffenderProbationStatus.CURRENT).build()),
+    )
     whenever(offenderRepositoryFacade.upsertOffender(any())).thenAnswer { it.arguments[0] }
     service.persistEnrichmentResult(
       EnrichmentResultRequest(
@@ -215,6 +218,75 @@ class EnrichmentResultServiceTest {
     assertThat(defendant.offender.isSuspendedSentenceOrder).isTrue()
     assertThat(defendant.offender.pnc).isEqualTo("existing-pnc")
     assertThat(defendant.offender.probationStatus).isEqualTo(OffenderProbationStatus.CURRENT)
+  }
+
+  @Test
+  fun `should reject identifier only enrichment for a new CRN without changing the existing link`() {
+    val existing = OffenderEntity.builder().crn("X12345").probationStatus(OffenderProbationStatus.CURRENT).build()
+    val defendant = defendant().withOffender(existing)
+    givenDefendants(defendant)
+
+    assertThatThrownBy {
+      service.persistEnrichmentResult(request().copy(offender = EnrichedOffenderDetails(crn = "X999999")))
+    }
+      .isInstanceOf(ResponseStatusException::class.java)
+      .satisfies({
+        assertThat((it as ResponseStatusException).statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        assertThat(it.reason).contains("probation status is required")
+      })
+
+    assertThat(defendant.offender).isSameAs(existing)
+    verifyNoInteractions(defendantRepository, offenderRepositoryFacade, groupedOffenderMatchRepository)
+  }
+
+  @Test
+  fun `should reject a new CRN when probation details omit the status`() {
+    val defendant = defendant()
+    givenDefendants(defendant)
+
+    assertThatThrownBy {
+      service.persistEnrichmentResult(
+        request().copy(
+          offender = EnrichedOffenderDetails(crn = "X999999"),
+          probation = EnrichedProbationDetails(breach = true),
+        ),
+      )
+    }
+      .isInstanceOf(ResponseStatusException::class.java)
+      .satisfies({ assertThat((it as ResponseStatusException).statusCode).isEqualTo(HttpStatus.BAD_REQUEST) })
+
+    assertThat(defendant.offender).isNull()
+    verifyNoInteractions(defendantRepository, offenderRepositoryFacade, groupedOffenderMatchRepository)
+  }
+
+  @Test
+  fun `should reject identifier only enrichment for an existing offender without a status`() {
+    givenDefendants(defendant())
+    whenever(offenderRepository.findByCrn("X12345")).thenReturn(Optional.of(OffenderEntity.builder().crn("X12345").build()))
+
+    assertThatThrownBy {
+      service.persistEnrichmentResult(request().copy(offender = EnrichedOffenderDetails(crn = "X12345")))
+    }
+      .isInstanceOf(ResponseStatusException::class.java)
+      .satisfies({ assertThat((it as ResponseStatusException).statusCode).isEqualTo(HttpStatus.BAD_REQUEST) })
+
+    verifyNoInteractions(defendantRepository, offenderRepositoryFacade, groupedOffenderMatchRepository)
+  }
+
+  @Test
+  fun `should link an existing offender using its stored probation status for identifier only enrichment`() {
+    val defendant = defendant()
+    val existing = OffenderEntity.builder().crn("X12345").probationStatus(OffenderProbationStatus.PREVIOUSLY_KNOWN).build()
+    givenDefendants(defendant)
+    whenever(offenderRepository.findByCrn("X12345")).thenReturn(Optional.of(existing))
+    whenever(offenderRepositoryFacade.upsertOffender(any())).thenAnswer { it.arguments[0] }
+
+    service.persistEnrichmentResult(request().copy(offender = EnrichedOffenderDetails(crn = "X12345", pnc = "new-pnc")))
+
+    verify(defendantRepository).save(defendant)
+    assertThat(defendant.offender.pnc).isEqualTo("new-pnc")
+    assertThat(defendant.offender.probationStatus).isEqualTo(OffenderProbationStatus.PREVIOUSLY_KNOWN)
+    assertThat(defendant.offender.probationStatusDetail.status).isEqualTo("PREVIOUSLY_KNOWN")
   }
 
   @Test

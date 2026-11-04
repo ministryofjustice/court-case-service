@@ -1,6 +1,12 @@
 package uk.gov.justice.probation.courtcaseservice.controller
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.read.ListAppender
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -11,18 +17,27 @@ import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoInteractions
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.whenever
+import org.slf4j.LoggerFactory
+import org.springframework.dao.DataAccessResourceFailureException
+import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.transaction.TransactionSystemException
+import org.springframework.web.server.ResponseStatusException
 import uk.gov.justice.probation.courtcaseservice.application.ApplicationExceptionHandler
 import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentMatchType
 import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentResultRequest
 import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentSourceType
 import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentStatus
 import uk.gov.justice.probation.courtcaseservice.service.EnrichmentResultService
+import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
 import java.time.LocalDate
 
 @ExtendWith(MockitoExtension::class)
@@ -32,11 +47,21 @@ class EnrichmentResultControllerTest {
 
   lateinit var mockMvc: MockMvc
 
+  private val appender = ListAppender<ILoggingEvent>()
+  private val logger = LoggerFactory.getLogger(EnrichmentResultController::class.java) as Logger
+
   @BeforeEach
   fun setUp() {
+    appender.start()
+    logger.addAppender(appender)
     mockMvc = MockMvcBuilders.standaloneSetup(EnrichmentResultController(service))
       .setControllerAdvice(ApplicationExceptionHandler())
       .build()
+  }
+
+  @AfterEach
+  fun tearDown() {
+    logger.detachAppender(appender)
   }
 
   @Test
@@ -96,6 +121,64 @@ class EnrichmentResultControllerTest {
     verifyNoInteractions(service)
   }
 
+  @Test
+  fun `should return 404 when the enrichment target does not exist`() {
+    whenever(service.persistEnrichmentResult(any())).thenThrow(EntityNotFoundException("Target not found"))
+
+    mockMvc.perform(post("/enrichment-results").contentType(APPLICATION_JSON).content(FULL_REQUEST))
+      .andExpect(status().isNotFound)
+  }
+
+  @Test
+  fun `should return 409 for a manually updated target`() {
+    whenever(service.persistEnrichmentResult(any())).thenThrow(ResponseStatusException(CONFLICT, "Target manually updated"))
+
+    mockMvc.perform(post("/enrichment-results").contentType(APPLICATION_JSON).content(FULL_REQUEST))
+      .andExpect(status().isConflict)
+  }
+
+  @Test
+  fun `should log unsupported status with correlation metadata without payload data`() {
+    mockMvc.perform(
+      post("/enrichment-results").contentType(APPLICATION_JSON)
+        .content(FULL_REQUEST.replace("\"ENRICHED\"", "\"FAILED\"")),
+    ).andExpect(status().isBadRequest)
+
+    val event = appender.list.single()
+    assertThat(event.level).isEqualTo(Level.WARN)
+    assertThat(event.formattedMessage)
+      .contains("reason=UNSUPPORTED_STATUS", "sourceType=COMMON_PLATFORM", "targetId=defendant-id", "status=FAILED", "jobRunId=job-run-uuid")
+      .doesNotContain("Alex", "X12345", "AB1 2CD", "person-record-id")
+    assertThat(event.throwableProxy).isNull()
+    verifyNoInteractions(service)
+  }
+
+  @Test
+  fun `should log persistence and commit failures once and propagate them`() {
+    val request = EnrichmentResultRequest(
+      sourceType = EnrichmentSourceType.COMMON_PLATFORM,
+      targetId = "defendant-id",
+      status = EnrichmentStatus.ENRICHED,
+      enrichedBy = "worker",
+      jobRunId = "job-run-uuid",
+    )
+    listOf(
+      DataAccessResourceFailureException("Database unavailable"),
+      TransactionSystemException("Commit failed"),
+    ).forEach { failure ->
+      appender.list.clear()
+      doThrow(failure).whenever(service).persistEnrichmentResult(request)
+
+      assertThatThrownBy { EnrichmentResultController(service).persistEnrichmentResult(request) }.isSameAs(failure)
+
+      val event = appender.list.single()
+      assertThat(event.level).isEqualTo(Level.ERROR)
+      assertThat(event.formattedMessage)
+        .contains("Failed to persist", "sourceType=COMMON_PLATFORM", "targetId=defendant-id", "jobRunId=job-run-uuid")
+      assertThat(event.throwableProxy.className).isEqualTo(failure.javaClass.name)
+    }
+  }
+
   companion object {
     private const val VALID_BASE = """"sourceType":"COMMON_PLATFORM","targetId":"defendant-id","enrichedBy":"court-case-enrichment-worker""""
 
@@ -113,6 +196,9 @@ class EnrichmentResultControllerTest {
       """{"sourceType":"LIBRA","targetId":"c1","status":"ENRICHED"}""",
       """{$VALID_BASE,"status":"ENRICHED","jobRunId":" "}""",
       """{$VALID_BASE,"status":"ENRICHED","defendant":{"dateOfBirth":"02/01/1990"}}""",
+      """{$VALID_BASE,"status":"ENRICHED","defendant":{"sex":"INVALID"}}""",
+      """{$VALID_BASE,"status":"ENRICHED","offender":{"crn":" "}}""",
+      """{$VALID_BASE,"status":"ENRICHED","probation":{"probationStatus":"INVALID"}}""",
       """{$VALID_BASE,"status":"ENRICHED","groupedOffenderMatches":{}}""",
       """{$VALID_BASE,"status":"ENRICHED","groupedOffenderMatches":{"matches":[{}]}}""",
       """{$VALID_BASE,"status":"ENRICHED","groupedOffenderMatches":{"matches":[{"matchIdentifiers":{}}]}}""",

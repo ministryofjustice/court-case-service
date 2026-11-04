@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.server.ResponseStatusException
 import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentResultRequest
 import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest
@@ -40,9 +42,16 @@ class EnrichmentResultService(
     val sourceType = SourceType.valueOf(request.sourceType.name)
     val defendants = enrichmentRepository.findDefendantsForEnrichment(sourceType, request.targetId)
     if (defendants.isEmpty()) {
+      logRejection(request, "TARGET_NOT_FOUND")
       throw EntityNotFoundException("No defendant found for %s target %s", request.sourceType, request.targetId)
     }
     if (defendants.any { it.isManualUpdate }) {
+      log.info(
+        "Rejected enrichment result: reason=MANUALLY_UPDATED sourceType={} targetId={} jobRunId={}",
+        request.sourceType,
+        request.targetId,
+        request.jobRunId,
+      )
       throw ResponseStatusException(CONFLICT, "Enrichment target has been manually updated")
     }
     defendants.forEach { defendant ->
@@ -51,16 +60,26 @@ class EnrichmentResultService(
       defendantRepository.save(defendant)
     }
 
+    TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+      override fun afterCommit() {
+        logPersistedResult(request, defendants.size)
+      }
+    })
+  }
+
+  private fun logPersistedResult(request: EnrichmentResultRequest, updatedDefendantCount: Int) {
     val matches = request.groupedOffenderMatches?.matches.orEmpty()
     log.info(
       "Persisted enrichment result: sourceType={} targetId={} status={} enrichedBy={} jobRunId={} " +
-        "hasDefendant={} hasOffender={} hasProbation={} matchCount={} confirmedMatchCount={} rejectedMatchCount={} " +
-        "warningCount={} errorCount={}",
+        "updatedDefendantCount={} hasDefendant={} hasOffender={} hasProbation={} " +
+        "submittedMatchCount={} submittedConfirmedMatchCount={} submittedRejectedMatchCount={} " +
+        "submittedWarningCount={} submittedErrorCount={}",
       request.sourceType,
       request.targetId,
       request.status,
       request.enrichedBy,
       request.jobRunId,
+      updatedDefendantCount,
       request.defendant != null,
       request.offender != null,
       request.probation != null,
@@ -110,11 +129,17 @@ class EnrichmentResultService(
 
   private fun updateOffender(defendant: DefendantEntity, request: EnrichmentResultRequest): OffenderEntity {
     val crn = request.offender?.crn ?: defendant.crn
-      ?: throw ResponseStatusException(BAD_REQUEST, "A CRN is required for offender or probation data")
+      ?: run {
+        logRejection(request, "MISSING_CRN")
+        throw ResponseStatusException(BAD_REQUEST, "A CRN is required for offender or probation data")
+      }
     val existing = offenderRepository.findByCrn(crn).orElseGet { OffenderEntity.builder().crn(crn).build() }
     val probation = request.probation
     val probationStatus = probation?.probationStatus?.let(OffenderProbationStatus::of) ?: existing.probationStatus
-      ?: throw ResponseStatusException(BAD_REQUEST, "A probation status is required when the offender has no existing status")
+      ?: run {
+        logRejection(request, "MISSING_PROBATION_STATUS")
+        throw ResponseStatusException(BAD_REQUEST, "A probation status is required when the offender has no existing status")
+      }
     val update = existing
       .withPnc(request.offender?.pnc ?: existing.pnc)
       .withCro(request.offender?.cro ?: existing.cro)
@@ -124,6 +149,16 @@ class EnrichmentResultService(
       .withPreSentenceActivity(probation?.preSentenceActivity ?: existing.isPreSentenceActivity)
       .withPreviouslyKnownTerminationDate(probation?.previouslyKnownTerminationDate ?: existing.previouslyKnownTerminationDate)
     return offenderRepositoryFacade.upsertOffender(update)
+  }
+
+  private fun logRejection(request: EnrichmentResultRequest, reason: String) {
+    log.warn(
+      "Rejected enrichment result: reason={} sourceType={} targetId={} jobRunId={}",
+      reason,
+      request.sourceType,
+      request.targetId,
+      request.jobRunId,
+    )
   }
 
   private fun updateGroupedMatches(defendant: DefendantEntity, request: EnrichmentResultRequest, sourceType: SourceType) {

@@ -1,5 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
+import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
@@ -18,6 +19,8 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.server.ResponseStatusException
 import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichedAddress
 import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichedAlias
@@ -87,11 +90,13 @@ class EnrichmentResultServiceTest {
     )
     appender.start()
     logger.addAppender(appender)
+    TransactionSynchronizationManager.initSynchronization()
   }
 
   @AfterEach
   fun tearDown() {
     logger.detachAppender(appender)
+    TransactionSynchronizationManager.clearSynchronization()
   }
 
   @Test
@@ -128,12 +133,27 @@ class EnrichmentResultServiceTest {
       ),
     )
 
+    assertThat(appender.list).isEmpty()
+    TransactionSynchronizationManager.getSynchronizations().forEach { it.afterCommit() }
     val message = appender.list.single().formattedMessage
     assertThat(message)
       .contains("sourceType=COMMON_PLATFORM", "targetId=defendant-id", "status=NEEDS_REVIEW", "jobRunId=job-run-uuid")
       .contains("hasDefendant=true", "hasOffender=true", "hasProbation=false")
-      .contains("matchCount=2", "confirmedMatchCount=0", "rejectedMatchCount=1", "warningCount=1", "errorCount=0")
+      .contains("updatedDefendantCount=1", "submittedMatchCount=2", "submittedConfirmedMatchCount=0", "submittedRejectedMatchCount=1")
+      .contains("submittedWarningCount=1", "submittedErrorCount=0")
       .doesNotContain("person-record-id", "Alex", "Example", "1990", "AB1 2CD", "X12345", "X67890", "example-pnc", "example-cro", "Alias", "warning text")
+  }
+
+  @Test
+  fun `should not log success for a rolled back transaction`() {
+    givenDefendants(defendant())
+
+    service.persistEnrichmentResult(request())
+    TransactionSynchronizationManager.getSynchronizations().forEach {
+      it.afterCompletion(TransactionSynchronization.STATUS_ROLLED_BACK)
+    }
+
+    assertThat(appender.list).isEmpty()
   }
 
   @Test
@@ -237,6 +257,10 @@ class EnrichmentResultServiceTest {
 
     assertThat(defendant.offender).isSameAs(existing)
     verifyNoInteractions(defendantRepository, offenderRepositoryFacade, groupedOffenderMatchRepository)
+    assertThat(appender.list.single().level).isEqualTo(Level.WARN)
+    assertThat(appender.list.single().formattedMessage)
+      .contains("reason=MISSING_PROBATION_STATUS", "sourceType=COMMON_PLATFORM", "targetId=defendant-id")
+      .doesNotContain("X12345", "X999999")
   }
 
   @Test
@@ -315,6 +339,8 @@ class EnrichmentResultServiceTest {
     verify(defendantRepository).save(second)
     assertThat(first.cprUUID).isEqualTo("cpr-id")
     assertThat(second.cprUUID).isEqualTo("cpr-id")
+    TransactionSynchronizationManager.getSynchronizations().forEach { it.afterCommit() }
+    assertThat(appender.list.single().formattedMessage).contains("updatedDefendantCount=2")
   }
 
   @Test
@@ -326,6 +352,9 @@ class EnrichmentResultServiceTest {
       .satisfies({ assertThat((it as ResponseStatusException).statusCode).isEqualTo(HttpStatus.CONFLICT) })
 
     verifyNoInteractions(defendantRepository, offenderRepository, offenderRepositoryFacade, groupedOffenderMatchRepository)
+    assertThat(appender.list.single().level).isEqualTo(Level.INFO)
+    assertThat(appender.list.single().formattedMessage)
+      .contains("reason=MANUALLY_UPDATED", "sourceType=COMMON_PLATFORM", "targetId=defendant-id", "jobRunId=null")
   }
 
   @Test
@@ -334,6 +363,8 @@ class EnrichmentResultServiceTest {
       .isInstanceOf(EntityNotFoundException::class.java)
 
     verifyNoInteractions(defendantRepository, offenderRepositoryFacade, groupedOffenderMatchRepository)
+    assertThat(appender.list.single().level).isEqualTo(Level.WARN)
+    assertThat(appender.list.single().formattedMessage).contains("reason=TARGET_NOT_FOUND", "targetId=defendant-id")
   }
 
   @Test
@@ -344,6 +375,8 @@ class EnrichmentResultServiceTest {
       .isInstanceOf(ResponseStatusException::class.java)
       .satisfies({ assertThat((it as ResponseStatusException).statusCode).isEqualTo(HttpStatus.BAD_REQUEST) })
     verifyNoInteractions(defendantRepository, offenderRepositoryFacade)
+    assertThat(appender.list.single().level).isEqualTo(Level.WARN)
+    assertThat(appender.list.single().formattedMessage).contains("reason=MISSING_CRN", "targetId=defendant-id")
   }
 
   @Test

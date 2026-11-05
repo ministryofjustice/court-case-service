@@ -28,6 +28,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderReposito
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
 import uk.gov.justice.probation.courtcaseservice.service.mapper.OffenderMatchMapper
 import uk.gov.justice.probation.courtcaseservice.service.model.MatchType
+import java.util.UUID
 
 @Service
 class EnrichmentResultService(
@@ -40,6 +41,10 @@ class EnrichmentResultService(
   @Transactional
   fun persistEnrichmentResult(request: EnrichmentResultRequest) {
     val sourceType = SourceType.valueOf(request.sourceType.name)
+    if (sourceType == SourceType.COMMON_PLATFORM && !isUuid(request.targetId)) {
+      logRejection(request, "INVALID_TARGET_ID")
+      throw ResponseStatusException(BAD_REQUEST, "A Common Platform targetId must be a defendant UUID")
+    }
     val defendants = enrichmentRepository.findDefendantsForEnrichment(sourceType, request.targetId)
     if (defendants.isEmpty()) {
       logRejection(request, "TARGET_NOT_FOUND")
@@ -151,6 +156,8 @@ class EnrichmentResultService(
     return offenderRepositoryFacade.upsertOffender(update)
   }
 
+  private fun isUuid(value: String) = runCatching { UUID.fromString(value) }.isSuccess
+
   private fun logRejection(request: EnrichmentResultRequest, reason: String) {
     log.warn(
       "Rejected enrichment result: reason={} sourceType={} targetId={} jobRunId={}",
@@ -162,9 +169,21 @@ class EnrichmentResultService(
   }
 
   private fun updateGroupedMatches(defendant: DefendantEntity, request: EnrichmentResultRequest, sourceType: SourceType) {
-    val matches = request.groupedOffenderMatches ?: return
+    val submittedMatches = request.groupedOffenderMatches?.matches ?: return
+    // offender_match has a unique (group_id, crn) constraint, so keep only the first match per CRN
+    val matches = submittedMatches.distinctBy { it.matchIdentifiers.crn.trim().uppercase() }
+    if (matches.size < submittedMatches.size) {
+      log.warn(
+        "Discarded duplicate enrichment matches: sourceType={} targetId={} jobRunId={} submittedMatchCount={} distinctCrnCount={}",
+        request.sourceType,
+        request.targetId,
+        request.jobRunId,
+        submittedMatches.size,
+        matches.size,
+      )
+    }
     val matchRequest = GroupedOffenderMatchesRequest(
-      matches.matches.map { match ->
+      matches.map { match ->
         val identifiers = match.matchIdentifiers
         OffenderMatchRequest(
           MatchIdentifiers(

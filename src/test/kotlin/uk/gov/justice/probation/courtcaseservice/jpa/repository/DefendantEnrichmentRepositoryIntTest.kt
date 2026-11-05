@@ -214,6 +214,13 @@ class DefendantEnrichmentRepositoryIntTest {
   }
 
   @Test
+  fun `should resolve a numeric libra CID without comparing it to the defendant UUID`() {
+    jdbcTemplate.update("UPDATE defendant SET c_id = '236999322' WHERE id = 5813")
+
+    assertThat(repository.findDefendantsForEnrichment(SourceType.LIBRA, "236999322").map { it.id }).containsExactly(5813L)
+  }
+
+  @Test
   fun `should exclude deleted targets and deleted hearing associations`() {
     jdbcTemplate.update("UPDATE defendant SET deleted = true WHERE id = 5093")
     jdbcTemplate.update("UPDATE hearing_defendant SET deleted = true WHERE fk_defendant_id = 5812")
@@ -259,6 +266,30 @@ class DefendantEnrichmentRepositoryIntTest {
     assertThat(matches.offenderMatches.map { it.crn }).containsExactly("X999999")
     assertThat(groupedOffenderMatchRepository.findByCaseIdAndDefendantId("85f400a9-82c9-4a9d-93ec-066d55be0c07", second.defendantId)).isPresent()
     assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM offender WHERE crn = 'X999999'", Long::class.java)).isEqualTo(1L)
+  }
+
+  @Test
+  fun `should store one match per CRN when a new match group receives duplicate candidates`() {
+    jdbcTemplate.update("DELETE FROM offender_match_group g USING defendant d WHERE d.defendant_id = g.defendant_id AND d.id IN (5812, 5837)")
+
+    service.persistEnrichmentResult(
+      EnrichmentResultRequest(
+        sourceType = EnrichmentSourceType.LIBRA,
+        targetId = "c12345",
+        status = EnrichmentStatus.NEEDS_REVIEW,
+        groupedOffenderMatches = EnrichedGroupedOffenderMatches(
+          listOf("X111111", "X222222", "x111111 ").map { EnrichedOffenderMatch(EnrichedMatchIdentifiers(it)) },
+        ),
+        enrichedBy = "worker",
+      ),
+    )
+    entityManager.flush()
+
+    val crns = jdbcTemplate.queryForList(
+      "SELECT m.crn FROM offender_match m JOIN offender_match_group g ON g.id = m.group_id JOIN defendant d ON d.defendant_id = g.defendant_id WHERE d.id = 5812 ORDER BY m.crn",
+      String::class.java,
+    )
+    assertThat(crns).containsExactly("X111111", "X222222")
   }
 
   @Test

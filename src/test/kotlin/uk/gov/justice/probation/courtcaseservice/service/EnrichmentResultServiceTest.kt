@@ -109,7 +109,7 @@ class EnrichmentResultServiceTest {
     service.persistEnrichmentResult(
       EnrichmentResultRequest(
         sourceType = EnrichmentSourceType.COMMON_PLATFORM,
-        targetId = "defendant-id",
+        targetId = "2db153ed-a66f-4cad-8705-bc7520f4276d",
         status = EnrichmentStatus.NEEDS_REVIEW,
         defendant = EnrichedDefendantDetails(
           cprUUID = "person-record-id",
@@ -137,7 +137,7 @@ class EnrichmentResultServiceTest {
     TransactionSynchronizationManager.getSynchronizations().forEach { it.afterCommit() }
     val message = appender.list.single().formattedMessage
     assertThat(message)
-      .contains("sourceType=COMMON_PLATFORM", "targetId=defendant-id", "status=NEEDS_REVIEW", "jobRunId=job-run-uuid")
+      .contains("sourceType=COMMON_PLATFORM", "targetId=2db153ed-a66f-4cad-8705-bc7520f4276d", "status=NEEDS_REVIEW", "jobRunId=job-run-uuid")
       .contains("hasDefendant=true", "hasOffender=true", "hasProbation=false")
       .contains("updatedDefendantCount=1", "submittedMatchCount=2", "submittedConfirmedMatchCount=0", "submittedRejectedMatchCount=1")
       .contains("submittedWarningCount=1", "submittedErrorCount=0")
@@ -259,7 +259,7 @@ class EnrichmentResultServiceTest {
     verifyNoInteractions(defendantRepository, offenderRepositoryFacade, groupedOffenderMatchRepository)
     assertThat(appender.list.single().level).isEqualTo(Level.WARN)
     assertThat(appender.list.single().formattedMessage)
-      .contains("reason=MISSING_PROBATION_STATUS", "sourceType=COMMON_PLATFORM", "targetId=defendant-id")
+      .contains("reason=MISSING_PROBATION_STATUS", "sourceType=COMMON_PLATFORM", "targetId=2db153ed-a66f-4cad-8705-bc7520f4276d")
       .doesNotContain("X12345", "X999999")
   }
 
@@ -354,7 +354,7 @@ class EnrichmentResultServiceTest {
     verifyNoInteractions(defendantRepository, offenderRepository, offenderRepositoryFacade, groupedOffenderMatchRepository)
     assertThat(appender.list.single().level).isEqualTo(Level.INFO)
     assertThat(appender.list.single().formattedMessage)
-      .contains("reason=MANUALLY_UPDATED", "sourceType=COMMON_PLATFORM", "targetId=defendant-id", "jobRunId=null")
+      .contains("reason=MANUALLY_UPDATED", "sourceType=COMMON_PLATFORM", "targetId=2db153ed-a66f-4cad-8705-bc7520f4276d", "jobRunId=null")
   }
 
   @Test
@@ -364,7 +364,17 @@ class EnrichmentResultServiceTest {
 
     verifyNoInteractions(defendantRepository, offenderRepositoryFacade, groupedOffenderMatchRepository)
     assertThat(appender.list.single().level).isEqualTo(Level.WARN)
-    assertThat(appender.list.single().formattedMessage).contains("reason=TARGET_NOT_FOUND", "targetId=defendant-id")
+    assertThat(appender.list.single().formattedMessage).contains("reason=TARGET_NOT_FOUND", "targetId=2db153ed-a66f-4cad-8705-bc7520f4276d")
+  }
+
+  @Test
+  fun `should reject a common platform target that is not a UUID without querying`() {
+    assertThatThrownBy { service.persistEnrichmentResult(request().copy(targetId = "236999322")) }
+      .isInstanceOf(ResponseStatusException::class.java)
+      .satisfies({ assertThat((it as ResponseStatusException).statusCode).isEqualTo(HttpStatus.BAD_REQUEST) })
+
+    verifyNoInteractions(enrichmentRepository, defendantRepository, offenderRepositoryFacade, groupedOffenderMatchRepository)
+    assertThat(appender.list.single().formattedMessage).contains("reason=INVALID_TARGET_ID", "targetId=236999322")
   }
 
   @Test
@@ -376,7 +386,7 @@ class EnrichmentResultServiceTest {
       .satisfies({ assertThat((it as ResponseStatusException).statusCode).isEqualTo(HttpStatus.BAD_REQUEST) })
     verifyNoInteractions(defendantRepository, offenderRepositoryFacade)
     assertThat(appender.list.single().level).isEqualTo(Level.WARN)
-    assertThat(appender.list.single().formattedMessage).contains("reason=MISSING_CRN", "targetId=defendant-id")
+    assertThat(appender.list.single().formattedMessage).contains("reason=MISSING_CRN", "targetId=2db153ed-a66f-4cad-8705-bc7520f4276d")
   }
 
   @Test
@@ -401,7 +411,7 @@ class EnrichmentResultServiceTest {
     verify(groupedOffenderMatchRepository).save(captor.capture())
     val group = captor.firstValue
     assertThat(group.caseId).isEqualTo("case-id")
-    assertThat(group.defendantId).isEqualTo("defendant-id")
+    assertThat(group.defendantId).isEqualTo("2db153ed-a66f-4cad-8705-bc7520f4276d")
     val match = group.offenderMatches.single()
     assertThat(match.group).isSameAs(group)
     assertThat(match.crn).isEqualTo("X12345")
@@ -417,13 +427,13 @@ class EnrichmentResultServiceTest {
   fun `should preserve match decisions on retries and clear matches only for an explicit empty list`() {
     val defendant = defendantWithHearings()
     givenDefendants(defendant)
-    val group = GroupedOffenderMatchesEntity.builder().caseId("case-id").defendantId("defendant-id")
+    val group = GroupedOffenderMatchesEntity.builder().caseId("case-id").defendantId("2db153ed-a66f-4cad-8705-bc7520f4276d")
       .offenderMatches(
         mutableListOf(
           OffenderMatchEntity.builder().crn("X12345").confirmed(true).rejected(false).build(),
         ),
       ).build()
-    whenever(groupedOffenderMatchRepository.findByCaseIdAndDefendantId("case-id", "defendant-id")).thenReturn(Optional.of(group))
+    whenever(groupedOffenderMatchRepository.findByCaseIdAndDefendantId("case-id", "2db153ed-a66f-4cad-8705-bc7520f4276d")).thenReturn(Optional.of(group))
     val request = request().copy(
       groupedOffenderMatches = EnrichedGroupedOffenderMatches(listOf(EnrichedOffenderMatch(EnrichedMatchIdentifiers("X12345", pnc = "new-pnc")))),
     )
@@ -438,17 +448,17 @@ class EnrichmentResultServiceTest {
 
   private fun request() = EnrichmentResultRequest(
     sourceType = EnrichmentSourceType.COMMON_PLATFORM,
-    targetId = "defendant-id",
+    targetId = "2db153ed-a66f-4cad-8705-bc7520f4276d",
     status = EnrichmentStatus.ENRICHED,
     enrichedBy = "worker",
   )
 
   private fun givenDefendants(vararg defendants: DefendantEntity) {
-    whenever(enrichmentRepository.findDefendantsForEnrichment(SourceType.COMMON_PLATFORM, "defendant-id")).thenReturn(defendants.toList())
+    whenever(enrichmentRepository.findDefendantsForEnrichment(SourceType.COMMON_PLATFORM, "2db153ed-a66f-4cad-8705-bc7520f4276d")).thenReturn(defendants.toList())
   }
 
   private fun defendant(): DefendantEntity = DefendantEntity.builder()
-    .id(1L).defendantId("defendant-id").personId("person-id")
+    .id(1L).defendantId("2db153ed-a66f-4cad-8705-bc7520f4276d").personId("person-id")
     .name(NamePropertiesEntity.builder().forename1("Original").forename3("Third").surname("Original").build())
     .defendantName("Original Third Original")
     .address(AddressPropertiesEntity.builder().line1("Original street").postcode("OLD").build())

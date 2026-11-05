@@ -11,24 +11,49 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType
 import java.time.LocalDate
 
 interface DefendantEnrichmentRepository : Repository<DefendantEntity, Long> {
+
+  fun findDefendantsForEnrichment(sourceType: SourceType, targetId: String): List<DefendantEntity> = when (sourceType) {
+    SourceType.COMMON_PLATFORM -> findCommonPlatformDefendantsForEnrichment(targetId)
+    SourceType.LIBRA -> findLibraDefendantsForEnrichment(targetId)
+  }
+
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query(
     """
       SELECT d FROM DefendantEntity d
       WHERE d.deleted = false
-        AND ((:sourceType = uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM AND d.defendantId = :targetId)
-          OR (:sourceType = uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.LIBRA AND d.cId = :targetId))
+        AND d.defendantId = :defendantId
         AND EXISTS (
           SELECT hd.id FROM HearingDefendantEntity hd
           JOIN hd.hearing h
           JOIN h.courtCase c
-          WHERE hd.defendant = d AND c.sourceType = :sourceType
+          WHERE hd.defendant = d
+            AND c.sourceType = uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.COMMON_PLATFORM
             AND hd.deleted = false AND h.deleted = false AND c.deleted = false
         )
       ORDER BY d.id
     """,
   )
-  fun findDefendantsForEnrichment(sourceType: SourceType, targetId: String): List<DefendantEntity>
+  fun findCommonPlatformDefendantsForEnrichment(defendantId: String): List<DefendantEntity>
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query(
+    """
+      SELECT d FROM DefendantEntity d
+      WHERE d.deleted = false
+        AND d.cId = :cId
+        AND EXISTS (
+          SELECT hd.id FROM HearingDefendantEntity hd
+          JOIN hd.hearing h
+          JOIN h.courtCase c
+          WHERE hd.defendant = d
+            AND c.sourceType = uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType.LIBRA
+            AND hd.deleted = false AND h.deleted = false AND c.deleted = false
+        )
+      ORDER BY d.id
+    """,
+  )
+  fun findLibraDefendantsForEnrichment(cId: String): List<DefendantEntity>
 
   @Query(
     value = """

@@ -11,7 +11,7 @@ import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType
 import java.time.LocalDate
 
 interface DefendantEnrichmentRepository : Repository<DefendantEntity, Long> {
-  // Separate queries per source: defendant_id is a uuid column, so a Libra CID must never be bound against it
+
   fun findDefendantsForEnrichment(sourceType: SourceType, targetId: String): List<DefendantEntity> = when (sourceType) {
     SourceType.COMMON_PLATFORM -> findCommonPlatformDefendantsForEnrichment(targetId)
     SourceType.LIBRA -> findLibraDefendantsForEnrichment(targetId)

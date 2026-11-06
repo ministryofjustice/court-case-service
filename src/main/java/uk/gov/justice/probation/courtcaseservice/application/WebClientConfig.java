@@ -54,6 +54,9 @@ public class WebClientConfig {
     @Value("${flipt.api-key:someTestToken}")
     private String featureFlagApiKey;
 
+    @Value("${cpr-service.base-url}")
+    private String cprServiceBaseUrl;
+
     @Bean
     public RestClientHelper documentApiClient(WebClient documentWebClient) {
         return new RestClientHelper(documentWebClient, "community-api-client", disableAuthentication);
@@ -152,4 +155,22 @@ public class WebClientConfig {
             .defaultHeader("Content-Type", "application/json")
             .build();
     }
+
+    @Bean
+    public RestClientHelper cprServiceClient(WebClient cprServiceWebClient) {
+        return new RestClientHelper(
+            cprServiceWebClient,
+            "person-record-search-client",
+            disableAuthentication
+        );
+    }
+
+    @Bean
+    public WebClient cprServiceWebClient(WebClientFactory webClientFactory) {
+        return webClientFactory.buildWebClient(
+            cprServiceBaseUrl,
+            DEFAULT_BYTE_BUFFER_SIZE
+        );
+    }
+
 }

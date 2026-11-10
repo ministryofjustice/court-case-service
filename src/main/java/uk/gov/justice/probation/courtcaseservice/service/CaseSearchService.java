@@ -57,6 +57,7 @@ public class CaseSearchService {
                     .map(String::trim).collect(Collectors.joining(" & ")), searchTerm.strip(), pageable, courtCode, sortBy, order);
         };
 
+
         if(caseSearchRequest.getPage() > resultsPage.getTotalPages()) {
             return CaseSearchResult.builder()
                 .totalElements(resultsPage.getTotalElements())

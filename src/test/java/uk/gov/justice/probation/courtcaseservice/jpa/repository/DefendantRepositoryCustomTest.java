@@ -43,6 +43,7 @@ public class DefendantRepositoryCustomTest {
     final static String testTsQueryString = "";
     final static String testName = "John Smith";
     final static String testUrn = "01HV14907540";
+    final static String testPnc = "2004/0012345A";
 
     @Test
     void whenFindDefendantsByCrnGivenValidCourtCode_thenQueryBuiltCorrectly() {
@@ -91,7 +92,7 @@ public class DefendantRepositoryCustomTest {
 
         String actualSql = sqlCaptor.getValue();
 
-        assertTrue(actualSql.contains("off.crn = :crn"));
+        assertTrue(actualSql.contains("upper(off.crn) = upper(:crn)"));
         assertFalse(actualSql.contains("hday1.court_code = :courtCode"));
         assertTrue(actualSql.contains("order by cc.id desc"));
     }
@@ -194,7 +195,59 @@ public class DefendantRepositoryCustomTest {
 
         String actualSql = sqlCaptor.getValue();
 
-        assertTrue(actualSql.contains("cc1.urn = :urn "));
+        assertTrue(actualSql.contains("upper(cc1.urn) = upper(:urn) "));
+        assertFalse(actualSql.contains("hday1.court_code = :courtCode"));
+        assertTrue(actualSql.contains("order by cc.id desc"));
+    }
+
+    @Test
+    void whenFindDefendantsByPncGivenValidCourtCode_thenQueryBuiltCorrectly() {
+        when(entityManager.createNativeQuery(anyString(), anyString()))
+            .thenReturn(query);
+        when(entityManager.createNativeQuery(startsWith("select count(*)")))
+            .thenReturn(countQuery);
+
+        when(query.setParameter(anyString(), any())).thenReturn(query);
+        when(countQuery.setParameter(anyString(), any())).thenReturn(countQuery);
+        when(countQuery.getSingleResult()).thenReturn(1L);
+
+        defendantRepositoryCustom.findDefendantsByPnc(testPnc, pageable, courtCode, null, null);
+
+        ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
+
+        verify(entityManager).createNativeQuery(
+            sqlCaptor.capture(),
+            eq("search_defendants_result_mapping")
+        );
+
+        String actualSql = sqlCaptor.getValue();
+
+        assertTrue(actualSql.contains("hday1.court_code = :courtCode"));
+    }
+
+    @Test
+    void whenFindDefendantsByPncGivenBlankCourtCode_thenQueryBuiltCorrectly() {
+        when(entityManager.createNativeQuery(anyString(), anyString()))
+            .thenReturn(query);
+        when(entityManager.createNativeQuery(startsWith("select count(*)")))
+            .thenReturn(countQuery);
+
+        when(query.setParameter(anyString(), any())).thenReturn(query);
+        when(countQuery.setParameter(anyString(), any())).thenReturn(countQuery);
+        when(countQuery.getSingleResult()).thenReturn(1L);
+
+        defendantRepositoryCustom.findDefendantsByPnc(testPnc, pageable, "", null, null);
+
+        ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
+
+        verify(entityManager).createNativeQuery(
+            sqlCaptor.capture(),
+            eq("search_defendants_result_mapping")
+        );
+
+        String actualSql = sqlCaptor.getValue();
+
+        assertTrue(actualSql.contains("upper(d1.pnc) = upper(:pnc)"));
         assertFalse(actualSql.contains("hday1.court_code = :courtCode"));
         assertTrue(actualSql.contains("order by cc.id desc"));
     }

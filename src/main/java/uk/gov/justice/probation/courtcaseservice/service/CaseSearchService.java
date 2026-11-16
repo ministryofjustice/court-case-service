@@ -43,13 +43,14 @@ public class CaseSearchService {
     public CaseSearchResult searchCases(CaseSearchRequest caseSearchRequest) {
         Pageable pageable = Pageable.ofSize(caseSearchRequest.getSize()).withPage(caseSearchRequest.getPage() - 1);
 
-        final String searchTerm = caseSearchRequest.getTerm();
+        final String searchTerm = caseSearchRequest.getTerm() == null ? "" : caseSearchRequest.getTerm().trim();
         final String courtCode = caseSearchRequest.getCourtCode();
         final var sortBy = caseSearchRequest.getSortBy();
         final var order = sortBy == null ? null : caseSearchRequest.getOrder();
         var resultsPage = switch (caseSearchRequest.getType()) {
             case CRN -> defendantRepositoryCustom.findDefendantsByCrn(searchTerm, pageable, courtCode, sortBy, order);
             case URN -> defendantRepositoryCustom.findDefendantsByUrn(searchTerm, pageable, courtCode, sortBy, order);
+            case PNC -> defendantRepositoryCustom.findDefendantsByPnc(searchTerm, pageable, courtCode, sortBy, order);
             case NAME ->
                 defendantRepositoryCustom.findDefendantsByName(Arrays.stream(searchTerm.trim().replaceAll("\\s+", " ").split(" "))
                     // Remove leading and trailing whitespaces

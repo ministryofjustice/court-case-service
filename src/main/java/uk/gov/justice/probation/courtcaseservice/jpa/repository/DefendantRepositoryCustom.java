@@ -57,7 +57,7 @@ public class DefendantRepositoryCustom {
 
         String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " and hday1.court_code = :courtCode" : "";
 
-        String CRN_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " join offender off on off.id = d1.fk_offender_id " + " where off.crn = :crn " + COURT_FILTER_FROM + DEFENDANT_SEARCH_GROUPING;
+        String CRN_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " join offender off on off.id = d1.fk_offender_id " + " where upper(off.crn) = upper(:crn) " + COURT_FILTER_FROM + DEFENDANT_SEARCH_GROUPING;
 
         var query = entityManager.createNativeQuery(
             DEFENDANT_SEARCH_SELECT + CRN_SEARCH_FROM + getOrderByClause(sortBy, order, DEFAULT_CASE_ORDER_BY),
@@ -108,7 +108,7 @@ public class DefendantRepositoryCustom {
 
         String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " and hday1.court_code = :courtCode" : "";
 
-        String URN_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where cc1.urn = :urn " + COURT_FILTER_FROM  + DEFENDANT_SEARCH_GROUPING;
+        String URN_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where upper(cc1.urn) = upper(:urn) " + COURT_FILTER_FROM  + DEFENDANT_SEARCH_GROUPING;
 
         var query = entityManager.createNativeQuery(
             DEFENDANT_SEARCH_SELECT + URN_SEARCH_FROM + getOrderByClause(sortBy, order, DEFAULT_CASE_ORDER_BY),
@@ -124,6 +124,31 @@ public class DefendantRepositoryCustom {
         }
 
         countQuery.setParameter("urn", urn);
+
+        return getPagedResult(pageable, query, countQuery);
+    }
+
+    public Page<Pair<CourtCaseEntity, DefendantEntity>> findDefendantsByPnc(String pnc, Pageable pageable, String courtCode,
+                                                                            CaseSearchSortFields sortBy, Direction order) {
+
+        String COURT_FILTER_FROM = (!courtCode.isBlank()) ? " and hday1.court_code = :courtCode" : "";
+
+        String PNC_SEARCH_FROM = DEFENDANT_SEARCH_FROM_CLAUSE + " where upper(d1.pnc) = upper(:pnc) " + COURT_FILTER_FROM  + DEFENDANT_SEARCH_GROUPING;
+
+        var query = entityManager.createNativeQuery(
+            DEFENDANT_SEARCH_SELECT + PNC_SEARCH_FROM + getOrderByClause(sortBy, order, DEFAULT_CASE_ORDER_BY),
+            "search_defendants_result_mapping");
+
+        query.setParameter("pnc", pnc);
+
+        var countQuery = entityManager.createNativeQuery("select count(*) " + PNC_SEARCH_FROM);
+
+        if (!courtCode.isBlank()) {
+            query.setParameter("courtCode", courtCode);
+            countQuery.setParameter("courtCode", courtCode);
+        }
+
+        countQuery.setParameter("pnc", pnc);
 
         return getPagedResult(pageable, query, countQuery);
     }

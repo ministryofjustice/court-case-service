@@ -13,6 +13,7 @@ class HearingNoteResponseTest {
     @Test
     void givenHearingNoteEntity_shouldMapToHearingNoteResponse() {
         LocalDateTime now = LocalDateTime.now();
+        LocalDateTime lastUpdated = now.plusDays(1);
         var hearingNoteEntity = HearingNoteEntity.builder()
             .hearingId("test-hearing-id")
             .author("Author One")
@@ -20,6 +21,8 @@ class HearingNoteResponseTest {
             .id(1234L)
             .createdByUuid("test-uuid")
             .created(now)
+            .lastUpdated(lastUpdated)
+            .lastUpdatedBy("Author Two(client-id)")
             .draft(true)
             .legacy(true)
             .build();
@@ -34,6 +37,8 @@ class HearingNoteResponseTest {
                 .noteId(1234L)
                 .createdByUuid("test-uuid")
                 .created(now)
+                .lastUpdated(lastUpdated)
+                .lastUpdatedBy("Author Two(client-id)")
                 .draft(true)
                 .legacy(true)
                 .build()

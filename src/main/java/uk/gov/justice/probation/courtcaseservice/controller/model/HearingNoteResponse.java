@@ -22,6 +22,8 @@ public class HearingNoteResponse {
     private final LocalDateTime created;
     private final String author;
     private final String createdByUuid;
+    private final LocalDateTime lastUpdated;
+    private final String lastUpdatedBy;
     private final boolean draft;
     private final boolean legacy;
 
@@ -33,6 +35,8 @@ public class HearingNoteResponse {
             .created(hearingNoteEntity.getCreated())
             .author(hearingNoteEntity.getAuthor())
             .createdByUuid(hearingNoteEntity.getCreatedByUuid())
+            .lastUpdated(hearingNoteEntity.getLastUpdated())
+            .lastUpdatedBy(hearingNoteEntity.getLastUpdatedBy())
             .draft(hearingNoteEntity.isDraft())
             .legacy(hearingNoteEntity.isLegacy())
             .build();

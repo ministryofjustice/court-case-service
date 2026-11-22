@@ -53,11 +53,11 @@ class DefendantEnrichmentControllerSecurityTest {
     val fromDate = LocalDate.of(2026, 10, 9)
     val toDate = LocalDate.of(2026, 10, 23)
     if (endpoint == "defendant-ids") {
-      given(service.getCommonPlatformEnrichmentCandidates(fromDate, toDate, null, 0, 200))
-        .willReturn(CommonPlatformEnrichmentTargets(emptyList(), 0, 200, 0L, 0, false))
+      given(service.getCommonPlatformEnrichmentCandidates(fromDate, toDate, "B10JQ"))
+        .willReturn(CommonPlatformEnrichmentTargets(emptyList()))
     } else {
-      given(service.getLibraEnrichmentCandidates(fromDate, toDate, null, 0, 200))
-        .willReturn(LibraEnrichmentTargets(emptyList(), 0, 200, 0L, 0, false))
+      given(service.getLibraEnrichmentCandidates(fromDate, toDate, "B10JQ"))
+        .willReturn(LibraEnrichmentTargets(emptyList()))
     }
 
     mockMvc.perform(request(endpoint).header("Authorization", "Bearer worker-token"))
@@ -96,9 +96,9 @@ class DefendantEnrichmentControllerSecurityTest {
     val toDate = LocalDate.of(2026, 10, 23)
     val failure = ResponseStatusException(SERVICE_UNAVAILABLE, "Database unavailable")
     if (endpoint == "defendant-ids") {
-      given(service.getCommonPlatformEnrichmentCandidates(fromDate, toDate, null, 0, 200)).willThrow(failure)
+      given(service.getCommonPlatformEnrichmentCandidates(fromDate, toDate, "B10JQ")).willThrow(failure)
     } else {
-      given(service.getLibraEnrichmentCandidates(fromDate, toDate, null, 0, 200)).willThrow(failure)
+      given(service.getLibraEnrichmentCandidates(fromDate, toDate, "B10JQ")).willThrow(failure)
     }
 
     mockMvc.perform(request(endpoint).header("Authorization", "Bearer worker-token"))
@@ -108,7 +108,7 @@ class DefendantEnrichmentControllerSecurityTest {
 
   private fun request(endpoint: String): MockHttpServletRequestBuilder = get("/enrichment-targets/$endpoint")
     .param("fromDate", "2026-10-09").param("toDate", "2026-10-23")
-    .param("page", "0").param("size", "200")
+    .param("courtCode", "B10JQ")
 
   private fun serviceToken(authorities: List<String>): Jwt = Jwt.withTokenValue("worker-token")
     .header("alg", "RS256")

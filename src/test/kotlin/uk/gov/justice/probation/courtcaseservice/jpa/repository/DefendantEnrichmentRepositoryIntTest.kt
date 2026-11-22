@@ -9,7 +9,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.context.annotation.Import
-import org.springframework.data.domain.PageRequest
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.jdbc.Sql
@@ -43,7 +42,6 @@ import java.time.LocalDate
 class DefendantEnrichmentRepositoryIntTest {
   private val fromDate = LocalDate.of(2026, 10, 9)
   private val toDate = LocalDate.of(2026, 10, 23)
-  private val pageable = PageRequest.of(0, 200)
 
   @Autowired
   lateinit var repository: DefendantEnrichmentRepository
@@ -92,114 +90,115 @@ class DefendantEnrichmentRepositoryIntTest {
 
   @Test
   fun `should return common platform defendant IDs not CIDs`() {
-    val result = repository.findCommonPlatformEnrichmentCandidates(fromDate, toDate, null, pageable)
+    val result = repository.findCommonPlatformEnrichmentCandidates(fromDate, toDate, "B14LO")
 
-    assertThat(result.content).containsExactly("7cece15c-78e8-4be9-a509-35d74eb68839")
-    assertThat(result.totalElements).isEqualTo(1L)
+    assertThat(result).containsExactly("7cece15c-78e8-4be9-a509-35d74eb68839")
   }
 
   @Test
-  fun `should exclude manually updated common platform defendants from results and totals`() {
-    jdbcTemplate.update("UPDATE defendant SET manual_update = true WHERE defendant_id = ?", "7cece15c-78e8-4be9-a509-35d74eb68839")
+  fun `should exclude manually updated common platform defendants`() {
+    jdbcTemplate.update("UPDATE defendant SET manual_update = true WHERE id = 5093")
 
-    val result = repository.findCommonPlatformEnrichmentCandidates(fromDate, toDate, null, pageable)
+    val result = repository.findCommonPlatformEnrichmentCandidates(fromDate, toDate, "B14LO")
 
-    assertThat(result.content).isEmpty()
-    assertThat(result.totalElements).isZero()
+    assertThat(result).isEmpty()
   }
 
   @Test
   fun `should deduplicate libra CIDs across hearings and defendants and exclude blank CIDs`() {
-    val result = repository.findLibraEnrichmentCandidates(fromDate, toDate, null, PageRequest.of(0, 1))
+    val result = repository.findLibraEnrichmentCandidates(fromDate, toDate, "B14LO")
 
-    assertThat(result.content).containsExactly("c12345")
-    assertThat(result.totalElements).isEqualTo(1L)
-    assertThat(result.totalPages).isEqualTo(1)
-    assertThat(result.hasNext()).isFalse()
+    assertThat(result).containsExactly("c12345")
   }
 
   @Test
-  fun `should exclude manually updated libra defendants from results and totals`() {
+  fun `should exclude manually updated libra defendants`() {
     jdbcTemplate.update("UPDATE defendant SET manual_update = true WHERE c_id = ?", "c12345")
 
-    val result = repository.findLibraEnrichmentCandidates(fromDate, toDate, null, pageable)
+    val result = repository.findLibraEnrichmentCandidates(fromDate, toDate, "B14LO")
 
-    assertThat(result.content).isEmpty()
-    assertThat(result.totalElements).isZero()
+    assertThat(result).isEmpty()
   }
 
   @Test
   fun `should include the start date and exclude the end date for both sources`() {
-    assertThat(repository.findLibraEnrichmentCandidates(fromDate, toDate, null, pageable).content)
+    assertThat(repository.findLibraEnrichmentCandidates(fromDate, toDate, "B14LO"))
       .containsExactly("c12345")
-    assertThat(repository.findLibraEnrichmentCandidates(toDate, toDate.plusDays(1), null, pageable).content)
+    assertThat(repository.findLibraEnrichmentCandidates(toDate, toDate.plusDays(1), "B14LO"))
       .containsExactly("c67890")
-    assertThat(repository.findCommonPlatformEnrichmentCandidates(fromDate, fromDate.plusDays(1), null, pageable).content)
+    assertThat(repository.findCommonPlatformEnrichmentCandidates(fromDate, fromDate.plusDays(1), "B14LO"))
       .containsExactly("7cece15c-78e8-4be9-a509-35d74eb68839")
-    assertThat(repository.findCommonPlatformEnrichmentCandidates(fromDate.minusDays(1), fromDate, null, pageable).content)
+    assertThat(repository.findCommonPlatformEnrichmentCandidates(fromDate.minusDays(1), fromDate, "B14LO"))
       .isEmpty()
   }
 
   @Test
-  fun `should independently paginate distinct CIDs in deterministic order`() {
-    val first = repository.findLibraEnrichmentCandidates(fromDate, toDate.plusDays(1), null, PageRequest.of(0, 1))
-    val second = repository.findLibraEnrichmentCandidates(fromDate, toDate.plusDays(1), null, PageRequest.of(1, 1))
-    val beyond = repository.findLibraEnrichmentCandidates(fromDate, toDate.plusDays(1), null, PageRequest.of(2, 1))
+  fun `should return all distinct CIDs in deterministic order`() {
+    val result = repository.findLibraEnrichmentCandidates(fromDate, toDate.plusDays(1), "B14LO")
 
-    assertThat(first.content).containsExactly("c12345")
-    assertThat(first.totalElements).isEqualTo(2L)
-    assertThat(first.totalPages).isEqualTo(2)
-    assertThat(first.hasNext()).isTrue()
-    assertThat(second.content).containsExactly("c67890")
-    assertThat(second.totalElements).isEqualTo(2L)
-    assertThat(second.hasNext()).isFalse()
-    assertThat(beyond.content).isEmpty()
-    assertThat(beyond.totalElements).isEqualTo(2L)
-    assertThat(beyond.totalPages).isEqualTo(2)
+    assertThat(result).containsExactly("c12345", "c67890")
   }
 
   @Test
-  fun `should paginate common platform IDs without counting repeated hearing days`() {
+  fun `should return all distinct common platform IDs despite repeated hearing days`() {
     jdbcTemplate.update("UPDATE court_case SET source_type = 'COMMON_PLATFORM' WHERE id = 7699")
 
-    val first = repository.findCommonPlatformEnrichmentCandidates(fromDate, toDate, null, PageRequest.of(0, 1))
-    val second = repository.findCommonPlatformEnrichmentCandidates(fromDate, toDate, null, PageRequest.of(1, 1))
+    val result = repository.findCommonPlatformEnrichmentCandidates(fromDate, toDate, "B14LO")
 
-    assertThat(first.content).containsExactly("7cece15c-78e8-4be9-a509-35d74eb68839")
-    assertThat(first.totalElements).isEqualTo(2L)
-    assertThat(first.hasNext()).isTrue()
-    assertThat(second.content).containsExactly("8dc4322f-75de-429b-875b-0063b7c0c044")
-    assertThat(second.totalElements).isEqualTo(2L)
-    assertThat(second.hasNext()).isFalse()
+    assertThat(result).containsExactly("7cece15c-78e8-4be9-a509-35d74eb68839", "8dc4322f-75de-429b-875b-0063b7c0c044")
+  }
+
+  @Test
+  fun `should return more than 500 candidates for each source`() {
+    jdbcTemplate.update(
+      """
+        INSERT INTO defendant (
+          id, defendant_name, type, name, sex, created, created_by, manual_update, defendant_id,
+          offender_confirmed, person_id, last_updated, last_updated_by, version, deleted, c_id
+        )
+        SELECT -100000 - n, 'Test Defendant', 'PERSON', '{"surname":"Defendant"}'::jsonb, 'NOT_KNOWN',
+          now(), 'test', false, md5('defendant-' || n)::uuid, false, md5('person-' || n)::uuid,
+          now(), 'test', 0, false, 'bulk-cid-' || n
+        FROM generate_series(1, 501) n
+      """.trimIndent(),
+    )
+    jdbcTemplate.update(
+      """
+        INSERT INTO hearing_defendant (
+          id, fk_hearing_id, created, created_by, defendant_id, fk_defendant_id,
+          last_updated, last_updated_by, version, deleted, outcome_not_required
+        )
+        SELECT -200000 - n * 2 - source, CASE source WHEN 0 THEN 5002 ELSE 5059 END,
+          now(), 'test', md5('defendant-' || n)::uuid, -100000 - n, now(), 'test', 0, false, false
+        FROM generate_series(1, 501) n CROSS JOIN generate_series(0, 1) source
+      """.trimIndent(),
+    )
+
+    assertThat(repository.findCommonPlatformEnrichmentCandidates(fromDate, toDate, "B14LO")).hasSize(502)
+    assertThat(repository.findLibraEnrichmentCandidates(fromDate, toDate, "B14LO")).hasSize(502)
   }
 
   @Test
   fun `should filter by court code on the same matching hearing day`() {
     jdbcTemplate.update("UPDATE hearing_day SET court_code = 'B10JQ' WHERE id IN (6603, 6571)")
 
-    assertThat(repository.findCommonPlatformEnrichmentCandidates(fromDate, toDate, "B10JQ", pageable).content)
+    assertThat(repository.findCommonPlatformEnrichmentCandidates(fromDate, toDate, "B10JQ"))
       .containsExactly("7cece15c-78e8-4be9-a509-35d74eb68839")
-    assertThat(repository.findLibraEnrichmentCandidates(fromDate, toDate, "B10JQ", pageable).content).isEmpty()
-    assertThat(repository.findLibraEnrichmentCandidates(fromDate, toDate.plusDays(1), "B10JQ", pageable).content)
+    assertThat(repository.findLibraEnrichmentCandidates(fromDate, toDate, "B10JQ")).isEmpty()
+    assertThat(repository.findLibraEnrichmentCandidates(fromDate, toDate.plusDays(1), "B10JQ"))
       .containsExactly("c67890")
-    assertThat(repository.findCommonPlatformEnrichmentCandidates(fromDate, toDate, "B14LO", pageable).content).isEmpty()
-    assertThat(repository.findLibraEnrichmentCandidates(fromDate, toDate, "B14LO", pageable).content)
+    assertThat(repository.findCommonPlatformEnrichmentCandidates(fromDate, toDate, "B14LO")).isEmpty()
+    assertThat(repository.findLibraEnrichmentCandidates(fromDate, toDate, "B14LO"))
       .containsExactly("c12345")
   }
 
   @Test
-  fun `should return empty pages with zero totals when no hearings match`() {
-    val cp = repository.findCommonPlatformEnrichmentCandidates(fromDate, toDate, "UNKNOWN", pageable)
-    val libra = repository.findLibraEnrichmentCandidates(fromDate, toDate, "UNKNOWN", pageable)
+  fun `should return empty lists when no hearings match`() {
+    val cp = repository.findCommonPlatformEnrichmentCandidates(fromDate, toDate, "UNKNOWN")
+    val libra = repository.findLibraEnrichmentCandidates(fromDate, toDate, "UNKNOWN")
 
-    assertThat(cp.content).isEmpty()
-    assertThat(cp.totalElements).isZero()
-    assertThat(cp.totalPages).isZero()
-    assertThat(cp.hasNext()).isFalse()
-    assertThat(libra.content).isEmpty()
-    assertThat(libra.totalElements).isZero()
-    assertThat(libra.totalPages).isZero()
-    assertThat(libra.hasNext()).isFalse()
+    assertThat(cp).isEmpty()
+    assertThat(libra).isEmpty()
   }
 
   @Test

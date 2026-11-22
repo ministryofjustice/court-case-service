@@ -1,8 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.controller
 
 import io.swagger.v3.oas.annotations.Hidden
-import jakarta.validation.constraints.Max
-import jakarta.validation.constraints.Min
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
@@ -26,29 +24,28 @@ class DefendantEnrichmentController(
   fun getCommonPlatformEnrichmentCandidates(
     @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
     @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate,
-    @RequestParam(required = false) courtCode: String?,
-    @RequestParam @Min(0) page: Int,
-    @RequestParam @Min(1) @Max(500) size: Int,
+    @RequestParam courtCode: String,
   ): CommonPlatformEnrichmentTargets {
-    validateDateRange(fromDate, toDate)
-    return defendantEnrichmentService.getCommonPlatformEnrichmentCandidates(fromDate, toDate, courtCode, page, size)
+    validateRequest(fromDate, toDate, courtCode)
+    return defendantEnrichmentService.getCommonPlatformEnrichmentCandidates(fromDate, toDate, courtCode)
   }
 
   @GetMapping("/cids", produces = [APPLICATION_JSON_VALUE])
   fun getLibraEnrichmentCandidates(
     @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
     @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate,
-    @RequestParam(required = false) courtCode: String?,
-    @RequestParam @Min(0) page: Int,
-    @RequestParam @Min(1) @Max(500) size: Int,
+    @RequestParam courtCode: String,
   ): LibraEnrichmentTargets {
-    validateDateRange(fromDate, toDate)
-    return defendantEnrichmentService.getLibraEnrichmentCandidates(fromDate, toDate, courtCode, page, size)
+    validateRequest(fromDate, toDate, courtCode)
+    return defendantEnrichmentService.getLibraEnrichmentCandidates(fromDate, toDate, courtCode)
   }
 
-  private fun validateDateRange(fromDate: LocalDate, toDate: LocalDate) {
+  private fun validateRequest(fromDate: LocalDate, toDate: LocalDate, courtCode: String) {
     if (!toDate.isAfter(fromDate)) {
       throw ResponseStatusException(BAD_REQUEST, "toDate must be after fromDate")
+    }
+    if (courtCode.isBlank() || ',' in courtCode) {
+      throw ResponseStatusException(BAD_REQUEST, "A single courtCode is required")
     }
   }
 }

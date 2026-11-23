@@ -100,6 +100,17 @@ The following actuator endpoints are available:
 * *Application Ping* : `$ curl -X GET http://localhost:8080/ping`
 * *Application Feature Flags* : `$ curl -X GET http://localhost:8080/feature-flags`
 
+### Enrichment targets
+
+`GET /enrichment-targets/defendant-ids` returns Common Platform defendant IDs;
+`GET /enrichment-targets/cids` returns Libra cIDs. Both require a single
+`courtCode`, `fromDate` (inclusive), and `toDate` (exclusive). Each response contains all matching distinct IDs in a
+`defendantIds` or `cIds` array; there is no pagination.
+
+The queries exclude manually updated defendants. If a target is manually
+updated after it is fetched, enrichment result persistence rejects the result
+with HTTP 409 instead of overwriting it.
+
 ---
 
 ## Database

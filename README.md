@@ -100,7 +100,7 @@ The following actuator endpoints are available:
 * *Application Ping* : `$ curl -X GET http://localhost:8080/ping`
 * *Application Feature Flags* : `$ curl -X GET http://localhost:8080/feature-flags`
 
----
+---  
 
 ## Database
 The application uses a Postgres 14 database which is managed by Flyway. The SpringBoot integration will automatically manage migrations, so we only need these commands for debugging or if the local database has become corrupted. 

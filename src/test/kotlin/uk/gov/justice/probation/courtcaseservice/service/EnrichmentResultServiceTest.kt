@@ -14,8 +14,10 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -51,7 +53,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantEnrichm
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepositoryFacade
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
 import uk.gov.justice.probation.courtcaseservice.service.model.MatchType
 import java.time.LocalDate
@@ -69,9 +70,6 @@ class EnrichmentResultServiceTest {
   lateinit var offenderRepository: OffenderRepository
 
   @Mock
-  lateinit var offenderRepositoryFacade: OffenderRepositoryFacade
-
-  @Mock
   lateinit var groupedOffenderMatchRepository: GroupedOffenderMatchRepository
 
   lateinit var service: EnrichmentResultService
@@ -85,7 +83,6 @@ class EnrichmentResultServiceTest {
       enrichmentRepository,
       defendantRepository,
       offenderRepository,
-      offenderRepositoryFacade,
       groupedOffenderMatchRepository,
     )
     appender.start()
@@ -105,7 +102,6 @@ class EnrichmentResultServiceTest {
     whenever(offenderRepository.findByCrn("X12345")).thenReturn(
       Optional.of(OffenderEntity.builder().crn("X12345").probationStatus(OffenderProbationStatus.CURRENT).build()),
     )
-    whenever(offenderRepositoryFacade.upsertOffender(any())).thenAnswer { it.arguments[0] }
     service.persistEnrichmentResult(
       EnrichmentResultRequest(
         sourceType = EnrichmentSourceType.COMMON_PLATFORM,
@@ -188,14 +184,14 @@ class EnrichmentResultServiceTest {
     assertThat(defendant.type).isEqualTo(DefendantType.PERSON)
     assertThat(defendant.isManualUpdate).isFalse()
     assertThat(defendant.isOffenderConfirmed).isFalse()
-    verifyNoInteractions(offenderRepositoryFacade, groupedOffenderMatchRepository)
+    verifyNoInteractions(offenderRepository, groupedOffenderMatchRepository)
   }
 
   @Test
   fun `should upsert and link an offender with probation details without treating it as a manual confirmation`() {
     val defendant = defendant()
     givenDefendants(defendant)
-    whenever(offenderRepositoryFacade.upsertOffender(any())).thenAnswer { it.arguments[0] }
+    whenever(offenderRepository.save(any<OffenderEntity>())).thenAnswer { it.arguments[0] }
 
     service.persistEnrichmentResult(
       request().copy(
@@ -205,7 +201,7 @@ class EnrichmentResultServiceTest {
     )
 
     val captor = argumentCaptor<OffenderEntity>()
-    verify(offenderRepositoryFacade).upsertOffender(captor.capture())
+    verify(offenderRepository).save(captor.capture())
     assertThat(defendant.offender).isSameAs(captor.firstValue)
     assertThat(defendant.crn).isEqualTo("X12345")
     assertThat(defendant.offender.pnc).isEqualTo("offender-pnc")
@@ -228,7 +224,6 @@ class EnrichmentResultServiceTest {
     val defendant = defendant().withOffender(offender)
     givenDefendants(defendant)
     whenever(offenderRepository.findByCrn("X12345")).thenReturn(Optional.of(offender))
-    whenever(offenderRepositoryFacade.upsertOffender(any())).thenAnswer { it.arguments[0] }
 
     service.persistEnrichmentResult(request().copy(probation = EnrichedProbationDetails(breach = false, preSentenceActivity = false)))
 
@@ -256,7 +251,7 @@ class EnrichmentResultServiceTest {
       })
 
     assertThat(defendant.offender).isSameAs(existing)
-    verifyNoInteractions(defendantRepository, offenderRepositoryFacade, groupedOffenderMatchRepository)
+    verifyNoInteractions(defendantRepository, groupedOffenderMatchRepository)
     assertThat(appender.list.single().level).isEqualTo(Level.WARN)
     assertThat(appender.list.single().formattedMessage)
       .contains("reason=MISSING_PROBATION_STATUS", "sourceType=COMMON_PLATFORM", "targetId=2db153ed-a66f-4cad-8705-bc7520f4276d")
@@ -280,7 +275,7 @@ class EnrichmentResultServiceTest {
       .satisfies({ assertThat((it as ResponseStatusException).statusCode).isEqualTo(HttpStatus.BAD_REQUEST) })
 
     assertThat(defendant.offender).isNull()
-    verifyNoInteractions(defendantRepository, offenderRepositoryFacade, groupedOffenderMatchRepository)
+    verifyNoInteractions(defendantRepository, groupedOffenderMatchRepository)
   }
 
   @Test
@@ -294,7 +289,7 @@ class EnrichmentResultServiceTest {
       .isInstanceOf(ResponseStatusException::class.java)
       .satisfies({ assertThat((it as ResponseStatusException).statusCode).isEqualTo(HttpStatus.BAD_REQUEST) })
 
-    verifyNoInteractions(defendantRepository, offenderRepositoryFacade, groupedOffenderMatchRepository)
+    verifyNoInteractions(defendantRepository, groupedOffenderMatchRepository)
   }
 
   @Test
@@ -303,7 +298,6 @@ class EnrichmentResultServiceTest {
     val existing = OffenderEntity.builder().crn("X12345").probationStatus(OffenderProbationStatus.PREVIOUSLY_KNOWN).build()
     givenDefendants(defendant)
     whenever(offenderRepository.findByCrn("X12345")).thenReturn(Optional.of(existing))
-    whenever(offenderRepositoryFacade.upsertOffender(any())).thenAnswer { it.arguments[0] }
 
     service.persistEnrichmentResult(request().copy(offender = EnrichedOffenderDetails(crn = "X12345", pnc = "new-pnc")))
 
@@ -322,7 +316,7 @@ class EnrichmentResultServiceTest {
     service.persistEnrichmentResult(request().copy(status = EnrichmentStatus.NO_MATCH))
 
     assertThat(defendant.offender).isSameAs(offender)
-    verifyNoInteractions(offenderRepositoryFacade, groupedOffenderMatchRepository)
+    verifyNoInteractions(offenderRepository, groupedOffenderMatchRepository)
   }
 
   @Test
@@ -344,6 +338,51 @@ class EnrichmentResultServiceTest {
   }
 
   @Test
+  fun `should update the same offender for defendants sharing a CID`() {
+    val first = defendant()
+    val second = defendant().withId(2L).withDefendantId("second-id")
+    val existing = OffenderEntity.builder().id(10L).crn("X12345").probationStatus(OffenderProbationStatus.CURRENT).build()
+    whenever(enrichmentRepository.findDefendantsForEnrichment(SourceType.LIBRA, "cid")).thenReturn(listOf(first, second))
+    whenever(offenderRepository.findByCrn("X12345")).thenReturn(Optional.of(existing))
+
+    service.persistEnrichmentResult(
+      request().copy(
+        sourceType = EnrichmentSourceType.LIBRA,
+        targetId = "cid",
+        offender = EnrichedOffenderDetails(crn = "X12345", pnc = "new-pnc"),
+      ),
+    )
+
+    verify(offenderRepository, times(2)).findByCrn("X12345")
+    verifyNoMoreInteractions(offenderRepository)
+    assertThat(first.offender).isSameAs(existing)
+    assertThat(second.offender).isSameAs(existing)
+    assertThat(existing.pnc).isEqualTo("new-pnc")
+  }
+
+  @Test
+  fun `should retain separate offender links when defendants use different existing CRNs`() {
+    val firstOffender = OffenderEntity.builder().id(10L).crn("X12345").probationStatus(OffenderProbationStatus.CURRENT).build()
+    val secondOffender = OffenderEntity.builder().id(11L).crn("X67890").probationStatus(OffenderProbationStatus.CURRENT).build()
+    val first = defendant().withOffender(firstOffender)
+    val second = defendant().withId(2L).withDefendantId("second-id").withOffender(secondOffender)
+    whenever(enrichmentRepository.findDefendantsForEnrichment(SourceType.LIBRA, "cid")).thenReturn(listOf(first, second))
+    whenever(offenderRepository.findByCrn("X12345")).thenReturn(Optional.of(firstOffender))
+    whenever(offenderRepository.findByCrn("X67890")).thenReturn(Optional.of(secondOffender))
+
+    service.persistEnrichmentResult(
+      request().copy(sourceType = EnrichmentSourceType.LIBRA, targetId = "cid", probation = EnrichedProbationDetails(breach = true)),
+    )
+
+    verify(offenderRepository).findByCrn("X12345")
+    verify(offenderRepository).findByCrn("X67890")
+    assertThat(first.offender).isSameAs(firstOffender)
+    assertThat(second.offender).isSameAs(secondOffender)
+    assertThat(firstOffender.isBreach).isTrue()
+    assertThat(secondOffender.isBreach).isTrue()
+  }
+
+  @Test
   fun `should reject all updates if any target has been manually updated`() {
     givenDefendants(defendant(), defendant().withManualUpdate(true))
 
@@ -351,7 +390,7 @@ class EnrichmentResultServiceTest {
       .isInstanceOf(ResponseStatusException::class.java)
       .satisfies({ assertThat((it as ResponseStatusException).statusCode).isEqualTo(HttpStatus.CONFLICT) })
 
-    verifyNoInteractions(defendantRepository, offenderRepository, offenderRepositoryFacade, groupedOffenderMatchRepository)
+    verifyNoInteractions(defendantRepository, offenderRepository, groupedOffenderMatchRepository)
     assertThat(appender.list.single().level).isEqualTo(Level.INFO)
     assertThat(appender.list.single().formattedMessage)
       .contains("reason=MANUALLY_UPDATED", "sourceType=COMMON_PLATFORM", "targetId=2db153ed-a66f-4cad-8705-bc7520f4276d", "jobRunId=null")
@@ -362,7 +401,7 @@ class EnrichmentResultServiceTest {
     assertThatThrownBy { service.persistEnrichmentResult(request()) }
       .isInstanceOf(EntityNotFoundException::class.java)
 
-    verifyNoInteractions(defendantRepository, offenderRepositoryFacade, groupedOffenderMatchRepository)
+    verifyNoInteractions(defendantRepository, offenderRepository, groupedOffenderMatchRepository)
     assertThat(appender.list.single().level).isEqualTo(Level.WARN)
     assertThat(appender.list.single().formattedMessage).contains("reason=TARGET_NOT_FOUND", "targetId=2db153ed-a66f-4cad-8705-bc7520f4276d")
   }
@@ -373,7 +412,7 @@ class EnrichmentResultServiceTest {
       .isInstanceOf(ResponseStatusException::class.java)
       .satisfies({ assertThat((it as ResponseStatusException).statusCode).isEqualTo(HttpStatus.BAD_REQUEST) })
 
-    verifyNoInteractions(enrichmentRepository, defendantRepository, offenderRepositoryFacade, groupedOffenderMatchRepository)
+    verifyNoInteractions(enrichmentRepository, defendantRepository, offenderRepository, groupedOffenderMatchRepository)
     assertThat(appender.list.single().formattedMessage).contains("reason=INVALID_TARGET_ID", "targetId=236999322")
   }
 
@@ -384,7 +423,7 @@ class EnrichmentResultServiceTest {
     assertThatThrownBy { service.persistEnrichmentResult(request().copy(probation = EnrichedProbationDetails(breach = true))) }
       .isInstanceOf(ResponseStatusException::class.java)
       .satisfies({ assertThat((it as ResponseStatusException).statusCode).isEqualTo(HttpStatus.BAD_REQUEST) })
-    verifyNoInteractions(defendantRepository, offenderRepositoryFacade)
+    verifyNoInteractions(defendantRepository, offenderRepository)
     assertThat(appender.list.single().level).isEqualTo(Level.WARN)
     assertThat(appender.list.single().formattedMessage).contains("reason=MISSING_CRN", "targetId=2db153ed-a66f-4cad-8705-bc7520f4276d")
   }

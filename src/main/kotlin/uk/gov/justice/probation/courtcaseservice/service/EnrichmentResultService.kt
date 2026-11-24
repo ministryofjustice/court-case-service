@@ -24,7 +24,6 @@ import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantEnrichm
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepositoryFacade
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
 import uk.gov.justice.probation.courtcaseservice.service.mapper.OffenderMatchMapper
 import uk.gov.justice.probation.courtcaseservice.service.model.MatchType
@@ -35,7 +34,6 @@ class EnrichmentResultService(
   private val enrichmentRepository: DefendantEnrichmentRepository,
   private val defendantRepository: DefendantRepository,
   private val offenderRepository: OffenderRepository,
-  private val offenderRepositoryFacade: OffenderRepositoryFacade,
   private val groupedOffenderMatchRepository: GroupedOffenderMatchRepository,
 ) {
   @Transactional
@@ -138,7 +136,8 @@ class EnrichmentResultService(
         logRejection(request, "MISSING_CRN")
         throw ResponseStatusException(BAD_REQUEST, "A CRN is required for offender or probation data")
       }
-    val existing = offenderRepository.findByCrn(crn).orElseGet { OffenderEntity.builder().crn(crn).build() }
+    val found = offenderRepository.findByCrn(crn)
+    val existing = found.orElseGet { OffenderEntity.builder().crn(crn).build() }
     val probation = request.probation
     val probationStatus = probation?.probationStatus?.let(OffenderProbationStatus::of) ?: existing.probationStatus
       ?: run {
@@ -153,7 +152,9 @@ class EnrichmentResultService(
       .withBreach(probation?.breach ?: existing.isBreach)
       .withPreSentenceActivity(probation?.preSentenceActivity ?: existing.isPreSentenceActivity)
       .withPreviouslyKnownTerminationDate(probation?.previouslyKnownTerminationDate ?: existing.previouslyKnownTerminationDate)
-    return offenderRepositoryFacade.upsertOffender(update)
+    if (found.isEmpty) return offenderRepository.save(update)
+    if (existing != update) existing.update(update)
+    return existing
   }
 
   private fun isUuid(value: String) = runCatching { UUID.fromString(value) }.isSuccess
@@ -170,7 +171,6 @@ class EnrichmentResultService(
 
   private fun updateGroupedMatches(defendant: DefendantEntity, request: EnrichmentResultRequest, sourceType: SourceType) {
     val submittedMatches = request.groupedOffenderMatches?.matches ?: return
-    // offender_match has a unique (group_id, crn) constraint, so keep only the first match per CRN
     val matches = submittedMatches.distinctBy { it.matchIdentifiers.crn.trim().uppercase() }
     if (matches.size < submittedMatches.size) {
       log.warn(

@@ -2,6 +2,7 @@ package uk.gov.justice.probation.courtcaseservice.jpa.repository
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.hibernate.Hibernate
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,13 +28,12 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentStat
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType
 import uk.gov.justice.probation.courtcaseservice.service.EnrichmentResultService
-import uk.gov.justice.probation.courtcaseservice.service.OffenderEntityInitService
 import java.time.LocalDate
 
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(EnrichmentResultService::class, OffenderRepositoryFacade::class, OffenderEntityInitService::class)
+@Import(EnrichmentResultService::class)
 @Sql(
   scripts = ["classpath:sql/before-common.sql", "classpath:sql/before-new-hearing-search.sql"],
   config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),
@@ -57,6 +57,9 @@ class DefendantEnrichmentRepositoryIntTest {
 
   @Autowired
   lateinit var defendantRepository: DefendantRepository
+
+  @Autowired
+  lateinit var offenderRepository: OffenderRepository
 
   @Autowired
   lateinit var groupedOffenderMatchRepository: GroupedOffenderMatchRepository
@@ -220,6 +223,17 @@ class DefendantEnrichmentRepositoryIntTest {
   }
 
   @Test
+  fun `should have an index usable for active libra target lookup`() {
+    jdbcTemplate.execute("SET LOCAL enable_seqscan = off")
+    val plan = jdbcTemplate.queryForList(
+      "EXPLAIN SELECT id FROM defendant WHERE deleted = false AND c_id = 'c12345'",
+      String::class.java,
+    )
+
+    assertThat(plan.joinToString()).contains("defendant_c_id_active_idx")
+  }
+
+  @Test
   fun `should exclude deleted targets and deleted hearing associations`() {
     jdbcTemplate.update("UPDATE defendant SET deleted = true WHERE id = 5093")
     jdbcTemplate.update("UPDATE hearing_defendant SET deleted = true WHERE fk_defendant_id = 5812")
@@ -265,6 +279,33 @@ class DefendantEnrichmentRepositoryIntTest {
     assertThat(matches.offenderMatches.map { it.crn }).containsExactly("X999999")
     assertThat(groupedOffenderMatchRepository.findByCaseIdAndDefendantId("85f400a9-82c9-4a9d-93ec-066d55be0c07", second.defendantId)).isPresent()
     assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM offender WHERE crn = 'X999999'", Long::class.java)).isEqualTo(1L)
+  }
+
+  @Test
+  fun `should update an existing offender without loading its defendant graph`() {
+    val existing = offenderRepository.findByCrn("X361020").orElseThrow()
+    assertThat(Hibernate.isInitialized(existing.defendants)).isFalse()
+
+    service.persistEnrichmentResult(
+      EnrichmentResultRequest(
+        sourceType = EnrichmentSourceType.LIBRA,
+        targetId = "c12345",
+        status = EnrichmentStatus.ENRICHED,
+        offender = EnrichedOffenderDetails(crn = "X361020", pnc = "new-pnc"),
+        probation = EnrichedProbationDetails(breach = true),
+        enrichedBy = "worker",
+      ),
+    )
+
+    assertThat(Hibernate.isInitialized(existing.defendants)).isFalse()
+    entityManager.flush()
+    entityManager.clear()
+    val updated = offenderRepository.findByCrn("X361020").orElseThrow()
+    assertThat(updated.pnc).isEqualTo("new-pnc")
+    assertThat(updated.isBreach).isTrue()
+    assertThat(updated.probationStatus).isEqualTo(OffenderProbationStatus.PREVIOUSLY_KNOWN)
+    assertThat(defendantRepository.findById(5812L).orElseThrow().offender.id).isEqualTo(updated.id)
+    assertThat(defendantRepository.findById(5837L).orElseThrow().offender.id).isEqualTo(updated.id)
   }
 
   @Test

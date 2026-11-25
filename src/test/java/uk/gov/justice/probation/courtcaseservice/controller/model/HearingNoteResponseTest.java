@@ -25,7 +25,6 @@ class HearingNoteResponseTest {
             .lastUpdatedBy("Author Two(client-id)")
             .draft(true)
             .legacy(true)
-            .version(2)
             .build();
 
         var hearingNoteResponse = HearingNoteResponse.of(hearingNoteEntity);
@@ -39,7 +38,6 @@ class HearingNoteResponseTest {
                 .createdByUuid("test-uuid")
                 .created(now)
                 .lastUpdated(lastUpdated)
-                .version(2)
                 .lastUpdatedBy("Author Two(client-id)")
                 .draft(true)
                 .legacy(true)

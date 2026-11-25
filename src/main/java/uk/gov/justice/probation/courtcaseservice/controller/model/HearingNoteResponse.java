@@ -26,7 +26,6 @@ public class HearingNoteResponse {
     private final String lastUpdatedBy;
     private final boolean draft;
     private final boolean legacy;
-    private final int version;
 
     public static HearingNoteResponse of(HearingNoteEntity hearingNoteEntity) {
         return HearingNoteResponse.builder()
@@ -40,7 +39,6 @@ public class HearingNoteResponse {
             .lastUpdatedBy(hearingNoteEntity.getLastUpdatedBy())
             .draft(hearingNoteEntity.isDraft())
             .legacy(hearingNoteEntity.isLegacy())
-            .version(hearingNoteEntity.getVersion())
             .build();
     }
 }

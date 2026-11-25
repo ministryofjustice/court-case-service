@@ -14,6 +14,7 @@ import lombok.With;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,10 +22,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "HEARING_NOTES")
 @SQLDelete(sql = "UPDATE HEARING_NOTES SET deleted = true WHERE ID = ?")
+// overridden to allow 'created' to be reset to the publish time when a draft note is finalised
+@AttributeOverride(name = "created", column = @Column(name = "created", nullable = false, updatable = true))
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @SuperBuilder
@@ -65,6 +69,9 @@ public class HearingNoteEntity extends BaseEntity implements Serializable {
     private boolean legacy;
 
     public void updateNote(HearingNoteEntity hearingNoteUpdate) {
+        if (this.draft && !hearingNoteUpdate.isDraft()) {
+            this.setCreated(LocalDateTime.now()); // publishing a draft is treated as the note's actual creation point
+        }
         this.note = hearingNoteUpdate.getNote();
         this.draft = hearingNoteUpdate.isDraft();
         this.legacy = false;

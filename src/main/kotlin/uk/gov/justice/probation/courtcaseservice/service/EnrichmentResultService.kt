@@ -1,7 +1,6 @@
 package uk.gov.justice.probation.courtcaseservice.service
 
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -9,63 +8,49 @@ import org.springframework.transaction.support.TransactionSynchronization
 import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.server.ResponseStatusException
 import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentResultRequest
-import uk.gov.justice.probation.courtcaseservice.controller.model.GroupedOffenderMatchesRequest
-import uk.gov.justice.probation.courtcaseservice.controller.model.MatchIdentifiers
-import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchAlias
-import uk.gov.justice.probation.courtcaseservice.controller.model.OffenderMatchRequest
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.AddressPropertiesEntity
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.NamePropertiesEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.Sex
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantEnrichmentRepository
 import uk.gov.justice.probation.courtcaseservice.jpa.repository.DefendantRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.GroupedOffenderMatchRepository
-import uk.gov.justice.probation.courtcaseservice.jpa.repository.OffenderRepository
 import uk.gov.justice.probation.courtcaseservice.service.exceptions.EntityNotFoundException
-import uk.gov.justice.probation.courtcaseservice.service.mapper.OffenderMatchMapper
-import uk.gov.justice.probation.courtcaseservice.service.model.MatchType
-import java.util.UUID
+import uk.gov.justice.probation.courtcaseservice.service.mapper.EnrichedDefendantMapper
 
 @Service
 class EnrichmentResultService(
   private val enrichmentRepository: DefendantEnrichmentRepository,
   private val defendantRepository: DefendantRepository,
-  private val offenderRepository: OffenderRepository,
-  private val groupedOffenderMatchRepository: GroupedOffenderMatchRepository,
+  private val offenderEnrichmentService: OffenderEnrichmentService,
+  private val matchEnrichmentService: MatchEnrichmentService,
 ) {
   @Transactional
-  fun persistEnrichmentResult(request: EnrichmentResultRequest) {
-    val sourceType = SourceType.valueOf(request.sourceType.name)
-    if (sourceType == SourceType.COMMON_PLATFORM && !isUuid(request.targetId)) {
-      logRejection(request, "INVALID_TARGET_ID")
-      throw ResponseStatusException(BAD_REQUEST, "A Common Platform targetId must be a defendant UUID")
+  fun persistEnrichmentResult(enrichmentResultRequest: EnrichmentResultRequest) {
+    val sourceType = SourceType.valueOf(enrichmentResultRequest.sourceType.name)
+    val defendants = when (sourceType) {
+      SourceType.COMMON_PLATFORM -> listOfNotNull(enrichmentRepository.findCommonPlatformDefendantForEnrichment(enrichmentResultRequest.targetId))
+      SourceType.LIBRA -> enrichmentRepository.findLibraDefendantsForEnrichment(enrichmentResultRequest.targetId)
     }
-    val defendants = enrichmentRepository.findDefendantsForEnrichment(sourceType, request.targetId)
     if (defendants.isEmpty()) {
-      logRejection(request, "TARGET_NOT_FOUND")
-      throw EntityNotFoundException("No defendant found for %s target %s", request.sourceType, request.targetId)
+      logRejection(enrichmentResultRequest, "TARGET_NOT_FOUND")
+      throw EntityNotFoundException("No defendant found for %s target %s", enrichmentResultRequest.sourceType, enrichmentResultRequest.targetId)
     }
     if (defendants.any { it.isManualUpdate }) {
       log.info(
         "Rejected enrichment result: reason=MANUALLY_UPDATED sourceType={} targetId={} jobRunId={}",
-        request.sourceType,
-        request.targetId,
-        request.jobRunId,
+        enrichmentResultRequest.sourceType,
+        enrichmentResultRequest.targetId,
+        enrichmentResultRequest.jobRunId,
       )
       throw ResponseStatusException(CONFLICT, "Enrichment target has been manually updated")
     }
     defendants.forEach { defendant ->
-      updateDefendant(defendant, request)
-      updateGroupedMatches(defendant, request, sourceType)
+      updateDefendant(defendant, enrichmentResultRequest)
+      matchEnrichmentService.updateGroupedMatches(defendant, enrichmentResultRequest, sourceType)
       defendantRepository.save(defendant)
     }
 
     TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
       override fun afterCommit() {
-        logPersistedResult(request, defendants.size)
+        logPersistedResult(enrichmentResultRequest, defendants.size)
       }
     })
   }
@@ -94,70 +79,13 @@ class EnrichmentResultService(
     )
   }
 
-  private fun updateDefendant(defendant: DefendantEntity, request: EnrichmentResultRequest) {
-    var update = defendant
-    request.defendant?.let { details ->
-      val name = details.name?.let {
-        NamePropertiesEntity.builder()
-          .title(it.title ?: defendant.name?.title)
-          .forename1(it.forename1 ?: defendant.name?.forename1)
-          .forename2(it.forename2 ?: defendant.name?.forename2)
-          .forename3(defendant.name?.forename3)
-          .surname(it.surname ?: defendant.name?.surname)
-          .build()
-      } ?: defendant.name
-      val address = details.address?.let {
-        AddressPropertiesEntity.builder()
-          .line1(it.line1 ?: defendant.address?.line1)
-          .line2(it.line2 ?: defendant.address?.line2)
-          .line3(it.line3 ?: defendant.address?.line3)
-          .line4(it.line4 ?: defendant.address?.line4)
-          .line5(it.line5 ?: defendant.address?.line5)
-          .postcode(it.postcode ?: defendant.address?.postcode)
-          .build()
-      } ?: defendant.address
-      update = update
-        .withCprUUID(details.cprUUID ?: defendant.cprUUID)
-        .withName(name)
-        .withDefendantName(name?.fullName ?: defendant.defendantName)
-        .withAddress(address)
-        .withDateOfBirth(details.dateOfBirth ?: defendant.dateOfBirth)
-        .withSex(details.sex?.let(Sex::fromString) ?: defendant.sex)
+  private fun updateDefendant(defendantEntity: DefendantEntity, enrichmentResultRequest: EnrichmentResultRequest) {
+    var updatedDefendant = enrichmentResultRequest.defendant?.let { EnrichedDefendantMapper.mergeDefendantDetails(defendantEntity, it) } ?: defendantEntity
+    if (enrichmentResultRequest.offender != null || enrichmentResultRequest.probation != null) {
+      updatedDefendant = updatedDefendant.withOffender(offenderEnrichmentService.updateOffender(defendantEntity, enrichmentResultRequest))
     }
-    if (request.offender != null || request.probation != null) {
-      update = update.withOffender(updateOffender(defendant, request))
-    }
-    defendant.update(update)
+    defendantEntity.update(updatedDefendant)
   }
-
-  private fun updateOffender(defendant: DefendantEntity, request: EnrichmentResultRequest): OffenderEntity {
-    val crn = request.offender?.crn ?: defendant.crn
-      ?: run {
-        logRejection(request, "MISSING_CRN")
-        throw ResponseStatusException(BAD_REQUEST, "A CRN is required for offender or probation data")
-      }
-    val found = offenderRepository.findByCrn(crn)
-    val existing = found.orElseGet { OffenderEntity.builder().crn(crn).build() }
-    val probation = request.probation
-    val probationStatus = probation?.probationStatus?.let(OffenderProbationStatus::of) ?: existing.probationStatus
-      ?: run {
-        logRejection(request, "MISSING_PROBATION_STATUS")
-        throw ResponseStatusException(BAD_REQUEST, "A probation status is required when the offender has no existing status")
-      }
-    val update = existing
-      .withPnc(request.offender?.pnc ?: existing.pnc)
-      .withCro(request.offender?.cro ?: existing.cro)
-      .withProbationStatus(probationStatus)
-      .withAwaitingPsr(probation?.awaitingPsr ?: existing.awaitingPsr)
-      .withBreach(probation?.breach ?: existing.isBreach)
-      .withPreSentenceActivity(probation?.preSentenceActivity ?: existing.isPreSentenceActivity)
-      .withPreviouslyKnownTerminationDate(probation?.previouslyKnownTerminationDate ?: existing.previouslyKnownTerminationDate)
-    if (found.isEmpty) return offenderRepository.save(update)
-    if (existing != update) existing.update(update)
-    return existing
-  }
-
-  private fun isUuid(value: String) = runCatching { UUID.fromString(value) }.isSuccess
 
   private fun logRejection(request: EnrichmentResultRequest, reason: String) {
     log.warn(
@@ -167,48 +95,6 @@ class EnrichmentResultService(
       request.targetId,
       request.jobRunId,
     )
-  }
-
-  private fun updateGroupedMatches(defendant: DefendantEntity, request: EnrichmentResultRequest, sourceType: SourceType) {
-    val submittedMatches = request.groupedOffenderMatches?.matches ?: return
-    val matches = submittedMatches.distinctBy { it.matchIdentifiers.crn.trim().uppercase() }
-    if (matches.size < submittedMatches.size) {
-      log.warn(
-        "Discarded duplicate enrichment matches: sourceType={} targetId={} jobRunId={} submittedMatchCount={} distinctCrnCount={}",
-        request.sourceType,
-        request.targetId,
-        request.jobRunId,
-        submittedMatches.size,
-        matches.size,
-      )
-    }
-    val matchRequest = GroupedOffenderMatchesRequest(
-      matches.map { match ->
-        val identifiers = match.matchIdentifiers
-        OffenderMatchRequest(
-          MatchIdentifiers(
-            identifiers.crn,
-            identifiers.pnc,
-            identifiers.cro,
-            identifiers.aliases?.map { OffenderMatchAlias(null, it.firstName, it.middleNames, it.surname, null) },
-          ),
-          MatchType.valueOf(match.matchType.name),
-          match.confirmed,
-          match.rejected,
-          null,
-        )
-      },
-    )
-    defendant.hearingDefendants
-      .filter { !it.isDeleted && !it.hearing.isDeleted && !it.hearing.courtCase.isDeleted && it.hearing.sourceType == sourceType }
-      .map { it.hearing.caseId }
-      .distinct()
-      .forEach { caseId ->
-        val group = groupedOffenderMatchRepository.findByCaseIdAndDefendantId(caseId, defendant.defendantId)
-          .map { OffenderMatchMapper.update(caseId, defendant.defendantId, it, matchRequest) }
-          .orElseGet { OffenderMatchMapper.newGroupedMatchesOf(defendant.defendantId, matchRequest, caseId) }
-        groupedOffenderMatchRepository.save(group)
-      }
   }
 
   private companion object {

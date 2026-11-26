@@ -14,6 +14,9 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.SqlConfig
+import org.springframework.test.context.transaction.TestTransaction
+import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.support.TransactionTemplate
 import org.springframework.web.server.ResponseStatusException
 import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichedDefendantDetails
 import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichedGroupedOffenderMatches
@@ -26,14 +29,15 @@ import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentResu
 import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentSourceType
 import uk.gov.justice.probation.courtcaseservice.controller.model.EnrichmentStatus
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.OffenderProbationStatus
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType
 import uk.gov.justice.probation.courtcaseservice.service.EnrichmentResultService
+import uk.gov.justice.probation.courtcaseservice.service.MatchEnrichmentService
+import uk.gov.justice.probation.courtcaseservice.service.OffenderEnrichmentService
 import java.time.LocalDate
 
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(EnrichmentResultService::class)
+@Import(EnrichmentResultService::class, OffenderEnrichmentService::class, MatchEnrichmentService::class)
 @Sql(
   scripts = ["classpath:sql/before-common.sql", "classpath:sql/before-new-hearing-search.sql"],
   config = SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED),
@@ -63,6 +67,9 @@ class DefendantEnrichmentRepositoryIntTest {
 
   @Autowired
   lateinit var groupedOffenderMatchRepository: GroupedOffenderMatchRepository
+
+  @Autowired
+  lateinit var transactionManager: PlatformTransactionManager
 
   @BeforeEach
   fun setUpTargets() {
@@ -209,17 +216,19 @@ class DefendantEnrichmentRepositoryIntTest {
     val defendantId = "7cece15c-78e8-4be9-a509-35d74eb68839"
     jdbcTemplate.update("UPDATE defendant SET manual_update = true WHERE id = 5093")
 
-    assertThat(repository.findDefendantsForEnrichment(SourceType.COMMON_PLATFORM, defendantId).single().isManualUpdate).isTrue()
-    assertThat(repository.findDefendantsForEnrichment(SourceType.LIBRA, defendantId)).isEmpty()
-    assertThat(repository.findDefendantsForEnrichment(SourceType.COMMON_PLATFORM, "common-platform-cid")).isEmpty()
-    assertThat(repository.findDefendantsForEnrichment(SourceType.LIBRA, "c12345").map { it.id }).containsExactly(5812L, 5837L)
+    val defendant = repository.findCommonPlatformDefendantForEnrichment(defendantId)
+    assertThat(defendant?.id).isEqualTo(5093L)
+    assertThat(defendant?.isManualUpdate).isTrue()
+    assertThat(repository.findLibraDefendantsForEnrichment(defendantId)).isEmpty()
+    assertThat(repository.findCommonPlatformDefendantForEnrichment("common-platform-cid")).isNull()
+    assertThat(repository.findLibraDefendantsForEnrichment("c12345").map { it.id }).containsExactly(5812L, 5837L)
   }
 
   @Test
   fun `should resolve a numeric libra CID without comparing it to the defendant UUID`() {
     jdbcTemplate.update("UPDATE defendant SET c_id = '236999322' WHERE id = 5813")
 
-    assertThat(repository.findDefendantsForEnrichment(SourceType.LIBRA, "236999322").map { it.id }).containsExactly(5813L)
+    assertThat(repository.findLibraDefendantsForEnrichment("236999322").map { it.id }).containsExactly(5813L)
   }
 
   @Test
@@ -239,8 +248,8 @@ class DefendantEnrichmentRepositoryIntTest {
     jdbcTemplate.update("UPDATE hearing_defendant SET deleted = true WHERE fk_defendant_id = 5812")
     jdbcTemplate.update("UPDATE court_case SET deleted = true WHERE id = 7723")
 
-    assertThat(repository.findDefendantsForEnrichment(SourceType.COMMON_PLATFORM, "7cece15c-78e8-4be9-a509-35d74eb68839")).isEmpty()
-    assertThat(repository.findDefendantsForEnrichment(SourceType.LIBRA, "c12345")).isEmpty()
+    assertThat(repository.findCommonPlatformDefendantForEnrichment("7cece15c-78e8-4be9-a509-35d74eb68839")).isNull()
+    assertThat(repository.findLibraDefendantsForEnrichment("c12345")).isEmpty()
   }
 
   @Test
@@ -279,6 +288,46 @@ class DefendantEnrichmentRepositoryIntTest {
     assertThat(matches.offenderMatches.map { it.crn }).containsExactly("X999999")
     assertThat(groupedOffenderMatchRepository.findByCaseIdAndDefendantId("85f400a9-82c9-4a9d-93ec-066d55be0c07", second.defendantId)).isPresent()
     assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM offender WHERE crn = 'X999999'", Long::class.java)).isEqualTo(1L)
+  }
+
+  @Test
+  fun `should roll back defendant offender and match changes together`() {
+    val originalCprUuid: String? = jdbcTemplate.queryForObject("SELECT cpr_uuid FROM defendant WHERE id = 5812", String::class.java)
+    val originalOffenderId: Long? = jdbcTemplate.queryForObject("SELECT fk_offender_id FROM defendant WHERE id = 5812", Long::class.java)
+    val offenderCount = jdbcTemplate.queryForObject("SELECT count(*) FROM offender WHERE crn = 'X999999'", Long::class.java)
+    val matchCount = jdbcTemplate.queryForObject("SELECT count(*) FROM offender_match WHERE crn = 'X999999'", Long::class.java)
+    val request = EnrichmentResultRequest(
+      sourceType = EnrichmentSourceType.LIBRA,
+      targetId = "c12345",
+      status = EnrichmentStatus.ENRICHED,
+      defendant = EnrichedDefendantDetails(cprUUID = "rollback-cpr-id"),
+      offender = EnrichedOffenderDetails(crn = "X999999"),
+      probation = EnrichedProbationDetails(probationStatus = "CURRENT"),
+      groupedOffenderMatches = EnrichedGroupedOffenderMatches(listOf(EnrichedOffenderMatch(EnrichedMatchIdentifiers("X999999")))),
+      enrichedBy = "worker",
+    )
+
+    assertThatThrownBy {
+      TransactionTemplate(transactionManager).executeWithoutResult {
+        service.persistEnrichmentResult(request)
+        entityManager.flush()
+        assertThat(jdbcTemplate.queryForObject("SELECT cpr_uuid FROM defendant WHERE id = 5812", String::class.java))
+          .isEqualTo("rollback-cpr-id")
+        assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM offender WHERE crn = 'X999999'", Long::class.java))
+          .isEqualTo(1L)
+        assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM offender_match WHERE crn = 'X999999'", Long::class.java))
+          .isGreaterThan(0L)
+        throw IllegalStateException("Force transaction rollback")
+      }
+    }.isInstanceOf(IllegalStateException::class.java).hasMessage("Force transaction rollback")
+
+    TestTransaction.end()
+    val cprUuidAfterRollback: String? = jdbcTemplate.queryForObject("SELECT cpr_uuid FROM defendant WHERE id = 5812", String::class.java)
+    val offenderIdAfterRollback: Long? = jdbcTemplate.queryForObject("SELECT fk_offender_id FROM defendant WHERE id = 5812", Long::class.java)
+    assertThat(cprUuidAfterRollback).isEqualTo(originalCprUuid)
+    assertThat(offenderIdAfterRollback).isEqualTo(originalOffenderId)
+    assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM offender WHERE crn = 'X999999'", Long::class.java)).isEqualTo(offenderCount)
+    assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM offender_match WHERE crn = 'X999999'", Long::class.java)).isEqualTo(matchCount)
   }
 
   @Test

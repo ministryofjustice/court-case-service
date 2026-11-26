@@ -138,22 +138,6 @@ class EnrichmentResultControllerTest {
   }
 
   @Test
-  fun `should log unsupported status with correlation metadata without payload data`() {
-    mockMvc.perform(
-      post("/enrichment-results").contentType(APPLICATION_JSON)
-        .content(FULL_REQUEST.replace("\"ENRICHED\"", "\"FAILED\"")),
-    ).andExpect(status().isBadRequest)
-
-    val event = appender.list.single()
-    assertThat(event.level).isEqualTo(Level.WARN)
-    assertThat(event.formattedMessage)
-      .contains("reason=UNSUPPORTED_STATUS", "sourceType=COMMON_PLATFORM", "targetId=defendant-id", "status=FAILED", "jobRunId=job-run-uuid")
-      .doesNotContain("Alex", "X12345", "AB1 2CD", "person-record-id")
-    assertThat(event.throwableProxy).isNull()
-    verifyNoInteractions(service)
-  }
-
-  @Test
   fun `should log persistence and commit failures once and propagate them`() {
     val request = EnrichmentResultRequest(
       sourceType = EnrichmentSourceType.COMMON_PLATFORM,

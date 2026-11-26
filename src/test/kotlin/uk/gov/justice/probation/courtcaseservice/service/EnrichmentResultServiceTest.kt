@@ -82,8 +82,8 @@ class EnrichmentResultServiceTest {
     service = EnrichmentResultService(
       enrichmentRepository,
       defendantRepository,
-      offenderRepository,
-      groupedOffenderMatchRepository,
+      OffenderEnrichmentService(offenderRepository),
+      MatchEnrichmentService(groupedOffenderMatchRepository),
     )
     appender.start()
     logger.addAppender(appender)
@@ -323,7 +323,7 @@ class EnrichmentResultServiceTest {
   fun `should update every defendant sharing a libra CID`() {
     val first = defendant()
     val second = defendant().withId(2L).withDefendantId("second-id")
-    whenever(enrichmentRepository.findDefendantsForEnrichment(SourceType.LIBRA, "cid")).thenReturn(listOf(first, second))
+    whenever(enrichmentRepository.findLibraDefendantsForEnrichment("cid")).thenReturn(listOf(first, second))
 
     service.persistEnrichmentResult(
       request().copy(sourceType = EnrichmentSourceType.LIBRA, targetId = "cid", defendant = EnrichedDefendantDetails(cprUUID = "cpr-id")),
@@ -342,7 +342,7 @@ class EnrichmentResultServiceTest {
     val first = defendant()
     val second = defendant().withId(2L).withDefendantId("second-id")
     val existing = OffenderEntity.builder().id(10L).crn("X12345").probationStatus(OffenderProbationStatus.CURRENT).build()
-    whenever(enrichmentRepository.findDefendantsForEnrichment(SourceType.LIBRA, "cid")).thenReturn(listOf(first, second))
+    whenever(enrichmentRepository.findLibraDefendantsForEnrichment("cid")).thenReturn(listOf(first, second))
     whenever(offenderRepository.findByCrn("X12345")).thenReturn(Optional.of(existing))
 
     service.persistEnrichmentResult(
@@ -366,7 +366,7 @@ class EnrichmentResultServiceTest {
     val secondOffender = OffenderEntity.builder().id(11L).crn("X67890").probationStatus(OffenderProbationStatus.CURRENT).build()
     val first = defendant().withOffender(firstOffender)
     val second = defendant().withId(2L).withDefendantId("second-id").withOffender(secondOffender)
-    whenever(enrichmentRepository.findDefendantsForEnrichment(SourceType.LIBRA, "cid")).thenReturn(listOf(first, second))
+    whenever(enrichmentRepository.findLibraDefendantsForEnrichment("cid")).thenReturn(listOf(first, second))
     whenever(offenderRepository.findByCrn("X12345")).thenReturn(Optional.of(firstOffender))
     whenever(offenderRepository.findByCrn("X67890")).thenReturn(Optional.of(secondOffender))
 
@@ -384,7 +384,7 @@ class EnrichmentResultServiceTest {
 
   @Test
   fun `should reject all updates if any target has been manually updated`() {
-    givenDefendants(defendant(), defendant().withManualUpdate(true))
+    givenDefendants(defendant().withManualUpdate(true))
 
     assertThatThrownBy { service.persistEnrichmentResult(request()) }
       .isInstanceOf(ResponseStatusException::class.java)
@@ -404,16 +404,6 @@ class EnrichmentResultServiceTest {
     verifyNoInteractions(defendantRepository, offenderRepository, groupedOffenderMatchRepository)
     assertThat(appender.list.single().level).isEqualTo(Level.WARN)
     assertThat(appender.list.single().formattedMessage).contains("reason=TARGET_NOT_FOUND", "targetId=2db153ed-a66f-4cad-8705-bc7520f4276d")
-  }
-
-  @Test
-  fun `should reject a common platform target that is not a UUID without querying`() {
-    assertThatThrownBy { service.persistEnrichmentResult(request().copy(targetId = "236999322")) }
-      .isInstanceOf(ResponseStatusException::class.java)
-      .satisfies({ assertThat((it as ResponseStatusException).statusCode).isEqualTo(HttpStatus.BAD_REQUEST) })
-
-    verifyNoInteractions(enrichmentRepository, defendantRepository, offenderRepository, groupedOffenderMatchRepository)
-    assertThat(appender.list.single().formattedMessage).contains("reason=INVALID_TARGET_ID", "targetId=236999322")
   }
 
   @Test
@@ -492,8 +482,9 @@ class EnrichmentResultServiceTest {
     enrichedBy = "worker",
   )
 
-  private fun givenDefendants(vararg defendants: DefendantEntity) {
-    whenever(enrichmentRepository.findDefendantsForEnrichment(SourceType.COMMON_PLATFORM, "2db153ed-a66f-4cad-8705-bc7520f4276d")).thenReturn(defendants.toList())
+  private fun givenDefendants(defendant: DefendantEntity) {
+    whenever(enrichmentRepository.findCommonPlatformDefendantForEnrichment("2db153ed-a66f-4cad-8705-bc7520f4276d"))
+      .thenReturn(defendant)
   }
 
   private fun defendant(): DefendantEntity = DefendantEntity.builder()

@@ -13,8 +13,6 @@ enum class EnrichmentSourceType {
 enum class EnrichmentStatus {
   ENRICHED,
   NO_MATCH,
-  PARTIAL,
-  FAILED,
   NEEDS_REVIEW,
 }
 

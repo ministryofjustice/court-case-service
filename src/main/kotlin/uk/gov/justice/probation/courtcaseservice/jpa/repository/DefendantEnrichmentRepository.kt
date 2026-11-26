@@ -5,15 +5,9 @@ import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.Repository
 import uk.gov.justice.probation.courtcaseservice.jpa.entity.DefendantEntity
-import uk.gov.justice.probation.courtcaseservice.jpa.entity.SourceType
 import java.time.LocalDate
 
 interface DefendantEnrichmentRepository : Repository<DefendantEntity, Long> {
-
-  fun findDefendantsForEnrichment(sourceType: SourceType, targetId: String): List<DefendantEntity> = when (sourceType) {
-    SourceType.COMMON_PLATFORM -> findCommonPlatformDefendantsForEnrichment(targetId)
-    SourceType.LIBRA -> findLibraDefendantsForEnrichment(targetId)
-  }
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query(
@@ -32,7 +26,7 @@ interface DefendantEnrichmentRepository : Repository<DefendantEntity, Long> {
       ORDER BY d.id
     """,
   )
-  fun findCommonPlatformDefendantsForEnrichment(defendantId: String): List<DefendantEntity>
+  fun findCommonPlatformDefendantForEnrichment(defendantId: String): DefendantEntity?
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query(
